@@ -458,8 +458,8 @@ struct StrategySignal {
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }
-  int GetSignalClose() { return int(ShouldClose(ORDER_TYPE_BUY)) - int(ShouldClose(ORDER_TYPE_SELL)); }
-  int GetSignalOpen() { return int(ShouldOpen(ORDER_TYPE_BUY)) - int(ShouldOpen(ORDER_TYPE_SELL)); }
+  float GetSignalClose() { return float(int(ShouldClose(ORDER_TYPE_BUY)) - int(ShouldClose(ORDER_TYPE_SELL))); }
+  float GetSignalOpen() { return float(int(ShouldOpen(ORDER_TYPE_BUY)) - int(ShouldOpen(ORDER_TYPE_SELL))); }
   Strategy *GetStrategy() { return strat; }
   /* Setters */
   template <typename T>

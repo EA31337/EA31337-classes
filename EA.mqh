@@ -182,22 +182,27 @@ class EA {
       StrategySignal _signal = _dsi.Value();
       Strategy *_strat = _signal.GetStrategy();
       if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
+        float _sig_close = _signal.GetSignalClose();
         // Check if we should close the orders.
-        if (_signal.ShouldClose(ORDER_TYPE_BUY)) {
+        if (_sig_close >= 0.5f) {
+          // Close signal for buy order.
           _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_BUY);
           // Buy orders closed.
         }
-        if (_signal.ShouldClose(ORDER_TYPE_SELL)) {
+        if (_sig_close <= -0.5f) {
+          // Close signal for sell order.
           _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_SELL);
           // Sell orders closed.
         }
       }
       if (_trade_allowed) {
+        float _sig_open = _signal.GetSignalOpen();
         unsigned int _sig_f = eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER));
         // Open orders on signals.
-        if (_signal.ShouldOpen(ORDER_TYPE_BUY)) {
+        if (_sig_open >= 0.5f) {
+          // Open signal for buy.
           // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-          if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) > 0) {
+          if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
             _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
             // Buy order open.
             _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
@@ -206,9 +211,10 @@ class EA {
             }
           }
         }
-        if (_signal.ShouldOpen(ORDER_TYPE_SELL)) {
+        if (_sig_open <= -0.5f) {
+          // Open signal for sell.
           // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-          if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) < 0) {
+          if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
             _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
             // Sell order open.
             _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
@@ -528,8 +534,8 @@ class EA {
    * @return
    *   Returns 1 when buy signal exists, -1 for sell, otherwise 0 for neutral signal.
    */
-  int GetSignalOpenFiltered(StrategySignal &_signal, unsigned int _sf) {
-    int _result = _signal.GetSignalOpen();
+  float GetSignalOpenFiltered(StrategySignal &_signal, unsigned int _sf) {
+    float _result = _signal.GetSignalOpen();
     ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
     if (ChartTf::TfToHours(_sig_tf) < 1 && bool(_sf & STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_IF_H))) {
       _result = 0;
