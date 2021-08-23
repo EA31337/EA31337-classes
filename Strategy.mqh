@@ -383,6 +383,14 @@ class Strategy : public Object {
   }
 
   /**
+   * Gets a trade state value.
+   */
+  template <typename T>
+  T Get(ENUM_TRADE_STATE _prop) {
+    return trade.Get<T>(_prop);
+  }
+
+  /**
    * Gets strategy entry.
    */
   StgEntry GetEntry() {
