@@ -531,28 +531,23 @@ class EA {
   int GetSignalOpenFiltered(StrategySignal &_signal, unsigned int _sf) {
     int _result = _signal.GetSignalOpen();
     ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
-    if (ChartTf::TfToHours(_sig_tf) < 1 && bool(_sf & STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H4))) {
+    if (ChartTf::TfToHours(_sig_tf) < 1 && bool(_sf & STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_IF_H))) {
       _result = 0;
-      DictStruct<short, StrategySignal> _ds_h4 = strat_signals.GetByKey(ChartStatic::iTime(_Symbol, PERIOD_H4));
-      for (DictStructIterator<short, StrategySignal> _dsi_h4 = _ds_h4.Begin(); _dsi_h4.IsValid(); ++_dsi_h4) {
-        StrategySignal _sig_h4 = _dsi_h4.Value();
-        if (_sig_h4.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF)) == PERIOD_H4) {
-          _result = _sig_h4.GetSignalOpen();
-          if (_result != 0) {
-            return _result;
-          }
-        }
-      }
-    }
-    if (ChartTf::TfToHours(_sig_tf) < 1 && bool(_sf & STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H1))) {
-      _result = 0;
-      DictStruct<short, StrategySignal> _ds_h1 = strat_signals.GetByKey(ChartStatic::iTime(_Symbol, PERIOD_H1));
-      for (DictStructIterator<short, StrategySignal> _dsi_h1 = _ds_h1.Begin(); _dsi_h1.IsValid(); ++_dsi_h1) {
-        StrategySignal _sig_h1 = _dsi_h1.Value();
-        if (_sig_h1.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF)) == PERIOD_H1) {
-          _result = _sig_h1.GetSignalOpen();
-          if (_result != 0) {
-            return _result;
+      long _tfts[4];
+      _tfts[0] = ChartStatic::iTime(_Symbol, PERIOD_H1);
+      _tfts[1] = ChartStatic::iTime(_Symbol, PERIOD_H4);
+      _tfts[2] = ChartStatic::iTime(_Symbol, PERIOD_H1, 1);
+      _tfts[3] = ChartStatic::iTime(_Symbol, PERIOD_H4, 1);
+      for (int i = 0; i < ArraySize(_tfts); i++) {
+        DictStruct<short, StrategySignal> _ds = strat_signals.GetByKey(_tfts[i]);
+        for (DictStructIterator<short, StrategySignal> _dsi = _ds.Begin(); _dsi.IsValid(); ++_dsi) {
+          StrategySignal _dsss = _dsi.Value();
+          ENUM_TIMEFRAMES _dsss_tf = _dsss.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
+          if (ChartTf::TfToHours(_dsss_tf) >= 1) {
+            _result = _dsss.GetSignalOpen();
+            if (_result != 0) {
+              return _result;
+            }
           }
         }
       }
