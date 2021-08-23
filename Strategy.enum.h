@@ -93,13 +93,6 @@ enum ENUM_STRATEGY_PARAM {
   FINAL_ENUM_STRATEGY_PARAM
 };
 
-/* Enumeration for strategy signal types. */
-enum ENUM_STRATEGY_SIGNAL_TYPE {
-  STRAT_SIGNAL_SELL = -1,    // Signal to sell.
-  STRAT_SIGNAL_NEUTRAL = 0,  // Neutral signal.
-  STRAT_SIGNAL_BUY = 1,      // Signal to buy.
-};
-
 /* Enumeration for strategy bitwise signal flags. */
 enum ENUM_STRATEGY_SIGNAL_FLAG {
   STRAT_SIGNAL_NONE = 0 << 0,

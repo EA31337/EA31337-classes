@@ -425,12 +425,20 @@ struct StrategySignal {
   Strategy *strat;
 
  public:
+  // Enumeration for strategy signal properties.
   enum ENUM_STRATEGY_SIGNAL_PROP {
     STRATEGY_SIGNAL_PROP_SIGNALS,
     STRATEGY_SIGNAL_PROP_STRENGTH,
     STRATEGY_SIGNAL_PROP_TF,
     STRATEGY_SIGNAL_PROP_WEIGHT,
   };
+  // Enumeration for strategy signal types.
+  enum ENUM_STRATEGY_SIGNAL_TYPE {
+    STRAT_SIGNAL_SELL = -1,    // Signal to sell.
+    STRAT_SIGNAL_NEUTRAL = 0,  // Neutral signal.
+    STRAT_SIGNAL_BUY = 1,      // Signal to buy.
+  };
+
   /* Constructor */
   StrategySignal(Strategy *_strat = NULL, ENUM_TIMEFRAMES _tf = NULL, float _weight = 0.0f)
       : strat(_strat), tf(_tf), weight(_weight) {}
@@ -450,6 +458,8 @@ struct StrategySignal {
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }
+  int GetSignalClose() { return int(ShouldClose(ORDER_TYPE_BUY)) - int(ShouldClose(ORDER_TYPE_SELL)); }
+  int GetSignalOpen() { return int(ShouldOpen(ORDER_TYPE_BUY)) - int(ShouldOpen(ORDER_TYPE_SELL)); }
   Strategy *GetStrategy() { return strat; }
   /* Setters */
   template <typename T>
