@@ -104,7 +104,8 @@ enum ENUM_STRATEGY_SIGNAL_FLAG {
   STRAT_SIGNAL_OPEN_BUY_PASS = 1 << 5,    // Open signal for buy passed by filter
   STRAT_SIGNAL_OPEN_SELL = 1 << 6,        // Open signal for sell
   STRAT_SIGNAL_OPEN_SELL_PASS = 1 << 7,   // Open signal for sell passed by filter
-  STRAT_SIGNAL_TIME_PASS = 1 << 8,        // Open signal passed by time filter
+  STRAT_SIGNAL_PROCESSED = 1 << 8,        // Signal proceed
+  STRAT_SIGNAL_TIME_PASS = 1 << 9,        // Open signal passed by time filter
   FINAL_ENUM_STRATEGY_SIGNAL_FLAG
 };
 
