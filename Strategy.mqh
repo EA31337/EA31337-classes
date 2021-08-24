@@ -1093,7 +1093,7 @@ class Strategy : public Object {
     }
     return _res;
   }
-  virtual bool TickFilter(const MqlTick &_tick) { return TickFilter(_tick, sparams.tick_filter_method); }
+  virtual bool TickFilter(const MqlTick &_tick) { return TickFilter(_tick, sparams.Get<int>(STRAT_PARAM_TFM)); }
 
   /**
    * Checks strategy's trade open signal.
