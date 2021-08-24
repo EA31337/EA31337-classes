@@ -40,8 +40,8 @@ double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_metho
                       (ENUM_APPLIED_PRICE)_ap, _shift);
 }
 double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift,
-                  string cache_name = "") {
-  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift, cache_name);
+                  IndicatorCalculateCache<double> *_cache = NULL) {
+  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift, _cache);
 }
 #endif
 
@@ -50,11 +50,11 @@ struct MAParams : IndicatorParams {
   unsigned int period;
   unsigned int ma_shift;
   ENUM_MA_METHOD ma_method;
-  ENUM_APPLIED_PRICE applied_price;
+  ENUM_APPLIED_PRICE applied_array;
   // Struct constructors.
   void MAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
                 ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
+      : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap) {
     itype = INDI_MA;
     max_modes = 1;
     shift = _shift;
@@ -79,11 +79,11 @@ class Indi_MA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MA(MAParams &_p) : params(_p.period, _p.shift, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) {
+  Indi_MA(MAParams &_p) : params(_p.period, _p.shift, _p.ma_method, _p.applied_array), Indicator((IndicatorParams)_p) {
     params = _p;
   }
   Indi_MA(MAParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.shift, _p.ma_method, _p.applied_price), Indicator(INDI_MA, _tf) {
+      : params(_p.period, _p.shift, _p.ma_method, _p.applied_array), Indicator(INDI_MA, _tf) {
     params = _p;
   }
 
@@ -95,17 +95,17 @@ class Indi_MA : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/ima
    */
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
-                    ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
+                    ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_array, int _shift = 0,
                     Indicator *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL4__
-    return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
+    return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
+      if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
       } else if (Object::IsValid(_obj)) {
@@ -133,101 +133,82 @@ class Indi_MA : public Indicator {
   /**
    * Calculates MA on another indicator.
    */
-  static double iMAOnIndicator(IndicatorCalculateCache<double>* _cache, Indicator *_indi, int _indi_mode, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
-                               unsigned int _ma_shift,
-                               ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                               int _shift = 0, string _cache_name = "") {
-    return iMAOnArray(_indi.GetValueStorage(_indi_mode), 0, _ma_period, _ma_shift, _ma_method, _shift, _cache_name);
+  static double iMAOnIndicator(IndicatorCalculateCache<double> *cache, Indicator *indi, int indi_mode, string symbol,
+                               ENUM_TIMEFRAMES tf, unsigned int ma_period, unsigned int ma_shift,
+                               ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+                               int shift = 0) {
+    return iMAOnArray(indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, ma_method, shift, cache);
   }
 
   /**
-   * Calculates MA on the array of values.
+   * Calculates MA on the array of values. Cache is optional.
    */
-  static double iMAOnArray(double &price[], int total, int period, int ma_shift, int ma_method, int shift,
-                           string cache_name = "") {
-    
-    // Note that price array is cloned each time iMAOnArray is called. If you want better performance,
-    // use ValueStorage objects to store prices and Indicator::GetBufferValueStorage(index) method to store other buffers for direct value access.
-    
-    NativeValueStorage<double>* _price = Singleton<NativeValueStorage<double>>::Get();
-    _price.SetData(price);
-    
-    return iMAOnArray((ValueStorage<double>*)_price, total, period, ma_shift, ma_method, shift, cache_name);
-  }
-
-  /**
-   * Calculates MA on the array of values.
-   */
-  static double iMAOnArray(ValueStorage<double> &price, int total, int period, int ma_shift, int ma_method, int shift,
-                           string cache_name = "") {
+  static double iMAOnArray(double &price[], int total, int ma_period, int ma_shift, int ma_method, int shift,
+                           IndicatorCalculateCache<double> *cache = NULL) {
 #ifdef __MQL4__
-    double _price[];
-    price.ExportTo(_price);
-    return ::iMAOnArray( _price, total, period, ma_shift, ma_method, shift);
+    return ::iMAOnArray(price, total, period, ma_shift, ma_method, shift);
 #else
+    // We're reusing the same native array for each consecutive calculation.
+    NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double> >::Get();
+    _array_storage.SetData(price);
 
-    if (cache_name != "") {
-      String cache_key;
-      // Do not add shifts here! It would invalidate cache for each call and break the whole algorithm.
-      cache_key.Add(cache_name);
-      cache_key.Add(period);
-      cache_key.Add(ma_method);
-      
-      //IndicatorCalculateCache<double>& cache = IndicatorCalculateCache<double>::Unique(cache_key.ToString());
-      
-      static IndicatorCalculateCache<double> cache;
-      
+    return iMAOnArray((ValueStorage<double> *)_array_storage, total, ma_period, ma_shift, ma_method, shift, cache);
+#endif
+  }
+
+  /**
+   * Calculates MA on the array of values.
+   */
+  static double iMAOnArray(ValueStorage<double> *price, int total, int ma_period, int ma_shift, int ma_method,
+                           int shift, IndicatorCalculateCache<double> *cache = NULL, bool recalculate = false) {
+    if (cache != NULL) {
       if (!cache.IsInitialized()) {
-        // Price could be fetched from native array or Indicator's buffer via Indicator::GetBufferValueStorage(index).
-        // E.g.: cache.SetPriceBuffer(_indi.GetBufferValueStorage(0));
-        cache.SetPriceBuffer(&price);
-        cache.AddBuffer((ValueStorage<double>*)new NativeValueStorage<double>());
+        cache.SetPriceBuffer(price);
+        cache.AddBuffer((ValueStorage<double> *)new NativeValueStorage<double>());
       }
-      
-      // We don't want to continue calculations, but to recalculate previous one.
-      cache.SetPrevCalculated(0);
 
-      Indi_MA::Calculate(
-        cache.GetTotal(),
-        cache.GetPrevCalculated(),
-        0,
-        cache.GetPriceBuffer(),
-        cache.GetBuffer(0),
-        ma_method,
-        period
-      );
+      // Will execute price_buffer.FillHistory(num_history) to ensure all historical values are already available.
+      cache.FillHistory(ma_period + ma_shift + shift);
+
+      if (recalculate) {
+        // We don't want to continue calculations, but to recalculate previous one.
+        cache.SetPrevCalculated(0);
+      }
+
+      cache.SetPrevCalculated(Indi_MA::Calculate(cache.GetTotal(), cache.GetPrevCalculated(), 0, cache.GetPriceBuffer(),
+                                                 cache.GetBuffer(0), ma_method, ma_period));
 
       // Returns value from the first calculation buffer.
       // Returns first value for as-series array or last value for non-as-series array.
       return cache.GetTailValue(0, shift + ma_shift);
     }
 
-    double buf[], arr[], _result, pr, _price;
+    double buf[], arr[], _result, pr, _array;
     int pos, i, k, weight;
     double sum, lsum;
     if (total == 0) total = ArraySize(price);
-    if (total > 0 && total < period) return (0);
-    if (shift > total - period - ma_shift) return (0);
+    if (total > 0 && total < ma_period) return (0);
+    if (shift > total - ma_period - ma_shift) return (0);
     bool _was_series = ArrayGetAsSeries(price);
     ArraySetAsSeries(price, true);
     switch (ma_method) {
       case MODE_SMA:
-        total = ArrayCopy(arr, price, 0, shift + ma_shift, period);
+        total = ArrayCopy(arr, price, 0, shift + ma_shift, ma_period);
         if (ArrayResize(buf, total) < 0) return (0);
         sum = 0;
         pos = total - 1;
-        for (i = 1; i < period; i++, pos--) sum += arr[pos];
+        for (i = 1; i < ma_period; i++, pos--) sum += arr[pos];
         while (pos >= 0) {
           sum += arr[pos];
-          buf[pos] = sum / period;
-          sum -= arr[pos + period - 1];
+          buf[pos] = sum / ma_period;
+          sum -= arr[pos + ma_period - 1];
           pos--;
         }
         _result = buf[0];
         break;
       case MODE_EMA:
         if (ArrayResize(buf, total) < 0) return (0);
-        pr = 2.0 / (period + 1);
+        pr = 2.0 / (ma_period + 1);
         pos = total - 2;
         while (pos >= 0) {
           if (pos == total - 2) buf[pos + 1] = price[pos + 1].Get();
@@ -239,16 +220,16 @@ class Indi_MA : public Indicator {
       case MODE_SMMA:
         if (ArrayResize(buf, total) < 0) return (0);
         sum = 0;
-        pos = total - period;
+        pos = total - ma_period;
         while (pos >= 0) {
-          if (pos == total - period) {
-            for (i = 0, k = pos; i < period; i++, k++) {
+          if (pos == total - ma_period) {
+            for (i = 0, k = pos; i < ma_period; i++, k++) {
               sum += price[k].Get();
               buf[k] = 0;
             }
           } else
-            sum = buf[pos + 1] * (period - 1) + price[pos].Get();
-          buf[pos] = sum / period;
+            sum = buf[pos + 1] * (ma_period - 1) + price[pos].Get();
+          buf[pos] = sum / ma_period;
           pos--;
         }
         _result = buf[0];
@@ -259,23 +240,23 @@ class Indi_MA : public Indicator {
         lsum = 0.0;
         weight = 0;
         pos = total - 1;
-        for (i = 1; i <= period; i++, pos--) {
-          _price = price[pos].Get();
-          sum += _price * i;
-          lsum += _price;
+        for (i = 1; i <= ma_period; i++, pos--) {
+          _array = price[pos].Get();
+          sum += _array * i;
+          lsum += _array;
           weight += i;
         }
         pos++;
-        i = pos + period;
+        i = pos + ma_period;
         while (pos >= 0) {
           buf[pos] = sum / weight;
           if (pos == 0) break;
           pos--;
           i--;
-          _price = price[pos].Get();
-          sum = sum - lsum + _price * period;
+          _array = price[pos].Get();
+          sum = sum - lsum + _array * ma_period;
           lsum -= price[i].Get();
-          lsum += _price;
+          lsum += _array;
         }
         _result = buf[0];
         break;
@@ -284,7 +265,6 @@ class Indi_MA : public Indicator {
     }
     ArraySetAsSeries(price, _was_series);
     return _result;
-#endif
   }
 
   /**
@@ -292,28 +272,24 @@ class Indi_MA : public Indicator {
    */
   static void CalculateSimpleMA(int rates_total, int prev_calculated, int begin, ValueStorage<double> &price,
                                 ValueStorage<double> &ExtLineBuffer, int InpMAPeriod) {
-   int i,start;
-//--- first calculation or number of bars was changed
-   if(prev_calculated==0)
-     {
-      start=InpMAPeriod+begin;
+    int i, start;
+    //--- first calculation or number of bars was changed
+    if (prev_calculated == 0) {
+      start = InpMAPeriod + begin;
       //--- set empty value for first start bars
-      for(i=0; i<start-1; i++)
-         ExtLineBuffer[i]=0.0;
+      for (i = 0; i < start - 1; i++) ExtLineBuffer[i] = 0.0;
       //--- calculate first visible value
-      double first_value=0;
-      for(i=begin; i<start; i++)
-         first_value+=price[i].Get();
-      first_value/=InpMAPeriod;
-      ExtLineBuffer[start-1]=first_value;
-     }
-   else
-      start=prev_calculated-1;
-//--- main loop
-   for(i=start; i<rates_total && !IsStopped(); i++)
-      ExtLineBuffer[i]=ExtLineBuffer[i-1]+(price[i]-price[i-InpMAPeriod])/InpMAPeriod;
-   
-   DebugBreak();
+      double first_value = 0;
+      for (i = begin; i < start; i++) first_value += price[i].Get();
+      first_value /= InpMAPeriod;
+      ExtLineBuffer[start - 1] = first_value;
+    } else
+      start = prev_calculated - 1;
+    //--- main loop
+    for (i = start; i < rates_total && !IsStopped(); i++)
+      ExtLineBuffer[i] = ExtLineBuffer[i - 1] + (price[i] - price[i - InpMAPeriod]) / InpMAPeriod;
+
+    DebugBreak();
   }
 
   /**
@@ -399,7 +375,7 @@ class Indi_MA : public Indicator {
                                    ValueStorage<double> &price, ValueStorage<double> &buffer) {
     if (period <= 1 || period > (rates_total - begin)) return (0);
 
-    bool as_series_price = ArrayGetAsSeries(price);
+    bool as_series_array = ArrayGetAsSeries(price);
     bool as_series_buffer = ArrayGetAsSeries(buffer);
 
     ArraySetAsSeries(price, false);
@@ -424,7 +400,7 @@ class Indi_MA : public Indicator {
     for (i = start_position; i < rates_total; i++)
       buffer[i] = price[i] * smooth_factor + buffer[i - 1] * (1.0 - smooth_factor);
 
-    ArraySetAsSeries(price, as_series_price);
+    ArraySetAsSeries(price, as_series_array);
     ArraySetAsSeries(buffer, as_series_buffer);
 
     return (rates_total);
@@ -490,9 +466,9 @@ class Indi_MA : public Indicator {
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
         Print(GetFullName());
-        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), Get<string>(CHART_PARAM_SYMBOL),
-                                         Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetMAShift(), GetMAMethod(),
-                                         _shift, CacheKey());
+        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(),
+                                         Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                                         GetPeriod(), GetMAShift(), GetMAMethod(), _shift);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
@@ -558,7 +534,7 @@ class Indi_MA : public Indicator {
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_array; }
 
   /* Setters */
 
@@ -595,12 +571,12 @@ class Indi_MA : public Indicator {
    *
    * The desired price base for calculations.
    * @docs
-   * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
-   * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+   * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_array_enum
+   * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_array_enum
    */
-  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_array) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    params.applied_array = _applied_array;
   }
 };
 #endif  // INDI_MA_MQH
