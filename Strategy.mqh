@@ -189,20 +189,20 @@ class Strategy : public Object {
       // sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
       // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
       // Process open signals when trade is allowed.
-      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN_PASS, SignalOpenFilterMethod(ORDER_TYPE_BUY, _sofm));
-      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN_PASS, SignalOpenFilterMethod(ORDER_TYPE_SELL, _sofm));
+      _signal.SetSignal(STRAT_SIGNAL_OPEN_BUY, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss));
+      _signal.SetSignal(STRAT_SIGNAL_OPEN_BUY_PASS, SignalOpenFilterMethod(ORDER_TYPE_BUY, _sofm));
+      _signal.SetSignal(STRAT_SIGNAL_OPEN_SELL, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss));
+      _signal.SetSignal(STRAT_SIGNAL_OPEN_SELL_PASS, SignalOpenFilterMethod(ORDER_TYPE_SELL, _sofm));
       _signal.SetSignal(STRAT_SIGNAL_TIME_PASS, SignalOpenFilterTime(_soft));
     }
     // Process close signals.
     float _scl = sparams.Get<float>(STRAT_PARAM_SCL);
     int _scf = sparams.Get<int>(STRAT_PARAM_SCF);
     int _scm = sparams.Get<int>(STRAT_PARAM_SCM);
-    _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss));
-    _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE_PASS, SignalCloseFilter(ORDER_TYPE_BUY, _scf));
-    _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss));
-    _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE_PASS, SignalCloseFilter(ORDER_TYPE_SELL, _scf));
+    _signal.SetSignal(STRAT_SIGNAL_CLOSE_BUY, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss));
+    _signal.SetSignal(STRAT_SIGNAL_CLOSE_BUY_PASS, SignalCloseFilter(ORDER_TYPE_BUY, _scf));
+    _signal.SetSignal(STRAT_SIGNAL_CLOSE_SELL, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss));
+    _signal.SetSignal(STRAT_SIGNAL_CLOSE_SELL_PASS, SignalCloseFilter(ORDER_TYPE_SELL, _scf));
     last_signals = _signal;
     return _signal;
   }

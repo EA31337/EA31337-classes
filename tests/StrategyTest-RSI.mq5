@@ -100,10 +100,10 @@ int OnInit() {
 void OnTick() {
   if (stg_rsi.TickFilter(SymbolInfoStatic::GetTick(_Symbol), 1)) {
     StrategySignal _signal = stg_rsi.ProcessSignals();
-    if (_signal.CheckSignals(STRAT_SIGNAL_BUY_OPEN)) {
+    if (_signal.CheckSignals(STRAT_SIGNAL_OPEN_BUY)) {
       assertTrueOrExit(_signal.GetOpenDirection() == 1, "Wrong order open direction!");
       stg_rsi.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
-    } else if (_signal.CheckSignals(STRAT_SIGNAL_SELL_OPEN)) {
+    } else if (_signal.CheckSignals(STRAT_SIGNAL_OPEN_SELL)) {
       assertTrueOrExit(_signal.GetOpenDirection() == -1, "Wrong order open direction!");
       stg_rsi.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
     } else {
