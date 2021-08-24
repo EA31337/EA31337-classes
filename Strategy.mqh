@@ -177,7 +177,8 @@ class Strategy : public Object {
     // float _bf = 1.0;
     // float _ls = 0;
     int _ss = _shift >= 0 ? _shift : sparams.shift;
-    StrategySignal _signal;
+    StrategySignal _signal(THIS_PTR, trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                           sparams.Get<float>(STRAT_PARAM_WEIGHT));
     if (_trade_allowed) {
       float _sol = sparams.Get<float>(STRAT_PARAM_SOL);
       int _sob = sparams.Get<int>(STRAT_PARAM_SOB);
@@ -382,6 +383,14 @@ class Strategy : public Object {
   }
 
   /**
+   * Gets a trade state value.
+   */
+  template <typename T>
+  T Get(ENUM_TRADE_STATE _prop) {
+    return trade.Get<T>(_prop);
+  }
+
+  /**
    * Gets strategy entry.
    */
   StgEntry GetEntry() {
@@ -406,13 +415,6 @@ class Strategy : public Object {
    * Get strategy's ID.
    */
   virtual long GetId() { return sparams.id; }
-
-  /**
-   * Get strategy's weight.
-   *
-   * Note: Implementation of inherited method.
-   */
-  virtual double GetWeight() { return sparams.weight; }
 
   /**
    * Get strategy's timeframe.
@@ -590,41 +592,6 @@ class Strategy : public Object {
     strat_sl = _strat_sl != NULL ? _strat_sl : strat_sl;
     strat_tp = _strat_tp != NULL ? _strat_tp : strat_tp;
   }
-
-  /**
-   * Sets strategy's weight.
-   */
-  void SetWeight(float _weight) { sparams.weight = _weight; }
-
-  /**
-   * Sets strategy's signal open method.
-   */
-  void SetSignalOpenMethod(int _method) { sparams.signal_open_method = _method; }
-
-  /**
-   * Sets strategy's signal open level.
-   */
-  void SetSignalOpenLevel(float _level) { sparams.signal_open_level = _level; }
-
-  /**
-   * Sets strategy's signal close method.
-   */
-  void SetSignalCloseMethod(int _method) { sparams.signal_close_method = _method; }
-
-  /**
-   * Sets strategy's signal close level.
-   */
-  void SetSignalCloseLevel(float _level) { sparams.signal_close_level = _level; }
-
-  /**
-   * Sets strategy's price stop method.
-   */
-  void SetPriceStopMethod(int _method) { sparams.signal_close_method = _method; }
-
-  /**
-   * Sets strategy's price stop level.
-   */
-  void SetPriceStopLevel(float _level) { sparams.signal_close_level = _level; }
 
   /**
    * Enable/disable the strategy.
@@ -1255,15 +1222,16 @@ class Strategy : public Object {
    * @result bool
    *   Returns true when trade should be closed, otherwise false.
    */
-  virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+  virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0, int _shift = 0) {
     bool _result = _method == 0;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result |= _result || !trade.HasBarOrder(_cmd);       // 1
-      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                 // 2
-      if (METHOD(_method, 2)) _result |= _result || !trade.IsPivot(_cmd);           // 4
-      if (METHOD(_method, 3)) _result |= _result || !DateTimeStatic::IsPeakHour();  // 8
-      if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd);             // 16
-      if (METHOD(_method, 5)) _result |= _result || trade.HasOrderBetter(_cmd);     // 32
+      if (METHOD(_method, 0)) _result |= _result || !trade.HasBarOrder(_cmd);  // 1
+      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);            // 2
+      if (METHOD(_method, 2)) _result |= _result || !trade.IsPivot(_cmd);      // 4
+      if (METHOD(_method, 3))
+        _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
+      if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd);                           // 16
+      if (METHOD(_method, 5)) _result |= _result || trade.HasOrderBetter(_cmd);                   // 32
       if (METHOD(_method, 6))
         _result |=
             _result || trade.CheckCondition(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH

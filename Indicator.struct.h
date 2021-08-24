@@ -650,13 +650,34 @@ struct IndicatorParams {
 
 /* Structure for indicator state. */
 struct IndicatorState {
+  enum ENUM_INDICATOR_STATE_PROP {
+    INDICATOR_STATE_PROP_HANDLE,
+    INDICATOR_STATE_PROP_IS_CHANGED,
+    INDICATOR_STATE_PROP_IS_READY,
+  };
   int handle;       // Indicator handle (MQL5 only).
   bool is_changed;  // Set when params has been recently changed.
   bool is_ready;    // Set when indicator is ready (has valid values).
   // Constructor.
   IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
   // Getters.
-  int GetHandle() { return handle; }
+  template <typename T>
+#ifdef __MQL4__
+  T Get(ENUM_INDICATOR_STATE_PROP _prop) {
+#else
+  T Get(IndicatorState::ENUM_INDICATOR_STATE_PROP _prop) {
+#endif
+    switch (_prop) {
+      case INDICATOR_STATE_PROP_HANDLE:
+        return (T)handle;
+      case INDICATOR_STATE_PROP_IS_CHANGED:
+        return (T)is_changed;
+      case INDICATOR_STATE_PROP_IS_READY:
+        return (T)is_ready;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return (T)WRONG_VALUE;
+  }
   // State checkers.
   bool IsChanged() { return is_changed; }
   bool IsReady() { return is_ready; }

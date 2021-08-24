@@ -35,9 +35,11 @@
 
 /* Defines struct for chart timeframe. */
 struct ChartTf {
+ protected:
   ENUM_TIMEFRAMES tf;
   ENUM_TIMEFRAMES_INDEX tfi;
 
+ public:
   // Constructors.
   ChartTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : tf(_tf), tfi(ChartTf::TfToIndex(_tf)){};
   ChartTf(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(ChartTf::IndexToTf(_tfi)){};

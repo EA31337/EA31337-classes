@@ -50,23 +50,6 @@ enum ENUM_EA_DATA_EXPORT_METHOD {
   EA_DATA_EXPORT_ALL = (1 << 3) - 1,  // Export in all formats.
 };
 
-// Defines enumeration for EA parameters.
-enum ENUM_EA_PARAM {
-  EA_PARAM_NONE = 0,         // None
-  EA_PARAM_AUTHOR,           // Author
-  EA_PARAM_CHART_INFO_FREQ,  // Chart info frequency
-  EA_PARAM_DATA_EXPORT,      // Format to export the data.
-  EA_PARAM_DATA_STORE,       // Type of data to store.
-  EA_PARAM_DESC,             // Description
-  EA_PARAM_LOG_LEVEL,        // Log level
-  EA_PARAM_NAME,             // Name
-  EA_PARAM_RISK_MARGIN_MAX,  // Maximum margin to risk
-  EA_PARAM_SYMBOL,           // Symbol
-  EA_PARAM_TASK_ENTRY,       // Task entry
-  EA_PARAM_VER,              // Version
-  FINAL_ENUM_EA_PARAM
-};
-
 /* Defines EA state flags. */
 enum ENUM_EA_PARAM_FLAGS {
   EA_PARAM_FLAG_NONE = 0 << 0,           // None flags.

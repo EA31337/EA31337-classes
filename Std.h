@@ -207,6 +207,18 @@ unsigned int GetPointer(void* _ptr) { return (unsigned int)_ptr; }
 const char* cstring_from(const std::string& _value) { return _value.c_str(); }
 #endif
 
+/**
+ * Referencing struct's enum.
+ *
+ * @usage
+ *   STRUCT_ENUM(<struct_name>, <enum_name>)
+ */
+#ifdef __MQL4__
+#define STRUCT_ENUM(S, E) E
+#else
+#define STRUCT_ENUM(S, E) S::E
+#endif
+
 #ifndef __MQL__
 /**
  * @file

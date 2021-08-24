@@ -27,10 +27,10 @@
 #include "Indi_Math.mqh"
 
 // Structs.
-struct PivotParams : IndicatorParams {
+struct IndiPivotParams : IndicatorParams {
   ENUM_PP_TYPE method;  // Pivot point calculation method.
   // Struct constructor.
-  void PivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PIVOT;
     max_modes = 9;
     method = _method;
@@ -40,7 +40,7 @@ struct PivotParams : IndicatorParams {
     shift = _shift;
     tf = _tf;
   };
-  void PivotParams(PivotParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void IndiPivotParams(IndiPivotParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
     tf = _tf;
   };
@@ -51,13 +51,13 @@ struct PivotParams : IndicatorParams {
  */
 class Indi_Pivot : public Indicator {
  protected:
-  PivotParams params;
+  IndiPivotParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Pivot(PivotParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
+  Indi_Pivot(IndiPivotParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
   Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PIVOT, _tf) { params.tf = _tf; };
 
   /**
@@ -88,12 +88,12 @@ class Indi_Pivot : public Indicator {
           if (!HasDataSource()) {
             GetLogger().Error(
                 "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
-                "which is a part of PivotParams structure.",
+                "which is a part of IndiPivotParams structure.",
                 "Indi_Pivot");
             Alert(
                 "Indi_Pivot: In order use custom indicator as a source, you need to select one using "
                 "SetIndicatorData() "
-                "method, which is a part of PivotParams structure.");
+                "method, which is a part of IndiPivotParams structure.");
             SetUserError(ERR_INVALID_PARAMETER);
             return _value;
           }
