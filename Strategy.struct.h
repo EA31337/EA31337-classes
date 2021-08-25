@@ -441,7 +441,7 @@ struct StrategySignal {
 
   /* Constructor */
   StrategySignal(Strategy *_strat = NULL, ENUM_TIMEFRAMES _tf = NULL, float _weight = 0.0f)
-      : strat(_strat), tf(_tf), weight(_weight) {}
+      : signals(0), strat(_strat), tf(_tf), weight(_weight) {}
   /* Getters */
   template <typename T>
   T Get(unsigned int _param) {
