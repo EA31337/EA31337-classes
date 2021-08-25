@@ -557,13 +557,24 @@ struct StrategySignal {
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &_s) {
-    // _s.Pass(THIS_REF, "signals", signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+    _s.PassEnum(THIS_REF, "tf", tf);
+    _s.Pass(THIS_REF, "strenght", strength, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "weight", weight, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    if (Object::IsValid(strat)) {
+      string _sname = strat.GetName();
+      _s.Pass(THIS_REF, "strat", _sname);
+    }
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckSignals(1 << i) ? 1 : 0;
       _s.Pass(THIS_REF, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     }
     return SerializerNodeObject;
+  }
+  string ToString() {
+    // SerializerConverter _stub = SerializerConverter::MakeStubObject<StrategySignal>(SERIALIZER_FLAG_SKIP_HIDDEN);
+    return SerializerConverter::FromObject(THIS_REF, SERIALIZER_FLAG_SKIP_HIDDEN)
+        .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
   }
 };
 
