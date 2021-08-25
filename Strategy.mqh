@@ -128,7 +128,7 @@ class Strategy : public Object {
     last_tick = _tick;
 
     // Link log instances.
-    // logger.Link(trade.Logger()); // @todo
+    logger.Ptr().Link(trade.GetLogger());
 
     // Statistics variables.
     // UpdateOrderStats(EA_STATS_DAILY);

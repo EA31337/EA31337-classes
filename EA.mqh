@@ -982,6 +982,7 @@ class EA {
   virtual void OnStrategyAdd(Strategy *_strat) {
     float _margin_risk = eparams.Get<float>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_RISK_MARGIN_MAX));
     _strat.Set<float>(TRADE_PARAM_RISK_MARGIN, _margin_risk);
+    logger.Ptr().Link(_strat.GetLogger());
   }
 
   /* Printer methods */
