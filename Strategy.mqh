@@ -895,6 +895,9 @@ class Strategy : public Object {
           if (_result) {
             Order *_order = trade.GetOrderLast();
             switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
+              case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
+                // OnOrderClose();// @todo
+                break;
               case TRADE_ACTION_ORDER_OPEN:
                 // @fixme: Operation on the structure copy.
                 OnOrderOpen(_order.GetParams());
