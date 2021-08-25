@@ -156,7 +156,7 @@ class Indi_Envelopes : public Indicator {
                                                   // _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
                                       int _shift = 0) {
     return iEnvelopesOnArray(_indi.GetValueStorage(_indi_mode), 0, _ma_period, _ma_method, _ma_shift, _deviation, _mode,
-                             _shift);
+                             _shift, _cache);
   }
 
   static double iEnvelopesOnArray(double &price[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,

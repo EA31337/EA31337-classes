@@ -30,12 +30,17 @@
 #pragma once
 #endif
 
+// Defines.
+#define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
+  20  // Number of entries the value storage buffer will be initialized with.
+
 // Forward declaration.
 class Indicator;
 struct ChartParams;
 
 // Includes.
 #include "Array.mqh"
+#include "Chart.mqh"
 #include "Chart.struct.tf.h"
 #include "Data.struct.h"
 #include "DateTime.struct.h"
@@ -47,13 +52,26 @@ template <typename C>
 class IndicatorBufferValueStorage : public ValueStorage<C> {
   Indicator *indicator;
   int mode;
+  datetime start_bar_time;
 
  public:
-  IndicatorBufferValueStorage() {}
+  IndicatorBufferValueStorage(Indicator *_indi, int _mode = 0) : indicator(_indi), mode(_mode) {
+    start_bar_time = _indi.GetBarTime(INDICATOR_BUFFER_VALUE_STORAGE_HISTORY - 1);
+  }
 
-  IndicatorBufferValueStorage(Indicator *_indi, int _mode = 0) : indicator(_indi), mode(_mode) {}
+  /**
+   * Calculates series shift from non-series index.
+   */
+  int RealShift(int _shift) {
+    return (int)((indicator.GetBarTime(0) - start_bar_time) / (long)indicator.GetParams().tf.GetInSeconds() -
+                 (long)_shift);
+  }
 
-  virtual C Fetch(int _shift) { return indicator.GetValue<C>(_shift, mode); }
+  virtual C Fetch(int _shift) {
+    C _value = indicator.GetValue<C>(RealShift(_shift), mode);
+    Print(_shift, "(", RealShift(_shift), "): ", _value);
+    return _value;
+  }
 
   virtual void Store(int _shift, C _value) {
     Print("IndicatorBufferValueStorage does not implement Store()!");
@@ -61,9 +79,8 @@ class IndicatorBufferValueStorage : public ValueStorage<C> {
   }
 
   virtual int Size() {
-    Print("IndicatorBufferValueStorage does not implement Size()!");
-    DebugBreak();
-    return 0;
+    // Will return index of the first bar, which in fact is a number of available bars.
+    return RealShift(-1);
   }
 
   virtual void Initialize(C _value) { Print("IndicatorBufferValueStorage does not implement Initialize()!"); }
@@ -73,19 +90,16 @@ class IndicatorBufferValueStorage : public ValueStorage<C> {
   virtual bool IsSeries() const { return true; }
 
   virtual bool SetSeries(bool _value) {
-    if (!_value) {
-      Print("IndicatorBufferValueStorage cannot work as series!");
+    if (_value) {
+      Print("IndicatorBufferValueStorage can only work as series!");
       DebugBreak();
       return false;
     }
     return true;
   }
 
-  virtual bool FillHistory(int _num_history) {
-    for (int i = 0; i < _num_history; ++i) {
-      indicator.GetValue<C>(i, mode);
-    }
-    // @todo Add invalid value check.
+  virtual bool FillHistory(int _num_entries) {
+    indicator.FeedHistoryEntries(_num_entries);
     return true;
   }
 };
@@ -124,7 +138,7 @@ class IndicatorCalculateCache : public Dynamic {
     Resize(_buffers_size);
   }
 
-  int GetTotal() { return ArraySize(GetPriceBuffer()); }
+  int GetTotal() { return ArraySize(price_buffer.Ptr()); }
 
   int GetPrevCalculated() { return prev_calculated; }
 
@@ -132,16 +146,20 @@ class IndicatorCalculateCache : public Dynamic {
 
   bool IsInitialized() { return initialized; }
 
-  bool FillHistory(int _num_history) {
-    for (int i = 0; i < ArraySize(buffers); ++i) {
-      if (!buffers[i].IsSet()) {
-        continue;
-      }
-
-      if (!buffers[i].Ptr().FillHistory(_num_history)) {
-        return false;
-      }
+  /**
+   * Fills buffers with historical data and updates "total" value.
+   */
+  bool FillHistory(int _num_entries) {
+    total = 0;
+    if (!IsInitialized()) {
+      return false;
     }
+
+    if (!price_buffer.Ptr().FillHistory(_num_entries)) {
+      return false;
+    }
+
+    total = _num_entries;
     return true;
   }
 

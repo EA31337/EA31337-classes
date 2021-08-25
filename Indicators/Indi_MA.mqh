@@ -162,13 +162,18 @@ class Indi_MA : public Indicator {
   static double iMAOnArray(ValueStorage<double> *price, int total, int ma_period, int ma_shift, int ma_method,
                            int shift, IndicatorCalculateCache<double> *cache = NULL, bool recalculate = false) {
     if (cache != NULL) {
+      // Sets price buffer and ensures that we have all required values already calculated.
+      // If there is no sufficient data, an error will occur.
+      // Note that price buffer is set as not-series, so price[0] will be the oldest value possible.
+      // For this to work, IndicatorBufferValueStorage must initialize itself with start tick's timestamp
+      // and calculate series shift via `series shift = current tick - start tick - given shift`.
+      // `Total` is calculated as `current tick - start tick`.
+      // Price buffer is always not-series.
+
       if (!cache.IsInitialized()) {
         cache.SetPriceBuffer(price);
         cache.AddBuffer((ValueStorage<double> *)new NativeValueStorage<double>());
       }
-
-      // Will execute price_buffer.FillHistory(num_history) to ensure all historical values are already available.
-      cache.FillHistory(ma_period + ma_shift + shift);
 
       if (recalculate) {
         // We don't want to continue calculations, but to recalculate previous one.
@@ -286,10 +291,11 @@ class Indi_MA : public Indicator {
     } else
       start = prev_calculated - 1;
     //--- main loop
-    for (i = start; i < rates_total && !IsStopped(); i++)
+    for (i = start; i < rates_total && !IsStopped(); i++) {
       ExtLineBuffer[i] = ExtLineBuffer[i - 1] + (price[i] - price[i - InpMAPeriod]) / InpMAPeriod;
+    }
 
-    DebugBreak();
+    // DebugBreak();
   }
 
   /**
