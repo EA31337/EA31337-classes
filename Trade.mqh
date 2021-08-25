@@ -101,6 +101,14 @@ class Trade {
   }
 
   /**
+   * Gets a trade state value.
+   */
+  template <typename T>
+  T Get(ENUM_TRADE_STATE _prop) {
+    return tstates.Get(_prop);
+  }
+
+  /**
    * Gets a trade parameter value.
    */
   template <typename T>
@@ -1164,7 +1172,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool UpdateStates(bool _force = false) {
     static datetime _last_check = 0;
-    static unsigned int _states_prev = tstates.states;
+    static unsigned int _states_prev = tstates.GetStates();
     ResetLastError();
     if (_force || _last_check + 60 < TimeCurrent()) {
       // Infrequent checks (each minute).
@@ -1551,7 +1559,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool ExecuteAction(ENUM_TRADE_ACTION _action, MqlParam &_args[]) {
     switch (_action) {
       case TRADE_ACTION_CALC_LOT_SIZE:
-        tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize());
+        tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
         return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
       case TRADE_ACTION_ORDER_OPEN:
         return OrderOpen((ENUM_ORDER_TYPE)_args[0].integer_value);

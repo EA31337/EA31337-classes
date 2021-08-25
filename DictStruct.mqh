@@ -162,8 +162,6 @@ class DictStruct : public DictBase<K, V> {
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, _key, position);
 
     if (!slot) {
-      Alert("Invalid DictStruct key \"", _key, "\" (called by GetByKey()). Returning empty structure.");
-      DebugBreak();
       static V _empty;
       return _empty;
     }
