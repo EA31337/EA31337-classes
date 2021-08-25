@@ -230,15 +230,15 @@ class Serializer {
     }
 
     // Is field default?
-    if ((field_flags & SERIALIZER_FIELD_FLAG_DEFAULT) == SERIALIZER_FIELD_FLAG_DEFAULT) {
-      if ((serializer_flags & SERIALIZER_FLAG_EXCLUDE_DEFAULT) == SERIALIZER_FLAG_EXCLUDE_DEFAULT) {
-        // Field was excluded by e.g., dynamic or feature type, but not included again explicitly by flag.
-        return false;
-      } else if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DEFAULT) == SERIALIZER_FLAG_INCLUDE_DEFAULT) {
-        // Field was excluded by e.g., dynamic or feature type, but included explicitly by flag.
-        return true;
-      } else {
-        return true;
+    if ((serializer_flags & SERIALIZER_FLAG_EXCLUDE_DEFAULT) == SERIALIZER_FLAG_EXCLUDE_DEFAULT) {
+      if ((field_flags & SERIALIZER_FIELD_FLAG_DEFAULT) == SERIALIZER_FIELD_FLAG_DEFAULT) {
+        if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DEFAULT) == SERIALIZER_FLAG_INCLUDE_DEFAULT) {
+          // Field was excluded by e.g., dynamic or feature type, but included explicitly by flag.
+          return true;
+        } else {
+          // Field was excluded by e.g., dynamic or feature type, but not included again explicitly by flag.
+          return false;
+        }
       }
     }
 
