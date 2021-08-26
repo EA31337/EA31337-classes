@@ -36,21 +36,15 @@
 #ifndef SINGLETON_H
 #define SINGLETON_H
 
-template<typename C>
+template <typename C>
 class Singleton {
-  static Ref<C> _ref;
-  
-public:
-  
-  static C* Get() {
-    if (!_ref.IsSet()) {
-      _ref = new C();
-    }
-    return _ref.Ptr();
-  }
+  static C _ref;
+
+ public:
+  static C* Get() { return &_ref; }
 };
 
-template<typename C>
-Ref<C> Singleton::_ref;
+template <typename C>
+C Singleton::_ref;
 
 #endif  // SINGLETON_H

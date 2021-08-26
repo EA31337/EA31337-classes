@@ -149,7 +149,7 @@ class Indi_MA : public Indicator {
     return ::iMAOnArray(price, total, period, ma_shift, ma_method, shift);
 #else
     // We're reusing the same native array for each consecutive calculation.
-    NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double> >::Get();
+    NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();
     _array_storage.SetData(price);
 
     return iMAOnArray((ValueStorage<double> *)_array_storage, total, ma_period, ma_shift, ma_method, shift, cache);
@@ -159,7 +159,7 @@ class Indi_MA : public Indicator {
   /**
    * Calculates MA on the array of values.
    */
-  static double iMAOnArray(ValueStorage<double> *price, int total, int ma_period, int ma_shift, int ma_method,
+  static double iMAOnArray(ValueStorage<double> &price, int total, int ma_period, int ma_shift, int ma_method,
                            int shift, IndicatorCalculateCache<double> *cache = NULL, bool recalculate = false) {
     if (cache != NULL) {
       // Sets price buffer and ensures that we have all required values already calculated.
@@ -172,7 +172,7 @@ class Indi_MA : public Indicator {
 
       if (!cache.IsInitialized()) {
         cache.SetPriceBuffer(price);
-        cache.AddBuffer((ValueStorage<double> *)new NativeValueStorage<double>());
+        cache.AddBuffer<NativeValueStorage<double>>();
       }
 
       if (recalculate) {
@@ -471,7 +471,6 @@ class Indi_MA : public Indicator {
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        Print(GetFullName());
         _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(),
                                          Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
                                          GetPeriod(), GetMAShift(), GetMAMethod(), _shift);

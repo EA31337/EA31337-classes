@@ -71,7 +71,7 @@ class Indicator : public Chart {
   bool is_fed;                                 // Whether FeedHistoryEntries already done its job.
   DictStruct<int, Ref<Indicator>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
-  ARRAY(Ref<ValueStorage<double>>, value_storages);
+  ARRAY(ValueStorage<double>*, value_storages);
   IndicatorCalculateCache<double> cache;
 
  public:
@@ -117,6 +117,12 @@ class Indicator : public Chart {
   ~Indicator() {
     ReleaseHandle();
     DeinitDraw();
+
+    for (int i = 0; i < ArraySize(value_storages); ++i) {
+      if (value_storages[i] != NULL) {
+        delete value_storages[i];
+      }
+    }
 
     if (iparams.indi_data_source != NULL && iparams.indi_managed) {
       // User selected custom, managed data source.
@@ -278,10 +284,8 @@ class Indicator : public Chart {
   }
 
   /* Buffer methods */
-  
-  virtual string CacheKey() {
-    return GetName();
-  }
+
+  virtual string CacheKey() { return GetName(); }
 
   /**
    * Initializes a cached proxy between i*OnArray() methods and OnCalculate()
@@ -532,13 +536,11 @@ class Indicator : public Chart {
   IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
 
   /* Getters */
-  
+
   /**
    * Returns buffers' cache.
    */
-  IndicatorCalculateCache<double>* GetCache() {
-    return &cache;
-  }
+  IndicatorCalculateCache<double>* GetCache() { return &cache; }
 
   /**
    * Gets an indicator's chart parameter value.
@@ -1111,12 +1113,12 @@ class Indicator : public Chart {
     is_feeding = false;
     is_fed = true;
   }
-  
+
   ValueStorage<double>* GetValueStorage(int _mode = 0) {
-    if (!value_storages[_mode].IsSet()) {
+    if (value_storages[_mode] == NULL) {
       value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
     }
-    return value_storages[_mode].Ptr();
+    return value_storages[_mode];
   }
 
   /**

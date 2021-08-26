@@ -35,7 +35,6 @@
 
 // Includes.
 #include "Array.mqh"
-#include "Refs.mqh"
 
 template <typename C>
 class ValueStorage;
@@ -97,7 +96,7 @@ class ValueStorageAccessor {
 };
 
 template <typename C>
-class ValueStorage : public Dynamic {
+class ValueStorage {
  public:
   /**
    * We don't user to accidentally copy whole buffer.
@@ -213,7 +212,14 @@ class NativeValueStorage : public ValueStorage<C> {
 
   void SetData(ARRAY_REF(C, _arr)) { ArrayCopy(_values, _arr); }
 
-  virtual C Fetch(int _shift) { return _values[_shift]; }
+  virtual C Fetch(int _shift) {
+    if (_shift < 0 || _shift >= ArraySize(_values)) {
+      Print("Invalid buffer data index: ", _shift, ". Buffer size: ", ArraySize(_values));
+      DebugBreak();
+    }
+
+    return _values[_shift];
+  }
 
   virtual void Store(int _shift, C _value) { Array::ArrayStore(_values, _shift, _value); }
 

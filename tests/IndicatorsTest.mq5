@@ -56,8 +56,8 @@ struct DataParamEntry;
 #include "../Indicators/Indi_ColorCandlesDaily.mqh"
 #include "../Indicators/Indi_ColorLine.mqh"
 #include "../Indicators/Indi_CustomMovingAverage.mqh"
-#include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_DEMA.mqh"
+#include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_DetrendedPrice.mqh"
 #include "../Indicators/Indi_Drawer.mqh"
@@ -116,6 +116,10 @@ double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 
 Indi_Drawer *_indi_drawer;
 Indi_MA *_indi_ma;
 Indi_MA *_indi_ma_on_price;
+Indi_Envelopes *_indi_env;
+Indi_Envelopes *_indi_env_on_price;
+Indi_DEMA *_indi_dema;
+Indi_DEMA *_indi_dema_on_price;
 
 /**
  * Implements Init event handler.
@@ -133,6 +137,17 @@ int OnInit() {
   _result &= PrintIndicators(__FUNCTION__);
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
+
+  NativeValueStorage<double> _s();
+  _s[0] = 1;
+  _s[1] = 2;
+  _s[2] = 3;
+  _s[3] = 4;
+
+  ValueStorage<double> *_s2 = _indi_ma.GetValueStorage(0);
+
+  // Print("iMAOnArray: ", Indi_MA::iMAOnArray(_s, 0, 4, 0, MODE_SMA, 0));
+  // DebugBreak();
 
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
@@ -158,7 +173,7 @@ void OnTick() {
       if (whitelisted_indis.Size() == 0) {
         if (tested.GetByKey(iter.Key())) {
           // Indicator is already tested, skipping.
-          continue;
+          // continue;
         }
       } else {
         if (!whitelisted_indis.KeyExists(iter.Key())) {
@@ -167,11 +182,12 @@ void OnTick() {
       }
 
       Indicator *_indi = iter.Value();
-      
-      if (_indi != _indi_ma_on_price && _indi != _indi_ma) {
+
+      if (_indi != _indi_ma_on_price && _indi != _indi_ma && _indi != _indi_env && _indi != _indi_env_on_price &&
+          _indi != _indi_dema && _indi != _indi_dema_on_price) {
         continue;
       }
-      
+
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
@@ -263,7 +279,7 @@ bool InitIndicators() {
 
   // Envelopes.
   EnvelopesParams env_params(13, 0, MODE_SMA, PRICE_OPEN, 2);
-  indis.Push(new Indi_Envelopes(env_params));
+  indis.Push(_indi_env = new Indi_Envelopes(env_params));
 
   // Force Index.
   ForceParams force_params(13, MODE_SMA, PRICE_CLOSE);
@@ -296,7 +312,7 @@ bool InitIndicators() {
   // DEMA.
   DEMAParams dema_params(13, 2, PRICE_OPEN);
   Indicator *indi_dema = new Indi_DEMA(dema_params);
-  indis.Push(indi_dema);
+  indis.Push(_indi_dema = indi_dema);
 
   // MACD.
   MACDParams macd_params(12, 26, 9, PRICE_CLOSE);
@@ -436,7 +452,15 @@ bool InitIndicators() {
   EnvelopesParams env_on_price_params();
   env_on_price_params.SetDataSource(indi_price_4_envelopes, true, INDI_PRICE_MODE_OPEN);
   env_on_price_params.SetDraw(clrBrown);
-  indis.Push(new Indi_Envelopes(env_on_price_params));
+  indis.Push(_indi_env_on_price = new Indi_Envelopes(env_on_price_params));
+
+  // DEMA over Price indicator.
+  PriceIndiParams price_params_4_dema();
+  Indicator *indi_price_4_dema = new Indi_Price(price_params_4_dema);
+  DEMAParams dema_on_price_params(13, 2, PRICE_OPEN);
+  dema_on_price_params.SetDataSource(indi_price_4_dema, true, INDI_PRICE_MODE_OPEN);
+  dema_on_price_params.SetDraw(clrRed);
+  indis.Push(_indi_dema_on_price = new Indi_DEMA(dema_on_price_params));
 
   // Momentum over Price indicator.
   Indicator *indi_price_4_momentum = new Indi_Price();
