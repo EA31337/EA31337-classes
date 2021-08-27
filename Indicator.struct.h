@@ -40,14 +40,13 @@ struct ChartParams;
 
 // Includes.
 #include "Array.mqh"
-#include "Chart.mqh"
 #include "Chart.struct.tf.h"
 #include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
-#include "Indicator.struct.buffer.h"
 #include "Indicator.struct.cache.h"
 #include "SerializerNode.enum.h"
+#include "ValueStorage.indicator.h"
 
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {

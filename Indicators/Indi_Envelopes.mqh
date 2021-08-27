@@ -169,8 +169,7 @@ class Indi_Envelopes : public Indicator {
     NativeValueStorage<double> *_price = Singleton<NativeValueStorage<double> >::Get();
     _price.SetData(price);
 
-    return iEnvelopesOnArray((ValueStorage<double> *)_price, total, ma_period, ma_method, ma_shift, deviation, mode,
-                             shift);
+    return iEnvelopesOnArray(_price, total, ma_period, ma_method, ma_shift, deviation, mode, shift);
 #endif
   }
 

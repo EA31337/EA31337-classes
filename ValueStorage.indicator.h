@@ -22,7 +22,7 @@
 
 /**
  * @file
- * IndicatorBufferValueStorage class.
+ * Indicator's mode buffer version of ValueStorage.
  */
 
 #ifndef __MQL__
@@ -33,17 +33,38 @@
 // Includes.
 #include "ValueStorage.h"
 
+/**
+ * Storage for direct access to indicator's buffer for a given mode.
+ */
 template <typename C>
 class IndicatorBufferValueStorage : public ValueStorage<C> {
+  // Pointer to indicator to access data from.
   Indicator *indicator;
+
+  // Mode of the target indicator.
   int mode;
+
+  // Time of the first bar possible to fetch.
   datetime start_bar_time;
+
+  // Whether storage operates in as-series mode.
   bool is_series;
 
  public:
+  /**
+   * Constructor.
+   */
   IndicatorBufferValueStorage(Indicator *_indi, int _mode = 0, bool _is_series = false)
       : indicator(_indi), mode(_mode), is_series(_is_series) {
     start_bar_time = _indi.GetBarTime(INDICATOR_BUFFER_VALUE_STORAGE_HISTORY - 1);
+  }
+
+  /**
+   * Initializes storage with given value.
+   */
+  virtual void Initialize(C _value) {
+    Print("IndicatorBufferValueStorage does not implement Initialize()!");
+    DebugBreak();
   }
 
   /**
@@ -57,6 +78,9 @@ class IndicatorBufferValueStorage : public ValueStorage<C> {
     }
   }
 
+  /**
+   * Number of bars passed from the start.
+   */
   int BarsFromStart() {
     return (int)((indicator.GetBarTime(0) - start_bar_time) / (long)indicator.GetParams().tf.GetInSeconds());
   }
@@ -80,21 +104,23 @@ class IndicatorBufferValueStorage : public ValueStorage<C> {
   virtual int Size() { return BarsFromStart() + 1; }
 
   /**
-   *
+   * Resizes storage to given size.
    */
-  virtual void Initialize(C _value) { Print("IndicatorBufferValueStorage does not implement Initialize()!"); }
-
-  virtual void Resize(int _size, int _reserve) { Print("IndicatorBufferValueStorage does not implement Resize()!"); }
-
-  virtual bool IsSeries() const { return is_series; }
-
-  virtual bool SetSeries(bool _value) {
-    is_series = _value;
-    return true;
+  virtual void Resize(int _size, int _reserve) {
+    Print("IndicatorBufferValueStorage does not implement Resize()!");
+    DebugBreak();
   }
 
-  virtual bool FillHistory(int _num_entries) {
-    indicator.FeedHistoryEntries(_num_entries);
+  /**
+   * Checks whether storage operates in as-series mode.
+   */
+  virtual bool IsSeries() const { return is_series; }
+
+  /**
+   * Sets storage's as-series mode on or off.
+   */
+  virtual bool SetSeries(bool _value) {
+    is_series = _value;
     return true;
   }
 };

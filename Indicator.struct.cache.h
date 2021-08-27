@@ -86,14 +86,24 @@ class IndicatorCalculateCache : public Dynamic {
     }
   }
 
+  /**
+   * Returns size of the current price buffer.
+   */
   int GetTotal() { return ArraySize(price_buffer); }
 
+  /**
+   * Returns number of already calculated prices (bars).
+   */
   int GetPrevCalculated() { return prev_calculated; }
 
+  /**
+   * Whether price buffer is already set.
+   */
   bool IsInitialized() { return initialized; }
 
   /**
-   *
+   * Returns existing or new cache as a child of current one. Useful when indicator uses other indicators and requires
+   * unique caches for them.
    */
   IndicatorCalculateCache<C> *GetSubCache(int index) {
     if (index >= ArraySize(subcaches)) {
@@ -108,7 +118,7 @@ class IndicatorCalculateCache : public Dynamic {
   }
 
   /**
-   *
+   * Add buffer of the given type. Usage: AddBuffer<NativeBuffer>()
    */
   template <typename T>
   int AddBuffer(int _num_buffers = 1) {

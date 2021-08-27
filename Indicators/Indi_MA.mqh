@@ -146,7 +146,7 @@ class Indi_MA : public Indicator {
   static double iMAOnArray(double &price[], int total, int ma_period, int ma_shift, int ma_method, int shift,
                            IndicatorCalculateCache<double> *cache = NULL) {
 #ifdef __MQL4__
-    return ::iMAOnArray(price, total, period, ma_shift, ma_method, shift);
+    return ::iMAOnArray(price, total, ma_period, ma_shift, ma_method, shift);
 #else
     // We're reusing the same native array for each consecutive calculation.
     NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();

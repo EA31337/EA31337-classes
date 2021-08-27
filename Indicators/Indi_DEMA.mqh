@@ -30,6 +30,7 @@
 #include "../Indicator.mqh"
 #include "../Indicators/Indi_MA.mqh"
 #include "../Indicators/Indi_Price.mqh"
+#include "../Objects.h"
 #include "../Refs.mqh"
 #include "../String.mqh"
 #include "../ValueStorage.h"
@@ -112,17 +113,10 @@ class Indi_DEMA : public Indicator {
     }
     return _res[0];
 #else
-    NOT YET IMPLEMENTED !
-
-        Indi_Price *
-        _indi_price;
-    if (!Singleton<Indi_Price>::Get(_indi_price, (int)_applied_price)) {
-    }
-
-    PriceIndiParams _price_params(_applied_price);
-    Indi_Price _indi_price(_price_params);
-
-    return Indi_DEMA::iDEMAOnIndicator(&_indi_price, _symbol, _tf, _period, _ma_shift, _shift);
+    Indi_Price *_indi_price = Indi_Price::GetCached(_tf, _period, _applied_price);
+    // Note that _applied_price and Indi_Price mode indices are compatible.
+    return Indi_DEMA::iDEMAOnIndicator(_indi_price.GetCache(), _indi_price, (int)_applied_price, _period, _ma_shift,
+                                       _shift);
 #endif
   }
 

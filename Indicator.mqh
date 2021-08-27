@@ -35,6 +35,7 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Indicator.define.h"
 #include "Indicator.enum.h"
+#include "Indicator.struct.cache.h"
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
 #include "Indicator.struct.signal.h"
@@ -44,6 +45,9 @@ class Chart;
 #include "Serializer.mqh"
 #include "SerializerCsv.mqh"
 #include "SerializerJson.mqh"
+#include "ValueStorage.h"
+#include "ValueStorage.indicator.h"
+#include "ValueStorage.native.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
