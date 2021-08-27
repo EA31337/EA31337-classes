@@ -68,10 +68,8 @@ class Indi_PriceFeeder : public Indicator {
   Indi_PriceFeeder(PriceFeederIndiParams& _p) : Indicator((IndicatorParams)_p) { params = _p; };
   Indi_PriceFeeder(const double& _price_data[], int _total = 0)
       : params(_price_data, _total), Indicator(INDI_PRICE_FEEDER){};
-  
-  void SetPrices(const double& _price_data[], int _total = 0) {
-    params = PriceFeederIndiParams(_price_data, _total);
-  }
+
+  void SetPrices(const double& _price_data[], int _total = 0) { params = PriceFeederIndiParams(_price_data, _total); }
 
   /**
    * Checks whether indicator has a valid value for a given shift.

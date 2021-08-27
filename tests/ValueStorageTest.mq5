@@ -27,7 +27,6 @@
 // Defines.
 #define __debug__  // Enables debug.
 
-
 // Includes.
 #include "../Indicators/Indi_MA.mqh"
 #include "../Indicators/Indi_Price.mqh"
@@ -35,7 +34,6 @@
 #include "../SerializerJson.mqh"
 #include "../Test.mqh"
 #include "../ValueStorage.h"
-
 
 // Global variables.
 double _test_values[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
@@ -52,16 +50,15 @@ struct ArrayCopyScenario {
  * Implements Init event handler.
  */
 int OnInit() {
-
   NativeValueStorage<double> _data_s(_test_values);
   double _data_v[];
   ArrayCopy(_data_v, _test_values);
-  assertEqualOrFail(ArraySize(_data_s), ArraySize(_data_v), "ArraySize() difference!");  
+  assertEqualOrFail(ArraySize(_data_s), ArraySize(_data_v), "ArraySize() difference!");
 
   ArrayResize(_data_s, 5);
   ArrayResize(_data_v, 5);
   assertEqualOrFail(ArraySize(_data_s), ArraySize(_data_v), "Difference of ArraySize() after ArrayResize()!");
-  
+
   int i;
 
   for (i = 0; i < 5; ++i) {
@@ -72,14 +69,14 @@ int OnInit() {
   for (i = 0; i < 5; ++i) {
     assertEqualOrFail(_data_s[i].Get(), _data_v[i], "Array values difference!");
   }
-  
+
   ArraySetAsSeries(_data_s, true);
   ArraySetAsSeries(_data_v, true);
 
   for (i = 0; i < 5; ++i) {
     assertEqualOrFail(_data_s[i].Get(), _data_v[i], "Array(as series) values difference!");
   }
-    
+
   ArrayCopyScenario _array_copy_scenarios[];
 
   for (int b = 0; b < 4; ++b) {
@@ -89,54 +86,58 @@ int OnInit() {
       for (int i2 = 0; i2 < 3; ++i2) {
         for (int i3 = 0; i3 <= 30; i3 += 10) {
           ArrayResize(_array_copy_scenarios, ArraySize(_array_copy_scenarios) + 1);
-          
+
           ArrayCopyScenario _scenario;
           _scenario.source_is_series = b1;
           _scenario.source_is_series = b2;
           _scenario.source_shift = i1;
           _scenario.target_shift = i2;
-          _scenario.initial_target_size = i3;        
+          _scenario.initial_target_size = i3;
           _array_copy_scenarios[ArraySize(_array_copy_scenarios) - 1] = _scenario;
         }
       }
     }
   }
- 
+
   double _values[];
   ArrayCopy(_values, _test_values);
-  
+
   for (i = 0; i < ArraySize(_array_copy_scenarios); ++i) {
     ArrayCopyScenario _array_copy_scenario = _array_copy_scenarios[i];
-    
+
     NativeValueStorage<double> _source(_values);
     ArraySetAsSeries(_source, _array_copy_scenario.source_is_series);
     ArraySetAsSeries(_values, _array_copy_scenario.source_is_series);
-    
+
     double _target1[];
     ArrayResize(_target1, _array_copy_scenario.initial_target_size);
     ArrayInitialize(_target1, 5);
     ArraySetAsSeries(_target1, _array_copy_scenario.target_is_series);
     ArrayCopy(_target1, _source, _array_copy_scenario.target_shift, _array_copy_scenario.source_shift);
-    
+
     double _target2[];
     ArrayResize(_target2, _array_copy_scenario.initial_target_size);
     ArrayInitialize(_target2, 5);
     ArraySetAsSeries(_target2, _array_copy_scenario.target_is_series);
     ArrayCopy(_target2, _values, _array_copy_scenario.target_shift, _array_copy_scenario.source_shift);
-    
-    Print("ArrayCopy: src_series = ", _array_copy_scenario.source_is_series, ", dst_series = ", _array_copy_scenario.target_is_series, ", source_start = ", _array_copy_scenario.source_shift, ", target_start = ", _array_copy_scenario.target_shift);
+
+    Print("ArrayCopy: src_series = ", _array_copy_scenario.source_is_series,
+          ", dst_series = ", _array_copy_scenario.target_is_series,
+          ", source_start = ", _array_copy_scenario.source_shift,
+          ", target_start = ", _array_copy_scenario.target_shift);
+#ifdef __MQL5__
     ArrayPrint(_target2, 0, ", ");
     ArrayPrint(_target1, 0, ", ");
+#endif
     Print("-- = ", ArrayCompare(_target1, _target2) == 0 ? "OK" : "FAIL!");
-    
+
     assertEqualOrFail(ArrayCompare(_target1, _target2), 0, "Difference in ArrayCopy!");
   }
 
   return _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED;
 }
- 
+
 /**
  * Implements Tick event handler.
  */
-void OnTick() {
-}
+void OnTick() {}
