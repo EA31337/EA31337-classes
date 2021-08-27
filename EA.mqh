@@ -180,6 +180,10 @@ class EA {
     DictStruct<short, StrategySignal> _ds = strat_signals.GetByKey(_tick.time);
     for (DictStructIterator<short, StrategySignal> _dsi = _ds.Begin(); _dsi.IsValid(); ++_dsi) {
       StrategySignal _signal = _dsi.Value();
+      if (_signal.CheckSignals(STRAT_SIGNAL_PROCESSED)) {
+        // Ignores already processed signals.
+        continue;
+      }
       Strategy *_strat = _signal.GetStrategy();
       if (_strat.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
         float _sig_close = _signal.GetSignalClose();
@@ -207,6 +211,7 @@ class EA {
             // Buy order open.
             _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
             if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+              _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
               break;
             }
           }
@@ -219,10 +224,12 @@ class EA {
             // Sell order open.
             _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
             if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+              _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
               break;
             }
           }
         }
+        _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
         if (!_result) {
           _last_error = GetLastError();
           switch (_last_error) {
@@ -975,6 +982,7 @@ class EA {
   virtual void OnStrategyAdd(Strategy *_strat) {
     float _margin_risk = eparams.Get<float>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_RISK_MARGIN_MAX));
     _strat.Set<float>(TRADE_PARAM_RISK_MARGIN, _margin_risk);
+    logger.Ptr().Link(_strat.GetLogger());
   }
 
   /* Printer methods */
