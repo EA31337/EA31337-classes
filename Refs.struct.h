@@ -88,11 +88,8 @@ struct Ref {
   void Unset() {
     if (ptr_object != NULL) {
       if (CheckPointer(ptr_object) == POINTER_INVALID) {
-        // Double check the pointer for invalid references. Can happen very rarely.
-#ifndef __MQL4__
-        // Bug: Avoid calling in MQL4 due to 'global initialization failed' error.
-        DebugBreak();
-#endif
+        // Double check the pointer for invalid references. Can happen in rare circumstances.
+        ptr_object = NULL;
         return;
       }
       if (ptr_object.ptr_ref_counter == NULL) {
