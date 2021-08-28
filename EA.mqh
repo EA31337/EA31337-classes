@@ -703,24 +703,26 @@ class EA {
    * Adds strategy to multiple timeframes.
    *
    * @param
-   * _tfs - timeframes to add strategy (using bitwise operation).
+   *   _tfs - timeframes to add strategy (using bitwise operation).
+   *   _sid - strategy ID
+   *   _magic - initial order identified
+   *
+   * Note:
+   *   Final magic number is going to be increased by timeframe index value.
+   *
+   * @see: ENUM_TIMEFRAMES_INDEX
    *
    * @return
-   * Returns true if all strategies has been initialized correctly, otherwise
-   * false.
+   *   Returns true if all strategies has been initialized correctly, otherwise false.
    */
   template <typename SClass>
-  bool StrategyAdd(unsigned int _tfs, long _sid = 0, long _magic = 0) {
-    bool _result = _tfs == 0;
-    if ((_tfs & M1B) == M1B) _result = StrategyAdd<SClass>(PERIOD_M1, _sid, _magic);
-    if ((_tfs & M5B) == M5B) _result = StrategyAdd<SClass>(PERIOD_M5, _sid, _magic);
-    if ((_tfs & M15B) == M15B) _result = StrategyAdd<SClass>(PERIOD_M15, _sid, _magic);
-    if ((_tfs & M30B) == M30B) _result = StrategyAdd<SClass>(PERIOD_M30, _sid, _magic);
-    if ((_tfs & H1B) == H1B) _result = StrategyAdd<SClass>(PERIOD_H1, _sid, _magic);
-    if ((_tfs & H4B) == H4B) _result = StrategyAdd<SClass>(PERIOD_H4, _sid, _magic);
-    if ((_tfs & D1B) == D1B) _result = StrategyAdd<SClass>(PERIOD_D1, _sid, _magic);
-    if ((_tfs & W1B) == W1B) _result = StrategyAdd<SClass>(PERIOD_W1, _sid, _magic);
-    if ((_tfs & MN1B) == MN1B) _result = StrategyAdd<SClass>(PERIOD_MN1, _sid, _magic);
+  bool StrategyAdd(unsigned int _tfs, long _sid = 0, long _init_magic = 0) {
+    bool _result = true;
+    for (int _tfi = 0; _tfi < sizeof(int) * 8; ++_tfi) {
+      if ((_tfs & (1 << _tfi)) != 0) {
+        _result &= StrategyAdd<SClass>(ChartTf::IndexToTf((ENUM_TIMEFRAMES_INDEX)_tfi), _sid, _init_magic + _tfi);
+      }
+    }
     return _result;
   }
 
