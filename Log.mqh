@@ -230,17 +230,15 @@ class Log : public Object {
       // Avoids flushing logs too often.
       return;
     }
-    unsigned int lid;
-    int i;
-
-    for (i = 0; i <= last_entry; i++) {
+    for (int i = 0; i <= last_entry; i++) {
       Print((_dt ? DateTimeStatic::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
     }
     // Flush logs from another linked instances.
-    for (lid = 0; lid < logs.Size(); lid++) {
-      Log *_log = logs[lid].Ptr();
+    for (DictStructIterator<int, Ref<Log>> _li = logs.Begin(); _li.IsValid(); ++_li) {
+      Log *_log = _li.Value().Ptr();
       PTR_ATTRIB(_log, Flush());
     }
+
     last_entry = -1;
     last_flush = TimeCurrent();
   }
