@@ -231,7 +231,9 @@ class Log : public Object {
       return;
     }
     for (int i = 0; i <= last_entry; i++) {
-      Print((_dt ? DateTimeStatic::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
+      if (data[i].timestamp > last_flush) {
+        Print((_dt ? DateTimeStatic::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
+      }
     }
     // Flush logs from another linked instances.
     for (DictStructIterator<int, Ref<Log>> _li = logs.Begin(); _li.IsValid(); ++_li) {
