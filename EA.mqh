@@ -54,7 +54,7 @@ class EA {
  protected:
   // Class variables.
   Account *account;
-  DictObject<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> strats;
+  DictStruct<long, Ref<Strategy>> strats;
   DictStruct<short, TaskEntry> tasks;
   Log logger;
   Ref<Market> market;
@@ -129,48 +129,40 @@ class EA {
   }
 
   /**
-   * Sets an strategy parameter value for all strategies in the given timeframe.
-   */
-  template <typename T>
-  void Set(ENUM_STRATEGY_PARAM _param, T _value, ENUM_TIMEFRAMES _tf) {
-    for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
-      Strategy *_strat = iter.Value().Ptr();
-      _strat.Set<T>(_param, _value);
-    }
-  }
-
-  /**
-   * Sets an strategy parameter value for the given timeframe.
+   * Sets an strategy parameter value for all strategies.
    */
   template <typename T>
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
-    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> itf = strats.Begin(); itf.IsValid();
-         ++itf) {
-      Set(_param, _value, itf.Key());
+    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+      Strategy *_strat = iter.Value().Ptr();
+      _strat.Set<T> Set(_param, _value);
     }
   }
 
   /**
-   * Sets an strategy parameter value for all strategies in the given timeframe.
+   * Sets an strategy parameter value for all strategies.
    */
+  /* @fixme
   template <typename T>
   void Set(ENUM_TRADE_PARAM _param, T _value, ENUM_TIMEFRAMES _tf) {
-    for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
       Strategy *_strat = iter.Value().Ptr();
       _strat.Set<T>(_param, _value);
     }
   }
+  */
 
   /**
    * Sets an strategy parameter value for the given timeframe.
    */
+  /* @fixme
   template <typename T>
   void Set(ENUM_TRADE_PARAM _param, T _value) {
-    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> itf = strats.Begin(); itf.IsValid();
-         ++itf) {
-      Set(_param, _value, itf.Key());
+    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+      Set(_param, _value);
     }
   }
+  */
 
   /* Processing methods */
 
@@ -281,61 +273,48 @@ class EA {
   }
 
   /**
-   * Process strategy on tick event for the given timeframe.
-   *
-   * @return
-   *   Returns struct with the processed results.
-   */
-  virtual EAProcessResult ProcessTickByTf(const ENUM_TIMEFRAMES _tf, const MqlTick &_tick) {
-    for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
-      bool _can_trade = true;
-      Strategy *_strat = iter.Value().Ptr();
-      if (_strat.IsEnabled()) {
-        if (estate.new_periods != DATETIME_NONE) {
-          // Process when new periods started.
-          _strat.OnPeriod(estate.new_periods);
-          eresults.stg_processed_periods++;
-        }
-        if (_strat.TickFilter(_tick)) {
-          _can_trade &= _can_trade && !_strat.IsSuspended();
-          _can_trade &= _can_trade &&
-                        !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
-          StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-          SignalAdd(_signal, _tick.time);
-          if (estate.new_periods != DATETIME_NONE) {
-            if (_strat.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-              _strat.ProcessOrders();
-            }
-            _strat.ProcessTasks();
-          }
-          StgProcessResult _strat_result = _strat.GetProcessResult();
-          eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-          eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
-          eresults.stg_processed++;
-        }
-      }
-    }
-    return eresults;
-  }
-
-  /**
    * Process strategy signals on tick event.
    *
-   * Note: Call this method for every tick bar.
+   * Note: Call this method for every market tick.
    *
    * @return
    *   Returns struct with the processed results.
    */
   virtual EAProcessResult ProcessTick() {
     if (estate.IsEnabled()) {
+      MqlTick _tick = SymbolInfoStatic::GetTick(_Symbol);
+      GetMarket().SetTick(_tick);
       eresults.Reset();
       if (estate.IsActive()) {
-        GetMarket().SetTick(SymbolInfoStatic::GetTick(_Symbol));
         ProcessPeriods();
         // Process all enabled strategies and retrieve their signals.
-        for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
-             iter_tf.IsValid(); ++iter_tf) {
-          ProcessTickByTf(iter_tf.Key(), GetMarket().GetLastTick());
+        for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+          bool _can_trade = true;
+          Strategy *_strat = iter.Value().Ptr();
+          if (_strat.IsEnabled()) {
+            if (estate.new_periods != DATETIME_NONE) {
+              // Process when new periods started.
+              _strat.OnPeriod(estate.new_periods);
+              eresults.stg_processed_periods++;
+            }
+            if (_strat.TickFilter(_tick)) {
+              _can_trade &= _can_trade && !_strat.IsSuspended();
+              _can_trade &= _can_trade && !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE,
+                                                                 TRADE_STATE_TRADE_CANNOT);
+              StrategySignal _signal = _strat.ProcessSignals(_can_trade);
+              SignalAdd(_signal, _tick.time);
+              if (estate.new_periods != DATETIME_NONE) {
+                if (_strat.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+                  _strat.ProcessOrders();
+                }
+                _strat.ProcessTasks();
+              }
+              StgProcessResult _strat_result = _strat.GetProcessResult();
+              eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
+              eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
+              eresults.stg_processed++;
+            }
+          }
         }
         // Process all strategies' signals and trigger trading orders.
         ProcessSignals(GetMarket().GetLastTick(),
@@ -365,42 +344,38 @@ class EA {
       data_chart.Add(_entry, _entry.bar.ohlc.time);
     }
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
-      for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
-           iter_tf.IsValid(); ++iter_tf) {
-        ENUM_TIMEFRAMES _itf = iter_tf.Key();
-        for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
-          Strategy *_strati = iter.Value().Ptr();
-          Indicator *_indi = _strati.GetParams().GetIndicator();
-          if (_indi != NULL) {
-            IndicatorDataEntry _ientry = _indi.GetEntry();
-            if (!data_indi.KeyExists(_itf)) {
-              // Create new timeframe buffer if does not exist.
-              BufferStruct<IndicatorDataEntry> *_ide = new BufferStruct<IndicatorDataEntry>;
-              data_indi.Set(_itf, _ide);
-            }
-            // Save entry into data_indi.
-            data_indi[_itf].Add(_ientry);
-          }
-        }
-      }
-    }
-    if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
-      for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
-           iter_tf.IsValid(); ++iter_tf) {
-        ENUM_TIMEFRAMES _stf = iter_tf.Key();
-        for (DictStructIterator<long, Ref<Strategy>> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
-          Strategy *_strat = iter.Value().Ptr();
-          StgEntry _sentry = _strat.GetEntry();
-          if (!data_stg.KeyExists(_stf)) {
+      for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+        Strategy *_strati = iter.Value().Ptr();
+        Indicator *_indi = _strati.GetParams().GetIndicator();
+        if (_indi != NULL) {
+          ENUM_TIMEFRAMES _itf = _indi.GetParams().tf.GetTf();
+          IndicatorDataEntry _ientry = _indi.GetEntry();
+          if (!data_indi.KeyExists(_itf)) {
             // Create new timeframe buffer if does not exist.
-            BufferStruct<StgEntry> *_se = new BufferStruct<StgEntry>;
-            data_stg.Set(_stf, _se);
+            BufferStruct<IndicatorDataEntry> *_ide = new BufferStruct<IndicatorDataEntry>;
+            data_indi.Set(_itf, _ide);
           }
-          // Save data into data_stg.
-          data_stg[_stf].Add(_sentry);
+          // Save entry into data_indi.
+          data_indi[_itf].Add(_ientry);
         }
       }
     }
+    /*
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
+      for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+        Strategy *_strat = iter.Value().Ptr();
+        StgEntry _sentry = _strat.GetEntry();
+        ENUM_TIMEFRAMES _stf = iter_tf.Key(); // @fixme
+        if (!data_stg.KeyExists(_stf)) {
+          // Create new timeframe buffer if does not exist.
+          BufferStruct<StgEntry> *_se = new BufferStruct<StgEntry>;
+          data_stg.Set(_stf, _se);
+        }
+        // Save data into data_stg.
+        data_stg[_stf].Add(_sentry);
+      }
+    }
+    */
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_SYMBOL)) {
       data_symbol.Add(SymbolInfo().GetEntryLast(), _timestamp);
     }
@@ -452,9 +427,9 @@ class EA {
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
       SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(_serializer_flags);
 
-      for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
-           iter_tf.IsValid(); ++iter_tf) {
-        ENUM_TIMEFRAMES _itf = iter_tf.Key();
+      /*
+      for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+        ENUM_TIMEFRAMES _itf = iter_tf.Key(); // @fixme
         if (data_indi.KeyExists(_itf)) {
           BufferStruct<IndicatorDataEntry> _indi_buff = data_indi.GetByKey(_itf);
 
@@ -479,6 +454,7 @@ class EA {
           _obj.Clean();
         }  // if
       }
+      */
 
       // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
       _stub.Clean();
@@ -486,31 +462,30 @@ class EA {
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
       SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<StgEntry>>(_serializer_flags);
 
-      for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
-           iter_tf.IsValid(); ++iter_tf) {
-        ENUM_TIMEFRAMES _stf = iter_tf.Key();
-        for (DictStructIterator<long, Ref<Strategy>> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
-          if (data_stg.KeyExists(_stf)) {
-            string _key_stg = StringFormat("Strategy-%d", _stf);
-            BufferStruct<StgEntry> _stg_buff = data_stg.GetByKey(_stf);
-            SerializerConverter _obj = SerializerConverter::FromObject(_stg_buff, _serializer_flags);
+      /* @fixme
+      for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+        ENUM_TIMEFRAMES _stf = iter_tf.Key(); // @fixme
+        if (data_stg.KeyExists(_stf)) {
+          string _key_stg = StringFormat("Strategy-%d", _stf);
+          BufferStruct<StgEntry> _stg_buff = data_stg.GetByKey(_stf);
+          SerializerConverter _obj = SerializerConverter::FromObject(_stg_buff, _serializer_flags);
 
-            _key_stg += StringFormat("-%d-%d-%d", _stf, _stg_buff.GetMin(), _stg_buff.GetMax());
-            if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
-              _obj.ToFile<SerializerCsv>(_key_stg + ".csv", _serializer_flags, &_stub);
-            }
-            if ((_methods & EA_DATA_EXPORT_DB) != 0) {
-              SerializerSqlite::ConvertToFile(_obj, _key_stg + ".sqlite", "strategy", _serializer_flags, &_stub);
-            }
-            if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
-              _obj.ToFile<SerializerJson>(_key_stg + ".json", _serializer_flags, &_stub);
-            }
-
-            // Required because of SERIALIZER_FLAG_REUSE_OBJECT flag.
-            _obj.Clean();
+          _key_stg += StringFormat("-%d-%d-%d", _stf, _stg_buff.GetMin(), _stg_buff.GetMax());
+          if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+            _obj.ToFile<SerializerCsv>(_key_stg + ".csv", _serializer_flags, &_stub);
           }
+          if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+            SerializerSqlite::ConvertToFile(_obj, _key_stg + ".sqlite", "strategy", _serializer_flags, &_stub);
+          }
+          if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
+            _obj.ToFile<SerializerJson>(_key_stg + ".json", _serializer_flags, &_stub);
+          }
+
+          // Required because of SERIALIZER_FLAG_REUSE_OBJECT flag.
+          _obj.Clean();
         }
       }
+      */
       // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
       _stub.Clean();
     }
@@ -651,14 +626,10 @@ class EA {
           break;
         case ACTION_TYPE_TRADE:
           if (Condition::Test(_entry.GetCondition())) {
-            for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
-                 iter_tf.IsValid(); ++iter_tf) {
-              ENUM_TIMEFRAMES _tf = iter_tf.Key();
-              for (DictStructIterator<long, Ref<Strategy>> iter_strat = strats[_tf].Begin(); iter_strat.IsValid();
-                   ++iter_strat) {
-                Strategy *_strat = iter_strat.Value().Ptr();
-                _is_processed |= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _entry.GetActionId());
-              }
+            for (DictStructIterator<long, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat.IsValid();
+                 ++iter_strat) {
+              Strategy *_strat = iter_strat.Value().Ptr();
+              _is_processed |= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _entry.GetActionId());
             }
           }
           break;
@@ -686,12 +657,13 @@ class EA {
     bool _result = true;
     _magic_no = _magic_no > 0 ? _magic_no : rand();
     Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, _magic_no);
-    if (!strats.KeyExists(_tf)) {
-      DictStruct<long, Ref<Strategy>> _new_strat_dict;
-      _result &= strats.Set(_tf, _new_strat_dict);
+    if (!strats.KeyExists(_magic_no)) {
+      _result &= strats.Set(_magic_no, _strat);
+    } else {
+      logger.Error("Strategy adding conflict!", __FUNCTION_LINE__);
+      DebugBreak();
     }
     OnStrategyAdd(_strat.Ptr());
-    _result &= strats.GetByKey(_tf).Set(_magic_no, _strat);
     return _result;
   }
 
@@ -833,20 +805,14 @@ class EA {
         // Args:
         // 1st (i:0) - Strategy's enum action to execute.
         // 2nd (i:1) - Strategy's argument to pass.
-        for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
-             iter_tf.IsValid(); ++iter_tf) {
-          ENUM_TIMEFRAMES _tf = iter_tf.Key();
-          if (arg_size > 0) {
-            DataParamEntry _sargs[];
-            ArrayResize(_sargs, ArraySize(_args) - 1);
-            for (int i = 0; i < ArraySize(_sargs); i++) {
-              _sargs[i] = _args[i + 1];
-            }
-            for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
-              Strategy *_strat = iter.Value().Ptr();
-              _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)_args[0].integer_value, _sargs);
-            }
+        for (DictStructIterator<long, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat.IsValid(); ++iter_strat) {
+          DataParamEntry _sargs[];
+          ArrayResize(_sargs, ArraySize(_args) - 1);
+          for (int i = 0; i < ArraySize(_sargs); i++) {
+            _sargs[i] = _args[i + 1];
           }
+          Strategy *_strat = iter_strat.Value().Ptr();
+          _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)_args[0].integer_value, _sargs);
         }
         return _result;
       case EA_ACTION_TASKS_CLEAN:
@@ -895,42 +861,9 @@ class EA {
   EAParams GetParams() const { return eparams; }
 
   /**
-   * Gets object to strategies.
+   * Gets DictStruct reference to strategies.
    */
-  DictObject<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> *GetStrategies() { return GetPointer(strats); }
-
-  /**
-   * Gets Strategy instance by the timeframe and ID.
-   */
-  Strategy *GetStrategy(ENUM_TIMEFRAMES _tf, int _sid) {
-    Strategy *_strat = NULL;
-    DictStruct<long, Ref<Strategy>> *_strats_tf = GetStrategiesByTf(_tf);
-    if (GetPointer(_strats_tf) != NULL) {
-      if (_strats_tf.KeyExists(_sid)) {
-        _strat = _strats_tf.GetByKey(_sid).Ptr();
-      }
-    }
-    return _strat;
-  }
-
-  /**
-   * Gets object to strategies for the given timeframe.
-   */
-  DictStruct<long, Ref<Strategy>> *GetStrategiesByTf(ENUM_TIMEFRAMES _tf) { return strats.GetByKey(_tf); }
-
-  /* State getters */
-
-  /**
-   * Checks if trading is allowed.
-   */
-  bool IsTradeAllowed() { return estate.IsTradeAllowed(); }
-
-  /**
-   * Checks if using libraries is allowed.
-   */
-  bool IsLibsAllowed() { return estate.IsLibsAllowed(); }
-
-  /* Struct getters */
+  DictStruct<long, Ref<Strategy>> *GetStrategies() { return GetPointer(strats); }
 
   /**
    * Gets EA params.
@@ -960,9 +893,9 @@ class EA {
   Market *Market() { return market.Ptr(); }
 
   /**
-   * Gets pointer to strategies.
+   * Gets reference to strategies.
    */
-  DictObject<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> *Strategies() { return &strats; }
+  DictStruct<long, Ref<Strategy>> *Strategies() { return &strats; }
 
   /**
    * Gets pointer to symbol details.
@@ -1043,19 +976,15 @@ class EA {
     MAKE_REF_FROM_PTR(Market, _market, GetMarket());
     _s.PassObject(THIS_REF, "market", _market, SERIALIZER_FIELD_FLAG_DYNAMIC);
 
-    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
-         _iter_tf.IsValid(); ++_iter_tf) {
-      ENUM_TIMEFRAMES _tf = _iter_tf.Key();
-      for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategiesByTf(_tf).Begin(); _iter.IsValid(); ++_iter) {
-        Strategy *_strat = _iter.Value().Ptr();
-        // @fixme: GH-422
-        // _s.PassWriteOnly(this, "strat:" + _strat.GetName(), _strat);
-        string _sname = _strat.GetName();  // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
-        string _sparams = _strat.GetParams().ToString();
-        string _sresults = _strat.GetProcessResult().ToString();
-        _s.Pass(THIS_REF, "strat:params:" + _sname, _sparams);
-        _s.Pass(THIS_REF, "strat:results:" + _sname, _sresults);
-      }
+    for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategies().Begin(); _iter.IsValid(); ++_iter) {
+      Strategy *_strat = _iter.Value().Ptr();
+      // @fixme: GH-422
+      // _s.PassWriteOnly(this, "strat:" + _strat.GetName(), _strat);
+      string _sname = _strat.GetName();  // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
+      string _sparams = _strat.GetParams().ToString();
+      string _sresults = _strat.GetProcessResult().ToString();
+      _s.Pass(THIS_REF, "strat:params:" + _sname, _sparams);
+      _s.Pass(THIS_REF, "strat:results:" + _sname, _sresults);
     }
     return SerializerNodeObject;
   }
