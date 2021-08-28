@@ -94,7 +94,7 @@ class Strategy : public Object {
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<short, TaskEntry> tasks;
-  Ref<Log> logger;  // Log instance.
+  Log logger;  // Log instance.
   MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
@@ -121,14 +121,14 @@ class Strategy : public Object {
    * Class constructor.
    */
   Strategy(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
-      : logger(new Log()), sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
+      : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
     // Initialize variables.
     name = _name;
     MqlTick _tick = {0};
     last_tick = _tick;
 
     // Link log instances.
-    logger.Ptr().Link(trade.GetLogger());
+    logger.Link(trade.GetLogger());
 
     // Statistics variables.
     // UpdateOrderStats(EA_STATS_DAILY);
@@ -140,7 +140,7 @@ class Strategy : public Object {
     Strategy::OnInit();
   }
 
-  Log *GetLogger() { return logger.Ptr(); }
+  Log *GetLogger() { return GetPointer(logger); }
 
   /**
    * Class copy constructor.
@@ -238,7 +238,7 @@ class Strategy : public Object {
           tp_valid = trade.IsValidOrderTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
           if (sl_valid && tp_valid) {
             if (!_order.OrderModify(sl_new, tp_new)) {
-              _order.Logger().Flush();
+              _order.GetLogger().Flush();
             }
           }
           sresult.stops_invalid_sl += (unsigned short)sl_valid;

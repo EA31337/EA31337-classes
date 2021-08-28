@@ -56,9 +56,9 @@ class EA {
   Account *account;
   DictObject<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> strats;
   DictStruct<short, TaskEntry> tasks;
+  Log logger;
   Ref<Market> market;
-  Ref<Log> logger;
-  Ref<Terminal> terminal;
+  Terminal terminal;
 
   // Data variables.
   BufferStruct<ChartEntry> data_chart;
@@ -78,10 +78,7 @@ class EA {
    * Class constructor.
    */
   EA(EAParams &_params)
-      : account(new Account),
-        logger(new Log(_params.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)))),
-        market(new Market(_params.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SYMBOL)), logger.Ptr())),
-        terminal(new Terminal) {
+      : account(new Account), market(new Market(_params.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SYMBOL)))) {
     eparams = _params;
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
     UpdateStateFlags();
@@ -101,8 +98,6 @@ class EA {
     // Deinitialize classes.
     Object::Delete(account);
   }
-
-  Log *Logger() { return logger.Ptr(); }
 
   /* Getters */
 
@@ -209,6 +204,7 @@ class EA {
           if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
             _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
             // Buy order open.
+            // TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
             _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
             if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
               _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
@@ -222,6 +218,7 @@ class EA {
           if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
             _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
             // Sell order open.
+            // TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
             _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
             if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
               _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
@@ -234,10 +231,9 @@ class EA {
           _last_error = GetLastError();
           switch (_last_error) {
             case ERR_NOT_ENOUGH_MEMORY:
-              logger.Ptr().Error(StringFormat("Not enough money to open trades! Code: %d", _last_error),
-                                 __FUNCTION_LINE__, _strat.GetName());
-              logger.Ptr().Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__,
-                                   _strat.GetName());
+              logger.Error(StringFormat("Not enough money to open trades! Code: %d", _last_error), __FUNCTION_LINE__,
+                           _strat.GetName());
+              logger.Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__, _strat.GetName());
               _strat.Suspended(true);
               break;
           }
@@ -246,7 +242,7 @@ class EA {
     }
     _last_error = GetLastError();
     if (_last_error > 0) {
-      logger.Ptr().Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__);
+      logger.Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__);
     }
     return _last_error == 0;
   }
@@ -313,7 +309,7 @@ class EA {
                        eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER)));
         if (eresults.last_error > ERR_NO_ERROR) {
           // On error, print logs.
-          logger.Ptr().Flush();
+          logger.Flush();
         }
       }
       estate.last_updated.Update();
@@ -772,7 +768,7 @@ class EA {
       case EA_COND_ON_QUIT:
         return estate.IsOnQuit();
       default:
-        Logger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -826,7 +822,7 @@ class EA {
         // @todo
         return tasks.Size() == 0;
       default:
-        Logger().Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        logger.Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
     return _result;
@@ -860,7 +856,7 @@ class EA {
   /**
    * Returns pointer to Market object.
    */
-  Terminal *GetTerminal() { return terminal.Ptr(); }
+  Terminal *GetTerminal() { return GetPointer(terminal); }
 
   /**
    * Gets EA's name.
@@ -925,7 +921,7 @@ class EA {
   /**
    * Gets pointer to log instance.
    */
-  Log *Log() { return logger.Ptr(); }
+  Log *GetLogger() { return GetPointer(logger); }
 
   /**
    * Gets pointer to market details.
@@ -952,6 +948,9 @@ class EA {
   virtual void OnPeriod() {
     if ((estate.new_periods & DATETIME_MINUTE) != 0) {
       // New minute started.
+#ifndef __optimize__
+      logger.Flush();
+#endif
     }
     if ((estate.new_periods & DATETIME_HOUR) != 0) {
       // New hour started.
@@ -980,9 +979,11 @@ class EA {
    *
    */
   virtual void OnStrategyAdd(Strategy *_strat) {
+    // Sets margin risk.
     float _margin_risk = eparams.Get<float>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_RISK_MARGIN_MAX));
     _strat.Set<float>(TRADE_PARAM_RISK_MARGIN, _margin_risk);
-    logger.Ptr().Link(_strat.GetLogger());
+    // Link a logger instance.
+    logger.Link(_strat.GetLogger());
   }
 
   /* Printer methods */

@@ -50,7 +50,7 @@ class Trade {
   DictStruct<long, Ref<Order>> orders_active;
   DictStruct<long, Ref<Order>> orders_history;
   DictStruct<long, Ref<Order>> orders_pending;
-  Ref<Log> logger;      // Trade logger.
+  Log logger;           // Trade logger.
   TradeParams tparams;  // Trade parameters.
   TradeStates tstates;  // Trade states.
   TradeStats tstats;    // Trade statistics.
@@ -64,12 +64,12 @@ class Trade {
   /**
    * Class constructor.
    */
-  Trade() : chart(new Chart()), logger(new Log()), order_last(NULL) {
+  Trade() : chart(new Chart()), order_last(NULL) {
     SetName();
     OrdersLoadByMagic();
   };
   Trade(TradeParams &_tparams, ChartParams &_cparams)
-      : chart(new Chart(_cparams)), logger(new Log()), tparams(_tparams), order_last(NULL) {
+      : chart(new Chart(_cparams)), tparams(_tparams), order_last(NULL) {
     SetName();
     OrdersLoadByMagic();
   };
@@ -77,13 +77,11 @@ class Trade {
   /**
    * Class copy constructor.
    */
-  /*
   Trade(const Trade &_trade) {
-    tparams = _trade.GetParams();
-    tstats = _trade.GetStats();
-    tstates = _trade.GetStates();
+    tparams = _trade.tparams;
+    tstats = _trade.tstats;
+    tstates = _trade.tstates;
   }
-  */
 
   /**
    * Class deconstructor.
@@ -572,12 +570,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool OrderAdd(Order *_order) {
     bool _result = false;
     unsigned int _last_error = _order.GetData().last_error;
-    GetLogger().Link(_order.Logger());
+    logger.Link(_order.GetLogger());
     Ref<Order> _ref_order = _order;
     switch (_last_error) {
       case 69539:
-        GetLogger().Error("Error while opening an order!", __FUNCTION_LINE__,
-                          StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+        logger.Error("Error while opening an order!", __FUNCTION_LINE__,
+                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         // Pass-through.
       case ERR_NO_ERROR:
@@ -589,12 +587,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         _result = true;
         break;
       case TRADE_RETCODE_INVALID:
-        GetLogger().Error("Cannot process order!", __FUNCTION_LINE__,
-                          StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+        logger.Error("Cannot process order!", __FUNCTION_LINE__,
+                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         break;
       default:
-        GetLogger().Error("Cannot add order!", __FUNCTION_LINE__,
-                          StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+        logger.Error("Cannot add order!", __FUNCTION_LINE__,
+                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         _result = false;
         break;
@@ -634,7 +632,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, string _comment = "") {
     bool _result = false;
     if (!IsOrderAllowed()) {
-      GetLogger().Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
+      logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
       return _result;
     }
     // Prepare order request.
@@ -660,7 +658,28 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         OnOrderOpen(_order);
       }
     } else {
-      GetLogger().Error("No free margin to open more orders!", __FUNCTION_LINE__);
+      logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
+    }
+    return _result;
+  }
+
+  /**
+   * Sends a trade request.
+   */
+  bool RequestSend(MqlTradeRequest &_request, OrderParams &_oparams) {
+    bool _result = false;
+    if (!IsOrderAllowed()) {
+      logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
+      return _result;
+    }
+    if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) > 0) {
+      Order *_order = new Order(_request, _oparams);
+      _result = OrderAdd(_order);
+      if (_result) {
+        OnOrderOpen(_order);
+      }
+    } else {
+      logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
     }
     return _result;
   }
@@ -717,7 +736,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (!_order.Ptr().OrderClose(_reason, _comment)) {
-          GetLogger().AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
+          logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
           return -1;
         }
         order_last = _order;
@@ -745,8 +764,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       if (_order.Ptr().IsOpen()) {
         if (_order.Ptr().GetRequest().type == _cmd) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
-            GetLogger().Error("Error while closing order!", __FUNCTION_LINE__,
-                              StringFormat("Code: %d", _order.Ptr().GetData().last_error));
+            logger.Error("Error while closing order!", __FUNCTION_LINE__,
+                         StringFormat("Code: %d", _order.Ptr().GetData().last_error));
             return -1;
           }
           order_last = _order;
@@ -779,7 +798,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       if (_order.Ptr().IsOpen()) {
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop), _value, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
-            GetLogger().AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
+            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
             return -1;
           }
           order_last = _order;
@@ -914,7 +933,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           case ORDER_TYPE_TP:
             return NormalizeSLTP(_value1 < _value2 ? _value1 : _value2, _cmd, _mode);
           default:
-            GetLogger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
         break;
       case ORDER_TYPE_SELL_LIMIT:
@@ -925,11 +944,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           case ORDER_TYPE_TP:
             return NormalizeSLTP(_value1 > _value2 ? _value1 : _value2, _cmd, _mode);
           default:
-            GetLogger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
         break;
       default:
-        GetLogger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+        logger.Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
     }
     return EMPTY_VALUE;
   }
@@ -1133,7 +1152,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
     _last_trend = (bull - bear);
     _last_trend_check = Chart().GetBarTime(_tf, 0);
-    GetLogger().Debug(StringFormat("%s: %g", __FUNCTION__, _last_trend));
+    logger.Debug(StringFormat("%s: %g", __FUNCTION__, _last_trend));
     return _last_trend;
   }
 
@@ -1213,7 +1232,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       for (int _bi = 0; _bi < sizeof(int) * 8; _bi++) {
         bool _enabled = tstates.CheckState(1 << _bi) > TradeStates::CheckState(1 << _bi, _states_prev);
         if (_enabled && (ENUM_TRADE_STATE)(1 << _bi) != TRADE_STATE_ORDERS_ACTIVE) {
-          GetLogger().Warning(TradeStates::GetStateMessage((ENUM_TRADE_STATE)(1 << _bi)), GetName());
+          logger.Warning(TradeStates::GetStateMessage((ENUM_TRADE_STATE)(1 << _bi)), GetName());
         }
       }
       _states_prev = tstates.GetStates();
@@ -1258,7 +1277,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           case ORDER_TYPE_TP:
             return fmax(_value, GetChart().GetBid() + GetTradeDistanceInValue());
           default:
-            GetLogger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
         break;
       // Selling is done at the Bid price.
@@ -1273,11 +1292,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           case ORDER_TYPE_TP:
             return fmin(_value, GetChart().GetAsk() - GetTradeDistanceInValue());
           default:
-            GetLogger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
         break;
       default:
-        GetLogger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+        logger.Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
     }
     return NULL;
   }
@@ -1487,7 +1506,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   _order Order instance of order which got opened.
    */
   virtual void OnOrderOpen(const Order &_order) {
-    if (GetLogger().GetLevel() >= V_INFO) {
+    if (logger.GetLevel() >= V_INFO) {
       // logger.Info(_order.ToString(), (string)_order.GetTicket()); // @fixme
       ResetLastError();  // @fixme: Error 69539
     }
@@ -1529,7 +1548,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // case TRADE_ORDER_CONDS_IN_TREND:
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
-        GetLogger().Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        logger.Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -1586,7 +1605,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         tstates.AddState((unsigned int)_args[0].integer_value);
         return GetLastError() == ERR_NO_ERROR;
       default:
-        GetLogger().Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        logger.Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -1612,7 +1631,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Returns pointer to Log class.
    */
-  Log *GetLogger() { return logger.Ptr(); }
+  Log *GetLogger() { return GetPointer(logger); }
 
   /* Serializers */
 
