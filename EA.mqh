@@ -88,7 +88,7 @@ class EA {
     ProcessTasks();
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
     // Initialize a trade instance for the current chart and symbol.
-    ChartParams _cparams(_Period, _Symbol);
+    ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
     TradeParams _tparams;
     Trade *_trade = new Trade(_tparams, _cparams);
     trade.Set(_Symbol, _trade);
@@ -675,27 +675,23 @@ class EA {
    * Adds strategy to specific timeframe.
    *
    * @param
-   * _tf - timeframe to add the strategy.
+   *   _tf - timeframe to add the strategy.
+   *   _magic_no - unique order identified
    *
    * @return
-   * Returns true if the strategy has been initialized correctly,
-   * otherwise false.
+   *   Returns true if the strategy has been initialized correctly, otherwise false.
    */
   template <typename SClass>
-  bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = 0, long _magic_no = 0) {
+  bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _magic_no = 0) {
     bool _result = true;
-    int _tfi = ChartTf::TfToIndex(_tf);
-    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, _magic_no + _tfi);
+    _magic_no = _magic_no > 0 ? _magic_no : rand();
+    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, _magic_no);
     if (!strats.KeyExists(_tf)) {
       DictStruct<long, Ref<Strategy>> _new_strat_dict;
       _result &= strats.Set(_tf, _new_strat_dict);
     }
     OnStrategyAdd(_strat.Ptr());
-    if (_sid > 0) {
-      _result &= strats.GetByKey(_tf).Set(_sid, _strat);
-    } else {
-      _result &= strats.GetByKey(_tf).Push(_strat);
-    }
+    _result &= strats.GetByKey(_tf).Set(_magic_no, _strat);
     return _result;
   }
 
@@ -705,7 +701,7 @@ class EA {
    * @param
    *   _tfs - timeframes to add strategy (using bitwise operation).
    *   _sid - strategy ID
-   *   _magic - initial order identified
+   *   _init_magic - initial order identified
    *
    * Note:
    *   Final magic number is going to be increased by timeframe index value.
@@ -716,11 +712,11 @@ class EA {
    *   Returns true if all strategies has been initialized correctly, otherwise false.
    */
   template <typename SClass>
-  bool StrategyAdd(unsigned int _tfs, long _sid = 0, long _init_magic = 0) {
+  bool StrategyAdd(unsigned int _tfs, long _init_magic = 0) {
     bool _result = true;
     for (int _tfi = 0; _tfi < sizeof(int) * 8; ++_tfi) {
       if ((_tfs & (1 << _tfi)) != 0) {
-        _result &= StrategyAdd<SClass>(ChartTf::IndexToTf((ENUM_TIMEFRAMES_INDEX)_tfi), _sid, _init_magic + _tfi);
+        _result &= StrategyAdd<SClass>(ChartTf::IndexToTf((ENUM_TIMEFRAMES_INDEX)_tfi), _init_magic + _tfi);
       }
     }
     return _result;
