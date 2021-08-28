@@ -236,7 +236,9 @@ class Log : public Object {
     // Flush logs from another linked instances.
     for (DictStructIterator<int, Ref<Log>> _li = logs.Begin(); _li.IsValid(); ++_li) {
       Log *_log = _li.Value().Ptr();
-      PTR_ATTRIB(_log, Flush());
+      if (Object::IsValid(_log)) {
+        PTR_ATTRIB(_log, Flush());
+      }
     }
 
     last_entry = -1;
