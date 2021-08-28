@@ -66,6 +66,7 @@ class EA {
   BufferStruct<SymbolInfoEntry> data_symbol;
   Dict<string, double> ddata;  // Custom user data.
   Dict<string, int> idata;     // Custom user data.
+  DictObject<string, Trade> trade;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
   // DictObject<string, Trade> trade;  // @todo
@@ -86,6 +87,14 @@ class EA {
     AddTask(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
     ProcessTasks();
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
+    // Initialize a trade instance for the current chart and symbol.
+    ChartParams _cparams(_Period, _Symbol);
+    TradeParams _tparams;
+    Trade *_trade = new Trade(_tparams, _cparams);
+    trade.Set(_Symbol, _trade);
+    logger.Link(_trade.GetLogger());
+    // trade.GetByKey(_Symbol).GetLogger().Error("Test");
+    // logger.Flush();
   }
 
   /**
@@ -204,8 +213,7 @@ class EA {
           if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
             _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
             // Buy order open.
-            // TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
-            _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
+            TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
             if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
               _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
               break;
@@ -218,8 +226,7 @@ class EA {
           if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
             _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
             // Sell order open.
-            // TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
-            _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
+            TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
             if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
               _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
               break;
@@ -245,6 +252,32 @@ class EA {
       logger.Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__);
     }
     return _last_error == 0;
+  }
+
+  /**
+   * Process a trade request.
+   *
+   * @return
+   *   Returns true on successful request.
+   */
+  virtual bool TradeRequest(ENUM_ORDER_TYPE _cmd, string _symbol = NULL, Strategy *_strat = NULL) {
+    Trade *_trade = trade.GetByKey(_symbol);
+    // Prepare a request.
+    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
+    _request.action = TRADE_ACTION_DEAL;
+    _request.comment = _strat.GetOrderOpenComment();  // @todo: Add GetOrderCloseComment().
+    _request.deviation = 10;
+    _request.magic = _strat.Get<unsigned long>(TRADE_PARAM_MAGIC_NO);  // @fixme
+    _request.price = SymbolInfoStatic::GetOpenOffer(_symbol, _cmd);
+    _request.symbol = _symbol;
+    _request.type = _cmd;
+    _request.type_filling = Order::GetOrderFilling(_request.symbol);
+    _request.volume = fmax(_strat.Get<float>(STRAT_PARAM_LS), SymbolInfoStatic::GetVolumeMin(_symbol));
+    _request.volume = _trade.NormalizeLots(_request.volume);
+    // Prepare an order parameters.
+    OrderParams _oparams;
+    // Send the request.
+    return _trade.RequestSend(_request, _oparams);
   }
 
   /**
