@@ -456,7 +456,7 @@ class Strategy : public Object {
    * Get strategy's order open comment.
    */
   string GetOrderOpenComment(string _prefix = "", string _suffix = "") {
-    // @todo
+    // @todo: Add spread.
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.chart.TfToString(),
     // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
 
@@ -468,10 +468,9 @@ class Strategy : public Object {
    * Get strategy's order close comment.
    */
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
-    // @todo: Add spread and timeframe.
-    // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.GetChart().TfToString(),
-    // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
-    return StringFormat("%s%s;%s", _prefix != "" ? _prefix + ": " : "", name, _suffix != "" ? "| " + _suffix : "");
+    // @todo: Add spread.
+    return StringFormat("%s%s[%s]%s", _prefix, name, ChartTf::TfToString(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
+                        _suffix);
   }
 
   /**

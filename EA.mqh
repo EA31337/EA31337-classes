@@ -181,17 +181,22 @@ class EA {
         continue;
       }
       Strategy *_strat = _signal.GetStrategy();
-      if (trade.GetByKey(_Symbol).Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+      Trade *_trade = trade.GetByKey(_Symbol);
+      if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
         float _sig_close = _signal.GetSignalClose();
         // Check if we should close the orders.
         if (_sig_close >= 0.5f) {
           // Close signal for buy order.
-          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_BUY);
+          _result &= _trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
+              ORDER_MAGIC, _strat.Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_BUY, MATH_COND_EQ,
+              ORDER_REASON_CLOSED_BY_SIGNAL, _strat.GetOrderCloseComment());
           // Buy orders closed.
         }
         if (_sig_close <= -0.5f) {
           // Close signal for sell order.
-          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_SELL);
+          _result &= _trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
+              ORDER_MAGIC, _strat.Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_SELL, MATH_COND_EQ,
+              ORDER_REASON_CLOSED_BY_SIGNAL, _strat.GetOrderCloseComment());
           // Sell orders closed.
         }
       }
@@ -291,6 +296,7 @@ class EA {
         for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
           bool _can_trade = true;
           Strategy *_strat = iter.Value().Ptr();
+          Trade *_trade = trade.GetByKey(_Symbol);
           if (_strat.IsEnabled()) {
             if (estate.new_periods != DATETIME_NONE) {
               // Process when new periods started.
@@ -304,7 +310,7 @@ class EA {
               StrategySignal _signal = _strat.ProcessSignals(_can_trade);
               SignalAdd(_signal, _tick.time);
               if (estate.new_periods != DATETIME_NONE) {
-                if (trade.GetByKey(_Symbol).Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+                if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
                   _strat.ProcessOrders();
                 }
                 _strat.ProcessTasks();
