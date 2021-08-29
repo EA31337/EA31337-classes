@@ -829,8 +829,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
-        if (Math::Compare(_order.Ptr().Get<T>((E)_prop1), _value1, _op) &&
-            Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
+        if (Math::Compare(_order.Ptr().Get((E)_prop1), _value1, _op) &&
+            Math::Compare(_order.Ptr().Get((E)_prop2), _value2, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
             logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
             return -1;
