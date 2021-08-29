@@ -86,7 +86,6 @@ struct TradeParams {
   unsigned int GetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) {
     return limits_stats[_type][_period];
   }
-  unsigned long GetMagicNo() { return magic_no; }
   unsigned short GetBarsMin() { return bars_min; }
   // State checkers.
   bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, ARRAY_REF(unsigned int, _value)) {

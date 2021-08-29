@@ -221,7 +221,7 @@ class Strategy : public Object {
     DictStruct<long, Ref<Order>> *_orders_active = _trade.GetOrdersActive();
     for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value().Ptr();
-      if (_order.IsOpen() && _order.Get<long>(ORDER_MAGIC) == sparams.Get<long>(STRAT_PARAM_ID)) {
+      if (_order.IsOpen() && _order.Get(ORDER_MAGIC) == sparams.Get<long>(STRAT_PARAM_ID)) {
         OrderData _odata = _order.GetData();
         Strategy *_strat_sl = strat_sl;
         Strategy *_strat_tp = strat_tp;
@@ -882,7 +882,7 @@ class Strategy : public Object {
         // 1st (i:0) - Trade's enum action to execute.
         // 2rd (i:1) - Trade's argument to pass.
         if (arg_size > 0) {
-          MqlParam _sargs[];
+          DataParamEntry _sargs[];
           ArrayResize(_sargs, ArraySize(_args) - 1);
           for (int i = 0; i < ArraySize(_sargs); i++) {
             _sargs[i] = _args[i + 1];

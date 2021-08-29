@@ -260,15 +260,10 @@ class EA {
   virtual bool TradeRequest(ENUM_ORDER_TYPE _cmd, string _symbol = NULL, Strategy *_strat = NULL) {
     Trade *_trade = trade.GetByKey(_symbol);
     // Prepare a request.
-    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
-    _request.action = TRADE_ACTION_DEAL;
-    _request.comment = _strat.GetOrderOpenComment();  // @todo: Add GetOrderCloseComment().
-    _request.deviation = 10;
+    MqlTradeRequest _request = _trade.GetTradeRequest(_cmd);
+    _request.comment = _strat.GetOrderOpenComment();
     _request.magic = _strat.Get<long>(STRAT_PARAM_ID);
     _request.price = SymbolInfoStatic::GetOpenOffer(_symbol, _cmd);
-    _request.symbol = _symbol;
-    _request.type = _cmd;
-    _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = fmax(_strat.Get<float>(STRAT_PARAM_LS), SymbolInfoStatic::GetVolumeMin(_symbol));
     _request.volume = _trade.NormalizeLots(_request.volume);
     // Prepare an order parameters.

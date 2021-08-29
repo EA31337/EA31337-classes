@@ -1670,7 +1670,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
   }
   bool ExecuteAction(ENUM_TRADE_ACTION _action) {
-    DataParamEntry _args[] = {};
+    DataParamEntry _args[];
     return Trade::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_TRADE_ACTION _action, long _arg1) {
