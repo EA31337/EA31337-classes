@@ -197,8 +197,8 @@ class Trade {
     _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _cmd);
     _request.type = _cmd;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
-    _request.volume = _volume > 0 ? _volume : SymbolInfoStatic::GetVolumeMin(_request.symbol);
-    _request.volume = NormalizeLots(_request.volume);
+    _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
+    _request.volume = NormalizeLots(fmax(_request.volume, SymbolInfoStatic::GetVolumeMin(_request.symbol)));
     return _request;
   }
 
@@ -649,59 +649,25 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   }
 
   /**
-   * Open an order.
-   */
-  bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, long _magic_no = 0, string _comment = "") {
-    bool _result = false;
-    if (!IsOrderAllowed()) {
-      logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
-      return _result;
-    }
-    // Prepare order request.
-    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
-    _request.action = TRADE_ACTION_DEAL;
-    _request.comment = _comment != "" ? _comment : tparams.order_comment;
-    _request.deviation = 10;
-    _request.magic = _magic_no > 0 ? _magic_no : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
-    _request.price = GetChart().GetOpenOffer(_cmd);
-    _request.symbol = GetChart().GetSymbol();
-    _request.type = _cmd;
-    _request.type_filling = Order::GetOrderFilling(_request.symbol);
-    _request.volume = _lot_size > 0 ? _lot_size : fmax(tparams.lot_size, GetChart().GetVolumeMin());
-    _request.volume = NormalizeLots(_request.volume);
-    ResetLastError();
-    if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) > 0) {
-      // Prepare order parameters.
-      OrderParams _oparams;
-      // Create new order.
-      Order *_order = new Order(_request, _oparams);
-      _result = OrderAdd(_order);
-      if (_result) {
-        OnOrderOpen(_order);
-      }
-    } else {
-      logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
-    }
-    return _result;
-  }
-
-  /**
    * Sends a trade request.
    */
   bool RequestSend(MqlTradeRequest &_request, OrderParams &_oparams) {
     bool _result = false;
-    if (!IsOrderAllowed()) {
-      logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
-      return _result;
+    switch (_request.action) {
+      case TRADE_ACTION_DEAL:
+        if (!IsOrderAllowed()) {
+          logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
+          return _result;
+        }
+        if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) == 0) {
+          logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
+        }
+        break;
     }
-    if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) > 0) {
-      Order *_order = new Order(_request, _oparams);
-      _result = OrderAdd(_order);
-      if (_result) {
-        OnOrderOpen(_order);
-      }
-    } else {
-      logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
+    Order *_order = new Order(_request, _oparams);
+    _result = OrderAdd(_order);
+    if (_result) {
+      OnOrderOpen(_order);
     }
     return _result;
   }
@@ -1641,7 +1607,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
         return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
       case TRADE_ACTION_ORDER_OPEN:
-        return OrderOpen((ENUM_ORDER_TYPE)_args[0].integer_value, tparams.Get<float>(TRADE_PARAM_LOT_SIZE));
+        return RequestSend(GetTradeRequest((ENUM_ORDER_TYPE)_args[0].integer_value));
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         return OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_IN_PROFIT:
