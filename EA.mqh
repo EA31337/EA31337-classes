@@ -311,7 +311,7 @@ class EA {
               SignalAdd(_signal, _tick.time);
               if (estate.new_periods != DATETIME_NONE) {
                 if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-                  _strat.ProcessOrders();
+                  _strat.ProcessOrders(_trade);
                 }
                 _strat.ProcessTasks();
               }

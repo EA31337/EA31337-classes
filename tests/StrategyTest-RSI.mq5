@@ -66,14 +66,20 @@ class Stg_RSI : public Strategy {
 
 // Global variables.
 Strategy *stg_rsi;
+Trade *trade;
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
-  // Initialize strategy.
+  // Initialize strategy instance.
   stg_rsi = Stg_RSI::Init(PERIOD_CURRENT, 1234);
   stg_rsi.SetName("Stg_RSI");
+
+  // Initialize trade instance.
+  ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
+  TradeParams _tparams;
+  trade = new Trade(_tparams, _cparams);
 
   assertTrueOrFail(stg_rsi.GetName() == "Stg_RSI", "Invalid Strategy name!");
   assertTrueOrFail(stg_rsi.IsValid(), "Fail on IsValid()!");
@@ -107,7 +113,7 @@ void OnTick() {
       assertTrueOrExit(_signal.GetOpenDirection() == -1, "Wrong order open direction!");
       stg_rsi.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
     } else {
-      stg_rsi.ProcessOrders();
+      stg_rsi.ProcessOrders(trade);
       stg_rsi.ProcessTasks();
     }
     long _last_error = GetLastError();
@@ -120,4 +126,4 @@ void OnTick() {
 /**
  * Implements OnDeinit().
  */
-void OnDeinit(const int reason) { delete stg_rsi; }
+void OnDeinit(const int reason) { delete stg_rsi; delete trade; }

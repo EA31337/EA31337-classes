@@ -213,15 +213,15 @@ class Strategy : public Object {
    * @return
    *   Returns StgProcessResult struct.
    */
-  StgProcessResult ProcessOrders() {
+  StgProcessResult ProcessOrders(Trade *_trade) {
     // @todo: Move to Trade.
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
     Order *_order;
-    DictStruct<long, Ref<Order>> *_orders_active = trade.GetOrdersActive();
+    DictStruct<long, Ref<Order>> *_orders_active = _trade.GetOrdersActive();
     for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value().Ptr();
-      if (_order.IsOpen()) {
+      if (_order.IsOpen() && _order.Get<long>(ORDER_MAGIC) == sparams.Get<long>(STRAT_PARAM_ID)) {
         OrderData _odata = _order.GetData();
         Strategy *_strat_sl = strat_sl;
         Strategy *_strat_tp = strat_tp;
@@ -268,7 +268,6 @@ class Strategy : public Object {
     sresult.last_error = ERR_NO_ERROR;
     last_signals = ProcessSignals();
     if (_periods_started > 0) {
-      ProcessOrders();
       ProcessTasks();
     }
     return sresult;
