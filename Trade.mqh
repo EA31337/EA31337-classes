@@ -788,7 +788,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   On error, returns -1.
    */
   template <typename E, typename T>
-  int OrdersCloseViaProp(E _prop, long _value, ENUM_MATH_CONDITION _op,
+  int OrdersCloseViaProp(E _prop, T _value, ENUM_MATH_CONDITION _op,
                          ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
@@ -797,6 +797,40 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop), _value, _op)) {
+          if (!_order.Ptr().OrderClose(_reason, _comment)) {
+            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
+            return -1;
+          }
+          order_last = _order;
+          _closed++;
+        }
+      } else {
+        OrderMoveToHistory(_order.Ptr());
+      }
+    }
+    return _closed;
+  }
+
+  /**
+   * Close orders based on the two property values of the same type and math condition.
+   *
+   * Note: It will only affect trades managed by this class instance.
+   *
+   * @return
+   *   Returns number of successfully closed trades.
+   *   On error, returns -1.
+   */
+  template <typename E, typename T>
+  int OrdersCloseViaProp2(E _prop1, T _value1, E _prop2, T _value2, ENUM_MATH_CONDITION _op,
+                          ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
+    int _oid = 0, _closed = 0;
+    Ref<Order> _order;
+    _comment = _comment != "" ? _comment : __FUNCTION__;
+    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
+      if (_order.Ptr().IsOpen()) {
+        if (Math::Compare(_order.Ptr().Get<T>((E)_prop1), _value1, _op) &&
+            Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
             logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
             return -1;
