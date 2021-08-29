@@ -180,6 +180,28 @@ class Trade {
    */
   DictStruct<long, Ref<Order>> *GetOrdersPending() { return &orders_pending; }
 
+  /**
+   * Get a trade request.
+   *
+   * @return
+   *   Returns true on successful request.
+   */
+  MqlTradeRequest GetTradeRequest(ENUM_ORDER_TYPE _cmd, float _volume = 0, long _magic_no = 0, string _comment = "") {
+    // Create a request.
+    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
+    _request.action = TRADE_ACTION_DEAL;
+    _request.comment = _comment;
+    _request.deviation = 10;
+    _request.magic = _magic_no > 0 ? _magic_no : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
+    _request.symbol = GetChart().Get<string>(CHART_PARAM_SYMBOL);
+    _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _cmd);
+    _request.type = _cmd;
+    _request.type_filling = Order::GetOrderFilling(_request.symbol);
+    _request.volume = _volume > 0 ? _volume : SymbolInfoStatic::GetVolumeMin(_request.symbol);
+    _request.volume = NormalizeLots(_request.volume);
+    return _request;
+  }
+
   /* Setters */
 
   /**
@@ -629,7 +651,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Open an order.
    */
-  bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, string _comment = "") {
+  bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, long _magic_no = 0, string _comment = "") {
     bool _result = false;
     if (!IsOrderAllowed()) {
       logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
@@ -640,7 +662,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment != "" ? _comment : tparams.order_comment;
     _request.deviation = 10;
-    _request.magic = tparams.GetMagicNo();
+    _request.magic = _magic_no > 0 ? _magic_no : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
     _request.price = GetChart().GetOpenOffer(_cmd);
     _request.symbol = GetChart().GetSymbol();
     _request.type = _cmd;
@@ -682,6 +704,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
     }
     return _result;
+  }
+  bool RequestSend(MqlTradeRequest &_request) {
+    OrderParams _oparams;
+    return RequestSend(_request, _oparams);
   }
 
   /**
@@ -1609,13 +1635,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns true when the condition is met.
    */
-  bool ExecuteAction(ENUM_TRADE_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_TRADE_ACTION _action, DataParamEntry &_args[]) {
     switch (_action) {
       case TRADE_ACTION_CALC_LOT_SIZE:
         tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
         return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
       case TRADE_ACTION_ORDER_OPEN:
-        return OrderOpen((ENUM_ORDER_TYPE)_args[0].integer_value);
+        return OrderOpen((ENUM_ORDER_TYPE)_args[0].integer_value, tparams.Get<float>(TRADE_PARAM_LOT_SIZE));
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         return OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_IN_PROFIT:
@@ -1644,7 +1670,21 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
   }
   bool ExecuteAction(ENUM_TRADE_ACTION _action) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
+    return Trade::ExecuteAction(_action, _args);
+  }
+  bool ExecuteAction(ENUM_TRADE_ACTION _action, long _arg1) {
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
+    return Trade::ExecuteAction(_action, _args);
+  }
+  bool ExecuteAction(ENUM_TRADE_ACTION _action, long _arg1, long _arg2) {
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return Trade::ExecuteAction(_action, _args);
   }
 
