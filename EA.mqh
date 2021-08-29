@@ -90,7 +90,7 @@ class EA {
     // Initialize a trade instance for the current chart and symbol.
     ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
     TradeParams _tparams;
-    Trade *_trade = new Trade(_tparams, _cparams);
+    Trade _trade(_tparams, _cparams);
     trade.Set(_Symbol, _trade);
     logger.Link(_trade.GetLogger());
     // trade.GetByKey(_Symbol).GetLogger().Error("Test");
