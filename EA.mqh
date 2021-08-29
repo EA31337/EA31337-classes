@@ -259,7 +259,7 @@ class EA {
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _strat.GetOrderOpenComment();  // @todo: Add GetOrderCloseComment().
     _request.deviation = 10;
-    _request.magic = _strat.Get<unsigned long>(TRADE_PARAM_MAGIC_NO);  // @fixme
+    _request.magic = _strat.Get<long>(STRAT_PARAM_ID);
     _request.price = SymbolInfoStatic::GetOpenOffer(_symbol, _cmd);
     _request.symbol = _symbol;
     _request.type = _cmd;
@@ -656,7 +656,8 @@ class EA {
   bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _magic_no = 0) {
     bool _result = true;
     _magic_no = _magic_no > 0 ? _magic_no : rand();
-    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, _magic_no);
+    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf);
+    _strat.Ptr().Set<long>(STRAT_PARAM_ID, _magic_no);
     if (!strats.KeyExists(_magic_no)) {
       _result &= strats.Set(_magic_no, _strat);
     } else {
