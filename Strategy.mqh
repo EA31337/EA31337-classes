@@ -214,6 +214,7 @@ class Strategy : public Object {
    *   Returns StgProcessResult struct.
    */
   StgProcessResult ProcessOrders() {
+    // @todo: Move to Trade.
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
     Order *_order;

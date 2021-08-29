@@ -181,7 +181,7 @@ class EA {
         continue;
       }
       Strategy *_strat = _signal.GetStrategy();
-      if (_strat.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+      if (trade.GetByKey(_Symbol).Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
         float _sig_close = _signal.GetSignalClose();
         // Check if we should close the orders.
         if (_sig_close >= 0.5f) {
@@ -304,7 +304,7 @@ class EA {
               StrategySignal _signal = _strat.ProcessSignals(_can_trade);
               SignalAdd(_signal, _tick.time);
               if (estate.new_periods != DATETIME_NONE) {
-                if (_strat.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+                if (trade.GetByKey(_Symbol).Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
                   _strat.ProcessOrders();
                 }
                 _strat.ProcessTasks();
