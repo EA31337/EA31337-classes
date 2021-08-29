@@ -191,6 +191,7 @@ class EA {
               ORDER_MAGIC, _strat.Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_BUY, MATH_COND_EQ,
               ORDER_REASON_CLOSED_BY_SIGNAL, _strat.GetOrderCloseComment());
           // Buy orders closed.
+          _strat.OnOrderClose(ORDER_TYPE_BUY);
         }
         if (_sig_close <= -0.5f) {
           // Close signal for sell order.
@@ -198,6 +199,7 @@ class EA {
               ORDER_MAGIC, _strat.Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_SELL, MATH_COND_EQ,
               ORDER_REASON_CLOSED_BY_SIGNAL, _strat.GetOrderCloseComment());
           // Sell orders closed.
+          _strat.OnOrderClose(ORDER_TYPE_SELL);
         }
       }
       if (_trade_allowed) {
@@ -258,6 +260,7 @@ class EA {
    *   Returns true on successful request.
    */
   virtual bool TradeRequest(ENUM_ORDER_TYPE _cmd, string _symbol = NULL, Strategy *_strat = NULL) {
+    bool _result = false;
     Trade *_trade = trade.GetByKey(_symbol);
     // Prepare a request.
     MqlTradeRequest _request = _trade.GetTradeRequest(_cmd);
@@ -268,8 +271,10 @@ class EA {
     _request.volume = _trade.NormalizeLots(_request.volume);
     // Prepare an order parameters.
     OrderParams _oparams;
+    _strat.OnOrderOpen(_oparams);
     // Send the request.
-    return _trade.RequestSend(_request, _oparams);
+    _result = _trade.RequestSend(_request, _oparams);
+    return _result;
   }
 
   /**

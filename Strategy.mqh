@@ -889,9 +889,11 @@ class Strategy : public Object {
           }
           _result = trade.ExecuteAction((ENUM_TRADE_ACTION)_args[0].integer_value, _sargs);
           if (_result) {
+            Order _order = trade.GetOrderLast();
             switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
               case TRADE_ACTION_ORDER_OPEN:
-                OnOrderOpen(trade.GetOrderLast());
+                // @fixme: Operation on the structure copy.
+                OnOrderOpen(_order.GetParams());
                 break;
             }
           }
@@ -947,7 +949,7 @@ class Strategy : public Object {
   /**
    * Event on order close.
    */
-  virtual void OnOrderClose(Order *_order) {}
+  virtual void OnOrderClose(ENUM_ORDER_TYPE _cmd) {}
 
   /**
    * Event on strategy's init.
@@ -961,33 +963,29 @@ class Strategy : public Object {
    * Event on strategy's order open.
    *
    * @param
-   *   _order Order Instance of order which got opened.
+   *   _oparams Order parameters to update before the open.
    */
-  virtual void OnOrderOpen(Order &_order) {
-    if (GetLogger().GetLevel() >= V_INFO) {
-      // logger.Info(_order.ToString(), (string)_order.GetTicket()); // @fixme: memory leaks.
-      ResetLastError();
-    }
+  virtual void OnOrderOpen(OrderParams &_oparams) {
     int _index = 0;
     if (sparams.order_close_time != 0) {
       long _close_time_arg = sparams.order_close_time > 0
                                  ? sparams.order_close_time * 60
                                  : (int)round(-sparams.order_close_time *
                                               ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
       _index++;
     }
     if (sparams.order_close_loss != 0.0f) {
       float _loss_limit = sparams.order_close_loss;
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_LOSS, _index);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _loss_limit, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_LOSS, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _loss_limit, _index);
       _index++;
     }
     if (sparams.order_close_profit != 0.0f) {
       float _profit_limit = sparams.order_close_profit;
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_PROFIT, _index);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_PROFIT, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
       _index++;
     }
   }
