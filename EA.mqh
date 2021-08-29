@@ -95,6 +95,7 @@ class EA {
     logger.Link(_trade.GetLogger());
     // trade.GetByKey(_Symbol).GetLogger().Error("Test");
     // logger.Flush();
+    // Loads existing trades by magic number.
   }
 
   /**
@@ -135,7 +136,7 @@ class EA {
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
     for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
       Strategy *_strat = iter.Value().Ptr();
-      _strat.Set<T> Set(_param, _value);
+      _strat.Set<T>(_param, _value);
     }
   }
 
@@ -212,8 +213,8 @@ class EA {
           if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
             _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
             // Buy order open.
-            TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
-            if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+            _result &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
+            if (_result && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
               _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
               break;
             }
@@ -225,8 +226,8 @@ class EA {
           if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
             _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
             // Sell order open.
-            TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
-            if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+            _result &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
+            if (_result && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
               _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
               break;
             }
@@ -250,7 +251,7 @@ class EA {
     if (_last_error > 0) {
       logger.Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__);
     }
-    return _last_error == 0;
+    return _result && _last_error == 0;
   }
 
   /**
@@ -659,11 +660,13 @@ class EA {
    *   Returns true if the strategy has been initialized correctly, otherwise false.
    */
   template <typename SClass>
-  bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _magic_no = 0) {
+  bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _magic_no = 0, int _type = 0) {
     bool _result = true;
     _magic_no = _magic_no > 0 ? _magic_no : rand();
     Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf);
     _strat.Ptr().Set<long>(STRAT_PARAM_ID, _magic_no);
+    _strat.Ptr().Set<ENUM_TIMEFRAMES>(STRAT_PARAM_TF, _tf);
+    _strat.Ptr().Set<int>(STRAT_PARAM_TYPE, _type);
     if (!strats.KeyExists(_magic_no)) {
       _result &= strats.Set(_magic_no, _strat);
     } else {
@@ -691,14 +694,22 @@ class EA {
    *   Returns true if all strategies has been initialized correctly, otherwise false.
    */
   template <typename SClass>
-  bool StrategyAdd(unsigned int _tfs, long _init_magic = 0) {
+  bool StrategyAdd(unsigned int _tfs, long _init_magic = 0, int _type = 0) {
     bool _result = true;
     for (int _tfi = 0; _tfi < sizeof(int) * 8; ++_tfi) {
       if ((_tfs & (1 << _tfi)) != 0) {
-        _result &= StrategyAdd<SClass>(ChartTf::IndexToTf((ENUM_TIMEFRAMES_INDEX)_tfi), _init_magic + _tfi);
+        _result &= StrategyAdd<SClass>(ChartTf::IndexToTf((ENUM_TIMEFRAMES_INDEX)_tfi), _init_magic + _tfi, _type);
       }
     }
     return _result;
+  }
+
+  /**
+   * Loads existing trades for the given strategy.
+   */
+  bool StrategyLoadTrades(Strategy *_strat) {
+    Trade *_trade = trade.GetByKey(_Symbol);
+    return _trade.OrdersLoadByMagic(_strat.Get<long>(STRAT_PARAM_ID));
   }
 
   /* Update methods */
@@ -735,11 +746,14 @@ class EA {
    * Updates strategy lot size.
    */
   bool UpdateLotSize() {
+    bool _result = false;
     if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
-      // Auto calculate lot size for each strategy.
-      return ExecuteAction(EA_ACTION_STRATS_EXE_ACTION, STRAT_ACTION_TRADE_EXE, TRADE_ACTION_CALC_LOT_SIZE);
+      // Auto calculate lot size for all strategies.
+      Trade *_trade = trade.GetByKey(_Symbol);
+      _result &= _trade.ExecuteAction(TRADE_ACTION_CALC_LOT_SIZE);
+      Set(STRAT_PARAM_LS, _trade.Get<float>(TRADE_PARAM_LOT_SIZE));
     }
-    return false;
+    return _result;
   }
 
   /* Conditions and actions */
@@ -853,6 +867,43 @@ class EA {
   /* Getters */
 
   /**
+   * Gets strategy based on the property value.
+   *
+   * @return
+   *   Returns first found strategy instance on success.
+   *   Otherwise, it returns NULL.
+   */
+  template <typename T>
+  Strategy *GetStrategyViaProp(ENUM_STRATEGY_PARAM _prop, T _value, ENUM_MATH_CONDITION _op = MATH_COND_EQ) {
+    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+      Strategy *_strat = iter.Value().Ptr();
+      if (Math::Compare(_strat.Get<T>(_prop), _value, _op)) {
+        return _strat;
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * Gets strategy based on the two property values.
+   *
+   * @return
+   *   Returns first found strategy instance on success.
+   *   Otherwise, it returns NULL.
+   */
+  template <typename T1, typename T2>
+  Strategy *GetStrategyViaProp2(ENUM_STRATEGY_PARAM _prop1, T1 _value1, ENUM_STRATEGY_PARAM _prop2, T2 _value2,
+                                ENUM_MATH_CONDITION _op = MATH_COND_EQ) {
+    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+      Strategy *_strat = iter.Value().Ptr();
+      if (Math::Compare(_strat.Get<T1>(_prop1), _value1, _op) && Math::Compare(_strat.Get<T2>(_prop2), _value2, _op)) {
+        return _strat;
+      }
+    }
+    return NULL;
+  }
+
+  /**
    * Returns pointer to Terminal object.
    */
   Market *GetMarket() { return market.Ptr(); }
@@ -955,6 +1006,8 @@ class EA {
     _strat.Set<float>(TRADE_PARAM_RISK_MARGIN, _margin_risk);
     // Link a logger instance.
     logger.Link(_strat.GetLogger());
+    // Load existing strategy trades.
+    StrategyLoadTrades(_strat);
   }
 
   /* Printer methods */

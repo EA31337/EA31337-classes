@@ -553,8 +553,6 @@ class Strategy : public Object {
 
   /* Setters */
 
-  /* Getters */
-
   /**
    * Sets a strategy parameter value.
    */
@@ -888,8 +886,9 @@ class Strategy : public Object {
             _sargs[i] = _args[i + 1];
           }
           _result = trade.ExecuteAction((ENUM_TRADE_ACTION)_args[0].integer_value, _sargs);
+          /* @fixme
           if (_result) {
-            Order _order = trade.GetOrderLast();
+            Order *_order = trade.GetOrderLast();
             switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
               case TRADE_ACTION_ORDER_OPEN:
                 // @fixme: Operation on the structure copy.
@@ -897,6 +896,7 @@ class Strategy : public Object {
                 break;
             }
           }
+          */
         }
         return _result;
       case STRAT_ACTION_UNSUSPEND:

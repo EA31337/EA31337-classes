@@ -66,12 +66,12 @@ class Trade {
    */
   Trade() : chart(new Chart()), order_last(NULL) {
     SetName();
-    OrdersLoadByMagic();
+    OrdersLoadByMagic(tparams.magic_no);
   };
   Trade(TradeParams &_tparams, ChartParams &_cparams)
       : chart(new Chart(_cparams)), tparams(_tparams), order_last(NULL) {
     SetName();
-    OrdersLoadByMagic();
+    OrdersLoadByMagic(tparams.magic_no);
   };
 
   /**
@@ -277,6 +277,14 @@ class Trade {
    */
   bool IsTradeAllowed() {
     UpdateStates();
+    return !tstates.CheckState(TRADE_STATE_TRADE_CANNOT);
+  }
+
+  /**
+   * Check if trading is recommended.
+   */
+  bool IsTradeRecommended() {
+    UpdateStates();
     return !tstates.CheckState(TRADE_STATE_TRADE_WONT);
   }
 
@@ -397,16 +405,6 @@ class Trade {
    *   Returns true when in that state.
    */
   bool HasState(ENUM_TRADE_STATE _state) { return tstates.CheckState(_state); }
-
-  /**
-   * Check the limit on the number of active pending orders.
-   *
-   * Validate whether the amount of open and pending orders
-   * has reached the limit set by the broker.
-   *
-   * @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
-   */
-  bool IsOrderAllowed() { return (OrdersTotal() < account.GetLimitOrders()); }
 
   /* Calculation methods */
 
@@ -654,14 +652,23 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool RequestSend(MqlTradeRequest &_request, OrderParams &_oparams) {
     bool _result = false;
     switch (_request.action) {
+      case TRADE_ACTION_CLOSE_BY:
+        break;
       case TRADE_ACTION_DEAL:
-        if (!IsOrderAllowed()) {
-          logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
+        if (!IsTradeRecommended()) {
+          // logger.Warning("Trade not recommended!", __FUNCTION_LINE__, (string)tstates.GetStates());
           return _result;
+        } else if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) == 0) {
+          logger.Error("No free margin to open a new trade!", __FUNCTION_LINE__);
         }
-        if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) == 0) {
-          logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
-        }
+        break;
+      case TRADE_ACTION_MODIFY:
+        break;
+      case TRADE_ACTION_PENDING:
+        break;
+      case TRADE_ACTION_REMOVE:
+        break;
+      case TRADE_ACTION_SLTP:
         break;
     }
     Order *_order = new Order(_request, _oparams);
@@ -677,14 +684,29 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   }
 
   /**
+   * Loads an existing order.
+   */
+  bool OrderLoad(Order *_order) {
+    bool _result = false;
+    Ref<Order> _order_ref = _order;
+    if (_order.IsOpen()) {
+      // @todo: _order.IsPending()?
+      _result &= orders_active.Set(_order.Get<long>(ORDER_PROP_TICKET), _order_ref);
+    } else {
+      _result &= orders_history.Set(_order.Get<long>(ORDER_PROP_TICKET), _order_ref);
+    }
+    return _result && GetLastError() == ERR_NO_ERROR;
+  }
+
+  /**
    * Loads active orders by magic number.
    */
-  bool OrdersLoadByMagic() {
+  bool OrdersLoadByMagic(unsigned long _magic_no) {
     ResetLastError();
     int _total_active = TradeStatic::TotalActive();
     for (int pos = 0; pos < _total_active; pos++) {
       if (OrderStatic::SelectByPosition(pos)) {
-        if (OrderStatic::MagicNumber() == tparams.magic_no) {
+        if (OrderStatic::MagicNumber() == _magic_no) {
           unsigned long _ticket = OrderStatic::Ticket();
           Ref<Order> _order = new Order(_ticket);
           orders_active.Set(_ticket, _order);
@@ -1228,9 +1250,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                                                         // Check if maximum margin allowed to use is reached.
                                                         && account.GetMarginUsedInPct() > tparams.GetRiskMargin());
       /* Money checks */
-      // tstates.SetState(TRADE_STATE_MONEY_NOT_ENOUGH, @todo);
+      tstates.SetState(TRADE_STATE_MONEY_NOT_ENOUGH, account.GetMarginFreeInPct() <= 0.1);
       /* Orders checks */
       tstates.SetState(TRADE_STATE_ORDERS_ACTIVE, orders_active.Size() > 0);
+      // Check the limit on the number of active pending orders has reached the limit set by the broker.
+      // @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
+      tstates.SetState(TRADE_STATE_ORDERS_MAX_HARD, OrdersTotal() == account.GetLimitOrders());
+      // @todo: TRADE_STATE_ORDERS_MAX_SOFT
       tstates.SetState(TRADE_STATE_TRADE_NOT_POSSIBLE,
                        // Check if the EA trading is enabled.
                        (account.IsExpertEnabled() || !Terminal::IsRealtime())
@@ -1248,20 +1274,21 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                            && !Account::IsTradeAllowed());
       tstates.SetState(TRADE_STATE_TRADE_TERMINAL_BUSY, Terminal::IsTradeContextBusy());
       _last_check = TimeCurrent();
-    }
-    /* Terminal checks */
-    // Check if terminal is connected.
-    tstates.SetState(TRADE_STATE_TRADE_TERMINAL_OFFLINE, Terminal::IsRealtime() && !Terminal::IsConnected());
-    // Check if terminal is stopping.
-    tstates.SetState(TRADE_STATE_TRADE_TERMINAL_SHUTDOWN, IsStopped());
-    if (tstates.GetStates() != _states_prev) {
-      for (int _bi = 0; _bi < sizeof(int) * 8; _bi++) {
-        bool _enabled = tstates.CheckState(1 << _bi) > TradeStates::CheckState(1 << _bi, _states_prev);
-        if (_enabled && (ENUM_TRADE_STATE)(1 << _bi) != TRADE_STATE_ORDERS_ACTIVE) {
-          logger.Warning(TradeStates::GetStateMessage((ENUM_TRADE_STATE)(1 << _bi)), GetName());
+      /* Terminal checks */
+      // Check if terminal is connected.
+      tstates.SetState(TRADE_STATE_TRADE_TERMINAL_OFFLINE, Terminal::IsRealtime() && !Terminal::IsConnected());
+      // Check if terminal is stopping.
+      tstates.SetState(TRADE_STATE_TRADE_TERMINAL_SHUTDOWN, IsStopped());
+      // Check for new states.
+      if (tstates.GetStates() != _states_prev) {
+        for (int _bi = 0; _bi < sizeof(int) * 8; _bi++) {
+          bool _enabled = tstates.CheckState(1 << _bi) > TradeStates::CheckState(1 << _bi, _states_prev);
+          if (_enabled && (ENUM_TRADE_STATE)(1 << _bi) != TRADE_STATE_ORDERS_ACTIVE) {
+            logger.Warning(TradeStates::GetStateMessage((ENUM_TRADE_STATE)(1 << _bi)), GetName());
+          }
         }
+        _states_prev = tstates.GetStates();
       }
-      _states_prev = tstates.GetStates();
     }
     return GetLastError() == ERR_NO_ERROR;
   }
