@@ -101,6 +101,14 @@ class Trade {
   }
 
   /**
+   * Gets a trade state value.
+   */
+  template <typename T>
+  T Get(ENUM_TRADE_STATE _prop) {
+    return tstates.Get(_prop);
+  }
+
+  /**
    * Gets a trade parameter value.
    */
   template <typename T>
@@ -1164,7 +1172,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool UpdateStates(bool _force = false) {
     static datetime _last_check = 0;
-    static unsigned int _states_prev = tstates.states;
+    static unsigned int _states_prev = tstates.GetStates();
     ResetLastError();
     if (_force || _last_check + 60 < TimeCurrent()) {
       // Infrequent checks (each minute).

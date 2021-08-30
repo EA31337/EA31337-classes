@@ -56,8 +56,8 @@ struct DataParamEntry;
 #include "../Indicators/Indi_ColorCandlesDaily.mqh"
 #include "../Indicators/Indi_ColorLine.mqh"
 #include "../Indicators/Indi_CustomMovingAverage.mqh"
-#include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_DEMA.mqh"
+#include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_DetrendedPrice.mqh"
 #include "../Indicators/Indi_Drawer.mqh"
@@ -114,8 +114,6 @@ double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
 Indi_Drawer *_indi_drawer;
-Indi_MA *_indi_ma;
-Indi_MA *_indi_ma_on_price;
 
 /**
  * Implements Init event handler.
@@ -133,7 +131,6 @@ int OnInit() {
   _result &= PrintIndicators(__FUNCTION__);
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
-
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -167,11 +164,7 @@ void OnTick() {
       }
 
       Indicator *_indi = iter.Value();
-      
-      if (_indi != _indi_ma_on_price && _indi != _indi_ma) {
-        continue;
-      }
-      
+
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
@@ -291,7 +284,6 @@ bool InitIndicators() {
   MAParams ma_params(13, 0, MODE_SMA, PRICE_OPEN);
   Indicator *indi_ma = new Indi_MA(ma_params);
   indis.Push(indi_ma);
-  _indi_ma = indi_ma;
 
   // DEMA.
   DEMAParams dema_params(13, 2, PRICE_OPEN);
@@ -418,8 +410,7 @@ bool InitIndicators() {
   ma_on_price_params.SetDraw(clrYellowGreen);
   ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
-  _indi_ma_on_price = new Indi_MA(ma_on_price_params);
-  indis.Push(_indi_ma_on_price);
+  indis.Push(new Indi_MA(ma_on_price_params));
 
   // Commodity Channel Index (CCI) over Price indicator.
   PriceIndiParams price_params_4_cci();
@@ -437,6 +428,14 @@ bool InitIndicators() {
   env_on_price_params.SetDataSource(indi_price_4_envelopes, true, INDI_PRICE_MODE_OPEN);
   env_on_price_params.SetDraw(clrBrown);
   indis.Push(new Indi_Envelopes(env_on_price_params));
+
+  // DEMA over Price indicator.
+  PriceIndiParams price_params_4_dema();
+  Indicator *indi_price_4_dema = new Indi_Price(price_params_4_dema);
+  DEMAParams dema_on_price_params(13, 2, PRICE_OPEN);
+  dema_on_price_params.SetDataSource(indi_price_4_dema, true, INDI_PRICE_MODE_OPEN);
+  dema_on_price_params.SetDraw(clrRed);
+  indis.Push(new Indi_DEMA(dema_on_price_params));
 
   // Momentum over Price indicator.
   Indicator *indi_price_4_momentum = new Indi_Price();

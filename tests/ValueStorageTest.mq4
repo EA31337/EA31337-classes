@@ -24,4 +24,4 @@
  * Test functionality of ValueStorage class.
  */
 
-#include "ValueStorage.mq5"
+#include "ValueStorageTest.mq5"

@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Singleton class.
+ * Objects cache per key.
  */
 
 #ifndef __MQL__
@@ -30,21 +30,41 @@
 #endif
 
 // Includes.
+#include "DictStruct.mqh"
 #include "Refs.mqh"
 
-// Prevents processing this includes file for the second time.
-#ifndef SINGLETON_H
-#define SINGLETON_H
-
+/**
+ * Stores objects to be reused using a string-based key.
+ */
 template <typename C>
-class Singleton {
-  static C _ref;
+class Objects {
+  // Dictionary of key => reference to object.
+  static DictStruct<string, Ref<C>> objects;
 
  public:
-  static C* Get() { return &_ref; }
+  /**
+   * Tries to retrieve pointer to object for a given key. Returns true if object did exist.
+   */
+  static bool TryGet(string& key, C*& out_ptr) {
+    int position;
+    if (!objects.KeyExists(key, position)) {
+      out_ptr = NULL;
+      return false;
+    } else {
+      out_ptr = objects.GetByPos(position).Ptr();
+      return true;
+    }
+  }
+
+  /**
+   * Stores object pointer with a given key.
+   */
+  static C* Set(string& key, C* ptr) {
+    Ref<C> _ref(ptr);
+    objects.Set(key, _ref);
+    return ptr;
+  }
 };
 
 template <typename C>
-C Singleton::_ref;
-
-#endif  // SINGLETON_H
+DictStruct<string, Ref<C>> Objects::objects;

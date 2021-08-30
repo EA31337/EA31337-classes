@@ -30,6 +30,10 @@
 #pragma once
 #endif
 
+// Defines.
+#define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
+  100  // Number of entries the value storage buffer will be initialized with.
+
 // Forward declaration.
 class Indicator;
 struct ChartParams;
@@ -40,166 +44,9 @@ struct ChartParams;
 #include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
+#include "Indicator.struct.cache.h"
 #include "SerializerNode.enum.h"
-#include "ValueStorage.h"
-
-
-template<typename C>
-class IndicatorBufferValueStorage : public ValueStorage<C> {
-  Indicator* indicator;
-  int mode;
-public:
-
-  IndicatorBufferValueStorage() {
-  }
-
-  IndicatorBufferValueStorage(Indicator* _indi, int _mode = 0) : indicator(_indi), mode(_mode) {
-    
-  }
-
-  virtual C Fetch(int _shift) {
-    return indicator.GetValue(_shift, mode);
-  }
-  
-  virtual void Store(int _shift, C _value) {
-    indicator.SetValue();
-  }
-  
-  virtual int Size() {
-    Print("IndicatorBufferValueStorage does not implement Size()!");
-    DebugBreak();
-    return 0;
-  }
-  
-  virtual void Initialize(C _value) {
-    Print("IndicatorBufferValueStorage does not implement Initialize()!");
-  }
-
-  virtual void Resize(int _size, int _reserve) {
-    Print("IndicatorBufferValueStorage does not implement Resize()!");
-  }
-  
-  virtual bool IsSeries() const {
-    return true;
-  }
-  
-  virtual bool SetSeries(bool _value) {
-    if (!_value) {
-      Print("IndicatorBufferValueStorage cannot work as series!");
-      DebugBreak();
-      return false;
-    }
-    return true;
-  }
-};
-
-
-/**
- * Holds buffers used to cache values calculated via OnCalculate methods.
- */
-template<typename C>
-class IndicatorCalculateCache {
- public:
-  // Total number of calculated values.
-  int prev_calculated;
-  
-  // Number of prices to use.
-  int total;
-  
-  // Whether cache was initialized with price buffer.
-  bool initialized;
-  
-  // Buffer to store input prices.
-  Ref<ValueStorage<C>> price_buffer;
-
-  // Buffers used for OnCalculate calculations.
-  ARRAY(Ref<ValueStorage<C>>, buffers);
-
-  /**
-   * Constructor.
-   */
-  IndicatorCalculateCache(int _buffers_size = 0) {
-    prev_calculated = 0;
-    total = 0;
-    initialized = false;
-    Resize(_buffers_size);
-  }
-  
-  int GetTotal() { return ArraySize(GetPriceBuffer()); }
-  
-  int GetPrevCalculated() { return prev_calculated; }
-  
-  void SetPrevCalculated(int _value) { prev_calculated = _value; }
-  
-  bool IsInitialized() { return initialized; }
-  
-  int AddBuffer(ValueStorage<C>* _storage) {
-    Ref<ValueStorage<C>> _ref = _storage;
-    ArrayPushObject(buffers, _ref);
-    return ArraySize(buffers) - 1;
-  }
-  
-  ValueStorage<C>* GetBuffer(int _index) {
-    return buffers[_index].Ptr();
-  }
-  
-  ValueStorage<C>* GetPriceBuffer() {
-    return price_buffer.Ptr();
-  }
-
-  void SetPriceBuffer(ValueStorage<C>* _price, int _total = 0) {
-    price_buffer = _price;
-    
-    if (_total == 0) {
-      _total = _price.Size();
-    }
-    
-    total = _total;
-    
-    // Cache is ready to be used.
-    initialized = true;
-  }
-  
-
-  /**
-   * Resizes all buffers.
-   */
-  void Resize(int _buffers_size) {
-    static int increase = 65536;
-    for (int i = 0; i < ArraySize(buffers); ++i) {
-      ArrayResize(buffers[i].Ptr(), _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-    }
-  }
-
-  /**
-   * Retrieves cached value from the given buffer (buffer is indexed from 1 to 5).
-   */
-  double GetValue(int _buffer_index, int _shift) {
-    return GetBuffer(_buffer_index)[_shift].Get();
-  }
-
-  double GetTailValue(int _buffer_index, int _shift) {
-    ValueStorage<C>* _buff = GetBuffer(_buffer_index);
-    return _buff[_buff.IsSeries() ? _shift : (ArraySize(_buff) - _shift - 1)].Get();
-  }
-
-  /**
-   * Updates prev_calculated value used by indicator's OnCalculate method.
-   */
-  void SetPrevCalculated(ValueStorage<double> &price, int _prev_calculated) {
-    prev_calculated = _prev_calculated;
-  }
-
-  /**
-   * Returns prev_calculated value used by indicator's OnCalculate method.
-   */
-  int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
-  
-  template<typename X>
-  void CallOnCalculate() {
-    //C::Calculate(total, cache.prev_calculated, 0, price, cache.GetBuffer(0), ma_method, period);
-  }
-};
+#include "ValueStorage.indicator.h"
 
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {
@@ -663,22 +510,21 @@ struct IndicatorState {
   // Getters.
   template <typename T>
 #ifdef __MQL4__
-  T Get(ENUM_INDICATOR_STATE_PROP _prop) {
+  T Get(ENUM_INDICATOR_STATE_PROP _prop){
 #else
   T Get(IndicatorState::ENUM_INDICATOR_STATE_PROP _prop) {
 #endif
-    switch (_prop) {
-      case INDICATOR_STATE_PROP_HANDLE:
-        return (T)handle;
-      case INDICATOR_STATE_PROP_IS_CHANGED:
-        return (T)is_changed;
-      case INDICATOR_STATE_PROP_IS_READY:
-        return (T)is_ready;
-    }
-    SetUserError(ERR_INVALID_PARAMETER);
-    return (T)WRONG_VALUE;
-  }
-  // State checkers.
-  bool IsChanged() { return is_changed; }
-  bool IsReady() { return is_ready; }
-};
+      switch (_prop) {
+        case INDICATOR_STATE_PROP_HANDLE : return (T)handle;
+  case INDICATOR_STATE_PROP_IS_CHANGED:
+    return (T)is_changed;
+  case INDICATOR_STATE_PROP_IS_READY:
+    return (T)is_ready;
+} SetUserError(ERR_INVALID_PARAMETER);
+return (T)WRONG_VALUE;
+}
+// State checkers.
+bool IsChanged() { return is_changed; }
+bool IsReady() { return is_ready; }
+}
+;

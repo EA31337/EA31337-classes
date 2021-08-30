@@ -425,15 +425,23 @@ struct StrategySignal {
   Strategy *strat;
 
  public:
+  // Enumeration for strategy signal properties.
   enum ENUM_STRATEGY_SIGNAL_PROP {
     STRATEGY_SIGNAL_PROP_SIGNALS,
     STRATEGY_SIGNAL_PROP_STRENGTH,
     STRATEGY_SIGNAL_PROP_TF,
     STRATEGY_SIGNAL_PROP_WEIGHT,
   };
+  // Enumeration for strategy signal types.
+  enum ENUM_STRATEGY_SIGNAL_TYPE {
+    STRAT_SIGNAL_SELL = -1,    // Signal to sell.
+    STRAT_SIGNAL_NEUTRAL = 0,  // Neutral signal.
+    STRAT_SIGNAL_BUY = 1,      // Signal to buy.
+  };
+
   /* Constructor */
   StrategySignal(Strategy *_strat = NULL, ENUM_TIMEFRAMES _tf = NULL, float _weight = 0.0f)
-      : strat(_strat), tf(_tf), weight(_weight) {}
+      : signals(0), strat(_strat), tf(_tf), weight(_weight) {}
   /* Getters */
   template <typename T>
   T Get(unsigned int _param) {
@@ -450,6 +458,8 @@ struct StrategySignal {
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }
+  float GetSignalClose() { return float(int(ShouldClose(ORDER_TYPE_BUY)) - int(ShouldClose(ORDER_TYPE_SELL))); }
+  float GetSignalOpen() { return float(int(ShouldOpen(ORDER_TYPE_BUY)) - int(ShouldOpen(ORDER_TYPE_SELL))); }
   Strategy *GetStrategy() { return strat; }
   /* Setters */
   template <typename T>
@@ -475,18 +485,18 @@ struct StrategySignal {
   bool ShouldClose(ENUM_ORDER_TYPE _cmd) {
     switch (_cmd) {
       case ORDER_TYPE_BUY:
-        return CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE | STRAT_SIGNAL_BUY_CLOSE_PASS);
+        return CheckSignalsAll(STRAT_SIGNAL_CLOSE_BUY | STRAT_SIGNAL_CLOSE_BUY_PASS);
       case ORDER_TYPE_SELL:
-        return CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE | STRAT_SIGNAL_SELL_CLOSE_PASS);
+        return CheckSignalsAll(STRAT_SIGNAL_CLOSE_SELL | STRAT_SIGNAL_CLOSE_SELL_PASS);
     }
     return false;
   }
   bool ShouldOpen(ENUM_ORDER_TYPE _cmd) {
     switch (_cmd) {
       case ORDER_TYPE_BUY:
-        return CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_OPEN_PASS | STRAT_SIGNAL_TIME_PASS);
+        return CheckSignalsAll(STRAT_SIGNAL_OPEN_BUY | STRAT_SIGNAL_OPEN_BUY_PASS | STRAT_SIGNAL_TIME_PASS);
       case ORDER_TYPE_SELL:
-        return CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_OPEN_PASS | STRAT_SIGNAL_TIME_PASS);
+        return CheckSignalsAll(STRAT_SIGNAL_OPEN_SELL | STRAT_SIGNAL_OPEN_SELL_PASS | STRAT_SIGNAL_TIME_PASS);
     }
     return false;
   }
@@ -494,17 +504,17 @@ struct StrategySignal {
   bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }
   bool CheckSignalsAll(unsigned int _flags) { return (signals & _flags) == _flags; }
   char GetCloseDirection() {
-    if (CheckSignals(STRAT_SIGNAL_BUY_CLOSE & ~STRAT_SIGNAL_SELL_CLOSE)) {
+    if (CheckSignals(STRAT_SIGNAL_CLOSE_BUY & ~STRAT_SIGNAL_CLOSE_SELL)) {
       return 1;
-    } else if (CheckSignals(STRAT_SIGNAL_SELL_CLOSE & ~STRAT_SIGNAL_BUY_CLOSE)) {
+    } else if (CheckSignals(STRAT_SIGNAL_CLOSE_SELL & ~STRAT_SIGNAL_CLOSE_BUY)) {
       return -1;
     }
     return 0;
   }
   char GetOpenDirection() {
-    if (CheckSignals(STRAT_SIGNAL_BUY_OPEN & ~STRAT_SIGNAL_SELL_OPEN)) {
+    if (CheckSignals(STRAT_SIGNAL_OPEN_BUY & ~STRAT_SIGNAL_OPEN_SELL)) {
       return 1;
-    } else if (CheckSignals(STRAT_SIGNAL_SELL_OPEN & ~STRAT_SIGNAL_BUY_OPEN)) {
+    } else if (CheckSignals(STRAT_SIGNAL_OPEN_SELL & ~STRAT_SIGNAL_OPEN_BUY)) {
       return -1;
     }
     return 0;
