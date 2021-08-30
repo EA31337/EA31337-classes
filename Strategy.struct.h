@@ -47,7 +47,6 @@ struct StgParams {
   bool is_enabled;                                     // State of the strategy (whether enabled or not).
   bool is_suspended;                                   // State of the strategy (whether suspended or not)
   bool is_boosted;                                     // State of the boost feature (to increase lot size).
-  long id;                                             // Identification number of the strategy.
   float weight;                                        // Weight of the strategy.
   long order_close_time;                               // Order close time in mins (>0) or bars (<0).
   float order_close_loss;                              // Order close loss (in pips).
@@ -72,13 +71,17 @@ struct StgParams {
   float max_spread;                                    // Maximum spread to trade (in pips).
   int tp_max;                                          // Hard limit on maximum take profit (in pips).
   int sl_max;                                          // Hard limit on maximum stop loss (in pips).
+  int type;                                            // Strategy type (@see: ENUM_STRATEGY).
+  long id;                                             // Unique identifier of the strategy.
   datetime refresh_time;                               // Order refresh frequency (in sec).
   short shift;                                         // Shift (relative to the current bar, 0 - default)
+  ChartTf tf;                                          // Main timeframe where strategy operates on.
   DictStruct<int, Ref<Indicator>> indicators_managed;  // Indicators list keyed by id.
   Dict<int, Indicator *> indicators_unmanaged;         // Indicators list keyed by id.
   // Constructor.
   StgParams()
-      : is_enabled(true),
+      : id(rand()),
+        is_enabled(true),
         is_suspended(false),
         is_boosted(true),
         order_close_time(0),
@@ -105,10 +108,12 @@ struct StgParams {
         max_spread(0.0),
         tp_max(0),
         sl_max(0),
+        type(0),
         refresh_time(0) {}
   StgParams(int _som, int _sofm, float _sol, int _sob, int _scm, int _scf, float _scl, int _psm, float _psl, int _tfm,
             float _ms, short _s = 0)
-      : order_close_loss(0.0f),
+      : id(rand()),
+        order_close_loss(0.0f),
         order_close_profit(0.0f),
         order_close_time(0),
         signal_open_method(_som),
@@ -134,6 +139,7 @@ struct StgParams {
         max_spread(0.0),
         tp_max(0),
         sl_max(0),
+        type(0),
         refresh_time(0) {}
   StgParams(StgParams &_stg_params) {
     DeleteObjects();
@@ -146,6 +152,8 @@ struct StgParams {
   template <typename T>
   T Get(ENUM_STRATEGY_PARAM _param) {
     switch (_param) {
+      case STRAT_PARAM_ID:
+        return (T)id;
       case STRAT_PARAM_LS:
         return (T)lot_size;
       case STRAT_PARAM_LSF:
@@ -186,8 +194,12 @@ struct StgParams {
         return (T)price_profit_method;
       case STRAT_PARAM_PSM:
         return (T)price_stop_method;
+      case STRAT_PARAM_TF:
+        return (T)tf.GetTf();
       case STRAT_PARAM_TFM:
         return (T)tick_filter_method;
+      case STRAT_PARAM_TYPE:
+        return (T)type;
       case STRAT_PARAM_WEIGHT:
         return (T)weight;
     }
@@ -212,6 +224,9 @@ struct StgParams {
   template <typename T>
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
     switch (_param) {
+      case STRAT_PARAM_ID:  // ID (magic number).
+        id = (long)_value;
+        return;
       case STRAT_PARAM_LS:  // Lot size
         lot_size = (float)_value;
         return;
@@ -272,8 +287,16 @@ struct StgParams {
       case STRAT_PARAM_PSM:  // Price stop method
         price_stop_method = (int)_value;
         return;
+      case STRAT_PARAM_TF:
+        // Main timeframe where strategy operates on.
+        tf = (ENUM_TIMEFRAMES)_value;
+        return;
       case STRAT_PARAM_TFM:  // Tick filter method
         tick_filter_method = (int)_value;
+        return;
+      case STRAT_PARAM_TYPE:
+        // Strategy type.
+        type = (int)_value;
         return;
       case STRAT_PARAM_WEIGHT:  // Weight
         weight = (float)_value;

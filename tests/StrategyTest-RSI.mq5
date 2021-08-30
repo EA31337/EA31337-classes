@@ -36,11 +36,11 @@ class Stg_RSI : public Strategy {
   void Stg_RSI(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
       : Strategy(_sparams, _tparams, chart_params_defaults, _name) {}
 
-  static Stg_RSI *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
+  static Stg_RSI *Init(ENUM_TIMEFRAMES _tf = NULL) {
     ChartParams _cparams(_tf);
     RSIParams _indi_params(12, PRICE_OPEN, 0);
     StgParams _stg_params;
-    TradeParams _tparams(_magic_no, _log_level);
+    TradeParams _tparams;
     _stg_params.SetIndicator(new Indi_RSI(_indi_params));
     Strategy *_strat = new Stg_RSI(_stg_params, _tparams, _cparams, "RSI");
     return _strat;
@@ -66,14 +66,21 @@ class Stg_RSI : public Strategy {
 
 // Global variables.
 Strategy *stg_rsi;
+Trade *trade;
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
-  // Initialize strategy.
-  stg_rsi = Stg_RSI::Init(PERIOD_CURRENT, 1234);
+  // Initialize strategy instance.
+  stg_rsi = Stg_RSI::Init(PERIOD_CURRENT);
   stg_rsi.SetName("Stg_RSI");
+  stg_rsi.Set<long>(STRAT_PARAM_ID, 1234);
+
+  // Initialize trade instance.
+  ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
+  TradeParams _tparams;
+  trade = new Trade(_tparams, _cparams);
 
   assertTrueOrFail(stg_rsi.GetName() == "Stg_RSI", "Invalid Strategy name!");
   assertTrueOrFail(stg_rsi.IsValid(), "Fail on IsValid()!");
@@ -102,12 +109,16 @@ void OnTick() {
     StrategySignal _signal = stg_rsi.ProcessSignals();
     if (_signal.CheckSignals(STRAT_SIGNAL_OPEN_BUY)) {
       assertTrueOrExit(_signal.GetOpenDirection() == 1, "Wrong order open direction!");
-      stg_rsi.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
+      MqlTradeRequest _request =
+          trade.GetTradeRequest(ORDER_TYPE_BUY, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
+      trade.RequestSend(_request);
     } else if (_signal.CheckSignals(STRAT_SIGNAL_OPEN_SELL)) {
       assertTrueOrExit(_signal.GetOpenDirection() == -1, "Wrong order open direction!");
-      stg_rsi.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
-    } else {
-      stg_rsi.ProcessOrders();
+      MqlTradeRequest _request =
+          trade.GetTradeRequest(ORDER_TYPE_SELL, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
+      trade.RequestSend(_request);
+    } else if (trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+      stg_rsi.ProcessOrders(trade);
       stg_rsi.ProcessTasks();
     }
     long _last_error = GetLastError();
@@ -120,4 +131,7 @@ void OnTick() {
 /**
  * Implements OnDeinit().
  */
-void OnDeinit(const int reason) { delete stg_rsi; }
+void OnDeinit(const int reason) {
+  delete stg_rsi;
+  delete trade;
+}

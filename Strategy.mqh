@@ -94,7 +94,7 @@ class Strategy : public Object {
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<short, TaskEntry> tasks;
-  Ref<Log> logger;  // Log instance.
+  Log logger;  // Log instance.
   MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
@@ -121,14 +121,14 @@ class Strategy : public Object {
    * Class constructor.
    */
   Strategy(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
-      : logger(new Log()), sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
+      : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
     // Initialize variables.
     name = _name;
     MqlTick _tick = {0};
     last_tick = _tick;
 
     // Link log instances.
-    logger.Ptr().Link(trade.GetLogger());
+    logger.Link(trade.GetLogger());
 
     // Statistics variables.
     // UpdateOrderStats(EA_STATS_DAILY);
@@ -140,7 +140,7 @@ class Strategy : public Object {
     Strategy::OnInit();
   }
 
-  Log *GetLogger() { return logger.Ptr(); }
+  Log *GetLogger() { return GetPointer(logger); }
 
   /**
    * Class copy constructor.
@@ -213,14 +213,15 @@ class Strategy : public Object {
    * @return
    *   Returns StgProcessResult struct.
    */
-  StgProcessResult ProcessOrders() {
+  StgProcessResult ProcessOrders(Trade *_trade) {
+    // @todo: Move to Trade.
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
     Order *_order;
-    DictStruct<long, Ref<Order>> *_orders_active = trade.GetOrdersActive();
+    DictStruct<long, Ref<Order>> *_orders_active = _trade.GetOrdersActive();
     for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value().Ptr();
-      if (_order.IsOpen()) {
+      if (_order.IsOpen() && _order.Get(ORDER_MAGIC) == sparams.Get<long>(STRAT_PARAM_ID)) {
         OrderData _odata = _order.GetData();
         Strategy *_strat_sl = strat_sl;
         Strategy *_strat_tp = strat_tp;
@@ -238,7 +239,7 @@ class Strategy : public Object {
           tp_valid = trade.IsValidOrderTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
           if (sl_valid && tp_valid) {
             if (!_order.OrderModify(sl_new, tp_new)) {
-              _order.Logger().Flush();
+              _order.GetLogger().Flush();
             }
           }
           sresult.stops_invalid_sl += (unsigned short)sl_valid;
@@ -267,7 +268,6 @@ class Strategy : public Object {
     sresult.last_error = ERR_NO_ERROR;
     last_signals = ProcessSignals();
     if (_periods_started > 0) {
-      ProcessOrders();
       ProcessTasks();
     }
     return sresult;
@@ -455,7 +455,7 @@ class Strategy : public Object {
    * Get strategy's order open comment.
    */
   string GetOrderOpenComment(string _prefix = "", string _suffix = "") {
-    // @todo
+    // @todo: Add spread.
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.chart.TfToString(),
     // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
 
@@ -467,10 +467,9 @@ class Strategy : public Object {
    * Get strategy's order close comment.
    */
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
-    // @todo: Add spread and timeframe.
-    // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.GetChart().TfToString(),
-    // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
-    return StringFormat("%s%s;%s", _prefix != "" ? _prefix + ": " : "", name, _suffix != "" ? "| " + _suffix : "");
+    // @todo: Add spread.
+    return StringFormat("%s%s[%s]%s", _prefix, name, ChartTf::TfToString(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
+                        _suffix);
   }
 
   /**
@@ -553,8 +552,6 @@ class Strategy : public Object {
   }
 
   /* Setters */
-
-  /* Getters */
 
   /**
    * Sets a strategy parameter value.
@@ -883,19 +880,23 @@ class Strategy : public Object {
         // 1st (i:0) - Trade's enum action to execute.
         // 2rd (i:1) - Trade's argument to pass.
         if (arg_size > 0) {
-          MqlParam _sargs[];
+          DataParamEntry _sargs[];
           ArrayResize(_sargs, ArraySize(_args) - 1);
           for (int i = 0; i < ArraySize(_sargs); i++) {
             _sargs[i] = _args[i + 1];
           }
           _result = trade.ExecuteAction((ENUM_TRADE_ACTION)_args[0].integer_value, _sargs);
+          /* @fixme
           if (_result) {
+            Order *_order = trade.GetOrderLast();
             switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
               case TRADE_ACTION_ORDER_OPEN:
-                OnOrderOpen(trade.GetOrderLast());
+                // @fixme: Operation on the structure copy.
+                OnOrderOpen(_order.GetParams());
                 break;
             }
           }
+          */
         }
         return _result;
       case STRAT_ACTION_UNSUSPEND:
@@ -948,7 +949,7 @@ class Strategy : public Object {
   /**
    * Event on order close.
    */
-  virtual void OnOrderClose(Order *_order) {}
+  virtual void OnOrderClose(ENUM_ORDER_TYPE _cmd) {}
 
   /**
    * Event on strategy's init.
@@ -962,33 +963,29 @@ class Strategy : public Object {
    * Event on strategy's order open.
    *
    * @param
-   *   _order Order Instance of order which got opened.
+   *   _oparams Order parameters to update before the open.
    */
-  virtual void OnOrderOpen(Order &_order) {
-    if (GetLogger().GetLevel() >= V_INFO) {
-      // logger.Info(_order.ToString(), (string)_order.GetTicket()); // @fixme: memory leaks.
-      ResetLastError();
-    }
+  virtual void OnOrderOpen(OrderParams &_oparams) {
     int _index = 0;
     if (sparams.order_close_time != 0) {
       long _close_time_arg = sparams.order_close_time > 0
                                  ? sparams.order_close_time * 60
                                  : (int)round(-sparams.order_close_time *
                                               ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
       _index++;
     }
     if (sparams.order_close_loss != 0.0f) {
       float _loss_limit = sparams.order_close_loss;
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_LOSS, _index);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _loss_limit, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_LOSS, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _loss_limit, _index);
       _index++;
     }
     if (sparams.order_close_profit != 0.0f) {
       float _profit_limit = sparams.order_close_profit;
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_PROFIT, _index);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_PROFIT, _index);
+      _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
       _index++;
     }
   }

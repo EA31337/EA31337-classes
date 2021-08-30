@@ -68,6 +68,7 @@ enum ENUM_STRATEGY_CONDITION {
 
 // Defines enumeration for strategy parameters.
 enum ENUM_STRATEGY_PARAM {
+  STRAT_PARAM_ID,          // ID (magic number)
   STRAT_PARAM_LS,          // Lot size
   STRAT_PARAM_LSF,         // Lot size factor
   STRAT_PARAM_MAX_RISK,    // Max risk
@@ -88,7 +89,9 @@ enum ENUM_STRATEGY_PARAM {
   STRAT_PARAM_SOFT,        // Signal open filter time
   STRAT_PARAM_SOL,         // Signal open level
   STRAT_PARAM_SOM,         // Signal open method
+  STRAT_PARAM_TF,          // Timeframe
   STRAT_PARAM_TFM,         // Tick filter method
+  STRAT_PARAM_TYPE,        // Type
   STRAT_PARAM_WEIGHT,      // Weight
   FINAL_ENUM_STRATEGY_PARAM
 };
