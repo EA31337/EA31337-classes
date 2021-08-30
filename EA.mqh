@@ -623,8 +623,7 @@ class EA {
           _entry.SetConditionObject(THIS_PTR);
           break;
         case COND_TYPE_TRADE:
-          // Not supported (yet).
-          // _entry.SetConditionObject(trade);
+          _entry.SetConditionObject(trade.GetByKey(_Symbol));
           break;
       }
       switch (_entry.GetActionType()) {
@@ -632,13 +631,7 @@ class EA {
           _entry.SetActionObject(THIS_PTR);
           break;
         case ACTION_TYPE_TRADE:
-          if (Condition::Test(_entry.GetCondition())) {
-            for (DictStructIterator<long, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat.IsValid();
-                 ++iter_strat) {
-              Strategy *_strat = iter_strat.Value().Ptr();
-              _is_processed |= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _entry.GetActionId());
-            }
-          }
+          _entry.SetActionObject(trade.GetByKey(_Symbol));
           break;
       }
       _is_processed = _is_processed || Task::Process(_entry);
