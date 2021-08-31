@@ -45,14 +45,14 @@
 
 /* Entry for Action class. */
 struct ActionEntry {
-  unsigned char flags;       /* Action flags. */
-  datetime last_success;     /* Time of the previous check. */
-  long action_id;            /* Action ID. */
-  short tries;               /* Number of retries left. */
-  void *obj;                 /* Reference to associated object. */
-  ENUM_ACTION_TYPE type;     /* Action type. */
-  ENUM_TIMEFRAMES frequency; /* How often to check. */
-  DataParamEntry args[];     /* Action arguments. */
+  unsigned char flags;   /* Action flags. */
+  datetime last_success; /* Time of the previous check. */
+  int frequency;         /* How often to check. */
+  long action_id;        /* Action ID. */
+  short tries;           /* Number of retries left. */
+  void *obj;             /* Reference to associated object. */
+  ENUM_ACTION_TYPE type; /* Action type. */
+  DataParamEntry args[]; /* Action arguments. */
   // Constructors.
   ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
   ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
@@ -93,6 +93,7 @@ struct ActionEntry {
   }
   void Init() {
     flags = ACTION_ENTRY_FLAG_NONE;
+    frequency = 60;
     SetFlag(ACTION_ENTRY_FLAG_IS_ACTIVE, action_id != WRONG_VALUE);
     SetFlag(ACTION_ENTRY_FLAG_IS_INVALID, action_id == WRONG_VALUE);
     last_success = 0;
@@ -101,9 +102,7 @@ struct ActionEntry {
   void SetArgs(ARRAY_REF(MqlParam, _args)) {
     // @todo: for().
   }
-  void SetObject(void *_obj) {
-    obj = _obj;
-  }
+  void SetObject(void *_obj) { obj = _obj; }
   void SetTries(short _count) { tries = _count; }
 
   SerializerNodeType Serialize(Serializer &s) {

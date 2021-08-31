@@ -49,7 +49,7 @@ struct EAParams {
   unsigned short data_store;   // Type of data to store.
   ENUM_LOG_LEVEL log_level;    // Log verbosity level.
   int chart_info_freq;         // Updates info on chart (in secs, 0 - off).
-  TaskEntry task_entry;        // Task entry to add on init.
+  TaskEntry task_init;         // Task entry to add and process on EA init.
 
  public:
   // Defines enumeration for EA params properties.
@@ -141,7 +141,7 @@ struct EAParams {
   T GetStruct(unsigned int _param) {
     switch (_param) {
       case EA_PARAM_STRUCT_TASK_ENTRY:
-        return (T)task_entry;
+        return (T)task_init;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     T _empty();
@@ -195,7 +195,7 @@ struct EAParams {
     ver = _ver;
     author = _author;
   }
-  void SetTaskEntry(TaskEntry &_task_entry) { task_entry = _task_entry; }
+  void SetTaskEntry(TaskEntry &_task_entry) { task_init = _task_entry; }
   // Printers.
   string ToString(string _dlm = ",") { return StringFormat("%s v%s by %s (%s)", name, ver, author, desc); }
 };

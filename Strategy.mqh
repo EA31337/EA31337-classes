@@ -238,9 +238,11 @@ class Strategy : public Object {
           sl_valid = trade.IsValidOrderSL(sl_new, _odata.type, _odata.sl, _psm > 0);
           tp_valid = trade.IsValidOrderTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
           if (sl_valid && tp_valid) {
-            if (!_order.OrderModify(sl_new, tp_new)) {
-              _order.GetLogger().Flush();
-            }
+            _order.OrderModify(sl_new, tp_new);
+          } else if (sl_valid) {
+            _order.OrderModify(sl_new, _order.Get(ORDER_TP));
+          } else if (tp_valid) {
+            _order.OrderModify(_order.Get(ORDER_SL), tp_new);
           }
           sresult.stops_invalid_sl += (unsigned short)sl_valid;
           sresult.stops_invalid_tp += (unsigned short)tp_valid;
@@ -252,6 +254,9 @@ class Strategy : public Object {
       }
     }
     sresult.ProcessLastError();
+    if (_order.GetData().last_error != ERR_NO_ERROR) {
+      _order.GetLogger().Flush();
+    }
     return sresult;
   }
 

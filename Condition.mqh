@@ -226,7 +226,6 @@ class Condition {
         }
         break;
 #endif
-#ifdef TRADE_MQH
       case COND_TYPE_TRADE:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Trade *)_entry.obj).CheckCondition((ENUM_TRADE_CONDITION)_entry.cond_id, _entry.args);
@@ -235,7 +234,6 @@ class Condition {
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
-#endif
 #ifdef TERMINAL_MQH
       case COND_TYPE_TERMINAL:
         if (Object::IsValid(_entry.obj)) {

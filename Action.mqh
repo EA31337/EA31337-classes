@@ -168,7 +168,6 @@ class Action {
         }
         break;
 #endif
-#ifdef TRADE_MQH
       case ACTION_TYPE_TRADE:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Trade *)_entry.obj).ExecuteAction((ENUM_TRADE_ACTION)_entry.action_id);
@@ -177,7 +176,6 @@ class Action {
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
         }
         break;
-#endif
 #ifdef TERMINAL_MQH
       case ACTION_TYPE_TERMINAL:
         if (Object::IsValid(_entry.obj)) {
