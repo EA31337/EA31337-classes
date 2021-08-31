@@ -55,7 +55,6 @@ class EA {
   // Class variables.
   Account *account;
   DictStruct<long, Ref<Strategy>> strats;
-  DictStruct<short, TaskEntry> tasks;
   Log logger;
   Ref<Market> market;
   Terminal terminal;
@@ -69,7 +68,7 @@ class EA {
   DictObject<string, Trade> trade;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
-  // DictObject<string, Trade> trade;  // @todo
+  DictStruct<int, TaskEntry> tasks;
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
@@ -84,7 +83,7 @@ class EA {
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
     UpdateStateFlags();
     // Add and process tasks.
-    AddTask(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
+    TaskAdd(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
     ProcessTasks();
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
     // Initialize a trade instance for the current chart and symbol.
@@ -595,26 +594,9 @@ class EA {
   /**
    * Add task.
    */
-  void AddTask(TaskEntry &_entry) {
+  bool TaskAdd(TaskEntry &_entry) {
+    bool _result = false;
     if (_entry.IsValid()) {
-      if (_entry.GetAction().GetType() == ACTION_TYPE_EA) {
-        _entry.SetActionObject(GetPointer(this));
-      }
-      if (_entry.GetCondition().GetType() == COND_TYPE_EA) {
-        _entry.SetConditionObject(GetPointer(this));
-      }
-      tasks.Push(_entry);
-    }
-  }
-
-  /**
-   * Process EA tasks.
-   */
-  unsigned int ProcessTasks() {
-    unsigned int _counter = 0;
-    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      bool _is_processed = false;
-      TaskEntry _entry = iter.Value();
       switch (_entry.GetConditionType()) {
         case COND_TYPE_ACCOUNT:
           _entry.SetConditionObject(account);
@@ -634,7 +616,21 @@ class EA {
           _entry.SetActionObject(trade.GetByKey(_Symbol));
           break;
       }
+      _result |= tasks.Push(_entry);
+    }
+    return _result;
+  }
+
+  /**
+   * Process EA tasks.
+   */
+  unsigned int ProcessTasks() {
+    unsigned int _counter = 0;
+    for (DictStructIterator<int, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
+      bool _is_processed = false;
+      TaskEntry _entry = iter.Value();
       _is_processed = _is_processed || Task::Process(_entry);
+      // _entry.last_process = TimeCurrent();
       _counter += (unsigned short)_is_processed;
     }
     return _counter;
