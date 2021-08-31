@@ -55,37 +55,59 @@ class ValueStorage {
   /**
    * Initializes storage with given value.
    */
-  virtual void Initialize(C _value) = NULL;
+  virtual void Initialize(C _value) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual C Fetch(int _shift) = NULL;
+  virtual C Fetch(int _shift) {
+    Alert(__FUNCSIG__, " is not supported!");
+    DebugBreak();
+    return (C)0;
+  }
 
   /**
    * Stores value at a given shift. Takes into consideration as-series flag.
    */
-  virtual void Store(int _shift, C _value) = NULL;
+  virtual void Store(int _shift, C _value) {
+    Alert(__FUNCSIG__, " is not supported!");
+    DebugBreak();
+  }
 
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  virtual int Size() = NULL;
+  virtual int Size() {
+    Alert(__FUNCSIG__, " is not supported!");
+    DebugBreak();
+    return 0;
+  }
 
   /**
    * Resizes storage to given size.
    */
-  virtual void Resize(int _size, int _reserve) = NULL;
+  virtual void Resize(int _size, int _reserve) {
+    Alert(__FUNCSIG__, " is not supported!");
+    DebugBreak();
+  }
 
   /**
    * Checks whether storage operates in as-series mode.
    */
-  virtual bool IsSeries() const = NULL;
+  virtual bool IsSeries() const {
+    Alert(__FUNCSIG__, " is not supported!");
+    DebugBreak();
+    return false;
+  }
 
   /**
    * Sets storage's as-series mode on or off.
    */
-  virtual bool SetSeries(bool _value) = NULL;
+  virtual bool SetSeries(bool _value) {
+    Alert(__FUNCSIG__, " is not supported!");
+    DebugBreak();
+    return false;
+  }
 };
 
 /**

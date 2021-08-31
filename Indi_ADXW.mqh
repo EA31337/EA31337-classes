@@ -24,7 +24,6 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 #include "../ValueStorage.h"
-#include "../ValueStorage.time.h"
 
 // Structs.
 struct ADXWParams : IndicatorParams {
@@ -36,6 +35,7 @@ struct ADXWParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ADXW");
+    SetDataSourceType(IDATA_ICUSTOM);
     period = _period;
     shift = _shift;
     tf = _tf;
@@ -59,50 +59,6 @@ class Indi_ADXW : public Indicator {
    */
   Indi_ADXW(ADXWParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) { params = _params; };
   Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADXW, _tf) { params.tf = _tf; };
-
-  /**
-   * Built-in version of ADX Wilder.
-   */
-  static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _shift = 0,
-                           Indicator *_obj = NULL) {
-#ifdef __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
-    double _res[];
-    ResetLastError();
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iADXWilder(_symbol, _tf, _ma_period)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
-    }
-    return _res[0];
-#else
-    ValueStorage<datetime> *time = TimeValueStorage::GetInstance(_symbol, _tf);
-    ValueStorage<datetime> *tick_volume = TickVolumeValueStorage::GetInstance(_symbol, _tf);
-    ValueStorage<datetime> *volume = VolumeValueStorage::GetInstance(_symbol, _tf);
-    ValueStorage<datetime> *spread = SpreadValueStorage::GetInstance(_symbol, _tf);
-
-    return iADXWilderOnArray(time, price_open, price_high, price_low, price_close, tick_volume, volume, spread, total,
-                             ma_period, shift, cache);
-
-#endif
-  }
 
   /**
    * Calculates MA on the array of values.
@@ -131,18 +87,13 @@ class Indi_ADXW : public Indicator {
 
     // Returns value from the first calculation buffer.
     // Returns first value for as-series array or last value for non-as-series array.
-    return cache.GetTailValue(0, shift);
+    return cache.GetTailValue(0, shift + ma_shift);
   }
 
-  static int Calculate(const int rates_total, const int prev_calculated, ValueStorage<datetime> &time,
-                       ValueStorage<double> &open, ValueStorage<double> &high, ValueStorage<double> &low,
-                       ValueStorage<double> &close, ValueStorage<long> &tick_volume, ValueStorage<long> &volume,
-                       ValueStorage<int> &spread, ValueStorage<double> &ExtADXWBuffer,
-                       ValueStorage<double> &ExtPDIBuffer, ValueStorage<double> &ExtNDIBuffer,
-                       ValueStorage<double> &ExtPDSBuffer, ValueStorage<double> &ExtNDSBuffer,
-                       ValueStorage<double> &ExtPDBuffer, ValueStorage<double> &ExtNDBuffer,
-                       ValueStorage<double> &ExtTRBuffer, ValueStorage<double> &ExtATRBuffer,
-                       ValueStorage<double> &ExtDXBuffer, int ExtADXWPeriod) {
+  int Calculate(const int rates_total, const int prev_calculated, ValueStorage<datetime> &time,
+                ValueStorage<double> &open, ValueStorage<double> &high, ValueStorage<double> &low,
+                ValueStorage<double> &close, ValueStorage<long> &tick_volume, ValueStorage<long> &volume,
+                ValueStorage<int> &spread) {
     //--- checking for bars count
     if (rates_total < ExtADXWPeriod) return (0);
     //--- detect start position
@@ -167,11 +118,11 @@ class Indi_ADXW : public Indicator {
     //--- main cycle
     for (int i = start; i < rates_total && !IsStopped(); i++) {
       //--- get some data
-      double high_price = high[i].Get();
-      double prev_high = high[i - 1].Get();
-      double low_price = low[i].Get();
-      double prev_low = low[i - 1].Get();
-      double prev_close = close[i - 1].Get();
+      double high_price = high[i];
+      double prev_high = high[i - 1];
+      double low_price = low[i];
+      double prev_low = low[i - 1];
+      double prev_close = close[i - 1];
       //--- fill main positive and main negative buffers
       double tmp_pos = high_price - prev_high;
       double tmp_neg = prev_low - low_price;
@@ -198,14 +149,14 @@ class Indi_ADXW : public Indicator {
         ExtPDIBuffer[i] = 0.0;
         ExtNDIBuffer[i] = 0.0;
       } else {
-        ExtATRBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtATRBuffer[i - 1].Get(), ExtTRBuffer);
-        ExtPDSBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtPDSBuffer[i - 1].Get(), ExtPDBuffer);
-        ExtNDSBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtNDSBuffer[i - 1].Get(), ExtNDBuffer);
+        ExtATRBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtATRBuffer[i - 1], ExtTRBuffer);
+        ExtPDSBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtPDSBuffer[i - 1], ExtPDBuffer);
+        ExtNDSBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtNDSBuffer[i - 1], ExtNDBuffer);
       }
       //--- calculate PDI and NDI buffers
       if (ExtATRBuffer[i] != 0.0) {
-        ExtPDIBuffer[i] = 100.0 * ExtPDSBuffer[i].Get() / ExtATRBuffer[i].Get();
-        ExtNDIBuffer[i] = 100.0 * ExtNDSBuffer[i].Get() / ExtATRBuffer[i].Get();
+        ExtPDIBuffer[i] = 100.0 * ExtPDSBuffer[i] / ExtATRBuffer[i];
+        ExtNDIBuffer[i] = 100.0 * ExtNDSBuffer[i] / ExtATRBuffer[i];
       } else {
         ExtPDIBuffer[i] = 0.0;
         ExtNDIBuffer[i] = 0.0;
@@ -218,29 +169,10 @@ class Indi_ADXW : public Indicator {
         dTmp = 0.0;
       ExtDXBuffer[i] = dTmp;
       //--- fill ADXW buffer as smoothed DX buffer
-      ExtADXWBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtADXWBuffer[i - 1].Get(), ExtDXBuffer);
+      ExtADXWBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtADXWBuffer[i - 1], ExtDXBuffer);
     }
     //--- OnCalculate done. Return new prev_calculated.
     return (rates_total);
-  }
-
-  /**
-   * Smoothed Moving Average.
-   */
-  static double SmoothedMA(const int position, const int period, const double prev_value, ValueStorage<double> &price) {
-    double result = 0.0;
-    //--- check period
-    if (period > 0 && period <= (position + 1)) {
-      if (position == period - 1) {
-        for (int i = 0; i < period; i++) result += price[position - i].Get();
-
-        result /= period;
-      }
-
-      result = (prev_value * (period - 1) + price[position].Get()) / period;
-    }
-
-    return (result);
   }
 
   /**
@@ -251,16 +183,12 @@ class Indi_ADXW : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_BUILTIN:
-        _value =
-            Indi_ADXW::iADXWilder(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
                          params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, _mode, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ADXW::iADXWilderOnIndicator(GetDataSource(), GetDataSourceMode(), Get<string>(CHART_PARAM_SYMBOL),
-                                                  Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod());
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

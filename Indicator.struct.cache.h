@@ -51,6 +51,18 @@ class IndicatorCalculateCache : public Dynamic {
   // Buffer to store input prices. Won't be deleted!
   ValueStorage<C> *price_buffer;
 
+  // Buffer to store input open prices. Won't be deleted!
+  ValueStorage<C> *price_open_buffer;
+
+  // Buffer to store input high prices. Won't be deleted!
+  ValueStorage<C> *price_high_buffer;
+
+  // Buffer to store input low prices. Won't be deleted!
+  ValueStorage<C> *price_low_buffer;
+
+  // Buffer to store input close prices. Won't be deleted!
+  ValueStorage<C> *price_close_buffer;
+
   // Buffers used for OnCalculate calculations.
   ARRAY(ValueStorage<C> *, buffers);
 
@@ -133,23 +145,60 @@ class IndicatorCalculateCache : public Dynamic {
   }
 
   /**
-   *
+   * Returns given calculation buffer.
    */
   ValueStorage<C> *GetBuffer(int _index) { return buffers[_index]; }
 
   /**
-   *
+   * Returns main price buffer.
    */
   ValueStorage<C> *GetPriceBuffer() { return price_buffer; }
 
   /**
-   *
+   * Returns given price buffer.
+   */
+  ValueStorage<C> *GetPriceBuffer(ENUM_APPLIED_PRICE _applied_price) {
+    switch (_applied_price) {
+      case PRICE_OPEN:
+        return price_open_buffer;
+      case PRICE_HIGH:
+        return price_high_buffer;
+      case PRICE_LOW:
+        return price_high_buffer;
+      case PRICE_CLOSE:
+        return price_close_buffer;
+    }
+    return NULL;
+  }
+
+  /**
+   * Sets price buffer for later use.
    */
   void SetPriceBuffer(ValueStorage<C> &_price, int _total = 0) {
     price_buffer = &_price;
 
     if (_total == 0) {
       _total = _price.Size();
+    }
+
+    total = _total;
+
+    // Cache is ready to be used.
+    initialized = true;
+  }
+
+  /**
+   * Sets price buffers for later use.
+   */
+  void SetPriceBuffer(ValueStorage<C> &_price_open, ValueStorage<C> &_price_high, ValueStorage<C> &_price_low,
+                      ValueStorage<C> &_price_close, int _total = 0) {
+    price_open_buffer = &_price_open;
+    price_high_buffer = &_price_high;
+    price_low_buffer = &_price_low;
+    price_close_buffer = &_price_close;
+
+    if (_total == 0) {
+      _total = _price_open.Size();
     }
 
     total = _total;
