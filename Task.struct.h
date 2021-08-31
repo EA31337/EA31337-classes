@@ -53,6 +53,7 @@ struct TaskEntry {
   void TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) {
     Init();
   }
+  // Main methods.
   void Init() {
     flags = TASK_ENTRY_FLAG_NONE;
     SetFlag(TASK_ENTRY_FLAG_IS_ACTIVE, action.IsActive() && cond.IsActive());

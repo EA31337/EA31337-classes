@@ -45,12 +45,12 @@ struct ConditionEntry {
   unsigned char flags;                      // Condition flags.
   datetime last_check;                      // Time of the latest check.
   datetime last_success;                    // Time of the last success.
+  int frequency;                            // How often to check.
   long cond_id;                             // Condition ID.
   short tries;                              // Number of successful tries left.
   void *obj;                                // Reference to associated object.
   ENUM_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
   ENUM_CONDITION_TYPE type;                 // Condition type.
-  ENUM_TIMEFRAMES frequency;                // How often to check.
   DataParamEntry args[];                    // Condition arguments.
   // Constructors.
   void ConditionEntry() : type(FINAL_CONDITION_TYPE_ENTRY), cond_id(WRONG_VALUE) { Init(); }
@@ -96,6 +96,7 @@ struct ConditionEntry {
   }
   void Init() {
     flags = COND_ENTRY_FLAG_NONE;
+    frequency = 60;
     SetFlag(COND_ENTRY_FLAG_IS_ACTIVE, cond_id != WRONG_VALUE);
     SetFlag(COND_ENTRY_FLAG_IS_INVALID, cond_id == WRONG_VALUE);
     last_check = last_success = 0;
@@ -105,8 +106,6 @@ struct ConditionEntry {
   void SetArgs(MqlParam &_args[]) {
     // @todo: for().
   }
-  void SetObject(void *_obj) {
-    obj = _obj;
-  }
+  void SetObject(void *_obj) { obj = _obj; }
   void SetTries(short _count) { tries = _count; }
 };
