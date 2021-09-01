@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Time getter version of ValueStorage.
+ * Volume getter version of ValueStorage.
  */
 
 // Includes.
@@ -29,34 +29,34 @@
 #include "ValueStorage.h"
 
 /**
- * Storage to retrieve time.
+ * Storage to retrieve volume.
  */
-class TimeValueStorage : public ValueStorage<datetime> {
-  // Symbol to fetch time for.
+class VolumeValueStorage : public ValueStorage<long> {
+  // Symbol to fetch volume for.
   string symbol;
 
-  // Time-frame to fetch time for.
+  // Time-frame to fetch volume for.
   ENUM_TIMEFRAMES tf;
 
  public:
   /**
    * Constructor.
    */
-  TimeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {}
+  VolumeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {}
 
   /**
    * Copy constructor.
    */
-  TimeValueStorage(const TimeValueStorage &_r) : symbol(_r.symbol), tf(_r.tf) {}
+  VolumeValueStorage(const VolumeValueStorage &_r) : symbol(_r.symbol), tf(_r.tf) {}
 
   /**
-   * Returns pointer to TimeValueStorage of a given symbol and time-frame.
+   * Returns pointer to VolumeValueStorage of a given symbol and time-frame.
    */
-  static TimeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
-    TimeValueStorage *_storage;
+  static VolumeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
+    VolumeValueStorage *_storage;
     string _key = _symbol + "/" + IntegerToString((int)_tf);
-    if (!ObjectsCache<TimeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<TimeValueStorage>::Set(_key, new TimeValueStorage(_symbol, _tf));
+    if (!ObjectsCache<VolumeValueStorage>::TryGet(_key, _storage)) {
+      _storage = ObjectsCache<VolumeValueStorage>::Set(_key, new VolumeValueStorage(_symbol, _tf));
     }
     return _storage;
   }
@@ -64,7 +64,7 @@ class TimeValueStorage : public ValueStorage<datetime> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual datetime Fetch(int _shift) { return iTime(symbol, tf, _shift); }
+  virtual long Fetch(int _shift) { return iVolume(symbol, tf, _shift); }
 
   /**
    * Checks whether storage operates in as-series mode.

@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Time getter version of ValueStorage.
+ * Tick volume getter version of ValueStorage.
  */
 
 // Includes.
@@ -29,34 +29,34 @@
 #include "ValueStorage.h"
 
 /**
- * Storage to retrieve time.
+ * Storage to retrieve tick volume.
  */
-class TimeValueStorage : public ValueStorage<datetime> {
-  // Symbol to fetch time for.
+class TickVolumeValueStorage : public ValueStorage<long> {
+  // Symbol to fetch tick volume for.
   string symbol;
 
-  // Time-frame to fetch time for.
+  // Time-frame to fetch tick volume for.
   ENUM_TIMEFRAMES tf;
 
  public:
   /**
    * Constructor.
    */
-  TimeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {}
+  TickVolumeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {}
 
   /**
    * Copy constructor.
    */
-  TimeValueStorage(const TimeValueStorage &_r) : symbol(_r.symbol), tf(_r.tf) {}
+  TickVolumeValueStorage(const TickVolumeValueStorage &_r) : symbol(_r.symbol), tf(_r.tf) {}
 
   /**
-   * Returns pointer to TimeValueStorage of a given symbol and time-frame.
+   * Returns pointer to TickVolumeValueStorage of a given symbol and time-frame.
    */
-  static TimeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
-    TimeValueStorage *_storage;
+  static TickVolumeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
+    TickVolumeValueStorage *_storage;
     string _key = _symbol + "/" + IntegerToString((int)_tf);
-    if (!ObjectsCache<TimeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<TimeValueStorage>::Set(_key, new TimeValueStorage(_symbol, _tf));
+    if (!ObjectsCache<TickVolumeValueStorage>::TryGet(_key, _storage)) {
+      _storage = ObjectsCache<TickVolumeValueStorage>::Set(_key, new TickVolumeValueStorage(_symbol, _tf));
     }
     return _storage;
   }
@@ -64,7 +64,7 @@ class TimeValueStorage : public ValueStorage<datetime> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual datetime Fetch(int _shift) { return iTime(symbol, tf, _shift); }
+  virtual long Fetch(int _shift) { return iTickVolume(symbol, tf, _shift); }
 
   /**
    * Checks whether storage operates in as-series mode.

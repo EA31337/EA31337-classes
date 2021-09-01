@@ -31,13 +31,14 @@
 
 // Includes.
 #include "Array.mqh"
+#include "IValueStorage.h"
 #include "ValueStorage.accessor.h"
 
 /**
  * Value storage settable/gettable via indexation operator.
  */
 template <typename C>
-class ValueStorage {
+class ValueStorage : public IValueStorage {
  public:
   /**
    * Indexation operator.
@@ -46,11 +47,6 @@ class ValueStorage {
     ValueStorageAccessor<C> _accessor(THIS_PTR, _index);
     return _accessor;
   }
-
-  /**
-   * We don't user to accidentally copy whole buffer.
-   */
-  void operator=(const ValueStorage<C>&) = delete;
 
   /**
    * Initializes storage with given value.
@@ -73,58 +69,7 @@ class ValueStorage {
     Alert(__FUNCSIG__, " is not supported!");
     DebugBreak();
   }
-
-  /**
-   * Returns number of values available to fetch (size of the values buffer).
-   */
-  virtual int Size() {
-    Alert(__FUNCSIG__, " is not supported!");
-    DebugBreak();
-    return 0;
-  }
-
-  /**
-   * Resizes storage to given size.
-   */
-  virtual void Resize(int _size, int _reserve) {
-    Alert(__FUNCSIG__, " is not supported!");
-    DebugBreak();
-  }
-
-  /**
-   * Checks whether storage operates in as-series mode.
-   */
-  virtual bool IsSeries() const {
-    Alert(__FUNCSIG__, " is not supported!");
-    DebugBreak();
-    return false;
-  }
-
-  /**
-   * Sets storage's as-series mode on or off.
-   */
-  virtual bool SetSeries(bool _value) {
-    Alert(__FUNCSIG__, " is not supported!");
-    DebugBreak();
-    return false;
-  }
 };
-
-/**
- * ValueStorage-compatible wrapper for ArrayGetAsSeries.
- */
-template <typename C>
-bool ArrayGetAsSeries(const ValueStorage<C>& _storage) {
-  return _storage.IsSeries();
-}
-
-/**
- * ValueStorage-compatible wrapper for ArraySetAsSeries.
- */
-template <typename C>
-bool ArraySetAsSeries(ValueStorage<C>& _storage, bool _value) {
-  return _storage.SetSeries(_value);
-}
 
 /**
  * ValueStorage-compatible wrapper for ArrayInitialize.
@@ -132,23 +77,6 @@ bool ArraySetAsSeries(ValueStorage<C>& _storage, bool _value) {
 template <typename C>
 void ArrayInitialize(ValueStorage<C>& _storage, C _value) {
   _storage.Initialize(_value);
-}
-
-/**
- * ValueStorage-compatible wrapper for ArrayResize.
- */
-template <typename C>
-int ArrayResize(ValueStorage<C>& _storage, int _size, int _reserve = 100) {
-  _storage.Resize(_size, _reserve);
-  return _size;
-}
-
-/**
- * ValueStorage-compatible wrapper for ArraySize.
- */
-template <typename C>
-int ArraySize(ValueStorage<C>& _storage) {
-  return _storage.Size();
 }
 
 /**

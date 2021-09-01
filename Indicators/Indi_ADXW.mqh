@@ -23,8 +23,13 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Util.h"
 #include "../ValueStorage.h"
+#include "../ValueStorage.price.h"
+#include "../ValueStorage.spread.h"
+#include "../ValueStorage.tick_volume.h"
 #include "../ValueStorage.time.h"
+#include "../ValueStorage.volume.h"
 
 // Structs.
 struct ADXWParams : IndicatorParams {
@@ -63,7 +68,7 @@ class Indi_ADXW : public Indicator {
   /**
    * Built-in version of ADX Wilder.
    */
-  static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _shift = 0,
+  static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = 0, int _shift = 0,
                            Indicator *_obj = NULL) {
 #ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
@@ -88,18 +93,28 @@ class Indi_ADXW : public Indicator {
         return EMPTY_VALUE;
       }
     }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
 #else
-    ValueStorage<datetime> *time = TimeValueStorage::GetInstance(_symbol, _tf);
-    ValueStorage<datetime> *tick_volume = TickVolumeValueStorage::GetInstance(_symbol, _tf);
-    ValueStorage<datetime> *volume = VolumeValueStorage::GetInstance(_symbol, _tf);
-    ValueStorage<datetime> *spread = SpreadValueStorage::GetInstance(_symbol, _tf);
+    ValueStorage<datetime> *_time = TimeValueStorage::GetInstance(_symbol, _tf);
+    ValueStorage<long> *_tick_volume = TickVolumeValueStorage::GetInstance(_symbol, _tf);
+    ValueStorage<long> *_volume = VolumeValueStorage::GetInstance(_symbol, _tf);
+    ValueStorage<long> *_spread = SpreadValueStorage::GetInstance(_symbol, _tf);
+    ValueStorage<double> *_price_open = PriceValueStorage::GetInstance(_symbol, _tf, PRICE_OPEN);
+    ValueStorage<double> *_price_high = PriceValueStorage::GetInstance(_symbol, _tf, PRICE_HIGH);
+    ValueStorage<double> *_price_low = PriceValueStorage::GetInstance(_symbol, _tf, PRICE_LOW);
+    ValueStorage<double> *_price_close = PriceValueStorage::GetInstance(_symbol, _tf, PRICE_CLOSE);
+    IndicatorCalculateCache<double> *_cache;
 
-    return iADXWilderOnArray(time, price_open, price_high, price_low, price_close, tick_volume, volume, spread, total,
-                             ma_period, shift, cache);
+    string _key = Util::MakeKey(_symbol, (int)_tf, _ma_period);
+    if (!Objects<IndicatorCalculateCache<double>>::TryGet(_key, _cache)) {
+      _cache = Objects<IndicatorCalculateCache<double>>::Set(_key, new IndicatorCalculateCache<double>());
+    }
+
+    return iADXWilderOnArray(_time, _price_open, _price_high, _price_low, _price_close, _tick_volume, _volume, _spread,
+                             0, _ma_period, _mode, _shift, _cache);
 
 #endif
   }
@@ -110,11 +125,12 @@ class Indi_ADXW : public Indicator {
   static double iADXWilderOnArray(ValueStorage<datetime> &time, ValueStorage<double> &price_open,
                                   ValueStorage<double> &price_high, ValueStorage<double> &price_low,
                                   ValueStorage<double> &price_close, ValueStorage<long> &tick_volume,
-                                  ValueStorage<long> &volume, ValueStorage<int> &spread, int total, int period,
-                                  int shift, IndicatorCalculateCache<double> *cache, bool recalculate = false) {
+                                  ValueStorage<long> &volume, ValueStorage<long> &spread, int total, int period,
+                                  int mode, int shift, IndicatorCalculateCache<double> *cache,
+                                  bool recalculate = false) {
     cache.SetPriceBuffer(price_open, price_high, price_low, price_close);
 
-    if (!cache.IsInitialized()) {
+    if (!cache.HasBuffers()) {
       cache.AddBuffer<NativeValueStorage<double>>(3 + 7);
     }
 
@@ -125,19 +141,22 @@ class Indi_ADXW : public Indicator {
     cache.SetPrevCalculated(Indi_ADXW::Calculate(
         cache.GetTotal(), cache.GetPrevCalculated(), time, cache.GetPriceBuffer(PRICE_OPEN),
         cache.GetPriceBuffer(PRICE_HIGH), cache.GetPriceBuffer(PRICE_LOW), cache.GetPriceBuffer(PRICE_CLOSE),
-        tick_volume, volume, spread, cache.GetBuffer(0), cache.GetBuffer(1), cache.GetBuffer(2), cache.GetBuffer(3),
-        cache.GetBuffer(4), cache.GetBuffer(5), cache.GetBuffer(6), cache.GetBuffer(7), cache.GetBuffer(8),
-        cache.GetBuffer(9), period));
+        tick_volume, volume, spread, (ValueStorage<double> *)cache.GetBuffer(0),
+        (ValueStorage<double> *)cache.GetBuffer(1), (ValueStorage<double> *)cache.GetBuffer(2),
+        (ValueStorage<double> *)cache.GetBuffer(3), (ValueStorage<double> *)cache.GetBuffer(4),
+        (ValueStorage<double> *)cache.GetBuffer(5), (ValueStorage<double> *)cache.GetBuffer(6),
+        (ValueStorage<double> *)cache.GetBuffer(7), (ValueStorage<double> *)cache.GetBuffer(8),
+        (ValueStorage<double> *)cache.GetBuffer(9), period));
 
     // Returns value from the first calculation buffer.
     // Returns first value for as-series array or last value for non-as-series array.
-    return cache.GetTailValue(0, shift);
+    return cache.GetTailValue(mode, shift);
   }
 
   static int Calculate(const int rates_total, const int prev_calculated, ValueStorage<datetime> &time,
                        ValueStorage<double> &open, ValueStorage<double> &high, ValueStorage<double> &low,
                        ValueStorage<double> &close, ValueStorage<long> &tick_volume, ValueStorage<long> &volume,
-                       ValueStorage<int> &spread, ValueStorage<double> &ExtADXWBuffer,
+                       ValueStorage<long> &spread, ValueStorage<double> &ExtADXWBuffer,
                        ValueStorage<double> &ExtPDIBuffer, ValueStorage<double> &ExtNDIBuffer,
                        ValueStorage<double> &ExtPDSBuffer, ValueStorage<double> &ExtNDSBuffer,
                        ValueStorage<double> &ExtPDBuffer, ValueStorage<double> &ExtNDBuffer,
@@ -251,20 +270,23 @@ class Indi_ADXW : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_BUILTIN:
-        _value =
-            Indi_ADXW::iADXWilder(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod());
+        _value = Indi_ADXW::iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+                         _mode, _shift);
         break;
-      case IDATA_INDICATOR:
-        _value = Indi_ADXW::iADXWilderOnIndicator(GetDataSource(), GetDataSourceMode(), Get<string>(CHART_PARAM_SYMBOL),
-                                                  Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod());
-        break;
+        /*
+              case IDATA_INDICATOR:
+                _value = Indi_ADXW::iADXWilderOnIndicator(GetDataSource(), GetDataSourceMode(),
+           Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod()); break;
+        */
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
+
+    Print(_value);
+
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -284,6 +306,7 @@ class Indi_ADXW : public Indicator {
       for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_DOUBLE, true);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);

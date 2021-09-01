@@ -826,6 +826,16 @@ class Indicator : public Chart {
   IndicatorParams GetParams() { return iparams; }
 
   /**
+   * Gets indicator's symbol.
+   */
+  string GetSymbol() { return Get<string>(CHART_PARAM_SYMBOL); }
+
+  /**
+   * Gets indicator's time-frame.
+   */
+  ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
+
+  /**
    * Gets indicator's signals.
    *
    * When indicator values are not valid, returns empty signals.
@@ -1263,7 +1273,8 @@ class Indicator : public Chart {
    */
   virtual string ToString(int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
-    int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
+    int _serializer_flags =
+        SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
     SerializerConverter _stub_indi =
         SerializerConverter::MakeStubObject<IndicatorDataEntry>(_serializer_flags, _entry.GetSize());
     return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);

@@ -133,8 +133,9 @@ class Indi_DEMA : public Indicator {
       return 0.0f;
     }
 
-    if (!cache.IsInitialized()) {
-      cache.SetPriceBuffer(price);
+    cache.SetPriceBuffer(price);
+
+    if (!cache.HasBuffers()) {
       cache.AddBuffer<NativeValueStorage<double>>(3);  // 3 buffers.
     }
 
@@ -144,8 +145,9 @@ class Indi_DEMA : public Indicator {
     }
 
     cache.SetPrevCalculated(Indi_DEMA::Calculate(cache.GetTotal(), cache.GetPrevCalculated(), 0, cache.GetPriceBuffer(),
-                                                 ma_period, cache.GetBuffer(0), cache.GetBuffer(1),
-                                                 cache.GetBuffer(2)));
+                                                 ma_period, (ValueStorage<double> *)cache.GetBuffer(0),
+                                                 (ValueStorage<double> *)cache.GetBuffer(1),
+                                                 (ValueStorage<double> *)cache.GetBuffer(2)));
 
     return cache.GetTailValue(0, ma_shift + shift);
   }

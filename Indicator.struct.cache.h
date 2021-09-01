@@ -64,7 +64,7 @@ class IndicatorCalculateCache : public Dynamic {
   ValueStorage<C> *price_close_buffer;
 
   // Buffers used for OnCalculate calculations.
-  ARRAY(ValueStorage<C> *, buffers);
+  ARRAY(IValueStorage *, buffers);
 
   // Auxiliary caches related to this one.
   ARRAY(IndicatorCalculateCache<C> *, subcaches);
@@ -101,7 +101,7 @@ class IndicatorCalculateCache : public Dynamic {
   /**
    * Returns size of the current price buffer.
    */
-  int GetTotal() { return ArraySize(price_buffer); }
+  int GetTotal() { return price_buffer != NULL ? ArraySize(price_buffer) : ArraySize(price_open_buffer); }
 
   /**
    * Returns number of already calculated prices (bars).
@@ -109,9 +109,9 @@ class IndicatorCalculateCache : public Dynamic {
   int GetPrevCalculated() { return prev_calculated; }
 
   /**
-   * Whether price buffer is already set.
+   * Whether cache have any buffer.
    */
-  bool IsInitialized() { return initialized; }
+  bool HasBuffers() { return ArraySize(buffers) != 0; }
 
   /**
    * Returns existing or new cache as a child of current one. Useful when indicator uses other indicators and requires
@@ -134,7 +134,7 @@ class IndicatorCalculateCache : public Dynamic {
    */
   template <typename T>
   int AddBuffer(int _num_buffers = 1) {
-    ValueStorage<C> *_ptr;
+    IValueStorage *_ptr;
 
     while (_num_buffers-- > 0) {
       _ptr = new T();
@@ -147,7 +147,7 @@ class IndicatorCalculateCache : public Dynamic {
   /**
    * Returns given calculation buffer.
    */
-  ValueStorage<C> *GetBuffer(int _index) { return buffers[_index]; }
+  IValueStorage *GetBuffer(int _index) { return buffers[_index]; }
 
   /**
    * Returns main price buffer.
@@ -219,7 +219,10 @@ class IndicatorCalculateCache : public Dynamic {
   /**
    * Retrieves cached value from the given buffer.
    */
-  double GetValue(int _buffer_index, int _shift) { return GetBuffer(_buffer_index)[_shift].Get(); }
+  template <typename T>
+  double GetValue(int _buffer_index, int _shift) {
+    return ((T *)GetBuffer(_buffer_index)).Fetch(_shift).Get();
+  }
 
   /**
    *

@@ -169,9 +169,9 @@ class Indi_MA : public Indicator {
       // and calculate series shift via `series shift = current tick - start tick - given shift`.
       // `Total` is calculated as `current tick - start tick`.
       // Price buffer is always not-series.
+      cache.SetPriceBuffer(price);
 
-      if (!cache.IsInitialized()) {
-        cache.SetPriceBuffer(price);
+      if (!cache.HasBuffers()) {
         cache.AddBuffer<NativeValueStorage<double>>();
       }
 
@@ -181,7 +181,7 @@ class Indi_MA : public Indicator {
       }
 
       cache.SetPrevCalculated(Indi_MA::Calculate(cache.GetTotal(), cache.GetPrevCalculated(), 0, cache.GetPriceBuffer(),
-                                                 cache.GetBuffer(0), ma_method, ma_period));
+                                                 (ValueStorage<double> *)cache.GetBuffer(0), ma_method, ma_period));
 
       // Returns value from the first calculation buffer.
       // Returns first value for as-series array or last value for non-as-series array.

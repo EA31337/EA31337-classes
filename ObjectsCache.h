@@ -50,7 +50,7 @@ class ObjectsCache {
       out_ptr = NULL;
       return false;
     } else {
-      out_ptr = &objects.GetByPos(position);
+      out_ptr = objects.GetByPos(position);
       return true;
     }
   }
