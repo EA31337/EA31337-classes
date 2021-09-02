@@ -114,7 +114,6 @@ double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
 Indi_Drawer *_indi_drawer;
-Indi_ADXW *_indi_adxw;
 
 /**
  * Implements Init event handler.
@@ -469,7 +468,7 @@ bool InitIndicators() {
 
   // ADXW.
   ADXWParams adxw_params(14);
-  indis.Push(_indi_adxw = new Indi_ADXW(adxw_params));
+  indis.Push(new Indi_ADXW(adxw_params));
 
 // AMA.
 #ifdef __MQL5__

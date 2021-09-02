@@ -29,6 +29,41 @@
 #pragma once
 #endif
 
+// Defines.
+#define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
+  100  // Number of entries the value storage buffer will be initialized with.
+
+#define INDICATOR_CALCULATE_PARAMS_LONG                                                                            \
+  ValueStorage<datetime> &time, ValueStorage<double> &open, ValueStorage<double> &high, ValueStorage<double> &low, \
+      ValueStorage<double> &close, ValueStorage<long> &tick_volume, ValueStorage<long> &volume,                    \
+      ValueStorage<long> &spread
+
+#define INDICATOR_CALCULATE_METHOD_PARAMS_LONG \
+  const int rates_total, const int prev_calculated, INDICATOR_CALCULATE_PARAMS_LONG
+
+#define INDICATOR_CALCULATE_GET_PARAMS_LONG                                                                 \
+  cache.GetTotal(), cache.GetPrevCalculated(), time, cache.GetPriceBuffer(PRICE_OPEN),                      \
+      cache.GetPriceBuffer(PRICE_HIGH), cache.GetPriceBuffer(PRICE_LOW), cache.GetPriceBuffer(PRICE_CLOSE), \
+      tick_volume, volume, spread
+
+#define INDICATOR_CALCULATE_GET_PARAMS_SHORT cache.GetTotal(), cache.GetPrevCalculated(), 0, cache.GetPriceBuffer()
+
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(SYMBOL, TF)                                   \
+  ValueStorage<datetime> *_time = TimeValueStorage::GetInstance(SYMBOL, TF);                             \
+  ValueStorage<long> *_tick_volume = TickVolumeValueStorage::GetInstance(SYMBOL, TF);                    \
+  ValueStorage<long> *_volume = VolumeValueStorage::GetInstance(SYMBOL, TF);                             \
+  ValueStorage<long> *_spread = SpreadValueStorage::GetInstance(SYMBOL, TF);                             \
+  ValueStorage<double> *_price_open = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_OPEN);            \
+  ValueStorage<double> *_price_high = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_HIGH);            \
+  ValueStorage<double> *_price_low = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_LOW);              \
+  ValueStorage<double> *_price_close = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_CLOSE);          \
+  IndicatorCalculateCache<double> *_cache;                                                               \
+                                                                                                         \
+  string _key = Util::MakeKey(SYMBOL, (int)TF, _ma_period);                                              \
+  if (!Objects<IndicatorCalculateCache<double>>::TryGet(_key, _cache)) {                                 \
+    _cache = Objects<IndicatorCalculateCache<double>>::Set(_key, new IndicatorCalculateCache<double>()); \
+  }
+
 // Includes.
 #include "Array.mqh"
 #include "IValueStorage.h"
@@ -75,7 +110,7 @@ class ValueStorage : public IValueStorage {
  * ValueStorage-compatible wrapper for ArrayInitialize.
  */
 template <typename C>
-void ArrayInitialize(ValueStorage<C>& _storage, C _value) {
+void ArrayInitialize(ValueStorage<C> &_storage, C _value) {
   _storage.Initialize(_value);
 }
 
@@ -83,7 +118,7 @@ void ArrayInitialize(ValueStorage<C>& _storage, C _value) {
  * ValueStorage-compatible wrapper for ArrayCopy.
  */
 template <typename C, typename D>
-int ArrayCopy(D& _target[], ValueStorage<C>& _source, int _dst_start = 0, int _src_start = 0, int count = WHOLE_ARRAY) {
+int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _src_start = 0, int count = WHOLE_ARRAY) {
   if (count == WHOLE_ARRAY) {
     count = ArraySize(_source);
   }

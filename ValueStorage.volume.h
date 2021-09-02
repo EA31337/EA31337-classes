@@ -26,28 +26,22 @@
 
 // Includes.
 #include "ObjectsCache.h"
-#include "ValueStorage.h"
+#include "ValueStorage.history.h"
 
 /**
  * Storage to retrieve volume.
  */
-class VolumeValueStorage : public ValueStorage<long> {
-  // Symbol to fetch volume for.
-  string symbol;
-
-  // Time-frame to fetch volume for.
-  ENUM_TIMEFRAMES tf;
-
+class VolumeValueStorage : public HistoryValueStorage<long> {
  public:
   /**
    * Constructor.
    */
-  VolumeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {}
+  VolumeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : HistoryValueStorage(_symbol, _tf) {}
 
   /**
    * Copy constructor.
    */
-  VolumeValueStorage(const VolumeValueStorage &_r) : symbol(_r.symbol), tf(_r.tf) {}
+  VolumeValueStorage(const VolumeValueStorage &_r) : HistoryValueStorage(_r.symbol, _r.tf) {}
 
   /**
    * Returns pointer to VolumeValueStorage of a given symbol and time-frame.
@@ -64,21 +58,5 @@ class VolumeValueStorage : public ValueStorage<long> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual long Fetch(int _shift) { return iVolume(symbol, tf, _shift); }
-
-  /**
-   * Checks whether storage operates in as-series mode.
-   */
-  virtual bool IsSeries() const { return true; }
-
-  /**
-   * Sets storage's as-series mode on or off.
-   */
-  virtual bool SetSeries(bool _value) {
-    if (!_value) {
-      Alert(__FUNCSIG__, " can only work as series!");
-      DebugBreak();
-    }
-    return true;
-  }
+  virtual long Fetch(int _shift) { return iVolume(symbol, tf, RealShift(_shift)); }
 };

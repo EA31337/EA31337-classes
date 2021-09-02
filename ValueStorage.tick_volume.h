@@ -26,28 +26,23 @@
 
 // Includes.
 #include "ObjectsCache.h"
-#include "ValueStorage.h"
+#include "ValueStorage.history.h"
 
 /**
  * Storage to retrieve tick volume.
  */
-class TickVolumeValueStorage : public ValueStorage<long> {
-  // Symbol to fetch tick volume for.
-  string symbol;
-
-  // Time-frame to fetch tick volume for.
-  ENUM_TIMEFRAMES tf;
-
+class TickVolumeValueStorage : public HistoryValueStorage<long> {
  public:
   /**
    * Constructor.
    */
-  TickVolumeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {}
+  TickVolumeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : HistoryValueStorage(_symbol, _tf) {}
 
   /**
    * Copy constructor.
    */
-  TickVolumeValueStorage(const TickVolumeValueStorage &_r) : symbol(_r.symbol), tf(_r.tf) {}
+  TickVolumeValueStorage(const TickVolumeValueStorage &_r) : HistoryValueStorage(_r.symbol, _r.tf) {}
 
   /**
    * Returns pointer to TickVolumeValueStorage of a given symbol and time-frame.
@@ -64,21 +59,5 @@ class TickVolumeValueStorage : public ValueStorage<long> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual long Fetch(int _shift) { return iTickVolume(symbol, tf, _shift); }
-
-  /**
-   * Checks whether storage operates in as-series mode.
-   */
-  virtual bool IsSeries() const { return true; }
-
-  /**
-   * Sets storage's as-series mode on or off.
-   */
-  virtual bool SetSeries(bool _value) {
-    if (!_value) {
-      Alert(__FUNCSIG__, " can only work as series!");
-      DebugBreak();
-    }
-    return true;
-  }
+  virtual long Fetch(int _shift) { return ChartStatic::iVolume(symbol, tf, RealShift(_shift)); }
 };

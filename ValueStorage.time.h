@@ -26,35 +26,30 @@
 
 // Includes.
 #include "ObjectsCache.h"
-#include "ValueStorage.h"
+#include "Util.h"
+#include "ValueStorage.history.h"
 
 /**
  * Storage to retrieve time.
  */
-class TimeValueStorage : public ValueStorage<datetime> {
-  // Symbol to fetch time for.
-  string symbol;
-
-  // Time-frame to fetch time for.
-  ENUM_TIMEFRAMES tf;
-
+class TimeValueStorage : public HistoryValueStorage<datetime> {
  public:
   /**
    * Constructor.
    */
-  TimeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {}
+  TimeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : HistoryValueStorage(_symbol, _tf) {}
 
   /**
    * Copy constructor.
    */
-  TimeValueStorage(const TimeValueStorage &_r) : symbol(_r.symbol), tf(_r.tf) {}
+  TimeValueStorage(const TimeValueStorage &_r) : HistoryValueStorage(_r.symbol, _r.tf) {}
 
   /**
    * Returns pointer to TimeValueStorage of a given symbol and time-frame.
    */
   static TimeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
     TimeValueStorage *_storage;
-    string _key = _symbol + "/" + IntegerToString((int)_tf);
+    string _key = Util::MakeKey(_symbol, (int)_tf);
     if (!ObjectsCache<TimeValueStorage>::TryGet(_key, _storage)) {
       _storage = ObjectsCache<TimeValueStorage>::Set(_key, new TimeValueStorage(_symbol, _tf));
     }
@@ -64,21 +59,5 @@ class TimeValueStorage : public ValueStorage<datetime> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual datetime Fetch(int _shift) { return iTime(symbol, tf, _shift); }
-
-  /**
-   * Checks whether storage operates in as-series mode.
-   */
-  virtual bool IsSeries() const { return true; }
-
-  /**
-   * Sets storage's as-series mode on or off.
-   */
-  virtual bool SetSeries(bool _value) {
-    if (!_value) {
-      Alert(__FUNCSIG__, " can only work as series!");
-      DebugBreak();
-    }
-    return true;
-  }
+  virtual datetime Fetch(int _shift) { return iTime(symbol, tf, RealShift(_shift)); }
 };

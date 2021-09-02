@@ -25,29 +25,24 @@
  */
 
 // Includes.
+#include "Chart.struct.h"
 #include "ObjectsCache.h"
-#include "ValueStorage.h"
+#include "ValueStorage.history.h"
 
 /**
  * Storage to retrieve spread.
  */
-class SpreadValueStorage : public ValueStorage<long> {
-  // Symbol to fetch spread for.
-  string symbol;
-
-  // Time-frame to fetch spread for.
-  ENUM_TIMEFRAMES tf;
-
+class SpreadValueStorage : public HistoryValueStorage<long> {
  public:
   /**
    * Constructor.
    */
-  SpreadValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {}
+  SpreadValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : HistoryValueStorage(_symbol, _tf) {}
 
   /**
    * Copy constructor.
    */
-  SpreadValueStorage(const SpreadValueStorage &_r) : symbol(_r.symbol), tf(_r.tf) {}
+  SpreadValueStorage(const SpreadValueStorage &_r) : HistoryValueStorage(_r.symbol, _r.tf) {}
 
   /**
    * Returns pointer to SpreadValueStorage of a given symbol and time-frame.
@@ -64,21 +59,5 @@ class SpreadValueStorage : public ValueStorage<long> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual long Fetch(int _shift) { return iSpread(symbol, tf, _shift); }
-
-  /**
-   * Checks whether storage operates in as-series mode.
-   */
-  virtual bool IsSeries() const { return true; }
-
-  /**
-   * Sets storage's as-series mode on or off.
-   */
-  virtual bool SetSeries(bool _value) {
-    if (!_value) {
-      Alert(__FUNCSIG__, " can only work as series!");
-      DebugBreak();
-    }
-    return true;
-  }
+  virtual long Fetch(int _shift) { return ChartStatic::iVolume(symbol, tf, RealShift(_shift)); }
 };

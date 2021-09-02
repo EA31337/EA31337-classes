@@ -66,13 +66,16 @@ class PriceValueStorage : public HistoryValueStorage<double> {
   virtual double Fetch(int _shift) {
     switch (ap) {
       case PRICE_OPEN:
-        return iOpen(symbol, tf, _shift);
+        return iOpen(symbol, tf, RealShift(_shift));
       case PRICE_HIGH:
-        return iHigh(symbol, tf, _shift);
+        return iHigh(symbol, tf, RealShift(_shift));
       case PRICE_LOW:
-        return iLow(symbol, tf, _shift);
+        return iLow(symbol, tf, RealShift(_shift));
       case PRICE_CLOSE:
-        return iClose(symbol, tf, _shift);
+        return iClose(symbol, tf, RealShift(_shift));
+      default:
+        Print("We shouldn't be here!");
+        DebugBreak();
     }
     return 0.0;
   }

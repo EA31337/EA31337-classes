@@ -147,7 +147,10 @@ class IndicatorCalculateCache : public Dynamic {
   /**
    * Returns given calculation buffer.
    */
-  IValueStorage *GetBuffer(int _index) { return buffers[_index]; }
+  template <typename D>
+  ValueStorage<D> *GetBuffer(int _index) {
+    return (ValueStorage<D> *)buffers[_index];
+  }
 
   /**
    * Returns main price buffer.
@@ -164,7 +167,7 @@ class IndicatorCalculateCache : public Dynamic {
       case PRICE_HIGH:
         return price_high_buffer;
       case PRICE_LOW:
-        return price_high_buffer;
+        return price_low_buffer;
       case PRICE_CLOSE:
         return price_close_buffer;
     }
@@ -219,16 +222,17 @@ class IndicatorCalculateCache : public Dynamic {
   /**
    * Retrieves cached value from the given buffer.
    */
-  template <typename T>
-  double GetValue(int _buffer_index, int _shift) {
-    return ((T *)GetBuffer(_buffer_index)).Fetch(_shift).Get();
+  template <typename D>
+  D GetValue(int _buffer_index, int _shift) {
+    return GetBuffer<D>(_buffer_index).Fetch(_shift).Get();
   }
 
   /**
    *
    */
-  double GetTailValue(int _buffer_index, int _shift) {
-    ValueStorage<C> *_buff = GetBuffer(_buffer_index);
+  template <typename D>
+  D GetTailValue(int _buffer_index, int _shift) {
+    ValueStorage<D> *_buff = GetBuffer<D>(_buffer_index);
     return _buff[_buff.IsSeries() ? _shift : (ArraySize(_buff) - _shift - 1)].Get();
   }
 

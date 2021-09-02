@@ -69,7 +69,7 @@ class HistoryValueStorage : public ValueStorage<C> {
   }
 
   /**
-   * Calculates series shift from non-series index.
+   * Calculates shift from the given value index.
    */
   int RealShift(int _shift) {
     if (is_series) {
@@ -83,8 +83,7 @@ class HistoryValueStorage : public ValueStorage<C> {
    * Number of bars passed from the start.
    */
   int BarsFromStart() const {
-    ChartTf _tf(tf);
-    return (int)((ChartStatic::iTime(symbol, tf, 0) - start_bar_time) / (long)_tf.GetInSeconds());
+    return (int)((ChartStatic::iTime(symbol, tf, 0) - start_bar_time) / (long)PeriodSeconds(tf));
   }
 
   /**
