@@ -199,6 +199,18 @@ class Account {
   }
 
   /**
+   * Returns free margin value of the current account in percentage.
+   *
+   * @return
+   *   Account's free margin in percentage.
+   */
+  double GetMarginFreeInPct() {
+    double _margin_free = GetMarginFree();
+    double _margin_avail = GetMarginAvail();
+    return _margin_avail > 0 ? 100 / _margin_avail * _margin_free : 0;
+  }
+
+  /**
    * Returns the current account number.
    */
   static long AccountNumber() { return AccountInfoInteger(ACCOUNT_LOGIN); }
@@ -574,16 +586,28 @@ class Account {
         // @todo
         return false;
       */
+      case ACCOUNT_COND_MARGIN_FREE_IN_PC:
+        // Arguments:
+        // arg[0] - Specify value in percentage.
+        // arg[1] - Math comparison operators (@see: ENUM_MATH_CONDITION).
+        return Math::Compare(GetMarginFreeInPct(), _args[0].ToValue<double>(),
+                             (ENUM_MATH_CONDITION)_args[1].ToValue<int>());
       case ACCOUNT_COND_MARGIN_USED_10PC:
-        return AccountMargin() >= AccountEquity() / 100 * 10;
+        return GetMarginUsedInPct() >= 10;
       case ACCOUNT_COND_MARGIN_USED_20PC:
-        return AccountMargin() >= AccountEquity() / 100 * 20;
+        return GetMarginUsedInPct() >= 20;
       case ACCOUNT_COND_MARGIN_USED_50PC:
-        return AccountMargin() >= AccountEquity() / 100 * 50;
+        return GetMarginUsedInPct() >= 50;
       case ACCOUNT_COND_MARGIN_USED_80PC:
-        return AccountMargin() >= AccountEquity() / 100 * 80;
+        return GetMarginUsedInPct() >= 80;
       case ACCOUNT_COND_MARGIN_USED_99PC:
-        return AccountMargin() >= AccountEquity() / 100 * 99;
+        return GetMarginUsedInPct() >= 99;
+      case ACCOUNT_COND_MARGIN_USED_IN_PC:
+        // Arguments:
+        // arg[0] - Specify value in percentage.
+        // arg[1] - Math comparison operators (@see: ENUM_MATH_CONDITION).
+        return Math::Compare(GetMarginUsedInPct(), _args[0].ToValue<double>(),
+                             (ENUM_MATH_CONDITION)_args[1].ToValue<int>());
       default:
         // logger.Error(StringFormat("Invalid account condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
 #ifdef __debug__
@@ -592,14 +616,22 @@ class Account {
         return false;
     }
   }
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond) {
+    ARRAY(DataParamEntry, _args);
+    return Account::CheckCondition(_cond, _args);
+  }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, long _arg1) {
     ARRAY(DataParamEntry, _args);
     DataParamEntry _param1 = _arg1;
     ArrayPushObject(_args, _param1);
     return Account::CheckCondition(_cond, _args);
   }
-  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond) {
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, long _arg1, long _arg2) {
     ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return Account::CheckCondition(_cond, _args);
   }
 

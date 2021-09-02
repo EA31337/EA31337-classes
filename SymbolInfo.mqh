@@ -45,9 +45,9 @@ class SymbolInfo;
 class SymbolInfo : public Object {
  protected:
   // Variables.
-  string symbol;      // Current symbol pair.
-  MqlTick last_tick;  // Stores the latest prices of the symbol.
-  Ref<Log> logger;
+  string symbol;  // Current symbol pair.
+  Log logger;
+  MqlTick last_tick;          // Stores the latest prices of the symbol.
   ARRAY(MqlTick, tick_data);  // Stores saved ticks.
   SymbolInfoEntry s_entry;    // Symbol entry.
   SymbolInfoProp sprops;      // Symbol properties.
@@ -60,11 +60,7 @@ class SymbolInfo : public Object {
   /**
    * Implements class constructor with a parameter.
    */
-  SymbolInfo(string _symbol = NULL, Log *_logger = NULL)
-      : logger(_logger != NULL ? _logger : new Log),
-        symbol(_symbol),
-        pip_size(GetPipSize()),
-        symbol_digits(GetDigits()) {
+  SymbolInfo(string _symbol = NULL) : symbol(_symbol), pip_size(GetPipSize()), symbol_digits(GetDigits()) {
     Select();
     last_tick = GetTick();
     // @todo: Test symbol with SymbolExists(_symbol)
@@ -552,6 +548,6 @@ class SymbolInfo : public Object {
   /**
    * Returns Log handler.
    */
-  Log *GetLogger() { return logger.Ptr(); }
+  Log *GetLogger() { return GetPointer(logger); }
 };
 #endif  // SYMBOLINFO_MQH

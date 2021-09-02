@@ -90,8 +90,8 @@ class Math {
   /**
    * Checks condition for 2 values based on the given comparison operator.
    */
-  template <typename V1, typename V2>
-  static bool Compare(V1 _v1, V2 _v2, ENUM_MATH_CONDITION _op = MATH_COND_EQ) {
+  template <typename T1, typename T2>
+  static bool Compare(T1 _v1, T2 _v2, ENUM_MATH_CONDITION _op = MATH_COND_EQ) {
     switch (_op) {
       case MATH_COND_EQ:
         return _v1 == _v2;
