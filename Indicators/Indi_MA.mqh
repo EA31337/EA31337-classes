@@ -576,8 +576,8 @@ class Indi_MA : public Indicator {
    *
    * The desired price base for calculations.
    * @docs
-   * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_array_enum
-   * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_array_enum
+   * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
+   * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_array) {
     istate.is_changed = true;
