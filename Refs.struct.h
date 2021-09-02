@@ -37,6 +37,54 @@ template <typename X>
 struct WeakRef;
 
 /**
+ * Simples type of reference. Deletes object's pointer if reference goes out of the scope/is destructed.
+ */
+template <typename X>
+struct SimpleRef {
+  /**
+   * Pointer to target object.
+   */
+  X* ptr_object;
+
+  /**
+   * Constructor.
+   */
+  SimpleRef(X* _ptr) { this = _ptr; }
+
+  /**
+   * Destructor.
+   */
+  ~SimpleRef() {
+    if (ptr_object != NULL) {
+      delete ptr_object;
+    }
+  }
+
+  /**
+   * Makes a reference to the given object.
+   */
+  void operator=(X* _ptr) {
+    if (ptr_object == _ptr) {
+      // Assigning the same object.
+      return;
+    }
+    Unset();
+
+    ptr_object = _ptr;
+  }
+
+  /**
+   * Unbinds holding reference.
+   */
+  void Unset() {
+    if (ptr_object != NULL) {
+      delete ptr_object;
+      ptr_object = NULL;
+    }
+  }
+};
+
+/**
  * Class used to hold strong reference to reference-counted object.
  */
 template <typename X>
@@ -63,7 +111,7 @@ struct Ref {
   Ref(WeakRef<X>& ref) { this = ref.Ptr(); }
 
   /**
-   * Destructor.
+   * Constructor.
    */
   Ref() { ptr_object = NULL; }
 

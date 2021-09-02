@@ -28,8 +28,12 @@
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
+#include "../Indicators/Indi_MA.mqh"
+#include "../Indicators/Indi_Price.mqh"
+#include "../Objects.h"
 #include "../Refs.mqh"
 #include "../String.mqh"
+#include "../ValueStorage.h"
 
 // Structs.
 struct DEMAParams : IndicatorParams {
@@ -109,11 +113,65 @@ class Indi_DEMA : public Indicator {
     }
     return _res[0];
 #else
-    // DEMA not supported for MQL4.
-    SetUserError(ERR_USER_INVALID_HANDLE);
-    return EMPTY_VALUE;
+    Indi_Price *_indi_price = Indi_Price::GetCached(_tf, _period, _applied_price);
+    // Note that _applied_price and Indi_Price mode indices are compatible.
+    return Indi_DEMA::iDEMAOnIndicator(_indi_price.GetCache(), _indi_price, (int)_applied_price, _period, _ma_shift,
+                                       _shift);
 #endif
   }
+
+  static double iDEMAOnIndicator(IndicatorCalculateCache<double> *cache, Indicator *indi, int indi_mode,
+                                 unsigned int ma_period, unsigned int ma_shift, int shift) {
+    return iDEMAOnArray(indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, shift, cache);
+  }
+
+  static double iDEMAOnArray(ValueStorage<double> &price, int total, unsigned int ma_period, unsigned int ma_shift,
+                             int shift, IndicatorCalculateCache<double> *cache = NULL, bool recalculate = false) {
+    if (cache == NULL) {
+      Print("iDEMAOnArray() cannot yet work without cache object!");
+      DebugBreak();
+      return 0.0f;
+    }
+
+    if (!cache.IsInitialized()) {
+      cache.SetPriceBuffer(price);
+      cache.AddBuffer<NativeValueStorage<double>>(3);  // 3 buffers.
+    }
+
+    if (recalculate) {
+      // We don't want to continue calculations, but to recalculate previous one.
+      cache.ResetPrevCalculated();
+    }
+
+    cache.SetPrevCalculated(Indi_DEMA::Calculate(cache.GetTotal(), cache.GetPrevCalculated(), 0, cache.GetPriceBuffer(),
+                                                 ma_period, cache.GetBuffer(0), cache.GetBuffer(1),
+                                                 cache.GetBuffer(2)));
+
+    return cache.GetTailValue(0, ma_shift + shift);
+  }
+
+  static int Calculate(const int rates_total, const int prev_calculated, const int begin, ValueStorage<double> &price,
+                       int InpPeriodEMA, ValueStorage<double> &DemaBuffer, ValueStorage<double> &Ema,
+                       ValueStorage<double> &EmaOfEma) {
+    if (rates_total < 2 * InpPeriodEMA - 2) return (0);
+
+    int start;
+    if (prev_calculated == 0)
+      start = 0;
+    else
+      start = prev_calculated - 1;
+
+    Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, 0, InpPeriodEMA, price, Ema);
+
+    Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, InpPeriodEMA - 1, InpPeriodEMA, Ema, EmaOfEma);
+
+    for (int i = start; i < rates_total && !IsStopped(); i++) DemaBuffer[i] = 2.0 * Ema[i].Get() - EmaOfEma[i].Get();
+
+    return (rates_total);
+  }
+
+  /**
+
 
   /**
    * Returns the indicator's value.
@@ -121,8 +179,17 @@ class Indi_DEMA : public Indicator {
   double GetValue(int _shift = 0, int _mode = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
+
+    if (params.idstype == IDATA_BUILTIN) {
+      PriceIndiParams _price_params();
+      Indi_Price _price(_price_params);
+    } else if (params.idstype == IDATA_INDICATOR) {
+    }
+
     switch (params.idstype) {
       case IDATA_BUILTIN:
+        // We're getting DEMA from Price indicator.
+
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_DEMA::iDEMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
                                   GetMAShift(), GetAppliedPrice(), _shift, _mode, GetPointer(this));
@@ -135,10 +202,11 @@ class Indi_DEMA : public Indicator {
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
-        /*
-        _value = Indi_DEMA::iDEMAOnIndicator(params.GetTargetIndicator(), Get<string>(CHART_PARAM_SYMBOL),
-        Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetMAShift(), _shift, GetPointer(this));
-         */
+
+        _value = Indi_DEMA::iDEMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(),
+                                             // Get<string>(CHART_PARAM_SYMBOL),
+                                             // Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                                             GetPeriod(), GetMAShift(), _shift);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;

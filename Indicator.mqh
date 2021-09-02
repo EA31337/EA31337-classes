@@ -35,6 +35,7 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Indicator.define.h"
 #include "Indicator.enum.h"
+#include "Indicator.struct.cache.h"
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
 #include "Indicator.struct.signal.h"
@@ -44,6 +45,9 @@ class Chart;
 #include "Serializer.mqh"
 #include "SerializerCsv.mqh"
 #include "SerializerJson.mqh"
+#include "ValueStorage.h"
+#include "ValueStorage.indicator.h"
+#include "ValueStorage.native.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
@@ -71,6 +75,8 @@ class Indicator : public Chart {
   bool is_fed;                                 // Whether FeedHistoryEntries already done its job.
   DictStruct<int, Ref<Indicator>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
+  ARRAY(ValueStorage<double>*, value_storages);
+  IndicatorCalculateCache<double> cache;
 
  public:
   /* Indicator enumerations */
@@ -116,6 +122,12 @@ class Indicator : public Chart {
     ReleaseHandle();
     DeinitDraw();
 
+    for (int i = 0; i < ArraySize(value_storages); ++i) {
+      if (value_storages[i] != NULL) {
+        delete value_storages[i];
+      }
+    }
+
     if (iparams.indi_data_source != NULL && iparams.indi_managed) {
       // User selected custom, managed data source.
       if (CheckPointer(iparams.indi_data_source) == POINTER_INVALID) {
@@ -128,7 +140,10 @@ class Indicator : public Chart {
 
   /* Init methods */
 
-  bool Init() { return InitDraw(); }
+  bool Init() {
+    ArrayResize(value_storages, iparams.GetMaxModes());
+    return InitDraw();
+  }
 
   /**
    * Initialize indicator data drawing on custom data.
@@ -274,6 +289,8 @@ class Indicator : public Chart {
 
   /* Buffer methods */
 
+  virtual string CacheKey() { return GetName(); }
+
   /**
    * Initializes a cached proxy between i*OnArray() methods and OnCalculate()
    * used by custom indicators.
@@ -311,6 +328,7 @@ class Indicator : public Chart {
    *
    *  WARNING: Do not use shifts when creating cache_key, as this will create many invalid buffers.
    */
+  /*
   static IndicatorCalculateCache OnCalculateProxy(string key, double& price[], int& total) {
     if (total == 0) {
       total = ArraySize(price);
@@ -342,6 +360,7 @@ class Indicator : public Chart {
 
     return cache_item;
   }
+  */
 
   /**
    * Allocates memory for buffers used for custom indicator calculations.
@@ -521,6 +540,11 @@ class Indicator : public Chart {
   IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
 
   /* Getters */
+
+  /**
+   * Returns buffers' cache.
+   */
+  IndicatorCalculateCache<double>* GetCache() { return &cache; }
 
   /**
    * Gets an indicator's chart parameter value.
@@ -1092,6 +1116,13 @@ class Indicator : public Chart {
 
     is_feeding = false;
     is_fed = true;
+  }
+
+  ValueStorage<double>* GetValueStorage(int _mode = 0) {
+    if (value_storages[_mode] == NULL) {
+      value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
+    }
+    return value_storages[_mode];
   }
 
   /**

@@ -30,99 +30,23 @@
 #pragma once
 #endif
 
+// Defines.
+#define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
+  100  // Number of entries the value storage buffer will be initialized with.
+
 // Forward declaration.
 class Indicator;
 struct ChartParams;
 
 // Includes.
+#include "Array.mqh"
 #include "Chart.struct.tf.h"
 #include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
+#include "Indicator.struct.cache.h"
 #include "SerializerNode.enum.h"
-
-/**
- * Holds buffers used to cache values calculated via OnCalculate methods.
- */
-struct IndicatorCalculateCache {
- public:
-  // Total number of calculated values.
-  int prev_calculated;
-
-  // Number of buffers used.
-  int num_buffers;
-
-  // Whether input price array was passed as series.
-  bool price_was_as_series;
-
-  // Buffers used for OnCalculate calculations.
-  ARRAY(double, buffer1);
-  ARRAY(double, buffer2);
-  ARRAY(double, buffer3);
-  ARRAY(double, buffer4);
-  ARRAY(double, buffer5);
-
-  /**
-   * Constructor.
-   */
-  IndicatorCalculateCache(int _num_buffers = 0, int _buffers_size = 0) {
-    prev_calculated = 0;
-    num_buffers = _num_buffers;
-
-    Resize(_buffers_size);
-  }
-
-  /**
-   * Resizes all buffers.
-   */
-  void Resize(int _buffers_size) {
-    static int increase = 65536;
-    switch (num_buffers) {
-      case 5:
-        ArrayResize(buffer5, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 4:
-        ArrayResize(buffer4, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 3:
-        ArrayResize(buffer3, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 2:
-        ArrayResize(buffer2, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 1:
-        ArrayResize(buffer1, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-    }
-  }
-
-  /**
-   * Retrieves cached value from the given buffer (buffer is indexed from 1 to 5).
-   */
-  double GetValue(int _buffer_index, int _shift) {
-    switch (_buffer_index) {
-      case 1:
-        return buffer1[ArraySize(buffer1) - 1 - _shift];
-      case 2:
-        return buffer2[ArraySize(buffer2) - 1 - _shift];
-      case 3:
-        return buffer3[ArraySize(buffer3) - 1 - _shift];
-      case 4:
-        return buffer4[ArraySize(buffer4) - 1 - _shift];
-      case 5:
-        return buffer5[ArraySize(buffer5) - 1 - _shift];
-    }
-    return DBL_MIN;
-  }
-
-  /**
-   * Updates prev_calculated value used by indicator's OnCalculate method.
-   */
-  void SetPrevCalculated(ARRAY_REF(double, price), int _prev_calculated) {
-    prev_calculated = _prev_calculated;
-    ArraySetAsSeries(price, price_was_as_series);
-  }
-
-  /**
-   * Returns prev_calculated value used by indicator's OnCalculate method.
-   */
-  int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
-};
+#include "ValueStorage.indicator.h"
 
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {
@@ -586,22 +510,21 @@ struct IndicatorState {
   // Getters.
   template <typename T>
 #ifdef __MQL4__
-  T Get(ENUM_INDICATOR_STATE_PROP _prop) {
+  T Get(ENUM_INDICATOR_STATE_PROP _prop){
 #else
   T Get(IndicatorState::ENUM_INDICATOR_STATE_PROP _prop) {
 #endif
-    switch (_prop) {
-      case INDICATOR_STATE_PROP_HANDLE:
-        return (T)handle;
-      case INDICATOR_STATE_PROP_IS_CHANGED:
-        return (T)is_changed;
-      case INDICATOR_STATE_PROP_IS_READY:
-        return (T)is_ready;
-    }
-    SetUserError(ERR_INVALID_PARAMETER);
-    return (T)WRONG_VALUE;
-  }
-  // State checkers.
-  bool IsChanged() { return is_changed; }
-  bool IsReady() { return is_ready; }
-};
+      switch (_prop) {
+        case INDICATOR_STATE_PROP_HANDLE : return (T)handle;
+  case INDICATOR_STATE_PROP_IS_CHANGED:
+    return (T)is_changed;
+  case INDICATOR_STATE_PROP_IS_READY:
+    return (T)is_ready;
+} SetUserError(ERR_INVALID_PARAMETER);
+return (T)WRONG_VALUE;
+}
+// State checkers.
+bool IsChanged() { return is_changed; }
+bool IsReady() { return is_ready; }
+}
+;

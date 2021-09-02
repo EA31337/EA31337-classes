@@ -22,6 +22,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "../Singleton.h"
 #include "Indi_MA.mqh"
 #include "Indi_Price.mqh"
 #include "Indi_PriceFeeder.mqh"
@@ -146,31 +147,43 @@ class Indi_Envelopes : public Indicator {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, Indicator *_indi, string _symbol,
+                                      ENUM_TIMEFRAMES _tf, int _ma_period,
                                       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                       int _indi_mode,  // Source indicator's mode index. May be -1 to use first buffer
                                       int _ma_shift, double _deviation,
                                       int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5
                                                   // _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
                                       int _shift = 0) {
-    _indi.ValidateDataSourceMode(_indi_mode);
+    return iEnvelopesOnArray(_indi.GetValueStorage(_indi_mode), 0, _ma_period, _ma_method, _ma_shift, _deviation, _mode,
+                             _shift, _cache);
+  }
 
+  static double iEnvelopesOnArray(double &price[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
+                                  double deviation, int mode, int shift,
+                                  IndicatorCalculateCache<double> *_cache = NULL) {
+#ifdef __MQL4__
+    return iEnvelopesOnArray(price, total, ma_period, ma_method, ma_shift, deviation, mode, shift);
+#else
+    // We're reusing the same native array for each consecutive calculation.
+    NativeValueStorage<double> *_price = Singleton<NativeValueStorage<double> >::Get();
+    _price.SetData(price);
+
+    return iEnvelopesOnArray(_price, total, ma_period, ma_method, ma_shift, deviation, mode, shift);
+#endif
+  }
+
+  static double iEnvelopesOnArray(ValueStorage<double> *_price, int _total, int _ma_period, ENUM_MA_METHOD _ma_method,
+                                  int _ma_shift, double _deviation, int _mode, int _shift,
+                                  IndicatorCalculateCache<double> *_cache = NULL) {
     double _indi_value_buffer[];
     double _result;
-    int i;
 
     ArrayResize(_indi_value_buffer, _ma_period);
 
-    for (i = _shift; i < (int)_shift + (int)_ma_period; i++) {
-      _indi_value_buffer[i - _shift] = _indi[i].GetValue<double>(_indi_mode);
-    }
+    // MA will use sub-cache of the given one.
+    _result = Indi_MA::iMAOnArray(_price, 0, _ma_period, _ma_shift, _ma_method, _shift, _cache.GetSubCache(0));
 
-    Indi_PriceFeeder indi_price_feeder(_indi_value_buffer);
-    MAParams ma_params(_ma_period, _ma_shift, _ma_method);
-    ma_params.SetDataSource(&indi_price_feeder, false, 0);
-    Indi_MA indi_ma(ma_params);
-
-    _result = Indi_MA::iMAOnIndicator(&indi_price_feeder, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
     switch (_mode) {
       case LINE_UPPER:
         _result *= (1.0 + _deviation / 100);
@@ -189,25 +202,6 @@ class Indi_Envelopes : public Indicator {
     }
 
     return _result;
-  }
-
-  /*
-  double iEnvelopesOnArray(double &array[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
-                           double deviation, int mode, int shift, int applied_price) {
-    Indi_PriceFeeder indi_price_feeder(array);
-    return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method, ma_shift,
-                                                 (ENUM_APPLIED_PRICE)applied_price, deviation, mode, shift);
-  }
-  */
-  static double iEnvelopesOnArray(double &array[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
-                                  double deviation, int mode, int shift) {
-#ifdef __MQL4__
-    return iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift);
-#else
-    Indi_PriceFeeder indi_price_feeder(array);
-    return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method,
-                                                 /* indi_mode */ 0, ma_shift, deviation, mode, shift);
-#endif
   }
 
   /**
@@ -230,8 +224,8 @@ class Indi_Envelopes : public Indicator {
         break;
       case IDATA_INDICATOR:
         _value = Indi_Envelopes::iEnvelopesOnIndicator(
-            GetDataSource(), Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetMAPeriod(),
-            GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(), _mode, _shift);
+            GetCache(), GetDataSource(), Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+            GetMAPeriod(), GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
