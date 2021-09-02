@@ -29,15 +29,51 @@
 #pragma once
 #endif
 
+// Defines.
+#define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
+  100  // Number of entries the value storage buffer will be initialized with.
+
+#define INDICATOR_CALCULATE_PARAMS_LONG                                                                            \
+  ValueStorage<datetime> &time, ValueStorage<double> &open, ValueStorage<double> &high, ValueStorage<double> &low, \
+      ValueStorage<double> &close, ValueStorage<long> &tick_volume, ValueStorage<long> &volume,                    \
+      ValueStorage<long> &spread
+
+#define INDICATOR_CALCULATE_METHOD_PARAMS_LONG \
+  const int rates_total, const int prev_calculated, INDICATOR_CALCULATE_PARAMS_LONG
+
+#define INDICATOR_CALCULATE_GET_PARAMS_LONG                                                                 \
+  cache.GetTotal(), cache.GetPrevCalculated(), time, cache.GetPriceBuffer(PRICE_OPEN),                      \
+      cache.GetPriceBuffer(PRICE_HIGH), cache.GetPriceBuffer(PRICE_LOW), cache.GetPriceBuffer(PRICE_CLOSE), \
+      tick_volume, volume, spread
+
+#define INDICATOR_CALCULATE_GET_PARAMS_SHORT cache.GetTotal(), cache.GetPrevCalculated(), 0, cache.GetPriceBuffer()
+
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(SYMBOL, TF)                                   \
+  ValueStorage<datetime> *_time = TimeValueStorage::GetInstance(SYMBOL, TF);                             \
+  ValueStorage<long> *_tick_volume = TickVolumeValueStorage::GetInstance(SYMBOL, TF);                    \
+  ValueStorage<long> *_volume = VolumeValueStorage::GetInstance(SYMBOL, TF);                             \
+  ValueStorage<long> *_spread = SpreadValueStorage::GetInstance(SYMBOL, TF);                             \
+  ValueStorage<double> *_price_open = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_OPEN);            \
+  ValueStorage<double> *_price_high = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_HIGH);            \
+  ValueStorage<double> *_price_low = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_LOW);              \
+  ValueStorage<double> *_price_close = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_CLOSE);          \
+  IndicatorCalculateCache<double> *_cache;                                                               \
+                                                                                                         \
+  string _key = Util::MakeKey(SYMBOL, (int)TF, _ma_period);                                              \
+  if (!Objects<IndicatorCalculateCache<double>>::TryGet(_key, _cache)) {                                 \
+    _cache = Objects<IndicatorCalculateCache<double>>::Set(_key, new IndicatorCalculateCache<double>()); \
+  }
+
 // Includes.
 #include "Array.mqh"
+#include "IValueStorage.h"
 #include "ValueStorage.accessor.h"
 
 /**
  * Value storage settable/gettable via indexation operator.
  */
 template <typename C>
-class ValueStorage {
+class ValueStorage : public IValueStorage {
  public:
   /**
    * Indexation operator.
@@ -48,92 +84,41 @@ class ValueStorage {
   }
 
   /**
-   * We don't user to accidentally copy whole buffer.
-   */
-  void operator=(const ValueStorage<C>&) = delete;
-
-  /**
    * Initializes storage with given value.
    */
-  virtual void Initialize(C _value) = NULL;
+  virtual void Initialize(C _value) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual C Fetch(int _shift) = NULL;
+  virtual C Fetch(int _shift) {
+    Alert(__FUNCSIG__, " is not supported!");
+    DebugBreak();
+    return (C)0;
+  }
 
   /**
    * Stores value at a given shift. Takes into consideration as-series flag.
    */
-  virtual void Store(int _shift, C _value) = NULL;
-
-  /**
-   * Returns number of values available to fetch (size of the values buffer).
-   */
-  virtual int Size() = NULL;
-
-  /**
-   * Resizes storage to given size.
-   */
-  virtual void Resize(int _size, int _reserve) = NULL;
-
-  /**
-   * Checks whether storage operates in as-series mode.
-   */
-  virtual bool IsSeries() const = NULL;
-
-  /**
-   * Sets storage's as-series mode on or off.
-   */
-  virtual bool SetSeries(bool _value) = NULL;
+  virtual void Store(int _shift, C _value) {
+    Alert(__FUNCSIG__, " is not supported!");
+    DebugBreak();
+  }
 };
-
-/**
- * ValueStorage-compatible wrapper for ArrayGetAsSeries.
- */
-template <typename C>
-bool ArrayGetAsSeries(const ValueStorage<C>& _storage) {
-  return _storage.IsSeries();
-}
-
-/**
- * ValueStorage-compatible wrapper for ArraySetAsSeries.
- */
-template <typename C>
-bool ArraySetAsSeries(ValueStorage<C>& _storage, bool _value) {
-  return _storage.SetSeries(_value);
-}
 
 /**
  * ValueStorage-compatible wrapper for ArrayInitialize.
  */
 template <typename C>
-void ArrayInitialize(ValueStorage<C>& _storage, C _value) {
+void ArrayInitialize(ValueStorage<C> &_storage, C _value) {
   _storage.Initialize(_value);
-}
-
-/**
- * ValueStorage-compatible wrapper for ArrayResize.
- */
-template <typename C>
-int ArrayResize(ValueStorage<C>& _storage, int _size, int _reserve = 100) {
-  _storage.Resize(_size, _reserve);
-  return _size;
-}
-
-/**
- * ValueStorage-compatible wrapper for ArraySize.
- */
-template <typename C>
-int ArraySize(ValueStorage<C>& _storage) {
-  return _storage.Size();
 }
 
 /**
  * ValueStorage-compatible wrapper for ArrayCopy.
  */
 template <typename C, typename D>
-int ArrayCopy(D& _target[], ValueStorage<C>& _source, int _dst_start = 0, int _src_start = 0, int count = WHOLE_ARRAY) {
+int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _src_start = 0, int count = WHOLE_ARRAY) {
   if (count == WHOLE_ARRAY) {
     count = ArraySize(_source);
   }

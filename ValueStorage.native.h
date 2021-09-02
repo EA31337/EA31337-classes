@@ -76,7 +76,7 @@ class NativeValueStorage : public ValueStorage<C> {
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  virtual int Size() { return ArraySize(_values); }
+  virtual int Size() const { return ArraySize(_values); }
 
   /**
    * Resizes storage to given size.

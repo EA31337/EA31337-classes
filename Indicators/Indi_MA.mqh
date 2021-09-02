@@ -162,30 +162,21 @@ class Indi_MA : public Indicator {
   static double iMAOnArray(ValueStorage<double> &price, int total, int ma_period, int ma_shift, int ma_method,
                            int shift, IndicatorCalculateCache<double> *cache = NULL, bool recalculate = false) {
     if (cache != NULL) {
-      // Sets price buffer and ensures that we have all required values already calculated.
-      // If there is no sufficient data, an error will occur.
-      // Note that price buffer is set as not-series, so price[0] will be the oldest value possible.
-      // For this to work, IndicatorBufferValueStorage must initialize itself with start tick's timestamp
-      // and calculate series shift via `series shift = current tick - start tick - given shift`.
-      // `Total` is calculated as `current tick - start tick`.
-      // Price buffer is always not-series.
+      cache.SetPriceBuffer(price);
 
-      if (!cache.IsInitialized()) {
-        cache.SetPriceBuffer(price);
+      if (!cache.HasBuffers()) {
         cache.AddBuffer<NativeValueStorage<double>>();
       }
 
       if (recalculate) {
-        // We don't want to continue calculations, but to recalculate previous one.
         cache.SetPrevCalculated(0);
       }
 
-      cache.SetPrevCalculated(Indi_MA::Calculate(cache.GetTotal(), cache.GetPrevCalculated(), 0, cache.GetPriceBuffer(),
-                                                 cache.GetBuffer(0), ma_method, ma_period));
+      cache.SetPrevCalculated(Indi_MA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, cache.GetBuffer<double>(0), ma_method, ma_period));
 
       // Returns value from the first calculation buffer.
       // Returns first value for as-series array or last value for non-as-series array.
-      return cache.GetTailValue(0, shift + ma_shift);
+      return cache.GetTailValue<double>(0, shift + ma_shift);
     }
 
     double buf[], arr[], _result, pr, _array;

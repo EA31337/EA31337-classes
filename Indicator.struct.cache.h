@@ -51,8 +51,20 @@ class IndicatorCalculateCache : public Dynamic {
   // Buffer to store input prices. Won't be deleted!
   ValueStorage<C> *price_buffer;
 
+  // Buffer to store input open prices. Won't be deleted!
+  ValueStorage<C> *price_open_buffer;
+
+  // Buffer to store input high prices. Won't be deleted!
+  ValueStorage<C> *price_high_buffer;
+
+  // Buffer to store input low prices. Won't be deleted!
+  ValueStorage<C> *price_low_buffer;
+
+  // Buffer to store input close prices. Won't be deleted!
+  ValueStorage<C> *price_close_buffer;
+
   // Buffers used for OnCalculate calculations.
-  ARRAY(ValueStorage<C> *, buffers);
+  ARRAY(IValueStorage *, buffers);
 
   // Auxiliary caches related to this one.
   ARRAY(IndicatorCalculateCache<C> *, subcaches);
@@ -89,7 +101,7 @@ class IndicatorCalculateCache : public Dynamic {
   /**
    * Returns size of the current price buffer.
    */
-  int GetTotal() { return ArraySize(price_buffer); }
+  int GetTotal() { return price_buffer != NULL ? ArraySize(price_buffer) : ArraySize(price_open_buffer); }
 
   /**
    * Returns number of already calculated prices (bars).
@@ -97,9 +109,9 @@ class IndicatorCalculateCache : public Dynamic {
   int GetPrevCalculated() { return prev_calculated; }
 
   /**
-   * Whether price buffer is already set.
+   * Whether cache have any buffer.
    */
-  bool IsInitialized() { return initialized; }
+  bool HasBuffers() { return ArraySize(buffers) != 0; }
 
   /**
    * Returns existing or new cache as a child of current one. Useful when indicator uses other indicators and requires
@@ -122,7 +134,7 @@ class IndicatorCalculateCache : public Dynamic {
    */
   template <typename T>
   int AddBuffer(int _num_buffers = 1) {
-    ValueStorage<C> *_ptr;
+    IValueStorage *_ptr;
 
     while (_num_buffers-- > 0) {
       _ptr = new T();
@@ -133,23 +145,63 @@ class IndicatorCalculateCache : public Dynamic {
   }
 
   /**
-   *
+   * Returns given calculation buffer.
    */
-  ValueStorage<C> *GetBuffer(int _index) { return buffers[_index]; }
+  template <typename D>
+  ValueStorage<D> *GetBuffer(int _index) {
+    return (ValueStorage<D> *)buffers[_index];
+  }
 
   /**
-   *
+   * Returns main price buffer.
    */
   ValueStorage<C> *GetPriceBuffer() { return price_buffer; }
 
   /**
-   *
+   * Returns given price buffer.
+   */
+  ValueStorage<C> *GetPriceBuffer(ENUM_APPLIED_PRICE _applied_price) {
+    switch (_applied_price) {
+      case PRICE_OPEN:
+        return price_open_buffer;
+      case PRICE_HIGH:
+        return price_high_buffer;
+      case PRICE_LOW:
+        return price_low_buffer;
+      case PRICE_CLOSE:
+        return price_close_buffer;
+    }
+    return NULL;
+  }
+
+  /**
+   * Sets price buffer for later use.
    */
   void SetPriceBuffer(ValueStorage<C> &_price, int _total = 0) {
     price_buffer = &_price;
 
     if (_total == 0) {
       _total = _price.Size();
+    }
+
+    total = _total;
+
+    // Cache is ready to be used.
+    initialized = true;
+  }
+
+  /**
+   * Sets price buffers for later use.
+   */
+  void SetPriceBuffer(ValueStorage<C> &_price_open, ValueStorage<C> &_price_high, ValueStorage<C> &_price_low,
+                      ValueStorage<C> &_price_close, int _total = 0) {
+    price_open_buffer = &_price_open;
+    price_high_buffer = &_price_high;
+    price_low_buffer = &_price_low;
+    price_close_buffer = &_price_close;
+
+    if (_total == 0) {
+      _total = _price_open.Size();
     }
 
     total = _total;
@@ -170,13 +222,17 @@ class IndicatorCalculateCache : public Dynamic {
   /**
    * Retrieves cached value from the given buffer.
    */
-  double GetValue(int _buffer_index, int _shift) { return GetBuffer(_buffer_index)[_shift].Get(); }
+  template <typename D>
+  D GetValue(int _buffer_index, int _shift) {
+    return GetBuffer<D>(_buffer_index).Fetch(_shift).Get();
+  }
 
   /**
    *
    */
-  double GetTailValue(int _buffer_index, int _shift) {
-    ValueStorage<C> *_buff = GetBuffer(_buffer_index);
+  template <typename D>
+  D GetTailValue(int _buffer_index, int _shift) {
+    ValueStorage<D> *_buff = GetBuffer<D>(_buffer_index);
     return _buff[_buff.IsSeries() ? _shift : (ArraySize(_buff) - _shift - 1)].Get();
   }
 

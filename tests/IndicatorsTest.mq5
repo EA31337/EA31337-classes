@@ -466,11 +466,9 @@ bool InitIndicators() {
   applied_price_params.SetDataSource(new Indi_Price(applied_price_price_params));
   indis.Push(new Indi_AppliedPrice(applied_price_params));
 
-// ADXW.
-#ifdef __MQL5__
+  // ADXW.
   ADXWParams adxw_params(14);
   indis.Push(new Indi_ADXW(adxw_params));
-#endif
 
 // AMA.
 #ifdef __MQL5__

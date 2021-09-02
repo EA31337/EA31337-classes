@@ -30,10 +30,6 @@
 #pragma once
 #endif
 
-// Defines.
-#define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
-  100  // Number of entries the value storage buffer will be initialized with.
-
 // Forward declaration.
 class Indicator;
 struct ChartParams;
