@@ -160,23 +160,24 @@ class Indi_MA : public Indicator {
    * Calculates MA on the array of values.
    */
   static double iMAOnArray(ValueStorage<double> &price, int total, int ma_period, int ma_shift, int ma_method,
-                           int shift, IndicatorCalculateCache<double> *cache = NULL, bool recalculate = false) {
-    if (cache != NULL) {
-      cache.SetPriceBuffer(price);
+                           int shift, IndicatorCalculateCache<double> *_cache = NULL, bool recalculate = false) {
+    if (_cache != NULL) {
+      _cache.SetPriceBuffer(price);
 
-      if (!cache.HasBuffers()) {
-        cache.AddBuffer<NativeValueStorage<double>>();
+      if (!_cache.HasBuffers()) {
+        _cache.AddBuffer<NativeValueStorage<double>>();
       }
 
       if (recalculate) {
-        cache.SetPrevCalculated(0);
+        _cache.SetPrevCalculated(0);
       }
 
-      cache.SetPrevCalculated(Indi_MA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, cache.GetBuffer<double>(0), ma_method, ma_period));
+      _cache.SetPrevCalculated(
+          Indi_MA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0), ma_method, ma_period));
 
       // Returns value from the first calculation buffer.
       // Returns first value for as-series array or last value for non-as-series array.
-      return cache.GetTailValue<double>(0, shift + ma_shift);
+      return _cache.GetTailValue<double>(0, shift + ma_shift);
     }
 
     double buf[], arr[], _result, pr, _array;

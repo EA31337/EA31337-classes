@@ -33,36 +33,54 @@
 #define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
   100  // Number of entries the value storage buffer will be initialized with.
 
-#define INDICATOR_CALCULATE_PARAMS_LONG                                                                            \
-  ValueStorage<datetime> &time, ValueStorage<double> &open, ValueStorage<double> &high, ValueStorage<double> &low, \
-      ValueStorage<double> &close, ValueStorage<long> &tick_volume, ValueStorage<long> &volume,                    \
-      ValueStorage<long> &spread
+#define INDICATOR_CALCULATE_PARAMS_LONG                                                                                \
+  ValueStorage<datetime> &_time, ValueStorage<double> &_open, ValueStorage<double> &_high, ValueStorage<double> &_low, \
+      ValueStorage<double> &_close, ValueStorage<long> &_tick_volume, ValueStorage<long> &_volume,                     \
+      ValueStorage<long> &_spread
 
-#define INDICATOR_CALCULATE_METHOD_PARAMS_LONG \
-  const int rates_total, const int prev_calculated, INDICATOR_CALCULATE_PARAMS_LONG
+#define INDICATOR_CALCULATE_PARAMS_SHORT ValueStorage<double> &_price
 
-#define INDICATOR_CALCULATE_GET_PARAMS_LONG                                                                 \
-  cache.GetTotal(), cache.GetPrevCalculated(), time, cache.GetPriceBuffer(PRICE_OPEN),                      \
-      cache.GetPriceBuffer(PRICE_HIGH), cache.GetPriceBuffer(PRICE_LOW), cache.GetPriceBuffer(PRICE_CLOSE), \
-      tick_volume, volume, spread
+#define INDICATOR_CALCULATE_METHOD_PARAMS_LONG                                                                \
+  const int rates_total, const int prev_calculated, ValueStorage<datetime> &time, ValueStorage<double> &open, \
+      ValueStorage<double> &high, ValueStorage<double> &low, ValueStorage<double> &close,                     \
+      ValueStorage<long> &tick_volume, ValueStorage<long> &volume, ValueStorage<long> &spread
 
-#define INDICATOR_CALCULATE_GET_PARAMS_SHORT cache.GetTotal(), cache.GetPrevCalculated(), 0, cache.GetPriceBuffer()
+#define INDICATOR_CALCULATE_METHOD_PARAMS_SHORT \
+  const int rates_total, const int prev_calculated, const int begin, ValueStorage<double> &price
 
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(SYMBOL, TF)                                   \
-  ValueStorage<datetime> *_time = TimeValueStorage::GetInstance(SYMBOL, TF);                             \
-  ValueStorage<long> *_tick_volume = TickVolumeValueStorage::GetInstance(SYMBOL, TF);                    \
-  ValueStorage<long> *_volume = VolumeValueStorage::GetInstance(SYMBOL, TF);                             \
-  ValueStorage<long> *_spread = SpreadValueStorage::GetInstance(SYMBOL, TF);                             \
-  ValueStorage<double> *_price_open = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_OPEN);            \
-  ValueStorage<double> *_price_high = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_HIGH);            \
-  ValueStorage<double> *_price_low = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_LOW);              \
-  ValueStorage<double> *_price_close = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_CLOSE);          \
+#define INDICATOR_CALCULATE_GET_PARAMS_LONG                                                                    \
+  _cache.GetTotal(), _cache.GetPrevCalculated(), _time, _cache.GetPriceBuffer(PRICE_OPEN),                     \
+      _cache.GetPriceBuffer(PRICE_HIGH), _cache.GetPriceBuffer(PRICE_LOW), _cache.GetPriceBuffer(PRICE_CLOSE), \
+      _tick_volume, _volume, _spread
+
+#define INDICATOR_CALCULATE_GET_PARAMS_SHORT _cache.GetTotal(), _cache.GetPrevCalculated(), 0, _cache.GetPriceBuffer()
+
+#define INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)                                              \
   IndicatorCalculateCache<double> *_cache;                                                               \
-                                                                                                         \
-  string _key = Util::MakeKey(SYMBOL, (int)TF, _ma_period);                                              \
+  string _key = Util::MakeKey(SYMBOL, (int)TF, KEY);                                                     \
   if (!Objects<IndicatorCalculateCache<double>>::TryGet(_key, _cache)) {                                 \
     _cache = Objects<IndicatorCalculateCache<double>>::Set(_key, new IndicatorCalculateCache<double>()); \
   }
+
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(SYMBOL, TF, KEY)                     \
+  ValueStorage<datetime> *_time = TimeValueStorage::GetInstance(SYMBOL, TF);                    \
+  ValueStorage<long> *_tick_volume = TickVolumeValueStorage::GetInstance(SYMBOL, TF);           \
+  ValueStorage<long> *_volume = VolumeValueStorage::GetInstance(SYMBOL, TF);                    \
+  ValueStorage<long> *_spread = SpreadValueStorage::GetInstance(SYMBOL, TF);                    \
+  ValueStorage<double> *_price_open = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_OPEN);   \
+  ValueStorage<double> *_price_high = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_HIGH);   \
+  ValueStorage<double> *_price_low = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_LOW);     \
+  ValueStorage<double> *_price_close = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_CLOSE); \
+  INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
+
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(SYMBOL, TF, APPLIED_PRICE, KEY) \
+  ValueStorage<double> *_price = PriceValueStorage::GetInstance(SYMBOL, TF, APPLIED_PRICE); \
+  INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
+
+#define INDICATOR_CALCULATE_POPULATED_PARAMS_LONG \
+  _time, _price_open, _price_high, _price_low, _price_close, _tick_volume, _volume, _spread
+
+#define INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT _price
 
 // Includes.
 #include "Array.mqh"

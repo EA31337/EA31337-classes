@@ -30,17 +30,18 @@ struct AMAParams : IndicatorParams {
   unsigned int fast_period;
   unsigned int slow_period;
   unsigned int ama_shift;
+  ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void AMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0, int _shift = 0,
-                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void AMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
+                 ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     ama_shift = _ama_shift;
+    applied_price = _applied_price;
     fast_period = _fast_period;
     itype = INDI_AMA;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\AMA");
-    SetDataSourceType(IDATA_ICUSTOM);
     period = _period;
     shift = _shift;
     slow_period = _slow_period;
@@ -53,7 +54,7 @@ struct AMAParams : IndicatorParams {
 };
 
 /**
- * Implements the Bill Williams' Accelerator/Decelerator oscillator.
+ * Implements the AMA indicator.
  */
 class Indi_AMA : public Indicator {
  protected:
@@ -67,16 +68,145 @@ class Indi_AMA : public Indicator {
   Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AMA, _tf) { params.tf = _tf; };
 
   /**
+   * Built-in version of AMA.
+   */
+  static double iAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period, int _fast_ema_period, int _slow_ema_period,
+                     int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+#ifdef __MQL5__
+    INDICATOR_BUILTIN_CALL_AND_RETURN(
+        ::iAMA(_symbol, _tf, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap), _mode, _shift);
+#else
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
+        _symbol, _tf, _ap, Util::MakeKey(_ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
+    return iAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ama_period, _fast_ema_period, _slow_ema_period,
+                       _ama_shift, _mode, _shift, _cache);
+#endif
+  }
+
+  /**
+   * Calculates AMA on the array of values.
+   */
+  static double iAMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ama_period, int _fast_ema_period,
+                            int _slow_ema_period, int _ama_shift, int _mode, int _shift,
+                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_price);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    }
+
+    if (_recalculate) {
+      _cache.SetPrevCalculated(0);
+    }
+
+    _cache.SetPrevCalculated(Indi_AMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
+                                                 _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnInit() method for AMA indicator.
+   */
+  static void CalculateInit(int InpPeriodAMA, int InpFastPeriodEMA, int InpSlowPeriodEMA, int InpShiftAMA,
+                            double &ExtFastSC, double &ExtSlowSC, int &ExtPeriodAMA, int &ExtSlowPeriodEMA,
+                            int &ExtFastPeriodEMA) {
+    //--- check for input values
+    if (InpPeriodAMA <= 0) {
+      ExtPeriodAMA = 10;
+      PrintFormat(
+          "Input parameter InpPeriodAMA has incorrect value (%d). Indicator will use value %d for calculations.",
+          InpPeriodAMA, ExtPeriodAMA);
+    } else
+      ExtPeriodAMA = InpPeriodAMA;
+    if (InpSlowPeriodEMA <= 0) {
+      ExtSlowPeriodEMA = 30;
+      PrintFormat(
+          "Input parameter InpSlowPeriodEMA has incorrect value (%d). Indicator will use value %d for calculations.",
+          InpSlowPeriodEMA, ExtSlowPeriodEMA);
+    } else
+      ExtSlowPeriodEMA = InpSlowPeriodEMA;
+    if (InpFastPeriodEMA <= 0) {
+      ExtFastPeriodEMA = 2;
+      PrintFormat(
+          "Input parameter InpFastPeriodEMA has incorrect value (%d). Indicator will use value %d for calculations.",
+          InpFastPeriodEMA, ExtFastPeriodEMA);
+    } else
+      ExtFastPeriodEMA = InpFastPeriodEMA;
+
+    //--- calculate ExtFastSC & ExtSlowSC
+    ExtFastSC = 2.0 / (ExtFastPeriodEMA + 1.0);
+    ExtSlowSC = 2.0 / (ExtSlowPeriodEMA + 1.0);
+  }
+
+  /**
+   * OnCalculate() method for AMA indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &ExtAMABuffer, int InpPeriodAMA,
+                       int InpFastPeriodEMA, int InpSlowPeriodEMA, int InpShiftAMA) {
+    double ExtFastSC;
+    double ExtSlowSC;
+    int ExtPeriodAMA;
+    int ExtSlowPeriodEMA;
+    int ExtFastPeriodEMA;
+
+    CalculateInit(InpPeriodAMA, InpFastPeriodEMA, InpSlowPeriodEMA, InpShiftAMA, ExtFastSC, ExtSlowSC, ExtPeriodAMA,
+                  ExtSlowPeriodEMA, ExtFastPeriodEMA);
+
+    int i;
+    //--- check for rates count
+    if (rates_total < ExtPeriodAMA + begin) return (0);
+    //--- draw begin may be corrected
+    if (begin != 0) PlotIndexSetInteger(0, PLOT_DRAW_BEGIN, ExtPeriodAMA + begin);
+    //--- detect position
+    int pos = prev_calculated - 1;
+    //--- first calculations
+    if (pos < ExtPeriodAMA + begin) {
+      pos = ExtPeriodAMA + begin;
+      for (i = 0; i < pos - 1; i++) ExtAMABuffer[i] = 0.0;
+
+      ExtAMABuffer[pos - 1] = price[pos - 1];
+    }
+    //--- main cycle
+    for (i = pos; i < rates_total && !IsStopped(); i++) {
+      //--- calculate SSC
+      double currentSSC = (CalculateER(i, price, ExtPeriodAMA) * (ExtFastSC - ExtSlowSC)) + ExtSlowSC;
+      //--- calculate AMA
+      double prevAMA = ExtAMABuffer[i - 1].Get();
+
+      //      Print(price[i].Get(), " == ", iOpen(NULL, 0, 2981 - (i)));
+
+      ExtAMABuffer[i] = MathPow(currentSSC, 2) * (price[i] - prevAMA) + prevAMA;
+    }
+    //--- return value of prev_calculated for next call
+    return (rates_total);
+  }
+
+  /**
+   * Calculate ER value
+   */
+  static double CalculateER(const int pos, ValueStorage<double> &price, int ExtPeriodAMA) {
+    double signal = MathAbs(price[pos] - price[pos - ExtPeriodAMA]);
+    double noise = 0.0;
+    for (int delta = 0; delta < ExtPeriodAMA; delta++) noise += MathAbs(price[pos - delta] - price[pos - delta - 1]);
+    if (noise != 0.0) return (signal / noise);
+    return (0.0);
+  }
+
+  /**
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_AMA::iAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
+                                GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _shift, THIS_PTR);
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
-                         GetAMAShift() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+                         GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _shift);
 
         break;
       default:
@@ -141,6 +271,11 @@ class Indi_AMA : public Indicator {
    */
   unsigned int GetSlowPeriod() { return params.slow_period; }
 
+  /**
+   * Get applied price.
+   */
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+
   /* Setters */
 
   /**
@@ -173,5 +308,13 @@ class Indi_AMA : public Indicator {
   void SetSlowPeriod(unsigned int _slow_period) {
     istate.is_changed = true;
     params.slow_period = _slow_period;
+  }
+
+  /**
+   * Set applied price.
+   */
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+    istate.is_changed = true;
+    params.applied_price = _applied_price;
   }
 };
