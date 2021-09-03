@@ -44,7 +44,7 @@ struct DEMAParams : IndicatorParams {
   void DEMAParams(unsigned int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _shift = 0)
       : period(_period), ma_shift(_ma_shift), applied_price(_ap) {
     itype = INDI_DEMA;
-    max_modes = 3;
+    max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
@@ -198,8 +198,7 @@ class Indi_DEMA : public Indicator {
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
 
-        _value = Indi_DEMA::iDEMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetPeriod(),
-                                             GetMAShift(), _shift);
+        _value = Indi_DEMA::iDEMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetPeriod(), GetMAShift(), _shift);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
