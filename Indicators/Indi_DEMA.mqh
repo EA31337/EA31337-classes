@@ -198,7 +198,8 @@ class Indi_DEMA : public Indicator {
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
 
-        _value = Indi_DEMA::iDEMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetPeriod(), GetMAShift(), _shift);
+        _value = Indi_DEMA::iDEMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetPeriod(),
+                                             GetMAShift(), _shift);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
@@ -220,9 +221,9 @@ class Indi_DEMA : public Indicator {
       for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
-      bool _b1 = _entry.values[0] > 0;
-      bool _b2 = _entry.values[0] < DBL_MAX;
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[0] > 0 && _entry.values[0] < DBL_MAX);
+      bool _b1 = _entry.IsGt<double>(0);
+      bool _b2 = _entry.IsLt<double>(DBL_MAX);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.IsGt<double>(0) && _entry.IsLt<double>(DBL_MAX));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
