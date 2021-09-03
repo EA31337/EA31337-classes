@@ -207,11 +207,11 @@ struct IndicatorDataEntry {
   }
   template <typename T>
   bool IsLe(T _value) {
-    return _value <= GetMax<T>();
+    return GetMax<T>() <= _value;
   }
   template <typename T>
   bool IsLt(T _value) {
-    return _value < GetMax();
+    return GetMax<T>() < _value;
   }
   template <typename T>
   bool IsWithinRange(T _min, T _max) {
