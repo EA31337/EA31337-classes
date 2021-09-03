@@ -181,12 +181,6 @@ class Indi_DEMA : public Indicator {
     ResetLastError();
     double _value = EMPTY_VALUE;
 
-    if (params.idstype == IDATA_BUILTIN) {
-      PriceIndiParams _price_params();
-      Indi_Price _price(_price_params);
-    } else if (params.idstype == IDATA_INDICATOR) {
-    }
-
     switch (params.idstype) {
       case IDATA_BUILTIN:
         // We're getting DEMA from Price indicator.
@@ -204,10 +198,8 @@ class Indi_DEMA : public Indicator {
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
 
-        _value = Indi_DEMA::iDEMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(),
-                                             // Get<string>(CHART_PARAM_SYMBOL),
-                                             // Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                             GetPeriod(), GetMAShift(), _shift);
+        _value = Indi_DEMA::iDEMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetPeriod(),
+                                             GetMAShift(), _shift);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
