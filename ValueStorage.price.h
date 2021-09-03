@@ -53,7 +53,7 @@ class PriceValueStorage : public HistoryValueStorage<double> {
    */
   static PriceValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_PRICE _ap) {
     PriceValueStorage *_storage;
-    string _key = _symbol + "/" + IntegerToString((int)_tf) + "/" + IntegerToString((int)_ap);
+    string _key = Util::MakeKey(_symbol, (int)_tf, (int)_ap);
     if (!ObjectsCache<PriceValueStorage>::TryGet(_key, _storage)) {
       _storage = ObjectsCache<PriceValueStorage>::Set(_key, new PriceValueStorage(_symbol, _tf, _ap));
     }

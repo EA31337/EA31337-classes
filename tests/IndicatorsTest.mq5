@@ -470,11 +470,9 @@ bool InitIndicators() {
   ADXWParams adxw_params(14);
   indis.Push(new Indi_ADXW(adxw_params));
 
-// AMA.
-#ifdef __MQL5__
+  // AMA.
   AMAParams ama_params();
   indis.Push(new Indi_AMA(ama_params));
-#endif
 
 // Chaikin Oscillator.
 #ifdef __MQL5__

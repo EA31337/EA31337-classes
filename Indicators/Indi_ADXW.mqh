@@ -71,66 +71,42 @@ class Indi_ADXW : public Indicator {
   static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = 0, int _shift = 0,
                            Indicator *_obj = NULL) {
 #ifdef __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
-    double _res[];
-    ResetLastError();
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iADXWilder(_symbol, _tf, _ma_period)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
-    }
-    return _res[0];
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
 #else
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf);
-    return iADXWilderOnArray(_time, _price_open, _price_high, _price_low, _price_close, _tick_volume, _volume, _spread,
-                             _ma_period, _mode, _shift, _cache);
-
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, _ma_period);
+    return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _mode, _shift, _cache);
 #endif
   }
 
   /**
-   * Calculates MA on the array of values.
+   * Calculates ADX Wilder on the array of values.
    */
-  static double iADXWilderOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int period, int mode, int shift,
-                                  IndicatorCalculateCache<double> *cache, bool recalculate = false) {
-    cache.SetPriceBuffer(open, high, low, close);
+  static double iADXWilderOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _shift,
+                                  IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!cache.HasBuffers()) {
-      cache.AddBuffer<NativeValueStorage<double>>(3 + 7);
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(3 + 7);
     }
 
-    if (recalculate) {
-      cache.SetPrevCalculated(0);
+    if (_recalculate) {
+      _cache.SetPrevCalculated(0);
     }
 
-    cache.SetPrevCalculated(Indi_ADXW::Calculate(
-        INDICATOR_CALCULATE_GET_PARAMS_LONG, cache.GetBuffer<double>(0), cache.GetBuffer<double>(1),
-        cache.GetBuffer<double>(2), cache.GetBuffer<double>(3), cache.GetBuffer<double>(4), cache.GetBuffer<double>(5),
-        cache.GetBuffer<double>(6), cache.GetBuffer<double>(7), cache.GetBuffer<double>(8), cache.GetBuffer<double>(9),
-        period));
+    _cache.SetPrevCalculated(Indi_ADXW::Calculate(
+        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
+        _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4),
+        _cache.GetBuffer<double>(5), _cache.GetBuffer<double>(6), _cache.GetBuffer<double>(7),
+        _cache.GetBuffer<double>(8), _cache.GetBuffer<double>(9), _period));
 
     // Returns value from the first calculation buffer.
     // Returns first value for as-series array or last value for non-as-series array.
-    return cache.GetTailValue<double>(mode, shift);
+    return _cache.GetTailValue<double>(_mode, _shift);
   }
 
+  /**
+   * OnCalculate() method for ADXW indicator.
+   */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtADXWBuffer,
                        ValueStorage<double> &ExtPDIBuffer, ValueStorage<double> &ExtNDIBuffer,
                        ValueStorage<double> &ExtPDSBuffer, ValueStorage<double> &ExtNDSBuffer,
