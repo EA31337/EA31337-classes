@@ -140,6 +140,17 @@ class EA {
   }
 
   /**
+   * Sets a trade parameter value for all trade instances.
+   */
+  template <typename T>
+  void Set(ENUM_TRADE_PARAM _param, T _value) {
+    for (DictObjectIterator<string, Trade> iter = trade.Begin(); iter.IsValid(); ++iter) {
+      Trade *_trade = iter.Value();
+      _trade.Set<T>(_param, _value);
+    }
+  }
+
+  /**
    * Sets an strategy parameter value for all strategies.
    */
   /* @fixme
