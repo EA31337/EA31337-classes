@@ -62,7 +62,7 @@ class Indi_ASI : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {

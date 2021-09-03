@@ -81,7 +81,7 @@ class Indi_Demo : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     double _value = Indi_Demo::iDemo(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift,
                                      GetPointer(this));
     istate.is_ready = true;
@@ -103,7 +103,9 @@ class Indi_Demo : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(_shift);
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue(_mode, _shift);
+      }
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));

@@ -145,8 +145,7 @@ class Indi_DEMA : public Indicator {
     }
 
     cache.SetPrevCalculated(Indi_DEMA::Calculate(cache.GetTotal(), cache.GetPrevCalculated(), 0, cache.GetPriceBuffer(),
-                                                 ma_period, cache.GetBuffer<double>(0),
-                                                 cache.GetBuffer<double>(1),
+                                                 ma_period, cache.GetBuffer<double>(0), cache.GetBuffer<double>(1),
                                                  cache.GetBuffer<double>(2)));
 
     return cache.GetTailValue<double>(0, ma_shift + shift);
@@ -178,7 +177,7 @@ class Indi_DEMA : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0, int _mode = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
 

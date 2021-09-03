@@ -446,7 +446,7 @@ class Indi_MA : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
@@ -484,7 +484,9 @@ class Indi_MA : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(_shift);
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue(_mode, _shift);
+      }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) &&
                                                    !_entry.HasValue<double>(EMPTY_VALUE) &&
                                                    !_entry.HasValue<double>(DBL_MAX));
