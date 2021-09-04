@@ -30,20 +30,34 @@
 #include "../ValueStorage.tick_volume.h"
 #include "../ValueStorage.time.h"
 #include "../ValueStorage.volume.h"
+#include "Indi_Price.mqh"
 
 // Structs.
 struct ADXWParams : IndicatorParams {
   unsigned int period;
+  ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void ADXWParams(int _period = 14, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ADXWParams(int _period = 14, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+      : period(_period), applied_price(PRICE_TYPICAL) {
     itype = itype == INDI_NONE ? INDI_ADXW : itype;
-    max_modes = FINAL_INDI_ADX_LINE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
-    SetCustomIndicatorName("Examples\\ADXW");
-    period = _period;
-    shift = _shift;
+    SetMaxModes(FINAL_INDI_ADX_LINE_ENTRY);
+    SetShift(_shift);
     tf = _tf;
+    switch (idstype) {
+      case IDATA_ICUSTOM:
+        if (custom_indi_name == "") {
+          SetCustomIndicatorName("Examples\\ADXW");
+        }
+        break;
+      case IDATA_INDICATOR:
+        if (indi_data_source == NULL) {
+          SetDataSource(Indi_Price::GetCached(_shift, _tf, applied_price, _period));
+        }
+        break;
+    }
   };
   void ADXWParams(ADXWParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

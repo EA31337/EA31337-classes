@@ -22,6 +22,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "Indi_Price.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -36,14 +37,26 @@ struct ADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void ADXParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0)
-      : period(_period), applied_price(_applied_price) {
+  void ADXParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+                 ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+      : period(_period), applied_price(_ap) {
     itype = itype == INDI_NONE ? INDI_ADX : itype;
-    max_modes = FINAL_INDI_ADX_LINE_ENTRY;
-    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
-    SetCustomIndicatorName("Examples\\ADX");
+    SetMaxModes(FINAL_INDI_ADX_LINE_ENTRY);
+    SetShift(_shift);
+    switch (idstype) {
+      case IDATA_ICUSTOM:
+        if (custom_indi_name == "") {
+          SetCustomIndicatorName("Examples\\ADX");
+        }
+        break;
+      case IDATA_INDICATOR:
+        if (indi_data_source == NULL) {
+          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period));
+        }
+        break;
+    }
   };
   void ADXParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

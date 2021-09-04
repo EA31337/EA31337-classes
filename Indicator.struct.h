@@ -384,13 +384,14 @@ struct IndicatorParams {
         idvrange(IDATA_RANGE_UNKNOWN),
         indi_data_source(NULL),
         indi_data_source_id(-1),
-        indi_data_source_mode(-1),
+        indi_data_source_mode(0),
         itype(_itype),
         is_draw(false),
         indi_color(clrNONE),
         indi_mode(0),
         draw_window(0) {
     SetDataSourceType(_idstype);
+    Init();
   };
   IndicatorParams(string _name, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : custom_indi_name(""),
@@ -402,13 +403,15 @@ struct IndicatorParams {
         idvrange(IDATA_RANGE_UNKNOWN),
         indi_data_source(NULL),
         indi_data_source_id(-1),
-        indi_data_source_mode(-1),
+        indi_data_source_mode(0),
         is_draw(false),
         indi_color(clrNONE),
         indi_mode(0),
         draw_window(0) {
     SetDataSourceType(_idstype);
+    Init();
   };
+  void Init() {}
   /* Getters */
   string GetCustomIndicatorName() { return custom_indi_name; }
   Indicator *GetDataSource() { return indi_data_source; }
