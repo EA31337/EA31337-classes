@@ -130,8 +130,7 @@ class Indi_DEMA : public Indicator {
 #else
     Indi_Price *_indi_price = Indi_Price::GetCached(_tf, _period, _applied_price);
     // Note that _applied_price and Indi_Price mode indices are compatible.
-    return Indi_DEMA::iDEMAOnIndicator(_indi_price.GetCache(), _indi_price, (int)_applied_price, _period, _ma_shift,
-                                       _shift);
+    return Indi_DEMA::iDEMAOnIndicator(_indi_price.GetCache(), _indi_price, 0, _period, _ma_shift, _shift);
 #endif
   }
 
@@ -212,7 +211,6 @@ class Indi_DEMA : public Indicator {
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
-
         _value = Indi_DEMA::iDEMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetPeriod(),
                                              GetMAShift(), _shift);
         break;
