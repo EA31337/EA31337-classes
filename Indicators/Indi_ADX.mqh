@@ -38,7 +38,7 @@ struct ADXParams : IndicatorParams {
   // Struct constructors.
   void ADXParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0)
       : period(_period), applied_price(_applied_price) {
-    itype = INDI_ADX;
+    itype = itype == INDI_NONE ? INDI_ADX : itype;
     max_modes = FINAL_INDI_ADX_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
@@ -72,12 +72,11 @@ class Indi_ADX : public Indicator {
    * - https://docs.mql4.com/indicators/iadx
    * - https://www.mql5.com/en/docs/indicators/iadx
    */
-  static double iADX(
-      string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-      ENUM_APPLIED_PRICE _applied_price,         // (MT5): not used
-      ENUM_INDI_ADX_LINE _mode = LINE_MAIN_ADX,  // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 -
-                                                 // MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
-      int _shift = 0, Indicator *_obj = NULL) {
+  static double iADX(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+                     ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
+                     int _mode = LINE_MAIN_ADX,          // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 -
+                                                         // MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
+                     int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
 #else  // __MQL5__
@@ -113,7 +112,7 @@ class Indi_ADX : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_INDI_ADX_LINE _mode = LINE_MAIN_ADX, int _shift = 0) {
+  double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
@@ -146,7 +145,7 @@ class Indi_ADX : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue((ENUM_INDI_ADX_LINE)_mode, _shift);
+        _entry.values[_mode] = Indi_ADX::GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) &&
                                                    _entry.IsWithinRange(0.0, 100.0));
@@ -163,11 +162,11 @@ class Indi_ADX : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
+    _param.double_value = GetEntry(_shift)[_mode];
     return _param;
   }
 
-  /* Class getters */
+  /* Getters */
 
   /**
    * Get period value.

@@ -36,10 +36,10 @@ struct ADXWParams : IndicatorParams {
   unsigned int period;
   // Struct constructor.
   void ADXWParams(int _period = 14, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_ADXW;
-    max_modes = 3;
+    itype = itype == INDI_NONE ? INDI_ADXW : itype;
+    max_modes = FINAL_INDI_ADX_LINE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\ADXW");
     period = _period;
     shift = _shift;
@@ -52,7 +52,7 @@ struct ADXWParams : IndicatorParams {
 };
 
 /**
- * Implements the Bill Williams' Accelerator/Decelerator oscillator.
+ * Implements the Average Directional Movement Index indicator by Welles Wilder.
  */
 class Indi_ADXW : public Indicator {
  protected:
@@ -68,8 +68,8 @@ class Indi_ADXW : public Indicator {
   /**
    * Built-in version of ADX Wilder.
    */
-  static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = 0, int _shift = 0,
-                           Indicator *_obj = NULL) {
+  static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = LINE_MAIN_ADX,
+                           int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
 #else
@@ -114,9 +114,9 @@ class Indi_ADXW : public Indicator {
                        ValueStorage<double> &ExtTRBuffer, ValueStorage<double> &ExtATRBuffer,
                        ValueStorage<double> &ExtDXBuffer, int ExtADXWPeriod) {
     int i;
-    //--- checking for bars count
+    // Checking for bars count.
     if (rates_total < ExtADXWPeriod) return (0);
-    //--- detect start position
+    // Detect start position.
     int start;
     if (prev_calculated > 1)
       start = prev_calculated - 1;
@@ -135,15 +135,14 @@ class Indi_ADXW : public Indicator {
         ExtDXBuffer[i] = 0;
       }
     }
-    //--- main cycle
     for (i = start; i < rates_total && !IsStopped(); i++) {
-      //--- get some data
+      // Get some data.
       double high_price = high[i].Get();
       double prev_high = high[i - 1].Get();
       double low_price = low[i].Get();
       double prev_low = low[i - 1].Get();
       double prev_close = close[i - 1].Get();
-      //--- fill main positive and main negative buffers
+      // Fill main positive and main negative buffers.
       double tmp_pos = high_price - prev_high;
       double tmp_neg = prev_low - low_price;
       if (tmp_pos < 0.0) tmp_pos = 0.0;
@@ -159,11 +158,12 @@ class Indi_ADXW : public Indicator {
       }
       ExtPDBuffer[i] = tmp_pos;
       ExtNDBuffer[i] = tmp_neg;
-      //--- define TR
+      // Define TR.
       double tr = MathMax(MathMax(MathAbs(high_price - low_price), MathAbs(high_price - prev_close)),
                           MathAbs(low_price - prev_close));
-      ExtTRBuffer[i] = tr;  // write down TR to TR buffer
-      //--- fill smoothed positive and negative buffers and TR buffer
+      // Write down TR to TR buffer.
+      ExtTRBuffer[i] = tr;
+      // Fill smoothed positive and negative buffers and TR buffer.
       if (i < ExtADXWPeriod) {
         ExtATRBuffer[i] = 0.0;
         ExtPDIBuffer[i] = 0.0;
@@ -173,7 +173,7 @@ class Indi_ADXW : public Indicator {
         ExtPDSBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtPDSBuffer[i - 1].Get(), ExtPDBuffer);
         ExtNDSBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtNDSBuffer[i - 1].Get(), ExtNDBuffer);
       }
-      //--- calculate PDI and NDI buffers
+      // Calculate PDI and NDI buffers.
       if (ExtATRBuffer[i] != 0.0) {
         ExtPDIBuffer[i] = 100.0 * ExtPDSBuffer[i].Get() / ExtATRBuffer[i].Get();
         ExtNDIBuffer[i] = 100.0 * ExtNDSBuffer[i].Get() / ExtATRBuffer[i].Get();
@@ -181,17 +181,17 @@ class Indi_ADXW : public Indicator {
         ExtPDIBuffer[i] = 0.0;
         ExtNDIBuffer[i] = 0.0;
       }
-      //--- Calculate DX buffer
+      // Calculate DX buffer.
       double dTmp = ExtPDIBuffer[i] + ExtNDIBuffer[i];
       if (dTmp != 0.0)
         dTmp = 100.0 * MathAbs((ExtPDIBuffer[i] - ExtNDIBuffer[i]) / dTmp);
       else
         dTmp = 0.0;
       ExtDXBuffer[i] = dTmp;
-      //--- fill ADXW buffer as smoothed DX buffer
+      // Fill ADXW buffer as smoothed DX buffer.
       ExtADXWBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtADXWBuffer[i - 1].Get(), ExtDXBuffer);
     }
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 
@@ -217,11 +217,12 @@ class Indi_ADXW : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_ADXW::iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
