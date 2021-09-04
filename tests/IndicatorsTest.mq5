@@ -210,7 +210,7 @@ bool InitIndicators() {
   indis.Push(new Indi_AD());
 
   // ADX.
-  ADXParams adx_params(14, PRICE_HIGH);
+  ADXParams adx_params(14);
   indis.Push(new Indi_ADX(adx_params));
 
   // Alligator.
@@ -753,7 +753,7 @@ bool TestADX() {
   // Get static value.
   double adx_value = Indi_ADX::iADX(_Symbol, PERIOD_CURRENT, 14, PRICE_HIGH, LINE_MAIN_ADX);
   // Get dynamic values.
-  ADXParams params(14, PRICE_HIGH);
+  ADXParams params(14);
   Indi_ADX *adx = new Indi_ADX(params);
   Print("ADX: ", adx.GetValue());
   assertTrueOrReturn(adx.GetValue() == adx_value, "ADX value does not match!", false);

@@ -37,9 +37,9 @@ struct ADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void ADXParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+  void ADXParams(unsigned int _period, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : period(_period), applied_price(_ap) {
+      : period(_period), applied_price(PRICE_TYPICAL) {
     itype = itype == INDI_NONE ? INDI_ADX : itype;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
@@ -53,7 +53,7 @@ struct ADXParams : IndicatorParams {
         break;
       case IDATA_INDICATOR:
         if (indi_data_source == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period));
+          SetDataSource(Indi_Price::GetCached(_shift, _tf, applied_price, _period));
         }
         break;
     }
