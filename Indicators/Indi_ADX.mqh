@@ -41,6 +41,7 @@ struct ADXParams : IndicatorParams {
                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : period(_period), applied_price(PRICE_TYPICAL) {
     itype = itype == INDI_NONE ? INDI_ADX : itype;
+    SetDataSourceType(_idstype);
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetMaxModes(FINAL_INDI_ADX_LINE_ENTRY);
