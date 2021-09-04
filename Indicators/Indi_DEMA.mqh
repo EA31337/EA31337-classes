@@ -41,14 +41,29 @@ struct DEMAParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void DEMAParams(unsigned int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _shift = 0)
+  void DEMAParams(unsigned int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _shift = 0,
+                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : period(_period), ma_shift(_ma_shift), applied_price(_ap) {
-    itype = INDI_DEMA;
-    max_modes = 1;
-    shift = _shift;
+    itype = itype == INDI_NONE ? INDI_DEMA : itype;
+    SetDataSourceType(_idstype);
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
-    SetCustomIndicatorName("Examples\\DEMA");
+    SetMaxModes(1);
+    SetShift(_shift);
+    // DataSourceMode
+    switch (idstype) {
+      case IDATA_ICUSTOM:
+        if (custom_indi_name == "") {
+          SetCustomIndicatorName("Examples\\DEMA");
+        }
+        break;
+      case IDATA_INDICATOR:
+        if (GetDataSource() == NULL) {
+          SetDataSource(new Indi_Price(shift, tf.GetTf()));
+          SetDataSourceMode(0);
+        }
+        break;
+    }
   };
   void DEMAParams(DEMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -221,8 +236,6 @@ class Indi_DEMA : public Indicator {
       for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
-      bool _b1 = _entry.IsGt<double>(0);
-      bool _b2 = _entry.IsLt<double>(DBL_MAX);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.IsGt<double>(0) && _entry.IsLt<double>(DBL_MAX));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));

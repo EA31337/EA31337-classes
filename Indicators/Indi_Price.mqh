@@ -41,11 +41,11 @@ struct PriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
   // Struct constructor.
-  void PriceIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_PRICE;
+  void PriceIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : applied_price(PRICE_MEDIAN) {
+    itype = itype == INDI_NONE ? INDI_PRICE : itype;
     max_modes = FINAL_INDI_PRICE_MODE;
     SetDataValueType(TYPE_DOUBLE);
-    shift = _shift;
+    SetShift(_shift);
     tf = _tf;
   };
 };
@@ -62,7 +62,7 @@ class Indi_Price : public Indicator {
    * Class constructor.
    */
   Indi_Price(PriceIndiParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_Price(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_PRICE, _tf){};
+  Indi_Price(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_shift, _tf), Indicator(INDI_PRICE, _tf){};
 
   /**
    * Returns the indicator value.
