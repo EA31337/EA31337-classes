@@ -125,15 +125,17 @@ class Indi_Price : public Indicator {
   /**
    * Returns already cached version of Indi_Price for a given parameters.
    */
-  static Indi_Price *GetCached(ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _applied_price) {
+  static Indi_Price *GetCached(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+                               ENUM_APPLIED_PRICE _applied_price = PRICE_MEDIAN, unsigned int _period = 0) {
     String _cache_key;
+    _cache_key.Add((int)_shift);
     _cache_key.Add((int)_tf);
     _cache_key.Add((int)_period);
     _cache_key.Add((int)_applied_price);
     string _key = _cache_key.ToString();
     Indi_Price *_indi_price;
     if (!Objects<Indi_Price>::TryGet(_key, _indi_price)) {
-      PriceIndiParams _indi_price_params(0, _tf);
+      PriceIndiParams _indi_price_params(_shift, _tf, _applied_price);
       _indi_price = Objects<Indi_Price>::Set(_key, new Indi_Price(_indi_price_params));
     }
     return _indi_price;

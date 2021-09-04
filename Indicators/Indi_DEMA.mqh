@@ -42,7 +42,7 @@ struct DEMAParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
   void DEMAParams(unsigned int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _shift = 0,
-                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : period(_period), ma_shift(_ma_shift), applied_price(_ap) {
     itype = itype == INDI_NONE ? INDI_DEMA : itype;
     SetDataSourceType(_idstype);
@@ -59,7 +59,7 @@ struct DEMAParams : IndicatorParams {
         break;
       case IDATA_INDICATOR:
         if (GetDataSource() == NULL) {
-          SetDataSource(new Indi_Price(shift, tf.GetTf(), _ap));
+          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period));
           SetDataSourceMode(0);
         }
         break;
@@ -128,7 +128,7 @@ class Indi_DEMA : public Indicator {
     }
     return _res[0];
 #else
-    Indi_Price *_indi_price = Indi_Price::GetCached(_tf, _period, _applied_price);
+    Indi_Price *_indi_price = Indi_Price::GetCached(_shift, _tf, _applied_price, _period);
     // Note that _applied_price and Indi_Price mode indices are compatible.
     return Indi_DEMA::iDEMAOnIndicator(_indi_price.GetCache(), _indi_price, 0, _period, _ma_shift, _shift);
 #endif
