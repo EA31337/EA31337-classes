@@ -58,7 +58,7 @@ struct DEMAParams : IndicatorParams {
         break;
       case IDATA_INDICATOR:
         if (GetDataSource() == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period));
+          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period), false);
           SetDataSourceMode(0);
         }
         break;
