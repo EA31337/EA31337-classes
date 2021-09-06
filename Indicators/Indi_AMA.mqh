@@ -24,6 +24,7 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 #include "../Indicators/Indi_Price.mqh"
+#include "../ValueStorage.h"
 
 // Structs.
 struct IndiAMAParams : IndicatorParams {
@@ -44,7 +45,7 @@ struct IndiAMAParams : IndicatorParams {
     itype = itype == INDI_NONE ? INDI_AMA : itype;
     SetDataSourceType(_idstype);
     SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    SetDataValueRange(IDATA_RANGE_PRICE);
     SetMaxModes(1);
     SetShift(_shift);
     tf = _tf;
