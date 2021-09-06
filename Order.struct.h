@@ -212,6 +212,7 @@ struct OrderData {
   string comment;                        // Comment.
   string ext_id;                         // External trading system identifier.
   string symbol;                         // Symbol of the order.
+ public:
   OrderData()
       : magic(0),
         position_id(0),
@@ -239,6 +240,10 @@ struct OrderData {
         symbol(NULL),
         volume_curr(0),
         volume_init(0) {}
+  // Copy constructor.
+  OrderData(OrderData &_odata) {
+    this = _odata;
+  }
   // Getters.
   template <typename T>
   T Get(ENUM_ORDER_PROPERTY_CUSTOM _prop_name) {
