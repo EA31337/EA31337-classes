@@ -32,12 +32,13 @@
 // Structs.
 struct DemoIndiParams : IndicatorParams {
   // Struct constructors.
-  void DemoIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void DemoIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+                      ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN) {
     itype = INDI_DEMO;
-    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
-    shift = _shift;
+    SetMaxModes(1);
+    SetShift(_shift);
     tf = _tf;
   };
   void DemoIndiParams(DemoIndiParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
