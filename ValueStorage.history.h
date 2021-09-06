@@ -30,8 +30,9 @@
 #pragma once
 #endif
 
-// Includes.
-#include "ValueStorage.h"
+// Forward declarations.
+template <typename C>
+class ValueStorage;
 
 /**
  * Storage for direct access to indicator's buffer for a given mode.

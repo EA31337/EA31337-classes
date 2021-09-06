@@ -29,6 +29,10 @@
 #pragma once
 #endif
 
+// Prevents processing this includes file multiple times.
+#ifndef VALUE_STORAGE_H
+#define VALUE_STORAGE_H
+
 // Defines.
 #define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
   100  // Number of entries the value storage buffer will be initialized with.
@@ -86,6 +90,8 @@
 #include "Array.mqh"
 #include "IValueStorage.h"
 #include "ValueStorage.accessor.h"
+#include "ValueStorage.price.h"
+#include "Util.h"
 
 /**
  * Value storage settable/gettable via indexation operator.
@@ -178,3 +184,4 @@ int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _s
 
   return _num_copied;
 }
+#endif  // STRATEGY_MQH
