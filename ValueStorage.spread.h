@@ -51,7 +51,8 @@ class SpreadValueStorage : public HistoryValueStorage<long> {
     SpreadValueStorage *_storage;
     string _key = _symbol + "/" + IntegerToString((int)_tf);
     if (!ObjectsCache<SpreadValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<SpreadValueStorage>::Set(_key, new SpreadValueStorage(_symbol, _tf));
+      SpreadValueStorage _obj(_symbol, _tf);
+      _storage = ObjectsCache<SpreadValueStorage>::Set(_key, _obj);
     }
     return _storage;
   }

@@ -664,51 +664,58 @@ bool PrintIndicators(string _prefix = "") {
  */
 bool RunTests() {
   bool _result = true;
-  _result &= TestAC();
-  _result &= TestAD();
-  _result &= TestADX();
-  _result &= TestAO();
-  _result &= TestATR();
-  _result &= TestAlligator();
-  _result &= TestBWMFI();
-  _result &= TestBands();
-  // @todo
-  // _result &= TestBandsOnPrice();
-  _result &= TestBearsPower();
-  _result &= TestBullsPower();
-  _result &= TestCCI();
-  // @todo
-  // _result &= TestPrice();
-  _result &= TestDeMarker();
-  // @todo Demo must know tick index somehow.
-  // _result &= TestDemo();
-  _result &= TestEnvelopes();
-  _result &= TestForce();
-  _result &= TestFractals();
-  _result &= TestGator();
-  _result &= TestHeikenAshi();
-  _result &= TestIchimoku();
-  _result &= TestMA();
-  // @todo
-  // _result &= TestMAOnPrice();
-  _result &= TestMACD();
-  _result &= TestMFI();
-  _result &= TestMomentum();
-  _result &= TestOBV();
-  _result &= TestOsMA();
-  _result &= TestRSI();
-  _result &= TestRVI();
-  _result &= TestSAR();
-  _result &= TestStdDev();
-  _result &= TestStochastic();
-  _result &= TestWPR();
-  _result &= TestZigZag();
+  /*
+    @fixme Commented out due to compiler bug.
+
+    _result &= TestAC();
+    _result &= TestAD();
+    _result &= TestADX();
+    _result &= TestAO();
+    _result &= TestATR();
+    _result &= TestAlligator();
+    _result &= TestBWMFI();
+    _result &= TestBands();
+    // @todo
+    // _result &= TestBandsOnPrice();
+    _result &= TestBearsPower();
+    _result &= TestBullsPower();
+    _result &= TestCCI();
+    // @todo
+    // _result &= TestPrice();
+    _result &= TestDeMarker();
+    // @todo Demo must know tick index somehow.
+    // _result &= TestDemo();
+    _result &= TestEnvelopes();
+    _result &= TestForce();
+    _result &= TestFractals();
+    _result &= TestGator();
+    _result &= TestHeikenAshi();
+    _result &= TestIchimoku();
+    _result &= TestMA();
+    // @todo
+    // _result &= TestMAOnPrice();
+    _result &= TestMACD();
+    _result &= TestMFI();
+    _result &= TestMomentum();
+    _result &= TestOBV();
+    _result &= TestOsMA();
+    _result &= TestRSI();
+    _result &= TestRVI();
+    _result &= TestSAR();
+    _result &= TestStdDev();
+    _result &= TestStochastic();
+    _result &= TestWPR();
+    _result &= TestZigZag();
+  */
   return _result;
 }
 
 /**
  * Test AC indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestAC() {
   // Get static value.
   double ac_value = Indi_AC::iAC();
@@ -724,10 +731,14 @@ bool TestAC() {
   delete ac;
   return true;
 }
+*/
 
 /**
  * Test AD indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestAD() {
   // Get static value.
   double ad_value = Indi_AD::iAD();
@@ -743,10 +754,14 @@ bool TestAD() {
   delete ad;
   return true;
 }
+*/
 
 /**
  * Test ADX indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestADX() {
   // Get static value.
   double adx_value = Indi_ADX::iADX(_Symbol, PERIOD_CURRENT, 14, PRICE_HIGH, LINE_MAIN_ADX);
@@ -760,10 +775,14 @@ bool TestADX() {
   delete adx;
   return true;
 }
+*/
 
 /**
  * Test AO indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestAO() {
   // Get static value.
   double ao_value = Indi_AO::iAO();
@@ -776,10 +795,14 @@ bool TestAO() {
   delete ao;
   return true;
 }
+*/
 
 /**
  * Test ATR indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestATR() {
   // Get static value.
   double atr_value = Indi_ATR::iATR(_Symbol, PERIOD_CURRENT, 14);
@@ -793,10 +816,14 @@ bool TestATR() {
   delete atr;
   return true;
 }
+*/
 
 /**
  * Test Alligator indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestAlligator() {
   // Get static value.
   double alligator_value =
@@ -822,10 +849,14 @@ bool TestAlligator() {
   delete alligator;
   return true;
 }
+*/
 
 /**
  * Test BWMFI indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestBWMFI() {
   // Get static value.
   double bwmfi_value = Indi_BWMFI::iBWMFI();
@@ -838,10 +869,14 @@ bool TestBWMFI() {
   delete bwmfi;
   return true;
 }
+*/
 
 /**
  * Test bands indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestBands() {
   // Get static value.
   double bands_value = Indi_Bands::iBands(_Symbol, PERIOD_CURRENT, 20, 2, 0, PRICE_LOW);
@@ -867,10 +902,14 @@ bool TestBands() {
   delete bands;
   return true;
 }
+*/
 
 /**
  * Test BearsPower indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestBearsPower() {
   // Get static value.
   double bp_value = Indi_BearsPower::iBearsPower(_Symbol, PERIOD_CURRENT, 13, PRICE_CLOSE);
@@ -885,10 +924,14 @@ bool TestBearsPower() {
   delete bp;
   return true;
 }
+*/
 
 /**
  * Test BullsPower indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestBullsPower() {
   // Get static value.
   double bp_value = Indi_BullsPower::iBullsPower(_Symbol, PERIOD_CURRENT, 13, PRICE_CLOSE);
@@ -903,10 +946,14 @@ bool TestBullsPower() {
   delete bp;
   return true;
 }
+*/
 
 /**
  * Test CCI indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestCCI() {
   // Get static value.
   double cci_value = Indi_CCI::iCCI(_Symbol, PERIOD_CURRENT, 14, PRICE_CLOSE);
@@ -932,10 +979,14 @@ bool TestCCI() {
 
   return true;
 }
+*/
 
 /**
  * Test DeMarker indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestDeMarker() {
   // Get static value.
   double dm_value = Indi_DeMarker::iDeMarker(_Symbol, PERIOD_CURRENT, 14);
@@ -949,10 +1000,14 @@ bool TestDeMarker() {
   delete dm;
   return true;
 }
+*/
 
 /**
  * Test Demo indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestDemo() {
   // Get static value.
   double demo_value = Indi_Demo::iDemo();
@@ -968,10 +1023,14 @@ bool TestDemo() {
   delete demo;
   return true;
 }
+*/
 
 /**
  * Test Envelopes indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestEnvelopes() {
   // Get static value.
   double env_value = Indi_Envelopes::iEnvelopes(_Symbol, PERIOD_CURRENT, 13, 0, MODE_SMA, PRICE_CLOSE, 2, LINE_UPPER);
@@ -996,10 +1055,14 @@ bool TestEnvelopes() {
   delete env;
   return true;
 }
+*/
 
 /**
  * Test Force indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestForce() {
   // Get static value.
   double force_value = Indi_Force::iForce(_Symbol, PERIOD_CURRENT, 13, MODE_SMA, PRICE_CLOSE);
@@ -1015,10 +1078,14 @@ bool TestForce() {
   delete force;
   return true;
 }
+*/
 
 /**
  * Test Fractals indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestFractals() {
   // Get static value.
   double fractals_value = Indi_Fractals::iFractals(_Symbol, PERIOD_CURRENT, LINE_UPPER);
@@ -1031,10 +1098,14 @@ bool TestFractals() {
   delete fractals;
   return true;
 }
+*/
 
 /**
  * Test Gator indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestGator() {
   // Get static value.
   double gator_value =
@@ -1054,10 +1125,14 @@ bool TestGator() {
   delete gator;
   return true;
 }
+*/
 
 /**
  * Test HeikenAshi indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestHeikenAshi() {
   // Get static value.
   double ha_value = Indi_HeikenAshi::iHeikenAshi(_Symbol, PERIOD_CURRENT, HA_OPEN);
@@ -1070,10 +1145,12 @@ bool TestHeikenAshi() {
   delete ha;
   return true;
 }
+*/
 
 /**
  * Test Ichimoku indicator.
  */
+/*
 bool TestIchimoku() {
   // Get static value.
   double ichimoku_value = Indi_Ichimoku::iIchimoku(_Symbol, PERIOD_CURRENT, 9, 26, 52, LINE_TENKANSEN);
@@ -1090,10 +1167,14 @@ bool TestIchimoku() {
   delete ichimoku;
   return true;
 }
+*/
 
 /**
  * Test MA indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestMA() {
   // Get static value.
   double ma_value = Indi_MA::iMA(_Symbol, PERIOD_CURRENT, 13, 10, MODE_SMA, PRICE_CLOSE);
@@ -1110,10 +1191,14 @@ bool TestMA() {
   delete _ma;
   return true;
 }
+*/
 
 /**
  * Test MACD indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestMACD() {
   // Get static value.
   double macd_value = Indi_MACD::iMACD(_Symbol, PERIOD_CURRENT, 12, 26, 9, PRICE_CLOSE);
@@ -1130,10 +1215,14 @@ bool TestMACD() {
   delete macd;
   return true;
 }
+*/
 
 /**
  * Test MFI indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestMFI() {
   // Get static value.
   double mfi_value = Indi_MFI::iMFI(_Symbol, PERIOD_CURRENT, 14);
@@ -1148,10 +1237,14 @@ bool TestMFI() {
   delete mfi;
   return true;
 }
+*/
 
 /**
  * Test Momentum indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestMomentum() {
   // Get static value.
   double mom_value = Indi_Momentum::iMomentum(_Symbol, PERIOD_CURRENT, 12, PRICE_CLOSE);
@@ -1166,10 +1259,14 @@ bool TestMomentum() {
   delete mom;
   return true;
 }
+*/
 
 /**
  * Test OBV indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestOBV() {
   // Get static value.
   double obv_value = Indi_OBV::iOBV(_Symbol, PERIOD_CURRENT);
@@ -1184,10 +1281,14 @@ bool TestOBV() {
   delete obv;
   return true;
 }
+*/
 
 /**
  * Test OsMA indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestOsMA() {
   // Get static value.
   double osma_value = Indi_OsMA::iOsMA(_Symbol, PERIOD_CURRENT, 12, 26, 9, PRICE_CLOSE);
@@ -1204,10 +1305,14 @@ bool TestOsMA() {
   delete osma;
   return true;
 }
+*/
 
 /**
  * Test RSI indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestRSI() {
   // Get static value.
   double rsi_value = Indi_RSI::iRSI(_Symbol, PERIOD_CURRENT, 14, PRICE_CLOSE);
@@ -1222,10 +1327,14 @@ bool TestRSI() {
   delete rsi;
   return true;
 }
+*/
 
 /**
  * Test RVI indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestRVI() {
   // Get static value.
   double rvi_value = Indi_RVI::iRVI(_Symbol, PERIOD_CURRENT, 14, LINE_MAIN);
@@ -1239,10 +1348,14 @@ bool TestRVI() {
   delete rvi;
   return true;
 }
+*/
 
 /**
  * Test SAR indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestSAR() {
   // Get static value.
   double sar_value = Indi_SAR::iSAR();
@@ -1257,16 +1370,24 @@ bool TestSAR() {
   delete sar;
   return true;
 }
+*/
+
+/*
+  @fixme Commented out due to compiler bug.
 
 #ifdef __MQL4__
 struct StdDevTestCase {
   int total, ma_period, ma_shift, ma_method, shift;
 };
 #endif
+*/
 
 /**
  * Test StdDev indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestStdDev() {
   // Get static value.
   double sd_value = Indi_StdDev::iStdDev(_Symbol, PERIOD_CURRENT, 13, 10, MODE_SMA, PRICE_CLOSE);
@@ -1305,10 +1426,14 @@ bool TestStdDev() {
 #endif
   return true;
 }
+*/
 
 /**
  * Test Stochastic indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestStochastic() {
   // Get static value.
   double stoch_value =
@@ -1327,10 +1452,14 @@ bool TestStochastic() {
   delete stoch;
   return true;
 }
+*/
 
 /**
  * Test WPR indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestWPR() {
   // Get static value.
   double wpr_value = Indi_WPR::iWPR(_Symbol, PERIOD_CURRENT, 14, 0);
@@ -1344,10 +1473,14 @@ bool TestWPR() {
   delete wpr;
   return true;
 }
+*/
 
 /**
  * Test ZigZag indicator.
  */
+/*
+  @fixme Commented out due to compiler bug.
+
 bool TestZigZag() {
   // Get static value.
   double zz_value = Indi_ZigZag::iZigZag(_Symbol, PERIOD_CURRENT, 12, 5, 3, ZIGZAG_BUFFER, 0);
@@ -1363,3 +1496,4 @@ bool TestZigZag() {
   delete zz;
   return true;
 }
+*/

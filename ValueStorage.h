@@ -102,6 +102,11 @@ class ValueStorage : public IValueStorage {
   }
 
   /**
+   * Destructor.
+   */
+  virtual ~ValueStorage() {}
+
+  /**
    * Initializes storage with given value.
    */
   virtual void Initialize(C _value) {}

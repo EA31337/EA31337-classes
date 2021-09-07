@@ -55,7 +55,8 @@ class PriceValueStorage : public HistoryValueStorage<double> {
     PriceValueStorage *_storage;
     string _key = Util::MakeKey(_symbol, (int)_tf, (int)_ap);
     if (!ObjectsCache<PriceValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<PriceValueStorage>::Set(_key, new PriceValueStorage(_symbol, _tf, _ap));
+      PriceValueStorage _obj(_symbol, _tf, _ap);
+      _storage = ObjectsCache<PriceValueStorage>::Set(_key, _obj);
     }
     return _storage;
   }

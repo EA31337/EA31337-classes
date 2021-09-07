@@ -39,7 +39,10 @@
 template <typename C>
 class Objects {
   // Dictionary of key => reference to object.
-  static DictStruct<string, Ref<C>> objects;
+  static DictStruct<string, Ref<C>>* GetObjects() {
+    static DictStruct<string, Ref<C>> objects;
+    return &objects;
+  }
 
  public:
   /**
@@ -47,11 +50,11 @@ class Objects {
    */
   static bool TryGet(string& key, C*& out_ptr) {
     int position;
-    if (!objects.KeyExists(key, position)) {
+    if (!GetObjects().KeyExists(key, position)) {
       out_ptr = NULL;
       return false;
     } else {
-      out_ptr = objects.GetByPos(position).Ptr();
+      out_ptr = GetObjects().GetByPos(position).Ptr();
       return true;
     }
   }
@@ -61,10 +64,7 @@ class Objects {
    */
   static C* Set(string& key, C* ptr) {
     Ref<C> _ref(ptr);
-    objects.Set(key, _ref);
+    GetObjects().Set(key, _ref);
     return ptr;
   }
 };
-
-template <typename C>
-DictStruct<string, Ref<C>> Objects::objects;

@@ -50,7 +50,8 @@ class VolumeValueStorage : public HistoryValueStorage<long> {
     VolumeValueStorage *_storage;
     string _key = _symbol + "/" + IntegerToString((int)_tf);
     if (!ObjectsCache<VolumeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<VolumeValueStorage>::Set(_key, new VolumeValueStorage(_symbol, _tf));
+      VolumeValueStorage _obj(_symbol, _tf);
+      _storage = ObjectsCache<VolumeValueStorage>::Set(_key, _obj);
     }
     return _storage;
   }
