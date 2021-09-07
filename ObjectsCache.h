@@ -38,7 +38,10 @@
 template <typename C>
 class ObjectsCache {
   // Dictionary of key => reference to object.
-  static DictObject<string, C> objects;
+  static DictObject<string, C>* GetObjects() {
+    static DictObject<string, C> objects;
+    return &objects;
+  }
 
  public:
   /**
@@ -46,11 +49,11 @@ class ObjectsCache {
    */
   static bool TryGet(string& key, C*& out_ptr) {
     int position;
-    if (!objects.KeyExists(key, position)) {
+    if (!GetObjects().KeyExists(key, position)) {
       out_ptr = NULL;
       return false;
     } else {
-      out_ptr = objects.GetByPos(position);
+      out_ptr = GetObjects().GetByPos(position);
       return true;
     }
   }
@@ -58,11 +61,8 @@ class ObjectsCache {
   /**
    * Stores object pointer with a given key.
    */
-  static C* Set(string& key, C* ptr) {
-    objects.Set(key, PTR_TO_REF(ptr));
-    return ptr;
+  static C* Set(string& key, C& obj) {
+    GetObjects().Set(key, obj);
+    return GetObjects().GetByKey(key);
   }
 };
-
-template <typename C>
-DictObject<string, C> ObjectsCache::objects;

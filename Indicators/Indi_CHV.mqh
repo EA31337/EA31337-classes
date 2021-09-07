@@ -33,7 +33,7 @@ struct CHVParams : IndicatorParams {
   void CHVParams(int _smooth_period = 10, int _chv_period = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
                  int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     chv_period = _chv_period;
-    itype = INDI_CHAIKIN;
+    itype = INDI_CHAIKIN_V;
     max_modes = 3;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -65,7 +65,7 @@ class Indi_CHV : public Indicator {
       : params(_params.smooth_period, _params.chv_period, _params.smooth_method), Indicator((IndicatorParams)_params) {
     params = _params;
   };
-  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN, _tf) { params.tf = _tf; };
+  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN_V, _tf) { params.tf = _tf; };
 
   /**
    * Returns the indicator's value.

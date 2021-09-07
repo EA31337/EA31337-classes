@@ -23,6 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "Indi_MA.mqh"
 
 // Structs.
 struct CHOParams : IndicatorParams {
@@ -41,7 +42,6 @@ struct CHOParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHO");
-    SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
     slow_ma = _slow_ma;
     smooth_method = _smooth_method;
@@ -72,12 +72,119 @@ class Indi_CHO : public Indicator {
   Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN, _tf) { params.tf = _tf; };
 
   /**
+   * Built-in version of Chaikin Oscillator.
+   */
+  static double iChaikin(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period, int _slow_ma_period,
+                         ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
+                         Indicator *_obj = NULL) {
+#ifdef __MQL5__
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iChaikin(_symbol, _tf, _fast_ma_period, _slow_ma_period, _ma_method, _av),
+                                      _mode, _shift);
+#else
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
+        _symbol, _tf, Util::MakeKey(_fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
+    return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
+                           _mode, _shift, _cache);
+#endif
+  }
+
+  /**
+   * Calculates Chaikin Oscillator on the array of values.
+   */
+  static double iChaikinOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_ma_period, int _slow_ma_period,
+                                ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode, int _shift,
+                                IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(4);
+    }
+
+    if (_recalculate) {
+      _cache.SetPrevCalculated(0);
+    }
+
+    _cache.SetPrevCalculated(Indi_CHO::Calculate(
+        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
+        _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _fast_ma_period, _slow_ma_period, _ma_method, _av));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for Chaikin Oscillator indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtCHOBuffer,
+                       ValueStorage<double> &ExtFastEMABuffer, ValueStorage<double> &ExtSlowEMABuffer,
+                       ValueStorage<double> &ExtADBuffer, int InpFastMA, int InpSlowMA, ENUM_MA_METHOD InpSmoothMethod,
+                       ENUM_APPLIED_VOLUME InpVolumeType) {
+    if (rates_total < InpSlowMA) return (0);
+    //--- preliminary calculations
+    int i, start;
+    if (prev_calculated < 2)
+      start = 0;
+    else
+      start = prev_calculated - 2;
+    //--- calculate AD buffer
+    if (InpVolumeType == VOLUME_TICK) {
+      for (i = start; i < rates_total && !IsStopped(); i++) {
+        ExtADBuffer[i] = AD(high[i].Get(), low[i].Get(), close[i].Get(), tick_volume[i].Get());
+        if (i > 0) ExtADBuffer[i] += ExtADBuffer[i - 1];
+      }
+    } else {
+      for (i = start; i < rates_total && !IsStopped(); i++) {
+        ExtADBuffer[i] = AD(high[i].Get(), low[i].Get(), close[i].Get(), volume[i].Get());
+        if (i > 0) ExtADBuffer[i] += ExtADBuffer[i - 1];
+      }
+    }
+    //--- calculate EMA on array ExtADBuffer
+    AverageOnArray(InpSmoothMethod, rates_total, prev_calculated, 0, InpFastMA, ExtADBuffer, ExtFastEMABuffer);
+    AverageOnArray(InpSmoothMethod, rates_total, prev_calculated, 0, InpSlowMA, ExtADBuffer, ExtSlowEMABuffer);
+    //--- calculate chaikin oscillator
+    for (i = start; i < rates_total && !IsStopped(); i++) ExtCHOBuffer[i] = ExtFastEMABuffer[i] - ExtSlowEMABuffer[i];
+    //--- return value of prev_calculated for next call
+    return (rates_total);
+  }
+
+  static double AD(double high, double low, double close, long volume) {
+    double res = 0.0;
+    //---
+    double sum = (close - low) - (high - close);
+    if (sum != 0.0) {
+      if (high != low) res = (sum / (high - low)) * volume;
+    }
+    //---
+    return (res);
+  }
+
+  static void AverageOnArray(const int mode, const int rates_total, const int prev_calculated, const int begin,
+                             const int period, ValueStorage<double> &source, ValueStorage<double> &destination) {
+    switch (mode) {
+      case MODE_EMA:
+        Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, begin, period, source, destination);
+        break;
+      case MODE_SMMA:
+        Indi_MA::SmoothedMAOnBuffer(rates_total, prev_calculated, begin, period, source, destination);
+        break;
+      case MODE_LWMA:
+        Indi_MA::LinearWeightedMAOnBuffer(rates_total, prev_calculated, begin, period, source, destination);
+        break;
+      default:
+        Indi_MA::SimpleMAOnBuffer(rates_total, prev_calculated, begin, period, source, destination);
+    }
+  }
+
+  /**
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_CHO::iChaikin(GetSymbol(), GetTf(), /*[*/ GetSlowMA(), GetFastMA(), GetSmoothMethod(),
+                                    GetInputVolume() /*]*/, _mode, _shift, THIS_PTR);
+        break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
                          params.GetCustomIndicatorName(), /*[*/ GetFastMA(), GetSlowMA(), GetSmoothMethod(),

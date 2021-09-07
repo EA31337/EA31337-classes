@@ -404,6 +404,174 @@ class Indi_MA : public Indicator {
     return (rates_total);
   }
 
+  static int SimpleMAOnBuffer(const int rates_total, const int prev_calculated, const int begin, const int period,
+                              ValueStorage<double> &price, ValueStorage<double> &buffer) {
+    int i;
+    //--- check period
+    if (period <= 1 || period > (rates_total - begin)) return (0);
+    //--- save as_series flags
+    bool as_series_price = ArrayGetAsSeries(price);
+    bool as_series_buffer = ArrayGetAsSeries(buffer);
+
+    ArraySetAsSeries(price, false);
+    ArraySetAsSeries(buffer, false);
+    //--- calculate start position
+    int start_position;
+
+    if (prev_calculated == 0)  // first calculation or number of bars was changed
+    {
+      //--- set empty value for first bars
+      start_position = period + begin;
+
+      for (i = 0; i < start_position - 1; i++) buffer[i] = 0.0;
+      //--- calculate first visible value
+      double first_value = 0;
+
+      for (i = begin; i < start_position; i++) first_value += price[i].Get();
+
+      buffer[start_position - 1] = first_value / period;
+    } else
+      start_position = prev_calculated - 1;
+    //--- main loop
+    for (i = start_position; i < rates_total; i++) buffer[i] = buffer[i - 1] + (price[i] - price[i - period]) / period;
+    //--- restore as_series flags
+    ArraySetAsSeries(price, as_series_price);
+    ArraySetAsSeries(buffer, as_series_buffer);
+    //---
+    return (rates_total);
+  }
+
+  static int LinearWeightedMAOnBuffer(const int rates_total, const int prev_calculated, const int begin,
+                                      const int period, ValueStorage<double> &price, ValueStorage<double> &buffer) {
+    //--- check period
+    if (period <= 1 || period > (rates_total - begin)) return (0);
+    //--- save as_series flags
+    bool as_series_price = ArrayGetAsSeries(price);
+    bool as_series_buffer = ArrayGetAsSeries(buffer);
+
+    ArraySetAsSeries(price, false);
+    ArraySetAsSeries(buffer, false);
+    //--- calculate start position
+    int i, start_position;
+
+    if (prev_calculated <= period + begin + 2)  // first calculation or number of bars was changed
+    {
+      //--- set empty value for first bars
+      start_position = period + begin;
+
+      for (i = 0; i < start_position; i++) buffer[i] = 0.0;
+    } else
+      start_position = prev_calculated - 2;
+    //--- calculate first visible value
+    double sum = 0.0, lsum = 0.0;
+    int l, weight = 0;
+
+    for (i = start_position - period, l = 1; i < start_position; i++, l++) {
+      sum += price[i] * l;
+      lsum += price[i].Get();
+      weight += l;
+    }
+    buffer[start_position - 1] = sum / weight;
+    //--- main loop
+    for (i = start_position; i < rates_total; i++) {
+      sum = sum - lsum + price[i] * period;
+      lsum = lsum - price[i - period].Get() + price[i].Get();
+      buffer[i] = sum / weight;
+    }
+    //--- restore as_series flags
+    ArraySetAsSeries(price, as_series_price);
+    ArraySetAsSeries(buffer, as_series_buffer);
+    //---
+    return (rates_total);
+  }
+
+  static int LinearWeightedMAOnBuffer(const int rates_total, const int prev_calculated, const int begin,
+                                      const int period, ValueStorage<double> &price, ValueStorage<double> &buffer,
+                                      int &weight_sum) {
+    int i, k;
+
+    //--- check period
+    if (period <= 1 || period > (rates_total - begin)) return (0);
+    //--- save as_series flags
+    bool as_series_price = ArrayGetAsSeries(price);
+    bool as_series_buffer = ArrayGetAsSeries(buffer);
+
+    ArraySetAsSeries(price, false);
+    ArraySetAsSeries(buffer, false);
+    //--- calculate start position
+    int start_position;
+
+    if (prev_calculated == 0)  // first calculation or number of bars was changed
+    {
+      //--- set empty value for first bars
+      start_position = period + begin;
+
+      for (i = 0; i < start_position; i++) buffer[i] = 0.0;
+      //--- calculate first visible value
+      double first_value = 0;
+      int wsum = 0;
+
+      for (i = begin, k = 1; i < start_position; i++, k++) {
+        first_value += k * price[i].Get();
+        wsum += k;
+      }
+
+      buffer[start_position - 1] = first_value / wsum;
+      weight_sum = wsum;
+    } else
+      start_position = prev_calculated - 1;
+    //--- main loop
+    for (i = start_position; i < rates_total; i++) {
+      double sum = 0;
+
+      for (int j = 0; j < period; j++) sum += (period - j) * price[i - j].Get();
+
+      buffer[i] = sum / weight_sum;
+    }
+    //--- restore as_series flags
+    ArraySetAsSeries(price, as_series_price);
+    ArraySetAsSeries(buffer, as_series_buffer);
+    //---
+    return (rates_total);
+  }
+
+  static int SmoothedMAOnBuffer(const int rates_total, const int prev_calculated, const int begin, const int period,
+                                ValueStorage<double> &price, ValueStorage<double> &buffer) {
+    int i;
+    //--- check period
+    if (period <= 1 || period > (rates_total - begin)) return (0);
+    //--- save as_series flags
+    bool as_series_price = ArrayGetAsSeries(price);
+    bool as_series_buffer = ArrayGetAsSeries(buffer);
+
+    ArraySetAsSeries(price, false);
+    ArraySetAsSeries(buffer, false);
+    //--- calculate start position
+    int start_position;
+
+    if (prev_calculated == 0)  // first calculation or number of bars was changed
+    {
+      //--- set empty value for first bars
+      start_position = period + begin;
+
+      for (i = 0; i < start_position - 1; i++) buffer[i] = 0.0;
+      //--- calculate first visible value
+      double first_value = 0;
+
+      for (i = begin; i < start_position; i++) first_value += price[i].Get();
+
+      buffer[start_position - 1] = first_value / period;
+    } else
+      start_position = prev_calculated - 1;
+    //--- main loop
+    for (i = start_position; i < rates_total; i++) buffer[i] = (buffer[i - 1] * (period - 1) + price[i].Get()) / period;
+    //--- restore as_series flags
+    ArraySetAsSeries(price, as_series_price);
+    ArraySetAsSeries(buffer, as_series_buffer);
+    //---
+    return (rates_total);
+  }
+
   /**
    * Calculates Moving Average. The same as in "Example Moving Average" indicator.
    */

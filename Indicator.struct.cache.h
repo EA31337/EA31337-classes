@@ -259,9 +259,4 @@ class IndicatorCalculateCache : public Dynamic {
    * Returns prev_calculated value used by indicator's OnCalculate method.
    */
   int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
-
-  template <typename X>
-  void CallOnCalculate() {
-    // C::Calculate(total, cache.prev_calculated, 0, price, cache.GetBuffer(0), ma_method, period);
-  }
 };
