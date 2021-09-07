@@ -89,9 +89,8 @@
 // Includes.
 #include "Array.mqh"
 #include "IValueStorage.h"
-#include "ValueStorage.accessor.h"
-#include "ValueStorage.price.h"
 #include "Util.h"
+#include "ValueStorage.accessor.h"
 
 /**
  * Value storage settable/gettable via indexation operator.
