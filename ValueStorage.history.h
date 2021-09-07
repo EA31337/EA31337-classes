@@ -30,6 +30,9 @@
 #pragma once
 #endif
 
+// Includes.
+#include "ValueStorage.h"
+
 // Forward declarations.
 template <typename C>
 class ValueStorage;
