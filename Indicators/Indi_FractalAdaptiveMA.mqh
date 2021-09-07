@@ -25,11 +25,11 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct FrAMAParams : IndicatorParams {
+struct FrIndiAMAParams : IndicatorParams {
   unsigned int frama_shift;
   unsigned int period;
   // Struct constructor.
-  void FrAMAParams(int _period = 14, int _frama_shift = 0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void FrIndiAMAParams(int _period = 14, int _frama_shift = 0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     frama_shift = _frama_shift;
     itype = INDI_FRAMA;
     max_modes = 1;
@@ -41,7 +41,7 @@ struct FrAMAParams : IndicatorParams {
     shift = _shift;
     tf = _tf;
   };
-  void FrAMAParams(FrAMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void FrIndiAMAParams(FrIndiAMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
     tf = _tf;
   };
@@ -52,13 +52,14 @@ struct FrAMAParams : IndicatorParams {
  */
 class Indi_FrAMA : public Indicator {
  protected:
-  FrAMAParams params;
+  FrIndiAMAParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_FrAMA(FrAMAParams &_params) : params(_params.period, _params.frama_shift), Indicator((IndicatorParams)_params) {
+  Indi_FrAMA(FrIndiAMAParams &_params)
+      : params(_params.period, _params.frama_shift), Indicator((IndicatorParams)_params) {
     params = _params;
   };
   Indi_FrAMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRAMA, _tf) { params.tf = _tf; };

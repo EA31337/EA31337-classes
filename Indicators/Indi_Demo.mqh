@@ -23,6 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Indicators/Indi_Price.mqh"
 
 /**
  * @file
@@ -32,13 +33,27 @@
 // Structs.
 struct DemoIndiParams : IndicatorParams {
   // Struct constructors.
-  void DemoIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_DEMO;
-    max_modes = 1;
+  void DemoIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+                      ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN) {
+    itype = itype == INDI_NONE ? INDI_DEMO : itype;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
-    shift = _shift;
+    SetMaxModes(1);
+    SetShift(_shift);
     tf = _tf;
+    switch (idstype) {
+      case IDATA_ICUSTOM:
+        if (custom_indi_name == "") {
+          SetCustomIndicatorName("Examples\\Demo");
+        }
+        break;
+      case IDATA_INDICATOR:
+        if (GetDataSource() == NULL) {
+          SetDataSource(Indi_Price::GetCached(_shift, _tf), false);
+          SetDataSourceMode(0);
+        }
+        break;
+    }
   };
   void DemoIndiParams(DemoIndiParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

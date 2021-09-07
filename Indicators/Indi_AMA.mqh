@@ -23,31 +23,47 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Indicators/Indi_Price.mqh"
+#include "../ValueStorage.h"
 
 // Structs.
-struct AMAParams : IndicatorParams {
+struct IndiAMAParams : IndicatorParams {
   unsigned int period;
   unsigned int fast_period;
   unsigned int slow_period;
   unsigned int ama_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void AMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
-                 ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    ama_shift = _ama_shift;
-    applied_price = _applied_price;
-    fast_period = _fast_period;
-    itype = INDI_AMA;
-    max_modes = 1;
+  void IndiAMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
+                     ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+                     ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+      : period(_period),
+        fast_period(_fast_period),
+        slow_period(_slow_period),
+        ama_shift(_ama_shift),
+        applied_price(_ap) {
+    itype = itype == INDI_NONE ? INDI_AMA : itype;
+    SetDataSourceType(_idstype);
     SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_MIXED);
-    SetCustomIndicatorName("Examples\\AMA");
-    period = _period;
-    shift = _shift;
-    slow_period = _slow_period;
+    SetDataValueRange(IDATA_RANGE_PRICE);
+    SetMaxModes(1);
+    SetShift(_shift);
     tf = _tf;
+    switch (idstype) {
+      case IDATA_ICUSTOM:
+        if (custom_indi_name == "") {
+          SetCustomIndicatorName("Examples\\AMA");
+        }
+        break;
+      case IDATA_INDICATOR:
+        if (GetDataSource() == NULL) {
+          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period), false);
+          SetDataSourceMode(0);
+        }
+        break;
+    }
   };
-  void AMAParams(AMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
     tf = _tf;
   };
@@ -58,13 +74,13 @@ struct AMAParams : IndicatorParams {
  */
 class Indi_AMA : public Indicator {
  protected:
-  AMAParams params;
+  IndiAMAParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_AMA(AMAParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) { params = _params; };
+  Indi_AMA(IndiAMAParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) { params = _params; };
   Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AMA, _tf) { params.tf = _tf; };
 
   /**
@@ -208,6 +224,10 @@ class Indi_AMA : public Indicator {
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _shift);
 
+        break;
+      case IDATA_INDICATOR:
+        // @todo
+        SetUserError(ERR_INVALID_PARAMETER);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

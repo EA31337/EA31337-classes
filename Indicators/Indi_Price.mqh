@@ -126,7 +126,7 @@ class Indi_Price : public Indicator {
    * Returns already cached version of Indi_Price for a given parameters.
    */
   static Indi_Price *GetCached(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                               ENUM_APPLIED_PRICE _applied_price = PRICE_MEDIAN, unsigned int _period = 0) {
+                               ENUM_APPLIED_PRICE _applied_price = PRICE_TYPICAL, unsigned int _period = 0) {
     String _cache_key;
     _cache_key.Add((int)_shift);
     _cache_key.Add((int)_tf);
