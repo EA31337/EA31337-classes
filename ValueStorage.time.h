@@ -51,8 +51,7 @@ class TimeValueStorage : public HistoryValueStorage<datetime> {
     TimeValueStorage *_storage;
     string _key = Util::MakeKey(_symbol, (int)_tf);
     if (!ObjectsCache<TimeValueStorage>::TryGet(_key, _storage)) {
-      TimeValueStorage _obj(_symbol, _tf);
-      _storage = ObjectsCache<TimeValueStorage>::Set(_key, _obj);
+      _storage = ObjectsCache<TimeValueStorage>::Set(_key, new TimeValueStorage(_symbol, _tf));
     }
     return _storage;
   }

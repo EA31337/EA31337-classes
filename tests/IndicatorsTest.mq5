@@ -63,6 +63,7 @@ struct DataParamEntry;
 #include "../Indicators/Indi_Drawer.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
 #include "../Indicators/Indi_Force.mqh"
+#include "../Indicators/Indi_FractalAdaptiveMA.mqh"
 #include "../Indicators/Indi_Fractals.mqh"
 #include "../Indicators/Indi_Gator.mqh"
 #include "../Indicators/Indi_HeikenAshi.mqh"
@@ -266,8 +267,8 @@ bool InitIndicators() {
   indis.Push(new Indi_Fractals());
 
   // Fractal Adaptive Moving Average (FRAMA).
-  // @todo
-  // indis.Push(new Indi_Frama(frama_params));
+  FrIndiAMAParams frama_params();
+  indis.Push(new Indi_FrAMA(frama_params));
 
   // Gator Oscillator.
   GatorParams gator_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);

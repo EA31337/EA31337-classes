@@ -30,7 +30,23 @@
 #endif
 
 // Includes.
-#include "DictObject.mqh"
+#include "DictStruct.mqh"
+
+/**
+ * Makes DictStruct object pointers to be deleted at the end.
+ */
+template <typename K, typename V>
+class DictStructDestructable : public DictStruct<K, V*> {
+ public:
+  /**
+   * Destructor.
+   */
+  ~DictStructDestructable() {
+    for (DictStructIterator<K, V*> iter = Begin(); iter.IsValid(); ++iter) {
+      delete iter.Value();
+    }
+  }
+};
 
 /**
  * Stores objects to be reused using a string-based key.
@@ -38,8 +54,8 @@
 template <typename C>
 class ObjectsCache {
   // Dictionary of key => reference to object.
-  static DictObject<string, C>* GetObjects() {
-    static DictObject<string, C> objects;
+  static DictStructDestructable<string, C>* GetObjects() {
+    static DictStructDestructable<string, C> objects;
     return &objects;
   }
 
@@ -61,8 +77,8 @@ class ObjectsCache {
   /**
    * Stores object pointer with a given key.
    */
-  static C* Set(string& key, C& obj) {
-    GetObjects().Set(key, obj);
-    return GetObjects().GetByKey(key);
+  static C* Set(string& key, C* ptr) {
+    GetObjects().Set(key, ptr);
+    return ptr;
   }
 };
