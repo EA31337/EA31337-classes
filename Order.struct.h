@@ -178,6 +178,7 @@ struct OrderParams {
  * The structure for order data.
  */
 struct OrderData {
+ protected:
   unsigned long magic;                   // Magic number.
   unsigned long position_id;             // Position ID.
   unsigned long position_by_id;          // Position By ID.
@@ -241,13 +242,13 @@ struct OrderData {
         volume_curr(0),
         volume_init(0) {}
   // Copy constructor.
-  OrderData(OrderData &_odata) {
-    this = _odata;
-  }
+  OrderData(OrderData &_odata) { this = _odata; }
   // Getters.
   template <typename T>
   T Get(ENUM_ORDER_PROPERTY_CUSTOM _prop_name) {
     switch (_prop_name) {
+      case ORDER_PROP_COMMISSION:
+        return (T)commission;
       case ORDER_PROP_LAST_ERROR:
         return (T)last_error;
       case ORDER_PROP_PRICE_CLOSE:
@@ -262,6 +263,8 @@ struct OrderData {
         return (T)profit;
       case ORDER_PROP_PROFIT_PIPS:
         return (T)(profit * pow(10, SymbolInfoStatic::GetDigits(symbol)));
+      case ORDER_PROP_PROFIT_TOTAL:
+        return (T)total_profit;
       case ORDER_PROP_REASON_CLOSE:
         return (T)reason_close;
       case ORDER_PROP_TICKET:
@@ -272,68 +275,75 @@ struct OrderData {
         return (T)time_last_updated;
       case ORDER_PROP_TIME_OPENED:
         return (T)time_done;
+      case ORDER_PROP_TOTAL_FEES:
+        return (T)total_fees;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
-  double Get(ENUM_ORDER_PROPERTY_DOUBLE _prop_name) {
+  template <typename T>
+  T Get(ENUM_ORDER_PROPERTY_DOUBLE _prop_name) {
+    // See: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
     switch (_prop_name) {
       case ORDER_VOLUME_CURRENT:
-        return volume_curr;
+        return (T)volume_curr;
       case ORDER_VOLUME_INITIAL:
-        return volume_init;
+        return (T)volume_init;
       case ORDER_PRICE_OPEN:
-        return price_open;
+        return (T)price_open;
       case ORDER_SL:
-        return sl;
+        return (T)sl;
       case ORDER_TP:
-        return tp;
+        return (T)tp;
       case ORDER_PRICE_CURRENT:
-        return price_current;
+        return (T)price_current;
       case ORDER_PRICE_STOPLIMIT:
-        return price_stoplimit;
+        return (T)price_stoplimit;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
-  long Get(ENUM_ORDER_PROPERTY_INTEGER _prop_name) {
+  template <typename T>
+  T Get(ENUM_ORDER_PROPERTY_INTEGER _prop_name) {
+    // See: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
     switch (_prop_name) {
       // case ORDER_TIME_SETUP: return time_setup; // @todo
       case ORDER_TYPE:
-        return type;
+        return (T)type;
       case ORDER_STATE:
-        return state;
+        return (T)state;
       case ORDER_TIME_EXPIRATION:
-        return time_expiration;
+        return (T)time_expiration;
       case ORDER_TIME_DONE:
-        return time_done;
+        return (T)time_done;
       case ORDER_TIME_DONE_MSC:
-        return time_done_msc;
+        return (T)time_done_msc;
       case ORDER_TIME_SETUP:
-        return time_setup;
+        return (T)time_setup;
       case ORDER_TIME_SETUP_MSC:
-        return time_setup_msc;
+        return (T)time_setup_msc;
       case ORDER_TYPE_FILLING:
-        return type_filling;
+        return (T)type_filling;
       case ORDER_TYPE_TIME:
-        return type_time;
+        return (T)type_time;
       case ORDER_MAGIC:
-        return (long)magic;
+        return (T)magic;
 #ifndef __MQL4__
       case ORDER_POSITION_ID:
-        return (long)position_id;
+        return (T)position_id;
       case ORDER_POSITION_BY_ID:
-        return (long)position_by_id;
+        return (T)position_by_id;
       case ORDER_REASON:
-        return reason;
+        return (T)reason;
       case ORDER_TICKET:
-        return (long)ticket;
+        return (T)ticket;
 #endif
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
   string Get(ENUM_ORDER_PROPERTY_STRING _prop_name) {
+    // See: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
     switch (_prop_name) {
       case ORDER_COMMENT:
         return comment;
@@ -347,6 +357,13 @@ struct OrderData {
     SetUserError(ERR_INVALID_PARAMETER);
     return "";
   }
+  /*
+  template <typename T>
+  T Get(int _prop_name) {
+    // MQL4 back-compatibility version for non-enum properties.
+    return Get<T>((ENUM_ORDER_PROPERTY_INTEGER)_prop_name);
+  }
+  */
   string GetReasonCloseText() {
     switch (reason_close) {
       case ORDER_REASON_CLOSED_ALL:
@@ -376,6 +393,9 @@ struct OrderData {
   template <typename T>
   void Set(ENUM_ORDER_PROPERTY_CUSTOM _prop_name, T _value) {
     switch (_prop_name) {
+      case ORDER_PROP_COMMISSION:
+        commission = (double)_value;
+        return;
       case ORDER_PROP_LAST_ERROR:
         last_error = (unsigned int)_value;
         return;
@@ -391,6 +411,12 @@ struct OrderData {
       case ORDER_PROP_PRICE_STOPLIMIT:
         price_stoplimit = (double)_value;
         return;
+      case ORDER_PROP_PROFIT:
+        profit = (double)_value;
+        return;
+      case ORDER_PROP_PROFIT_TOTAL:
+        total_profit = (double)_value;
+        return;
       case ORDER_PROP_REASON_CLOSE:
         reason_close = (ENUM_ORDER_REASON_CLOSE)_value;
         return;
@@ -405,6 +431,9 @@ struct OrderData {
         return;
       case ORDER_PROP_TIME_OPENED:
         time_setup = (datetime)_value;
+        return;
+      case ORDER_PROP_TOTAL_FEES:
+        total_fees = (double)_value;
         return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
@@ -501,6 +530,13 @@ struct OrderData {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
+  /*
+  template <typename T>
+  T Set(long _prop_name) {
+    // MQL4 back-compatibility version for non-enum properties.
+    return Set<T>((ENUM_ORDER_PROPERTY_INTEGER)_prop_name);
+  }
+  */
   void ProcessLastError() { last_error = MathMax(last_error, (unsigned int)Terminal::GetLastError()); }
   void ResetError() {
     ResetLastError();

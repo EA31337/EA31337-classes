@@ -70,6 +70,7 @@ enum ENUM_ORDER_PARAM {
  */
 enum ENUM_ORDER_PROPERTY_CUSTOM {
   ORDER_PROP_NONE = 0,
+  ORDER_PROP_COMMISSION,         // Commission.
   ORDER_PROP_LAST_ERROR,         // Last error code.
   ORDER_PROP_PRICE_CLOSE,        // Close price.
   ORDER_PROP_PRICE_CURRENT,      // Current price.
@@ -77,11 +78,13 @@ enum ENUM_ORDER_PROPERTY_CUSTOM {
   ORDER_PROP_PRICE_STOPLIMIT,    // The limit order price for the StopLimit order.
   ORDER_PROP_PROFIT,             // Current profit in price difference.
   ORDER_PROP_PROFIT_PIPS,        // Current profit in pips.
+  ORDER_PROP_PROFIT_TOTAL,       // Total profit (profit minus fees).
   ORDER_PROP_REASON_CLOSE,       // Reason or source for closing an order.
   ORDER_PROP_TICKET,             // Ticket number.
   ORDER_PROP_TIME_CLOSED,        // Closed time.
   ORDER_PROP_TIME_OPENED,        // Opened time.
   ORDER_PROP_TIME_LAST_UPDATED,  // Last update of order values.
+  ORDER_PROP_TOTAL_FEES,         // Total fees.
 };
 
 // Defines enumeration for order close reasons.

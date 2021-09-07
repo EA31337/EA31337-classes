@@ -305,15 +305,16 @@ class Trade {
     bool _result = false;
     Ref<Order> _order = order_last;
 
-    if (_order.IsSet() && _order.Ptr().Get(ORDER_TYPE) == _cmd &&
-        _order.Ptr().Get(ORDER_TIME_SETUP) > GetChart().GetBarTime()) {
+    if (_order.IsSet() && _order.Ptr().Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd &&
+        _order.Ptr().Get<long>(ORDER_TIME_SETUP) > GetChart().GetBarTime()) {
       _result = true;
     }
 
     if (!_result) {
       for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
         _order = iter.Value();
-        if (_order.Ptr().Get(ORDER_TYPE) == _cmd && _order.Ptr().Get(ORDER_TIME_SETUP) > GetChart().GetBarTime()) {
+        if (_order.Ptr().Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd &&
+            _order.Ptr().Get<long>(ORDER_TIME_SETUP) > GetChart().GetBarTime()) {
           _result = true;
           break;
         }
@@ -332,14 +333,13 @@ class Trade {
     double _price_curr = GetChart().GetOpenOffer(_cmd);
 
     if (_order.IsSet() && _order.Ptr().IsOpen()) {
-      _odata = _order.Ptr().GetData();
-      if (_odata.type == _cmd) {
+      if (_odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd) {
         switch (_cmd) {
           case ORDER_TYPE_BUY:
-            _result |= _odata.price_open <= _price_curr;
+            _result |= _odata.Get<float>(ORDER_PRICE_OPEN) <= _price_curr;
             break;
           case ORDER_TYPE_SELL:
-            _result |= _odata.price_open >= _price_curr;
+            _result |= _odata.Get<float>(ORDER_PRICE_OPEN) >= _price_curr;
             break;
         }
       }
@@ -349,14 +349,13 @@ class Trade {
       for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
         _order = iter.Value();
         if (_order.IsSet() && _order.Ptr().IsOpen()) {
-          _odata = _order.Ptr().GetData();
-          if (_odata.type == _cmd) {
+          if (_odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd) {
             switch (_cmd) {
               case ORDER_TYPE_BUY:
-                _result |= _odata.price_open <= _price_curr;
+                _result |= _odata.Get<float>(ORDER_PRICE_OPEN) <= _price_curr;
                 break;
               case ORDER_TYPE_SELL:
-                _result |= _odata.price_open >= _price_curr;
+                _result |= _odata.Get<float>(ORDER_PRICE_OPEN) >= _price_curr;
                 break;
             }
           }
@@ -376,18 +375,16 @@ class Trade {
     double _price_curr = GetChart().GetOpenOffer(_cmd);
 
     if (_order.IsSet()) {
-      _odata = _order.Ptr().GetData();
-      _result = _odata.type != _cmd;
+      _result = _odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) != _cmd;
     }
 
     if (!_result) {
       for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
         _order = iter.Value();
         if (_order.IsSet()) {
-          _odata = _order.Ptr().GetData();
-          _result = _odata.type != _cmd;
+          _result = _odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) != _cmd;
           if (_result) {
-            _result = _odata.type != _cmd;
+            _result = _odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) != _cmd;
             break;
           }
         }
@@ -589,7 +586,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool OrderAdd(Order *_order) {
     bool _result = false;
-    unsigned int _last_error = _order.GetData().last_error;
+    unsigned int _last_error = _order.Get<unsigned int>(ORDER_PROP_LAST_ERROR);
     logger.Link(_order.GetLogger());
     Ref<Order> _ref_order = _order;
     switch (_last_error) {
@@ -599,7 +596,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         // Pass-through.
       case ERR_NO_ERROR:
-        orders_active.Set(_order.GetTicket(), _ref_order);
+        orders_active.Set(_order.Get<ulong>(ORDER_PROP_TICKET), _ref_order);
         order_last = _order;
         tstates.AddState(TRADE_STATE_ORDERS_ACTIVE);
         tstats.Add(TRADE_STAT_ORDERS_OPENED);
@@ -625,9 +622,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Moves active order to history.
    */
   bool OrderMoveToHistory(Order *_order) {
-    orders_active.Unset(_order.GetTicket());
+    orders_active.Unset(_order.Get<ulong>(ORDER_PROP_TICKET));
     Ref<Order> _ref_order = _order;
-    bool result = orders_history.Set(_order.GetTicket(), _ref_order);
+    bool result = orders_history.Set(_order.Get<ulong>(ORDER_PROP_TICKET), _ref_order);
     /* @todo
     if (strategy != NULL) {
       strategy.OnOrderClose(_order);
@@ -750,7 +747,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (!_order.Ptr().OrderClose(_reason, _comment)) {
-          logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
+          logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
           return -1;
         }
         order_last = _order;
@@ -779,7 +776,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         if (_order.Ptr().GetRequest().type == _cmd) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
             logger.Error("Error while closing order!", __FUNCTION_LINE__,
-                         StringFormat("Code: %d", _order.Ptr().GetData().last_error));
+                         StringFormat("Code: %d", _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR)));
             return -1;
           }
           order_last = _order;
@@ -812,7 +809,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       if (_order.Ptr().IsOpen()) {
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop), _value, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
-            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
+            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
             return -1;
           }
           order_last = _order;
@@ -843,10 +840,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
-        if (Math::Compare(_order.Ptr().Get((E)_prop1), _value1, _op) &&
-            Math::Compare(_order.Ptr().Get((E)_prop2), _value2, _op)) {
+        if (Math::Compare(_order.Ptr().Get<T>((E)_prop1), _value1, _op) &&
+            Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
-            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
+            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR));
             return -1;
           }
           order_last = _order;
@@ -1570,7 +1567,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   virtual void OnOrderOpen(const Order &_order) {
     if (logger.GetLevel() >= V_INFO) {
-      // logger.Info(_order.ToString(), (string)_order.GetTicket()); // @fixme
+      // logger.Info(_order.ToString(), (string)_order.Get<ulong>(ORDER_TICKET)); // @fixme
       ResetLastError();  // @fixme: Error 69539
     }
   }
