@@ -67,6 +67,26 @@ class PriceValueStorage : public HistoryValueStorage<double> {
   virtual double Fetch(int _shift) {
     switch (ap) {
       case PRICE_OPEN:
+      case PRICE_HIGH:
+      case PRICE_LOW:
+      case PRICE_CLOSE:
+        return Fetch(ap, _shift);
+      case PRICE_MEDIAN:
+        return (Fetch(PRICE_HIGH, _shift) + Fetch(PRICE_LOW, _shift)) / 2;
+      case PRICE_TYPICAL:
+        return (Fetch(PRICE_HIGH, _shift) + Fetch(PRICE_LOW, _shift) + Fetch(PRICE_CLOSE, _shift)) / 3;
+      case PRICE_WEIGHTED:
+        return (Fetch(PRICE_HIGH, _shift) + Fetch(PRICE_LOW, _shift) + (2 * Fetch(PRICE_CLOSE, _shift))) / 4;
+      default:
+        Print("We shouldn't be here!");
+        DebugBreak();
+    }
+    return 0.0;
+  }
+
+  double Fetch(ENUM_APPLIED_PRICE _ap, int _shift) {
+    switch (_ap) {
+      case PRICE_OPEN:
         return iOpen(symbol, tf, RealShift(_shift));
       case PRICE_HIGH:
         return iHigh(symbol, tf, RealShift(_shift));
@@ -74,10 +94,7 @@ class PriceValueStorage : public HistoryValueStorage<double> {
         return iLow(symbol, tf, RealShift(_shift));
       case PRICE_CLOSE:
         return iClose(symbol, tf, RealShift(_shift));
-      default:
-        Print("We shouldn't be here!");
-        DebugBreak();
     }
-    return 0.0;
+    return 0;
   }
 };
