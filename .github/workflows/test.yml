@@ -55,7 +55,9 @@ jobs:
         test:
           - AccountTest
           - ActionTest
+          - BufferStructTest
           - BufferTest
+          - ChartTest
           - ConditionTest
           - DatabaseTest
           - DrawIndicatorTest
@@ -71,6 +73,7 @@ jobs:
           - StatsTest
           - StrategyTest
           - StrategyTest-RSI
+          - SymbolInfoTest
           - SummaryReportTest
           - TaskTest
           - TickerTest
