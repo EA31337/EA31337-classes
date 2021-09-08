@@ -147,9 +147,9 @@ class SymbolInfoStatic {
    * A change of 1 in the least significant digit of the price.
    * You may also use Point predefined variable for the current symbol.
    */
-  static float GetPointSize(string _symbol) {
+  static double GetPointSize(string _symbol) {
     // Same as: MarketInfo(symbol, MODE_POINT);
-    return (float)SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_POINT);
+    return SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_POINT);
   }
 
   /**
@@ -157,7 +157,7 @@ class SymbolInfoStatic {
    *
    * In most cases, a pip is equal to 1/100 (.01%) of the quote currency.
    */
-  static float GetPipSize(string _symbol) {
+  static double GetPipSize(string _symbol) {
     // @todo: This code may fail at Gold and Silver (https://www.mql5.com/en/forum/135345#515262).
     return GetPointSize(_symbol) * (GetDigits(_symbol) % 2 == 0 ? 1 : 10);
   }

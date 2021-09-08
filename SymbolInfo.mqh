@@ -237,7 +237,7 @@ class SymbolInfo : public Object {
    *
    * In most cases, a pip is equal to 1/100 (.01%) of the quote currency.
    */
-  float GetPipSize() { return (float)SymbolInfoStatic::GetPipSize(symbol); }
+  double GetPipSize() { return SymbolInfoStatic::GetPipSize(symbol); }
 
   /**
    * Get current spread in points.
