@@ -45,11 +45,14 @@ bool Test01() {
       ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
   Ref<Order> _order_profit_worst = _oquery.FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
       ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT));
+  Ref<Order> _order_profit_0 = _oquery.FindByValueViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
+      ORDER_PROP_PROFIT, 1, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_EQ));
   assertTrueOrReturnFalse(_order_profit_best.Ptr().Get<float>(ORDER_PROP_PROFIT) == 10,
                           "Best order by profit not correct!");
   assertTrueOrReturnFalse(_order_profit_worst.Ptr().Get<float>(ORDER_PROP_PROFIT) == -10,
                           "Worse order by profit not correct!");
   assertTrueOrReturnFalse(_order_profit_best.Ptr() == _order_profit_best2.Ptr(), "Best orders not the same!");
+  assertTrueOrReturnFalse(_order_profit_0.Ptr().Get<float>(ORDER_PROP_PROFIT) == 1, "Order with profit 1 not found!");
   //_order_profit_best.ToString(); // @todo
   //_order_profit_worst.ToString(); // @todo
   return _result;

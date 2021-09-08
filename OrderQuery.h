@@ -74,6 +74,29 @@ class OrderQuery {
   }
 
   /**
+   * Find first order by given value using a comparison operator.
+   *
+   * @return
+   *   Returns structure with reference to Order instance which has been found.
+   *   On error, returns Ref<Order> pointing to NULL.
+   */
+  template <typename E, typename T>
+  Ref<Order> FindByValueViaOp(E _prop, T _value, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP) _op) {
+    Ref<Order> _order_ref_found;
+    if (orders.Size() == 0) {
+      return _order_ref_found;
+    }
+    for (DictStructIterator<long, Ref<Order>> iter = orders.Begin(); iter.IsValid(); ++iter) {
+      Ref<Order> _order_ref = iter.Value();
+      if (Compare(_order_ref.Ptr().Get<T>(_prop), _op, _value)) {
+        _order_ref_found = _order_ref;
+        break;
+      }
+    }
+    return _order_ref_found;
+  }
+
+  /**
    * Perform a comparison operation on two values.
    *
    * @return
