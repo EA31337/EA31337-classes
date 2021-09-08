@@ -35,31 +35,23 @@
 int OnInit() {
   // Test IndexToTf().
   PrintFormat("Index to timeframe: %d=>%d, %d=>%d, %d=>%d, %d=>%d, %d=>%d, %d=>%d, %d=>%d, %d=>%d, %d=>%d", M1,
-              ChartTf::IndexToTf(M1), M5,
-              ChartTf::IndexToTf(M5), M15,
-              ChartTf::IndexToTf(M15), M30,
-              ChartTf::IndexToTf(M30), H1,
-              ChartTf::IndexToTf(H1), H4,
-              ChartTf::IndexToTf(H4), D1,
-              ChartTf::IndexToTf(D1), W1,
-              ChartTf::IndexToTf(W1), MN1,
-              ChartTf::IndexToTf(MN1));
+              ChartTf::IndexToTf(M1), M5, ChartTf::IndexToTf(M5), M15, ChartTf::IndexToTf(M15), M30,
+              ChartTf::IndexToTf(M30), H1, ChartTf::IndexToTf(H1), H4, ChartTf::IndexToTf(H4), D1,
+              ChartTf::IndexToTf(D1), W1, ChartTf::IndexToTf(W1), MN1, ChartTf::IndexToTf(MN1));
   assertTrueOrFail(ChartTf::IndexToTf(0) == PERIOD_M1, "Invalid period for M1 index");
-  assertTrueOrFail(ChartTf::IndexToTf(1) == PERIOD_M5, "Invalid period for M5 index");
+  assertTrueOrFail(ChartTf::IndexToTf(1) == PERIOD_M2, "Invalid period for M2 index");
+  assertTrueOrFail(ChartTf::IndexToTf(4) == PERIOD_M5, "Invalid period for M5 index");
 
   // Test TfToIndex().
   PrintFormat("Chart to index: %d=>%d, %d=>%d, %d=>%d, %d=>%d, %d=>%d, %d=>%d, %d=>%d, %d=>%d, %d=>%d", PERIOD_M1,
-              ChartTf::TfToIndex(PERIOD_M1), PERIOD_M5,
-              ChartTf::TfToIndex(PERIOD_M5), PERIOD_M15,
-              ChartTf::TfToIndex(PERIOD_M15), PERIOD_M30,
-              ChartTf::TfToIndex(PERIOD_M30), PERIOD_H1,
-              ChartTf::TfToIndex(PERIOD_H1), PERIOD_H4,
-              ChartTf::TfToIndex(PERIOD_H4), PERIOD_D1,
-              ChartTf::TfToIndex(PERIOD_D1), PERIOD_W1,
-              ChartTf::TfToIndex(PERIOD_W1), PERIOD_MN1,
+              ChartTf::TfToIndex(PERIOD_M1), PERIOD_M5, ChartTf::TfToIndex(PERIOD_M5), PERIOD_M15,
+              ChartTf::TfToIndex(PERIOD_M15), PERIOD_M30, ChartTf::TfToIndex(PERIOD_M30), PERIOD_H1,
+              ChartTf::TfToIndex(PERIOD_H1), PERIOD_H4, ChartTf::TfToIndex(PERIOD_H4), PERIOD_D1,
+              ChartTf::TfToIndex(PERIOD_D1), PERIOD_W1, ChartTf::TfToIndex(PERIOD_W1), PERIOD_MN1,
               ChartTf::TfToIndex(PERIOD_MN1));
   assertTrueOrFail(ChartTf::TfToIndex(PERIOD_M1) == 0, "Invalid index for M1 period");
-  assertTrueOrFail(ChartTf::TfToIndex(PERIOD_M5) == 1, "Invalid index for M5 period");
+  assertTrueOrFail(ChartTf::TfToIndex(PERIOD_M2) == 1, "Invalid index for M5 period");
+  assertTrueOrFail(ChartTf::TfToIndex(PERIOD_M5) == 4, "Invalid index for M5 period");
 
   return (INIT_SUCCEEDED);
 }
