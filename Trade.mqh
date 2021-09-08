@@ -1660,9 +1660,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
       case TRADE_ACTION_ORDER_CLOSE_LEAST_LOSS:
         // @todo
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
+          RefreshActiveOrders(true);
+        }
         break;
       case TRADE_ACTION_ORDER_CLOSE_LEAST_PROFIT:
         // @todo
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
+          RefreshActiveOrders(true);
+        }
         break;
       case TRADE_ACTION_ORDER_CLOSE_MOST_LOSS:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
@@ -1687,17 +1693,37 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_ORDER_OPEN:
         return RequestSend(GetTradeRequest((ENUM_ORDER_TYPE)_args[0].integer_value));
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
-        return OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          RefreshActiveOrders();
+        }
+        break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_PROFIT:
-        return OrdersCloseViaProp<ENUM_ORDER_PROPERTY_CUSTOM, int>(ORDER_PROP_PROFIT_PIPS,
-                                                                   (int)chart.Ptr().GetSpreadInPips(), MATH_COND_GT,
-                                                                   ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= OrdersCloseViaProp<ENUM_ORDER_PROPERTY_CUSTOM, int>(
+                         ORDER_PROP_PROFIT_PIPS, (int)chart.Ptr().GetSpreadInPips(), MATH_COND_GT,
+                         ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          RefreshActiveOrders();
+        }
+        break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
-        return OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          RefreshActiveOrders();
+        }
+        break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
-        return OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          RefreshActiveOrders();
+        }
+        break;
       case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
-        return OrdersCloseViaCmd((ENUM_ORDER_TYPE)_args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= OrdersCloseViaCmd((ENUM_ORDER_TYPE)_args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          RefreshActiveOrders();
+        }
+        break;
       case TRADE_ACTION_ORDERS_LIMIT_SET:
         // Sets the new limits.
         tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value,
