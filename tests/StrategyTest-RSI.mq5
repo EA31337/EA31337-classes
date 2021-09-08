@@ -41,8 +41,8 @@ class Stg_RSI : public Strategy {
     RSIParams _indi_params(12, PRICE_OPEN, 0);
     StgParams _stg_params;
     TradeParams _tparams;
-    _stg_params.SetIndicator(new Indi_RSI(_indi_params));
     Strategy *_strat = new Stg_RSI(_stg_params, _tparams, _cparams, "RSI");
+    _strat.SetIndicator(new Indi_RSI(_indi_params));
     return _strat;
   }
 
