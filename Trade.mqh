@@ -1674,7 +1674,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_ORDER_CLOSE_MOST_LOSS:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
           _result &= OrderQuery::GetInstance(orders_active)
-                         .FindByOpViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
+                         .FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
                                                                              STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT))
                          .Ptr()
                          .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
@@ -1684,7 +1684,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
           _result &= OrderQuery::GetInstance(orders_active)
-                         .FindByOpViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
+                         .FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
                                                                              STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT))
                          .Ptr()
                          .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);

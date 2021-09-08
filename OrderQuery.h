@@ -36,6 +36,7 @@ class OrderQuery {
   DictStruct<long, Ref<Order>> orders;
 
  public:
+  // Enumeration of comparison operators.
   enum ORDER_QUERY_OP {
     ORDER_QUERY_OP_NA = 0,  // (None)
     ORDER_QUERY_OP_EQ,      // Values are equal
@@ -50,14 +51,14 @@ class OrderQuery {
   OrderQuery(const DictStruct<long, Ref<Order>> &_orders) : orders(_orders) {}
 
   /**
-   * Find order at its peak property's value.
+   * Find order by comparing property's value given the comparison operator.
    *
    * @return
-   *   Returns reference structure to Order instance which has been selected.
+   *   Returns structure with reference to Order instance which has been found.
    *   On error, returns Ref<Order> pointing to NULL.
    */
   template <typename E, typename T>
-  Ref<Order> FindByOpViaProp(E _prop, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP) _op) {
+  Ref<Order> FindByPropViaOp(E _prop, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP) _op) {
     Ref<Order> _order_ref_found;
     if (orders.Size() == 0) {
       return _order_ref_found;
