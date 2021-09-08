@@ -644,6 +644,23 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   }
 
   /**
+   * Refresh active orders.
+   */
+  bool RefreshActiveOrders(bool _first = false) {
+    bool _result = true;
+    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      Ref<Order> _order = iter.Value();
+      if (_order.IsSet() && _order.Ptr().IsClosed()) {
+        _result &= OrderMoveToHistory(_order.Ptr());
+        if (_first) {
+          break;
+        }
+      }
+    }
+    return _result;
+  }
+
+  /**
    * Sends a trade request.
    */
   bool RequestSend(MqlTradeRequest &_request, OrderParams &_oparams) {
@@ -1636,6 +1653,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true when the condition is met.
    */
   bool ExecuteAction(ENUM_TRADE_ACTION _action, DataParamEntry &_args[]) {
+    bool _result = true;
     switch (_action) {
       case TRADE_ACTION_CALC_LOT_SIZE:
         tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
@@ -1648,20 +1666,22 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       case TRADE_ACTION_ORDER_CLOSE_MOST_LOSS:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          OrderQuery::GetInstance(orders_active)
-              .FindByOpViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
-                                                                  STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT))
-              .Ptr()
-              .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
+          _result &= OrderQuery::GetInstance(orders_active)
+                         .FindByOpViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
+                                                                             STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT))
+                         .Ptr()
+                         .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          OrderQuery::GetInstance(orders_active)
-              .FindByOpViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
-                                                                  STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT))
-              .Ptr()
-              .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
+          _result &= OrderQuery::GetInstance(orders_active)
+                         .FindByOpViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
+                                                                             STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT))
+                         .Ptr()
+                         .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDER_OPEN:
@@ -1687,12 +1707,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                                  (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value) == _args[2].integer_value;
       case TRADE_ACTION_STATE_ADD:
         tstates.AddState((unsigned int)_args[0].integer_value);
-        return GetLastError() == ERR_NO_ERROR;
       default:
         logger.Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        _result = false;
         break;
     }
-    return false;
+    return _result && GetLastError() == ERR_NO_ERROR;
   }
   bool ExecuteAction(ENUM_TRADE_ACTION _action) {
     DataParamEntry _args[];
