@@ -126,6 +126,11 @@ class ValueStorage : public IValueStorage {
   }
 
   /**
+   * Fetches value from the end of the array (assumes as-series storage).
+   */
+  virtual C FetchSeries(int _shift) { return Fetch(ArraySize(THIS_REF) - _shift - 1); }
+
+  /**
    * Stores value at a given shift. Takes into consideration as-series flag.
    */
   virtual void Store(int _shift, C _value) {
@@ -188,4 +193,68 @@ int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _s
 
   return _num_copied;
 }
+
+double iPrice(int _shift, ValueStorage<double> &_open, ValueStorage<double> &_high, ValueStorage<double> &_low,
+              ValueStorage<double> &_close, ENUM_APPLIED_PRICE _ap) {
+  switch (_ap) {
+    case PRICE_OPEN:
+      return _open.FetchSeries(_shift);
+    case PRICE_HIGH:
+      return _high.FetchSeries(_shift);
+    case PRICE_LOW:
+      return _low.FetchSeries(_shift);
+    case PRICE_CLOSE:
+      return _close.FetchSeries(_shift);
+  }
+  Alert("Wrong applied price for ValueStorage-based iPrice()!");
+  DebugBreak();
+  return 0;
+}
+
+/**
+ * iHigest() version working on ValueStorage.
+ */
+int iHighest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
+  if (_count == WHOLE_ARRAY) {
+    _count = ArraySize(_price);
+  }
+
+  int _peak_idx = _start;
+  double _peak_val = _price.FetchSeries(_start);
+
+  for (int i = _start; i < _count; ++i) {
+    double _value = _price.FetchSeries(i);
+
+    if (_value > _peak_val) {
+      _peak_val = _value;
+      _peak_idx = i;
+    }
+  }
+
+  return _peak_idx;
+}
+
+/**
+ * iLowest() version working on ValueStorage.
+ */
+int iLowest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
+  if (_count == WHOLE_ARRAY) {
+    _count = ArraySize(_price);
+  }
+
+  int _peak_idx = _start;
+  double _peak_val = _price.FetchSeries(_start);
+
+  for (int i = _start; i < _count; ++i) {
+    double _value = _price.FetchSeries(i);
+
+    if (_value < _peak_val) {
+      _peak_val = _value;
+      _peak_idx = i;
+    }
+  }
+
+  return _peak_idx;
+}
+
 #endif  // STRATEGY_MQH

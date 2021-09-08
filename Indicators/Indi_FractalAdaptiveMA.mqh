@@ -72,21 +72,22 @@ class Indi_FrAMA : public Indicator {
    */
   static double iFrAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                        int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
-#ifdef __MQL5__
+#ifdef __MQL5___
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
 #else
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
-                                                        Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
-    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _ma_shift, _mode, _shift, _cache);
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf,
+                                                       Util::MakeKey("Indi_FrAMA", _ma_period, _ma_shift, (int)_ap));
+    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _mode, _shift, _ap, _cache);
 #endif
   }
 
   /**
    * Calculates FrAMA on the array of values.
    */
-  static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ma_period, int _ma_shift, int _mode, int _shift,
-                              IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_price);
+  static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _ma_period, int _ma_shift, int _mode, int _shift,
+                              ENUM_APPLIED_PRICE _ap, IndicatorCalculateCache<double> *_cache,
+                              bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {
       _cache.AddBuffer<NativeValueStorage<double>>(1);
@@ -96,42 +97,48 @@ class Indi_FrAMA : public Indicator {
       _cache.SetPrevCalculated(0);
     }
 
-    _cache.SetPrevCalculated(Indi_FrAMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
-                                                   _ma_period, _ma_shift));
+    _cache.SetPrevCalculated(Indi_FrAMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
+                                                   _ma_period, _ma_shift, _ap));
 
     return _cache.GetTailValue<double>(_mode, _shift);
   }
 
-  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &FrAmaBuffer, int InpPeriodFrAMA,
-                       int InpShift) {
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &FrAmaBuffer, int InpPeriodFrAMA,
+                       int InpShift, ENUM_APPLIED_PRICE InpAppliedPrice) {
     if (rates_total < 2 * InpPeriodFrAMA) return (0);
+
+    int _buffer_size = ArraySize(FrAmaBuffer);
 
     int start, i;
     //--- start calculations
     if (prev_calculated == 0) {
       start = 2 * InpPeriodFrAMA - 1;
-      for (i = 0; i <= start; i++) FrAmaBuffer[i] = price[i];
+      for (i = 0; i <= start; i++) FrAmaBuffer[i] = iPrice(i, open, high, low, close, InpAppliedPrice);
     } else
       start = prev_calculated - 1;
+
+    _buffer_size = ArraySize(FrAmaBuffer);
+
     //--- main cycle
     double math_log_2 = MathLog(2.0);
     for (i = start; i < rates_total && !IsStopped(); i++) {
-      double hi1 = iHigh(_Symbol, _Period, iHighest(_Symbol, _Period, MODE_HIGH, InpPeriodFrAMA, rates_total - i - 1));
-      double lo1 = iLow(_Symbol, _Period, iLowest(_Symbol, _Period, MODE_LOW, InpPeriodFrAMA, rates_total - i - 1));
-      double hi2 = iHigh(_Symbol, _Period,
-                         iHighest(_Symbol, _Period, MODE_HIGH, InpPeriodFrAMA, rates_total - i + InpPeriodFrAMA - 1));
-      double lo2 = iLow(_Symbol, _Period,
-                        iLowest(_Symbol, _Period, MODE_LOW, InpPeriodFrAMA, rates_total - i + InpPeriodFrAMA - 1));
-      double hi3 =
-          iHigh(_Symbol, _Period, iHighest(_Symbol, _Period, MODE_HIGH, 2 * InpPeriodFrAMA, rates_total - i - 1));
-      double lo3 = iLow(_Symbol, _Period, iLowest(_Symbol, _Period, MODE_LOW, 2 * InpPeriodFrAMA, rates_total - i - 1));
+      double hi1 = high[iHighest(high, InpPeriodFrAMA, rates_total - i - 1)].Get();
+      double lo1 = low[iLowest(low, InpPeriodFrAMA, rates_total - i - 1)].Get();
+      double hi2 = high[iHighest(high, InpPeriodFrAMA, rates_total - i + InpPeriodFrAMA - 1)].Get();
+      double lo2 = low[iLowest(low, InpPeriodFrAMA, rates_total - i + InpPeriodFrAMA - 1)].Get();
+      double hi3 = high[iHighest(high, 2 * InpPeriodFrAMA, rates_total - i - 1)].Get();
+      double lo3 = low[iLowest(low, 2 * InpPeriodFrAMA, rates_total - i - 1)].Get();
       double n1 = (hi1 - lo1) / InpPeriodFrAMA;
       double n2 = (hi2 - lo2) / InpPeriodFrAMA;
       double n3 = (hi3 - lo3) / (2 * InpPeriodFrAMA);
       double d = (MathLog(n1 + n2) - MathLog(n3)) / math_log_2;
       double alfa = MathExp(-4.6 * (d - 1.0));
       //---
-      FrAmaBuffer[i] = alfa * price[i].Get() + (1 - alfa) * FrAmaBuffer[i - 1].Get();
+      double _iprice = iPrice(i, open, high, low, close, InpAppliedPrice);
+
+      FrAmaBuffer[i] = alfa * _iprice + (1 - alfa) * FrAmaBuffer[i - 1].Get();
+
+      Print(FrAmaBuffer[i - 1].Get(), " -> ", FrAmaBuffer[i].Get(), " (alfa ", alfa, ") (price ", _iprice, ")");
     }
     //--- OnCalculate done. Return new prev_calculated.
     return (rates_total);
