@@ -57,7 +57,7 @@ class OrderQuery {
    *   On error, returns Ref<Order> pointing to NULL.
    */
   template <typename E, typename T>
-  Ref<Order> FindPeakViaProp(E _prop, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP) _op) {
+  Ref<Order> FindByOpViaProp(E _prop, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP) _op) {
     Ref<Order> _order_ref_found;
     if (orders.Size() == 0) {
       return _order_ref_found;

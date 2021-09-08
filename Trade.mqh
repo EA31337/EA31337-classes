@@ -39,7 +39,7 @@ class Trade;
 #include "Math.h"
 #include "Object.mqh"
 #include "Order.mqh"
-//#include "Strategy.mqh"
+#include "OrderQuery.h"
 #include "Trade.enum.h"
 #include "Trade.struct.h"
 
@@ -1640,6 +1640,30 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_CALC_LOT_SIZE:
         tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
         return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
+      case TRADE_ACTION_ORDER_CLOSE_LEAST_LOSS:
+        // @todo
+        break;
+      case TRADE_ACTION_ORDER_CLOSE_LEAST_PROFIT:
+        // @todo
+        break;
+      case TRADE_ACTION_ORDER_CLOSE_MOST_LOSS:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
+          OrderQuery::GetInstance(orders_active)
+              .FindByOpViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
+                                                                  STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT))
+              .Ptr()
+              .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
+        }
+        break;
+      case TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
+          OrderQuery::GetInstance(orders_active)
+              .FindByOpViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
+                                                                  STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT))
+              .Ptr()
+              .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
+        }
+        break;
       case TRADE_ACTION_ORDER_OPEN:
         return RequestSend(GetTradeRequest((ENUM_ORDER_TYPE)_args[0].integer_value));
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
@@ -1666,8 +1690,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         return GetLastError() == ERR_NO_ERROR;
       default:
         logger.Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
-        return false;
+        break;
     }
+    return false;
   }
   bool ExecuteAction(ENUM_TRADE_ACTION _action) {
     DataParamEntry _args[];
