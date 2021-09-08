@@ -37,15 +37,19 @@ bool Test01() {
     Ref<Order> _order = new Order(_odata);
     orders.Push(_order);
   }
-  OrderQuery _query(orders);
-  Ref<Order> _order_profit_best =
-      _query.FindPeakViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
-  Ref<Order> _order_profit_worst =
-      _query.FindPeakViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT));
+  OrderQuery _oquery(orders);
+  OrderQuery _oquery2 = OrderQuery::GetInstance(orders);
+  Ref<Order> _order_profit_best = _oquery.FindPeakViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
+      ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
+  Ref<Order> _order_profit_worst = _oquery.FindPeakViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
+      ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT));
+  Ref<Order> _order_profit_best2 = _oquery2.FindPeakViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
+      ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
   assertTrueOrReturnFalse(_order_profit_best.Ptr().Get<float>(ORDER_PROP_PROFIT) == 9,
                           "Best order by profit not correct!");
   assertTrueOrReturnFalse(_order_profit_worst.Ptr().Get<float>(ORDER_PROP_PROFIT) == 0,
                           "Worse order by profit not correct!");
+  assertTrueOrReturnFalse(_order_profit_best.Ptr() == _order_profit_best2.Ptr(), "Best orders not the same!");
   //_order_profit_best.ToString(); // @todo
   //_order_profit_worst.ToString(); // @todo
   return _result;

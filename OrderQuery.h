@@ -98,4 +98,12 @@ class OrderQuery {
     }
     return false;
   }
+
+  /**
+   * Returns reference to new instance of OrderQuery class.
+   *
+   * @return
+   *   Returns a pointer to the new instance.
+   */
+  static OrderQuery *GetInstance(const DictStruct<long, Ref<Order>> &_orders) { return new OrderQuery(_orders); }
 };
