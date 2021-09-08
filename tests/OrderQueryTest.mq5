@@ -30,29 +30,47 @@
 
 bool Test01() {
   bool _result = true;
+  // Initialize orders.
   DictStruct<long, Ref<Order>> orders;
+  // Populate orders.
   for (int i = -10; i <= 10; i++) {
     OrderData _odata;
     _odata.Set<float>(ORDER_PROP_PROFIT, (float)i);
     Ref<Order> _order = new Order(_odata);
     orders.Push(_order);
   }
+  // Initialize OrderQuery instances.
   OrderQuery _oquery(orders);
   OrderQuery _oquery2 = OrderQuery::GetInstance(orders);
+
+  // Find an order with the most profit.
   Ref<Order> _order_profit_best = _oquery.FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
       ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
-  Ref<Order> _order_profit_best2 = _oquery2.FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
-      ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
-  Ref<Order> _order_profit_worst = _oquery.FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
-      ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT));
-  Ref<Order> _order_profit_0 = _oquery.FindByValueViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
-      ORDER_PROP_PROFIT, 1, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_EQ));
   assertTrueOrReturnFalse(_order_profit_best.Ptr().Get<float>(ORDER_PROP_PROFIT) == 10,
                           "Best order by profit not correct!");
+
+  // Find an order with the worst profit.
+  Ref<Order> _order_profit_worst = _oquery.FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
+      ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT));
   assertTrueOrReturnFalse(_order_profit_worst.Ptr().Get<float>(ORDER_PROP_PROFIT) == -10,
                           "Worse order by profit not correct!");
+
+  // Find an order with the most profit using another instance.
+  Ref<Order> _order_profit_best2 = _oquery2.FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
+      ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
   assertTrueOrReturnFalse(_order_profit_best.Ptr() == _order_profit_best2.Ptr(), "Best orders not the same!");
-  assertTrueOrReturnFalse(_order_profit_0.Ptr().Get<float>(ORDER_PROP_PROFIT) == 1, "Order with profit 1 not found!");
+
+  // Find profit with profit 1.
+  Ref<Order> _order_profit_1 = _oquery.FindByValueViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
+      ORDER_PROP_PROFIT, 1, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_EQ));
+  assertTrueOrReturnFalse(_order_profit_1.Ptr().Get<float>(ORDER_PROP_PROFIT) == 1, "Order with profit 1 not found!");
+
+  // Find order with profit greater than 2.
+  Ref<Order> _order_profit_gt_2 = _oquery.FindByValueViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
+      ORDER_PROP_PROFIT, 2, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
+  assertTrueOrReturnFalse(_order_profit_gt_2.Ptr().Get<float>(ORDER_PROP_PROFIT) > 2,
+                          "Order with profit greater than 2 not found!");
+
   //_order_profit_best.ToString(); // @todo
   //_order_profit_worst.ToString(); // @todo
   return _result;
