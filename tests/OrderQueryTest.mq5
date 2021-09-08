@@ -38,6 +38,16 @@ bool Test01() {
     orders.Push(_order);
   }
   OrderQuery _query(orders);
+  Ref<Order> _order_profit_best =
+      _query.FindPeakViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
+  Ref<Order> _order_profit_worst =
+      _query.FindPeakViaProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT));
+  assertTrueOrReturnFalse(_order_profit_best.Ptr().Get<float>(ORDER_PROP_PROFIT) == 9,
+                          "Best order by profit not correct!");
+  assertTrueOrReturnFalse(_order_profit_worst.Ptr().Get<float>(ORDER_PROP_PROFIT) == 0,
+                          "Worse order by profit not correct!");
+  //_order_profit_best.ToString(); // @todo
+  //_order_profit_worst.ToString(); // @todo
   return _result;
 }
 

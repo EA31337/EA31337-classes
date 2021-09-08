@@ -29,12 +29,73 @@
 #include "DictStruct.mqh"
 #include "Order.mqh"
 #include "Refs.mqh"
+#include "Std.h"
 
 class OrderQuery {
  protected:
   DictStruct<long, Ref<Order>> orders;
 
  public:
+  enum ORDER_QUERY_OP {
+    ORDER_QUERY_OP_NA = 0,  // (None)
+    ORDER_QUERY_OP_EQ,      // Values is equal
+    ORDER_QUERY_OP_GE,      // Value is greater or equal
+    ORDER_QUERY_OP_GT,      // Value is greater
+    ORDER_QUERY_OP_LE,      // Value is lesser or equal
+    ORDER_QUERY_OP_LT,      // Value is lesser
+    FINAL_ORDER_QUERY_OP,
+  };
+
   OrderQuery() {}
-  OrderQuery(DictStruct<long, Ref<Order>> &_orders) : orders(_orders) {}
+  OrderQuery(const DictStruct<long, Ref<Order>> &_orders) : orders(_orders) {}
+
+  /**
+   * Find order at its peak property's value.
+   *
+   * @return
+   *   Returns reference structure to Order instance which has been selected.
+   *   On error, returns Ref<Order> pointing to NULL.
+   */
+  template <typename E, typename T>
+  Ref<Order> FindPeakViaProp(E _prop, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP) _op) {
+    Ref<Order> _order_ref_found;
+    if (orders.Size() == 0) {
+      return _order_ref_found;
+    }
+    _order_ref_found = orders.Begin().Value();
+    for (DictStructIterator<long, Ref<Order>> iter = orders.Begin(); iter.IsValid(); ++iter) {
+      Ref<Order> _order_ref = iter.Value();
+      if (Compare(_order_ref.Ptr().Get<T>(_prop), _op, _order_ref_found.Ptr().Get<T>(_prop))) {
+        _order_ref_found = _order_ref;
+      }
+    }
+    return _order_ref_found;
+  }
+
+  /**
+   * Perform a comparison operation on two values.
+   *
+   * @return
+   *   Returns true on successful comparison, otherwise false.
+   */
+  template <typename T>
+  bool Compare(T _v1, ORDER_QUERY_OP _op, T _v2) {
+    switch (_op) {
+      case ORDER_QUERY_OP_NA:
+        return false;
+      case ORDER_QUERY_OP_EQ:
+        return _v1 == _v2;
+      case ORDER_QUERY_OP_GE:
+        return _v1 >= _v2;
+      case ORDER_QUERY_OP_GT:
+        return _v1 > _v2;
+      case ORDER_QUERY_OP_LE:
+        return _v1 <= _v2;
+      case ORDER_QUERY_OP_LT:
+        return _v1 < _v2;
+      default:
+        break;
+    }
+    return false;
+  }
 };
