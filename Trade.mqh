@@ -651,6 +651,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order = iter.Value();
       if (_order.IsSet() && _order.Ptr().IsClosed()) {
+        _order.Ptr().Update();
         _result &= OrderMoveToHistory(_order.Ptr());
         if (_first) {
           break;

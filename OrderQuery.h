@@ -38,7 +38,7 @@ class OrderQuery {
  public:
   enum ORDER_QUERY_OP {
     ORDER_QUERY_OP_NA = 0,  // (None)
-    ORDER_QUERY_OP_EQ,      // Values is equal
+    ORDER_QUERY_OP_EQ,      // Values are equal
     ORDER_QUERY_OP_GE,      // Value is greater or equal
     ORDER_QUERY_OP_GT,      // Value is greater
     ORDER_QUERY_OP_LE,      // Value is lesser or equal
