@@ -55,7 +55,8 @@ class SerializerConverter {
     SerializerConverter _converter(_serializer.GetRoot(), serializer_flags);
 #ifdef __debug__
     Print("FromObject(): serializer flags: ", serializer_flags);
-    Print("FromObject(): result: ", _serializer.GetRoot() != NULL ? _serializer.GetRoot().ToString() : "NULL");
+    Print("FromObject(): result: ",
+          _serializer.GetRoot() != NULL ? _serializer.GetRoot().ToString(SERIALIZER_JSON_NO_WHITESPACES) : "NULL");
 #endif
     return _converter;
   }

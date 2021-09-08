@@ -36,10 +36,12 @@ int OnInit() {
   Market *market = new Market();
   Market::RefreshRates();
   // Test MarketInfo().
+#ifdef __MQL5__
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_LOW) == SymbolInfoDouble(_Symbol, SYMBOL_LASTLOW),
                    "Invalid market value for MODE_LOW!");
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_HIGH) == SymbolInfoDouble(_Symbol, SYMBOL_LASTHIGH),
                    "Invalid market value for MODE_HIGH!");
+#endif
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_TIME) == market.GetQuoteTime(),
                    "Invalid market value for MODE_TIME!");
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_BID) == market.GetBid(), "Invalid market value for MODE_BID!");

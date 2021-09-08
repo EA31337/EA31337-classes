@@ -895,6 +895,9 @@ class Strategy : public Object {
           if (_result) {
             Order *_order = trade.GetOrderLast();
             switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
+              case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
+                // OnOrderClose();// @todo
+                break;
               case TRADE_ACTION_ORDER_OPEN:
                 // @fixme: Operation on the structure copy.
                 OnOrderOpen(_order.GetParams());
@@ -1260,7 +1263,11 @@ class Strategy : public Object {
    *   and profit take when _mode is ORDER_TYPE_TP.
    */
   virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
-    double _result = 0;
+    float _result = 0;
+    if (_method == 0) {
+      // Ignores calculation when method is 0.
+      return (float)_result;
+    }
     float _trade_dist = trade.GetTradeDistanceInValue();
     int _count = (int)fmax(fabs(_level), fabs(_method));
     int _direction = Order::OrderDirection(_cmd, _mode);

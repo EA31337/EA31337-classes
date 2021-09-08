@@ -1317,6 +1317,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Normalize SL/TP values.
    */
   double NormalizeSLTP(double _value, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode) {
+    if (_value == 0) {
+      // Do not normalize on zero.
+      return _value;
+    }
     switch (_cmd) {
       // Buying is done at the Ask price.
       // The TakeProfit and StopLoss levels must be at the distance
@@ -1354,10 +1358,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     return NULL;
   }
   double NormalizeSL(double _value, ENUM_ORDER_TYPE _cmd) {
-    return GetChart().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL));
+    return _value > 0 ? GetChart().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL)) : 0;
   }
   double NormalizeTP(double _value, ENUM_ORDER_TYPE _cmd) {
-    return GetChart().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP));
+    return _value > 0 ? GetChart().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP)) : 0;
   }
 
   /* Validation methods */
@@ -1404,6 +1408,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool IsValidOrderSL(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
+    if (_value == 0) {
+      return _is_valid;
+    }
     double _min_distance = GetTradeDistanceInPips();
     double _price = GetChart().GetOpenOffer(_cmd);
     unsigned int _digits = GetChart().GetDigits();
@@ -1521,6 +1528,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool IsValidOrderTP(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
+    if (_value == 0) {
+      return _is_valid;
+    }
     double _min_distance = GetTradeDistanceInPips();
     double _price = GetChart().GetOpenOffer(_cmd);
     unsigned int _digits = GetChart().GetDigits();

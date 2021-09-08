@@ -148,7 +148,8 @@ class SymbolInfoStatic {
    * You may also use Point predefined variable for the current symbol.
    */
   static double GetPointSize(string _symbol) {
-    return SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_POINT);  // Same as: MarketInfo(symbol, MODE_POINT);
+    // Same as: MarketInfo(symbol, MODE_POINT);
+    return SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_POINT);
   }
 
   /**
@@ -158,7 +159,7 @@ class SymbolInfoStatic {
    */
   static double GetPipSize(string _symbol) {
     // @todo: This code may fail at Gold and Silver (https://www.mql5.com/en/forum/135345#515262).
-    return GetDigits(_symbol) % 2 == 0 ? GetPointSize(_symbol) : GetPointSize(_symbol) * 10;
+    return GetPointSize(_symbol) * (GetDigits(_symbol) % 2 == 0 ? 1 : 10);
   }
 
   /**
@@ -185,9 +186,9 @@ class SymbolInfoStatic {
    * which could be several points.
    * In currencies it is equivalent to point size, in metals they are not.
    */
-  static double GetTickSize(string _symbol) {
+  static float GetTickSize(string _symbol) {
     // Note: In currencies a tick is always a point, but not for other markets.
-    return SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+    return (float)SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
   }
 
   /**
