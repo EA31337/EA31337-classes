@@ -33,6 +33,9 @@
 #ifndef VALUE_STORAGE_H
 #define VALUE_STORAGE_H
 
+// Enumeration for iPeak().
+enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
+
 // Defines.
 #define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
   100  // Number of entries the value storage buffer will be initialized with.
@@ -126,6 +129,11 @@ class ValueStorage : public IValueStorage {
   }
 
   /**
+   * Fetches value from the end of the array (assumes as-series storage).
+   */
+  virtual C FetchSeries(int _shift) { return Fetch(ArraySize(THIS_REF) - _shift - 1); }
+
+  /**
    * Stores value at a given shift. Takes into consideration as-series flag.
    */
   virtual void Store(int _shift, C _value) {
@@ -188,4 +196,64 @@ int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _s
 
   return _num_copied;
 }
+
+/**
+ * iHigest() version working on ValueStorage.
+ */
+int iHighest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
+  return iPeak(_price, _count, _start, IPEAK_HIGHEST);
+}
+
+/**
+ * iLowest() version working on ValueStorage.
+ */
+int iLowest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
+  return iPeak(_price, _count, _start, IPEAK_LOWEST);
+}
+
+/**
+ * iLowest() version working on ValueStorage.
+ */
+int iPeak(ValueStorage<double> &_price, int _count, int _start, ENUM_IPEAK _type) {
+  int _price_size = ArraySize(_price);
+
+  if (_count == WHOLE_ARRAY) {
+    _count = _price_size;
+  }
+
+  int _peak_idx = _start;
+  double _peak_val = 0;
+
+  switch (_type) {
+    case IPEAK_LOWEST:
+      _peak_val = DBL_MAX;
+      break;
+    case IPEAK_HIGHEST:
+      _peak_val = -DBL_MAX;
+      break;
+  }
+
+  for (int i = _start; (i < _start + _count) && (i < _price_size); ++i) {
+    double _value = _price.FetchSeries(i);
+
+    bool _cond = false;
+
+    switch (_type) {
+      case IPEAK_LOWEST:
+        _cond = _value < _peak_val;
+        break;
+      case IPEAK_HIGHEST:
+        _cond = _value > _peak_val;
+        break;
+    }
+
+    if (_cond) {
+      _peak_val = _value;
+      _peak_idx = i;
+    }
+  }
+
+  return _price_size - _peak_idx - 1;
+}
+
 #endif  // STRATEGY_MQH

@@ -79,7 +79,8 @@ class HistoryValueStorage : public ValueStorage<C> {
     if (is_series) {
       return _shift;
     } else {
-      return BarsFromStart() - _shift;
+      int _bars_from_start = BarsFromStart();
+      return _bars_from_start - _shift;
     }
   }
 

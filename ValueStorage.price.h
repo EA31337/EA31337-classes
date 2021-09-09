@@ -101,4 +101,21 @@ class PriceValueStorage : public HistoryValueStorage<double> {
     }
     return 0;
   }
+
+  static double GetApplied(ValueStorage<double> &_open, ValueStorage<double> &_high, ValueStorage<double> &_low,
+                           ValueStorage<double> &_close, int _shift, ENUM_APPLIED_PRICE _ap) {
+    switch (_ap) {
+      case PRICE_OPEN:
+        return _open.Fetch(_shift);
+      case PRICE_HIGH:
+        return _high.Fetch(_shift);
+      case PRICE_LOW:
+        return _low.Fetch(_shift);
+      case PRICE_CLOSE:
+        return _close.Fetch(_shift);
+    }
+    Alert("Wrong applied price for ValueStorage-based iPrice()!");
+    DebugBreak();
+    return 0;
+  }
 };
