@@ -1655,6 +1655,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool ExecuteAction(ENUM_TRADE_ACTION _action, DataParamEntry &_args[]) {
     bool _result = true;
+    Ref<OrderQuery> _oquery_ref;
+    if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+      _oquery_ref = OrderQuery::GetInstance(orders_active);
+    }
     switch (_action) {
       case TRADE_ACTION_CALC_LOT_SIZE:
         tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
@@ -1663,17 +1667,19 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         // @todo
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
           RefreshActiveOrders(true);
+          _result = false;
         }
         break;
       case TRADE_ACTION_ORDER_CLOSE_LEAST_PROFIT:
         // @todo
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
           RefreshActiveOrders(true);
+          _result = false;
         }
         break;
       case TRADE_ACTION_ORDER_CLOSE_MOST_LOSS:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          _result &= OrderQuery::GetInstance(orders_active)
+          _result &= _oquery_ref.Ptr()
                          .FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
                                                                              STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT))
                          .Ptr()
@@ -1683,7 +1689,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       case TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          _result &= OrderQuery::GetInstance(orders_active)
+          _result &= _oquery_ref.Ptr()
                          .FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
                                                                              STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT))
                          .Ptr()
