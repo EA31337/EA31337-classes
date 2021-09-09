@@ -71,7 +71,7 @@ class NativeValueStorage : public ValueStorage<C> {
   /**
    * Stores value at a given shift. Takes into consideration as-series flag.
    */
-  virtual void Store(int _shift, C _value) { Array::ArrayStore(_values, _shift, _value); }
+  virtual void Store(int _shift, C _value) { Array::ArrayStore(_values, _shift, _value, 4096); }
 
   /**
    * Returns number of values available to fetch (size of the values buffer).

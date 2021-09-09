@@ -757,9 +757,9 @@ static int ArraySize(const ARRAY_REF(X, array)) {
 }
 
 template <typename X>
-static void ArrayStore(ARRAY_REF(X, array), int index, X value) {
+static void ArrayStore(ARRAY_REF(X, array), int index, X value, int reserve_size = 0) {
   if (index >= ArraySize(array)) {
-    ArrayResize(array, ArraySize(array) + 1);
+    ArrayResize(array, MathMax(index + 1, ArraySize(array)), reserve_size);
   }
 
   array[index] = value;

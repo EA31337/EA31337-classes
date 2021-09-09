@@ -480,10 +480,8 @@ bool InitIndicators() {
   indis.Push(new Indi_CHO(cho_params));
 
 // Chaikin Volatility.
-#ifdef __MQL5__
   CHVParams chv_params();
   indis.Push(new Indi_CHV(chv_params));
-#endif
 
 // Color Bars.
 #ifdef __MQL5__
