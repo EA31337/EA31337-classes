@@ -41,7 +41,7 @@ bool Test01() {
   }
   // Initialize OrderQuery instances.
   OrderQuery _oquery(orders);
-  OrderQuery _oquery2 = OrderQuery::GetInstance(orders);
+  OrderQuery *_oquery2 = OrderQuery::GetInstance(orders);
 
   // Find an order with the most profit.
   Ref<Order> _order_profit_best = _oquery.FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
@@ -73,6 +73,7 @@ bool Test01() {
 
   //_order_profit_best.ToString(); // @todo
   //_order_profit_worst.ToString(); // @todo
+  delete _oquery2;
   return _result;
 }
 
@@ -82,7 +83,7 @@ bool Test01() {
 int OnInit() {
   bool _result = true;
   _result &= Test01();
-  assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d!", GetLastError()));
+  assertTrueOrFail(_LastError == ERR_NO_ERROR, StringFormat("Error: %d!", _LastError));
   return _result ? INIT_SUCCEEDED : INIT_FAILED;
 }
 

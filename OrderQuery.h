@@ -33,7 +33,7 @@
 
 class OrderQuery {
  protected:
-  DictStruct<long, Ref<Order>> orders;
+  DictStruct<long, Ref<Order>> *orders;
 
  public:
   // Enumeration of comparison operators.
@@ -48,7 +48,7 @@ class OrderQuery {
   };
 
   OrderQuery() {}
-  OrderQuery(const DictStruct<long, Ref<Order>> &_orders) : orders(_orders) {}
+  OrderQuery(DictStruct<long, Ref<Order>> &_orders) : orders(GetPointer(_orders)) {}
 
   /**
    * Find order by comparing property's value given the comparison operator.
@@ -129,5 +129,5 @@ class OrderQuery {
    * @return
    *   Returns a pointer to the new instance.
    */
-  static OrderQuery *GetInstance(const DictStruct<long, Ref<Order>> &_orders) { return new OrderQuery(_orders); }
+  static OrderQuery *GetInstance(DictStruct<long, Ref<Order>> &_orders) { return new OrderQuery(_orders); }
 };
