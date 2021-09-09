@@ -33,6 +33,9 @@
 #ifndef VALUE_STORAGE_H
 #define VALUE_STORAGE_H
 
+// Enumeration for iPeak().
+enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
+
 // Defines.
 #define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
   100  // Number of entries the value storage buffer will be initialized with.
@@ -194,67 +197,63 @@ int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _s
   return _num_copied;
 }
 
-double iPrice(int _shift, ValueStorage<double> &_open, ValueStorage<double> &_high, ValueStorage<double> &_low,
-              ValueStorage<double> &_close, ENUM_APPLIED_PRICE _ap) {
-  switch (_ap) {
-    case PRICE_OPEN:
-      return _open.FetchSeries(_shift);
-    case PRICE_HIGH:
-      return _high.FetchSeries(_shift);
-    case PRICE_LOW:
-      return _low.FetchSeries(_shift);
-    case PRICE_CLOSE:
-      return _close.FetchSeries(_shift);
-  }
-  Alert("Wrong applied price for ValueStorage-based iPrice()!");
-  DebugBreak();
-  return 0;
-}
-
 /**
  * iHigest() version working on ValueStorage.
  */
 int iHighest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
-  if (_count == WHOLE_ARRAY) {
-    _count = ArraySize(_price);
-  }
-
-  int _peak_idx = _start;
-  double _peak_val = _price.FetchSeries(_start);
-
-  for (int i = _start; i < _count; ++i) {
-    double _value = _price.FetchSeries(i);
-
-    if (_value > _peak_val) {
-      _peak_val = _value;
-      _peak_idx = i;
-    }
-  }
-
-  return _peak_idx;
+  return iPeak(_price, _count, _start, IPEAK_HIGHEST);
 }
 
 /**
  * iLowest() version working on ValueStorage.
  */
 int iLowest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
+  return iPeak(_price, _count, _start, IPEAK_LOWEST);
+}
+
+/**
+ * iLowest() version working on ValueStorage.
+ */
+int iPeak(ValueStorage<double> &_price, int _count, int _start, ENUM_IPEAK _type) {
+  int _price_size = ArraySize(_price);
+
   if (_count == WHOLE_ARRAY) {
-    _count = ArraySize(_price);
+    _count = _price_size;
   }
 
   int _peak_idx = _start;
-  double _peak_val = _price.FetchSeries(_start);
+  double _peak_val = 0;
 
-  for (int i = _start; i < _count; ++i) {
+  switch (_type) {
+    case IPEAK_LOWEST:
+      _peak_val = DBL_MAX;
+      break;
+    case IPEAK_HIGHEST:
+      _peak_val = -DBL_MAX;
+      break;
+  }
+
+  for (int i = _start; (i < _start + _count) && (i < _price_size); ++i) {
     double _value = _price.FetchSeries(i);
 
-    if (_value < _peak_val) {
+    bool _cond = false;
+
+    switch (_type) {
+      case IPEAK_LOWEST:
+        _cond = _value < _peak_val;
+        break;
+      case IPEAK_HIGHEST:
+        _cond = _value > _peak_val;
+        break;
+    }
+
+    if (_cond) {
       _peak_val = _value;
       _peak_idx = i;
     }
   }
 
-  return _peak_idx;
+  return _price_size - _peak_idx - 1;
 }
 
 #endif  // STRATEGY_MQH

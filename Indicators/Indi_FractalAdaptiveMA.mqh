@@ -72,7 +72,10 @@ class Indi_FrAMA : public Indicator {
    */
   static double iFrAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                        int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
-#ifdef __MQL5___
+    // Should be: INDI_FRAMA[1]: bar 1: 1525651260,130,1.19609814
+    // Is:        INDI_FRAMA[1]: bar 1: 1525651260,130,1.19777211
+
+#ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
 #else
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf,
@@ -107,17 +110,14 @@ class Indi_FrAMA : public Indicator {
                        int InpShift, ENUM_APPLIED_PRICE InpAppliedPrice) {
     if (rates_total < 2 * InpPeriodFrAMA) return (0);
 
-    int _buffer_size = ArraySize(FrAmaBuffer);
-
     int start, i;
     //--- start calculations
     if (prev_calculated == 0) {
       start = 2 * InpPeriodFrAMA - 1;
-      for (i = 0; i <= start; i++) FrAmaBuffer[i] = iPrice(i, open, high, low, close, InpAppliedPrice);
+      for (i = 0; i <= start; i++)
+        FrAmaBuffer[i] = PriceValueStorage::GetApplied(open, high, low, close, i, InpAppliedPrice);
     } else
       start = prev_calculated - 1;
-
-    _buffer_size = ArraySize(FrAmaBuffer);
 
     //--- main cycle
     double math_log_2 = MathLog(2.0);
@@ -134,12 +134,11 @@ class Indi_FrAMA : public Indicator {
       double d = (MathLog(n1 + n2) - MathLog(n3)) / math_log_2;
       double alfa = MathExp(-4.6 * (d - 1.0));
       //---
-      double _iprice = iPrice(i, open, high, low, close, InpAppliedPrice);
+      double _iprice = PriceValueStorage::GetApplied(open, high, low, close, i, InpAppliedPrice);
 
       FrAmaBuffer[i] = alfa * _iprice + (1 - alfa) * FrAmaBuffer[i - 1].Get();
-
-      Print(FrAmaBuffer[i - 1].Get(), " -> ", FrAmaBuffer[i].Get(), " (alfa ", alfa, ") (price ", _iprice, ")");
     }
+
     //--- OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
