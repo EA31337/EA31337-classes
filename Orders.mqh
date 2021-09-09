@@ -119,7 +119,7 @@ class Orders {
    */
   Order *SelectOrder(ulong _ticket) {
     for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
-      if (orders[_pos].GetTicket() == _ticket) {
+      if (orders[_pos].Get<ulong>(ORDER_PROP_TICKET) == _ticket) {
         return orders[_pos];
       }
     }

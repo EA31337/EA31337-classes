@@ -33,6 +33,10 @@
 // Trade actions.
 enum ENUM_TRADE_ACTION {
   TRADE_ACTION_CALC_LOT_SIZE = 1,          // Recalculate lot size
+  TRADE_ACTION_ORDER_CLOSE_LEAST_LOSS,     // Close order with least loss
+  TRADE_ACTION_ORDER_CLOSE_LEAST_PROFIT,   // Close order with least profit
+  TRADE_ACTION_ORDER_CLOSE_MOST_LOSS,      // Close order with most loss
+  TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT,    // Close order with most profit
   TRADE_ACTION_ORDER_OPEN,                 // Open order
   TRADE_ACTION_ORDERS_CLOSE_ALL,           // Close open sell orders
   TRADE_ACTION_ORDERS_CLOSE_BY_TYPE,       // Close open orders by type (args)

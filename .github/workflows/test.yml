@@ -108,6 +108,7 @@ jobs:
           - LogTest
           - MathTest
           - MD5Test
+          - OrderQuery
           - ProfilerTest
           - RefsTest
           - SerializerTest

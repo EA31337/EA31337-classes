@@ -221,8 +221,7 @@ class Strategy : public Object {
     DictStruct<long, Ref<Order>> *_orders_active = _trade.GetOrdersActive();
     for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value().Ptr();
-      if (_order.IsOpen() && _order.Get(ORDER_MAGIC) == sparams.Get<long>(STRAT_PARAM_ID)) {
-        OrderData _odata = _order.GetData();
+      if (_order.IsOpen() && _order.Get<ulong>(ORDER_MAGIC) == sparams.Get<long>(STRAT_PARAM_ID)) {
         Strategy *_strat_sl = strat_sl;
         Strategy *_strat_tp = strat_tp;
         _order.Update();
@@ -231,18 +230,19 @@ class Strategy : public Object {
           float _ppl = _strat_tp.Get<float>(STRAT_PARAM_PPL);
           int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
           int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
-          sl_new = _strat_sl.PriceStop(_odata.type, ORDER_TYPE_SL, _psm, _psl);
-          tp_new = _strat_tp.PriceStop(_odata.type, ORDER_TYPE_TP, _ppm, _ppl);
-          sl_new = trade.NormalizeSL(sl_new, _odata.type);
-          tp_new = trade.NormalizeTP(tp_new, _odata.type);
-          sl_valid = trade.IsValidOrderSL(sl_new, _odata.type, _odata.sl, _psm > 0);
-          tp_valid = trade.IsValidOrderTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
+          ENUM_ORDER_TYPE _otype = _order.Get<ENUM_ORDER_TYPE>(ORDER_TYPE);
+          sl_new = _strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl);
+          tp_new = _strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl);
+          sl_new = trade.NormalizeSL(sl_new, _otype);
+          tp_new = trade.NormalizeTP(tp_new, _otype);
+          sl_valid = trade.IsValidOrderSL(sl_new, _otype, _order.Get<double>(ORDER_SL), _psm > 0);
+          tp_valid = trade.IsValidOrderTP(tp_new, _otype, _order.Get<double>(ORDER_TP), _ppm > 0);
           if (sl_valid && tp_valid) {
             _order.OrderModify(sl_new, tp_new);
           } else if (sl_valid) {
-            _order.OrderModify(sl_new, _order.Get(ORDER_TP));
+            _order.OrderModify(sl_new, _order.Get<double>(ORDER_TP));
           } else if (tp_valid) {
-            _order.OrderModify(_order.Get(ORDER_SL), tp_new);
+            _order.OrderModify(_order.Get<double>(ORDER_SL), tp_new);
           }
           sresult.stops_invalid_sl += (unsigned short)sl_valid;
           sresult.stops_invalid_tp += (unsigned short)tp_valid;
@@ -254,7 +254,7 @@ class Strategy : public Object {
       }
     }
     sresult.ProcessLastError();
-    if (_order.GetData().last_error != ERR_NO_ERROR) {
+    if (_order.Get<unsigned int>(ORDER_PROP_LAST_ERROR) != ERR_NO_ERROR) {
       _order.GetLogger().Flush();
     }
     return sresult;
