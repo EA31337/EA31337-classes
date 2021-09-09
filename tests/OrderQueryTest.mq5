@@ -41,7 +41,7 @@ bool Test01() {
   }
   // Initialize OrderQuery instances.
   OrderQuery _oquery(orders);
-  OrderQuery *_oquery2 = OrderQuery::GetInstance(orders);
+  Ref<OrderQuery> _oquery_ref = OrderQuery::GetInstance(orders);
 
   // Find an order with the most profit.
   Ref<Order> _order_profit_best = _oquery.FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
@@ -56,7 +56,7 @@ bool Test01() {
                           "Worse order by profit not correct!");
 
   // Find an order with the most profit using another instance.
-  Ref<Order> _order_profit_best2 = _oquery2.FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
+  Ref<Order> _order_profit_best2 = _oquery_ref.Ptr().FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(
       ORDER_PROP_PROFIT, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
   assertTrueOrReturnFalse(_order_profit_best.Ptr() == _order_profit_best2.Ptr(), "Best orders not the same!");
 
@@ -73,7 +73,6 @@ bool Test01() {
 
   //_order_profit_best.ToString(); // @todo
   //_order_profit_worst.ToString(); // @todo
-  delete _oquery2;
   return _result;
 }
 

@@ -31,7 +31,7 @@
 #include "Refs.mqh"
 #include "Std.h"
 
-class OrderQuery {
+class OrderQuery : public Dynamic {
  protected:
   DictStruct<long, Ref<Order>> *orders;
 
