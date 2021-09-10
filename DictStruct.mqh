@@ -109,12 +109,12 @@ class DictStruct : public DictBase<K, V> {
    */
   bool operator+=(V& value) { return Push(value); }
 
-  /**
-   * Inserts value using hashless key.
-   */
-  #ifdef __MQL__
+/**
+ * Inserts value using hashless key.
+ */
+#ifdef __MQL__
   template <>
-  #endif
+#endif
   bool Push(Dynamic* value) {
     V ptr = value;
 
@@ -185,12 +185,12 @@ class DictStruct : public DictBase<K, V> {
     return slot.value;
   }
 
-  /**
-   * Checks whether dictionary contains given key => value pair.
-   */
-  #ifdef __MQL__
+/**
+ * Checks whether dictionary contains given key => value pair.
+ */
+#ifdef __MQL__
   template <>
-  #endif
+#endif
   bool Contains(const K key, V& value) {
     unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, key, position);
@@ -340,9 +340,9 @@ class DictStruct : public DictBase<K, V> {
   }
 
  public:
-  #ifdef __MQL__
+#ifdef __MQL__
   template <>
-  #endif
+#endif
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i)
@@ -352,16 +352,19 @@ class DictStruct : public DictBase<K, V> {
     } else {
       if (s.IsArray()) {
         unsigned int num_items = s.NumArrayItems();
-        s.Enter();
+        // Entering only if Dict has items.
+        if (num_items > 0) {
+          s.Enter();
 
-        while (num_items-- != 0) {
-          V child;
-          child.Serialize(s);
-          Push(child);
-          s.Next();
+          while (num_items-- != 0) {
+            V child;
+            child.Serialize(s);
+            Push(child);
+            s.Next();
+          }
+
+          s.Leave();
         }
-
-        s.Leave();
         return SerializerNodeArray;
       } else {
         SerializerIterator<V> i;
@@ -384,12 +387,12 @@ class DictStruct : public DictBase<K, V> {
     }
   }
 
-  /**
-   * Initializes object with given number of elements. Could be skipped for non-containers.
-   */
-  #ifdef __MQL__
+/**
+ * Initializes object with given number of elements. Could be skipped for non-containers.
+ */
+#ifdef __MQL__
   template <>
-  #endif
+#endif
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
     V _child;
 

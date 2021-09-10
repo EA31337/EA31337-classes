@@ -309,16 +309,19 @@ class DictObject : public DictBase<K, V> {
     } else {
       if (s.IsArray()) {
         unsigned int num_items = s.NumArrayItems();
-        s.Enter();
+        // Entering only if Dict has items.
+        if (num_items > 0) {
+          s.Enter();
 
-        while (num_items-- != 0) {
-          V child;
-          child.Serialize(s);
-          Push(child);
-          s.Next();
+          while (num_items-- != 0) {
+            V child;
+            child.Serialize(s);
+            Push(child);
+            s.Next();
+          }
+
+          s.Leave();
         }
-
-        s.Leave();
         return SerializerNodeArray;
       } else {
         SerializerIterator<V> i;
