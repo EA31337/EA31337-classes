@@ -32,6 +32,9 @@
 
 // Forward class declaration.
 class Refs;
+class ReferenceCounter;
+template <typename X>
+  struct WeakRef;
 
 /**
  * Class used to hold strong reference to reference-counted object.
@@ -84,6 +87,10 @@ struct Ref {
    */
   void Unset() {
     if (ptr_object != NULL) {
+      if (CheckPointer(ptr_object) == POINTER_INVALID) {
+        // Double check the pointer for invalid references. Can happen very rarely.
+        return;
+      }
       // Dropping strong reference.
       if (!--ptr_object.ptr_ref_counter.num_strong_refs) {
 #ifdef __debug__
@@ -132,6 +139,10 @@ struct Ref {
     ptr_object = _ptr;
 
     if (ptr_object != NULL) {
+      if (CheckPointer(ptr_object) == POINTER_INVALID || ptr_object.ptr_ref_counter == NULL) {
+        // Double check the pointer for invalid references. Can happen very rarely.
+        return;
+      }
       ++ptr_object.ptr_ref_counter.num_strong_refs;
 #ifdef __debug__
       Print(ptr_object.ptr_ref_counter.Debug());

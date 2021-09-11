@@ -43,6 +43,7 @@
 #include "SerializerConverter.mqh"
 #include "SerializerCsv.mqh"
 #include "SerializerJson.mqh"
+#include "SerializerSqlite.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task.mqh"
@@ -183,23 +184,23 @@ class EA {
     ResetLastError();
     if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
       // Check if we should open and/or close the orders.
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE | STRAT_SIGNAL_BUY_CLOSE_PASS)) {
         _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_BUY);
         // Buy orders closed.
       }
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE | STRAT_SIGNAL_SELL_CLOSE_PASS)) {
         _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_SELL);
         // Sell orders closed.
       }
     }
     if (_trade_allowed) {
       // Open orders on signals.
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_OPEN_PASS)) {
         _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
         _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
         // Buy order open.
       }
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_OPEN_PASS)) {
         _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
         _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
         // Sell order open.
@@ -273,7 +274,7 @@ class EA {
     if (estate.IsEnabled()) {
       eresults.Reset();
       if (estate.IsActive()) {
-        market.SetTick(SymbolInfo::GetTick(_Symbol));
+        market.SetTick(SymbolInfoStatic::GetTick(_Symbol));
         ProcessPeriods();
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
@@ -360,54 +361,69 @@ class EA {
    */
   void DataExport(unsigned short _methods) {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
+    int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT |
+                            SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_REUSE_STUB | SERIALIZER_FLAG_REUSE_OBJECT;
+
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       string _key_chart = "Chart";
       _key_chart += StringFormat("-%d-%d", data_chart.GetMin(), data_chart.GetMax());
+
+      SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<ChartEntry>>(_serializer_flags);
+      SerializerConverter _obj = SerializerConverter::FromObject(data_chart, _serializer_flags);
+
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
-        SerializerConverter _stub_chart =
-            Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-        SerializerConverter::FromObject(data_chart, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToFile<SerializerCsv>(_key_chart + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
+        _obj.ToFile<SerializerCsv>(_key_chart + ".csv", _serializer_flags, &_stub);
       }
       if ((_methods & EA_DATA_EXPORT_DB) != 0) {
-        // @todo: Use Database class.
+        SerializerSqlite::ConvertToFile(_obj, _key_chart + ".sqlite", "chart", _serializer_flags, &_stub);
       }
       if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
-        SerializerConverter _stub_chart =
-            Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-        SerializerConverter::FromObject(data_chart, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToFile<SerializerJson>(_key_chart + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
+        _obj.ToFile<SerializerJson>(_key_chart + ".json", _serializer_flags, &_stub);
       }
+
+      // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
+      _stub.Clean();
+
+      // Required because of SERIALIZER_FLAG_REUSE_OBJECT flag.
+      _obj.Clean();
     }
     if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
+      SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(_serializer_flags);
+
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
            iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _itf = iter_tf.Key();
         if (data_indi.KeyExists(_itf)) {
           BufferStruct<IndicatorDataEntry> _indi_buff = data_indi.GetByKey(_itf);
+
+          SerializerConverter _obj = SerializerConverter::FromObject(_indi_buff, _serializer_flags);
+
           for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
             string _key_indi = "Indicator";
             _key_indi += StringFormat("-%d-%d-%d", _itf, _indi_buff.GetMin(), _indi_buff.GetMax());
+
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
-              SerializerConverter _stub_indi =
-                  Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-              SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                  .ToFile<SerializerCsv>(_key_indi + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+              _obj.ToFile<SerializerCsv>(_key_indi + ".csv", _serializer_flags, &_stub);
             }
             if ((_methods & EA_DATA_EXPORT_DB) != 0) {
-              // @todo: Use Database class.
+              SerializerSqlite::ConvertToFile(_obj, _key_indi + ".sqlite", "indicator", _serializer_flags, &_stub);
             }
             if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
-              SerializerConverter _stub_indi =
-                  Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-              SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                  .ToFile<SerializerJson>(_key_indi + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+              _obj.ToFile<SerializerJson>(_key_indi + ".json", _serializer_flags, &_stub);
             }
           }  // for
-        }    // if
+
+          // Required because of SERIALIZER_FLAG_REUSE_OBJECT flag.
+          _obj.Clean();
+        }  // if
       }
+
+      // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
+      _stub.Clean();
     }
     if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
+      SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<StgEntry>>(_serializer_flags);
+
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
            iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _stf = iter_tf.Key();
@@ -415,44 +431,48 @@ class EA {
           if (data_stg.KeyExists(_stf)) {
             string _key_stg = StringFormat("Strategy-%d", _stf);
             BufferStruct<StgEntry> _stg_buff = data_stg.GetByKey(_stf);
+            SerializerConverter _obj = SerializerConverter::FromObject(_stg_buff, _serializer_flags);
+
             _key_stg += StringFormat("-%d-%d-%d", _stf, _stg_buff.GetMin(), _stg_buff.GetMax());
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
-              SerializerConverter _stub_stg =
-                  Serializer::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-              SerializerConverter::FromObject(_stg_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                  .ToFile<SerializerCsv>(_key_stg + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_stg);
+              _obj.ToFile<SerializerCsv>(_key_stg + ".csv", _serializer_flags, &_stub);
             }
             if ((_methods & EA_DATA_EXPORT_DB) != 0) {
-              // @todo: Use Database class.
+              SerializerSqlite::ConvertToFile(_obj, _key_stg + ".sqlite", "strategy", _serializer_flags, &_stub);
             }
             if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
-              SerializerConverter _stub_stg =
-                  Serializer::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-              SerializerConverter::FromObject(_stg_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                  .ToFile<SerializerJson>(_key_stg + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_stg);
+              _obj.ToFile<SerializerJson>(_key_stg + ".json", _serializer_flags, &_stub);
             }
+
+            // Required because of SERIALIZER_FLAG_REUSE_OBJECT flag.
+            _obj.Clean();
           }
         }
       }
+      // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
+      _stub.Clean();
     }
     if ((eparams.data_store & EA_DATA_STORE_SYMBOL) != 0) {
+      SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(_serializer_flags);
+      SerializerConverter _obj = SerializerConverter::FromObject(data_symbol, _serializer_flags);
+
       string _key_sym = "Symbol";
       _key_sym += StringFormat("-%d-%d", data_symbol.GetMin(), data_symbol.GetMax());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
-        SerializerConverter _stub_symbol =
-            Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-        SerializerConverter::FromObject(data_symbol, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToFile<SerializerCsv>(_key_sym + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_symbol);
+        _obj.ToFile<SerializerCsv>(_key_sym + ".csv", _serializer_flags, &_stub);
       }
       if ((_methods & EA_DATA_EXPORT_DB) != 0) {
-        // @todo: Use Database class.
+        SerializerSqlite::ConvertToFile(_obj, _key_sym + ".sqlite", "symbol", _serializer_flags, &_stub);
       }
       if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
-        SerializerConverter _stub_symbol =
-            Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-        SerializerConverter::FromObject(data_symbol, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToFile<SerializerJson>(_key_sym + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_symbol);
+        _obj.ToFile<SerializerJson>(_key_sym + ".json", _serializer_flags, &_stub);
       }
+
+      // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
+      _stub.Clean();
+
+      // Required because of SERIALIZER_FLAG_REUSE_OBJECT flag.
+      _obj.Clean();
     }
     if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
       string _key_trade = "Trade";
@@ -507,7 +527,37 @@ class EA {
     for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
       bool _is_processed = false;
       TaskEntry _entry = iter.Value();
-      _is_processed = Task::Process(_entry);
+      switch (_entry.GetConditionType()) {
+        case COND_TYPE_ACCOUNT:
+          _entry.SetConditionObject(account);
+          break;
+        case COND_TYPE_EA:
+          _entry.SetConditionObject(THIS_PTR);
+          break;
+        case COND_TYPE_TRADE:
+          // Not supported (yet).
+          // _entry.SetConditionObject(trade);
+          break;
+      }
+      switch (_entry.GetActionType()) {
+        case ACTION_TYPE_EA:
+          _entry.SetActionObject(THIS_PTR);
+          break;
+        case ACTION_TYPE_TRADE:
+          if (Condition::Test(_entry.GetCondition())) {
+            for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
+                 iter_tf.IsValid(); ++iter_tf) {
+              ENUM_TIMEFRAMES _tf = iter_tf.Key();
+              for (DictStructIterator<long, Ref<Strategy>> iter_strat = strats[_tf].Begin(); iter_strat.IsValid();
+                   ++iter_strat) {
+                Strategy *_strat = iter_strat.Value().Ptr();
+                _is_processed |= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _entry.GetActionId());
+              }
+            }
+          }
+          break;
+      }
+      _is_processed = _is_processed || Task::Process(_entry);
       _counter += (unsigned short)_is_processed;
     }
     return _counter;
@@ -650,7 +700,7 @@ class EA {
     }
   }
   bool CheckCondition(ENUM_EA_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return EA::CheckCondition(_cond, _args);
   }
 
@@ -705,18 +755,21 @@ class EA {
     return _result;
   }
   bool ExecuteAction(ENUM_EA_ACTION _action) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return EA::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_INT}};
-    _args[0].integer_value = _arg1;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return EA::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1, long _arg2) {
-    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}};
-    _args[0].integer_value = _arg1;
-    _args[1].integer_value = _arg2;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return EA::ExecuteAction(_action, _args);
   }
 
@@ -866,8 +919,8 @@ class EA {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(this, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "market", market, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "market", market, SERIALIZER_FIELD_FLAG_DYNAMIC);
     for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
          _iter_tf.IsValid(); ++_iter_tf) {
       ENUM_TIMEFRAMES _tf = _iter_tf.Key();
@@ -878,8 +931,8 @@ class EA {
         string _sname = _strat.GetName();  // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
         string _sparams = _strat.GetParams().ToString();
         string _sresults = _strat.GetProcessResult().ToString();
-        _s.Pass(this, "strat:params:" + _sname, _sparams);
-        _s.Pass(this, "strat:results:" + _sname, _sresults);
+        _s.Pass(THIS_REF, "strat:params:" + _sname, _sparams);
+        _s.Pass(THIS_REF, "strat:results:" + _sname, _sresults);
       }
     }
     return SerializerNodeObject;

@@ -24,6 +24,8 @@
 #ifndef JSON_ITERATOR_MQH
 #define JSON_ITERATOR_MQH
 
+#include "SerializerNode.mqh"
+
 class SerializerNode;
 class Serializer;
 
@@ -52,7 +54,8 @@ class SerializerNodeIterator {
   /**
    * Returns current node or NULL.
    */
-  SerializerNode* Node() { return !IsValid() ? NULL : _collection.GetChild(_index); }
+  SerializerNode* Node() { return !IsValid() ? NULL : PTR_ATTRIB(_collection, GetChild(_index));
+  }
 
   /**
    * Returns current node index.
@@ -67,22 +70,26 @@ class SerializerNodeIterator {
   /**
    * Checks whether iterator is still valid.
    */
-  bool IsValid() { return _index < _collection.NumChildren(); }
+  bool IsValid() { return _index < PTR_ATTRIB(_collection, NumChildren());
+  }
 
   /**
    * Returns current's child key or empty string.
    */
-  const string Key() { return !IsValid() ? "" : _collection.GetChild(_index).Key(); }
+  const string Key() { return !IsValid() ? "" : PTR_ATTRIB(PTR_ATTRIB(_collection, GetChild(_index)), Key());
+  }
 
   /**
    * Checks whether current child has key.
    */
-  bool HasKey() { return !IsValid() ? false : _collection.GetChild(_index).HasKey(); }
+  bool HasKey() { return !IsValid() ? false : PTR_ATTRIB(PTR_ATTRIB(_collection, GetChild(_index)), HasKey());
+  }
 
   /**
    * Checks whether current child is a container.
    */
-  bool IsContainer() { return !IsValid() ? false : _collection.GetChild(_index).IsContainer(); }
+  bool IsContainer() { return !IsValid() ? false : PTR_ATTRIB(PTR_ATTRIB(_collection, GetChild(_index)), IsContainer());
+  }
 };
 
 template <typename X>

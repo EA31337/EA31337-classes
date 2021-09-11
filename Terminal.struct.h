@@ -29,17 +29,3 @@
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
 #endif
-
-#ifndef __MQL__
-/**
- * Enumeration for the return codes.
- * @docs
- * https://www.mql5.com/en/docs/basis/function/events
- */
-enum ENUM_INIT_RETCODE {
-  INIT_SUCCEEDED = 0,         // Successful initialization.
-  INIT_FAILED = 1,            // Initialization failed.
-  INIT_PARAMETERS_INCORRECT,  // Incorrect set of input parameters.
-  INIT_AGENT_NOT_SUITABLE,    // The agent is not suitable for testing.
-};
-#endif

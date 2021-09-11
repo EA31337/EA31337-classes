@@ -175,6 +175,7 @@ class Dict : public DictBase<K, V> {
       _mode = DictModeDict;
     else if (_mode != DictModeDict) {
       Alert("Warning: Dict already operates as a list, not a dictionary!");
+      DebugBreak();
       return false;
     }
 
@@ -249,6 +250,7 @@ class Dict : public DictBase<K, V> {
       _mode = DictModeList;
     else if (_mode != DictModeList) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
+      DebugBreak();
       return false;
     }
 
@@ -319,7 +321,7 @@ class Dict : public DictBase<K, V> {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i) {
         V value = i.Value();
-        s.Pass(this, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
+        s.Pass(THIS_REF, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
       }
 
       return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;

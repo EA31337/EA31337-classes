@@ -33,6 +33,7 @@
 // Includes.
 #include "Serializer.mqh"
 #include "Strategy.enum.h"
+#include "Strategy.struct.pricestop.h"
 #include "Task.struct.h"
 
 // Forward class declaration.
@@ -48,13 +49,16 @@ struct StgParams {
   bool is_boosted;                                     // State of the boost feature (to increase lot size).
   long id;                                             // Identification number of the strategy.
   float weight;                                        // Weight of the strategy.
-  long order_close_time;                               // Order close time in mins (>0) or bars (<0)
+  long order_close_time;                               // Order close time in mins (>0) or bars (<0).
+  float order_close_loss;                              // Order close loss (in pips).
+  float order_close_profit;                            // Order close profit (in pips).
   int signal_open_method;                              // Signal open method.
   float signal_open_level;                             // Signal open level.
   int signal_open_filter;                              // Signal open filter method.
   int signal_open_boost;                               // Signal open boost method (for lot size increase).
   int signal_close_method;                             // Signal close method.
   float signal_close_level;                            // Signal close level.
+  int signal_close_filter;                             // Signal close filter method.
   int price_profit_method;                             // Price profit method.
   float price_profit_level;                            // Price profit level.
   int price_stop_method;                               // Price stop method.
@@ -77,6 +81,8 @@ struct StgParams {
         is_suspended(false),
         is_boosted(true),
         order_close_time(0),
+        order_close_loss(0.0f),
+        order_close_profit(0.0f),
         weight(0),
         signal_open_method(0),
         signal_open_level(0),
@@ -84,6 +90,7 @@ struct StgParams {
         signal_open_boost(0),
         signal_close_method(0),
         signal_close_level(0),
+        signal_close_filter(0),
         price_profit_method(0),
         price_profit_level(0),
         price_stop_method(0),
@@ -105,6 +112,7 @@ struct StgParams {
         signal_open_boost(_sob),
         signal_close_method(_scm),
         signal_close_level(_scl),
+        signal_close_filter(0),
         price_profit_method(_psm),
         price_profit_level(_psl),
         price_stop_method(_psm),
@@ -129,6 +137,7 @@ struct StgParams {
   }
   // Deconstructor.
   ~StgParams() {}
+
   // Getters.
   template <typename T>
   T Get(ENUM_STRATEGY_PARAM _param) {
@@ -149,6 +158,10 @@ struct StgParams {
         return (T)price_profit_level;
       case STRAT_PARAM_PSL:
         return (T)price_stop_level;
+      case STRAT_PARAM_OCL:
+        return (T)order_close_loss;
+      case STRAT_PARAM_OCP:
+        return (T)order_close_profit;
       case STRAT_PARAM_OCT:
         return (T)order_close_time;
       case STRAT_PARAM_SOM:
@@ -157,6 +170,8 @@ struct StgParams {
         return (T)signal_open_filter;
       case STRAT_PARAM_SOB:
         return (T)signal_open_boost;
+      case STRAT_PARAM_SCF:
+        return (T)signal_close_filter;
       case STRAT_PARAM_SCM:
         return (T)signal_close_method;
       case STRAT_PARAM_PPM:
@@ -171,6 +186,7 @@ struct StgParams {
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
+  bool HasIndicator(int _id = 0) { return GetIndicator(_id) != NULL; }
   bool IsBoosted() { return is_boosted; }
   bool IsEnabled() { return is_enabled; }
   bool IsSuspended() { return is_suspended; }
@@ -215,6 +231,12 @@ struct StgParams {
       case STRAT_PARAM_PSL:  // Price stop level
         price_stop_level = (float)_value;
         return;
+      case STRAT_PARAM_OCL:  // Order close loss
+        order_close_loss = (float)_value;
+        return;
+      case STRAT_PARAM_OCP:  // Order close profit
+        order_close_profit = (float)_value;
+        return;
       case STRAT_PARAM_OCT:  // Order close time
         order_close_time = (long)_value;
         return;
@@ -226,6 +248,9 @@ struct StgParams {
         return;
       case STRAT_PARAM_SOB:  // Signal open boost method
         signal_open_boost = (int)_value;
+        return;
+      case STRAT_PARAM_SCF:  // Signal close filter
+        signal_close_filter = (int)_value;
         return;
       case STRAT_PARAM_SCM:  // Signal close method
         signal_close_method = (int)_value;
@@ -296,32 +321,34 @@ struct StgParams {
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "is_enabled", is_enabled);
-    s.Pass(this, "is_suspended", is_suspended);
-    s.Pass(this, "is_boosted", is_boosted);
-    s.Pass(this, "id", id);
-    s.Pass(this, "weight", weight);
-    s.Pass(this, "oct", order_close_time);
-    s.Pass(this, "shift", shift);
-    s.Pass(this, "som", signal_open_method);
-    s.Pass(this, "sol", signal_open_level);
-    s.Pass(this, "sof", signal_open_filter);
-    s.Pass(this, "sob", signal_open_boost);
-    s.Pass(this, "scm", signal_close_method);
-    s.Pass(this, "scl", signal_close_level);
-    s.Pass(this, "ppm", price_profit_method);
-    s.Pass(this, "ppl", price_profit_level);
-    s.Pass(this, "psm", price_stop_method);
-    s.Pass(this, "psl", price_stop_level);
-    s.Pass(this, "tfm", tick_filter_method);
-    s.Pass(this, "tt", trend_threshold);
-    s.Pass(this, "ls", lot_size);
-    s.Pass(this, "lsf", lot_size_factor);
-    s.Pass(this, "max_risk", max_risk);
-    s.Pass(this, "max_spread", max_spread);
-    s.Pass(this, "tp_max", tp_max);
-    s.Pass(this, "sl_max", sl_max);
-    s.Pass(this, "refresh_time", refresh_time);
+    s.Pass(THIS_REF, "is_enabled", is_enabled);
+    s.Pass(THIS_REF, "is_suspended", is_suspended);
+    s.Pass(THIS_REF, "is_boosted", is_boosted);
+    s.Pass(THIS_REF, "id", id);
+    s.Pass(THIS_REF, "weight", weight);
+    s.Pass(THIS_REF, "ocl", order_close_loss);
+    s.Pass(THIS_REF, "ocp", order_close_profit);
+    s.Pass(THIS_REF, "oct", order_close_time);
+    s.Pass(THIS_REF, "shift", shift);
+    s.Pass(THIS_REF, "som", signal_open_method);
+    s.Pass(THIS_REF, "sol", signal_open_level);
+    s.Pass(THIS_REF, "sof", signal_open_filter);
+    s.Pass(THIS_REF, "sob", signal_open_boost);
+    s.Pass(THIS_REF, "scm", signal_close_method);
+    s.Pass(THIS_REF, "scl", signal_close_level);
+    s.Pass(THIS_REF, "ppm", price_profit_method);
+    s.Pass(THIS_REF, "ppl", price_profit_level);
+    s.Pass(THIS_REF, "psm", price_stop_method);
+    s.Pass(THIS_REF, "psl", price_stop_level);
+    s.Pass(THIS_REF, "tfm", tick_filter_method);
+    s.Pass(THIS_REF, "tt", trend_threshold);
+    s.Pass(THIS_REF, "ls", lot_size);
+    s.Pass(THIS_REF, "lsf", lot_size_factor);
+    s.Pass(THIS_REF, "max_risk", max_risk);
+    s.Pass(THIS_REF, "max_spread", max_spread);
+    s.Pass(THIS_REF, "tp_max", tp_max);
+    s.Pass(THIS_REF, "sl_max", sl_max);
+    s.Pass(THIS_REF, "refresh_time", refresh_time);
     // @todo
     // Ref<Log> logger;           // Reference to Log object.
     // Trade *trade;              // Pointer to Trade class.
@@ -365,20 +392,21 @@ struct StgProcessResult {
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(this, "boost_factor", boost_factor, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "lot_size", lot_size, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "last_error", last_error, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "pos_updated", pos_updated, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "stops_invalid_sl", stops_invalid_sl, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "stops_invalid_tp", stops_invalid_tp, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "tasks_processed", tasks_processed, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "tasks_processed_not", tasks_processed_not, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "boost_factor", boost_factor, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "lot_size", lot_size, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "last_error", last_error, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "pos_updated", pos_updated, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "stops_invalid_sl", stops_invalid_sl, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "stops_invalid_tp", stops_invalid_tp, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "tasks_processed", tasks_processed, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "tasks_processed_not", tasks_processed_not, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
 };
 
 /* Structure for strategy's signals. */
 struct StrategySignal {
+  float strength;        // Signal strength.
   unsigned int signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
   // Signal methods for bitwise operations.
   /* Getters */
@@ -415,11 +443,11 @@ struct StrategySignal {
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &_s) {
-    // _s.Pass(this, "signals", signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+    // _s.Pass(THIS_REF, "signals", signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckSignals(1 << i) ? 1 : 0;
-      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      _s.Pass(THIS_REF, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     }
     return SerializerNodeObject;
   }
@@ -462,7 +490,7 @@ struct StgEntry {
   // Serializers.
   SERIALIZER_EMPTY_STUB
   SerializerNodeType Serialize(Serializer &_s) {
-    // _s.Pass(this, "signals", (int) signals);
+    // _s.Pass(THIS_REF, "signals", (int) signals);
     return SerializerNodeObject;
   }
 };

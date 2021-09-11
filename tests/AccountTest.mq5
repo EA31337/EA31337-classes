@@ -72,12 +72,12 @@ int OnInit() {
   assertTrueOrFail(acc.GetStartCredit() == _credit, "Invalid start credit!");               // 0
   assertTrueOrFail(acc.GetAccountStopoutLevel() == 0.3, "Invalid account stopout level!");  // 0.3
 
-  Print(acc.GetAccountFreeMarginCheck(ORDER_TYPE_BUY, SymbolInfo::GetVolumeMin(_Symbol)));
-  Print(acc.GetAccountFreeMarginCheck(ORDER_TYPE_SELL, SymbolInfo::GetVolumeMin(_Symbol)));
-  Print(acc.IsFreeMargin(ORDER_TYPE_BUY, SymbolInfo::GetVolumeMin(_Symbol)));
-  Print(acc.IsFreeMargin(ORDER_TYPE_SELL, SymbolInfo::GetVolumeMin(_Symbol)));
+  Print(acc.GetAccountFreeMarginCheck(ORDER_TYPE_BUY, SymbolInfoStatic::GetVolumeMin(_Symbol)));
+  Print(acc.GetAccountFreeMarginCheck(ORDER_TYPE_SELL, SymbolInfoStatic::GetVolumeMin(_Symbol)));
+  Print(acc.IsFreeMargin(ORDER_TYPE_BUY, SymbolInfoStatic::GetVolumeMin(_Symbol)));
+  Print(acc.IsFreeMargin(ORDER_TYPE_SELL, SymbolInfoStatic::GetVolumeMin(_Symbol)));
 
-  assertTrueOrFail(acc.GetDrawdownInPct() == 0.0, "Invalid drawdown value!");                  // 0
+  assertTrueOrFail(acc.GetDrawdownInPct() == 0.0, "Invalid drawdown value!");  // 0
   // assertTrueOrFail(acc.GetRiskMarginLevel() == 0.0, "Invalid risk margin level!");             // 0
   assertTrueOrFail(acc.CalcInitDeposit() == _balance, "Invalid calculated initial deposit!");  // 10000
 

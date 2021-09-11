@@ -37,77 +37,77 @@
 int OnInit() {
   int a, b, c;
 
-  Matrix<double> matrix(2, 3, 20);
+  Matrix<double> _matrix(2, 3, 20);
 
-  assertTrueOrFail(matrix.GetRange(0) == 2, "1st dimension's length is not valid!");
-  assertTrueOrFail(matrix.GetRange(1) == 3, "2nd dimension's length is not valid!");
-  assertTrueOrFail(matrix.GetRange(2) == 20, "3rd dimension's length is not valid!");
+  assertTrueOrFail(_matrix.GetRange(0) == 2, "1st dimension's length is not valid!");
+  assertTrueOrFail(_matrix.GetRange(1) == 3, "2nd dimension's length is not valid!");
+  assertTrueOrFail(_matrix.GetRange(2) == 20, "3rd dimension's length is not valid!");
 
-  assertTrueOrFail(matrix.GetDimensions() == 3, "Number of matrix dimensions isn't valid!");
+  assertTrueOrFail(_matrix.GetDimensions() == 3, "Number of _matrix dimensions isn't valid!");
 
-  matrix.Fill(1);
+  _matrix.Fill(1);
 
-  for (a = 0; a < matrix.GetRange(0); ++a) {
-    for (b = 0; b < matrix.GetRange(1); ++b) {
-      for (c = 0; c < matrix.GetRange(2); ++c) {
-        assertTrueOrFail(matrix[a][b][c].Val() == 1, "Fill() didn't fill the whole matrix!");
+  for (a = 0; a < _matrix.GetRange(0); ++a) {
+    for (b = 0; b < _matrix.GetRange(1); ++b) {
+      for (c = 0; c < _matrix.GetRange(2); ++c) {
+        assertTrueOrFail(_matrix[a][b][c].Val() == 1, "Fill() didn't fill the whole _matrix!");
       }
     }
   }
 
-  matrix.Add(2);
+  _matrix.Add(2);
 
-  for (a = 0; a < matrix.GetRange(0); ++a) {
-    for (b = 0; b < matrix.GetRange(1); ++b) {
-      for (c = 0; c < matrix.GetRange(2); ++c) {
-        assertTrueOrFail(matrix[a][b][c].Val() == 3, "Add() didn't add value to the whole matrix!");
+  for (a = 0; a < _matrix.GetRange(0); ++a) {
+    for (b = 0; b < _matrix.GetRange(1); ++b) {
+      for (c = 0; c < _matrix.GetRange(2); ++c) {
+        assertTrueOrFail(_matrix[a][b][c].Val() == 3, "Add() didn't add value to the whole _matrix!");
       }
     }
   }
 
-  matrix.Sub(2);
+  _matrix.Sub(2);
 
-  for (a = 0; a < matrix.GetRange(0); ++a) {
-    for (b = 0; b < matrix.GetRange(1); ++b) {
-      for (c = 0; c < matrix.GetRange(2); ++c) {
-        assertTrueOrFail(matrix[a][b][c].Val() == 1, "Sub() didn't subtract value from the whole matrix!");
+  for (a = 0; a < _matrix.GetRange(0); ++a) {
+    for (b = 0; b < _matrix.GetRange(1); ++b) {
+      for (c = 0; c < _matrix.GetRange(2); ++c) {
+        assertTrueOrFail(_matrix[a][b][c].Val() == 1, "Sub() didn't subtract value from the whole _matrix!");
       }
     }
   }
 
-  matrix.Mul(4);
+  _matrix.Mul(4);
 
-  for (a = 0; a < matrix.GetRange(0); ++a) {
-    for (b = 0; b < matrix.GetRange(1); ++b) {
-      for (c = 0; c < matrix.GetRange(2); ++c) {
-        assertTrueOrFail(matrix[a][b][c].Val() == 4, "Mul() didn't multiply value for the whole matrix!");
+  for (a = 0; a < _matrix.GetRange(0); ++a) {
+    for (b = 0; b < _matrix.GetRange(1); ++b) {
+      for (c = 0; c < _matrix.GetRange(2); ++c) {
+        assertTrueOrFail(_matrix[a][b][c].Val() == 4, "Mul() didn't multiply value for the whole _matrix!");
       }
     }
   }
 
-  matrix.Div(4);
+  _matrix.Div(4);
 
-  for (a = 0; a < matrix.GetRange(0); ++a) {
-    for (b = 0; b < matrix.GetRange(1); ++b) {
-      for (c = 0; c < matrix.GetRange(2); ++c) {
-        assertTrueOrFail(matrix[a][b][c].Val() == 1, "Div() didn't divide value for the whole matrix!");
+  for (a = 0; a < _matrix.GetRange(0); ++a) {
+    for (b = 0; b < _matrix.GetRange(1); ++b) {
+      for (c = 0; c < _matrix.GetRange(2); ++c) {
+        assertTrueOrFail(_matrix[a][b][c].Val() == 1, "Div() didn't divide value for the whole _matrix!");
       }
     }
   }
 
-  assertTrueOrFail((int)matrix.Sum() == matrix.GetSize(), "Sum() didn't sum values for the whole matrix!");
+  assertTrueOrFail((int)_matrix.Sum() == _matrix.GetSize(), "Sum() didn't sum values for the whole _matrix!");
 
-  matrix.FillRandom();
+  _matrix.FillRandom();
 
-  assertTrueOrFail((int)matrix.Sum() != matrix.GetSize(), "FillRandom() should replace 1's with another values!");
+  assertTrueOrFail((int)_matrix.Sum() != _matrix.GetSize(), "FillRandom() should replace 1's with another values!");
 
-  matrix.FillRandom(-0.1, 0.1);
+  _matrix.FillRandom(-0.1, 0.1);
 
-  for (a = 0; a < matrix.GetRange(0); ++a) {
-    for (b = 0; b < matrix.GetRange(1); ++b) {
-      for (c = 0; c < matrix.GetRange(2); ++c) {
-        assertTrueOrFail(matrix[a][b][c].Val() >= -0.1 && matrix[a][b][c].Val() <= 0.1,
-                         "FillRandom() didn't fill random values properly for the whole matrix!");
+  for (a = 0; a < _matrix.GetRange(0); ++a) {
+    for (b = 0; b < _matrix.GetRange(1); ++b) {
+      for (c = 0; c < _matrix.GetRange(2); ++c) {
+        assertTrueOrFail(_matrix[a][b][c].Val() >= -0.1 && _matrix[a][b][c].Val() <= 0.1,
+                         "FillRandom() didn't fill random values properly for the whole _matrix!");
       }
     }
   }
@@ -120,13 +120,13 @@ int OnInit() {
   matrix2[0][3] = 7;
   matrix2[0][4] = 12;
 
-  assertTrueOrFail(matrix2.Avg() == 5.2, "Avg() didn't calculate valid average for matrix values!");
+  assertTrueOrFail(matrix2.Avg() == 5.2, "Avg() didn't calculate valid average for _matrix values!");
 
-  assertTrueOrFail(matrix2.Min() == 1, "Min() didn't find the lowest matrix value!");
+  assertTrueOrFail(matrix2.Min() == 1, "Min() didn't find the lowest _matrix value!");
 
-  assertTrueOrFail(matrix2.Max() == 12, "Max() didn't find the highest matrix value!");
+  assertTrueOrFail(matrix2.Max() == 12, "Max() didn't find the highest _matrix value!");
 
-  assertTrueOrFail(matrix2.Med() == 4, "Med() didn't find median of the matrix values!");
+  assertTrueOrFail(matrix2.Med() == 4, "Med() didn't find median of the _matrix values!");
 
   matrix2.SetShape(2, 5);
 

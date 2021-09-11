@@ -51,18 +51,34 @@ EA2 *ea2;
  * Implements OnInit().
  */
 int OnInit() {
+  // Task to export to all possible formats once per hour.
+  TaskEntry _task_export_per_hour(EA_ACTION_EXPORT_DATA, EA_COND_ON_NEW_HOUR);
+
   /* Initialize base class EA */
   EAParams ea_params("EA");
+  // Exporting to all possible formats once per hour.
+  ea_params.Set(EA_PARAM_DATA_STORE, EA_DATA_STORE_ALL);
+  ea_params.Set(EA_PARAM_DATA_EXPORT, EA_DATA_EXPORT_ALL);
+  ea_params.SetTaskEntry(_task_export_per_hour);
   ea = new EA(ea_params);
-  assertTrueOrFail(ea.Get<string>(EA_PARAM_NAME) == "EA", StringFormat("Invalid EA name: %s!", ea.Get<string>(EA_PARAM_NAME)));
+  assertTrueOrFail(ea.Get<string>(EA_PARAM_NAME) == "EA",
+                   StringFormat("Invalid EA name: %s!", ea.Get<string>(EA_PARAM_NAME)));
 
   /* Initialize 1st custom EA */
   EAParams ea_params1("EA1");
+  // Exporting to all possible formats once per hour.
+  ea_params1.Set(EA_PARAM_DATA_STORE, EA_DATA_STORE_ALL);
+  ea_params1.Set(EA_PARAM_DATA_EXPORT, EA_DATA_EXPORT_ALL);
+  ea_params1.SetTaskEntry(_task_export_per_hour);
   ea1 = new EA1(ea_params1);
   assertTrueOrFail(ea1.Get<string>(EA_PARAM_NAME) == "EA1", "Invalid EA1 name!");
 
   /* Initialize 2st custom EA */
   EAParams ea_params2("EA2");
+  // Exporting to all possible formats once per hour.
+  ea_params2.Set(EA_PARAM_DATA_STORE, EA_DATA_STORE_ALL);
+  ea_params2.Set(EA_PARAM_DATA_EXPORT, EA_DATA_EXPORT_ALL);
+  ea_params2.SetTaskEntry(_task_export_per_hour);
   ea2 = new EA2(ea_params2);
   assertTrueOrFail(ea2.Get<string>(EA_PARAM_NAME) == "EA2", "Invalid EA2 name!");
 
@@ -72,7 +88,11 @@ int OnInit() {
 /**
  * Implements OnTick().
  */
-void OnTick() {}
+void OnTick() {
+  ea.ProcessTick();
+  ea1.ProcessTick();
+  ea2.ProcessTick();
+}
 
 /**
  * Implements OnDeinit().

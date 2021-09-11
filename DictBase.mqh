@@ -65,8 +65,6 @@ class DictBase {
   // Whether Dict operates in yet uknown mode, as dict or as list.
   DictMode _mode;
 
-  Ref<Log> _logger;
-
  public:
   DictBase() {
     _hash = rand();
@@ -78,11 +76,6 @@ class DictBase {
    * Destructor.
    */
   ~DictBase() {}
-
-  /**
-   * Returns logger object.
-   */
-  Log* Logger() { return _logger.Ptr(); }
 
   DictIteratorBase<K, V> Begin() {
     // Searching for first item index.

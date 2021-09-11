@@ -55,10 +55,10 @@ struct SerializableSubEntry {
       : x(_x), y(_y), dynamic(_dynamic), feature(_feature) {}
 
   SerializerNodeType Serialize(Serializer& s) {
-    s.Pass(this, "x", x);
-    s.Pass(this, "y", y);
-    s.Pass(this, "dynamic", dynamic, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "feature", feature, SERIALIZER_FIELD_FLAG_FEATURE);
+    s.Pass(THIS_REF, "x", x);
+    s.Pass(THIS_REF, "y", y);
+    s.Pass(THIS_REF, "dynamic", dynamic, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    s.Pass(THIS_REF, "feature", feature, SERIALIZER_FIELD_FLAG_FEATURE);
     return SerializerNodeObject;
   }
 
@@ -76,10 +76,10 @@ struct SerializableInteger {
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       int out = _is_set ? 5 : 0;
-      s.Pass(this, "", out);
+      s.Pass(THIS_REF, "", out);
     } else {
       int in;
-      s.Pass(this, "", in);
+      s.Pass(THIS_REF, "", in);
       _is_set = in == 5;
     }
 
@@ -116,8 +116,8 @@ class SerializableEntry {
 
   SerializerNodeType Serialize(Serializer& s) {
     s.SetPrecision(6);
-    s.Pass(this, "a", a);
-    s.Pass(this, "b", b);
+    s.Pass(THIS_REF, "a", a);
+    s.Pass(THIS_REF, "b", b);
     s.PassValueObject(this, "i", i);
     s.PassObject(this, "children", children);
 
@@ -182,17 +182,9 @@ int OnInit() {
 
   DictStruct<int, DataParamEntry> buffer_entries;
 
-  DataParamEntry buffer_entry1;
-  buffer_entry1.type = TYPE_DOUBLE;
-  buffer_entry1.double_value = 1.0;
-
-  DataParamEntry buffer_entry2;
-  buffer_entry2.type = TYPE_DOUBLE;
-  buffer_entry2.double_value = 2.0;
-
-  DataParamEntry buffer_entry3;
-  buffer_entry3.type = TYPE_DOUBLE;
-  buffer_entry3.double_value = 3.0;
+  DataParamEntry buffer_entry1 = 1.0;
+  DataParamEntry buffer_entry2 = 2.0;
+  DataParamEntry buffer_entry3 = 3.0;
 
   buffer_entries.Push(buffer_entry1);
   buffer_entries.Push(buffer_entry2);
@@ -207,12 +199,12 @@ int OnInit() {
 
   Config config1;
 
-  ConfigEntry pair1 = {TYPE_STRING, 0, 0, "XLMBTC"};
-  ConfigEntry startDate1 = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
-  ConfigEntry endDate1 = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
-  ConfigEntry enable1 = {TYPE_BOOL, 1, 0, ""};
-  ConfigEntry limit1 = {TYPE_INT, 5, 0, ""};
-  ConfigEntry max1 = {TYPE_DOUBLE, 0, 7.5, ""};
+  ConfigEntry pair1 = "XLMBTC";
+  ConfigEntry startDate1 = StrToTime("2020.01.01 00:00");
+  ConfigEntry endDate1 = StrToTime("2025.03.05 23:23");
+  ConfigEntry enable1 = true;
+  ConfigEntry limit1 = 5;
+  ConfigEntry max1 = 7.5;
 
   config1.Set("pair", pair1);
   config1.Set("startDate", startDate1);
@@ -221,20 +213,20 @@ int OnInit() {
   config1.Set("limit", limit1);
   config1.Set("max", max1);
   config1.Set("otherPair", "XLMBTC");
-  config1.Set("otherStartDate", D'2020.01.01 00:00');
-  config1.Set("otherEndDate", D'2025.03.05 23:23');
+  config1.Set("otherStartDate", StrToTime("2020.01.01 00:00"));
+  config1.Set("otherEndDate", StrToTime("2025.03.05 23:23"));
   config1.Set("otherEnable", true);
   config1.Set("otherLimit", 5);
   config1.Set("otherMax", 7.5);
 
   Config config2;
 
-  ConfigEntry pair2 = {TYPE_STRING, 0, 0, "PLNBTC"};
-  ConfigEntry startDate2 = {TYPE_DATETIME, D'2011.01.01 00:00', 0, ""};
-  ConfigEntry endDate2 = {TYPE_DATETIME, D'2015.03.05 23:23', 0, ""};
-  ConfigEntry enable2 = {TYPE_BOOL, 3, 0, ""};
-  ConfigEntry limit2 = {TYPE_INT, 6, 0, ""};
-  ConfigEntry max2 = {TYPE_DOUBLE, 0, 2.1, ""};
+  ConfigEntry pair2 = "PLNBTC";
+  ConfigEntry startDate2 = StrToTime("2011.01.01 00:00");
+  ConfigEntry endDate2 = StrToTime("2015.03.05 23:23");
+  ConfigEntry enable2 = true;
+  ConfigEntry limit2 = 6;
+  ConfigEntry max2 = 2.1;
 
   config2.Set("pair", pair2);
   config2.Set("startDate", startDate2);
@@ -243,8 +235,8 @@ int OnInit() {
   config2.Set("limit", limit2);
   config2.Set("max", max2);
   config2.Set("otherPair", "XLMBTC");
-  config2.Set("otherStartDate", D'2019.01.01 00:00');
-  config2.Set("otherEndDate", D'2023.03.05 23:23');
+  config2.Set("otherStartDate", StrToTime("2019.01.01 00:00"));
+  config2.Set("otherEndDate", StrToTime("2023.03.05 23:23"));
   config2.Set("otherEnable", false);
   config2.Set("otherLimit", 2);
   config2.Set("otherMax", 1.5);
@@ -299,12 +291,12 @@ int OnInit() {
 
   BufferStruct<DataParamEntry> buff_params;
 
-  DataParamEntry pair = {TYPE_STRING, 0, 0, "XLMBTC"};
-  DataParamEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
-  DataParamEntry endDate = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
-  DataParamEntry enable = {TYPE_BOOL, 1, 0, ""};
-  DataParamEntry limit = {TYPE_INT, 5, 0, ""};
-  DataParamEntry doubleVal = {TYPE_DOUBLE, 0, 7.5, ""};
+  DataParamEntry pair = "XLMBTC";
+  DataParamEntry startDate = StrToTime("2020.01.01 00:00");
+  DataParamEntry endDate = StrToTime("2025.03.05 23:23");
+  DataParamEntry enable = true;
+  DataParamEntry limit = 5;
+  DataParamEntry doubleVal = 7.5;
 
   buff_params.Add(pair, 1);
   buff_params.Add(startDate, 2);
@@ -340,7 +332,7 @@ int OnInit() {
 
   assertTrueOrFail(subentry_none_json == "{\"x\":1,\"y\":2,\"dynamic\":3,\"feature\":4}",
                    "Serializer flags not obeyed!");
-  assertTrueOrFail(subentry_dynamic_json == "{\"dynamic\":3}", "Serializer flags not obeyed!");
+  assertEqualOrFail(subentry_dynamic_json, "{\"dynamic\":3}", "Serializer flags not obeyed!");
   assertTrueOrFail(subentry_feature_json == "{\"feature\":4}", "Serializer flags not obeyed!");
   assertTrueOrFail(subentry_dynamic_feature_json == "{\"dynamic\":3,\"feature\":4}", "Serializer flags not obeyed!");
 

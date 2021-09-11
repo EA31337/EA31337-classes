@@ -58,20 +58,15 @@ class Account {
                   [FINAL_ENUM_ACC_STAT_INDEX];
 
  public:
-
   /**
    * Class constructor.
    */
-  Account()
-      : init_balance(CalcInitDeposit()),
-        start_balance(GetBalance()),
-        start_credit(GetCredit()) {}
+  Account() : init_balance(CalcInitDeposit()), start_balance(GetBalance()), start_credit(GetCredit()) {}
 
   /**
    * Class deconstructor.
    */
-  ~Account() {
-  }
+  ~Account() {}
 
   /* Entries */
 
@@ -138,7 +133,7 @@ class Account {
   float GetBalance() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_BALANCE, AccountBalance());
-    return (float) Account::AccountBalance();
+    return (float)Account::AccountBalance();
   }
 
   /**
@@ -148,7 +143,7 @@ class Account {
   float GetCredit() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_CREDIT, AccountCredit());
-    return (float) Account::AccountCredit();
+    return (float)Account::AccountCredit();
   }
 
   /**
@@ -158,7 +153,7 @@ class Account {
   float GetProfit() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_PROFIT, AccountProfit());
-    return (float) Account::AccountProfit();
+    return (float)Account::AccountProfit();
   }
 
   /**
@@ -168,7 +163,7 @@ class Account {
   float GetEquity() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_EQUITY, AccountEquity());
-    return (float) Account::AccountEquity();
+    return (float)Account::AccountEquity();
   }
 
   /**
@@ -178,7 +173,7 @@ class Account {
   float GetMarginUsed() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_USED, AccountMargin());
-    return (float) Account::AccountMargin();
+    return (float)Account::AccountMargin();
   }
 
   /**
@@ -200,7 +195,7 @@ class Account {
   float GetMarginFree() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
-    return (float) Account::AccountFreeMargin();
+    return (float)Account::AccountFreeMargin();
   }
 
   /**
@@ -248,13 +243,13 @@ class Account {
    * Get account total balance (including credit).
    */
   static double AccountTotalBalance() { return AccountBalance() + AccountCredit(); }
-  float GetTotalBalance() { return (float) (GetBalance() + GetCredit()); }
+  float GetTotalBalance() { return (float)(GetBalance() + GetCredit()); }
 
   /**
    * Get account available margin.
    */
   static double AccountAvailMargin() { return fmin(AccountFreeMargin(), AccountTotalBalance()); }
-  float GetMarginAvail() { return (float) AccountAvailMargin(); }
+  float GetMarginAvail() { return (float)AccountAvailMargin(); }
 
   /**
    * Returns the calculation mode of free margin allowed to open orders on the current account.
@@ -404,9 +399,10 @@ class Account {
 #else
     // @see: CAccountInfo::FreeMarginCheck
     double _margin;
-    return (::OrderCalcMargin(_cmd, _symbol, _volume,
-                              SymbolInfo::SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID),
-                              _margin)
+    return (::OrderCalcMargin(
+                _cmd, _symbol, _volume,
+                SymbolInfoStatic::SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID),
+                _margin)
                 ? AccountInfoDouble(ACCOUNT_MARGIN_FREE) - _margin
                 : -1);
 #endif
@@ -507,7 +503,7 @@ class Account {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, DataParamEntry &_args[]) {
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     switch (_cond) {
       /* @todo
       case ACCOUNT_COND_BALM_GT_YEARLY:
@@ -553,19 +549,19 @@ class Account {
       case ACCOUNT_COND_EQUITY_01PC_HIGH:
         return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 101;
       case ACCOUNT_COND_EQUITY_01PC_LOW:
-        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 99;
+        return AccountEquity() < (AccountBalance() + AccountCredit()) / 100 * 99;
       case ACCOUNT_COND_EQUITY_05PC_HIGH:
         return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 105;
       case ACCOUNT_COND_EQUITY_05PC_LOW:
-        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 95;
+        return AccountEquity() < (AccountBalance() + AccountCredit()) / 100 * 95;
       case ACCOUNT_COND_EQUITY_10PC_HIGH:
         return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 110;
       case ACCOUNT_COND_EQUITY_10PC_LOW:
-        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 90;
+        return AccountEquity() < (AccountBalance() + AccountCredit()) / 100 * 90;
       case ACCOUNT_COND_EQUITY_20PC_HIGH:
         return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 120;
       case ACCOUNT_COND_EQUITY_20PC_LOW:
-        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 80;
+        return AccountEquity() < (AccountBalance() + AccountCredit()) / 100 * 80;
       case ACCOUNT_COND_EQUITY_IN_LOSS:
         return GetEquity() < GetTotalBalance();
       case ACCOUNT_COND_EQUITY_IN_PROFIT:
@@ -596,8 +592,14 @@ class Account {
         return false;
     }
   }
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, long _arg1) {
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
+    return Account::CheckCondition(_cond, _args);
+  }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Account::CheckCondition(_cond, _args);
   }
 
@@ -630,7 +632,7 @@ class Account {
    */
   SerializerNodeType Serialize(Serializer &_s) {
     AccountEntry _entry = GetEntry();
-    _s.PassStruct(this, "account-entry", _entry, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.PassStruct(THIS_REF, "account-entry", _entry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
 

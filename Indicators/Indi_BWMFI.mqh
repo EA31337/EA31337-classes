@@ -187,7 +187,10 @@ class Indi_BWMFI : public Indicator {
 #endif
       _entry.values[BWMFI_HISTCOLOR] = _histcolor;
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[BWMFI_BUFFER] != 0 && !_entry.HasValue(EMPTY_VALUE));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

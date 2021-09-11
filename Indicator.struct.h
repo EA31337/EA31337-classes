@@ -35,12 +35,10 @@ class Indicator;
 struct ChartParams;
 
 // Includes.
-#include "Chart.struct.h"
 #include "Chart.struct.tf.h"
 #include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
-#include "Indicator.struct.signal.h"
 #include "SerializerNode.enum.h"
 
 /**
@@ -58,11 +56,11 @@ struct IndicatorCalculateCache {
   bool price_was_as_series;
 
   // Buffers used for OnCalculate calculations.
-  double buffer1[];
-  double buffer2[];
-  double buffer3[];
-  double buffer4[];
-  double buffer5[];
+  ARRAY(double, buffer1);
+  ARRAY(double, buffer2);
+  ARRAY(double, buffer3);
+  ARRAY(double, buffer4);
+  ARRAY(double, buffer5);
 
   /**
    * Constructor.
@@ -115,7 +113,7 @@ struct IndicatorCalculateCache {
   /**
    * Updates prev_calculated value used by indicator's OnCalculate method.
    */
-  void SetPrevCalculated(double &price[], int _prev_calculated) {
+  void SetPrevCalculated(ARRAY_REF(double, price), int _prev_calculated) {
     prev_calculated = _prev_calculated;
     ArraySetAsSeries(price, price_was_as_series);
   }
@@ -126,24 +124,10 @@ struct IndicatorCalculateCache {
   int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
 };
 
-#ifndef __MQL__
-/**
- * The structure of input parameters of indicators.
- *
- * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
- */
-struct MqlParam {
-  ENUM_DATATYPE type;   // Type of the input parameter, value of ENUM_DATATYPE.
-  long integer_value;   // Field to store an integer type.
-  double double_value;  // Field to store a double type.
-  string string_value;  // Field to store a string type.
-};
-#endif
-
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {
-  long timestamp;       // Timestamp of the entry's bar.
-  unsigned char flags;  // Indicator entry flags.
+  long timestamp;        // Timestamp of the entry's bar.
+  unsigned short flags;  // Indicator entry flags.
   union IndicatorDataEntryValue {
     double vdbl;
     float vflt;
@@ -241,7 +225,10 @@ struct IndicatorDataEntry {
     string ToString() {
       return (string)Get<T>();
     }
-  } values[];
+  };
+
+  ARRAY(IndicatorDataEntryValue, values);
+
   // Constructors.
   IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
   int GetSize() { return ArraySize(values); }
@@ -312,8 +299,8 @@ struct IndicatorDataEntry {
   }
   // Getters.
   template <typename T>
-  void GetArray(T &_out[], int _size = 0) {
-    int _asize = _size > 0 ? _size : ArraySize(values);
+  void GetArray(ARRAY_REF(T, _out), int _size = 0) {
+    int _asize = _size > 0 ? _size : ArraySize(_out);
     for (int i = 0; i < _asize; i++) {
       values[i].Get(_out[i]);
     }
@@ -373,11 +360,7 @@ struct IndicatorDataEntry {
     values[2].Get(_out3);
     values[3].Get(_out4);
   };
-  DataParamEntry GetEntry(int _index = 0) {
-    DataParamEntry _entry;
-    _entry.type = GetDataType();
-    return _entry;
-  }
+
   // Getters.
   int GetDayOfYear() { return DateTimeStatic::DayOfYear(timestamp); }
   int GetMonth() { return DateTimeStatic::Month(timestamp); }
@@ -392,11 +375,26 @@ struct IndicatorDataEntry {
     }
     return TYPE_DOUBLE;
   }
+  INDICATOR_ENTRY_FLAGS GetDataTypeFlag(ENUM_DATATYPE _dt) {
+    switch (_dt) {
+      case TYPE_DOUBLE:
+        return INDI_ENTRY_FLAG_IS_DOUBLE;
+      case TYPE_FLOAT:
+        return INDI_ENTRY_FLAG_IS_FLOAT;
+      case TYPE_INT:
+        return INDI_ENTRY_FLAG_IS_INT;
+      case TYPE_LONG:
+        return INDI_ENTRY_FLAG_IS_LONG;
+      default:
+        break;
+    }
+    return (INDICATOR_ENTRY_FLAGS)0;
+  }
   // Value flag methods for bitwise operations.
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }
-  void AddFlags(unsigned char _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void AddFlags(unsigned short _flags) { flags |= _flags; }
+  void RemoveFlags(unsigned short _flags) { flags &= ~_flags; }
   void SetFlag(INDICATOR_ENTRY_FLAGS _flag, bool _value) {
     if (_value) {
       AddFlags(_flag);
@@ -404,12 +402,15 @@ struct IndicatorDataEntry {
       RemoveFlags(_flag);
     }
   }
-  void SetFlags(unsigned char _flags) { flags = _flags; }
+  void SetFlags(unsigned short _flags) { flags = _flags; }
   // Converters.
   // State checkers.
   bool IsValid() { return CheckFlags(INDI_ENTRY_FLAG_IS_VALID); }
   // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) { ArrayResize(values, _n1); }
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    ArrayResize(values, _n1);
+    AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
+  }
   SerializerNodeType Serialize(Serializer &_s);
   template <typename T>
   string ToCSV() {
@@ -438,17 +439,17 @@ struct IndicatorParams {
   ENUM_IDATA_SOURCE_TYPE idstype;   // Indicator's data source type (e.g. IDATA_BUILTIN, IDATA_ICUSTOM).
   ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
   // ENUM_IDATA_VALUE_TYPE idvtype;    // Indicator's data value type (e.g. TDBL1, TDBL2, TINT1).
-  ENUM_DATATYPE dtype;            // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
-  color indi_color;               // Indicator color.
-  int indi_data_source_id;        // Id of the indicator to be used as data source.
-  int indi_data_source_mode;      // Mode used as input from data source.
-  Indicator *indi_data_source;    // Custom indicator to be used as data source.
-  bool indi_managed;              // Whether indicator should be owned by indicator.
-  DataParamEntry input_params[];  // Indicator input params.
-  int indi_mode;                  // Index of indicator data to be used as data source.
-  bool is_draw;                   // Draw active.
-  int draw_window;                // Drawing window.
-  string custom_indi_name;        // Name of the indicator passed to iCustom() method.
+  ENUM_DATATYPE dtype;                  // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
+  color indi_color;                     // Indicator color.
+  int indi_data_source_id;              // Id of the indicator to be used as data source.
+  int indi_data_source_mode;            // Mode used as input from data source.
+  Indicator *indi_data_source;          // Custom indicator to be used as data source.
+  bool indi_managed;                    // Whether indicator should be owned by indicator.
+  ARRAY(DataParamEntry, input_params);  // Indicator input params.
+  int indi_mode;                        // Index of indicator data to be used as data source.
+  bool is_draw;                         // Draw active.
+  int draw_window;                      // Drawing window.
+  string custom_indi_name;              // Name of the indicator passed to iCustom() method.
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
@@ -548,7 +549,7 @@ struct IndicatorParams {
     idstype = IDATA_INDICATOR;
   }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
-  void SetInputParams(DataParamEntry &_params[]) {
+  void SetInputParams(ARRAY_REF(DataParamEntry, _params)) {
     int _asize = ArraySize(_params);
     SetMaxParams(ArraySize(_params));
     for (int i = 0; i < _asize; i++) {

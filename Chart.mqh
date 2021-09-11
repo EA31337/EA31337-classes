@@ -69,17 +69,30 @@ double iClose(string _symbol, int _tf, int _shift) {
 }
 #endif
 
+#ifndef __MQL__
+struct MqlRates {
+  datetime time;     // Period start time
+  double open;       // Open price
+  double high;       // The highest price of the period
+  double low;        // The lowest price of the period
+  double close;      // Close price
+  long tick_volume;  // Tick volume
+  int spread;        // Spread
+  long real_volume;  // Trade volume
+};
+#endif
+
 /**
  * Class to provide chart, timeframe and timeseries operations.
  */
 class Chart : public Market {
  protected:
   // Structs.
-  ChartEntry chart_saves[];
+  ARRAY(ChartEntry, chart_saves);
   ChartParams cparams;
 
   // Stores information about the prices, volumes and spread.
-  MqlRates rates[];
+  ARRAY(MqlRates, rates);
   ChartEntry c_entry;
 
   // Stores indicator instances.
@@ -99,8 +112,8 @@ class Chart : public Market {
   /**
    * Class constructor.
    */
-  Chart(ChartParams &_cparams, string _symbol = NULL)
-      : cparams(_cparams), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
+  Chart(ChartParams &_cparams)
+      : cparams(_cparams), Market(_cparams.symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
     cparams.Set(CHART_PARAM_ID, ChartStatic::ID());
@@ -222,7 +235,13 @@ class Chart : public Market {
     return _chart_entry;
   }
 
-  /* State checking */
+  /**
+   * Gets copy of params.
+   *
+   * @return
+   *   Returns structure for Trade's params.
+   */
+  ChartParams GetParams() const { return cparams; }
 
   /* State checking */
 
@@ -321,7 +340,7 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iVolume(symbol, _tf, _shift); }
-  long GetVolume(uint _shift = 0) { return iVolume(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  long GetVolume(uint _shift = 0) { return ChartStatic::iVolume(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -389,11 +408,14 @@ class Chart : public Market {
    */
   static string ListTimeframes(bool _all = false, string _prefix = "Timeframes: ") {
     string output = _prefix;
-    for (ENUM_TIMEFRAMES_INDEX _tfi = 0; _tfi < FINAL_ENUM_TIMEFRAMES_INDEX; _tfi++) {
+    for (int _tfi = 0; _tfi < FINAL_ENUM_TIMEFRAMES_INDEX; _tfi++) {
       if (_all) {
-        output += StringFormat("%s: %s; ", ChartTf::IndexToString(_tfi), Chart::IsValidTfIndex(_tfi) ? "On" : "Off");
+        output += StringFormat("%s: %s; ", ChartTf::IndexToString((ENUM_TIMEFRAMES_INDEX)_tfi),
+                               Chart::IsValidTfIndex((ENUM_TIMEFRAMES_INDEX)_tfi) ? "On" : "Off");
       } else {
-        output += Chart::IsValidTfIndex(_tfi) ? ChartTf::IndexToString(_tfi) + "; " : "";
+        output += Chart::IsValidTfIndex((ENUM_TIMEFRAMES_INDEX)_tfi)
+                      ? ChartTf::IndexToString((ENUM_TIMEFRAMES_INDEX)_tfi) + "; "
+                      : "";
       }
     }
     return output;
@@ -428,7 +450,7 @@ class Chart : public Market {
    * - https://www.mql5.com/en/articles/1486
    * - https://www.mql5.com/en/articles/1513
    */
-  static double CalcModellingQuality(ENUM_TIMEFRAMES TimePr = NULL) {
+  static double CalcModellingQuality(ENUM_TIMEFRAMES TimePr = PERIOD_CURRENT) {
     int i;
     int nBarsInM1 = 0;
     int nBarsInPr = 0;
@@ -439,7 +461,8 @@ class Chart : public Market {
     long StartBar = 0;
     long StartGenM1 = 0;
     long HistoryTotal = 0;
-    datetime modeling_start_time = D'1971.01.01 00:00';
+    datetime x = StrToTime("1971.01.01 00:00");
+    datetime modeling_start_time = StrToTime("1971.01.01 00:00");
 
     if (TimePr == NULL) TimePr = (ENUM_TIMEFRAMES)Period();
     if (TimePr == PERIOD_M1) TimeNearPr = PERIOD_M1;
@@ -517,8 +540,8 @@ class Chart : public Market {
    * Check whether the price is in its peak for the current period.
    */
   static bool IsPeak(ENUM_TIMEFRAMES _period, string _symbol = NULL) {
-    return GetAsk(_symbol) >= ChartStatic::iHigh(_symbol, _period) ||
-           GetAsk(_symbol) <= ChartStatic::iLow(_symbol, _period);
+    return SymbolInfoStatic::GetAsk(_symbol) >= ChartStatic::iHigh(_symbol, _period) ||
+           SymbolInfoStatic::GetAsk(_symbol) <= ChartStatic::iLow(_symbol, _period);
   }
   bool IsPeak() { return IsPeak(Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), symbol); }
 
@@ -609,7 +632,7 @@ class Chart : public Market {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_CHART_CONDITION _cond, DataParamEntry &_args[]) {
+  bool CheckCondition(ENUM_CHART_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     float _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
     switch (_cond) {
       case CHART_COND_ASK_BAR_PEAK:
@@ -725,7 +748,7 @@ class Chart : public Market {
       case CHART_COND_BAR_INDEX_EQ_ARG:
         // Current bar's index equals argument value.
         if (ArraySize(_args) > 0) {
-          return GetBarIndex() == Convert::MqlParamToInteger(_args[0]);
+          return GetBarIndex() == DataParamEntry::ToInteger(_args[0]);
         } else {
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
@@ -733,7 +756,7 @@ class Chart : public Market {
       case CHART_COND_BAR_INDEX_GT_ARG:
         // Current bar's index greater than argument value.
         if (ArraySize(_args) > 0) {
-          return GetBarIndex() > Convert::MqlParamToInteger(_args[0]);
+          return GetBarIndex() > DataParamEntry::ToInteger(_args[0]);
         } else {
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
@@ -741,7 +764,7 @@ class Chart : public Market {
       case CHART_COND_BAR_INDEX_LT_ARG:
         // Current bar's index lower than argument value.
         if (ArraySize(_args) > 0) {
-          return GetBarIndex() < Convert::MqlParamToInteger(_args[0]);
+          return GetBarIndex() < DataParamEntry::ToInteger(_args[0]);
         } else {
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
@@ -778,12 +801,12 @@ class Chart : public Market {
         return false;
       */
       default:
-        Logger().Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
   bool CheckCondition(ENUM_CHART_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Chart::CheckCondition(_cond, _args);
   }
 
@@ -853,7 +876,7 @@ class Chart : public Market {
    */
   SerializerNodeType Serialize(Serializer &_s) {
     ChartEntry _centry = GetEntry();
-    _s.PassStruct(this, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.PassStruct(THIS_REF, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
 };

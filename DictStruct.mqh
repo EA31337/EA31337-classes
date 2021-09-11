@@ -24,16 +24,16 @@
 #ifndef DICT_STRUCT_MQH
 #define DICT_STRUCT_MQH
 
+// Forward declarations.
+class Dynamic;
+class Log;
+
 #include "DictBase.mqh"
 #include "DictIteratorBase.mqh"
 #include "Serializer.mqh"
 
-class Dynamic;
-
 // DictIterator could be used as DictStruct iterator.
 #define DictStructIterator DictIteratorBase
-
-class Log;
 
 /**
  * Hash-table based dictionary.
@@ -112,7 +112,9 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts value using hashless key.
    */
+  #ifdef __MQL__
   template <>
+  #endif
   bool Push(Dynamic* value) {
     V ptr = value;
 
@@ -143,6 +145,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (slot == NULL || !slot.IsUsed()) {
       Alert("Invalid DictStruct key \"", key, "\" (called by [] operator). Returning empty structure.");
+      DebugBreak();
       static V _empty;
       return _empty;
     }
@@ -160,6 +163,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (!slot) {
       Alert("Invalid DictStruct key \"", _key, "\" (called by GetByKey()). Returning empty structure.");
+      DebugBreak();
       static V _empty;
       return _empty;
     }
@@ -175,6 +179,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (!slot) {
       Alert("Invalid DictStruct position \"", _position, "\" (called by GetByPos()). Returning empty structure.");
+      DebugBreak();
       static V _empty;
       return _empty;
     }
@@ -185,7 +190,9 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Checks whether dictionary contains given key => value pair.
    */
+  #ifdef __MQL__
   template <>
+  #endif
   bool Contains(const K key, V& value) {
     unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, key, position);
@@ -349,7 +356,9 @@ class DictStruct : public DictBase<K, V> {
   }
 
  public:
+  #ifdef __MQL__
   template <>
+  #endif
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i)
@@ -394,7 +403,9 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
+  #ifdef __MQL__
   template <>
+  #endif
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
     V _child;
 

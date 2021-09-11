@@ -31,10 +31,16 @@
 #endif
 
 // Includes.
-#include "SerializerNode.mqh"
+#include "ISerializable.h"
+#include "MqlTick.h"
+#include "SymbolInfo.static.h"
 
 // Defines struct to store symbol data.
-struct SymbolInfoEntry {
+struct SymbolInfoEntry
+#ifndef __MQL__
+    : public ISerializable
+#endif
+{
   double bid;            // Current Bid price.
   double ask;            // Current Ask price.
   double last;           // Price of the last deal.
@@ -42,26 +48,22 @@ struct SymbolInfoEntry {
   unsigned long volume;  // Volume for the current last price.
   // Constructor.
   SymbolInfoEntry() : bid(0), ask(0), last(0), spread(0), volume(0) {}
-  SymbolInfoEntry(const MqlTick& _tick, const string _symbol = NULL) {
+  SymbolInfoEntry(const MqlTick& _tick, const string _symbol = "") {
     bid = _tick.bid;
     ask = _tick.ask;
     last = _tick.last;
     volume = _tick.volume;
-    spread = SymbolInfo::GetRealSpread(bid, ask, SymbolInfo::GetDigits(_symbol));
+    spread = (unsigned int)round((ask - bid) * pow(10, SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS)));
   }
   // Getters
   string ToCSV() { return StringFormat("%g,%g,%g,%g,%d", bid, ask, last, spread, volume); }
-  // Serializers.
+// Serializers.
+#ifdef __MQL__
   template <>
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
-    _s.Pass(this, "ask", ask);
-    _s.Pass(this, "bid", bid);
-    _s.Pass(this, "last", last);
-    _s.Pass(this, "spread", spread);
-    _s.Pass(this, "volume", volume);
-    return SerializerNodeObject;
+#endif
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
   }
+  SerializerNodeType Serialize(Serializer& _s);
 };
 
 // Defines structure for SymbolInfo properties.
@@ -72,29 +74,24 @@ struct SymbolInfoProp {
   unsigned int vol_digits;   // Volume digits.
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
-    _s.Pass(this, "pip_value", pip_value);
-    _s.Pass(this, "pip_digits", pip_digits);
-    _s.Pass(this, "pts_per_pip", pts_per_pip);
-    _s.Pass(this, "vol_digits", vol_digits);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer& _s);
 };
 
-#ifndef __MQL__
-/**
- * Structure for storing the latest prices of the symbol.
- * @docs
- * https://www.mql5.com/en/docs/constants/structures/mqltick
- */
-struct MqlTick {
-  datetime time;         // Time of the last prices update.
-  double ask;            // Current Ask price.
-  double bid;            // Current Bid price.
-  double last;           // Price of the last deal (last).
-  double volume_real;    // Volume for the current last price with greater accuracy.
-  long time_msc;         // Time of a price last update in milliseconds.
-  unsigned int flags;    // Tick flags.
-  unsigned long volume;  // Volume for the current last price.
-};
-#endif
+#include "Serializer.mqh"
+
+SerializerNodeType SymbolInfoEntry::Serialize(Serializer& _s) {
+  _s.Pass(THIS_REF, "ask", ask);
+  _s.Pass(THIS_REF, "bid", bid);
+  _s.Pass(THIS_REF, "last", last);
+  _s.Pass(THIS_REF, "spread", spread);
+  _s.Pass(THIS_REF, "volume", volume);
+  return SerializerNodeObject;
+}
+
+SerializerNodeType SymbolInfoProp::Serialize(Serializer& _s) {
+  _s.Pass(THIS_REF, "pip_value", pip_value);
+  _s.Pass(THIS_REF, "pip_digits", pip_digits);
+  _s.Pass(THIS_REF, "pts_per_pip", pts_per_pip);
+  _s.Pass(THIS_REF, "vol_digits", vol_digits);
+  return SerializerNodeObject;
+}

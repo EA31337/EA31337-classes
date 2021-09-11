@@ -237,7 +237,10 @@ class Indi_Gator : public Indicator {
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
                      !_entry.HasValue(EMPTY_VALUE) && (_entry.values[LINE_UPPER_HISTOGRAM].GetDbl() != 0 ||
                                                        _entry.values[LINE_LOWER_HISTOGRAM].GetDbl() != 0));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

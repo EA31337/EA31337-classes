@@ -30,14 +30,22 @@
 #pragma once
 #endif
 
+// Forward class declaration.
+class Serializer;
+
 // Includes.
 #include "Bar.enum.h"
 #include "Chart.enum.h"
-#include "Serializer.mqh"
+#include "ISerializable.h"
+#include "Serializer.enum.h"
 #include "SerializerNode.enum.h"
 
 /* Struct for storing OHLC values. */
-struct BarOHLC {
+struct BarOHLC
+#ifndef __MQL__
+  : public ISerializable
+#endif
+{
   datetime time;
   float open, high, low, close;
   // Struct constructor.
@@ -48,7 +56,7 @@ struct BarOHLC {
       _time = TimeCurrent();
     }
   }
-  BarOHLC(float &_prices[], datetime _time = 0) : time(_time) {
+  BarOHLC(ARRAY_REF(float, _prices), datetime _time = 0) : time(_time) {
     _time = _time == 0 ? TimeCurrent() : _time;
     int _size = ArraySize(_prices);
     close = _prices[0];
@@ -142,6 +150,7 @@ struct BarOHLC {
     }
     return _r4 > _r3 && _r3 > _r2 && _r2 > _r1 && _r1 > _pp && _pp > _s1 && _s1 > _s2 && _s2 > _s3 && _s3 > _s4;
   }
+  datetime GetTime() { return time; }
   float GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const { return BarOHLC::GetAppliedPrice(_ap, open, high, low, close); }
   float GetBody() const { return close - open; }
   float GetBodyAbs() const { return fabs(close - open); }
@@ -179,7 +188,7 @@ struct BarOHLC {
   float GetWickUpper() const { return high - GetMaxOC(); }
   float GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
   short GetType() const { return IsBull() ? 1 : (IsBear() ? -1 : 0); }
-  void GetValues(float &_out[]) {
+  void GetValues(ARRAY_REF(float, _out)) {
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
     _out[_index++] = open;
@@ -217,13 +226,15 @@ struct BarOHLC {
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
 };
 
+#include "Serializer.mqh"
+
 /* Method to serialize BarOHLC structure. */
 SerializerNodeType BarOHLC::Serialize(Serializer &s) {
-  // s.Pass(this, "time", TimeToString(time));
-  s.Pass(this, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(this, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(this, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(this, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  // s.Pass(THIS_REF, "time", TimeToString(time));
+  s.Pass(THIS_REF, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
   return SerializerNodeObject;
 }
 
@@ -237,7 +248,7 @@ struct BarEntry {
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer &s) {
-    s.PassStruct(this, "ohlc", ohlc, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    s.PassStruct(THIS_REF, "ohlc", ohlc, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
   string ToCSV() { return StringFormat("%s", ohlc.ToCSV()); }

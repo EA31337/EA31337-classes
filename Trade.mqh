@@ -92,6 +92,14 @@ class Trade {
   /* Getters */
 
   /**
+   * Gets an account parameter value of double type.
+   */
+  template <typename T>
+  T Get(ENUM_ACCOUNT_INFO_DOUBLE _param) {
+    return account.Get<T>(_param);
+  }
+
+  /**
    * Gets a trade parameter value.
    */
   template <typename T>
@@ -378,7 +386,7 @@ class Trade {
     // https://www.mql5.com/ru/forum/170952/page9#comment_4134898
     // https://www.mql5.com/en/docs/trading/ordercalcmargin
     double _margin_req;
-    bool _result = Trade::OrderCalcMargin(_cmd, _symbol, 1, SymbolInfo::GetAsk(_symbol), _margin_req);
+    bool _result = Trade::OrderCalcMargin(_cmd, _symbol, 1, SymbolInfoStatic::GetAsk(_symbol), _margin_req);
     return _result ? (float)_margin_req : 0;
 #endif
   }
@@ -481,9 +489,17 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
 
   /**
    * Calculate size of the lot based on the free margin or balance.
+   *
+   * @param
+   *   _risk_margin (double) Risk margin in %.
+   *   ...
+   *
+   * @return
+   *   Returns calculated lot size (volume).
    */
   float CalcLotSize(float _risk_margin = 1,   // Risk margin in %.
                     float _risk_ratio = 1.0,  // Risk ratio factor.
+                    uint _orders_avg = 10,    // Number of orders to use for the calculation.
                     uint _method = 0          // Method of calculation (0-3).
   ) {
     float _avail_amount = _method % 2 == 0 ? account.GetMarginAvail() : account.GetTotalBalance();
@@ -491,7 +507,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     float _lot_size = _lot_size_min;
     float _risk_value = (float)account.GetLeverage();
     if (_method == 0 || _method == 1) {
-      _lot_size = _avail_amount / fmax(_lot_size_min, GetMarginRequired() * _risk_ratio) / _risk_value * _risk_ratio;
+      float _margin_req = GetMarginRequired();
+      if (_margin_req > 0) {
+        _lot_size = _avail_amount / _margin_req * _risk_ratio;
+        _lot_size /= _risk_value * _risk_ratio * _orders_avg;
+      }
     } else {
       float _risk_amount = _avail_amount / 100 * _risk_margin;
       float _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, chart.GetSymbol());
@@ -499,6 +519,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // @todo: Improves calculation logic.
       _lot_size = _money_value * _tick_value * _risk_ratio / _risk_value / 100;
     }
+    _lot_size = (float)fmin(_lot_size, chart.GetVolumeMax());
     return (float)NormalizeLots(_lot_size);
   }
 
@@ -525,6 +546,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         tstats.Add(TRADE_STAT_ORDERS_OPENED);
         // Trigger: OnOrder();
         _result = true;
+        break;
+      case TRADE_RETCODE_INVALID:
+        logger.Error("Cannot process order!", __FUNCTION_LINE__,
+                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         break;
       default:
         logger.Error("Cannot add order!", __FUNCTION_LINE__,
@@ -572,7 +597,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       return _result;
     }
     // Prepare order request.
-    MqlTradeRequest _request = {0};
+    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment != "" ? _comment : tparams.order_comment;
     _request.deviation = 10;
@@ -898,7 +923,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @see: https://book.mql4.com/appendix/limits
    */
   static long GetTradeDistanceInPts(string _symbol) {
-    return fmax(SymbolInfo::GetTradeStopsLevel(_symbol), SymbolInfo::GetFreezeLevel(_symbol));
+    return fmax(SymbolInfoStatic::GetTradeStopsLevel(_symbol), SymbolInfoStatic::GetFreezeLevel(_symbol));
   }
   long GetTradeDistanceInPts() { return GetTradeDistanceInPts(chart.GetSymbol()); }
 
@@ -910,7 +935,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @see: https://book.mql4.com/appendix/limits
    */
   static double GetTradeDistanceInPips(string _symbol) {
-    unsigned int _pts_per_pip = SymbolInfo::GetPointsPerPip(_symbol);
+    unsigned int _pts_per_pip = SymbolInfoStatic::GetPointsPerPip(_symbol);
     return (double)(_pts_per_pip > 0 ? (GetTradeDistanceInPts(_symbol) / _pts_per_pip) : 0);
   }
   double GetTradeDistanceInPips() { return GetTradeDistanceInPips(chart.GetSymbol()); }
@@ -923,7 +948,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @see: https://book.mql4.com/appendix/limits
    */
   static double GetTradeDistanceInValue(string _symbol) {
-    return Trade::GetTradeDistanceInPts(_symbol) * SymbolInfo::GetPointSize(_symbol);
+    return Trade::GetTradeDistanceInPts(_symbol) * SymbolInfoStatic::GetPointSize(_symbol);
   }
   float GetTradeDistanceInValue() { return (float)GetTradeDistanceInValue(chart.GetSymbol()); }
 
@@ -1439,9 +1464,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, DataParamEntry &_args[]) {
-    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
+      case TRADE_COND_ACCOUNT:
+        return account.CheckCondition((ENUM_ACCOUNT_CONDITION)_args[0].integer_value);
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
       case TRADE_COND_HAS_STATE:
@@ -1465,12 +1492,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_LONG}};
-    _args[0].integer_value = _arg1;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return Trade::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Trade::CheckCondition(_cond, _args);
   }
 
@@ -1547,7 +1575,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   SerializerNodeType Serialize(Serializer &_s) {
     // ChartEntry _centry = GetEntry();
-    // _s.PassStruct(this, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    // _s.PassStruct(THIS_REF, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
 };

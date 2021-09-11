@@ -46,6 +46,37 @@ struct PatternBitwise {
     return _new_index == ArraySize(v) - 1;
   }
   /**
+   * Calculates count of each bit.
+   *
+   * @return
+   * Returns array of counts.
+   */
+  void GetBitCount(short& _depths[]) {
+    int _size = sizeof(int) * 8;
+    for (int _bi = 0; _bi < _size; _bi++) {
+      _depths[_bi] = GetBitCount(_bi);
+    }
+  }
+  /**
+   * Calculates count of the selected bit.
+   *
+   * @param _bi Index of bit to calculate the count for.
+   *
+   * @return
+   * Returns count of bit (how many times it was on).
+   * When 0, selected bit was not active across all values.
+   * When positive, bit was active for X number of values.
+   */
+  short GetBitCount(int _bi) {
+    // Initialize counter.
+    short _count = 0;
+    int _size = GetSize();
+    for (int _ic = 1; _ic < _size; _ic++) {
+      _count += (short)((v[_ic] & (1 << _bi)) != 0);
+    }
+    return _count;
+  }
+  /**
    * Calculates depth of selected bit.
    *
    * @param _bi Index of bit to calculate the depth for.
@@ -55,7 +86,7 @@ struct PatternBitwise {
    */
   float GetBitDepthFloat(int _bi) { return (float)GetBitDepth(_bi) / (float)GetSize(); }
   /**
-   * Calculates depth of selected bit.
+   * Calculates depth of the selected bit.
    *
    * @param _bi Index of bit to calculate the depth for.
    *
@@ -131,7 +162,7 @@ struct PatternCandle {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckPattern(1 << i) ? 1 : 0;
-      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
+      _s.Pass(THIS_REF, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
     }
     return SerializerNodeObject;
   }

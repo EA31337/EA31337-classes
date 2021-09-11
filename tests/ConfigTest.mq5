@@ -26,6 +26,7 @@
 
 // Includes.
 #include "../Config.mqh"
+#include "../Data.define.h"
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../SerializerConverter.mqh"
@@ -52,9 +53,9 @@ class Test {
   }
 
   SerializerNodeType Serialize(Serializer& s) {
-    s.Pass(this, "a", _a);
-    s.Pass(this, "b", _b);
-    s.PassStruct(this, "ints", _ints);
+    s.Pass(THIS_REF, "a", _a);
+    s.Pass(THIS_REF, "b", _b);
+    s.PassStruct(THIS_REF, "ints", _ints);
     return SerializerNodeObject;
   }
 
@@ -70,12 +71,12 @@ Config* config;
 int OnInit() {
   config = new Config();
 
-  ConfigEntry pair = {TYPE_STRING, 0, 0, "XLMBTC"};
-  ConfigEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
-  ConfigEntry endDate = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
-  ConfigEntry enable = {TYPE_BOOL, 1, 0, ""};
-  ConfigEntry limit = {TYPE_INT, 5, 0, ""};
-  ConfigEntry max = {TYPE_DOUBLE, 0, 7.5, ""};
+  ConfigEntry pair = "XLMBTC";
+  ConfigEntry startDate = StrToTime("2020.01.01 00:00");
+  ConfigEntry endDate = StrToTime("2025.03.05 23:23");
+  ConfigEntry enable = true;
+  ConfigEntry limit = 5;
+  ConfigEntry max = 7.5;
 
   config.Set("pair", pair);
   config.Set("startDate", startDate);
@@ -85,8 +86,8 @@ int OnInit() {
   config.Set("max", max);
 
   config.Set("otherPair", "XLMBTC");
-  config.Set("otherStartDate", D'2020.01.01 00:00');
-  config.Set("otherEndDate", D'2025.03.05 23:23');
+  config.Set("otherStartDate", StrToTime("2020.01.01 00:00"));
+  config.Set("otherEndDate", StrToTime("2025.03.05 23:23"));
   config.Set("otherEnable", true);
   config.Set("otherLimit", 5);
   config.Set("otherMax", 7.5);

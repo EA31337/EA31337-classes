@@ -86,7 +86,7 @@ class Indi_Pivot : public Indicator {
           // must have at least 4 buffers and define OHLC in the first 4 buffers.
           // Indi_Price is an example of such indicator.
           if (!HasDataSource()) {
-            Logger().Error(
+            GetLogger().Error(
                 "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
                 "which is a part of PivotParams structure.",
                 "Indi_Pivot");
@@ -108,14 +108,15 @@ class Indi_Pivot : public Indicator {
       }
 
       _ohlc.GetPivots(GetMethod(), _entry.values[0].vflt, _entry.values[1].vflt, _entry.values[2].vflt,
-                      _entry.values[3].vflt, _entry.values[4].vflt, _entry.values[5].vflt,
-                      _entry.values[6].vflt, _entry.values[7].vflt, _entry.values[8].vflt);
+                      _entry.values[3].vflt, _entry.values[4].vflt, _entry.values[5].vflt, _entry.values[6].vflt,
+                      _entry.values[7].vflt, _entry.values[8].vflt);
 
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
 
       istate.is_ready = true;
 
       if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

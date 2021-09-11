@@ -152,8 +152,6 @@ class Strategy : public Object {
   StrategySignal ProcessSignals(bool _trade_allowed = true, int _shift = -1) {
     // float _bf = 1.0;
     // float _ls = 0;
-    float _scl = sparams.signal_close_level;
-    int _scm = sparams.signal_close_method;
     int _ss = _shift >= 0 ? _shift : sparams.shift;
     StrategySignal _signal;
     if (_trade_allowed) {
@@ -166,13 +164,18 @@ class Strategy : public Object {
       // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
       // Process open signals when trade is allowed.
       _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_BUY_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
       _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_SELL_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
     }
     // Process close signals.
+    float _scl = sparams.signal_close_level;
+    int _scf = sparams.signal_close_filter;
+    int _scm = sparams.signal_close_method;
     _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss));
+    _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE_PASS, SignalCloseFilter(ORDER_TYPE_BUY, _scf));
     _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss));
+    _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE_PASS, SignalCloseFilter(ORDER_TYPE_SELL, _scf));
     last_signals = _signal;
     return _signal;
   }
@@ -321,6 +324,11 @@ class Strategy : public Object {
    * Returns handler to the strategy's indicator class.
    */
   Indicator *GetIndicator(int _id = 0) { return sparams.GetIndicator(_id); }
+
+  /**
+   * Returns strategy's indicators.
+   */
+  DictStruct<int, Ref<Indicator>> GetIndicators() { return sparams.indicators_managed; }
 
   /* Struct getters */
 
@@ -782,9 +790,9 @@ class Strategy : public Object {
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, DataParamEntry &_args[]) {
     bool _result = true;
     long arg_size = ArraySize(_args);
-    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
-    long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
+    long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
+    long _arg3l = ArraySize(_args) > 2 ? DataParamEntry::ToInteger(_args[2]) : WRONG_VALUE;
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
         return sparams.IsEnabled();
@@ -818,18 +826,21 @@ class Strategy : public Object {
     }
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_LONG}};
-    _args[0].integer_value = _arg1;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1, long _arg2) {
-    DataParamEntry _args[] = {{TYPE_LONG}, {TYPE_LONG}};
-    _args[0].integer_value = _arg1;
-    _args[1].integer_value = _arg2;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return CheckCondition(_cond, _args);
   }
 
@@ -904,25 +915,31 @@ class Strategy : public Object {
     return _result;
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_INT}};
-    _args[0].integer_value = _arg1;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2) {
-    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}};
-    _args[0].integer_value = _arg1;
-    _args[1].integer_value = _arg2;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2, long _arg3) {
-    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}, {TYPE_INT}};
-    _args[0].integer_value = _arg1;
-    _args[1].integer_value = _arg2;
-    _args[2].integer_value = _arg3;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    DataParamEntry _param3 = _arg3;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
+    ArrayPushObject(_args, _param3);
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Strategy::ExecuteAction(_action, _args);
   }
 
@@ -959,14 +976,27 @@ class Strategy : public Object {
       // logger.Info(_order.ToString(), (string)_order.GetTicket()); // @fixme: memory leaks.
       ResetLastError();
     }
+    int _index = 0;
     if (sparams.order_close_time != 0) {
-      /* @fixme
       long _close_time_arg = sparams.order_close_time > 0
-              ? sparams.order_close_time * 60
-              : (int)round(-sparams.order_close_time * trade.chart.GetPeriodSeconds());
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARGS, _close_time_arg);
-      */
+                                 ? sparams.order_close_time * 60
+                                 : (int)round(-sparams.order_close_time *
+                                              ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
+      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
+      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
+      _index++;
+    }
+    if (sparams.order_close_loss != 0.0f) {
+      float _loss_limit = sparams.order_close_loss;
+      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_LOSS, _index);
+      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _loss_limit, _index);
+      _index++;
+    }
+    if (sparams.order_close_profit != 0.0f) {
+      float _profit_limit = sparams.order_close_profit;
+      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_PROFIT, _index);
+      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
+      _index++;
     }
   }
 
@@ -1086,6 +1116,23 @@ class Strategy : public Object {
   virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) = NULL;
 
   /**
+   * Returns strength of strategy's open signal.
+   *
+   * @param
+   *   _method - signal method to open a trade (bitwise AND operation)
+   *   _level  - signal level to open a trade (bitwise AND operation)
+   *
+   * @result float
+   *   Returns value strength of strategy's open signal ranging from -1 to 1.
+   *   Buy signal is when value is positive.
+   *   Sell signal is when value is negative.
+   */
+  virtual float SignalOpen(int _method = 0, float _level = 0.0f, int _shift = 0) {
+    // @todo
+    return false;
+  };
+
+  /**
    * Checks strategy's trade open signal additional filter.
    *
    * @param
@@ -1098,14 +1145,18 @@ class Strategy : public Object {
   virtual bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd);
-      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);
-      if (METHOD(_method, 2)) _result &= trade.IsPivot(_cmd);
-      if (METHOD(_method, 3)) _result &= DateTimeStatic::IsPeakHour();
-      if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd);
-      if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);
+      if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd);      // 1
+      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                 // 2
+      if (METHOD(_method, 2)) _result &= trade.IsPivot(_cmd);           // 4
+      if (METHOD(_method, 3)) _result &= DateTimeStatic::IsPeakHour();  // 8
+      if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd);            // 16
+      if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);   // 32
+      if (METHOD(_method, 6))
+        _result &= !trade.CheckCondition(
+            TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_LOW : ACCOUNT_COND_EQUITY_01PC_HIGH);  // 64
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
+      _method = _method > 0 ? _method : !_method;
     }
     return _result;
   }
@@ -1150,6 +1201,36 @@ class Strategy : public Object {
   }
 
   /**
+   * Checks strategy's trade close signal additional filter.
+   *
+   * @param
+   *   _cmd    - type of trade order command
+   *   _method - signal method to filter a trade (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true when trade should be closed, otherwise false.
+   */
+  virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+    bool _result = _method == 0;
+    if (_method != 0) {
+      if (METHOD(_method, 0)) _result |= _result || !trade.HasBarOrder(_cmd);       // 1
+      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                 // 2
+      if (METHOD(_method, 2)) _result |= _result || !trade.IsPivot(_cmd);           // 4
+      if (METHOD(_method, 3)) _result |= _result || !DateTimeStatic::IsPeakHour();  // 8
+      if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd);             // 16
+      if (METHOD(_method, 5)) _result |= _result || trade.HasOrderBetter(_cmd);     // 32
+      if (METHOD(_method, 6))
+        _result |=
+            _result || trade.CheckCondition(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
+                                                                            : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
+      // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
+      // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
+      _method = _method > 0 ? _method : !_method;
+    }
+    return _result;
+  }
+
+  /**
    * Gets price stop value.
    *
    * @param
@@ -1162,8 +1243,33 @@ class Strategy : public Object {
    *   Returns current stop loss value when _mode is ORDER_TYPE_SL
    *   and profit take when _mode is ORDER_TYPE_TP.
    */
-  virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
-                          float _level = 0.0f) = NULL;
+  virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
+    double _result = 0;
+    float _trade_dist = trade.GetTradeDistanceInValue();
+    int _count = (int)fmax(fabs(_level), fabs(_method));
+    int _direction = Order::OrderDirection(_cmd, _mode);
+    Chart *_chart = trade.GetChart();
+    Indicator *_indi = GetIndicator();
+    StrategyPriceStop _psm(_method);
+    _psm.SetChartParams(_chart.GetParams());
+    if (Object::IsValid(_indi)) {
+      int _ishift = _direction > 0 ? _indi.GetHighest<double>(_count) : _indi.GetLowest<double>(_count);
+      _ishift = fmax(0, _ishift);
+      _psm.SetIndicatorPriceValue(_indi.GetValuePrice<float>(_ishift, 0, PRICE_CLOSE));
+      /*
+      //IndicatorDataEntry _data[];
+      if (_indi.CopyEntries(_data, 3, 0)) {
+        _psm.SetIndicatorDataEntry(_data);
+        _psm.SetIndicatorParams(_indi.GetParams());
+      }
+      */
+      _result = _psm.GetValue(_ishift, _direction, _trade_dist);
+    } else {
+      int _pshift = _direction > 0 ? _chart.GetHighest(_count) : _chart.GetLowest(_count);
+      _result = _psm.GetValue(_pshift, _direction, _trade_dist);
+    }
+    return (float)_result;
+  }
 
   /**
    * Gets trend strength value.
@@ -1197,9 +1303,10 @@ class Strategy : public Object {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.PassStruct(this, "strat-params", sparams);
-    _s.PassStruct(this, "strat-results", sresult, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.PassStruct(this, "strat-signals", last_signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+    _s.PassStruct(THIS_REF, "strat-params", sparams);
+    _s.PassStruct(THIS_REF, "strat-results", sresult, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.PassStruct(THIS_REF, "strat-signals", last_signals,
+                  SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     return SerializerNodeObject;
   }
 };

@@ -25,12 +25,6 @@
 #define SERIALIZER_DICT_MQH
 
 // Includes.
-#include "Dict.mqh"
-#include "DictObject.mqh"
-#include "DictStruct.mqh"
-#include "Matrix.mqh"
-#include "Object.mqh"
-#include "Serializer.mqh"
 #include "SerializerNode.mqh"
 
 enum ENUM_SERIALIZER_DICT_FLAGS {};

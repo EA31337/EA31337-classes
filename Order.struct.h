@@ -30,9 +30,14 @@
 #pragma once
 #endif
 
+// Includes.
+#include "Data.struct.h"
+#include "Order.enum.h"
 #include "Serializer.mqh"
+#include "SymbolInfo.static.h"
+#include "Terminal.mqh"
 
-#ifdef __MQL4__
+#ifndef __MQL5__
 /**
  * The structure of Results of a Trade Request Check (MqlTradeCheckResult).
  * The check is performed using the OrderCheck() function.
@@ -55,24 +60,69 @@ struct MqlTradeCheckResult {
  * The structure for order parameters.
  */
 struct OrderParams {
-  bool dummy;                        // Whether order is dummy (fake) or not (real).
-  color color_arrow;                 // Color of the opening arrow on the chart.
-  unsigned short refresh_rate;       // How often to refresh order values (in secs).
-  ENUM_ORDER_CONDITION cond_close;   // Close condition.
-  DataParamEntry cond_close_args[];  // Close condition argument.
+  struct OrderCloseCond {
+    ENUM_ORDER_CONDITION cond;         // Close condition.
+    ARRAY(DataParamEntry, cond_args);  // Close condition argument.
+    // Getters.
+    ENUM_ORDER_CONDITION GetCondition() { return cond; }
+    template <typename T>
+    T GetConditionArgValue(int _index = 0) {
+      return cond_args[_index].ToValue<T>();
+    }
+    // Setters.
+    void SetCondition(ENUM_ORDER_CONDITION _cond) { cond = _cond; }
+    template <typename T>
+    void SetConditionArg(T _value, int _index = 0) {
+      DataParamEntry _arg = DataParamEntry::FromValue(_value);
+      SetConditionArg(_arg, _index);
+    }
+    void SetConditionArg(DataParamEntry &_arg, int _index = 0) {
+      int _size = ArraySize(cond_args);
+      if (_size <= _index) {
+        ArrayResize(cond_args, _index + 1);
+      }
+      cond_args[_index] = _arg;
+    }
+    void SetConditionArgs(ARRAY_REF(DataParamEntry, _args)) {
+      ArrayResize(cond_args, ArraySize(_args));
+      for (int i = 0; i < ArraySize(_args); i++) {
+        cond_args[i] = _args[i];
+      }
+    }
+    // Static methods.
+    static bool Resize(ARRAY_REF(OrderCloseCond, _cond_close), int _index = 0) {
+      bool _result = true;
+      int _size = ArraySize(_cond_close);
+      if (_size <= _index) {
+        _result &= ArrayResize(_cond_close, _size + 1);
+      }
+      return _result;
+    }
+    // Serializers.
+    SerializerNodeType Serialize(Serializer &s) {
+      s.PassEnum(THIS_REF, "cond", cond);
+      // s.Pass(THIS_REF, "cond_args", cond_args);
+      return SerializerNodeObject;
+    }
+  } cond_close[];
+  bool dummy;                   // Whether order is dummy (fake) or not (real).
+  color color_arrow;            // Color of the opening arrow on the chart.
+  unsigned short refresh_rate;  // How often to refresh order values (in secs).
   // Special struct methods.
-  void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
-  void OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
+  OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10){};
+  OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10){};
   // Getters.
   template <typename T>
-  T Get(ENUM_ORDER_PARAM _param) {
+  T Get(ENUM_ORDER_PARAM _param, int _index1 = 0, int _index2 = 0) {
     switch (_param) {
       case ORDER_PARAM_COLOR_ARROW:
         return (T)color_arrow;
       case ORDER_PARAM_COND_CLOSE:
-        return (T)cond_close;
-      case ORDER_PARAM_COND_CLOSE_ARGS:
-        return (T)cond_close_args;
+        return (T)cond_close[_index1].cond;
+      case ORDER_PARAM_COND_CLOSE_ARG_VALUE:
+        return (T)cond_close[_index1].GetConditionArgValue<T>(_index2);
+      case ORDER_PARAM_COND_CLOSE_NUM:
+        return (T)ArraySize(cond_close);
       case ORDER_PARAM_DUMMY:
         return (T)dummy;
     }
@@ -80,23 +130,23 @@ struct OrderParams {
     return WRONG_VALUE;
   }
   // State checkers
-  bool HasCloseCondition() { return cond_close != ORDER_COND_NONE; }
+  bool HasCloseCondition() { return ArraySize(cond_close) > 0; }
   bool IsDummy() { return dummy; }
   // Setters.
+  void AddConditionClose(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
+    SetConditionClose(_cond, _args, ArraySize(cond_close));
+  }
   template <typename T>
-  void Set(ENUM_ORDER_PARAM _param, T _value) {
+  void Set(ENUM_ORDER_PARAM _param, T _value, int _index1 = 0, int _index2 = 0) {
     switch (_param) {
       case ORDER_PARAM_COLOR_ARROW:
         color_arrow = (color)_value;
         return;
       case ORDER_PARAM_COND_CLOSE:
-        cond_close = (ENUM_ORDER_CONDITION)_value;
+        SetConditionClose((ENUM_ORDER_CONDITION)_value, _index1);
         return;
-      case ORDER_PARAM_COND_CLOSE_ARGS:
-        ArrayResize(cond_close_args, 1);
-        // @todo: Double support.
-        cond_close_args[0].type = TYPE_INT;
-        cond_close_args[0].integer_value = _value;
+      case ORDER_PARAM_COND_CLOSE_ARG_VALUE:
+        cond_close[_index1].SetConditionArg(_value, _index2);
         return;
       case ORDER_PARAM_DUMMY:
         dummy = _value;
@@ -104,20 +154,22 @@ struct OrderParams {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  void SetConditionClose(ENUM_ORDER_CONDITION _cond, DataParamEntry &_args[]) {
-    cond_close = _cond;
-    ArrayResize(cond_close_args, ArraySize(_args));
-    for (int i = 0; i < ArraySize(_args); i++) {
-      cond_close_args[i] = _args[i];
-    }
+  void SetConditionClose(ENUM_ORDER_CONDITION _cond, int _index = 0) {
+    DataParamEntry _args[];
+    SetConditionClose(_cond, _args, _index);
+  }
+  void SetConditionClose(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args), int _index = 0) {
+    OrderCloseCond::Resize(cond_close, _index);
+    cond_close[_index].SetCondition(_cond);
+    cond_close[_index].SetConditionArgs(_args);
   }
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "dummy", dummy);
-    s.Pass(this, "color_arrow", color_arrow);
-    s.Pass(this, "refresh_rate", refresh_rate);
-    // s.Pass(this, "cond_close", cond_close);
+    s.Pass(THIS_REF, "dummy", dummy);
+    s.Pass(THIS_REF, "color_arrow", color_arrow);
+    s.Pass(THIS_REF, "refresh_rate", refresh_rate);
+    // s.Pass(THIS_REF, "cond_close", cond_close);
     return SerializerNodeObject;
   }
 };
@@ -201,6 +253,10 @@ struct OrderData {
         return (T)price_open;
       case ORDER_PROP_PRICE_STOPLIMIT:
         return (T)price_stoplimit;
+      case ORDER_PROP_PROFIT:
+        return (T)profit;
+      case ORDER_PROP_PROFIT_PIPS:
+        return (T)(profit * pow(10, SymbolInfoStatic::GetDigits(symbol)));
       case ORDER_PROP_REASON_CLOSE:
         return (T)reason_close;
       case ORDER_PROP_TICKET:
@@ -440,47 +496,47 @@ struct OrderData {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
+  void ProcessLastError() { last_error = MathMax(last_error, (unsigned int)Terminal::GetLastError()); }
   void ResetError() {
     ResetLastError();
     last_error = ERR_NO_ERROR;
   }
-  void UpdateProfit() { profit = price_open - price_current; }
+  void UpdateProfit() { profit = price_current - price_open; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "magic", magic);
-    s.Pass(this, "position_id", position_id);
-    s.Pass(this, "position_by_id", position_by_id);
-    s.Pass(this, "ticket", ticket);
-    s.PassEnum(this, "state", state);
-    s.Pass(this, "commission", commission);
-    s.Pass(this, "profit", profit);
-    s.Pass(this, "total_profit", total_profit);
-    s.Pass(this, "price_open", price_open);
-    s.Pass(this, "price_close", price_close);
-    s.Pass(this, "price_current", price_current);
-    s.Pass(this, "price_stoplimit", price_stoplimit);
-    s.Pass(this, "swap", swap);
-    s.Pass(this, "time_closed", time_closed);
-    s.Pass(this, "time_done", time_done);
-    s.Pass(this, "time_done_msc", time_done_msc);
-    s.Pass(this, "time_expiration", time_expiration);
-    s.Pass(this, "time_last_updated", time_last_updated);
-    s.Pass(this, "time_setup", time_setup);
-    s.Pass(this, "time_setup_msc", time_setup_msc);
-    s.Pass(this, "total_fees", total_fees);
-    s.Pass(this, "sl", sl);
-    s.Pass(this, "tp", tp);
-    s.PassEnum(this, "type", type);
-    s.PassEnum(this, "type_filling", type_filling);
-    s.PassEnum(this, "type_time", type_time);
-    s.PassEnum(this, "reason", reason);
-    s.Pass(this, "last_error", last_error);
-    s.Pass(this, "volume_current", volume_curr);
-    s.Pass(this, "volume_init", volume_init);
-    s.Pass(this, "comment", comment);
-    s.Pass(this, "ext_id", ext_id);
-    s.Pass(this, "symbol", symbol);
+    s.Pass(THIS_REF, "magic", magic);
+    s.Pass(THIS_REF, "position_id", position_id);
+    s.Pass(THIS_REF, "position_by_id", position_by_id);
+    s.Pass(THIS_REF, "ticket", ticket);
+    s.PassEnum(THIS_REF, "state", state);
+    s.Pass(THIS_REF, "commission", commission);
+    s.Pass(THIS_REF, "profit", profit);
+    s.Pass(THIS_REF, "total_profit", total_profit);
+    s.Pass(THIS_REF, "price_open", price_open);
+    s.Pass(THIS_REF, "price_close", price_close);
+    s.Pass(THIS_REF, "price_current", price_current);
+    s.Pass(THIS_REF, "price_stoplimit", price_stoplimit);
+    s.Pass(THIS_REF, "swap", swap);
+    s.Pass(THIS_REF, "time_closed", time_closed);
+    s.Pass(THIS_REF, "time_done", time_done);
+    s.Pass(THIS_REF, "time_done_msc", time_done_msc);
+    s.Pass(THIS_REF, "time_expiration", time_expiration);
+    s.Pass(THIS_REF, "time_last_updated", time_last_updated);
+    s.Pass(THIS_REF, "time_setup", time_setup);
+    s.Pass(THIS_REF, "time_setup_msc", time_setup_msc);
+    s.Pass(THIS_REF, "total_fees", total_fees);
+    s.Pass(THIS_REF, "sl", sl);
+    s.Pass(THIS_REF, "tp", tp);
+    s.PassEnum(THIS_REF, "type", type);
+    s.PassEnum(THIS_REF, "type_filling", type_filling);
+    s.PassEnum(THIS_REF, "type_time", type_time);
+    s.PassEnum(THIS_REF, "reason", reason);
+    s.Pass(THIS_REF, "last_error", last_error);
+    s.Pass(THIS_REF, "volume_current", volume_curr);
+    s.Pass(THIS_REF, "volume_init", volume_init);
+    s.Pass(THIS_REF, "comment", comment);
+    s.Pass(THIS_REF, "ext_id", ext_id);
+    s.Pass(THIS_REF, "symbol", symbol);
 
     return SerializerNodeObject;
   }
@@ -783,26 +839,26 @@ struct OrderStatic {
  * Usage: SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
  */
 struct MqlTradeRequestProxy : MqlTradeRequest {
-  MqlTradeRequestProxy(MqlTradeRequest &r) { this = r; }
+  MqlTradeRequestProxy(MqlTradeRequest &r) { THIS_REF = r; }
 
   SerializerNodeType Serialize(Serializer &s) {
-    s.PassEnum(this, "action", action);
-    s.Pass(this, "magic", magic);
-    s.Pass(this, "order", order);
-    s.Pass(this, "symbol", symbol);
-    s.Pass(this, "volume", volume);
-    s.Pass(this, "price", price);
-    s.Pass(this, "stoplimit", stoplimit);
-    s.Pass(this, "sl", sl);
-    s.Pass(this, "tp", tp);
-    s.Pass(this, "deviation", deviation);
-    s.PassEnum(this, "type", type);
-    s.PassEnum(this, "type_filling", type_filling);
-    s.PassEnum(this, "type_time", type_time);
-    s.Pass(this, "expiration", expiration);
-    s.Pass(this, "comment", comment);
-    s.Pass(this, "position", position);
-    s.Pass(this, "position_by", position_by);
+    s.PassEnum(THIS_REF, "action", action);
+    s.Pass(THIS_REF, "magic", magic);
+    s.Pass(THIS_REF, "order", order);
+    s.Pass(THIS_REF, "symbol", symbol);
+    s.Pass(THIS_REF, "volume", volume);
+    s.Pass(THIS_REF, "price", price);
+    s.Pass(THIS_REF, "stoplimit", stoplimit);
+    s.Pass(THIS_REF, "sl", sl);
+    s.Pass(THIS_REF, "tp", tp);
+    s.Pass(THIS_REF, "deviation", deviation);
+    s.PassEnum(THIS_REF, "type", type);
+    s.PassEnum(THIS_REF, "type_filling", type_filling);
+    s.PassEnum(THIS_REF, "type_time", type_time);
+    s.Pass(THIS_REF, "expiration", expiration);
+    s.Pass(THIS_REF, "comment", comment);
+    s.Pass(THIS_REF, "position", position);
+    s.Pass(THIS_REF, "position_by", position_by);
     return SerializerNodeObject;
   }
 };
@@ -813,19 +869,19 @@ struct MqlTradeRequestProxy : MqlTradeRequest {
  * Usage: SerializerConverter::FromObject(MqlTradeResultProxy(_request)).ToString<SerializerJson>());
  */
 struct MqlTradeResultProxy : MqlTradeResult {
-  MqlTradeResultProxy(MqlTradeResult &r) { this = r; }
+  MqlTradeResultProxy(MqlTradeResult &r) { THIS_REF = r; }
 
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "retcode", retcode);
-    s.Pass(this, "deal", deal);
-    s.Pass(this, "order", order);
-    s.Pass(this, "volume", volume);
-    s.Pass(this, "price", price);
-    s.Pass(this, "bid", bid);
-    s.Pass(this, "ask", ask);
-    s.Pass(this, "comment", comment);
-    s.Pass(this, "request_id", request_id);
-    s.Pass(this, "retcode_external", retcode_external);
+    s.Pass(THIS_REF, "retcode", retcode);
+    s.Pass(THIS_REF, "deal", deal);
+    s.Pass(THIS_REF, "order", order);
+    s.Pass(THIS_REF, "volume", volume);
+    s.Pass(THIS_REF, "price", price);
+    s.Pass(THIS_REF, "bid", bid);
+    s.Pass(THIS_REF, "ask", ask);
+    s.Pass(THIS_REF, "comment", comment);
+    s.Pass(THIS_REF, "request_id", request_id);
+    s.Pass(THIS_REF, "retcode_external", retcode_external);
     return SerializerNodeObject;
   }
 };

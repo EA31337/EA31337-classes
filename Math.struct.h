@@ -29,6 +29,8 @@
 #pragma once
 #endif
 
+#include "Data.struct.h"
+
 // Prevents processing this includes file for the second time.
 #ifndef MATH_STRUCT_H
 #define MATH_STRUCT_H

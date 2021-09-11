@@ -62,6 +62,9 @@ class Indi_Drawer : public Indicator {
   }
 
   void Init() {
+    // Drawer is always ready.
+    istate.is_ready = true;
+
     /*
        string msg_text =
         "*3\r\n"
@@ -85,11 +88,11 @@ class Indi_Drawer : public Indicator {
     // @fixit Not sure if we should enforce double.
     entry.AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
 
-    iparams.SetMaxModes(num_args - 1);
-
     if (_action == INDI_ACTION_SET_VALUE) {
+      iparams.SetMaxModes(num_args - 1);
+
       if (num_args - 1 > iparams.GetMaxModes()) {
-        Logger().Error(
+        GetLogger().Error(
             StringFormat("Too many data for buffers for action %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
       }
@@ -98,10 +101,10 @@ class Indi_Drawer : public Indicator {
         entry.values[i - 1].Set(_args[i].double_value);
       }
 
-      idata.Add(entry, _args[0].integer_value);
+      // Assuming that passed values are correct.
+      entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
 
-      double v1 = Indicator::GetValue<double>(0, 0);
-      double v2 = Indicator::GetValue<double>(0, 1);
+      idata.Add(entry, _args[0].integer_value);
       return true;
     }
 
@@ -134,17 +137,17 @@ class Indi_Drawer : public Indicator {
     while (redis.HasData()) {
       // Parsing commands.
       RedisMessage message = redis.ReadMessage();
-
+#ifdef __debug__
       Print("Got: ", message.Message);
-
+#endif
       if (message.Command == "message" && message.Channel == "INDICATOR_DRAW") {
         ActionEntry action_entry;
         SerializerConverter::FromString<SerializerJson>(message.Message).ToObject(action_entry);
         ExecuteAction((ENUM_INDICATOR_ACTION)action_entry.action_id, action_entry.args);
-
+#ifdef __debug__
         Print("Deserialized action: ",
               SerializerConverter::FromObject(action_entry).ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES));
-
+#endif
         // Drawing on the buffer.
       }
     }
@@ -321,7 +324,6 @@ class Indi_Drawer : public Indicator {
                                                  GetPeriod(), GetAppliedPrice(), _shift);
         break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
   }
@@ -330,28 +332,29 @@ class Indi_Drawer : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    unsigned int i;
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.max_modes);
     if (_bar_time < 0) {
       // Return empty value on invalid bar time.
-      _entry.values[0] = EMPTY_VALUE;
+      for (i = 0; i < iparams.max_modes; ++i) {
+        _entry.values[i] = EMPTY_VALUE;
+      }
       return _entry;
     }
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
+      // Missing entry (which is correct).
       _entry.timestamp = GetBarTime(_shift);
-      if (ArraySize(_entry.values) > 0) {
-        _entry.values[0] = GetValue(_shift);
-      } else {
-        // @fixit. We don't have value, but what if need latest valid value?
-        return 0;
+
+      for (i = 0; i < iparams.max_modes; ++i) {
+        _entry.values[i] = 0;
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        idata.Add(_entry, _bar_time);
-      }
+
+      _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID | INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
     }
     return _entry;
   }

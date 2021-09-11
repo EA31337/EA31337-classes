@@ -28,13 +28,14 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
+#include "Serializer.enum.h"
 #endif
 
 // Forward class declaration.
 class Serializer;
 
 // Includes.
-#include "SerializerNode.enum.h"
+#include "Serializer.mqh"
 
 // Struct for account entries.
 struct AccountEntry {
@@ -49,14 +50,44 @@ struct AccountEntry {
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer& _s) {
-    _s.Pass(this, "time", dtime, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "balance", balance, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "credit", credit, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "equity", equity, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "profit", profit, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "margin_used", margin_used, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "margin_free", margin_free, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "margin_avail", margin_avail, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "time", dtime, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "balance", balance, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "credit", credit, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "equity", equity, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "profit", profit, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "margin_used", margin_used, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "margin_free", margin_free, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "margin_avail", margin_avail, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
+  }
+  /* Getters */
+  double Get(ENUM_ACCOUNT_INFO_DOUBLE _param) {
+    switch (_param) {
+      case ACCOUNT_BALANCE:
+        // Account balance in the deposit currency (double).
+        return balance;
+      case ACCOUNT_CREDIT:
+        // Account credit in the deposit currency (double).
+        return credit;
+      case ACCOUNT_PROFIT:
+        // Current profit of an account in the deposit currency (double).
+        return profit;
+      case ACCOUNT_EQUITY:
+        // Account equity in the deposit currency (double).
+        return equity;
+      case ACCOUNT_MARGIN:
+        // Account margin used in the deposit currency (double).
+        return margin_used;
+      case ACCOUNT_MARGIN_FREE:
+        // Free margin of an account in the deposit currency (double).
+        return margin_free;
+      case ACCOUNT_MARGIN_LEVEL:
+        // Account margin level in percents (double).
+        return margin_avail;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return WRONG_VALUE;
   }
 };
