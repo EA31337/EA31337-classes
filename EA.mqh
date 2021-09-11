@@ -320,6 +320,7 @@ class EA {
             if (estate.new_periods != DATETIME_NONE) {
               // Process when new periods started.
               _strat.OnPeriod(estate.new_periods);
+              _trade.OnPeriod(estate.new_periods);
               eresults.stg_processed_periods++;
             }
             if (_strat.TickFilter(_tick)) {

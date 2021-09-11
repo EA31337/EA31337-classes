@@ -1590,6 +1590,35 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
   }
 
+  /**
+   * Event on new time periods.
+   *
+   * @param
+   *   _periods unsigned short
+   *   List of periods which started. See: ENUM_DATETIME_UNIT.
+   */
+  virtual void OnPeriod(unsigned int _periods = DATETIME_NONE) {
+    if ((_periods & DATETIME_MINUTE) != 0) {
+      // New minute started.
+      GetLogger().Flush();
+    }
+    if ((_periods & DATETIME_HOUR) != 0) {
+      // New hour started.
+    }
+    if ((_periods & DATETIME_DAY) != 0) {
+      // New day started.
+    }
+    if ((_periods & DATETIME_WEEK) != 0) {
+      // New week started.
+    }
+    if ((_periods & DATETIME_MONTH) != 0) {
+      // New month started.
+    }
+    if ((_periods & DATETIME_YEAR) != 0) {
+      // New year started.
+    }
+  }
+
   /* Conditions */
 
   /**
