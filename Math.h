@@ -28,20 +28,9 @@
 // Includes.
 #include "Data.struct.h"
 #include "Indicator.struct.h"
+#include "Math.define.h"
 #include "Math.enum.h"
 #include "Math.struct.h"
-
-// Defines macros.
-#define fmax2(_v1, _v2) fmax(_v1, _v2)
-#define fmax3(_v1, _v2, _v3) fmax(fmax(_v1, _v2), _v3)
-#define fmax4(_v1, _v2, _v3, _v4) fmax(fmax(fmax(_v1, _v2), _v3), _v4)
-#define fmax5(_v1, _v2, _v3, _v4, _v5) fmax(fmax(fmax(fmax(_v1, _v2), _v3), _v4), _v5)
-#define fmax6(_v1, _v2, _v3, _v4, _v5, _v6) fmax(fmax(fmax(fmax(fmax(_v1, _v2), _v3), _v4), _v5), _v6)
-#define fmin2(_v1, _v2) fmin(_v1, _v2)
-#define fmin3(_v1, _v2, _v3) fmin(fmin(_v1, _v2), _v3)
-#define fmin4(_v1, _v2, _v3, _v4) fmin(fmin(fmin(_v1, _v2), _v3), _v4)
-#define fmin5(_v1, _v2, _v3, _v4, _v5) fmin(fmin(fmin(fmin(_v1, _v2), _v3), _v4), _v5)
-#define fmin6(_v1, _v2, _v3, _v4, _v5, _v6) fmin(fmin(fmin(fmin(fmin(_v1, _v2), _v3), _v4), _v5), _v6)
 
 /**
  * Class to provide math related methods.
@@ -96,6 +85,24 @@ class Math {
     }
     _result = _v2 > _v1 ? fabs(_result) : -fabs(_result);
     return _hundreds ? _result * 100 : _result;
+  }
+
+  /**
+   * Checks condition for 2 values based on the given comparison operator.
+   */
+  template <typename T1, typename T2>
+  static bool Compare(T1 _v1, T2 _v2, ENUM_MATH_CONDITION _op = MATH_COND_EQ) {
+    switch (_op) {
+      case MATH_COND_EQ:
+        return _v1 == _v2;
+      case MATH_COND_GT:
+        return _v1 > _v2;
+      case MATH_COND_LE:
+        return _v1 < _v2;
+      default:
+        break;
+    }
+    return false;
   }
 
   /**

@@ -116,7 +116,7 @@ class Indi_Envelopes : public Indicator {
         _mode = 1;
         break;
     }
-    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
@@ -148,26 +148,25 @@ class Indi_Envelopes : public Indicator {
 
   static double iEnvelopesOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
                                       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                                      int _ma_shift,
-                                      ENUM_APPLIED_PRICE _ap,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
-                                                               // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-                                      double _deviation,
+                                      int _indi_mode,  // Source indicator's mode index. May be -1 to use first buffer
+                                      int _ma_shift, double _deviation,
                                       int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5
                                                   // _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
                                       int _shift = 0) {
-    double _indi_value_buffer[], _ohlc[4];
+    _indi.ValidateDataSourceMode(_indi_mode);
+
+    double _indi_value_buffer[];
     double _result;
     int i;
 
     ArrayResize(_indi_value_buffer, _ma_period);
 
     for (i = _shift; i < (int)_shift + (int)_ma_period; i++) {
-      _indi[i].GetArray(_ohlc, 4);
-      _indi_value_buffer[i - _shift] = BarOHLC::GetAppliedPrice(_ap, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);
+      _indi_value_buffer[i - _shift] = _indi[i].GetValue<double>(_indi_mode);
     }
 
     Indi_PriceFeeder indi_price_feeder(_indi_value_buffer);
-    MAParams ma_params(_ma_period, _ma_shift, _ma_method, /*unused*/ _ap);
+    MAParams ma_params(_ma_period, _ma_shift, _ma_method);
     ma_params.SetDataSource(&indi_price_feeder, false, 0);
     Indi_MA indi_ma(ma_params);
 
@@ -206,8 +205,8 @@ class Indi_Envelopes : public Indicator {
     return iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift);
 #else
     Indi_PriceFeeder indi_price_feeder(array);
-    return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method, ma_shift,
-                                                 (ENUM_APPLIED_PRICE)-1, deviation, mode, shift);
+    return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method,
+                                                 /* indi_mode */ 0, ma_shift, deviation, mode, shift);
 #endif
   }
 
@@ -232,7 +231,7 @@ class Indi_Envelopes : public Indicator {
       case IDATA_INDICATOR:
         _value = Indi_Envelopes::iEnvelopesOnIndicator(
             GetDataSource(), Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetMAPeriod(),
-            GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
+            GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

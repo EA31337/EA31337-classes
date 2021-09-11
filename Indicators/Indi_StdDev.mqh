@@ -98,7 +98,7 @@ class Indi_StdDev : public Indicator {
 #ifdef __MQL4__
     return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {

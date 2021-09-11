@@ -83,16 +83,6 @@ class Indicator : public Chart {
    *   1: MODE_EMA (Exponential averaging)
    *   2: MODE_SMMA (Smoothed averaging)
    *   3: MODE_LWMA (Linear-weighted averaging)
-   *
-   * ENUM_APPLIED_PRICE values:
-   *   0: PRICE_CLOSE (Close price)
-   *   1: PRICE_OPEN (Open price)
-   *   2: PRICE_HIGH (The maximum price for the period)
-   *   3: PRICE_LOW (The minimum price for the period)
-   *   4: PRICE_MEDIAN (Median price) = (high + low)/2
-   *   5: PRICE_TYPICAL (Typical price) = (high + low + close)/3
-   *   6: PRICE_WEIGHTED (Average price) = (high + low + close + close)/4
-   *
    */
 
   /* Special methods */
@@ -128,6 +118,9 @@ class Indicator : public Chart {
 
     if (iparams.indi_data_source != NULL && iparams.indi_managed) {
       // User selected custom, managed data source.
+      if (CheckPointer(iparams.indi_data_source) == POINTER_INVALID) {
+        DebugBreak();
+      }
       delete iparams.indi_data_source;
       iparams.indi_data_source = NULL;
     }
@@ -407,6 +400,15 @@ class Indicator : public Chart {
   }
 
   /**
+   * Validates currently selected indicator used as data source.
+   */
+  void ValidateSelectedDataSource() {
+    if (HasDataSource()) {
+      ValidateDataSource(THIS_PTR, GetDataSourceRaw());
+    }
+  }
+
+  /**
    * Loads and validates built-in indicators whose can be used as data source.
    */
   void ValidateDataSource(Indicator* _target, Indicator* _source) {
@@ -445,6 +447,26 @@ class Indicator : public Chart {
   }
 
   /**
+   * Checks whether indicator have given mode index.
+   *
+   * If given mode is -1 (default one) and indicator has exactly one mode, then mode index will be replaced by 0.
+   */
+  void ValidateDataSourceMode(int& _out_mode) {
+    if (_out_mode == -1) {
+      // First mode will be used by default, or, if selected indicator has more than one mode, error will happen.
+      if (iparams.max_modes != 1) {
+        Alert("Error: ", GetName(), " must have exactly one possible mode in order to skip using SetDataSourceMode()!");
+        DebugBreak();
+      }
+      _out_mode = 0;
+    } else if (_out_mode + 1 > (int)iparams.max_modes) {
+      Alert("Error: ", GetName(), " have ", iparams.max_modes, " mode(s) buy you tried to reference mode with index ",
+            _out_mode, "! Ensure that you properly set mode via SetDataSourceMode().");
+      DebugBreak();
+    }
+  }
+
+  /**
    * Provides built-in indicators whose can be used as data source.
    */
   virtual Indicator* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return NULL; }
@@ -455,7 +477,12 @@ class Indicator : public Chart {
   bool HasDataSource() { return iparams.GetDataSource() != NULL || iparams.GetDataSourceId() != -1; }
 
   /**
-   * Returns currently selected data source.
+   * Returns currently selected data source without any validation.
+   */
+  Indicator* GetDataSourceRaw() { return iparams.GetDataSource(); }
+
+  /**
+   * Returns currently selected data source doing validation.
    */
   Indicator* GetDataSource() {
     Indicator* _result = NULL;
@@ -492,6 +519,32 @@ class Indicator : public Chart {
   IndicatorDataEntry operator[](int _shift) { return GetEntry(_shift); }
   IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
   IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
+
+  /* Getters */
+
+  /**
+   * Gets an indicator's chart parameter value.
+   */
+  template <typename T>
+  T Get(ENUM_CHART_PARAM _param) {
+    return Chart::Get<T>(_param);
+  }
+
+  /**
+   * Gets an indicator's state property value.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
+    return istate.Get<T>(_prop);
+  }
+
+  /**
+   * Gets an indicator property flag.
+   */
+  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = 0) {
+    IndicatorDataEntry _entry = GetEntry(_shift);
+    return _entry.CheckFlag(_prop);
+  }
 
   /* State methods */
 
@@ -818,11 +871,6 @@ class Indicator : public Chart {
 
     return name + ")";
   }
-
-  /**
-   * Get indicator's state.
-   */
-  IndicatorState GetState() { return istate; }
 
   /* Setters */
 
@@ -1161,8 +1209,13 @@ class Indicator : public Chart {
    * Returns the indicator's struct value.
    */
   virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    IndicatorDataEntry empty;
-    return empty;
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
+    IndicatorDataEntry _entry(iparams.max_modes);
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    }
+    return _entry;
   };
 
   /**

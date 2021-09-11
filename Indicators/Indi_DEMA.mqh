@@ -82,7 +82,7 @@ class Indi_DEMA : public Indicator {
                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0, Indicator *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {

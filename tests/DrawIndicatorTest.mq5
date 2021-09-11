@@ -68,7 +68,7 @@ void OnTick() {
       Indicator *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
-      if (_indi.GetState().IsReady() && _entry.IsValid()) {
+      if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
       }
     }
@@ -159,7 +159,7 @@ bool PrintIndicators(string _prefix = "") {
       ResetLastError();
       continue;
     }
-    if (_indi.GetState().IsReady()) {
+    if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
     }
   }

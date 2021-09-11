@@ -86,7 +86,6 @@ struct TradeParams {
   unsigned int GetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) {
     return limits_stats[_type][_period];
   }
-  unsigned long GetMagicNo() { return magic_no; }
   unsigned short GetBarsMin() { return bars_min; }
   // State checkers.
   bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, ARRAY_REF(unsigned int, _value)) {
@@ -284,10 +283,13 @@ struct TradeStats {
 
 /* Structure for trade states. */
 struct TradeStates {
-  unsigned int states;
+ protected:
+  unsigned int states;  // @todo: Move to protected.
+ public:
   // Struct constructor.
   TradeStates() : states(0) {}
   // Getters.
+  bool Get(ENUM_TRADE_STATE _prop) { return CheckState(_prop); }
   static string GetStateMessage(ENUM_TRADE_STATE _state) {
     switch (_state) {
       case TRADE_STATE_BARS_NOT_ENOUGH:

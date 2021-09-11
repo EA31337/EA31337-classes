@@ -68,6 +68,7 @@ enum ENUM_STRATEGY_CONDITION {
 
 // Defines enumeration for strategy parameters.
 enum ENUM_STRATEGY_PARAM {
+  STRAT_PARAM_ID,          // ID (magic number)
   STRAT_PARAM_LS,          // Lot size
   STRAT_PARAM_LSF,         // Lot size factor
   STRAT_PARAM_MAX_RISK,    // Max risk
@@ -84,32 +85,30 @@ enum ENUM_STRATEGY_PARAM {
   STRAT_PARAM_SCM,         // Signal close method
   STRAT_PARAM_SHIFT,       // Shift
   STRAT_PARAM_SOB,         // Signal open boost method
-  STRAT_PARAM_SOF,         // Signal open filter
+  STRAT_PARAM_SOFM,        // Signal open filter method
+  STRAT_PARAM_SOFT,        // Signal open filter time
   STRAT_PARAM_SOL,         // Signal open level
   STRAT_PARAM_SOM,         // Signal open method
+  STRAT_PARAM_TF,          // Timeframe
   STRAT_PARAM_TFM,         // Tick filter method
+  STRAT_PARAM_TYPE,        // Type
   STRAT_PARAM_WEIGHT,      // Weight
   FINAL_ENUM_STRATEGY_PARAM
-};
-
-/* Enumeration for strategy signal types. */
-enum ENUM_STRATEGY_SIGNAL_TYPE {
-  STRAT_SIGNAL_SELL = -1,    // Signal to sell.
-  STRAT_SIGNAL_NEUTRAL = 0,  // Neutral signal.
-  STRAT_SIGNAL_BUY = 1,      // Signal to buy.
 };
 
 /* Enumeration for strategy bitwise signal flags. */
 enum ENUM_STRATEGY_SIGNAL_FLAG {
   STRAT_SIGNAL_NONE = 0 << 0,
-  STRAT_SIGNAL_BUY_CLOSE = 1 << 0,        // Close signal for buy
-  STRAT_SIGNAL_BUY_CLOSE_PASS = 1 << 1,   // Close signal for buy passed by filter
-  STRAT_SIGNAL_BUY_OPEN = 1 << 2,         // Open signal for buy
-  STRAT_SIGNAL_BUY_OPEN_PASS = 1 << 3,    // Open signal for buy passed by filter
-  STRAT_SIGNAL_SELL_CLOSE = 1 << 4,       // Close signal for sell
-  STRAT_SIGNAL_SELL_CLOSE_PASS = 1 << 5,  // Close signal for sell passed by filter
-  STRAT_SIGNAL_SELL_OPEN = 1 << 6,        // Open signal for sell
-  STRAT_SIGNAL_SELL_OPEN_PASS = 1 << 7,   // Open signal for sell passed by filter
+  STRAT_SIGNAL_CLOSE_BUY = 1 << 0,        // Close signal for buy
+  STRAT_SIGNAL_CLOSE_BUY_PASS = 1 << 1,   // Close signal for buy passed by filter
+  STRAT_SIGNAL_CLOSE_SELL = 1 << 2,       // Close signal for sell
+  STRAT_SIGNAL_CLOSE_SELL_PASS = 1 << 3,  // Close signal for sell passed by filter
+  STRAT_SIGNAL_OPEN_BUY = 1 << 4,         // Open signal for buy
+  STRAT_SIGNAL_OPEN_BUY_PASS = 1 << 5,    // Open signal for buy passed by filter
+  STRAT_SIGNAL_OPEN_SELL = 1 << 6,        // Open signal for sell
+  STRAT_SIGNAL_OPEN_SELL_PASS = 1 << 7,   // Open signal for sell passed by filter
+  STRAT_SIGNAL_PROCESSED = 1 << 8,        // Signal proceed
+  STRAT_SIGNAL_TIME_PASS = 1 << 9,        // Open signal passed by time filter
   FINAL_ENUM_STRATEGY_SIGNAL_FLAG
 };
 

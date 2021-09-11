@@ -101,12 +101,12 @@ class Order : public SymbolInfo {
 
  protected:
   // Struct variables.
-  OrderParams oparams;
-  OrderData odata;
+  Log ologger;                        // Logger.
   MqlTradeRequest orequest;           // Trade Request Structure.
   MqlTradeCheckResult oresult_check;  // Results of a Trade Request Check.
   MqlTradeResult oresult;             // Trade Request Result.
-  // Ref<Log> logger;                    // Logger.
+  OrderParams oparams;
+  OrderData odata;
 
 #ifndef __MQL4__
   // Used for order selection in MQL5 & C++.
@@ -161,7 +161,7 @@ class Order : public SymbolInfo {
    */
   ~Order() {}
 
-  Log *Logger() { return logger.Ptr(); }
+  Log *GetLogger() { return GetPointer(ologger); }
 
   /* Getters */
 
@@ -1061,9 +1061,9 @@ class Order : public SymbolInfo {
         ResetLastError();
         _result = false;
       } else {
-        GetLogger().Error(StringFormat("Error: %d! Failed to modify non-existing order (#%d/p:%g/sl:%g/tp:%g).",
-                                       _last_error, odata.ticket, _price, _sl, _tp),
-                          __FUNCTION_LINE__, ToCSV());
+        ologger.Error(StringFormat("Error: %d! Failed to modify non-existing order (#%d/p:%g/sl:%g/tp:%g).",
+                                   _last_error, odata.ticket, _price, _sl, _tp),
+                      __FUNCTION_LINE__, ToCSV());
       }
     }
     return _result;
@@ -1865,8 +1865,8 @@ class Order : public SymbolInfo {
     }
     if (!_result) {
       int _last_error = GetLastError();
-      GetLogger().Error("Error updating order property!", __FUNCTION_LINE__,
-                        StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+      ologger.Error("Error updating order property!", __FUNCTION_LINE__,
+                    StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
     }
     return _result && GetLastError() == ERR_NO_ERROR;
   }
@@ -2706,7 +2706,7 @@ class Order : public SymbolInfo {
         }
       }
       default:
-        GetLogger().Error(StringFormat("Invalid order condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        ologger.Error(StringFormat("Invalid order condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return false;
@@ -2750,7 +2750,7 @@ class Order : public SymbolInfo {
           oparams.AddConditionClose((ENUM_ORDER_CONDITION)_args[0].integer_value, _sargs);
         }
       default:
-        GetLogger().Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        ologger.Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -2793,7 +2793,7 @@ class Order : public SymbolInfo {
         }
         break;
       default:
-        GetLogger().Error(StringFormat("%s: Unsupported type: %s!", __FUNCTION_LINE__, EnumToString(_type)));
+        ologger.Error(StringFormat("%s: Unsupported type: %s!", __FUNCTION_LINE__, EnumToString(_type)));
     }
     return "";
   }

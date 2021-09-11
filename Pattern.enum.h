@@ -42,8 +42,8 @@ enum ENUM_PATTERN_1CANDLE {
   PATTERN_1CANDLE_BODY_GT_PP_OPEN = 1 << 5,     // Body is above the pivot price (OHLC/4)
   PATTERN_1CANDLE_BODY_GT_WEIGHTED = 1 << 6,    // Body is above the weighted price (OH2C/4)
   PATTERN_1CANDLE_BODY_GT_WICKS = 1 << 7,       // Body is greater than sum of wicks
-  PATTERN_1CANDLE_CHANGE_GT_02PC = 1 << 8,      // Price change is greater than 0.2% of the price change
-  PATTERN_1CANDLE_CHANGE_GT_05PC = 1 << 9,      // Price change is greater than 0.5% of the price change
+  PATTERN_1CANDLE_CHANGE_GT_01PC = 1 << 8,      // Price change is greater than 0.1% of the price change
+  PATTERN_1CANDLE_CHANGE_GT_02PC = 1 << 9,      // Price change is greater than 0.2% of the price change
   PATTERN_1CANDLE_CLOSE_GT_MED = 1 << 10,       // Close price is above the median price
   PATTERN_1CANDLE_CLOSE_GT_PP = 1 << 11,        // Close price is above the pivot price (HLC/3)
   PATTERN_1CANDLE_CLOSE_GT_PP_DM = 1 << 12,     // Close price is above the Tom DeMark pivot price
@@ -95,38 +95,42 @@ enum ENUM_PATTERN_1CANDLE {
 
 /* Enumeration for 2-candle patterns. */
 enum ENUM_PATTERN_2CANDLE {
-  PATTERN_2CANDLE_NONE = 0 << 0,              // None.
-  PATTERN_2CANDLE_BEARS = 1 << 0,             // Two bear candles.
-  PATTERN_2CANDLE_BODY_GT_BODY = 1 << 1,      // Body size is greater than the previous one.
-  PATTERN_2CANDLE_BULLS = 1 << 2,             // Two bulls candles.
-  PATTERN_2CANDLE_CLOSE_GT_CLOSE = 1 << 3,    // Close is greater than the previous one.
-  PATTERN_2CANDLE_CLOSE_GT_HIGH = 1 << 4,     // Close is greater than previous high.
-  PATTERN_2CANDLE_CLOSE_LT_LOW = 1 << 5,      // Close is lower than previous low.
-  PATTERN_2CANDLE_HIGH_GT_HIGH = 1 << 6,      // High is greater than the previous one.
-  PATTERN_2CANDLE_HIGH_GT_HOC = 1 << 7,       // High is greater than the previous higher price (open or close).
-  PATTERN_2CANDLE_HOC_GT_HIGH = 1 << 8,       // Higher price (open or close) is greater than the previous high.
-  PATTERN_2CANDLE_HOC_GT_HOC = 1 << 9,        // Higher price (open or close) is greater than the previous one.
-  PATTERN_2CANDLE_LOC_LT_LOC = 1 << 10,       // Lower price (open or close) is lower than the previous one.
-  PATTERN_2CANDLE_LOC_LT_LOW = 1 << 11,       // Lower price (open or close) is lower than the previous low.
-  PATTERN_2CANDLE_LOW_LT_LOC = 1 << 12,       // Low is lower than the previous lower price (open or close).
-  PATTERN_2CANDLE_LOW_LT_LOW = 1 << 13,       // Low is lower than the previous one.
-  PATTERN_2CANDLE_OPEN_GT_OPEN = 1 << 14,     // Open is greater than the previous one.
-  PATTERN_2CANDLE_PP_GT_PP = 1 << 15,         // Pivot price is greater than the previous one (HLC/3).
-  PATTERN_2CANDLE_PP_GT_PP_OPEN = 1 << 16,    // Pivot price open is greater than the previous one (OHLC/4).
-  PATTERN_2CANDLE_RANGE_DBL_RANGE = 1 << 17,  // Range size doubled from the previous one.
-  PATTERN_2CANDLE_RANGE_GT_RANGE = 1 << 18,   // Range is greater than the previous one.
-  PATTERN_2CANDLE_TIME_GAP_DAY = 1 << 19,     // Bars have over 24h gap.
-  //  PATTERN_2CANDLE_RANGE_IN_BODY = 1 << 19,         // Range is inside body
-  //  of the previous candle. PATTERN_2CANDLE_RANGE_OUT_RANGE = 1 << 20, //
-  //  Range is outside of range of the previous candle.
-  PATTERN_2CANDLE_WEIGHTED_GT_WEIGHTED = 1 << 21,  // Weighted price is greater than the previous one (OH2C/4).
-  PATTERN_2CANDLE_WICKS_DBL_WICKS = 1 << 22,       // Size of wicks doubled from the previous onces.
-  PATTERN_2CANDLE_WICKS_GT_WICKS = 1 << 23,        // Size of wicks is greater than the previous onces.
+  PATTERN_2CANDLE_NONE = 0 << 0,                   // None.
+  PATTERN_2CANDLE_BEARS = 1 << 0,                  // Two bear candles.
+  PATTERN_2CANDLE_BODY_GT_BODY = 1 << 1,           // Body size is greater than the previous one.
+  PATTERN_2CANDLE_BULLS = 1 << 2,                  // Two bulls candles.
+  PATTERN_2CANDLE_CLOSE_GT_CLOSE = 1 << 3,         // Close is greater than the previous one.
+  PATTERN_2CANDLE_CLOSE_GT_HIGH = 1 << 4,          // Close is greater than previous high.
+  PATTERN_2CANDLE_CLOSE_LT_LOW = 1 << 5,           // Close is lower than previous low.
+  PATTERN_2CANDLE_HIGH_GT_HIGH = 1 << 6,           // High is greater than the previous one.
+  PATTERN_2CANDLE_HIGH_GT_HOC = 1 << 7,            // High is greater than the previous higher price (open or close).
+  PATTERN_2CANDLE_HOC_GT_HIGH = 1 << 8,            // Higher price (open or close) is greater than the previous high.
+  PATTERN_2CANDLE_HOC_GT_HOC = 1 << 9,             // Higher price (open or close) is greater than the previous one.
+  PATTERN_2CANDLE_LOC_LT_LOC = 1 << 10,            // Lower price (open or close) is lower than the previous one.
+  PATTERN_2CANDLE_LOC_LT_LOW = 1 << 11,            // Lower price (open or close) is lower than the previous low.
+  PATTERN_2CANDLE_LOW_LT_LOC = 1 << 12,            // Low is lower than the previous lower price (open or close).
+  PATTERN_2CANDLE_LOW_LT_LOW = 1 << 13,            // Low is lower than the previous one.
+  PATTERN_2CANDLE_OPEN_GT_OPEN = 1 << 14,          // Open is greater than the previous one.
+  PATTERN_2CANDLE_PP_GT_PP = 1 << 15,              // Pivot price is greater than the previous one (HLC/3).
+  PATTERN_2CANDLE_PP_GT_PP_OPEN = 1 << 16,         // Pivot price open is greater than the previous one (OHLC/4).
+  PATTERN_2CANDLE_RANGE_DBL_RANGE = 1 << 17,       // Range size doubled from the previous one.
+  PATTERN_2CANDLE_RANGE_GT_RANGE = 1 << 18,        // Range is greater than the previous one.
+  PATTERN_2CANDLE_TIME_GAP_DAY = 1 << 19,          // Bars have over 24h gap.
+  PATTERN_2CANDLE_WEIGHTED_GT_WEIGHTED = 1 << 20,  // Weighted price is greater than the previous one (OH2C/4).
+  PATTERN_2CANDLE_WICKS_DBL_WICKS = 1 << 21,       // Size of wicks doubled from the previous onces.
+  PATTERN_2CANDLE_WICKS_GT_WICKS = 1 << 22,        // Size of wicks is greater than the previous onces.
+  // ---
+  PATTERN_2CANDLE_BODY_IN_BODY = 1 << 23,
+  PATTERN_2CANDLE_BODY_OUT_BODY = 1 << 24,
+  PATTERN_2CANDLE_RANGE_IN_RANGE = 1 << 25,
+  PATTERN_2CANDLE_RANGE_OUT_RANGE = 1 << 26,
   // Patterns based on the existing patterns.
-  PATTERN_2CANDLE_BODY_IN_BODY = ~PATTERN_2CANDLE_HOC_GT_HOC | ~PATTERN_2CANDLE_LOC_LT_LOC,
-  PATTERN_2CANDLE_BODY_OUT_BODY = PATTERN_2CANDLE_HOC_GT_HOC | PATTERN_2CANDLE_LOC_LT_LOC,
-  PATTERN_2CANDLE_RANGE_IN_RANGE = ~PATTERN_2CANDLE_HIGH_GT_HIGH | ~PATTERN_2CANDLE_LOW_LT_LOW,
-  PATTERN_2CANDLE_RANGE_OUT_RANGE = PATTERN_2CANDLE_HIGH_GT_HIGH | PATTERN_2CANDLE_LOW_LT_LOW,
+  // PATTERN_2CANDLE_BODY_IN_BODY = ~PATTERN_2CANDLE_HOC_GT_HOC | ~PATTERN_2CANDLE_LOC_LT_LOC,
+  // PATTERN_2CANDLE_BODY_OUT_BODY = PATTERN_2CANDLE_HOC_GT_HOC | PATTERN_2CANDLE_LOC_LT_LOC,
+  // PATTERN_2CANDLE_RANGE_IN_RANGE = ~PATTERN_2CANDLE_HIGH_GT_HIGH | ~PATTERN_2CANDLE_LOW_LT_LOW,
+  // PATTERN_2CANDLE_RANGE_OUT_RANGE = PATTERN_2CANDLE_HIGH_GT_HIGH | PATTERN_2CANDLE_LOW_LT_LOW,
+  // PATTERN_2CANDLE_RANGE_IN_BODY = 1 << ??,   // Range is inside body of the previous candle.
+  // PATTERN_2CANDLE_RANGE_OUT_RANGE = 1 << ??, // Range is outside of range of the previous candle.
   // Bearish engulfing pattern.
   // A lot of momentum in favor of price falling.
   PATTERN_2CANDLE_BEAR_ENGULFING = ~PATTERN_2CANDLE_BEARS | ~PATTERN_2CANDLE_BULLS | ~PATTERN_2CANDLE_CLOSE_GT_CLOSE |
@@ -137,18 +141,29 @@ enum ENUM_PATTERN_2CANDLE {
   PATTERN_2CANDLE_BULL_ENGULFING = ~PATTERN_2CANDLE_BEARS | ~PATTERN_2CANDLE_BULLS | PATTERN_2CANDLE_CLOSE_GT_CLOSE |
                                    PATTERN_2CANDLE_BODY_OUT_BODY | PATTERN_2CANDLE_RANGE_OUT_RANGE |
                                    PATTERN_2CANDLE_HOC_GT_HOC | PATTERN_2CANDLE_LOC_LT_LOC,
+
   // Body is inside of the previous candle's range.
-  PATTERN_2CANDLE_BODY_IN_RANGE = ~PATTERN_2CANDLE_HOC_GT_HIGH | ~PATTERN_2CANDLE_LOC_LT_LOW,
+  PATTERN_2CANDLE_BODY_IN_RANGE = 1 << 27,
+  // PATTERN_2CANDLE_BODY_IN_RANGE = ~PATTERN_2CANDLE_HOC_GT_HIGH | ~PATTERN_2CANDLE_LOC_LT_LOW,
+
   // Body is outside of the previous candle's range (partial Bullish engulfing).
-  PATTERN_2CANDLE_BODY_OUT_RANGE = PATTERN_2CANDLE_HOC_GT_HIGH | PATTERN_2CANDLE_LOC_LT_LOW,
+  PATTERN_2CANDLE_BODY_OUT_RANGE = 1 << 28,
+  // PATTERN_2CANDLE_BODY_OUT_RANGE = PATTERN_2CANDLE_HOC_GT_HIGH | PATTERN_2CANDLE_LOC_LT_LOW,
+
   // Range is inside of the previous candle's body (partial Harami pattern).
-  PATTERN_2CANDLE_RANGE_IN_BODY = ~PATTERN_2CANDLE_HIGH_GT_HOC | ~PATTERN_2CANDLE_LOW_LT_LOC,
+  PATTERN_2CANDLE_RANGE_IN_BODY = 1 << 29,
+  // PATTERN_2CANDLE_RANGE_IN_BODY = ~PATTERN_2CANDLE_HIGH_GT_HOC | ~PATTERN_2CANDLE_LOW_LT_LOC,
+
   // Range is outside of the previous candle's body (partial Harami pattern).
-  PATTERN_2CANDLE_RANGE_OUT_BODY = ~PATTERN_2CANDLE_HIGH_GT_HOC | ~PATTERN_2CANDLE_LOW_LT_LOC,
+  PATTERN_2CANDLE_RANGE_OUT_BODY = 1 << 30,
+  // PATTERN_2CANDLE_RANGE_OUT_BODY = PATTERN_2CANDLE_HIGH_GT_HOC | PATTERN_2CANDLE_LOW_LT_LOC,
+
   // Harami pattern.
   // Neutral pattern where price is being pushed into a tighter range.
-  PATTERN_2CANDLE_HARAMI = PATTERN_2CANDLE_BODY_IN_BODY | PATTERN_2CANDLE_RANGE_IN_BODY | ~PATTERN_2CANDLE_HOC_GT_HOC |
-                           ~PATTERN_2CANDLE_LOC_LT_LOC,
+  PATTERN_2CANDLE_HARAMI = 1 << 31,
+  // PATTERN_2CANDLE_HARAMI = PATTERN_2CANDLE_BODY_IN_BODY | PATTERN_2CANDLE_RANGE_IN_BODY | ~PATTERN_2CANDLE_HOC_GT_HOC
+  // | ~PATTERN_2CANDLE_LOC_LT_LOC,
+
   // Dark cloud cover.
   // Price acted like it was continuing upwards, but then reversed.
   PATTERN_2CANDLE_DARK_CLOUD_COVER = ~PATTERN_2CANDLE_BEARS | ~PATTERN_2CANDLE_BULLS | ~PATTERN_2CANDLE_CLOSE_GT_CLOSE |
@@ -230,7 +245,7 @@ enum ENUM_PATTERN_4CANDLE {
   PATTERN_4CANDLE_RANGE_DEC = 1 << 23,      // Range size decreases.
   PATTERN_4CANDLE_RANGE_INC = 1 << 24,      // Range size increases.
   PATTERN_4CANDLE_SHOOT_STAR = 1 << 25,     // Shooting star (UU^DD).
-  PATTERN_4CANDLE_TIME_EVEN = 1 << 26,      // Bar time is consistent (no time gaps).
+  PATTERN_4CANDLE_TIME_GAPS = 1 << 26,      // Bar time is not consistent (has time gaps).
   PATTERN_4CANDLE_WICKS0_GT_SUM = 1 << 27,  // Size of wicks are greater than sum of others.
   PATTERN_4CANDLE_WICKS_DEC = 1 << 28,      // Size of wicks increases.
   PATTERN_4CANDLE_WICKS_GT_BODY = 1 << 29,  // Sum of wicks are greater than sum of bodies.

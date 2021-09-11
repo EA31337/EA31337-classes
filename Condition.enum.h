@@ -149,14 +149,16 @@ enum ENUM_ACCOUNT_CONDITION {
   ACCOUNT_COND_EQUITY_IN_LOSS,    // Equity in loss
   ACCOUNT_COND_EQUITY_IN_PROFIT,  // Equity in profit
   /* @todo
-  ACCOUNT_COND_MARGIN_CALL_10PC, // Margin Call (10% margin left)
-  ACCOUNT_COND_MARGIN_CALL_20PC, // Margin Call (20% margin left)
+  ACCOUNT_COND_MARGIN_CALL_10PC, // Margin call (10% margin left)
+  ACCOUNT_COND_MARGIN_CALL_20PC, // Margin call (20% margin left)
   */
-  ACCOUNT_COND_MARGIN_USED_10PC,  // Margin Used in 10%
-  ACCOUNT_COND_MARGIN_USED_20PC,  // Margin Used in 20%
-  ACCOUNT_COND_MARGIN_USED_50PC,  // Margin Used in 50%
-  ACCOUNT_COND_MARGIN_USED_80PC,  // Margin Used in 80%
-  ACCOUNT_COND_MARGIN_USED_99PC,  // Margin Used in 99%
+  ACCOUNT_COND_MARGIN_FREE_IN_PC,  // Margin used in % (args)
+  ACCOUNT_COND_MARGIN_USED_10PC,   // Margin used in 10%
+  ACCOUNT_COND_MARGIN_USED_20PC,   // Margin used in 20%
+  ACCOUNT_COND_MARGIN_USED_50PC,   // Margin used in 50%
+  ACCOUNT_COND_MARGIN_USED_80PC,   // Margin used in 80%
+  ACCOUNT_COND_MARGIN_USED_99PC,   // Margin used in 99%
+  ACCOUNT_COND_MARGIN_USED_IN_PC,  // Margin used in % (args)
   FINAL_ACCOUNT_CONDITION_ENTRY
 };
 

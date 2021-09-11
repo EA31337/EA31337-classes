@@ -49,11 +49,13 @@ typedef unsigned short ushort;
 #define THIS_REF this
 #define PTR_ATTRIB(O, A) O.A
 #define PTR_TO_REF(PTR) PTR
+#define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
 #else
 #define THIS_PTR (this)
 #define THIS_REF (*this)
 #define PTR_ATTRIB(O, A) O->A
 #define PTR_TO_REF(PTR) (*PTR)
+#define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
 #endif
 
 // References.
@@ -203,6 +205,18 @@ unsigned int GetPointer(void* _ptr) { return (unsigned int)_ptr; }
 #define C_STR(S) cstring_from(S)
 
 const char* cstring_from(const std::string& _value) { return _value.c_str(); }
+#endif
+
+/**
+ * Referencing struct's enum.
+ *
+ * @usage
+ *   STRUCT_ENUM(<struct_name>, <enum_name>)
+ */
+#ifdef __MQL4__
+#define STRUCT_ENUM(S, E) E
+#else
+#define STRUCT_ENUM(S, E) S::E
 #endif
 
 #ifndef __MQL__
