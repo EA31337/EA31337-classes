@@ -365,6 +365,7 @@ struct IndicatorDataEntry {
   int GetDayOfYear() { return DateTimeStatic::DayOfYear(timestamp); }
   int GetMonth() { return DateTimeStatic::Month(timestamp); }
   int GetYear() { return DateTimeStatic::Year(timestamp); }
+  long GetTime() { return timestamp; };
   ENUM_DATATYPE GetDataType() {
     if (CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
       return TYPE_FLOAT;
@@ -597,7 +598,7 @@ struct IndicatorState {
         return (T)is_changed;
       case INDICATOR_STATE_PROP_IS_READY:
         return (T)is_ready;
-    }
+    };
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }

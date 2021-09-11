@@ -733,7 +733,6 @@ class EA {
     for (DictObjectIterator<string, Trade> titer = trade.Begin(); titer.IsValid(); ++titer) {
       Trade *_trade = titer.Value();
       if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-        //_strat.ProcessOrders(_trade);
         for (DictStructIterator<long, Ref<Order>> oiter = _trade.GetOrdersActive().Begin(); oiter.IsValid(); ++oiter) {
           bool _sl_valid = false, _tp_valid = false;
           double _sl_new = 0, _tp_new = 0;
