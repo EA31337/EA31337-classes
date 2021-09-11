@@ -208,53 +208,6 @@ class Strategy : public Object {
   }
 
   /**
-   * Process strategy's orders.
-   *
-   * @return
-   *   Returns StgProcessResult struct.
-   */
-  StgProcessResult ProcessOrders(Trade *_trade) {
-    // @todo: Move to Trade.
-    Order *_order;
-    DictStruct<long, Ref<Order>> *_orders_active = _trade.GetOrdersActive();
-    for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
-      _order = iter.Value().Ptr();
-      if (_order.IsOpen() && _order.Get<ulong>(ORDER_MAGIC) == sparams.Get<long>(STRAT_PARAM_ID)) {
-        Strategy *_strat_sl = strat_sl;
-        Strategy *_strat_tp = strat_tp;
-        _order.Update();
-        if (_strat_sl != NULL && _strat_tp != NULL) {
-          float _psl = _strat_sl.Get<float>(STRAT_PARAM_PSL);
-          float _ppl = _strat_tp.Get<float>(STRAT_PARAM_PPL);
-          int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
-          int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
-          ENUM_ORDER_TYPE _otype = _order.Get<ENUM_ORDER_TYPE>(ORDER_TYPE);
-          double sl_curr = _order.Get<double>(ORDER_SL);
-          double tp_curr = _order.Get<double>(ORDER_TP);
-          double sl_new = trade.NormalizeSL(_strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl), _otype);
-          double tp_new = trade.NormalizeTP(_strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl), _otype);
-          bool sl_valid = trade.IsValidOrderSL(sl_new, _otype, _order.Get<double>(ORDER_SL), _psm > 0);
-          bool tp_valid = trade.IsValidOrderTP(tp_new, _otype, _order.Get<double>(ORDER_TP), _ppm > 0);
-          if (sl_valid || tp_valid) {
-            _order.OrderModify(sl_valid ? sl_new : sl_curr, tp_valid ? tp_new : tp_curr);
-          }
-          sresult.stops_invalid_sl += (unsigned short)sl_valid;
-          sresult.stops_invalid_tp += (unsigned short)tp_valid;
-        } else {
-          GetLogger().Error("Error loading SL/TP objects!", __FUNCTION_LINE__);
-        }
-      } else {
-        trade.OrderMoveToHistory(_order);
-      }
-    }
-    sresult.ProcessLastError();
-    if (_order.Get<unsigned int>(ORDER_PROP_LAST_ERROR) != ERR_NO_ERROR) {
-      _order.GetLogger().Flush();
-    }
-    return sresult;
-  }
-
-  /**
    * Process strategy's signals and orders.
    *
    * @param ushort _periods_started
@@ -404,6 +357,16 @@ class Strategy : public Object {
    * Get strategy's last signals.
    */
   StrategySignal GetLastSignals() { return last_signals; }
+
+  /**
+   * Gets pointer to strategy's stop-loss strategy.
+   */
+  Strategy *GetStratSl() { return strat_sl; }
+
+  /**
+   * Gets pointer to strategy's take-profit strategy.
+   */
+  Strategy *GetStratTp() { return strat_tp; }
 
   /**
    * Get strategy's name.

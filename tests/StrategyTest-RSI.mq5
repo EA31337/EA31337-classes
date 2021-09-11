@@ -118,7 +118,6 @@ void OnTick() {
           trade.GetTradeOpenRequest(ORDER_TYPE_SELL, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
       trade.RequestSend(_request);
     } else if (trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-      stg_rsi.ProcessOrders(trade);
       stg_rsi.ProcessTasks();
     }
     long _last_error = GetLastError();

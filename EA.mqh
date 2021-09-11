@@ -330,9 +330,6 @@ class EA {
               StrategySignal _signal = _strat.ProcessSignals(_can_trade);
               SignalAdd(_signal, _tick.time);
               if (estate.new_periods != DATETIME_NONE) {
-                if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-                  _strat.ProcessOrders(_trade);
-                }
                 _strat.ProcessTasks();
               }
               StgProcessResult _strat_result = _strat.GetProcessResult();
@@ -355,6 +352,7 @@ class EA {
         // Process data and tasks on new periods.
         ProcessData();
         ProcessTasks();
+        ProcessTrades();
       }
     }
     return eresults;
@@ -719,6 +717,56 @@ class EA {
   bool StrategyLoadTrades(Strategy *_strat) {
     Trade *_trade = trade.GetByKey(_Symbol);
     return _trade.OrdersLoadByMagic(_strat.Get<long>(STRAT_PARAM_ID));
+  }
+
+  /* Trade methods */
+
+  /**
+   * Process open trades.
+   *
+   * @return
+   *   Returns true on success, otherwise false.
+   */
+  bool ProcessTrades() {
+    bool _result = true;
+    ResetLastError();
+    for (DictObjectIterator<string, Trade> titer = trade.Begin(); titer.IsValid(); ++titer) {
+      Trade *_trade = titer.Value();
+      if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+        //_strat.ProcessOrders(_trade);
+        for (DictStructIterator<long, Ref<Order>> oiter = _trade.GetOrdersActive().Begin(); oiter.IsValid(); ++oiter) {
+          bool _sl_valid = false, _tp_valid = false;
+          double _sl_new = 0, _tp_new = 0;
+          Order *_order = oiter.Value().Ptr();
+          if (_order.IsClosed()) {
+            _trade.OrderMoveToHistory(_order);
+            continue;
+          }
+          ENUM_ORDER_TYPE _otype = _order.Get<ENUM_ORDER_TYPE>(ORDER_TYPE);
+          Strategy *_strat = strats.GetByKey(_order.Get<ulong>(ORDER_MAGIC)).Ptr();
+          Strategy *_strat_sl = _strat.GetStratSl();
+          Strategy *_strat_tp = _strat.GetStratTp();
+          if (_strat_sl != NULL) {
+            float _psl = _strat_sl.Get<float>(STRAT_PARAM_PSL);
+            int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
+            _sl_new = _trade.NormalizeSL(_strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl), _otype);
+            _sl_valid = _trade.IsValidOrderSL(_sl_new, _otype, _order.Get<double>(ORDER_SL), _psm > 0);
+            _sl_new = _sl_valid ? _sl_new : _order.Get<double>(ORDER_SL);
+          }
+          if (_strat_tp != NULL) {
+            float _ppl = _strat_tp.Get<float>(STRAT_PARAM_PPL);
+            int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
+            _tp_new = _trade.NormalizeTP(_strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl), _otype);
+            _tp_valid = _trade.IsValidOrderTP(_tp_new, _otype, _order.Get<double>(ORDER_TP), _ppm > 0);
+            _tp_new = _tp_valid ? _tp_new : _order.Get<double>(ORDER_TP);
+          }
+          if (_sl_valid || _tp_valid) {
+            _result &= _order.OrderModify(_sl_new, _tp_new);
+          }
+        }
+      }
+    }
+    return _result && _LastError == ERR_NO_ERROR;
   }
 
   /* Update methods */
