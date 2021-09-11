@@ -479,7 +479,9 @@ class Indicator : public Chart {
   /**
    * Returns currently selected data source without any validation.
    */
-  Indicator* GetDataSourceRaw() { return iparams.GetDataSource(); }
+  Indicator* GetDataSourceRaw() {
+    return iparams.GetDataSource();
+  }
 
   /**
    * Returns currently selected data source doing validation.
