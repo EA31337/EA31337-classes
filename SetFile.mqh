@@ -21,14 +21,14 @@
  */
 
 class SetFile {
-    struct data
+    struct SetFileData
     {
          string  key;
          string  val;
     };
 
     int handle, count;
-    data array[];
+    SetFileData array[];
 
     public:
 
