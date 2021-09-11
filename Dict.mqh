@@ -129,12 +129,17 @@ class Dict : public DictBase<K, V> {
 
   /**
    * Returns value for a given key.
+   *
+   * @return
+   *   Returns value for a given key, otherwise the default value.
    */
   V GetByKey(const K _key, V _default = NULL) {
     unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, _key, position);
 
-    if (!slot) return _default;
+    if (!slot) {
+      return _default;
+    }
 
     return slot.value;
   }
