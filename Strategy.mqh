@@ -215,8 +215,6 @@ class Strategy : public Object {
    */
   StgProcessResult ProcessOrders(Trade *_trade) {
     // @todo: Move to Trade.
-    bool sl_valid, tp_valid;
-    double sl_new, tp_new;
     Order *_order;
     DictStruct<long, Ref<Order>> *_orders_active = _trade.GetOrdersActive();
     for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
@@ -231,18 +229,14 @@ class Strategy : public Object {
           int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
           int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
           ENUM_ORDER_TYPE _otype = _order.Get<ENUM_ORDER_TYPE>(ORDER_TYPE);
-          sl_new = _strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl);
-          tp_new = _strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl);
-          sl_new = trade.NormalizeSL(sl_new, _otype);
-          tp_new = trade.NormalizeTP(tp_new, _otype);
-          sl_valid = trade.IsValidOrderSL(sl_new, _otype, _order.Get<double>(ORDER_SL), _psm > 0);
-          tp_valid = trade.IsValidOrderTP(tp_new, _otype, _order.Get<double>(ORDER_TP), _ppm > 0);
-          if (sl_valid && tp_valid) {
-            _order.OrderModify(sl_new, tp_new);
-          } else if (sl_valid) {
-            _order.OrderModify(sl_new, _order.Get<double>(ORDER_TP));
-          } else if (tp_valid) {
-            _order.OrderModify(_order.Get<double>(ORDER_SL), tp_new);
+          double sl_curr = _order.Get<double>(ORDER_SL);
+          double tp_curr = _order.Get<double>(ORDER_TP);
+          double sl_new = trade.NormalizeSL(_strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl), _otype);
+          double tp_new = trade.NormalizeTP(_strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl), _otype);
+          bool sl_valid = trade.IsValidOrderSL(sl_new, _otype, _order.Get<double>(ORDER_SL), _psm > 0);
+          bool tp_valid = trade.IsValidOrderTP(tp_new, _otype, _order.Get<double>(ORDER_TP), _ppm > 0);
+          if (sl_valid || tp_valid) {
+            _order.OrderModify(sl_valid ? sl_new : sl_curr, tp_valid ? tp_new : tp_curr);
           }
           sresult.stops_invalid_sl += (unsigned short)sl_valid;
           sresult.stops_invalid_tp += (unsigned short)tp_valid;
