@@ -622,6 +622,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Moves active order to history.
    */
   bool OrderMoveToHistory(Order *_order) {
+    _order.Update();
     orders_active.Unset(_order.Get<ulong>(ORDER_PROP_TICKET));
     Ref<Order> _ref_order = _order;
     bool result = orders_history.Set(_order.Get<ulong>(ORDER_PROP_TICKET), _ref_order);
@@ -651,7 +652,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order = iter.Value();
       if (_order.IsSet() && _order.Ptr().IsClosed()) {
-        _order.Ptr().Update();
         _result &= OrderMoveToHistory(_order.Ptr());
         if (_first) {
           break;
@@ -1423,7 +1423,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool IsValidOrderSL(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
-    if (_value == 0) {
+    if (_value == 0 && _value == _value_prev) {
       return _is_valid;
     }
     double _min_distance = GetTradeDistanceInPips();
@@ -1543,7 +1543,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool IsValidOrderTP(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
-    if (_value == 0) {
+    if (_value == 0 && _value == _value_prev) {
       return _is_valid;
     }
     double _min_distance = GetTradeDistanceInPips();
