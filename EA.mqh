@@ -1027,7 +1027,9 @@ class EA {
     if ((estate.new_periods & DATETIME_MINUTE) != 0) {
       // New minute started.
 #ifndef __optimize__
-      logger.Flush();
+      if (Terminal::IsRealtime()) {
+        logger.Flush();
+      }
 #endif
     }
     if ((estate.new_periods & DATETIME_HOUR) != 0) {
@@ -1036,6 +1038,9 @@ class EA {
     if ((estate.new_periods & DATETIME_DAY) != 0) {
       // New day started.
       UpdateLotSize();
+#ifndef __optimize__
+      logger.Flush();
+#endif
     }
     if ((estate.new_periods & DATETIME_WEEK) != 0) {
       // New week started.

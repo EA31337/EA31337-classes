@@ -1600,13 +1600,20 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   virtual void OnPeriod(unsigned int _periods = DATETIME_NONE) {
     if ((_periods & DATETIME_MINUTE) != 0) {
       // New minute started.
-      GetLogger().Flush();
+#ifndef __optimize__
+      if (Terminal::IsRealtime()) {
+        logger.Flush();
+      }
+#endif
     }
     if ((_periods & DATETIME_HOUR) != 0) {
       // New hour started.
     }
     if ((_periods & DATETIME_DAY) != 0) {
       // New day started.
+#ifndef __optimize__
+      logger.Flush();
+#endif
     }
     if ((_periods & DATETIME_WEEK) != 0) {
       // New week started.
