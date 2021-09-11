@@ -1,10 +1,10 @@
 # Doxyfile 1.9.1
 ALPHABETICAL_INDEX     = YES
-EXCLUDE                = ../tests/
+EXCLUDE                = ../../tests/
 FILE_PATTERNS          = *.h *.mq?
 GENERATE_HTML          = YES
 GENERATE_XML           = YES
-INPUT                  = "../"
+INPUT                  = "../../"
 OUTPUT_DIRECTORY       = "build"
 PROJECT_NAME           = EA31337 Framework
 RECURSIVE              = YES
