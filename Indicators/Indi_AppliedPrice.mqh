@@ -70,7 +70,7 @@ class Indi_AppliedPrice : public Indicator {
         if (HasDataSource()) {
           // Future validation of GetDataSource() will check if we set mode for source indicator (e.g. for applied price of Indi_Price).
           iparams.SetDataSourceMode(GetAppliedPrice());
-        }        
+        }
         if (GetDataSource().GetParams().GetMaxModes() != 4) {
           Print("Indi_AppliedPrice indicator may be used only with indicator that has at least 4 modes/buffers (O, H, L, C)!");
           DebugBreak();
