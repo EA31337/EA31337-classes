@@ -63,17 +63,17 @@
 
 // Structs.
 struct BufferFXTEntry {
-  datetime          otm;                // Bar datetime.
-  double            open;               // OHLCV values.
-  double            high;
-  double            low;
-  double            close;
-  long              volume;
-  int               ctm;                // The current time within a bar.
-  int               flag;               // Flag to launch an expert (0 - bar will be modified, but the expert will not be launched).
+  datetime otm;  // Bar datetime.
+  double open;   // OHLCV values.
+  double high;
+  double low;
+  double close;
+  long volume;
+  int ctm;   // The current time within a bar.
+  int flag;  // Flag to launch an expert (0 - bar will be modified, but the expert will not be launched).
 
  public:
-  bool operator==(const BufferFXTEntry& _s) {
+  bool operator==(const BufferFXTEntry &_s) {
     // @fixme
     return false;
   }
@@ -169,63 +169,63 @@ struct BufferFXTHeader {
   //----
   int reserved[60];  // Reserved - space for future use.
   // Struct constructor.
-  BufferFXTHeader(Chart *_c, Account *_a) :
-    version(405),
-    period(_c.GetTf()),
-    model(0),
-    bars(0),
-    fromdate(0),
-    todate(0),
-    totalTicks(0),
-    modelquality(0),
-    spread((int) _c.GetSpread()),
-    digits((int) _c.GetDigits()),
-    point(_c.GetPointSize()),
-    lot_min(int(_c.GetVolumeMin() * 100)),
-    lot_max(int(_c.GetVolumeMax() * 100)),
-    lot_step(int(_c.GetVolumeStep() * 100)),
-    stops_level(0), // @todo: Add MODE_STOPLEVEL to Account.
-    gtc_pendings(false),
-    contract_size(10000),
-    tick_value(_c.GetTickValue()),
-    tick_size(_c.GetTickSize()),
-    profit_mode(PROFIT_CALC_FOREX),
-    swap_enable(true),
-    swap_type(SWAP_BY_POINTS), // @todo: Add _c.GetSwapType() to SymbolInfo.
-    swap_long(_c.GetSwapLong()),
-    swap_short(_c.GetSwapShort()),
-    swap_rollover3days(3),
-    leverage((int) _a.GetLeverage()),
-    free_margin_mode(MARGIN_DONT_USE),
-    margin_mode(MARGIN_CALC_FOREX),
-    margin_stopout(30), // @fixme: _a.GetStopoutLevel() based on ACCOUNT_MARGIN_SO_CALL.
-    margin_stopout_mode(_a.GetStopoutMode()),
-    margin_initial(_c.GetMarginInit()),
-    margin_maintenance(_c.GetMarginMaintenance()),
-    margin_hedged(0),
-    margin_divider(0),
-    comm_base(0.0),
-    comm_type(COMM_TYPE_MONEY),
-    comm_lots(COMMISSION_PER_LOT),
-    from_bar(0),
-    to_bar(0),
-    start_period_m1(0),
-    start_period_m5(0),
-    start_period_m15(0),
-    start_period_m30(0),
-    start_period_h1(0),
-    start_period_h4(0),
-    set_from(0),
-    set_to(0),
-    freeze_level((int) _c.GetFreezeLevel()),
-    generating_errors(0) {
-      ArrayInitialize(copyright, 0);
-      //currency = StringSubstr(_m.GetSymbol(), 0, 3); // @fixme
-      ArrayInitialize(description, 0);
-      ArrayInitialize(margin_currency, 0);
-      ArrayInitialize(reserved, 0);
-      //symbol = _m.GetSymbol(); // @fixme
-    }
+  BufferFXTHeader(Chart *_c, Account *_a)
+      : version(405),
+        period(_c.GetTf()),
+        model(0),
+        bars(0),
+        fromdate(0),
+        todate(0),
+        totalTicks(0),
+        modelquality(0),
+        spread((int)_c.GetSpread()),
+        digits((int)_c.GetDigits()),
+        point(_c.GetPointSize()),
+        lot_min(int(_c.GetVolumeMin() * 100)),
+        lot_max(int(_c.GetVolumeMax() * 100)),
+        lot_step(int(_c.GetVolumeStep() * 100)),
+        stops_level(0),  // @todo: Add MODE_STOPLEVEL to Account.
+        gtc_pendings(false),
+        contract_size(10000),
+        tick_value(_c.GetTickValue()),
+        tick_size(_c.GetTickSize()),
+        profit_mode(PROFIT_CALC_FOREX),
+        swap_enable(true),
+        swap_type(SWAP_BY_POINTS),  // @todo: Add _c.GetSwapType() to SymbolInfo.
+        swap_long(_c.GetSwapLong()),
+        swap_short(_c.GetSwapShort()),
+        swap_rollover3days(3),
+        leverage((int)_a.GetLeverage()),
+        free_margin_mode(MARGIN_DONT_USE),
+        margin_mode(MARGIN_CALC_FOREX),
+        margin_stopout(30),  // @fixme: _a.GetStopoutLevel() based on ACCOUNT_MARGIN_SO_CALL.
+        margin_stopout_mode(_a.GetStopoutMode()),
+        margin_initial(_c.GetMarginInit()),
+        margin_maintenance(_c.GetMarginMaintenance()),
+        margin_hedged(0),
+        margin_divider(0),
+        comm_base(0.0),
+        comm_type(COMM_TYPE_MONEY),
+        comm_lots(COMMISSION_PER_LOT),
+        from_bar(0),
+        to_bar(0),
+        start_period_m1(0),
+        start_period_m5(0),
+        start_period_m15(0),
+        start_period_m30(0),
+        start_period_h1(0),
+        start_period_h4(0),
+        set_from(0),
+        set_to(0),
+        freeze_level((int)_c.GetFreezeLevel()),
+        generating_errors(0) {
+    ArrayInitialize(copyright, 0);
+    // currency = StringSubstr(_m.GetSymbol(), 0, 3); // @fixme
+    ArrayInitialize(description, 0);
+    ArrayInitialize(margin_currency, 0);
+    ArrayInitialize(reserved, 0);
+    // symbol = _m.GetSymbol(); // @fixme
+  }
 };
 
 struct BufferFXTParams {
@@ -233,24 +233,25 @@ struct BufferFXTParams {
   Chart *chart;
   // Struct constructor.
   void BufferFXTParams(Chart *_chart = NULL, Account *_account = NULL)
-    : account(Object::IsValid(_account) ? _account : new Account),
-      chart(Object::IsValid(_chart) ? _chart : new Chart) {}
+      : account(Object::IsValid(_account) ? _account : new Account),
+        chart(Object::IsValid(_chart) ? _chart : new Chart) {}
   // Struct deconstructor.
-  void ~BufferFXTParams() { delete account; delete chart; }
+  void ~BufferFXTParams() {
+    delete account;
+    delete chart;
+  }
 };
 
-string ToJSON(BufferFXTEntry& _value, const bool, const unsigned int) { return _value.ToJSON(); };
+string ToJSON(BufferFXTEntry &_value, const bool, const unsigned int) { return _value.ToJSON(); };
 
 /**
  * Implements class to store tick data.
  */
 class BufferFXT : public DictStruct<long, BufferFXTEntry> {
  protected:
-
   BufferFXTParams params;
 
  public:
-
   /**
    * Class constructor.
    */
@@ -260,13 +261,12 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
   /**
    * Class deconstructor.
    */
-  ~BufferFXT() {
-  }
+  ~BufferFXT() {}
 
   /**
    * Adds new entry.
    */
-  void Add(BufferFXTEntry& _value, long _dt = 0) {
+  void Add(BufferFXTEntry &_value, long _dt = 0) {
     _dt = _dt > 0 ? _dt : TimeCurrent();
     Set(_dt, _value);
   }
@@ -274,9 +274,9 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
   /**
    * Adds new entry.
    */
-  void Add(MqlTick& _value) {
+  void Add(MqlTick &_value) {
     // @todo: Parse MqlTick.
-    //Set(_dt, _value);
+    // Set(_dt, _value);
   }
 
   /**
