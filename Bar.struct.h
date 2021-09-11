@@ -39,6 +39,7 @@ class Serializer;
 #include "ISerializable.h"
 #include "Serializer.enum.h"
 #include "SerializerNode.enum.h"
+#include "Std.h"
 
 /* Struct for storing OHLC values. */
 struct BarOHLC
