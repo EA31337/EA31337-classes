@@ -24,13 +24,13 @@ struct OUTPUT
 OUTPUT main(INPUT input)
 {
    OUTPUT output;
-   
+
    input.position.w = 1.0f;
-   
+
    matrix mvp = mul(mul(projection, view), world);
-   
+
    output.position = mul(mvp, input.position);
-         
+
    output.normal = normalize(mul(world, input.normal));
    output.lightdir = lightdir;
    output.color = input.color;

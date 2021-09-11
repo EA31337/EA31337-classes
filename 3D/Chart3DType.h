@@ -44,7 +44,7 @@ class Chart3DType : public Dynamic {
    * Constructor.
    */
   Chart3DType(Chart3D* _chart3d, Device* _device) : chart3d(_chart3d), device(_device) {}
-  
+
   Device* GetDevice() {
     return device;
   }

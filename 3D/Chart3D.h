@@ -79,9 +79,9 @@ class Chart3D : public Dynamic {
   // Shaders.
   Ref<Shader> shader_vs;
   Ref<Shader> shader_ps;
-  
+
   Chart3DType* current_renderer;
-  
+
   Instances<Chart3D> instances;
 
  public:
@@ -96,21 +96,21 @@ class Chart3D : public Dynamic {
     initialized = false;
     Interface::AddListener(chart3d_interface_listener, &this);
   }
-  
+
   void OnInterfaceEvent(InterfaceEvent& _event) {
     if (GetCurrentRenderer() == NULL) {
       return;
     }
-    
+
     Device* _gfx = GetCurrentRenderer().GetDevice();
-    
+
     _gfx.DrawText(10, 10, "Event!");
   }
-  
+
   Shader* GetShaderVS() { return shader_vs.Ptr(); }
 
   Shader* GetShaderPS() { return shader_ps.Ptr(); }
-  
+
   Chart3DType* GetCurrentRenderer() {
     return current_renderer;
   }
@@ -139,7 +139,7 @@ class Chart3D : public Dynamic {
           return NULL;
       }
     }
-    
+
     current_renderer = renderers[type].Ptr();
 
     return renderers[type].Ptr();

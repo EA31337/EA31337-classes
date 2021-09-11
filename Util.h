@@ -53,7 +53,7 @@ class Util {
     ::ArrayResize(_array, ArraySize(_array) - 1);
     return _result;
   }
-  
+
   template <typename T>
   static T Print(T& _array[]) {
     string _result;
@@ -73,7 +73,7 @@ class Util {
         return true;
       }
     }
-    
+
     return false;
   }
 };

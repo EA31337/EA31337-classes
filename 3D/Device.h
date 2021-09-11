@@ -272,11 +272,11 @@ class Device : public Dynamic {
     _viewport.height = frontend.Ptr().Height();
     _viewport.minz = -10000.0f;
     _viewport.maxz = 10000.0f;
-    
+
     DXVector3 _vec3_in(_x, _y, 0.0f);
     DXVector3 _vec3_out;
     DXVec3Project(_vec3_out, _vec3_in, _viewport, GetProjectionMatrix(), GetViewMatrix(), GetWorldMatrix());
-    
+
     if ((_flags & GFX_DRAW_TEXT_FLAG_2D_COORD_X) == GFX_DRAW_TEXT_FLAG_2D_COORD_X) {
       _vec3_out.x = _x;
     }
@@ -284,7 +284,7 @@ class Device : public Dynamic {
     if ((_flags & GFX_DRAW_TEXT_FLAG_2D_COORD_Y) == GFX_DRAW_TEXT_FLAG_2D_COORD_Y) {
       _vec3_out.y = _y;
     }
-    
+
     frontend.Ptr().DrawText(_vec3_out.x, _vec3_out.y, _text, _color, _align);
   }
 

@@ -155,7 +155,7 @@ class MT5Frontend : public Frontend {
    * Returns canvas' height.
    */
   virtual int Height() { return (int)ChartGetInteger(0, CHART_HEIGHT_IN_PIXELS); }
-  
+
   /**
    * Draws text directly into the pixel buffer. Should be executed after all 3d drawing.
    */
@@ -164,7 +164,7 @@ class MT5Frontend : public Frontend {
     #ifdef __debug__
     Print("TextSetFont: LastError = ", GetLastError());
     #endif
-    
+
     TextOut(_text, _x, _y, _align, image, Width(), Height(), _color, COLOR_FORMAT_ARGB_NORMALIZE);
     #ifdef __debug__
     Print("TextOut: LastError = ", GetLastError());

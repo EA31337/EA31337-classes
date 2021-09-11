@@ -32,13 +32,7 @@
 #resource "3D/Shaders/vertex.hlsl" as string ShaderSourceVS;
 #resource "3D/Shaders/pixel.hlsl" as string ShaderSourcePS;
 
-//#define Print if (false) Print
-
 // Includes.
-#include "../Serializer.mqh"
-#include "../Test.mqh"
-#include "../BufferStruct.mqh"
-#include "../Chart.mqh"
 #include "../3D/Chart3D.h"
 #include "../3D/Cube.h"
 #include "../3D/Devices/MTDX/MTDXDevice.h"
@@ -46,9 +40,10 @@
 #include "../3D/Devices/MTDX/MTDXShader.h"
 #include "../3D/Devices/MTDX/MTDXVertexBuffer.h"
 #include "../3D/Frontends/MT5Frontend.h"
-
-// int OnStart() { return OnInit(); }
-
+#include "../BufferStruct.mqh"
+#include "../Chart.mqh"
+#include "../Serializer.mqh"
+#include "../Test.mqh"
 
 BarOHLC ChartPriceFeeder(ENUM_TIMEFRAMES _tf, int _shift) {
   static Chart _chart();
@@ -68,16 +63,15 @@ BarOHLC ChartPriceFeeder(ENUM_TIMEFRAMES _tf, int _shift) {
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
     idata.Add(_entry, _bar_time);
   }
-  
-  return BarOHLC(_entry.GetValue<float>(0), _entry.GetValue<float>(1), _entry.GetValue<float>(2), _entry.GetValue<float>(3));
+
+  return BarOHLC(_entry.GetValue<float>(0), _entry.GetValue<float>(1), _entry.GetValue<float>(2),
+                 _entry.GetValue<float>(3));
 }
 
-int OnInit() { return OnStart(); }
-
 /**
- * Implements OnStart().
+ * Implements OnInit().
  */
-int OnStart() {
+int OnInit() {
   Ref<Device> gfx_ptr = new MTDXDevice();
 
   // Making a scope to ensure graphics device will be destructed as last.
@@ -111,9 +105,9 @@ int OnStart() {
       x += 0.025f;
 
       TSR tsr;
-      //tsr.rotation.y = (float)sin(x) / 4.0f;
+      // tsr.rotation.y = (float)sin(x) / 4.0f;
       tsr.rotation.x = (float)sin(x / 2);
-      
+
       gfx.PushTransform(tsr);
       _chart.Ptr().Render(gfx);
       gfx.PopTransform();
@@ -128,12 +122,12 @@ int OnStart() {
 
   return (INIT_SUCCEEDED);
 }
-
 #else
-
+/**
+ * Implements OnInit().
+ */
 int OnInit() {
   // Nothing to test in non-MT5 environment.
   return (INIT_SUCCEEDED);
 }
-
 #endif

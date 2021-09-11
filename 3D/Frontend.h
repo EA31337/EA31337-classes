@@ -40,7 +40,7 @@ struct DrawTextQueueItem {
  */
 class Frontend : public Dynamic {
  protected:
- 
+
  DrawTextQueueItem draw_text_queue[];
 
  public:
@@ -96,7 +96,7 @@ class Frontend : public Dynamic {
     _item.align = _align;
     Util::ArrayPush(draw_text_queue, _item);
   }
-  
+
   void ProcessDrawText() {
     for (int i = 0; i < ArraySize(draw_text_queue); ++i) {
       DrawTextQueueItem _item = draw_text_queue[i];
