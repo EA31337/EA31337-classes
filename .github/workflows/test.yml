@@ -103,8 +103,8 @@ jobs:
           - DateTimeTest
           - DictTest
           - LogTest
-          - MathTest
           - MD5Test
+          - MathTest
           - ProfilerTest
           - RefsTest
           - SerializerTest
