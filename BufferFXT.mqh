@@ -171,7 +171,7 @@ struct BufferFXTHeader {
   // Struct constructor.
   BufferFXTHeader(Chart *_c, Account *_a)
       : version(405),
-        period(_c.GetTf()),
+        period(_c.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
         model(0),
         bars(0),
         fromdate(0),
