@@ -186,16 +186,16 @@ class Trade {
    * @return
    *   Returns true on successful request.
    */
-  MqlTradeRequest GetTradeRequest(ENUM_ORDER_TYPE _cmd, float _volume = 0, long _magic_no = 0, string _comment = "") {
+  MqlTradeRequest GetTradeOpenRequest(ENUM_ORDER_TYPE _type, float _volume = 0, long _magic = 0, string _comment = "") {
     // Create a request.
     MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
     _request.deviation = 10;
-    _request.magic = _magic_no > 0 ? _magic_no : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
+    _request.magic = _magic > 0 ? _magic : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
     _request.symbol = GetChart().Get<string>(CHART_PARAM_SYMBOL);
-    _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _cmd);
-    _request.type = _cmd;
+    _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _type);
+    _request.type = _type;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
     _request.volume = NormalizeLots(fmax(_request.volume, SymbolInfoStatic::GetVolumeMin(_request.symbol)));
@@ -1698,7 +1698,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         }
         break;
       case TRADE_ACTION_ORDER_OPEN:
-        return RequestSend(GetTradeRequest((ENUM_ORDER_TYPE)_args[0].integer_value));
+        return RequestSend(GetTradeOpenRequest((ENUM_ORDER_TYPE)_args[0].integer_value));
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;

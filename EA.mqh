@@ -118,7 +118,6 @@ class EA {
     return eparams.Get<T>(_param);
   }
 
-
   /**
    * Gets a Trade's state value.
    */
@@ -283,7 +282,7 @@ class EA {
     bool _result = false;
     Trade *_trade = trade.GetByKey(_symbol);
     // Prepare a request.
-    MqlTradeRequest _request = _trade.GetTradeRequest(_cmd);
+    MqlTradeRequest _request = _trade.GetTradeOpenRequest(_cmd);
     _request.comment = _strat.GetOrderOpenComment();
     _request.magic = _strat.Get<long>(STRAT_PARAM_ID);
     _request.price = SymbolInfoStatic::GetOpenOffer(_symbol, _cmd);
