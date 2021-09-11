@@ -118,6 +118,15 @@ class EA {
     return eparams.Get<T>(_param);
   }
 
+
+  /**
+   * Gets a Trade's state value.
+   */
+  template <typename T>
+  T Get(ENUM_TRADE_STATE _state, string _symbol = NULL) {
+    return trade.GetByKey(_symbol != NULL ? _symbol : _Symbol).Get<T>(_state);
+  }
+
   /* Setters */
 
   /**
