@@ -288,14 +288,6 @@ class Order : public SymbolInfo {
   bool IsOpen(bool _refresh = false) { return !IsClosed(_refresh); }
 
   /**
-   * Check whether order is active and open.
-   */
-  bool IsOrderOpen() {
-    Refresh();
-    return OrderOpenTime() > 0 && !(OrderCloseTime() > 0);
-  }
-
-  /**
    * Should order be closed.
    *
    * @return
