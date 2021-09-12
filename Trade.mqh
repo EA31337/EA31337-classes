@@ -764,6 +764,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
+        _order.Ptr().Refresh();
         if (_order.Ptr().OrderClose(_reason, _comment)) {
           _closed++;
           OrderMoveToHistory(_order.Ptr());
@@ -793,6 +794,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
+        _order.Ptr().Refresh();
         if (_order.Ptr().GetRequest().type == _cmd) {
           if (_order.Ptr().OrderClose(_reason, _comment)) {
             _closed++;
@@ -830,6 +832,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
+        _order.Ptr().Refresh();
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop), _value, _op)) {
           if (_order.Ptr().OrderClose(_reason, _comment)) {
             _closed++;
@@ -865,6 +868,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
+        _order.Ptr().Refresh();
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop1), _value1, _op) &&
             Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {

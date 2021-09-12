@@ -266,8 +266,6 @@ struct OrderData {
         return (T)last_error;
       case ORDER_PROP_PRICE_CLOSE:
         return (T)price_close;
-      case ORDER_PROP_PRICE_CURRENT:
-        return (T)price_current;
       case ORDER_PROP_PRICE_OPEN:
         return (T)price_open;
       case ORDER_PROP_PRICE_STOPLIMIT:
@@ -277,7 +275,7 @@ struct OrderData {
       case ORDER_PROP_PROFIT_PIPS:
         return (T)(profit * pow(10, SymbolInfoStatic::GetDigits(symbol)));
       case ORDER_PROP_PROFIT_TOTAL:
-        return (T)total_profit;
+        return (T)(profit - total_fees);
       case ORDER_PROP_REASON_CLOSE:
         return (T)reason_close;
       case ORDER_PROP_TICKET:
@@ -417,9 +415,6 @@ struct OrderData {
       case ORDER_PROP_PRICE_CLOSE:
         price_close = (double)_value;
         return;
-      case ORDER_PROP_PRICE_CURRENT:
-        price_current = (double)_value;
-        return;
       case ORDER_PROP_PRICE_OPEN:
         price_open = (double)_value;
         return;
@@ -428,9 +423,6 @@ struct OrderData {
         return;
       case ORDER_PROP_PROFIT:
         profit = (double)_value;
-        return;
-      case ORDER_PROP_PROFIT_TOTAL:
-        total_profit = (double)_value;
         return;
       case ORDER_PROP_REASON_CLOSE:
         reason_close = (ENUM_ORDER_REASON_CLOSE)_value;
@@ -561,7 +553,17 @@ struct OrderData {
     last_error = ERR_NO_ERROR;
   }
   void RefreshProfit() {
-    profit = price_current - price_open;
+    switch (type) {
+      case ORDER_TYPE_BUY:
+        profit = price_current - price_open;
+        break;
+      case ORDER_TYPE_SELL:
+        profit = price_open - price_current;
+        break;
+      default:
+        profit = 0;
+        break;
+    }
   }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {

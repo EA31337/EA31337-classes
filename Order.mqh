@@ -1683,11 +1683,11 @@ class Order : public SymbolInfo {
           case ORDER_TYPE_BUY_STOP_LIMIT:
 #endif
             if (odata.Get<double>(ORDER_TP) != 0.0 &&
-                odata.Get<double>(ORDER_PROP_PRICE_CURRENT) > odata.Get<double>(ORDER_TP)) {
+                odata.Get<double>(ORDER_PRICE_CURRENT) > odata.Get<double>(ORDER_TP)) {
               // Take-Profit buy orders sent when the market price drops below their trigger price.
               OrderCloseDummy();
             } else if (odata.Get<double>(ORDER_SL) != 0.0 &&
-                       odata.Get<double>(ORDER_PROP_PRICE_CURRENT) < odata.Get<double>(ORDER_SL)) {
+                       odata.Get<double>(ORDER_PRICE_CURRENT) < odata.Get<double>(ORDER_SL)) {
               // Stop-loss buy orders are sent when the market price exceeds their trigger price.
               OrderCloseDummy();
             }
@@ -1699,11 +1699,11 @@ class Order : public SymbolInfo {
           case ORDER_TYPE_SELL_STOP_LIMIT:
 #endif
             if (odata.Get<double>(ORDER_TP) != 0.0 &&
-                odata.Get<double>(ORDER_PROP_PRICE_CURRENT) > odata.Get<double>(ORDER_TP)) {
+                odata.Get<double>(ORDER_PRICE_CURRENT) > odata.Get<double>(ORDER_TP)) {
               // Take-profit sell orders are sent when the market price exceeds their trigger price.
               OrderCloseDummy();
             } else if (odata.Get<double>(ORDER_SL) != 0.0 &&
-                       odata.Get<double>(ORDER_PROP_PRICE_CURRENT) < odata.Get<double>(ORDER_SL)) {
+                       odata.Get<double>(ORDER_PRICE_CURRENT) < odata.Get<double>(ORDER_SL)) {
               // Stop-loss sell orders are sent when the market price drops below their trigger price.
               OrderCloseDummy();
             }
@@ -1922,21 +1922,6 @@ class Order : public SymbolInfo {
   string OrderTypeToString(bool _lc = false) { return OrderTypeToString(orequest.type, _lc); }
 
   /* Custom order methods */
-
-  /**
-   * Returns gross profit of the currently selected order.
-   *
-   * @return
-   * Returns the gross profit value (including swaps, commissions and fees/taxes)
-   * for the selected order, in the base currency.
-   */
-  static double GetOrderTotalProfit() { return OrderStatic::Profit() - Order::OrderTotalFees(); }
-  double GetTotalProfit() {
-    if (odata.Get<double>(ORDER_PROP_PROFIT_TOTAL) == 0 || !IsClosed()) {
-      odata.Set<double>(ORDER_PROP_PROFIT_TOTAL, Order::GetOrderTotalProfit());
-    }
-    return odata.Get<double>(ORDER_PROP_PROFIT_TOTAL);
-  }
 
   /**
    * Returns profit of the currently selected order in pips.
