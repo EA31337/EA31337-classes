@@ -647,14 +647,17 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Refresh active orders.
    */
-  bool RefreshActiveOrders(bool _first = false) {
+  bool RefreshActiveOrders(bool _force = true, bool _first_close = false) {
     bool _result = true;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order = iter.Value();
-      if (_order.IsSet() && _order.Ptr().IsClosed()) {
-        _result &= OrderMoveToHistory(_order.Ptr());
-        if (_first) {
-          break;
+      if (_order.IsSet()) {
+        _order.Ptr().Refresh(_force);
+        if (_order.Ptr().IsClosed()) {
+          _result &= OrderMoveToHistory(_order.Ptr());
+          if (_first_close) {
+            break;
+          }
         }
       }
     }
@@ -1713,14 +1716,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_ORDER_CLOSE_LEAST_LOSS:
         // @todo
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          RefreshActiveOrders(true);
+          RefreshActiveOrders(true, true);
           _result = false;
         }
         break;
       case TRADE_ACTION_ORDER_CLOSE_LEAST_PROFIT:
         // @todo
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          RefreshActiveOrders(true);
+          RefreshActiveOrders(true, true);
           _result = false;
         }
         break;
@@ -1731,7 +1734,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                                                                              STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT))
                          .Ptr()
                          .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
-          RefreshActiveOrders(true);
+          RefreshActiveOrders(true, true);
         }
         break;
       case TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT:
@@ -1741,7 +1744,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                                                                              STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT))
                          .Ptr()
                          .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
-          RefreshActiveOrders(true);
+          RefreshActiveOrders(true, true);
         }
         break;
       case TRADE_ACTION_ORDER_OPEN:
@@ -1749,7 +1752,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          RefreshActiveOrders();
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_PROFIT:
@@ -1757,25 +1760,25 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           _result &= OrdersCloseViaProp<ENUM_ORDER_PROPERTY_CUSTOM, int>(
                          ORDER_PROP_PROFIT_PIPS, (int)chart.Ptr().GetSpreadInPips(), MATH_COND_GT,
                          ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          RefreshActiveOrders();
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          RefreshActiveOrders();
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          RefreshActiveOrders();
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= OrdersCloseViaCmd((ENUM_ORDER_TYPE)_args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          RefreshActiveOrders();
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_LIMIT_SET:
