@@ -317,9 +317,10 @@ class EA {
           Strategy *_strat = iter.Value().Ptr();
           Trade *_trade = trade.GetByKey(_Symbol);
           if (_strat.IsEnabled()) {
-            if (estate.new_periods != DATETIME_NONE) {
+            if (estate.new_periods >= DATETIME_MINUTE) {
               // Process when new periods started.
               _strat.OnPeriod(estate.new_periods);
+              _strat.ProcessTasks();
               _trade.OnPeriod(estate.new_periods);
               eresults.stg_processed_periods++;
             }
@@ -329,9 +330,6 @@ class EA {
                                                                  TRADE_STATE_TRADE_CANNOT);
               StrategySignal _signal = _strat.ProcessSignals(_can_trade);
               SignalAdd(_signal, _tick.time);
-              if (estate.new_periods != DATETIME_NONE) {
-                _strat.ProcessTasks();
-              }
               StgProcessResult _strat_result = _strat.GetProcessResult();
               eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
               eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
@@ -346,13 +344,16 @@ class EA {
           // On error, print logs.
           logger.Flush();
         }
+        if (estate.new_periods >= DATETIME_MINUTE) {
+          // Process data, tasks and trades on new periods.
+          ProcessTrades();
+        }
       }
       estate.last_updated.Update();
-      if (estate.new_periods > 0) {
+      if (estate.new_periods >= DATETIME_MINUTE) {
         // Process data and tasks on new periods.
         ProcessData();
         ProcessTasks();
-        ProcessTrades();
       }
     }
     return eresults;
