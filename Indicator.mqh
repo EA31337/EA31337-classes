@@ -479,9 +479,7 @@ class Indicator : public Chart {
   /**
    * Returns currently selected data source without any validation.
    */
-  Indicator* GetDataSourceRaw() {
-    return iparams.GetDataSource();
-  }
+  Indicator* GetDataSourceRaw() { return iparams.GetDataSource(); }
 
   /**
    * Returns currently selected data source doing validation.
@@ -1211,12 +1209,8 @@ class Indicator : public Chart {
    * Returns the indicator's struct value.
    */
   virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
     IndicatorDataEntry _entry(iparams.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    }
+    _entry = idata.GetByKey(GetBarTime(_shift), _entry);
     return _entry;
   };
 

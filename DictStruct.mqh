@@ -157,13 +157,29 @@ class DictStruct : public DictBase<K, V> {
    * Returns value for a given key.
    */
   V GetByKey(const K _key) {
-    int position;
-
+    unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, _key, position);
 
     if (!slot) {
       static V _empty;
       return _empty;
+    }
+
+    return slot.value;
+  }
+
+  /**
+   * Returns value for a given key.
+   *
+   * @return
+   *   Returns value for a given key, otherwise the default value.
+   */
+  V GetByKey(const K _key, V& _default) {
+    unsigned int position;
+    DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, _key, position);
+
+    if (!slot) {
+      return _default;
     }
 
     return slot.value;

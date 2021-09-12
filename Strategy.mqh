@@ -208,59 +208,6 @@ class Strategy : public Object {
   }
 
   /**
-   * Process strategy's orders.
-   *
-   * @return
-   *   Returns StgProcessResult struct.
-   */
-  StgProcessResult ProcessOrders(Trade *_trade) {
-    // @todo: Move to Trade.
-    bool sl_valid, tp_valid;
-    double sl_new, tp_new;
-    Order *_order;
-    DictStruct<long, Ref<Order>> *_orders_active = _trade.GetOrdersActive();
-    for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
-      _order = iter.Value().Ptr();
-      if (_order.IsOpen() && _order.Get<ulong>(ORDER_MAGIC) == sparams.Get<long>(STRAT_PARAM_ID)) {
-        Strategy *_strat_sl = strat_sl;
-        Strategy *_strat_tp = strat_tp;
-        _order.Update();
-        if (_strat_sl != NULL && _strat_tp != NULL) {
-          float _psl = _strat_sl.Get<float>(STRAT_PARAM_PSL);
-          float _ppl = _strat_tp.Get<float>(STRAT_PARAM_PPL);
-          int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
-          int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
-          ENUM_ORDER_TYPE _otype = _order.Get<ENUM_ORDER_TYPE>(ORDER_TYPE);
-          sl_new = _strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl);
-          tp_new = _strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl);
-          sl_new = trade.NormalizeSL(sl_new, _otype);
-          tp_new = trade.NormalizeTP(tp_new, _otype);
-          sl_valid = trade.IsValidOrderSL(sl_new, _otype, _order.Get<double>(ORDER_SL), _psm > 0);
-          tp_valid = trade.IsValidOrderTP(tp_new, _otype, _order.Get<double>(ORDER_TP), _ppm > 0);
-          if (sl_valid && tp_valid) {
-            _order.OrderModify(sl_new, tp_new);
-          } else if (sl_valid) {
-            _order.OrderModify(sl_new, _order.Get<double>(ORDER_TP));
-          } else if (tp_valid) {
-            _order.OrderModify(_order.Get<double>(ORDER_SL), tp_new);
-          }
-          sresult.stops_invalid_sl += (unsigned short)sl_valid;
-          sresult.stops_invalid_tp += (unsigned short)tp_valid;
-        } else {
-          GetLogger().Error("Error loading SL/TP objects!", __FUNCTION_LINE__);
-        }
-      } else {
-        trade.OrderMoveToHistory(_order);
-      }
-    }
-    sresult.ProcessLastError();
-    if (_order.Get<unsigned int>(ORDER_PROP_LAST_ERROR) != ERR_NO_ERROR) {
-      _order.GetLogger().Flush();
-    }
-    return sresult;
-  }
-
-  /**
    * Process strategy's signals and orders.
    *
    * @param ushort _periods_started
@@ -410,6 +357,16 @@ class Strategy : public Object {
    * Get strategy's last signals.
    */
   StrategySignal GetLastSignals() { return last_signals; }
+
+  /**
+   * Gets pointer to strategy's stop-loss strategy.
+   */
+  Strategy *GetStratSl() { return strat_sl; }
+
+  /**
+   * Gets pointer to strategy's take-profit strategy.
+   */
+  Strategy *GetStratTp() { return strat_tp; }
 
   /**
    * Get strategy's name.
@@ -975,11 +932,11 @@ class Strategy : public Object {
    */
   virtual void OnOrderOpen(OrderParams &_oparams) {
     int _index = 0;
+    ENUM_TIMEFRAMES _stf = Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
+    unsigned int _stf_secs = ChartTf::TfToSeconds(_stf);
     if (sparams.order_close_time != 0) {
-      long _close_time_arg = sparams.order_close_time > 0
-                                 ? sparams.order_close_time * 60
-                                 : (int)round(-sparams.order_close_time *
-                                              ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
+      long _close_time_arg = sparams.order_close_time > 0 ? sparams.order_close_time * 60
+                                                          : (int)round(-sparams.order_close_time * _stf_secs);
       _oparams.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
       _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
       _index++;
@@ -996,6 +953,7 @@ class Strategy : public Object {
       _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
       _index++;
     }
+    _oparams.Set(ORDER_PARAM_UPDATE_FREQ, _stf_secs);
   }
 
   /**
@@ -1012,13 +970,20 @@ class Strategy : public Object {
   virtual void OnPeriod(unsigned int _periods = DATETIME_NONE) {
     if ((_periods & DATETIME_MINUTE) != 0) {
       // New minute started.
-      GetLogger().Flush();
+#ifndef __optimize__
+      if (Terminal::IsRealtime()) {
+        logger.Flush();
+      }
+#endif
     }
     if ((_periods & DATETIME_HOUR) != 0) {
       // New hour started.
     }
     if ((_periods & DATETIME_DAY) != 0) {
       // New day started.
+#ifndef __optimize__
+      GetLogger().Flush();
+#endif
     }
     if ((_periods & DATETIME_WEEK) != 0) {
       // New week started.

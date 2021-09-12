@@ -140,6 +140,8 @@ enum ENUM_ACCOUNT_CONDITION {
   ACCOUNT_COND_BAL_IN_PROFIT,     // Total balance in profit
   ACCOUNT_COND_EQUITY_01PC_HIGH,  // Equity 1% high
   ACCOUNT_COND_EQUITY_01PC_LOW,   // Equity 1% low
+  ACCOUNT_COND_EQUITY_02PC_HIGH,  // Equity 2% high
+  ACCOUNT_COND_EQUITY_02PC_LOW,   // Equity 2% low
   ACCOUNT_COND_EQUITY_05PC_HIGH,  // Equity 5% high
   ACCOUNT_COND_EQUITY_05PC_LOW,   // Equity 5% low
   ACCOUNT_COND_EQUITY_10PC_HIGH,  // Equity 10% high

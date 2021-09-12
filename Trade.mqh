@@ -186,16 +186,16 @@ class Trade {
    * @return
    *   Returns true on successful request.
    */
-  MqlTradeRequest GetTradeRequest(ENUM_ORDER_TYPE _cmd, float _volume = 0, long _magic_no = 0, string _comment = "") {
+  MqlTradeRequest GetTradeOpenRequest(ENUM_ORDER_TYPE _type, float _volume = 0, long _magic = 0, string _comment = "") {
     // Create a request.
     MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
     _request.deviation = 10;
-    _request.magic = _magic_no > 0 ? _magic_no : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
+    _request.magic = _magic > 0 ? _magic : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
     _request.symbol = GetChart().Get<string>(CHART_PARAM_SYMBOL);
-    _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _cmd);
-    _request.type = _cmd;
+    _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _type);
+    _request.type = _type;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
     _request.volume = NormalizeLots(fmax(_request.volume, SymbolInfoStatic::GetVolumeMin(_request.symbol)));
@@ -622,6 +622,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Moves active order to history.
    */
   bool OrderMoveToHistory(Order *_order) {
+    _order.Refresh(true);
     orders_active.Unset(_order.Get<ulong>(ORDER_PROP_TICKET));
     Ref<Order> _ref_order = _order;
     bool result = orders_history.Set(_order.Get<ulong>(ORDER_PROP_TICKET), _ref_order);
@@ -646,15 +647,17 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Refresh active orders.
    */
-  bool RefreshActiveOrders(bool _first = false) {
+  bool RefreshActiveOrders(bool _force = true, bool _first_close = false) {
     bool _result = true;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order = iter.Value();
-      if (_order.IsSet() && _order.Ptr().IsClosed()) {
-        _order.Ptr().Update();
-        _result &= OrderMoveToHistory(_order.Ptr());
-        if (_first) {
-          break;
+      if (_order.IsSet()) {
+        _order.Ptr().Refresh(_force);
+        if (_order.Ptr().IsClosed()) {
+          _result &= OrderMoveToHistory(_order.Ptr());
+          if (_first_close) {
+            break;
+          }
         }
       }
     }
@@ -764,12 +767,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
-        if (!_order.Ptr().OrderClose(_reason, _comment)) {
+        _order.Ptr().Refresh();
+        if (_order.Ptr().OrderClose(_reason, _comment)) {
+          _closed++;
+          OrderMoveToHistory(_order.Ptr());
+          order_last = _order;
+        } else {
           logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
           return -1;
         }
-        order_last = _order;
-        _closed++;
       }
       OrderMoveToHistory(_order.Ptr());
     }
@@ -791,14 +797,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
+        _order.Ptr().Refresh();
         if (_order.Ptr().GetRequest().type == _cmd) {
-          if (!_order.Ptr().OrderClose(_reason, _comment)) {
+          if (_order.Ptr().OrderClose(_reason, _comment)) {
+            _closed++;
+            OrderMoveToHistory(_order.Ptr());
+            order_last = _order;
+          } else {
             logger.Error("Error while closing order!", __FUNCTION_LINE__,
                          StringFormat("Code: %d", _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR)));
             return -1;
           }
           order_last = _order;
-          _closed++;
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
@@ -825,13 +835,16 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
+        _order.Ptr().Refresh();
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop), _value, _op)) {
-          if (!_order.Ptr().OrderClose(_reason, _comment)) {
+          if (_order.Ptr().OrderClose(_reason, _comment)) {
+            _closed++;
+            OrderMoveToHistory(_order.Ptr());
+            order_last = _order;
+          } else {
             logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
             return -1;
           }
-          order_last = _order;
-          _closed++;
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
@@ -858,6 +871,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
+        _order.Ptr().Refresh();
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop1), _value1, _op) &&
             Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
@@ -1423,7 +1437,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool IsValidOrderSL(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
-    if (_value == 0) {
+    if (_value == 0 && _value == _value_prev) {
       return _is_valid;
     }
     double _min_distance = GetTradeDistanceInPips();
@@ -1543,7 +1557,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool IsValidOrderTP(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
-    if (_value == 0) {
+    if (_value == 0 && _value == _value_prev) {
       return _is_valid;
     }
     double _min_distance = GetTradeDistanceInPips();
@@ -1587,6 +1601,42 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     if (logger.GetLevel() >= V_INFO) {
       // logger.Info(_order.ToString(), (string)_order.Get<ulong>(ORDER_TICKET)); // @fixme
       ResetLastError();  // @fixme: Error 69539
+    }
+  }
+
+  /**
+   * Event on new time periods.
+   *
+   * @param
+   *   _periods unsigned short
+   *   List of periods which started. See: ENUM_DATETIME_UNIT.
+   */
+  virtual void OnPeriod(unsigned int _periods = DATETIME_NONE) {
+    if ((_periods & DATETIME_MINUTE) != 0) {
+      // New minute started.
+#ifndef __optimize__
+      if (Terminal::IsRealtime()) {
+        logger.Flush();
+      }
+#endif
+    }
+    if ((_periods & DATETIME_HOUR) != 0) {
+      // New hour started.
+    }
+    if ((_periods & DATETIME_DAY) != 0) {
+      // New day started.
+#ifndef __optimize__
+      logger.Flush();
+#endif
+    }
+    if ((_periods & DATETIME_WEEK) != 0) {
+      // New week started.
+    }
+    if ((_periods & DATETIME_MONTH) != 0) {
+      // New month started.
+    }
+    if ((_periods & DATETIME_YEAR) != 0) {
+      // New year started.
     }
   }
 
@@ -1666,14 +1716,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_ORDER_CLOSE_LEAST_LOSS:
         // @todo
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          RefreshActiveOrders(true);
+          RefreshActiveOrders(true, true);
           _result = false;
         }
         break;
       case TRADE_ACTION_ORDER_CLOSE_LEAST_PROFIT:
         // @todo
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          RefreshActiveOrders(true);
+          RefreshActiveOrders(true, true);
           _result = false;
         }
         break;
@@ -1684,7 +1734,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                                                                              STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT))
                          .Ptr()
                          .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
-          RefreshActiveOrders(true);
+          RefreshActiveOrders(true, true);
         }
         break;
       case TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT:
@@ -1694,15 +1744,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                                                                              STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT))
                          .Ptr()
                          .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
-          RefreshActiveOrders(true);
+          RefreshActiveOrders(true, true);
         }
         break;
       case TRADE_ACTION_ORDER_OPEN:
-        return RequestSend(GetTradeRequest((ENUM_ORDER_TYPE)_args[0].integer_value));
+        return RequestSend(GetTradeOpenRequest((ENUM_ORDER_TYPE)_args[0].integer_value));
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          RefreshActiveOrders();
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_PROFIT:
@@ -1710,25 +1760,25 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           _result &= OrdersCloseViaProp<ENUM_ORDER_PROPERTY_CUSTOM, int>(
                          ORDER_PROP_PROFIT_PIPS, (int)chart.Ptr().GetSpreadInPips(), MATH_COND_GT,
                          ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          RefreshActiveOrders();
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          RefreshActiveOrders();
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          RefreshActiveOrders();
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= OrdersCloseViaCmd((ENUM_ORDER_TYPE)_args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          RefreshActiveOrders();
+          RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_LIMIT_SET:

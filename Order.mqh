@@ -121,7 +121,7 @@ class Order : public SymbolInfo {
   Order() {}
   Order(long _ticket_no) {
     odata.Set(ORDER_PROP_TICKET, _ticket_no);
-    Update();
+    Refresh(true);
   }
   Order(const MqlTradeRequest &_request, bool _send = true) {
     orequest = _request;
@@ -270,11 +270,13 @@ class Order : public SymbolInfo {
   /**
    * Is order is open.
    */
-  bool IsClosed() {
+  bool IsClosed(bool _refresh = false) {
     if (odata.Get<long>(ORDER_PROP_TIME_CLOSED) == 0) {
-      if (Order::TryOrderSelect(odata.Get<long>(ORDER_PROP_TICKET), SELECT_BY_TICKET, MODE_HISTORY)) {
-        odata.Set<long>(ORDER_PROP_TIME_CLOSED, Order::OrderCloseTime());
-        odata.Set<int>(ORDER_PROP_REASON_CLOSE, ORDER_REASON_CLOSED_UNKNOWN);
+      if (_refresh || ShouldRefresh()) {
+        if (Order::TryOrderSelect(odata.Get<long>(ORDER_PROP_TICKET), SELECT_BY_TICKET, MODE_HISTORY)) {
+          odata.Set<long>(ORDER_PROP_TIME_CLOSED, Order::OrderCloseTime());
+          odata.Set<int>(ORDER_PROP_REASON_CLOSE, ORDER_REASON_CLOSED_UNKNOWN);
+        }
       }
     }
     return odata.Get<long>(ORDER_PROP_TIME_CLOSED) > 0;
@@ -283,15 +285,7 @@ class Order : public SymbolInfo {
   /**
    * Is order closed.
    */
-  bool IsOpen() { return !IsClosed(); }
-
-  /**
-   * Check whether order is active and open.
-   */
-  bool IsOrderOpen() {
-    Update();
-    return OrderOpenTime() > 0 && !(OrderCloseTime() > 0);
-  }
+  bool IsOpen(bool _refresh = false) { return !IsClosed(_refresh); }
 
   /**
    * Should order be closed.
@@ -311,6 +305,27 @@ class Order : public SymbolInfo {
       }
     }
     return _result;
+  }
+
+  /**
+   * Should order be refreshed.
+   *
+   * @return
+   *   Returns true when order values can be refreshed, otherwise false.
+   */
+  bool ShouldRefresh() {
+    return odata.Get<long>(ORDER_PROP_TIME_LAST_REFRESH) + oparams.Get<ushort>(ORDER_PARAM_REFRESH_FREQ) <=
+           TimeCurrent();
+  }
+
+  /**
+   * Should order be updated.
+   *
+   * @return
+   *   Returns true when order stops can be updated, otherwise false.
+   */
+  bool ShouldUpdate() {
+    return odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATE) + oparams.Get<ushort>(ORDER_PARAM_UPDATE_FREQ) <= TimeCurrent();
   }
 
   /* State checking */
@@ -370,7 +385,7 @@ class Order : public SymbolInfo {
    * Gets order's filling mode.
    */
   ENUM_ORDER_TYPE_FILLING GetOrderFilling() {
-    Update(ORDER_TYPE_FILLING);
+    Refresh(ORDER_TYPE_FILLING);
     return odata.Get<ENUM_ORDER_TYPE_FILLING>(ORDER_TYPE_FILLING);
   }
 
@@ -645,10 +660,8 @@ class Order : public SymbolInfo {
    */
   static double OrderStopLoss() { return Order::OrderGetDouble(ORDER_SL); }
   double GetStopLoss(bool _refresh = true) {
-    long _osl_last_update = 0;
-    if (_refresh && _osl_last_update < TimeCurrent()) {
-      Update(ORDER_SL);
-      _osl_last_update = TimeCurrent();
+    if (ShouldRefresh() || _refresh) {
+      Refresh(ORDER_SL);
     }
     return odata.Get<double>(ORDER_SL);
   }
@@ -665,10 +678,8 @@ class Order : public SymbolInfo {
    */
   static double OrderTakeProfit() { return Order::OrderGetDouble(ORDER_TP); }
   double GetTakeProfit(bool _refresh = true) {
-    long _osl_last_update = 0;
-    if (_refresh && _osl_last_update < TimeCurrent()) {
-      Update(ORDER_TP);
-      _osl_last_update = TimeCurrent();
+    if (ShouldRefresh() || _refresh) {
+      Refresh(ORDER_TP);
     }
     return odata.Get<double>(ORDER_TP);
   }
@@ -762,7 +773,7 @@ class Order : public SymbolInfo {
   static ENUM_ORDER_TYPE OrderType() { return (ENUM_ORDER_TYPE)Order::OrderGetInteger(ORDER_TYPE); }
   ENUM_ORDER_TYPE GetType() {
     if (odata.Get<int>(ORDER_TYPE) < 0 && Select()) {
-      Update(ORDER_TYPE);
+      Refresh(ORDER_TYPE);
     }
     return odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE);
   }
@@ -801,7 +812,7 @@ class Order : public SymbolInfo {
 #ifdef ORDER_POSITION_ID
     if (odata.position_id == 0) {
       OrderSelect();
-      Update(ORDER_POSITION_ID);
+      Refresh(ORDER_POSITION_ID);
     }
 #endif
     return odata.Get<unsigned long>(ORDER_POSITION_ID);
@@ -837,7 +848,7 @@ class Order : public SymbolInfo {
 #ifdef ORDER_POSITION_BY_ID
     if (odata.position_by_id == 0) {
       OrderSelect();
-      Update(ORDER_POSITION_BY_ID);
+      Refresh(ORDER_POSITION_BY_ID);
     }
 #endif
     return odata.Get<unsigned long>(ORDER_POSITION_BY_ID);
@@ -925,13 +936,13 @@ class Order : public SymbolInfo {
       odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)));
       odata.Set(ORDER_PROP_LAST_ERROR, ERR_NO_ERROR);
       odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
-      Update();
+      Refresh();
       return true;
     } else {
       odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
       if (OrderSelect()) {
         if (IsClosed()) {
-          Update();
+          Refresh();
         }
       }
     }
@@ -949,7 +960,7 @@ class Order : public SymbolInfo {
     odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfoStatic::GetCloseOffer(symbol, odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)));
     odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
     odata.Set(ORDER_PROP_TIME_CLOSED, DateTimeStatic::TimeTradeServer());
-    Update();
+    Refresh();
     return true;
   }
 
@@ -1061,23 +1072,23 @@ class Order : public SymbolInfo {
       odata.Set(ORDER_SL, _sl);
       odata.Set(ORDER_TP, _tp);
       // @todo: Add if condition.
-      // Update(ORDER_PRICE_OPEN); // For pending order only.
-      // Update(ORDER_TIME_EXPIRATION); // For pending order only.
+      // Refresh(ORDER_PRICE_OPEN); // For pending order only.
+      // Refresh(ORDER_TIME_EXPIRATION); // For pending order only.
       ResetLastError();
     } else {
       if (OrderSelect()) {
         if (IsClosed()) {
-          Update();
+          Refresh();
         } else {
           GetLogger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).",
                                            odata.Get<long>(ORDER_PROP_TICKET), _price, _sl, _tp, _last_error),
                               __FUNCTION_LINE__, ToCSV());
-          Update(ORDER_SL);
-          Update(ORDER_TP);
-          // TODO: Update(ORDER_PRI)
+          Refresh(ORDER_SL);
+          Refresh(ORDER_TP);
+          // TODO: Refresh(ORDER_PRI)
           // @todo: Add if condition.
-          // Update(ORDER_PRICE_OPEN); // For pending order only.
-          // Update(ORDER_TIME_EXPIRATION); // For pending order only.
+          // Refresh(ORDER_PRICE_OPEN); // For pending order only.
+          // Refresh(ORDER_TIME_EXPIRATION); // For pending order only.
         }
         ResetLastError();
         _result = false;
@@ -1321,7 +1332,7 @@ class Order : public SymbolInfo {
       odata.Set(ORDER_TYPE, orequest.type);
       odata.Set(ORDER_VOLUME_CURRENT, orequest.volume);
       odata.Set(ORDER_VOLUME_INITIAL, orequest.volume);
-      Update();
+      Refresh(true);
       ResetLastError();
     } else {
       odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR,
@@ -1356,7 +1367,7 @@ class Order : public SymbolInfo {
     oresult.comment = orequest.comment;                       // Order comment.
     oresult.order = ++_dummy_order_id;                        // Assign sequential order id. Starts from 1.
     odata.Set<long>(ORDER_PROP_TICKET, oresult.order);
-    UpdateDummy();
+    RefreshDummy();
     odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
 
     // @todo Register order in a static dictionary order_id -> order for further select.
@@ -1526,12 +1537,12 @@ class Order : public SymbolInfo {
   /* Setters */
 
   /**
-   * Update values of the current order.
+   * Refresh values of the current order.
    */
-  bool Update() {
+  bool Refresh(bool _refresh = false) {
     bool _result = true;
-    if (odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATED) + oparams.refresh_rate > TimeCurrent()) {
-      return false;
+    if (!_refresh && !ShouldRefresh()) {
+      return _result;
     }
     odata.ResetError();
     if (!OrderSelect()) {
@@ -1550,32 +1561,32 @@ class Order : public SymbolInfo {
     if (_is_init) {
       // Some values needs to be updated only once.
       // Update integer values.
-      _result &= Update(ORDER_MAGIC);
-      _result &= Update(ORDER_TIME_SETUP);
-      _result &= Update(ORDER_TIME_SETUP_MSC);
-      _result &= Update(ORDER_TYPE);
+      _result &= Refresh(ORDER_MAGIC);
+      _result &= Refresh(ORDER_TIME_SETUP);
+      _result &= Refresh(ORDER_TIME_SETUP_MSC);
+      _result &= Refresh(ORDER_TYPE);
 #ifdef ORDER_POSITION_ID
-      _result &= Update(ORDER_POSITION_ID);
+      _result &= Refresh(ORDER_POSITION_ID);
 #endif
 #ifdef ORDER_POSITION_BY_ID
-      _result &= Update(ORDER_POSITION_BY_ID);
+      _result &= Refresh(ORDER_POSITION_BY_ID);
 #endif
       // Update double values.
-      _result &= Update(ORDER_PRICE_OPEN);
+      _result &= Refresh(ORDER_PRICE_OPEN);
       // Update string values.
-      _result &= Update(ORDER_SYMBOL);
-      _result &= Update(ORDER_COMMENT);
+      _result &= Refresh(ORDER_SYMBOL);
+      _result &= Refresh(ORDER_COMMENT);
     } else {
       // Updates current close price.
       odata.Set<double>(ORDER_PROP_PRICE_CLOSE, Order::OrderClosePrice());
       // Update integer values.
-      // _result &= Update(ORDER_TIME_EXPIRATION); // @fixme: Error 69539
-      // _result &= Update(ORDER_STATE); // @fixme: Error 69539
-      // _result &= Update(ORDER_TYPE_TIME); // @fixme: Error 69539
-      // _result &= Update(ORDER_TYPE_FILLING); // @fixme: Error 69539
+      // _result &= Refresh(ORDER_TIME_EXPIRATION); // @fixme: Error 69539
+      // _result &= Refresh(ORDER_STATE); // @fixme: Error 69539
+      // _result &= Refresh(ORDER_TYPE_TIME); // @fixme: Error 69539
+      // _result &= Refresh(ORDER_TYPE_FILLING); // @fixme: Error 69539
       // Update double values.
-      // _result &= Update(ORDER_VOLUME_INITIAL); // @fixme: false
-      // _result &= Update(ORDER_VOLUME_CURRENT); // @fixme: Error 69539
+      // _result &= Refresh(ORDER_VOLUME_INITIAL); // @fixme: false
+      // _result &= Refresh(ORDER_VOLUME_CURRENT); // @fixme: Error 69539
     }
 
     // Updates whether order is open or closed.
@@ -1586,12 +1597,12 @@ class Order : public SymbolInfo {
 
     if (IsOpen()) {
       // Update values for open orders only.
-      _result &= Update(ORDER_PRICE_CURRENT);
-      _result &= Update(ORDER_SL);
-      _result &= Update(ORDER_TP);
+      _result &= Refresh(ORDER_PRICE_CURRENT);
+      _result &= Refresh(ORDER_SL);
+      _result &= Refresh(ORDER_TP);
     }
     //} else if (IsPending())
-    // _result &= Update(ORDER_PRICE_STOPLIMIT); // @fixme: Error 69539
+    // _result &= Refresh(ORDER_PRICE_STOPLIMIT); // @fixme: Error 69539
 
     // Get last error.
     int _last_error = GetLastError();
@@ -1611,19 +1622,20 @@ class Order : public SymbolInfo {
       if (_last_error > ERR_NO_ERROR && _last_error != 4014) {  // @fixme: In MT4 (why 4014?).
         GetLogger().Warning(StringFormat("Update failed! Error: %d", _last_error), __FUNCTION_LINE__);
       }
-      odata.Set<long>(ORDER_PROP_TIME_LAST_UPDATED, TimeCurrent());
       odata.ProcessLastError();
       ResetLastError();
     }
+    odata.Set<long>(ORDER_PROP_TIME_LAST_REFRESH, TimeCurrent());
     return _result && _last_error == ERR_NO_ERROR;
   }
 
   /**
    * Update values of the current dummy order.
    */
-  bool UpdateDummy() {
-    if (odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATED) + oparams.refresh_rate > TimeCurrent()) {
-      return false;
+  bool RefreshDummy() {
+    bool _result = true;
+    if (!ShouldRefresh()) {
+      return _result;
     }
     odata.ResetError();
     if (!OrderSelect()) {
@@ -1632,31 +1644,31 @@ class Order : public SymbolInfo {
     // Process conditions.
     ProcessConditions();
 
-    UpdateDummy(ORDER_SYMBOL);
-    UpdateDummy(ORDER_PRICE_OPEN);
-    UpdateDummy(ORDER_VOLUME_CURRENT);
+    RefreshDummy(ORDER_SYMBOL);
+    RefreshDummy(ORDER_PRICE_OPEN);
+    RefreshDummy(ORDER_VOLUME_CURRENT);
 
     if (IsOpen() || true) {  // @fixit
       // Update values for open orders only.
-      UpdateDummy(ORDER_SL);
-      UpdateDummy(ORDER_TP);
-      UpdateDummy(ORDER_PRICE_CURRENT);
+      RefreshDummy(ORDER_SL);
+      RefreshDummy(ORDER_TP);
+      RefreshDummy(ORDER_PRICE_CURRENT);
     }
 
     odata.Set(ORDER_PROP_PROFIT, oresult.bid - oresult.ask);
 
-    // @todo: More UpdateDummy(XXX);
+    // @todo: More RefreshDummy(XXX);
 
     odata.ResetError();
-    odata.Set<long>(ORDER_PROP_TIME_LAST_UPDATED, TimeCurrent());
+    odata.Set<long>(ORDER_PROP_TIME_LAST_REFRESH, TimeCurrent());
     odata.ProcessLastError();
-    return GetLastError() == ERR_NO_ERROR;
+    return _result && GetLastError() == ERR_NO_ERROR;
   }
 
   /**
    * Update specific double value of the current order.
    */
-  bool UpdateDummy(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
+  bool RefreshDummy(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
     bool _result = false;
     double _value = WRONG_VALUE;
     ResetLastError();
@@ -1671,11 +1683,11 @@ class Order : public SymbolInfo {
           case ORDER_TYPE_BUY_STOP_LIMIT:
 #endif
             if (odata.Get<double>(ORDER_TP) != 0.0 &&
-                odata.Get<double>(ORDER_PROP_PRICE_CURRENT) > odata.Get<double>(ORDER_TP)) {
+                odata.Get<double>(ORDER_PRICE_CURRENT) > odata.Get<double>(ORDER_TP)) {
               // Take-Profit buy orders sent when the market price drops below their trigger price.
               OrderCloseDummy();
             } else if (odata.Get<double>(ORDER_SL) != 0.0 &&
-                       odata.Get<double>(ORDER_PROP_PRICE_CURRENT) < odata.Get<double>(ORDER_SL)) {
+                       odata.Get<double>(ORDER_PRICE_CURRENT) < odata.Get<double>(ORDER_SL)) {
               // Stop-loss buy orders are sent when the market price exceeds their trigger price.
               OrderCloseDummy();
             }
@@ -1687,11 +1699,11 @@ class Order : public SymbolInfo {
           case ORDER_TYPE_SELL_STOP_LIMIT:
 #endif
             if (odata.Get<double>(ORDER_TP) != 0.0 &&
-                odata.Get<double>(ORDER_PROP_PRICE_CURRENT) > odata.Get<double>(ORDER_TP)) {
+                odata.Get<double>(ORDER_PRICE_CURRENT) > odata.Get<double>(ORDER_TP)) {
               // Take-profit sell orders are sent when the market price exceeds their trigger price.
               OrderCloseDummy();
             } else if (odata.Get<double>(ORDER_SL) != 0.0 &&
-                       odata.Get<double>(ORDER_PROP_PRICE_CURRENT) < odata.Get<double>(ORDER_SL)) {
+                       odata.Get<double>(ORDER_PRICE_CURRENT) < odata.Get<double>(ORDER_SL)) {
               // Stop-loss sell orders are sent when the market price drops below their trigger price.
               OrderCloseDummy();
             }
@@ -1718,7 +1730,7 @@ class Order : public SymbolInfo {
   /**
    * Update specific integer value of the current order.
    */
-  bool UpdateDummy(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
+  bool RefreshDummy(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
     bool _result = false;
     long _value = WRONG_VALUE;
     ResetLastError();
@@ -1734,7 +1746,7 @@ class Order : public SymbolInfo {
   /**
    * Update specific string value of the current order.
    */
-  bool UpdateDummy(ENUM_ORDER_PROPERTY_STRING _prop_id) {
+  bool RefreshDummy(ENUM_ORDER_PROPERTY_STRING _prop_id) {
     switch (_prop_id) {
       case ORDER_COMMENT:
         odata.Set(_prop_id, orequest.comment);
@@ -1748,9 +1760,9 @@ class Order : public SymbolInfo {
   }
 
   /**
-   * Update specific double value of the current order.
+   * Refresh specific double value of the current order.
    */
-  bool Update(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
+  bool Refresh(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
     bool _result = false;
     double _value = WRONG_VALUE;
     ResetLastError();
@@ -1784,16 +1796,16 @@ class Order : public SymbolInfo {
       odata.Set(_prop_id, _value);
     } else {
       int _last_error = GetLastError();
-      ologger.Error("Error updating order property!", __FUNCTION_LINE__,
+      ologger.Error("Error refreshing order property!", __FUNCTION_LINE__,
                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
     }
     return _result && GetLastError() == ERR_NO_ERROR;
   }
 
   /**
-   * Update specific integer value of the current order.
+   * Refresh specific integer value of the current order.
    */
-  bool Update(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
+  bool Refresh(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
     bool _result = false;
     long _value = WRONG_VALUE;
     ResetLastError();
@@ -1855,9 +1867,9 @@ class Order : public SymbolInfo {
   }
 
   /**
-   * Update specific string value of the current order.
+   * Refresh specific string value of the current order.
    */
-  bool Update(ENUM_ORDER_PROPERTY_STRING _prop_id) {
+  bool Refresh(ENUM_ORDER_PROPERTY_STRING _prop_id) {
     bool _result = true;
     string _value = "";
     switch (_prop_id) {
@@ -1886,14 +1898,6 @@ class Order : public SymbolInfo {
     return true;
   }
 
-  /**
-   * Update specific order value.
-   */
-  double UpdateValue(double _src, double &_dst) {
-    _dst = _src;
-    return _dst;
-  }
-
   /* Conversion methods */
 
   /**
@@ -1918,21 +1922,6 @@ class Order : public SymbolInfo {
   string OrderTypeToString(bool _lc = false) { return OrderTypeToString(orequest.type, _lc); }
 
   /* Custom order methods */
-
-  /**
-   * Returns gross profit of the currently selected order.
-   *
-   * @return
-   * Returns the gross profit value (including swaps, commissions and fees/taxes)
-   * for the selected order, in the base currency.
-   */
-  static double GetOrderTotalProfit() { return OrderStatic::Profit() - Order::OrderTotalFees(); }
-  double GetTotalProfit() {
-    if (odata.Get<double>(ORDER_PROP_PROFIT_TOTAL) == 0 || !IsClosed()) {
-      odata.Set<double>(ORDER_PROP_PROFIT_TOTAL, Order::GetOrderTotalProfit());
-    }
-    return odata.Get<double>(ORDER_PROP_PROFIT_TOTAL);
-  }
 
   /**
    * Returns profit of the currently selected order in pips.
@@ -1981,30 +1970,17 @@ class Order : public SymbolInfo {
   }
 
   /*
-   * Returns direction value of order.
+   * Returns order type direction value.
    *
    * @param
-   *   op_type short Order operation type of the order.
+   *   _type ENUM_ORDER_TYPE Order operation type of the order.
+   *   _mode ENUM_ORDER_TYPE_VALUE Order type value (SL or TP).
    *
    * @return
    *   Returns 1 for buy, -1 for sell orders, otherwise 0.
    */
-  static short OrderDirection(ENUM_ORDER_TYPE _cmd) {
-    switch (_cmd) {
-      case ORDER_TYPE_SELL:
-      case ORDER_TYPE_SELL_LIMIT:
-      case ORDER_TYPE_SELL_STOP:
-        return -1;
-      case ORDER_TYPE_BUY:
-      case ORDER_TYPE_BUY_LIMIT:
-      case ORDER_TYPE_BUY_STOP:
-        return 1;
-      default:
-        return 0;
-    }
-  }
   static short OrderDirection(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode) {
-    return OrderDirection(_cmd) * (_mode == ORDER_TYPE_SL ? -1 : 1);
+    return OrderData::GetTypeValue(_cmd) * (_mode == ORDER_TYPE_SL ? -1 : 1);
   }
 
   /**
@@ -2012,7 +1988,7 @@ class Order : public SymbolInfo {
    */
   static color GetOrderColor(ENUM_ORDER_TYPE _cmd = (ENUM_ORDER_TYPE)-1, color cbuy = Blue, color csell = Red) {
     if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE)OrderType();
-    return OrderDirection(_cmd) > 0 ? cbuy : csell;
+    return OrderData::GetTypeValue(_cmd) > 0 ? cbuy : csell;
   }
 
   /* Order property getters */
@@ -2662,7 +2638,7 @@ class Order : public SymbolInfo {
           switch (_args[1].type) {
             case TYPE_DOUBLE:
             case TYPE_FLOAT:
-              Update((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id);
+              Refresh((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id);
               switch (_cond) {
                 case ORDER_COND_PROP_EQ_ARG:
                   return odata.Get<double>((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) == _args[1].double_value;
@@ -2675,7 +2651,7 @@ class Order : public SymbolInfo {
             case TYPE_LONG:
             case TYPE_UINT:
             case TYPE_ULONG:
-              Update((ENUM_ORDER_PROPERTY_INTEGER)_prop_id);
+              Refresh((ENUM_ORDER_PROPERTY_INTEGER)_prop_id);
               switch (_cond) {
                 case ORDER_COND_PROP_EQ_ARG:
                   return odata.Get<int>((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) == _args[1].integer_value;
@@ -2685,7 +2661,7 @@ class Order : public SymbolInfo {
                   return odata.Get<int>((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) < _args[1].integer_value;
               }
             case TYPE_STRING:
-              Update((ENUM_ORDER_PROPERTY_STRING)_prop_id);
+              Refresh((ENUM_ORDER_PROPERTY_STRING)_prop_id);
               return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
               switch (_cond) {
                 case ORDER_COND_PROP_EQ_ARG:

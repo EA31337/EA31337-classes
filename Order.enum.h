@@ -61,7 +61,8 @@ enum ENUM_ORDER_PARAM {
   ORDER_PARAM_COND_CLOSE_ARG_VALUE,  // Close condition arguments.
   ORDER_PARAM_COND_CLOSE_NUM,        // Number of close conditions.
   ORDER_PARAM_DUMMY,                 // Whether order is dummy.
-  ORDER_PARAM_REFRESH_RATE,          // How often to refresh order values (in secs).
+  ORDER_PARAM_REFRESH_FREQ,          // How often to refresh order values (in secs).
+  ORDER_PARAM_UPDATE_FREQ,           // How often to update order stops (in secs).
   FINAL_ENUM_ORDER_PARAM
 };
 
@@ -73,7 +74,6 @@ enum ENUM_ORDER_PROPERTY_CUSTOM {
   ORDER_PROP_COMMISSION,         // Commission.
   ORDER_PROP_LAST_ERROR,         // Last error code.
   ORDER_PROP_PRICE_CLOSE,        // Close price.
-  ORDER_PROP_PRICE_CURRENT,      // Current price.
   ORDER_PROP_PRICE_OPEN,         // Open price.
   ORDER_PROP_PRICE_STOPLIMIT,    // The limit order price for the StopLimit order.
   ORDER_PROP_PROFIT,             // Current profit in price difference.
@@ -83,7 +83,8 @@ enum ENUM_ORDER_PROPERTY_CUSTOM {
   ORDER_PROP_TICKET,             // Ticket number.
   ORDER_PROP_TIME_CLOSED,        // Closed time.
   ORDER_PROP_TIME_OPENED,        // Opened time.
-  ORDER_PROP_TIME_LAST_UPDATED,  // Last update of order values.
+  ORDER_PROP_TIME_LAST_REFRESH,  // Last refresh of the order values.
+  ORDER_PROP_TIME_LAST_UPDATE,   // Last update of the order values.
   ORDER_PROP_TOTAL_FEES,         // Total fees.
 };
 
