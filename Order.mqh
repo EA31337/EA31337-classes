@@ -1530,7 +1530,7 @@ class Order : public SymbolInfo {
    */
   bool Update() {
     bool _result = true;
-    if (odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATED) + oparams.refresh_rate > TimeCurrent()) {
+    if (odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATE) + oparams.refresh_freq > TimeCurrent()) {
       return false;
     }
     odata.ResetError();
@@ -1611,7 +1611,7 @@ class Order : public SymbolInfo {
       if (_last_error > ERR_NO_ERROR && _last_error != 4014) {  // @fixme: In MT4 (why 4014?).
         GetLogger().Warning(StringFormat("Update failed! Error: %d", _last_error), __FUNCTION_LINE__);
       }
-      odata.Set<long>(ORDER_PROP_TIME_LAST_UPDATED, TimeCurrent());
+      odata.Set<long>(ORDER_PROP_TIME_LAST_UPDATE, TimeCurrent());
       odata.ProcessLastError();
       ResetLastError();
     }
@@ -1622,7 +1622,7 @@ class Order : public SymbolInfo {
    * Update values of the current dummy order.
    */
   bool UpdateDummy() {
-    if (odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATED) + oparams.refresh_rate > TimeCurrent()) {
+    if (odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATE) + oparams.refresh_freq > TimeCurrent()) {
       return false;
     }
     odata.ResetError();
@@ -1648,7 +1648,7 @@ class Order : public SymbolInfo {
     // @todo: More UpdateDummy(XXX);
 
     odata.ResetError();
-    odata.Set<long>(ORDER_PROP_TIME_LAST_UPDATED, TimeCurrent());
+    odata.Set<long>(ORDER_PROP_TIME_LAST_UPDATE, TimeCurrent());
     odata.ProcessLastError();
     return GetLastError() == ERR_NO_ERROR;
   }

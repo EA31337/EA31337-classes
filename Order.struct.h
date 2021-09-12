@@ -107,10 +107,11 @@ struct OrderParams {
   } cond_close[];
   bool dummy;                   // Whether order is dummy (fake) or not (real).
   color color_arrow;            // Color of the opening arrow on the chart.
-  unsigned short refresh_rate;  // How often to refresh order values (in secs).
+  unsigned short refresh_freq;  // How often to refresh order values (in secs).
+  unsigned short update_freq;   // How often to update order stops (in secs).
   // Special struct methods.
-  OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10){};
-  OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10){};
+  OrderParams() : dummy(false), color_arrow(clrNONE), refresh_freq(10), update_freq(60){};
+  OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_freq(10), update_freq(60){};
   // Getters.
   template <typename T>
   T Get(ENUM_ORDER_PARAM _param, int _index1 = 0, int _index2 = 0) {
@@ -125,6 +126,10 @@ struct OrderParams {
         return (T)ArraySize(cond_close);
       case ORDER_PARAM_DUMMY:
         return (T)dummy;
+      case ORDER_PARAM_REFRESH_FREQ:
+        return (T)refresh_freq;
+      case ORDER_PARAM_UPDATE_FREQ:
+        return (T)update_freq;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
@@ -151,6 +156,12 @@ struct OrderParams {
       case ORDER_PARAM_DUMMY:
         dummy = _value;
         return;
+      case ORDER_PARAM_REFRESH_FREQ:
+        refresh_freq = (unsigned short)_value;
+        return;
+      case ORDER_PARAM_UPDATE_FREQ:
+        update_freq = (unsigned short)_value;
+        return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
@@ -163,12 +174,12 @@ struct OrderParams {
     cond_close[_index].SetCondition(_cond);
     cond_close[_index].SetConditionArgs(_args);
   }
-  void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
+  void SetRefreshRate(unsigned short _value) { refresh_freq = _value; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "dummy", dummy);
     s.Pass(THIS_REF, "color_arrow", color_arrow);
-    s.Pass(THIS_REF, "refresh_rate", refresh_rate);
+    s.Pass(THIS_REF, "refresh_freq", refresh_freq);
     // s.Pass(THIS_REF, "cond_close", cond_close);
     return SerializerNodeObject;
   }
@@ -188,7 +199,8 @@ struct OrderData {
   datetime time_done;                    // Execution/cancellation time.
   datetime time_expiration;              // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
   datetime time_setup;                   // Setup time.
-  datetime time_last_updated;            // Last update of order values.
+  datetime time_last_refresh;            // Last refresh of order values.
+  datetime time_last_update;             // Last update of order stops.
   double commission;                     // Commission.
   double profit;                         // Profit.
   double total_profit;                   // Total profit (profit minus fees).
@@ -232,7 +244,8 @@ struct OrderData {
         time_done(0),
         time_done_msc(0),
         time_expiration(0),
-        time_last_updated(0),
+        time_last_refresh(0),
+        time_last_update(0),
         time_setup(0),
         time_setup_msc(0),
         sl(0),
@@ -271,8 +284,10 @@ struct OrderData {
         return (T)ticket;
       case ORDER_PROP_TIME_CLOSED:
         return (T)time_closed;
-      case ORDER_PROP_TIME_LAST_UPDATED:
-        return (T)time_last_updated;
+      case ORDER_PROP_TIME_LAST_REFRESH:
+        return (T)time_last_refresh;
+      case ORDER_PROP_TIME_LAST_UPDATE:
+        return (T)time_last_update;
       case ORDER_PROP_TIME_OPENED:
         return (T)time_done;
       case ORDER_PROP_TOTAL_FEES:
@@ -426,8 +441,11 @@ struct OrderData {
       case ORDER_PROP_TIME_CLOSED:
         time_closed = (datetime)_value;
         return;
-      case ORDER_PROP_TIME_LAST_UPDATED:
-        time_last_updated = (datetime)_value;
+      case ORDER_PROP_TIME_LAST_REFRESH:
+        time_last_refresh = (datetime)_value;
+        return;
+      case ORDER_PROP_TIME_LAST_UPDATE:
+        time_last_update = (datetime)_value;
         return;
       case ORDER_PROP_TIME_OPENED:
         time_setup = (datetime)_value;
@@ -562,7 +580,7 @@ struct OrderData {
     s.Pass(THIS_REF, "time_done", time_done);
     s.Pass(THIS_REF, "time_done_msc", time_done_msc);
     s.Pass(THIS_REF, "time_expiration", time_expiration);
-    s.Pass(THIS_REF, "time_last_updated", time_last_updated);
+    s.Pass(THIS_REF, "time_last_update", time_last_update);
     s.Pass(THIS_REF, "time_setup", time_setup);
     s.Pass(THIS_REF, "time_setup_msc", time_setup_msc);
     s.Pass(THIS_REF, "total_fees", total_fees);

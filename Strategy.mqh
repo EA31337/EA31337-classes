@@ -932,11 +932,11 @@ class Strategy : public Object {
    */
   virtual void OnOrderOpen(OrderParams &_oparams) {
     int _index = 0;
+    ENUM_TIMEFRAMES _stf = Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
+    unsigned int _stf_secs = ChartTf::TfToSeconds(_stf);
     if (sparams.order_close_time != 0) {
-      long _close_time_arg = sparams.order_close_time > 0
-                                 ? sparams.order_close_time * 60
-                                 : (int)round(-sparams.order_close_time *
-                                              ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
+      long _close_time_arg = sparams.order_close_time > 0 ? sparams.order_close_time * 60
+                                                          : (int)round(-sparams.order_close_time * _stf_secs);
       _oparams.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
       _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
       _index++;
@@ -953,6 +953,7 @@ class Strategy : public Object {
       _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
       _index++;
     }
+    _oparams.Set(ORDER_PARAM_UPDATE_FREQ, _stf_secs);
   }
 
   /**
