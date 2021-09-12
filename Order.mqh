@@ -1970,30 +1970,17 @@ class Order : public SymbolInfo {
   }
 
   /*
-   * Returns direction value of order.
+   * Returns order type direction value.
    *
    * @param
-   *   op_type short Order operation type of the order.
+   *   _type ENUM_ORDER_TYPE Order operation type of the order.
+   *   _mode ENUM_ORDER_TYPE_VALUE Order type value (SL or TP).
    *
    * @return
    *   Returns 1 for buy, -1 for sell orders, otherwise 0.
    */
-  static short OrderDirection(ENUM_ORDER_TYPE _cmd) {
-    switch (_cmd) {
-      case ORDER_TYPE_SELL:
-      case ORDER_TYPE_SELL_LIMIT:
-      case ORDER_TYPE_SELL_STOP:
-        return -1;
-      case ORDER_TYPE_BUY:
-      case ORDER_TYPE_BUY_LIMIT:
-      case ORDER_TYPE_BUY_STOP:
-        return 1;
-      default:
-        return 0;
-    }
-  }
   static short OrderDirection(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode) {
-    return OrderDirection(_cmd) * (_mode == ORDER_TYPE_SL ? -1 : 1);
+    return OrderData::GetTypeValue(_cmd) * (_mode == ORDER_TYPE_SL ? -1 : 1);
   }
 
   /**
@@ -2001,7 +1988,7 @@ class Order : public SymbolInfo {
    */
   static color GetOrderColor(ENUM_ORDER_TYPE _cmd = (ENUM_ORDER_TYPE)-1, color cbuy = Blue, color csell = Red) {
     if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE)OrderType();
-    return OrderDirection(_cmd) > 0 ? cbuy : csell;
+    return OrderData::GetTypeValue(_cmd) > 0 ? cbuy : csell;
   }
 
   /* Order property getters */

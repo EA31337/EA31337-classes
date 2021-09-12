@@ -371,6 +371,41 @@ struct OrderData {
     return "";
   }
   /*
+   * Returns order type value.
+   *
+   * @param
+   *   _type ENUM_ORDER_TYPE Order operation type of the order.
+   *
+   * @return
+   *   Returns 1 for buy, -1 for sell orders, otherwise 0.
+   */
+  short GetTypeValue() { return GetTypeValue(type); }
+  /*
+   * Returns order type value.
+   *
+   * @param
+   *   _type ENUM_ORDER_TYPE Order operation type of the order.
+   *
+   * @return
+   *   Returns 1 for buy, -1 for sell orders, otherwise 0.
+   */
+  static short GetTypeValue(ENUM_ORDER_TYPE _type) {
+    switch (_type) {
+      case ORDER_TYPE_SELL:
+      case ORDER_TYPE_SELL_LIMIT:
+      case ORDER_TYPE_SELL_STOP:
+        // All sell orders are -1.
+        return -1;
+      case ORDER_TYPE_BUY:
+      case ORDER_TYPE_BUY_LIMIT:
+      case ORDER_TYPE_BUY_STOP:
+        // All buy orders are -1.
+        return 1;
+      default:
+        return 0;
+    }
+  }
+  /*
   template <typename T>
   T Get(int _prop_name) {
     // MQL4 back-compatibility version for non-enum properties.
@@ -552,19 +587,7 @@ struct OrderData {
     ResetLastError();
     last_error = ERR_NO_ERROR;
   }
-  void RefreshProfit() {
-    switch (type) {
-      case ORDER_TYPE_BUY:
-        profit = price_current - price_open;
-        break;
-      case ORDER_TYPE_SELL:
-        profit = price_open - price_current;
-        break;
-      default:
-        profit = 0;
-        break;
-    }
-  }
+  void RefreshProfit() { profit = (price_current - price_open) * GetTypeValue(); }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "magic", magic);
