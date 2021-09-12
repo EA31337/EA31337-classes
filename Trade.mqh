@@ -764,12 +764,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
-        if (!_order.Ptr().OrderClose(_reason, _comment)) {
+        if (_order.Ptr().OrderClose(_reason, _comment)) {
+          _closed++;
+          OrderMoveToHistory(_order.Ptr());
+          order_last = _order;
+        } else {
           logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
           return -1;
         }
-        order_last = _order;
-        _closed++;
       }
       OrderMoveToHistory(_order.Ptr());
     }
@@ -792,13 +794,16 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (_order.Ptr().GetRequest().type == _cmd) {
-          if (!_order.Ptr().OrderClose(_reason, _comment)) {
+          if (_order.Ptr().OrderClose(_reason, _comment)) {
+            _closed++;
+            OrderMoveToHistory(_order.Ptr());
+            order_last = _order;
+          } else {
             logger.Error("Error while closing order!", __FUNCTION_LINE__,
                          StringFormat("Code: %d", _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR)));
             return -1;
           }
           order_last = _order;
-          _closed++;
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
@@ -826,12 +831,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop), _value, _op)) {
-          if (!_order.Ptr().OrderClose(_reason, _comment)) {
+          if (_order.Ptr().OrderClose(_reason, _comment)) {
+            _closed++;
+            OrderMoveToHistory(_order.Ptr());
+            order_last = _order;
+          } else {
             logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
             return -1;
           }
-          order_last = _order;
-          _closed++;
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
