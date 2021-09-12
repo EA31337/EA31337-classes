@@ -475,7 +475,7 @@ struct OrderData {
         return;
       case ORDER_PRICE_CURRENT:
         price_current = _value;
-        UpdateProfit();
+        RefreshProfit();
         return;
       case ORDER_PRICE_STOPLIMIT:
         price_stoplimit = _value;
@@ -560,7 +560,9 @@ struct OrderData {
     ResetLastError();
     last_error = ERR_NO_ERROR;
   }
-  void UpdateProfit() { profit = price_current - price_open; }
+  void RefreshProfit() {
+    profit = price_current - price_open;
+  }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "magic", magic);
