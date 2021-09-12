@@ -738,7 +738,9 @@ class EA {
           bool _sl_valid = false, _tp_valid = false;
           double _sl_new = 0, _tp_new = 0;
           Order *_order = oiter.Value().Ptr();
-          if (_order.IsClosed()) {
+          if (!_order.ShouldUpdate()) {
+            continue;
+          } else if (_order.IsClosed()) {
             _trade.OrderMoveToHistory(_order);
             continue;
           }
@@ -762,6 +764,9 @@ class EA {
           }
           if (_sl_valid || _tp_valid) {
             _result &= _order.OrderModify(_sl_new, _tp_new);
+            if (_result) {
+              _order.Set(ORDER_PROP_TIME_LAST_UPDATE, TimeCurrent());
+            }
           }
         }
       }
