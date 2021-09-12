@@ -445,9 +445,9 @@ class Indi_MA : public Indicator {
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
-    IndicatorDataEntry _entry(params.max_modes);
-    _entry = idata.GetByKey(_bar_time, _entry);
+    IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
+      _entry.Resize(params.max_modes);
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0] = GetValue(_shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) &&

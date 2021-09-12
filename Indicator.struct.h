@@ -230,7 +230,7 @@ struct IndicatorDataEntry {
   ARRAY(IndicatorDataEntryValue, values);
 
   // Constructors.
-  IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
+  IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { Resize(_size); }
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
   template <typename T>
@@ -391,6 +391,8 @@ struct IndicatorDataEntry {
     }
     return (INDICATOR_ENTRY_FLAGS)0;
   }
+  // Setters.
+  bool Resize(int _size = 0) { return _size > 0 ? ArrayResize(values, _size) > 0 : true; }
   // Value flag methods for bitwise operations.
   bool CheckFlag(INDICATOR_ENTRY_FLAGS _prop) { return CheckFlags(_prop); }
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
