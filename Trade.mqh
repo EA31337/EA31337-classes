@@ -622,7 +622,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Moves active order to history.
    */
   bool OrderMoveToHistory(Order *_order) {
-    _order.Update();
+    _order.Refresh(true);
     orders_active.Unset(_order.Get<ulong>(ORDER_PROP_TICKET));
     Ref<Order> _ref_order = _order;
     bool result = orders_history.Set(_order.Get<ulong>(ORDER_PROP_TICKET), _ref_order);

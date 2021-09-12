@@ -77,7 +77,7 @@ void OnTick() {
           break;
         case ORDER_TYPE_SELL:
           // Sell orders are expected to be closed by condition.
-          _order.Update();
+          _order.Refresh();
           break;
       }
       assertFalseOrExit(_order.IsOpen(), "Order not closed!");
