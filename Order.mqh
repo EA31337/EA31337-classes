@@ -270,11 +270,13 @@ class Order : public SymbolInfo {
   /**
    * Is order is open.
    */
-  bool IsClosed() {
+  bool IsClosed(bool _refresh = false) {
     if (odata.Get<long>(ORDER_PROP_TIME_CLOSED) == 0) {
-      if (Order::TryOrderSelect(odata.Get<long>(ORDER_PROP_TICKET), SELECT_BY_TICKET, MODE_HISTORY)) {
-        odata.Set<long>(ORDER_PROP_TIME_CLOSED, Order::OrderCloseTime());
-        odata.Set<int>(ORDER_PROP_REASON_CLOSE, ORDER_REASON_CLOSED_UNKNOWN);
+      if (_refresh || ShouldRefresh()) {
+        if (Order::TryOrderSelect(odata.Get<long>(ORDER_PROP_TICKET), SELECT_BY_TICKET, MODE_HISTORY)) {
+          odata.Set<long>(ORDER_PROP_TIME_CLOSED, Order::OrderCloseTime());
+          odata.Set<int>(ORDER_PROP_REASON_CLOSE, ORDER_REASON_CLOSED_UNKNOWN);
+        }
       }
     }
     return odata.Get<long>(ORDER_PROP_TIME_CLOSED) > 0;
@@ -283,7 +285,7 @@ class Order : public SymbolInfo {
   /**
    * Is order closed.
    */
-  bool IsOpen() { return !IsClosed(); }
+  bool IsOpen(bool _refresh = false) { return !IsClosed(_refresh); }
 
   /**
    * Check whether order is active and open.
