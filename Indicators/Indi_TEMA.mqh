@@ -23,13 +23,18 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../ValueStorage.price.h"
+#include "Indi_MA.mqh"
 
 // Structs.
 struct TEMAParams : IndicatorParams {
   unsigned int period;
   unsigned int tema_shift;
+  ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void TEMAParams(int _period = 14, int _tema_shift = 0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void TEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0,
+                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    applied_price = _ap;
     itype = INDI_TEMA;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
@@ -64,15 +69,84 @@ class Indi_TEMA : public Indicator {
   Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TEMA, _tf) { params.tf = _tf; };
 
   /**
+   * Built-in version of TEMA.
+   */
+  static double iTEMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
+                      int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+#ifdef __MQL5__
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iTEMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
+#else
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
+                                                        Util::MakeKey("Indi_TEMA", _ma_period, _ma_shift, (int)_ap));
+    return iTEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _ma_shift, _mode, _shift, _cache);
+#endif
+  }
+
+  /**
+   * Calculates iTEMA on the array of values.
+   */
+  static double iTEMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ma_period, int _ma_shift, int _mode, int _shift,
+                             IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_price);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(4);
+    }
+
+    if (_recalculate) {
+      _cache.SetPrevCalculated(0);
+    }
+
+    _cache.SetPrevCalculated(Indi_TEMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
+                                                  _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
+                                                  _cache.GetBuffer<double>(3), _ma_period, _ma_shift));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for TEMA indicator.
+   *
+   * Note that InpShift is used for drawing only and thus is unused.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &TemaBuffer,
+                       ValueStorage<double> &Ema, ValueStorage<double> &EmaOfEma, ValueStorage<double> &EmaOfEmaOfEma,
+                       int InpPeriodEMA, int InpShift) {
+    if (rates_total < 3 * InpPeriodEMA - 3) return (0);
+    //---
+    int start;
+    if (prev_calculated == 0)
+      start = 0;
+    else
+      start = prev_calculated - 1;
+    //--- calculate EMA
+    Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, 0, InpPeriodEMA, price, Ema);
+    //--- calculate EMA on EMA array
+    Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, InpPeriodEMA - 1, InpPeriodEMA, Ema, EmaOfEma);
+    //--- calculate EMA on EMA array on EMA array
+    Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, 2 * InpPeriodEMA - 2, InpPeriodEMA, EmaOfEma,
+                                   EmaOfEmaOfEma);
+    //--- calculate TEMA
+    for (int i = start; i < rates_total && !IsStopped(); i++)
+      TemaBuffer[i] = 3 * Ema[i].Get() - 3 * EmaOfEma[i].Get() + EmaOfEmaOfEma[i].Get();
+    //--- OnCalculate done. Return new prev_calculated.
+    return (rates_total);
+  }
+
+  /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  double GetValue(int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_TEMA::iTEMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetTEMAShift(), GetAppliedPrice() /*]*/, 0,
+                                  _shift, THIS_PTR);
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod(), GetTEMAShift() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+                         GetTEMAShift() /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -93,12 +167,9 @@ class Indi_TEMA : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
+      _entry.values[0] = GetValue(_shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -126,6 +197,11 @@ class Indi_TEMA : public Indicator {
    */
   unsigned int GetTEMAShift() { return params.tema_shift; }
 
+  /**
+   * Get applied price.
+   */
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+
   /* Setters */
 
   /**
@@ -142,5 +218,13 @@ class Indi_TEMA : public Indicator {
   void SetTEMAShift(unsigned int _tema_shift) {
     istate.is_changed = true;
     params.tema_shift = _tema_shift;
+  }
+
+  /**
+   * Set applied price.
+   */
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+    istate.is_changed = true;
+    params.applied_price = _applied_price;
   }
 };

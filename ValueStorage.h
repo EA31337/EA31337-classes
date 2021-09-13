@@ -33,6 +33,9 @@
 #ifndef VALUE_STORAGE_H
 #define VALUE_STORAGE_H
 
+// Includes.
+#include "Objects.h"
+
 // Enumeration for iPeak().
 enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
 
