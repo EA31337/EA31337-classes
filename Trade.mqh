@@ -1729,14 +1729,44 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
         _arg2l = _arg2l != WRONG_VALUE ? _arg2l : 0;
         return IsPivot((ENUM_ORDER_TYPE)_arg1l, (int)_arg2l);
-      case TRADE_COND_ORDERS_PROFIT_GT_1PC:
+      case TRADE_COND_ORDERS_PROFIT_GT_01PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= CalcActiveEquity() > (account.GetTotalBalance()) / 100 * 101;
         }
         break;
-      case TRADE_COND_ORDERS_PROFIT_LT_1PC:
+      case TRADE_COND_ORDERS_PROFIT_LT_01PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= CalcActiveEquity() < (account.GetTotalBalance()) / 100 * 99;
+        }
+        break;
+      case TRADE_COND_ORDERS_PROFIT_GT_02PC:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= CalcActiveEquity() > (account.GetTotalBalance()) / 100 * 102;
+        }
+        break;
+      case TRADE_COND_ORDERS_PROFIT_LT_02PC:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= CalcActiveEquity() < (account.GetTotalBalance()) / 100 * 98;
+        }
+        break;
+      case TRADE_COND_ORDERS_PROFIT_GT_05PC:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= CalcActiveEquity() > (account.GetTotalBalance()) / 100 * 105;
+        }
+        break;
+      case TRADE_COND_ORDERS_PROFIT_LT_05PC:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= CalcActiveEquity() < (account.GetTotalBalance()) / 100 * 95;
+        }
+        break;
+      case TRADE_COND_ORDERS_PROFIT_GT_10PC:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= CalcActiveEquity() > (account.GetTotalBalance()) / 100 * 110;
+        }
+        break;
+      case TRADE_COND_ORDERS_PROFIT_LT_10PC:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= CalcActiveEquity() < (account.GetTotalBalance()) / 100 * 90;
         }
         break;
       // case TRADE_ORDER_CONDS_IN_TREND:
