@@ -79,6 +79,7 @@ enum ENUM_ORDER_PROPERTY_CUSTOM {
   ORDER_PROP_PROFIT,             // Current profit in price difference.
   ORDER_PROP_PROFIT_PIPS,        // Current profit in pips.
   ORDER_PROP_PROFIT_TOTAL,       // Total profit (profit minus fees).
+  ORDER_PROP_PROFIT_VALUE,       // Total profit in base currency value.
   ORDER_PROP_REASON_CLOSE,       // Reason or source for closing an order.
   ORDER_PROP_TICKET,             // Ticket number.
   ORDER_PROP_TIME_CLOSED,        // Closed time.

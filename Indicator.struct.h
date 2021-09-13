@@ -291,7 +291,7 @@ struct IndicatorDataEntry {
   }
   template <typename T>
   bool IsLt(T _value) {
-    return _value < GetMax();
+    return _value < GetMax<T>();
   }
   template <typename T>
   bool IsWithinRange(T _min, T _max) {
@@ -458,7 +458,8 @@ struct IndicatorParams {
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                   string _name = "")
-      : name(_name),
+      : custom_indi_name(""),
+        name(_name),
         shift(0),
         max_modes(1),
         max_buffers(10),
@@ -475,7 +476,8 @@ struct IndicatorParams {
     SetDataSourceType(_idstype);
   };
   IndicatorParams(string _name, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : name(_name),
+      : custom_indi_name(""),
+        name(_name),
         shift(0),
         max_modes(1),
         max_buffers(10),
