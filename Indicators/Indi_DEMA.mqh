@@ -55,7 +55,7 @@ struct DEMAParams : IndicatorParams {
         break;
       case IDATA_INDICATOR:
         if (GetDataSource() == NULL) {
-          SetDataSource(new Indi_Price(shift, tf.GetTf()));
+          // SetDataSource(new Indi_Price(shift, tf.GetTf()));
           SetDataSourceMode(0);
         }
         break;
