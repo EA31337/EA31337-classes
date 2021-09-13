@@ -301,22 +301,25 @@ class Trade {
   /**
    * Check if current bar has active order.
    */
-  bool HasBarOrder(ENUM_ORDER_TYPE _cmd) {
+  bool HasBarOrder(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
     bool _result = false;
     Ref<Order> _order = order_last;
 
     if (_order.IsSet() && _order.Ptr().Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd &&
         _order.Ptr().Get<long>(ORDER_TIME_SETUP) > GetChart().GetBarTime()) {
-      _result = true;
+      _result |= true;
     }
 
     if (!_result) {
       for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
         _order = iter.Value();
-        if (_order.Ptr().Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd &&
-            _order.Ptr().Get<long>(ORDER_TIME_SETUP) > GetChart().GetBarTime()) {
-          _result = true;
-          break;
+        if (_order.Ptr().Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd) {
+          long _time_opened = _order.Ptr().Get<long>(ORDER_TIME_SETUP);
+          _result |= _shift > 0 && _time_opened < GetChart().GetBarTime(_shift - 1);
+          _result |= _time_opened >= GetChart().GetBarTime(_shift);
+          if (_result) {
+            break;
+          }
         }
       }
     }
@@ -359,6 +362,8 @@ class Trade {
                 break;
             }
           }
+        } else if (_order.IsSet()) {
+          OrderMoveToHistory(_order.Ptr());
         }
       }
     }
@@ -387,6 +392,8 @@ class Trade {
             _result = _odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) != _cmd;
             break;
           }
+        } else if (_order.IsSet()) {
+          OrderMoveToHistory(_order.Ptr());
         }
       }
     }
@@ -766,7 +773,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
-      if (_order.Ptr().IsOpen()) {
+      if (_order.Ptr().IsOpen(true)) {
         _order.Ptr().Refresh();
         if (_order.Ptr().OrderClose(_reason, _comment)) {
           _closed++;
@@ -796,7 +803,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
-      if (_order.Ptr().IsOpen()) {
+      if (_order.Ptr().IsOpen(true)) {
         _order.Ptr().Refresh();
         if (_order.Ptr().GetRequest().type == _cmd) {
           if (_order.Ptr().OrderClose(_reason, _comment)) {
@@ -834,7 +841,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
-      if (_order.Ptr().IsOpen()) {
+      if (_order.Ptr().IsOpen(true)) {
         _order.Ptr().Refresh();
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop), _value, _op)) {
           if (_order.Ptr().OrderClose(_reason, _comment)) {
@@ -870,7 +877,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
-      if (_order.Ptr().IsOpen()) {
+      if (_order.Ptr().IsOpen(true)) {
         _order.Ptr().Refresh();
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop1), _value1, _op) &&
             Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
