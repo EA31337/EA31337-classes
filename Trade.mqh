@@ -88,7 +88,7 @@ class Trade {
    */
   void ~Trade() {}
 
-  /* Getters */
+  /* Getters simple */
 
   /**
    * Gets an account parameter value of double type.
@@ -413,6 +413,32 @@ class Trade {
   /* Calculation methods */
 
   /**
+   * Calculate the total profit from all active orders in base currency value.
+   *
+   * @param
+   *   Returns profit in base currency value.
+   */
+  float CalcActiveProfitInValue() {
+    float _result = 0.0f;
+    if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+      OrderQuery _oquery(orders_active);
+      RefreshActiveOrdersByProp(ORDER_PRICE_CURRENT);
+      _result = _oquery.CalcSumByProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT_VALUE);
+    }
+    return _result;
+  }
+
+  /**
+   * Calculate equity based on all active orders in base currency value.
+   *
+   * Note: Equity is calculated only for this instance.
+   *
+   * @param
+   *   Returns equity value in base currency value.
+   */
+  float CalcActiveEquity() { return account.GetTotalBalance() + CalcActiveProfitInValue(); }
+
+  /**
    * Calculates the margin required for the specified order type.
    *
    * Note: It not taking into account current pending orders and open positions.
@@ -654,18 +680,36 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Refresh active orders.
    */
-  bool RefreshActiveOrders(bool _force = true, bool _first_close = false) {
+  bool RefreshActiveOrders(bool _force = false, bool _first_close = false) {
     bool _result = true;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order = iter.Value();
-      if (_order.IsSet()) {
+      if (_order.IsSet() && _order.Ptr().IsOpen(true)) {
         _order.Ptr().Refresh(_force);
-        if (_order.Ptr().IsClosed()) {
-          _result &= OrderMoveToHistory(_order.Ptr());
-          if (_first_close) {
-            break;
-          }
+      } else if (_order.IsSet()) {
+        _result &= OrderMoveToHistory(_order.Ptr());
+        if (_first_close) {
+          break;
         }
+      }
+    }
+    return _result;
+  }
+
+  /**
+   * Refresh active orders by given property.
+   */
+  template <typename E>
+  bool RefreshActiveOrdersByProp(E _prop, bool _force = false) {
+    bool _result = true;
+    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      Ref<Order> _order = iter.Value();
+      if (_order.IsSet() && _order.Ptr().IsOpen(true)) {
+        if (_force || _order.Ptr().ShouldRefresh()) {
+          _order.Ptr().Refresh(_prop);
+        }
+      } else if (_order.IsSet()) {
+        _result &= OrderMoveToHistory(_order.Ptr());
       }
     }
     return _result;
@@ -774,7 +818,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen(true)) {
-        _order.Ptr().Refresh();
         if (_order.Ptr().OrderClose(_reason, _comment)) {
           _closed++;
           OrderMoveToHistory(_order.Ptr());
@@ -783,8 +826,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
           return -1;
         }
+      } else {
+        OrderMoveToHistory(_order.Ptr());
       }
-      OrderMoveToHistory(_order.Ptr());
     }
     return _closed;
   }
@@ -842,7 +886,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen(true)) {
-        _order.Ptr().Refresh();
+        _order.Ptr().Refresh((E)_prop);
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop), _value, _op)) {
           if (_order.Ptr().OrderClose(_reason, _comment)) {
             _closed++;
@@ -1660,8 +1704,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, DataParamEntry &_args[]) {
+    bool _result = true;
     long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
     long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
+    Ref<OrderQuery> _oquery_ref;
+    if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+      _oquery_ref = OrderQuery::GetInstance(orders_active);
+    }
     switch (_cond) {
       case TRADE_COND_ACCOUNT:
         return account.CheckCondition((ENUM_ACCOUNT_CONDITION)_args[0].integer_value);
@@ -1680,12 +1729,24 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
         _arg2l = _arg2l != WRONG_VALUE ? _arg2l : 0;
         return IsPivot((ENUM_ORDER_TYPE)_arg1l, (int)_arg2l);
+      case TRADE_COND_ORDERS_PROFIT_GT_1PC:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= CalcActiveEquity() > (account.GetTotalBalance()) / 100 * 101;
+        }
+        break;
+      case TRADE_COND_ORDERS_PROFIT_LT_1PC:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          _result &= CalcActiveEquity() < (account.GetTotalBalance()) / 100 * 99;
+        }
+        break;
       // case TRADE_ORDER_CONDS_IN_TREND:
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
         logger.Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
+        _result = false;
+        break;
     }
+    return _result;
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, long _arg1) {
     ARRAY(DataParamEntry, _args);
