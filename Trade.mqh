@@ -448,9 +448,6 @@ class Trade {
    */
   float CalcActiveEquityInPct(bool _hundreds = true) {
     float _result = (float)Math::ChangeInPct(account.GetTotalBalance(), CalcActiveEquity(), _hundreds);
-    if (_result > 1) {
-      DebugBreak();
-    }
     return _result;
   }
 
@@ -1342,9 +1339,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       /* Limit checks */
       tstates.SetState(TRADE_STATE_PERIOD_LIMIT_REACHED, tparams.IsLimitGe(tstats));
       /* Margin checks */
-      tstates.SetState(TRADE_STATE_MARGIN_MAX_SOFT, tparams.GetRiskMargin() > 0
-                                                        // Check if maximum margin allowed to use is reached.
-                                                        && account.GetMarginUsedInPct() > tparams.GetRiskMargin());
+      // Check if maximum equity allowed to use is reached.
+      tstates.SetState(TRADE_STATE_MARGIN_MAX_SOFT,
+                       tparams.GetRiskMargin() > 0 && CalcActiveEquityInPct() <= -tparams.GetRiskMargin());
       /* Money checks */
       tstates.SetState(TRADE_STATE_MONEY_NOT_ENOUGH, account.GetMarginFreeInPct() <= 0.1);
       /* Orders checks */
@@ -1689,6 +1686,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
     if ((_periods & DATETIME_HOUR) != 0) {
       // New hour started.
+      UpdateStates();
     }
     if ((_periods & DATETIME_DAY) != 0) {
       // New day started.
