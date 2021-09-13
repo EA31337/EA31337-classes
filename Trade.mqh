@@ -439,6 +439,22 @@ class Trade {
   float CalcActiveEquity() { return account.GetTotalBalance() + CalcActiveProfitInValue(); }
 
   /**
+   * Calculate equity based on all active orders in percent.
+   *
+   * Note: Equity is calculated only for this instance.
+   *
+   * @param
+   *   Returns equity in percent.
+   */
+  float CalcActiveEquityInPct(bool _hundreds = true) {
+    float _result = (float)Math::ChangeInPct(account.GetTotalBalance(), CalcActiveEquity(), _hundreds);
+    if (_result > 1) {
+      DebugBreak();
+    }
+    return _result;
+  }
+
+  /**
    * Calculates the margin required for the specified order type.
    *
    * Note: It not taking into account current pending orders and open positions.
@@ -1731,42 +1747,42 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         return IsPivot((ENUM_ORDER_TYPE)_arg1l, (int)_arg2l);
       case TRADE_COND_ORDERS_PROFIT_GT_01PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= CalcActiveEquity() > (account.GetTotalBalance()) / 100 * 101;
+          return CalcActiveEquityInPct() >= 1;
         }
         break;
       case TRADE_COND_ORDERS_PROFIT_LT_01PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= CalcActiveEquity() < (account.GetTotalBalance()) / 100 * 99;
+          return CalcActiveEquityInPct() <= -1;
         }
         break;
       case TRADE_COND_ORDERS_PROFIT_GT_02PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= CalcActiveEquity() > (account.GetTotalBalance()) / 100 * 102;
+          return CalcActiveEquityInPct() >= 2;
         }
         break;
       case TRADE_COND_ORDERS_PROFIT_LT_02PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= CalcActiveEquity() < (account.GetTotalBalance()) / 100 * 98;
+          return CalcActiveEquityInPct() <= -2;
         }
         break;
       case TRADE_COND_ORDERS_PROFIT_GT_05PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= CalcActiveEquity() > (account.GetTotalBalance()) / 100 * 105;
+          return CalcActiveEquityInPct() >= 5;
         }
         break;
       case TRADE_COND_ORDERS_PROFIT_LT_05PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= CalcActiveEquity() < (account.GetTotalBalance()) / 100 * 95;
+          return CalcActiveEquityInPct() <= -5;
         }
         break;
       case TRADE_COND_ORDERS_PROFIT_GT_10PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= CalcActiveEquity() > (account.GetTotalBalance()) / 100 * 110;
+          return CalcActiveEquityInPct() >= 10;
         }
         break;
       case TRADE_COND_ORDERS_PROFIT_LT_10PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= CalcActiveEquity() < (account.GetTotalBalance()) / 100 * 90;
+          return CalcActiveEquityInPct() <= -10;
         }
         break;
       // case TRADE_ORDER_CONDS_IN_TREND:
