@@ -51,6 +51,21 @@ class OrderQuery : public Dynamic {
   OrderQuery(DictStruct<long, Ref<Order>> &_orders) : orders(GetPointer(_orders)) {}
 
   /**
+   * Calculates sum of order's value based on the property's enum.
+   *
+   * @return
+   *   Returns sum of order's values.
+   */
+  template <typename E, typename T>
+  T CalcSumByProp(E _prop) {
+    T _sum = 0;
+    for (DictStructIterator<long, Ref<Order>> iter = orders.Begin(); iter.IsValid(); ++iter) {
+      _sum += iter.Value().Ptr().Get<T>(_prop);
+    }
+    return _sum;
+  }
+
+  /**
    * Find order by comparing property's value given the comparison operator.
    *
    * @return
