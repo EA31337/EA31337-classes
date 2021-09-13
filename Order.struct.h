@@ -259,6 +259,7 @@ struct OrderData {
   // Getters.
   template <typename T>
   T Get(ENUM_ORDER_PROPERTY_CUSTOM _prop_name) {
+    double _tick_value = SymbolInfoStatic::GetTickValue(symbol);
     switch (_prop_name) {
       case ORDER_PROP_COMMISSION:
         return (T)commission;
@@ -274,6 +275,8 @@ struct OrderData {
         return (T)profit;
       case ORDER_PROP_PROFIT_PIPS:
         return (T)(profit * pow(10, SymbolInfoStatic::GetDigits(symbol)));
+      case ORDER_PROP_PROFIT_VALUE:
+        return (T)(Get<int>(ORDER_PROP_PROFIT_PIPS) * volume_curr * SymbolInfoStatic::GetTickValue(symbol));
       case ORDER_PROP_PROFIT_TOTAL:
         return (T)(profit - total_fees);
       case ORDER_PROP_REASON_CLOSE:
