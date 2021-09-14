@@ -939,7 +939,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         if (Math::Compare(_order.Ptr().Get<T>((E)_prop1), _value1, _op) &&
             Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
+#ifndef __MQL4__
+            // @fixme: GH-571.
             logger.Info(__FUNCTION_LINE__, _order.Ptr().ToString());
+#endif
             // @fixme: GH-570.
             // logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR));
             logger.Warning("Issue with closing the order!", __FUNCTION_LINE__);
