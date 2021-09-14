@@ -1115,7 +1115,7 @@ class Indicator : public Chart {
    * Returns price value of the corresponding indicator values.
    */
   template <typename T>
-  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE) {
+  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL) {
     float _price = 0;
     if (iparams.GetIDataValueRange() != IDATA_RANGE_PRICE) {
       _price = (float)GetPrice(_ap, _shift);
