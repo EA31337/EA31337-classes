@@ -127,14 +127,14 @@ class Object : public Dynamic {
     /**
      * Returns text representation of the object.
      */
-    virtual string ToString() {
+    virtual const string ToString() {
       return StringFormat("[Object #%04x]", GetPointer(this));
     }
 
     /**
      * Returns text representation of the object.
      */
-    virtual string ToJSON() {
+    virtual const string ToJSON() {
       return StringFormat("{ \"type\": \"%s\" }", typename(this));
     }
 

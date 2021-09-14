@@ -907,7 +907,7 @@ class Strategy : public Object {
   /**
    * Prints strategy's details.
    */
-  string ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
+  string const ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
 
   /* Virtual methods */
 
