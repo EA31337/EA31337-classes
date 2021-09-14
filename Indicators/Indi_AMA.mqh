@@ -94,7 +94,8 @@ class Indi_AMA : public Indicator {
         ::iAMA(_symbol, _tf, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap), _mode, _shift);
 #else
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
-        _symbol, _tf, _ap, Util::MakeKey(_ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
+        _symbol, _tf, _ap,
+        Util::MakeKey("INDI_AMA", _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
     return iAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ama_period, _fast_ema_period, _slow_ema_period,
                        _ama_shift, _mode, _shift, _cache);
 #endif

@@ -41,6 +41,7 @@ struct DataParamEntry;
 #include "../Indicators/Indi_ADXW.mqh"
 #include "../Indicators/Indi_AMA.mqh"
 #include "../Indicators/Indi_AO.mqh"
+#include "../Indicators/Indi_ASI.mqh"
 #include "../Indicators/Indi_ATR.mqh"
 #include "../Indicators/Indi_Alligator.mqh"
 #include "../Indicators/Indi_AppliedPrice.mqh"
@@ -479,7 +480,7 @@ bool InitIndicators() {
   CHOParams cho_params();
   indis.Push(new Indi_CHO(cho_params));
 
-// Chaikin Volatility.
+  // Chaikin Volatility.
   CHVParams chv_params();
   indis.Push(new Indi_CHV(chv_params));
 
