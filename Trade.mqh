@@ -940,7 +940,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
             logger.Info(__FUNCTION_LINE__, _order.Ptr().ToString());
-            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR));
+            // @fixme: GH-570.
+            // logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR));
+            logger.Warning("Issue with closing the order!", __FUNCTION_LINE__);
             ResetLastError();
             return -1;
           }
