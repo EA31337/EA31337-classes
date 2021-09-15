@@ -102,9 +102,10 @@ class Indicator : public Chart {
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();
   }
-  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
+  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
       : Chart(_tf), draw(NULL), is_feeding(false), is_fed(false) {
     iparams.SetIndicatorType(_itype);
+    iparams.SetShift(_shift);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
     Init();
   }
