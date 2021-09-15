@@ -56,7 +56,7 @@ class Object : public Dynamic {
      * Class constructor.
      */
     Object()
-      : id(rand())
+      : id(rand()), obj(THIS_PTR)
     {
     }
     Object(void *_obj, long _id = __LINE__) {
