@@ -82,6 +82,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_GATOR,                // Gator Oscillator
   INDI_HEIKENASHI,           // Heiken Ashi
   INDI_ICHIMOKU,             // Ichimoku Kinko Hyo
+  INDI_KILLZONES,            // Killzones
   INDI_MA,                   // Moving Average
   INDI_MACD,                 // MACD
   INDI_MA_ON_PRICE,          // Moving Average (on Price).
@@ -128,6 +129,7 @@ enum ENUM_INDICATOR_TYPE {
 /* Defines type of source data for indicator. */
 enum ENUM_IDATA_SOURCE_TYPE {
   IDATA_BUILTIN,    // Platform built-in
+  IDATA_CHART,      // Chart calculation
   IDATA_ICUSTOM,    // iCustom: Custom indicator file
   IDATA_INDICATOR,  // OnIndicator: Another indicator as a source of data
   IDATA_MATH        // Math-based indicator
