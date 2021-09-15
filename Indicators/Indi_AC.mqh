@@ -147,11 +147,14 @@ class Indi_AC : public Indicator {
     return _entry;
   }
 
-  Indi_AC *GetCached(string _symbol, ENUM_TIMEFRAMES _tf) {
+  /**
+   * Returns reusable indicator for a given symbol and time-frame.
+   */
+  static Indi_AC *GetCached(string _symbol, ENUM_TIMEFRAMES _tf) {
     Indi_AC *_ptr;
-    string _ac_key = Util::MakeKey("Indi_AC", _symbol, (int)_tf);
-    if (!Objects<Indicator>::TryGet(_key, _ptr)) {
-      _ptr = Objects<Indicator>::Set(_key, new Indi_AC(_tf));
+    string _key = Util::MakeKey(_symbol, (int)_tf);
+    if (!Objects<Indi_AC>::TryGet(_key, _ptr)) {
+      _ptr = Objects<Indi_AC>::Set(_key, new Indi_AC(_tf));
     }
     return _ptr;
   }

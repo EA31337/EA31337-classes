@@ -233,20 +233,18 @@ class IndicatorCalculateCache : public Dynamic {
   template <typename D>
   D GetTailValue(int _buffer_index, int _shift) {
     ValueStorage<D> *_buff = GetBuffer<D>(_buffer_index);
-    return _buff[_buff.IsSeries() ? _shift : (ArraySize(_buff) - _shift - 1)].Get();
+    int _index = _buff.IsSeries() ? _shift : (ArraySize(_buff) - _shift - 1);
+    return _buff[_index].Get();
   }
 
   /**
    * Updates prev_calculated value used by indicator's OnCalculate method.
    */
   void SetPrevCalculated(int _prev_calculated) {
-    prev_calculated = _prev_calculated;
-
-    if (prev_calculated == 0) {
-      Print(
-          "Trying to call SetPrevCalculated() with 0. That could mean that there is insufficient historical data to "
-          "use by OnCalculate(). Try to change INDICATOR_BUFFER_VALUE_STORAGE_HISTORY to higher value.");
-      DebugBreak();
+    if (_prev_calculated == 0) {
+      ResetPrevCalculated();
+    } else {
+      prev_calculated = _prev_calculated;
     }
   }
 

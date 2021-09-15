@@ -219,9 +219,11 @@ bool InitIndicators() {
   AlligatorParams alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
   indis.Push(new Indi_Alligator(alli_params));
 
-  // Adaptive Moving Average (AMA).
   // Awesome Oscillator (AO).
   indis.Push(new Indi_AO());
+
+  // Accumulation Swing Index (ASI).
+  indis.Push(new Indi_ASI());
 
   // Average True Range (ATR).
   ATRParams atr_params(14);

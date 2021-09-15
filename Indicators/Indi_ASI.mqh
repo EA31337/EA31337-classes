@@ -35,7 +35,7 @@ struct ASIParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ASI");
-    SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_BUILTIN);
     mpc = _mpc;
     shift = _shift;
     tf = _tf;
@@ -93,7 +93,7 @@ class Indi_ASI : public Indicator {
   /**
    * OnInit() method for ASI indicator.
    */
-  static void CalculateInit(double &InpT, double &ExtTpoints, double &ExtT) {
+  static void CalculateInit(double InpT, double &ExtTpoints, double &ExtT) {
     //--- check for input value
     if (MathAbs(InpT) > 1e-7)
       ExtT = InpT;

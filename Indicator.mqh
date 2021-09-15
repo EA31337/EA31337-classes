@@ -1280,4 +1280,55 @@ class Indicator : public Chart {
     return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
   }
 };
+
+/**
+ * BarsCalculated() method to be used on Indicator instance.
+ */
+int BarsCalculated(Indicator* _indi, int _bars_required) {
+  if (_bars_required == 0) {
+    return _bars_required;
+  }
+
+  IndicatorDataEntry _entry = _indi.GetEntry(_bars_required - 1);
+  // GetEntry() could end up with an error. It is okay.
+  ResetLastError();
+
+  return _entry.IsValid() ? _bars_required : 0;
+}
+
+/**
+ * CopyBuffer() method to be used on Indicator instance with ValueStorage buffer.
+ *
+ * Note that data will be copied so that the oldest element will be located at the start of the physical memory
+ * allocated for the array
+ */
+template <typename T>
+int CopyBuffer(Indicator* _indi, int _mode, int _start, int _count, ValueStorage<T>& _buffer) {
+  int _num_copied = 0;
+  int _buffer_size = ArraySize(_buffer);
+
+  if (_count == 0) {
+    _count = _buffer_size;
+  }
+
+  if (_buffer_size < _count) {
+    _buffer_size = ArrayResize(_buffer, _count);
+  }
+
+  for (int i = _start; i < _count; ++i) {
+    IndicatorDataEntry _entry = _indi.GetEntry(i);
+
+    if (!_entry.IsValid()) {
+      break;
+    }
+
+    T _value = _entry.GetValue<T>(_mode);
+
+    _buffer[_buffer_size - _count + i] = _value;
+    ++_num_copied;
+  }
+
+  return _num_copied;
+}
+
 #endif

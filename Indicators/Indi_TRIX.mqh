@@ -40,6 +40,7 @@ struct TRIXParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\TRIX");
+    SetDataSourceType(IDATA_BUILTIN);
     period = _period;
     shift = _shift;
     tf = _tf;
@@ -108,10 +109,10 @@ class Indi_TRIX : public Indicator {
                        int InpPeriodEMA) {
     if (rates_total < 3 * InpPeriodEMA - 3) return (0);
     //---
-    int start;
+    int start, i;
     if (prev_calculated == 0) {
       start = 3 * (InpPeriodEMA - 1);
-      for (int i = 0; i < start; i++) TRIX_Buffer[i] = EMPTY_VALUE;
+      for (i = 0; i < start; i++) TRIX_Buffer[i] = EMPTY_VALUE;
     } else
       start = prev_calculated - 1;
     //--- calculate EMA
@@ -122,7 +123,7 @@ class Indi_TRIX : public Indicator {
     Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, 2 * InpPeriodEMA - 2, InpPeriodEMA, SecondEMA,
                                    ThirdEMA);
     //--- calculate TRIX
-    for (int i = start; i < rates_total && !IsStopped(); i++) {
+    for (i = start; i < rates_total && !IsStopped(); i++) {
       if (ThirdEMA[i - 1] != 0.0)
         TRIX_Buffer[i] = (ThirdEMA[i] - ThirdEMA[i - 1]) / ThirdEMA[i - 1].Get();
       else

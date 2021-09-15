@@ -34,11 +34,11 @@ struct BWZTParams : IndicatorParams {
   // Struct constructor.
   void BWZTParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_BWZT;
-    max_modes = 4;
+    max_modes = 5;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
-    SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     tf = _tf;
   };
@@ -68,22 +68,8 @@ class Indi_BWZT : public Indicator {
   static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_BWZT");
 
-    //_cache.
-
     Indicator *_indi_ac = Indi_AC::GetCached(_symbol, _tf);
     Indicator *_indi_ao = Indi_AO::GetCached(_symbol, _tf);
-
-    CachedIndicatorInfo _ac_info(_indi_ac, _cache.)  // Continue here.
-
-        string _ac_key = Util::MakeKey("Indi_AC", _symbol, (int)_tf);
-    if (!Objects<Indicator>::TryGet(_key, _indi_ac)) {
-      _indi_ac = Objects<Indicator>::Set(_key, new Indi_AC(_tf));
-    }
-
-    string _ao_key = Util::MakeKey("Indi_AO", _symbol, (int)_tf);
-    if (!Objects<Indicator>::TryGet(_key, _indi_ao)) {
-      _indi_ao = Objects<Indicator>::Set(_key, new Indi_AO(_tf));
-    }
 
     return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ac, _indi_ao);
   }
@@ -101,7 +87,7 @@ class Indi_BWZT : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(Indi_BWZT::Calculate(
@@ -119,17 +105,17 @@ class Indi_BWZT : public Indicator {
                        ValueStorage<double> &ExtHBuffer, ValueStorage<double> &ExtLBuffer,
                        ValueStorage<double> &ExtCBuffer, ValueStorage<double> &ExtColorBuffer,
                        ValueStorage<double> &ExtAOBuffer, ValueStorage<double> &ExtACBuffer, int DATA_LIMIT,
-                       CachedIndicatorProxy &ExtACHandle, CachedIndicatorProxy &ExtAOHandle) {
+                       Indicator *ExtACHandle, Indicator *ExtAOHandle) {
     if (rates_total < DATA_LIMIT) return (0);
     //--- not all data may be calculated
-    int calculated = BarsCalculated(ExtACHandle);
+    int calculated = BarsCalculated(ExtACHandle, rates_total);
     if (calculated < rates_total) {
-      Print("Not all data of ExtACHandle is calculated (", calculated, " bars). Error ", GetLastError());
+      // Not all data of ExtACHandle is calculated.
       return (0);
     }
-    calculated = BarsCalculated(ExtAOHandle);
+    calculated = BarsCalculated(ExtAOHandle, rates_total);
     if (calculated < rates_total) {
-      Print("Not all data of ExtAOHandle is calculated (", calculated, " bars). Error ", GetLastError());
+      // Not all data of ExtAOHandle is calculated.
       return (0);
     }
     //--- we can copy not all data
@@ -166,6 +152,7 @@ class Indi_BWZT : public Indicator {
       ExtHBuffer[i] = high[i];
       ExtLBuffer[i] = low[i];
       ExtCBuffer[i] = close[i];
+
       //--- set color for candle
       ExtColorBuffer[i] = 2.0;  // set gray Color
       //--- check for Green Zone and set Color Green
