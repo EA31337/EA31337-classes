@@ -909,6 +909,14 @@ class Indicator : public Chart {
   /* Setters */
 
   /**
+   * Sets an indicator's chart parameter value.
+   */
+  template <typename T>
+  void Set(ENUM_CHART_PARAM _param, T _value) {
+    Chart::Set<T>(_param, _value);
+  }
+
+  /**
    * Sets name of the indicator.
    */
   void SetName(string _name) { iparams.SetName(_name); }
@@ -927,6 +935,11 @@ class Indicator : public Chart {
    * Sets indicator's params.
    */
   void SetParams(IndicatorParams& _iparams) { iparams = _iparams; }
+
+  /**
+   * Sets indicator's symbol.
+   */
+  void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
 
   /* Conditions */
 
@@ -1293,7 +1306,23 @@ int BarsCalculated(Indicator* _indi, int _bars_required) {
   // GetEntry() could end up with an error. It is okay.
   ResetLastError();
 
-  return _entry.IsValid() ? _bars_required : 0;
+  int _valid_history_count = 0;
+
+  if (!_entry.IsValid()) {
+    // We don't have sufficient data. Counting how much data we have.
+
+    for (int i = 0; i < _bars_required; ++i) {
+      IndicatorDataEntry _check_entry = _indi.GetEntry(i);
+      if (!_check_entry.IsValid()) {
+        break;
+      }
+      ++_valid_history_count;
+    }
+  } else {
+    _valid_history_count = _bars_required;
+  }
+
+  return _valid_history_count;
 }
 
 /**

@@ -23,20 +23,21 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "Indi_ATR.mqh"
 
 // Structs.
 struct UltimateOscillatorParams : IndicatorParams {
-  unsigned int fast_period;
-  unsigned int middle_period;
-  unsigned int slow_period;
-  unsigned int fast_k;
-  unsigned int middle_k;
-  unsigned int slow_k;
+  int fast_period;
+  int middle_period;
+  int slow_period;
+  int fast_k;
+  int middle_k;
+  int slow_k;
 
   // Struct constructor.
-  void UltimateOscillatorParams(unsigned int _fast_period = 7, unsigned int _middle_period = 14,
-                                unsigned int _slow_period = 28, unsigned int _fast_k = 4, unsigned int _middle_k = 2,
-                                unsigned int _slow_k = 1, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void UltimateOscillatorParams(int _fast_period = 7, int _middle_period = 14, int _slow_period = 28, int _fast_k = 4,
+                                int _middle_k = 2, int _slow_k = 1, int _shift = 0,
+                                ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     fast_k = _fast_k;
     fast_period = _fast_period;
     itype = INDI_ULTIMATE_OSCILLATOR;
@@ -45,8 +46,16 @@ struct UltimateOscillatorParams : IndicatorParams {
     middle_period = _middle_period;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_BUILTIN);
     SetCustomIndicatorName("Examples\\Ultimate_Oscillator");
-    SetDataSourceType(IDATA_ICUSTOM);
+    // IC:  INDI_ULTIMATE_OSCILLATOR[1]: bar 1: 1525392000,130,45.93870749
+    // IC:  INDI_ULTIMATE_OSCILLATOR[1]: bar 1: 1525392120,130,36.36985216
+    // IC:  INDI_ULTIMATE_OSCILLATOR[1]: bar 1: 1525392180,130,40.82834908
+
+    // BIN: INDI_ULTIMATE_OSCILLATOR[1]: bar 2: 1525392240,130,53.10341381
+
+    // SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
     slow_k = _slow_k;
     slow_period = _slow_period;
@@ -77,15 +86,152 @@ class Indi_UltimateOscillator : public Indicator {
   };
 
   /**
+   * Built-in version of Ultimate Oscillator.
+   */
+  static double iUO(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period, int _middle_period, int _slow_period,
+                    int _fast_k, int _middle_k, int _slow_k, int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
+        _symbol, _tf,
+        Util::MakeKey("Indi_UltimateOscillator", _fast_period, _middle_period, _slow_period, _fast_k, _middle_k,
+                      _slow_k));
+
+    Indicator *_indi_atr_fast = Indi_ATR::GetCached(_symbol, _tf, _fast_period);
+    Indicator *_indi_atr_middle = Indi_ATR::GetCached(_symbol, _tf, _middle_period);
+    Indicator *_indi_atr_slow = Indi_ATR::GetCached(_symbol, _tf, _slow_period);
+
+    return iUOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_period, _middle_period, _slow_period, _fast_k,
+                      _middle_k, _slow_k, _mode, _shift, _cache, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow);
+  }
+
+  /**
+   * Calculates Ultimate Oscillator on the array of values.
+   */
+  static double iUOOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_period, int _middle_period, int _slow_period,
+                           int _fast_k, int _middle_k, int _slow_k, int _mode, int _shift,
+                           IndicatorCalculateCache<double> *_cache, Indicator *_indi_atr_fast,
+                           Indicator *_indi_atr_middle, Indicator *_indi_atr_slow, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(1 + 4);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_UltimateOscillator::Calculate(
+        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
+        _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4), _fast_period,
+        _middle_period, _slow_period, _fast_k, _middle_k, _slow_k, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for Ultimate Oscillator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtUOBuffer,
+                       ValueStorage<double> &ExtBPBuffer, ValueStorage<double> &ExtFastATRBuffer,
+                       ValueStorage<double> &ExtMiddleATRBuffer, ValueStorage<double> &ExtSlowATRBuffer,
+                       int InpFastPeriod, int InpMiddlePeriod, int InpSlowPeriod, int InpFastK, int InpMiddleK,
+                       int InpSlowK, Indicator *ExtFastATRhandle, Indicator *ExtMiddleATRhandle,
+                       Indicator *ExtSlowATRhandle) {
+    double ExtDivider = InpFastK + InpMiddleK + InpSlowK;
+    int ExtMaxPeriod = InpSlowPeriod;
+    if (ExtMaxPeriod < InpMiddlePeriod) ExtMaxPeriod = InpMiddlePeriod;
+    if (ExtMaxPeriod < InpFastPeriod) ExtMaxPeriod = InpFastPeriod;
+
+    if (rates_total < ExtMaxPeriod) return (0);
+    //--- not all data may be calculated
+    int calculated = BarsCalculated(ExtFastATRhandle, rates_total);
+    if (calculated < rates_total) {
+      // Not all data of ExtFastATRhandle is calculated.
+      return (0);
+    }
+    calculated = BarsCalculated(ExtMiddleATRhandle, rates_total);
+    if (calculated < rates_total) {
+      // Not all data of ExtFastATRhandle is calculated.
+      return (0);
+    }
+    calculated = BarsCalculated(ExtSlowATRhandle, rates_total);
+    if (calculated < rates_total) {
+      // Not all data of ExtFastATRhandle is calculated.
+      return (0);
+    }
+    //--- we can copy not all data
+    int to_copy;
+    if (prev_calculated > rates_total || prev_calculated < 0)
+      to_copy = rates_total;
+    else {
+      to_copy = rates_total - prev_calculated;
+      if (prev_calculated > 0) to_copy++;
+    }
+    //--- get ATR buffers
+    if (IsStopped())  // checking for stop flag
+      return (0);
+    if (CopyBuffer(ExtFastATRhandle, 0, 0, to_copy, ExtFastATRBuffer) <= 0) {
+      Print("getting ExtFastATRhandle is failed! Error ", GetLastError());
+      return (0);
+    }
+    if (IsStopped())  // checking for stop flag
+      return (0);
+    if (CopyBuffer(ExtMiddleATRhandle, 0, 0, to_copy, ExtMiddleATRBuffer) <= 0) {
+      Print("getting ExtMiddleATRhandle is failed! Error ", GetLastError());
+      return (0);
+    }
+    if (IsStopped())  // checking for stop flag
+      return (0);
+    if (CopyBuffer(ExtSlowATRhandle, 0, 0, to_copy, ExtSlowATRBuffer) <= 0) {
+      Print("getting ExtSlowATRhandle is failed! Error ", GetLastError());
+      return (0);
+    }
+    //--- preliminary calculations
+    int i, start;
+    if (prev_calculated == 0) {
+      ExtBPBuffer[0] = 0.0;
+      ExtUOBuffer[0] = 0.0;
+      //--- set value for first InpSlowPeriod bars
+      for (i = 1; i <= InpSlowPeriod; i++) {
+        ExtUOBuffer[i] = 0.0;
+        double true_low = MathMin(low[i].Get(), close[i - 1].Get());
+        ExtBPBuffer[i] = close[i] - true_low;
+      }
+      //--- now we are going to calculate from start index in main loop
+      start = InpSlowPeriod + 1;
+    } else
+      start = prev_calculated - 1;
+    //--- the main loop of calculations
+    for (i = start; i < rates_total && !IsStopped(); i++) {
+      double true_low = MathMin(low[i].Get(), close[i - 1].Get());
+      ExtBPBuffer[i] = close[i] - true_low;  // buying pressure
+
+      if (ExtFastATRBuffer[i] != 0.0 && ExtMiddleATRBuffer[i] != 0.0 && ExtSlowATRBuffer[i] != 0.0) {
+        double raw_uo = InpFastK * Indi_MA::SimpleMA(i, InpFastPeriod, ExtBPBuffer) / ExtFastATRBuffer[i].Get() +
+                        InpMiddleK * Indi_MA::SimpleMA(i, InpMiddlePeriod, ExtBPBuffer) / ExtMiddleATRBuffer[i].Get() +
+                        InpSlowK * Indi_MA::SimpleMA(i, InpSlowPeriod, ExtBPBuffer) / ExtSlowATRBuffer[i].Get();
+        ExtUOBuffer[i] = raw_uo / ExtDivider * 100;
+      } else
+        ExtUOBuffer[i] = ExtUOBuffer[i - 1];  // set current Ultimate value as previous Ultimate value
+    }
+    //--- OnCalculate done. Return new prev_calculated.
+    return (rates_total);
+  }
+
+  /**
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_UltimateOscillator::iUO(GetSymbol(), GetTf(), /*[*/ GetFastPeriod(), GetMiddlePeriod(),
+                                              GetSlowPeriod(), GetFastK(), GetMiddleK(), GetSlowK() /*]*/, _mode,
+                                              _shift, THIS_PTR);
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/
                          GetFastPeriod(), GetMiddlePeriod(), GetSlowPeriod(), GetFastK(), GetMiddleK(),
                          GetSlowK()
                          /*]*/,
@@ -136,39 +282,39 @@ class Indi_UltimateOscillator : public Indicator {
   /**
    * Get fast period.
    */
-  unsigned int GetFastPeriod() { return params.fast_period; }
+  int GetFastPeriod() { return params.fast_period; }
 
   /**
    * Get middle period.
    */
-  unsigned int GetMiddlePeriod() { return params.middle_period; }
+  int GetMiddlePeriod() { return params.middle_period; }
 
   /**
    * Get slow period.
    */
-  unsigned int GetSlowPeriod() { return params.slow_period; }
+  int GetSlowPeriod() { return params.slow_period; }
 
   /**
    * Get fast k.
    */
-  unsigned int GetFastK() { return params.fast_k; }
+  int GetFastK() { return params.fast_k; }
 
   /**
    * Get middle k.
    */
-  unsigned int GetMiddleK() { return params.middle_k; }
+  int GetMiddleK() { return params.middle_k; }
 
   /**
    * Get slow k.
    */
-  unsigned int GetSlowK() { return params.slow_k; }
+  int GetSlowK() { return params.slow_k; }
 
   /* Setters */
 
   /**
    * Set fast period.
    */
-  void SetFastPeriod(unsigned int _fast_period) {
+  void SetFastPeriod(int _fast_period) {
     istate.is_changed = true;
     params.fast_period = _fast_period;
   }
@@ -176,7 +322,7 @@ class Indi_UltimateOscillator : public Indicator {
   /**
    * Set middle period.
    */
-  void SetMiddlePeriod(unsigned int _middle_period) {
+  void SetMiddlePeriod(int _middle_period) {
     istate.is_changed = true;
     params.middle_period = _middle_period;
   }
@@ -184,7 +330,7 @@ class Indi_UltimateOscillator : public Indicator {
   /**
    * Set slow period.
    */
-  void SetSlowPeriod(unsigned int _slow_period) {
+  void SetSlowPeriod(int _slow_period) {
     istate.is_changed = true;
     params.slow_period = _slow_period;
   }
@@ -192,7 +338,7 @@ class Indi_UltimateOscillator : public Indicator {
   /**
    * Set fast k.
    */
-  void SetFastK(unsigned int _fast_k) {
+  void SetFastK(int _fast_k) {
     istate.is_changed = true;
     params.fast_k = _fast_k;
   }
@@ -200,7 +346,7 @@ class Indi_UltimateOscillator : public Indicator {
   /**
    * Set middle k.
    */
-  void SetMiddleK(unsigned int _middle_k) {
+  void SetMiddleK(int _middle_k) {
     istate.is_changed = true;
     params.middle_k = _middle_k;
   }
@@ -208,7 +354,7 @@ class Indi_UltimateOscillator : public Indicator {
   /**
    * Set slow k.
    */
-  void SetSlowK(unsigned int _slow_k) {
+  void SetSlowK(int _slow_k) {
     istate.is_changed = true;
     params.slow_k = _slow_k;
   }

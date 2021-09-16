@@ -61,7 +61,7 @@ class NativeValueStorage : public ValueStorage<C> {
    */
   virtual C Fetch(int _shift) {
     if (_shift < 0 || _shift >= ArraySize(_values)) {
-      return (C)WRONG_VALUE;
+      return (C)EMPTY_VALUE;
       // Print("Invalid buffer data index: ", _shift, ". Buffer size: ", ArraySize(_values));
       // DebugBreak();
     }
