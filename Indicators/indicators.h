@@ -34,7 +34,7 @@
 #include "Indi_AO.mqh"
 #include "Indi_Alligator.mqh"
 #include "Indi_AppliedPrice.mqh"
-//#include "Indi_ASI.mqh"
+#include "Indi_ASI.mqh"
 #include "Indi_ATR.mqh"
 #include "Indi_BWMFI.mqh"
 #include "Indi_BWZT.mqh"
