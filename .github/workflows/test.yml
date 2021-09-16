@@ -98,6 +98,7 @@ jobs:
       matrix:
         test:
           - CollectionTest
+          - CompileIndicatorsTest
           - ConfigTest
           - ConvertTest
           - DateTimeTest
