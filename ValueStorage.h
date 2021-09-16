@@ -33,12 +33,15 @@
 #ifndef VALUE_STORAGE_H
 #define VALUE_STORAGE_H
 
+// Includes.
+#include "Objects.h"
+
 // Enumeration for iPeak().
 enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
 
 // Defines.
 #define INDICATOR_BUFFER_VALUE_STORAGE_HISTORY \
-  100  // Number of entries the value storage buffer will be initialized with.
+  300  // Number of entries the value storage buffer will be initialized with.
 
 #define INDICATOR_CALCULATE_PARAMS_LONG                                                                                \
   ValueStorage<datetime> &_time, ValueStorage<double> &_open, ValueStorage<double> &_high, ValueStorage<double> &_low, \

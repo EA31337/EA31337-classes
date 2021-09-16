@@ -50,7 +50,10 @@ class Util {
    */
   template <typename A, typename B>
   static string MakeKey(const A a, const B b) {
-    return SerializerConversions::ValueToString(a) + "/" + SerializerConversions::ValueToString(b);
+    string _a = SerializerConversions::ValueToString(a);
+    string _b = SerializerConversions::ValueToString(b);
+
+    return SeparatedMaybe(_a) + _b;
   }
 
   /**
@@ -58,8 +61,11 @@ class Util {
    */
   template <typename A, typename B, typename C>
   static string MakeKey(const A a, const B b, const C c) {
-    return SerializerConversions::ValueToString(a) + "/" + SerializerConversions::ValueToString(b) + "/" +
-           SerializerConversions::ValueToString(c);
+    string _a = SerializerConversions::ValueToString(a);
+    string _b = SerializerConversions::ValueToString(b);
+    string _c = SerializerConversions::ValueToString(c);
+
+    return SeparatedMaybe(_a) + SeparatedMaybe(_b) + _c;
   }
 
   /**
@@ -67,8 +73,12 @@ class Util {
    */
   template <typename A, typename B, typename C, typename D>
   static string MakeKey(const A a, const B b, const C c, const D d) {
-    return SerializerConversions::ValueToString(a) + "/" + SerializerConversions::ValueToString(b) + "/" +
-           SerializerConversions::ValueToString(c) + "/" + SerializerConversions::ValueToString(d);
+    string _a = SerializerConversions::ValueToString(a);
+    string _b = SerializerConversions::ValueToString(b);
+    string _c = SerializerConversions::ValueToString(c);
+    string _d = SerializerConversions::ValueToString(d);
+
+    return SeparatedMaybe(_a) + SeparatedMaybe(_b) + SeparatedMaybe(_c) + _d;
   }
 
   /**
@@ -76,8 +86,34 @@ class Util {
    */
   template <typename A, typename B, typename C, typename D, typename E>
   static string MakeKey(const A a, const B b, const C c, const D d, const E e) {
-    return SerializerConversions::ValueToString(a) + "/" + SerializerConversions::ValueToString(b) + "/" +
-           SerializerConversions::ValueToString(c) + "/" + SerializerConversions::ValueToString(d) + "/" +
-           SerializerConversions::ValueToString(e);
+    string _a = SerializerConversions::ValueToString(a);
+    string _b = SerializerConversions::ValueToString(b);
+    string _c = SerializerConversions::ValueToString(c);
+    string _d = SerializerConversions::ValueToString(d);
+    string _e = SerializerConversions::ValueToString(e);
+
+    return SeparatedMaybe(_a) + SeparatedMaybe(_b) + SeparatedMaybe(_c) + SeparatedMaybe(_d) + _e;
+  }
+
+  /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F>
+  static string MakeKey(const A a, const B b, const C c, const D d, const E e, const F f) {
+    string _a = SerializerConversions::ValueToString(a);
+    string _b = SerializerConversions::ValueToString(b);
+    string _c = SerializerConversions::ValueToString(c);
+    string _d = SerializerConversions::ValueToString(d);
+    string _e = SerializerConversions::ValueToString(e);
+    string _f = SerializerConversions::ValueToString(f);
+
+    return SeparatedMaybe(_a) + SeparatedMaybe(_b) + SeparatedMaybe(_c) + SeparatedMaybe(_d) + SeparatedMaybe(_e) + _f;
+  }
+
+  /**
+   * Creates string with separator if string was not empty.
+   */
+  static string SeparatedMaybe(string _value, string _separator = "/") {
+    return _value == "" ? "" : (_value + _separator);
   }
 };

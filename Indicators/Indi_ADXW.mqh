@@ -72,7 +72,7 @@ class Indi_ADXW : public Indicator {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
 #else
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, _ma_period);
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_ADXW", _ma_period));
     return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _mode, _shift, _cache);
 #endif
   }

@@ -82,7 +82,7 @@ class Indi_CHO : public Indicator {
                                       _mode, _shift);
 #else
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
-        _symbol, _tf, Util::MakeKey(_fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
+        _symbol, _tf, Util::MakeKey("INDI_CHO", _fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
                            _mode, _shift, _cache);
 #endif

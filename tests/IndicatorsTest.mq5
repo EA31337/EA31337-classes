@@ -41,6 +41,7 @@ struct DataParamEntry;
 #include "../Indicators/Indi_ADXW.mqh"
 #include "../Indicators/Indi_AMA.mqh"
 #include "../Indicators/Indi_AO.mqh"
+#include "../Indicators/Indi_ASI.mqh"
 #include "../Indicators/Indi_ATR.mqh"
 #include "../Indicators/Indi_Alligator.mqh"
 #include "../Indicators/Indi_AppliedPrice.mqh"
@@ -218,9 +219,11 @@ bool InitIndicators() {
   AlligatorParams alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
   indis.Push(new Indi_Alligator(alli_params));
 
-  // Adaptive Moving Average (AMA).
   // Awesome Oscillator (AO).
   indis.Push(new Indi_AO());
+
+  // Accumulation Swing Index (ASI).
+  indis.Push(new Indi_ASI());
 
   // Average True Range (ATR).
   ATRParams atr_params(14);
@@ -479,7 +482,7 @@ bool InitIndicators() {
   CHOParams cho_params();
   indis.Push(new Indi_CHO(cho_params));
 
-// Chaikin Volatility.
+  // Chaikin Volatility.
   CHVParams chv_params();
   indis.Push(new Indi_CHV(chv_params));
 
