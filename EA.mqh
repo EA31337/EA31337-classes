@@ -329,7 +329,9 @@ class EA {
               _can_trade &= _can_trade && !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE,
                                                                  TRADE_STATE_TRADE_CANNOT);
               StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-              SignalAdd(_signal, _tick.time);
+              if (_signal.GetSignalClose() != _signal.GetSignalOpen()) {
+                SignalAdd(_signal, _tick.time);
+              }
               StgProcessResult _strat_result = _strat.GetProcessResult();
               eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
               eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
