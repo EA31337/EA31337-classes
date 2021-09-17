@@ -1060,7 +1060,9 @@ class Strategy : public Object {
         _val = _tick.time % 10 < last_tick.time % 10;
         _res = _method > 0 ? _res & _val : _res | _val;
       }
-      last_tick = _tick;
+      if (_res) {
+        last_tick = _tick;
+      }
     }
     return _res;
   }
