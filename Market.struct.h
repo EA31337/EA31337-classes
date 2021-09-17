@@ -26,10 +26,11 @@
  */
 
 // Includes.
+#include "DateTime.struct.h"
 #include "Std.h"
 
 // Structure for trade time static methods.
-struct MarketTimeForex : MqlDateTime {
+struct MarketTimeForex : DateTimeEntry {
   // Market sessions for trading Forex.
   enum ENUM_MARKET_TIME_FOREX_HOURS {
     MARKET_TIME_FOREX_HOURS_NONE = 0 << 0,
@@ -49,8 +50,9 @@ struct MarketTimeForex : MqlDateTime {
     MARKET_TIME_FOREX_HOURS_PACIFIC = MARKET_TIME_FOREX_HOURS_SYDNEY | MARKET_TIME_FOREX_HOURS_WELLINGTON,
   };
   // Constructors.
-  MarketTimeForex(datetime _time_gmt) { TimeToStruct(_time_gmt, THIS_REF); }
-  MarketTimeForex(MqlDateTime &_dt_gmt) { THIS_REF = _dt_gmt; }
+  MarketTimeForex() { Set(::TimeGMT()); }
+  MarketTimeForex(datetime _time_gmt) { Set(_time_gmt); }
+  MarketTimeForex(MqlDateTime &_dt_gmt) { Set(_dt_gmt); }
   // State methods.
   /* Getters */
   bool CheckHours(unsigned int _hours_enums) {

@@ -907,7 +907,7 @@ class Strategy : public Object {
   /**
    * Prints strategy's details.
    */
-  string ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
+  string const ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
 
   /* Virtual methods */
 
@@ -1060,7 +1060,9 @@ class Strategy : public Object {
         _val = _tick.time % 10 < last_tick.time % 10;
         _res = _method > 0 ? _res & _val : _res | _val;
       }
-      last_tick = _tick;
+      if (_res) {
+        last_tick = _tick;
+      }
     }
     return _res;
   }
@@ -1227,7 +1229,8 @@ class Strategy : public Object {
    *   Returns current stop loss value when _mode is ORDER_TYPE_SL
    *   and profit take when _mode is ORDER_TYPE_TP.
    */
-  virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
+  virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f,
+                          short _bars = 4) {
     float _result = 0;
     if (_method == 0) {
       // Ignores calculation when method is 0.
@@ -1241,9 +1244,10 @@ class Strategy : public Object {
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {
-      int _ishift = _direction > 0 ? _indi.GetHighest<double>(_count) : _indi.GetLowest<double>(_count);
-      _ishift = fmax(0, _ishift);
-      _psm.SetIndicatorPriceValue(_indi.GetValuePrice<float>(_ishift, 0, PRICE_CLOSE));
+      int _ishift = fmax(0, _direction > 0 ? _indi.GetHighest<double>(_bars) : _indi.GetLowest<double>(_bars));
+      float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
+      _value = _value + (float)Math::ChangeByPct(fabs(_value - _chart.GetCloseOffer(0)), _level) * _direction;
+      _psm.SetIndicatorPriceValue(_value);
       /*
       //IndicatorDataEntry _data[];
       if (_indi.CopyEntries(_data, 3, 0)) {

@@ -502,7 +502,7 @@ class SymbolInfo : public Object {
   /**
    * Returns symbol information in string format.
    */
-  string ToString() {
+  const string ToString() {
     return StringFormat(
         string("Symbol: %s, Last Ask/Bid: %g/%g, Last Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, ") +
             "Tick size: %g (%g pts), Tick value: %g (%g/%g), " + "Digits: %d, Spread: %d pts, Trade stops level: %d, " +
@@ -517,7 +517,7 @@ class SymbolInfo : public Object {
   /**
    * Returns symbol information in CSV format.
    */
-  string ToCSV(bool _header = false) {
+  const string ToCSV(bool _header = false) {
     return !_header
                ? StringFormat(string("%s,%g,%g,%d,%g,%g,%g,") + "%g,%g,%g,%g,%g," + "%d,%d,%d," + "%g,%g,%g,%g," +
                                   "%d,%g,%g,%d,%g,%g",
@@ -537,7 +537,7 @@ class SymbolInfo : public Object {
   /**
    * Returns serialized representation of the object instance.
    */
-  SerializerNodeType Serialize(Serializer &_s) {
+  const SerializerNodeType Serialize(Serializer &_s) {
     _s.Pass(THIS_REF, "symbol", symbol);
     _s.PassStruct(THIS_REF, "symbol-entry", s_entry);
     return SerializerNodeObject;

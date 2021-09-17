@@ -2733,7 +2733,7 @@ class Order : public SymbolInfo {
   /**
    * Returns order details in text.
    */
-  string ToString() {
+  string const ToString() {
     SerializerConverter stub(Serializer::MakeStubObject<Order>(SERIALIZER_FLAG_SKIP_HIDDEN));
     return SerializerConverter::FromObject(THIS_REF, SERIALIZER_FLAG_SKIP_HIDDEN)
         .ToString<SerializerJson>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub);

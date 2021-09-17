@@ -197,6 +197,7 @@ class EA {
       StrategySignal _signal = _dsi.Value();
       if (_signal.CheckSignals(STRAT_SIGNAL_PROCESSED)) {
         // Ignores already processed signals.
+        // @todo: Not in use yet.
         continue;
       }
       Strategy *_strat = _signal.GetStrategy();
@@ -233,7 +234,6 @@ class EA {
             // Buy order open.
             _result &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
             if (_result && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
-              _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
               break;
             }
           }
@@ -246,12 +246,10 @@ class EA {
             // Sell order open.
             _result &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
             if (_result && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
-              _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
               break;
             }
           }
         }
-        _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
         if (!_result) {
           _last_error = GetLastError();
           switch (_last_error) {
@@ -269,6 +267,8 @@ class EA {
     if (_last_error > 0) {
       logger.Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__);
     }
+    // Remove signals after processing.
+    strat_signals.Unset(_tick.time);
     return _result && _last_error == 0;
   }
 
@@ -329,7 +329,9 @@ class EA {
               _can_trade &= _can_trade && !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE,
                                                                  TRADE_STATE_TRADE_CANNOT);
               StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-              SignalAdd(_signal, _tick.time);
+              if (_signal.GetSignalClose() != _signal.GetSignalOpen()) {
+                SignalAdd(_signal, _tick.time);
+              }
               StgProcessResult _strat_result = _strat.GetProcessResult();
               eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
               eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;

@@ -63,7 +63,7 @@ class DateTime {
   DateTime() { TimeToStruct(TimeCurrent(), dt_curr); }
   DateTime(DateTimeEntry &_dt) { dt_curr = _dt; }
   DateTime(MqlDateTime &_dt) { dt_curr = _dt; }
-  DateTime(datetime _dt) { dt_curr.SetDateTime(_dt); }
+  DateTime(datetime _dt) { dt_curr.Set(_dt); }
 
   /**
    * Class deconstructor.
@@ -199,7 +199,7 @@ class DateTime {
   /**
    * Updates datetime to the current one.
    */
-  void Update() { dt_curr.SetDateTime(TimeCurrent()); }
+  void Update() { dt_curr.Set(TimeCurrent()); }
 
   /* Conditions */
 

@@ -35,6 +35,7 @@ struct DateTimeStatic;
 
 // Includes.
 #include "DateTime.enum.h"
+#include "Std.h"
 
 #ifndef __MQLBUILD__
 /**
@@ -229,11 +230,10 @@ struct DateTimeStatic {
 struct DateTimeEntry : MqlDateTime {
   int week_of_year;
   // Struct constructors.
-  DateTimeEntry() { SetDateTime(); }
-  DateTimeEntry(datetime _dt) { SetDateTime(_dt); }
+  DateTimeEntry() { Set(); }
+  DateTimeEntry(datetime _dt) { Set(_dt); }
   DateTimeEntry(MqlDateTime& _dt) {
-    // @fixit Should also set day of week.
-    ((MqlDateTime)THIS_REF) = _dt;
+    Set(_dt);
 #ifndef __MQL__
     throw NotImplementedException();
 #endif
@@ -286,8 +286,24 @@ struct DateTimeEntry : MqlDateTime {
   int GetYear() { return year; }
   datetime GetTimestamp() { return StructToTime(THIS_REF); }
   // Setters.
-  void SetDateTime() { TimeToStruct(TimeCurrent(), THIS_REF); }
-  void SetDateTime(datetime _dt) { TimeToStruct(_dt, THIS_REF); }
+  void Set() {
+    TimeToStruct(::TimeCurrent(), THIS_REF);
+    // @fixit Should also set day of week.
+  }
+  void SetGMT() {
+    TimeToStruct(::TimeGMT(), THIS_REF);
+    // @fixit Should also set day of week.
+  }
+  // Set date and time.
+  void Set(datetime _time) {
+    TimeToStruct(_time, THIS_REF);
+    // @fixit Should also set day of week.
+  }
+  // Set date and time.
+  void Set(MqlDateTime& _time) {
+    THIS_REF = _time;
+    // @fixit Should also set day of week.
+  }
   void SetDayOfMonth(int _value) {
     day = _value;
     day_of_week = DateTimeStatic::DayOfWeek();  // Zero-based day of week.
