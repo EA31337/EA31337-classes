@@ -256,7 +256,7 @@ class Log : public Object {
  }
  */
 
-  virtual string ToString() {
+  virtual const string ToString() {
     string result;
 
     unsigned int lid;

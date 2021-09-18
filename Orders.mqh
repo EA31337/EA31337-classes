@@ -119,7 +119,7 @@ class Orders {
    */
   Order *SelectOrder(ulong _ticket) {
     for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
-      if (orders[_pos].GetTicket() == _ticket) {
+      if (orders[_pos].Get<ulong>(ORDER_PROP_TICKET) == _ticket) {
         return orders[_pos];
       }
     }
@@ -141,49 +141,6 @@ class Orders {
     }
     Logger().Error(StringFormat("Cannot select order (ticket=#%d)!", _ticket), __FUNCTION__);
     return NULL;
-  }
-
-  /**
-   * Select the first opened order.
-   */
-  Order *SelectFirstOpen(ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
-    // @todo: Implement different pools.
-    for (int _pos = 0; _pos < ArraySize(orders); _pos++) {
-      if (orders[_pos].IsOrderOpen()) {
-        return orders[_pos].TryOrderSelect() ? orders[_pos] : NULL;
-      }
-    }
-    return NULL;
-  }
-
-  /**
-   * Select the most profitable order.
-   */
-  Order *SelectMostProfitable(ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
-    // @todo: Implement different pools.
-    Order *_selected = SelectFirstOpen();
-    for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
-      if (orders[_pos].IsOrderOpen() &&
-          orders[_pos].Get<float>(ORDER_PROP_PROFIT) > _selected.Get<float>(ORDER_PROP_PROFIT)) {
-        _selected = orders[_pos];
-      }
-    }
-    return _selected.TryOrderSelect() ? _selected : NULL;
-  }
-
-  /**
-   * Select the most unprofitable order.
-   */
-  Order *SelectMostUnprofitable(ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
-    // @todo: Implement different pools.
-    Order *_selected = SelectFirstOpen();
-    for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
-      if (orders[_pos].IsOrderOpen() &&
-          orders[_pos].Get<float>(ORDER_PROP_PROFIT) < _selected.Get<float>(ORDER_PROP_PROFIT)) {
-        _selected = orders[_pos];
-      }
-    }
-    return _selected.TryOrderSelect() ? _selected : NULL;
   }
 
   /* Calculation and parsing methods */

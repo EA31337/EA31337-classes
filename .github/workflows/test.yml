@@ -55,7 +55,9 @@ jobs:
         test:
           - AccountTest
           - ActionTest
+          - BufferStructTest
           - BufferTest
+          - ChartTest
           - ConditionTest
           - DatabaseTest
           - DrawIndicatorTest
@@ -71,6 +73,7 @@ jobs:
           - StatsTest
           - StrategyTest
           - StrategyTest-RSI
+          - SymbolInfoTest
           - SummaryReportTest
           - TaskTest
           - TickerTest
@@ -83,6 +86,29 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           BtDays: 1-8
+          BtMonths: 1
+          BtYears: 2020
+          TestExpert: ${{ matrix.test }}
+
+  Indicators-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Indicators/tests
+    needs: Compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - Indi_Pivot.test
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 4-8
           BtMonths: 1
           BtYears: 2020
           TestExpert: ${{ matrix.test }}
@@ -106,6 +132,7 @@ jobs:
           - LogTest
           - MD5Test
           - MathTest
+          - OrderQuery
           - ProfilerTest
           - RefsTest
           - SerializerTest

@@ -2,6 +2,9 @@
 build.properties
 logs/
 
+# Doxygen's and Sphinx's output.
+docs/api/build
+
 # Ignores compiled binary files.
 *.ex?
 

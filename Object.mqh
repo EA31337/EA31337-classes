@@ -56,7 +56,7 @@ class Object : public Dynamic {
      * Class constructor.
      */
     Object()
-      : id(rand())
+      : id(rand()), obj(THIS_PTR)
     {
     }
     Object(void *_obj, long _id = __LINE__) {
@@ -127,14 +127,14 @@ class Object : public Dynamic {
     /**
      * Returns text representation of the object.
      */
-    virtual string ToString() {
+    virtual const string ToString() {
       return StringFormat("[Object #%04x]", GetPointer(this));
     }
 
     /**
      * Returns text representation of the object.
      */
-    virtual string ToJSON() {
+    virtual const string ToJSON() {
       return StringFormat("{ \"type\": \"%s\" }", typename(this));
     }
 
