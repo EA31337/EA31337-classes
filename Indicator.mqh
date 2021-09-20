@@ -1274,7 +1274,7 @@ class Indicator : public Chart {
    */
   virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_FLOAT};
-    _param.double_value = (float)GetEntry(_shift).GetValue<float>(0);
+    _param.double_value = (float)GetEntry(_shift).GetValue<float>(_mode);
     return _param;
   }
 
@@ -1329,16 +1329,12 @@ int BarsCalculated(Indicator* _indi, int _bars_required) {
  * allocated for the array
  */
 template <typename T>
-int CopyBuffer(Indicator* _indi, int _mode, int _start, int _count, ValueStorage<T>& _buffer) {
+int CopyBuffer(Indicator* _indi, int _mode, int _start, int _count, ValueStorage<T>& _buffer, int _rates_total) {
   int _num_copied = 0;
   int _buffer_size = ArraySize(_buffer);
 
-  if (_count == 0) {
-    _count = _buffer_size;
-  }
-
-  if (_buffer_size < _count) {
-    _buffer_size = ArrayResize(_buffer, _count);
+  if (_buffer_size < _rates_total) {
+    _buffer_size = ArrayResize(_buffer, _rates_total);
   }
 
   for (int i = _start; i < _count; ++i) {
@@ -1350,7 +1346,9 @@ int CopyBuffer(Indicator* _indi, int _mode, int _start, int _count, ValueStorage
 
     T _value = _entry.GetValue<T>(_mode);
 
-    _buffer[_buffer_size - _count + i] = _value;
+    //    Print(_value);
+
+    _buffer[_buffer_size - i - 1] = _value;
     ++_num_copied;
   }
 

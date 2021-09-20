@@ -42,9 +42,9 @@ struct DataParamEntry;
 #include "../Indicators/Indi_AMA.mqh"
 #include "../Indicators/Indi_AO.mqh"
 #include "../Indicators/Indi_ASI.mqh"
-#include "../Indicators/Indi_AppliedPrice.mqh"
 #include "../Indicators/Indi_ATR.mqh"
 #include "../Indicators/Indi_Alligator.mqh"
+#include "../Indicators/Indi_AppliedPrice.mqh"
 #include "../Indicators/Indi_BWMFI.mqh"
 #include "../Indicators/Indi_BWZT.mqh"
 #include "../Indicators/Indi_Bands.mqh"
@@ -109,7 +109,7 @@ enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_EN
 // Global variables.
 Chart *chart;
 Dict<long, Indicator *> indis;
-Dict<long, bool> whitelisted_indis;
+Dict<int, Indicator *> whitelisted_indis;
 Dict<long, bool> tested;
 int bar_processed;
 double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235,
@@ -142,7 +142,7 @@ int OnInit() {
 void OnTick() {
   chart.OnTick();
 
-  if (chart.IsNewBar()) {
+  if (chart.IsNewBar() && chart.GetBarTime() <= 1525492300) {
     Redis *redis = _indi_drawer.Redis();
 
     if (redis.Simulated() && redis.Subscribed("DRAWER")) {
@@ -160,7 +160,7 @@ void OnTick() {
           continue;
         }
       } else {
-        if (!whitelisted_indis.KeyExists(iter.Key())) {
+        if (!whitelisted_indis.Contains(iter.Value())) {
           continue;
         }
       }
@@ -534,11 +534,9 @@ bool InitIndicators() {
   indis.Push(new Indi_BWZT(bwzt_params));
 #endif
 
-// Rate of Change.
-#ifdef __MQL5__
+  // Rate of Change.
   RateOfChangeParams rate_of_change_params();
   indis.Push(new Indi_RateOfChange(rate_of_change_params));
-#endif
 
 // Triple Exponential Moving Average.
 #ifdef __MQL5__
@@ -564,23 +562,17 @@ bool InitIndicators() {
   indis.Push(new Indi_VIDYA(vidya_params));
 #endif
 
-// Volumes.
-#ifdef __MQL5__
+  // Volumes.
   VolumesParams volumes_params();
   indis.Push(new Indi_Volumes(volumes_params));
-#endif
 
-// Volume Rate of Change.
-#ifdef __MQL5__
+  // Volume Rate of Change.
   VROCParams vol_rate_of_change_params();
   indis.Push(new Indi_VROC(vol_rate_of_change_params));
-#endif
 
-// Larry Williams' Accumulation/Distribution.
-#ifdef __MQL5__
+  // Larry Williams' Accumulation/Distribution.
   WilliamsADParams williams_ad_params();
   indis.Push(new Indi_WilliamsAD(williams_ad_params));
-#endif
 
 // ZigZag Color.
 #ifdef __MQL5__
@@ -629,8 +621,8 @@ bool InitIndicators() {
     tested.Set(iter.Key(), false);
   }
 
-  // Paste white-listed indicators here.
-  // whitelisted_indis.Set(INDI_RSI, true);
+  // Push white-listed indicators here.
+  // whitelisted_indis.Push(_indi_uo);
 
   return GetLastError() == ERR_NO_ERROR;
 }
@@ -642,7 +634,7 @@ double MathCustomOp(double a, double b) { return 1.11 + (b - a) * 2.0; }
  */
 bool PrintIndicators(string _prefix = "") {
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    if (whitelisted_indis.Size() != 0 && !whitelisted_indis.KeyExists(iter.Key())) {
+    if (whitelisted_indis.Size() != 0 && !whitelisted_indis.Contains(iter.Value())) {
       continue;
     }
 

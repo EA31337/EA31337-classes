@@ -170,19 +170,23 @@ class Indi_UltimateOscillator : public Indicator {
     //--- get ATR buffers
     if (IsStopped())  // checking for stop flag
       return (0);
-    if (CopyBuffer(ExtFastATRhandle, 0, 0, to_copy, ExtFastATRBuffer) <= 0) {
+    if (CopyBuffer(ExtFastATRhandle, 0, 0, to_copy, ExtFastATRBuffer, rates_total) <= 0) {
       Print("getting ExtFastATRhandle is failed! Error ", GetLastError());
       return (0);
     }
+
+    Print(DoubleToString(ExtFastATRBuffer.FetchSeries(2), 8), ", ", DoubleToString(ExtFastATRBuffer.FetchSeries(1), 8),
+          ", ", DoubleToString(ExtFastATRBuffer.FetchSeries(0), 8));
+
     if (IsStopped())  // checking for stop flag
       return (0);
-    if (CopyBuffer(ExtMiddleATRhandle, 0, 0, to_copy, ExtMiddleATRBuffer) <= 0) {
+    if (CopyBuffer(ExtMiddleATRhandle, 0, 0, to_copy, ExtMiddleATRBuffer, rates_total) <= 0) {
       Print("getting ExtMiddleATRhandle is failed! Error ", GetLastError());
       return (0);
     }
     if (IsStopped())  // checking for stop flag
       return (0);
-    if (CopyBuffer(ExtSlowATRhandle, 0, 0, to_copy, ExtSlowATRBuffer) <= 0) {
+    if (CopyBuffer(ExtSlowATRhandle, 0, 0, to_copy, ExtSlowATRBuffer, rates_total) <= 0) {
       Print("getting ExtSlowATRhandle is failed! Error ", GetLastError());
       return (0);
     }

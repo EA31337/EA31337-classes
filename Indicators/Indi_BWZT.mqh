@@ -129,14 +129,14 @@ class Indi_BWZT : public Indicator {
     //--- get AC buffer
     if (IsStopped())  // checking for stop flag
       return (0);
-    if (CopyBuffer(ExtACHandle, 0, 0, to_copy, ExtACBuffer) <= 0) {
+    if (CopyBuffer(ExtACHandle, 0, 0, to_copy, ExtACBuffer, rates_total) <= 0) {
       Print("Getting iAC is failed! Error ", GetLastError());
       return (0);
     }
     //--- get AO buffer
     if (IsStopped())  // checking for stop flag
       return (0);
-    if (CopyBuffer(ExtAOHandle, 0, 0, to_copy, ExtAOBuffer) <= 0) {
+    if (CopyBuffer(ExtAOHandle, 0, 0, to_copy, ExtAOBuffer, rates_total) <= 0) {
       Print("Getting iAO is failed! Error ", GetLastError());
       return (0);
     }

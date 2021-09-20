@@ -38,7 +38,7 @@ struct VROCParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VROC");
-    SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     tf = _tf;
   };
@@ -59,10 +59,81 @@ class Indi_VROC : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_VROC(VROCParams &_params) : params(_params.applied_volume), Indicator((IndicatorParams)_params) {
-    params = _params;
-  };
+  Indi_VROC(VROCParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
   Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf) { params.tf = _tf; };
+
+  /**
+   * Built-in version of VROC.
+   */
+  static double iVROC(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_VOLUME _av, int _mode = 0,
+                      int _shift = 0, Indicator *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_VROC", _period, (int)_av));
+    return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode, _shift, _cache);
+  }
+
+  /**
+   * Calculates AMVROC on the array of values.
+   */
+  static double iVROCOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, ENUM_APPLIED_VOLUME _av, int _mode,
+                             int _shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    }
+
+    if (_recalculate) {
+      _cache.SetPrevCalculated(0);
+    }
+
+    _cache.SetPrevCalculated(
+        Indi_VROC::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _period, _av));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for VROC indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtVROCBuffer, int InpPeriodVROC,
+                       ENUM_APPLIED_VOLUME InpVolumeType) {
+    int ExtPeriodVROC;
+
+    if (InpPeriodVROC <= 1) {
+      ExtPeriodVROC = 25;
+      PrintFormat("Incorrect value for input variable InpPeriodVROC=%d. Indicator will use value=%d for calculations.",
+                  InpPeriodVROC, ExtPeriodVROC);
+    } else
+      ExtPeriodVROC = InpPeriodVROC;
+
+    if (rates_total < ExtPeriodVROC) return (0);
+    //--- starting work
+    int pos = prev_calculated - 1;
+    if (pos < ExtPeriodVROC - 1) {
+      pos = ExtPeriodVROC - 1;
+      for (int i = 0; i < pos; i++) ExtVROCBuffer[i] = 0.0;
+    }
+    //--- main cycle by volume type
+    if (InpVolumeType == VOLUME_TICK)
+      CalculateVROC(pos, rates_total, tick_volume, ExtVROCBuffer, ExtPeriodVROC);
+    else
+      CalculateVROC(pos, rates_total, volume, ExtVROCBuffer, ExtPeriodVROC);
+    //--- OnCalculate done. Return new prev_calculated.
+    return (rates_total);
+  }
+
+  static void CalculateVROC(const int pos, const int rates_total, ValueStorage<long> &volume,
+                            ValueStorage<double> &ExtVROCBuffer, int ExtPeriodVROC) {
+    for (int i = pos; i < rates_total && !IsStopped(); i++) {
+      double prev_volume = (double)(volume[i - (ExtPeriodVROC - 1)].Get());
+      double curr_volume = (double)volume[i].Get();
+      //--- calculate VROC
+      if (prev_volume != 0.0)
+        ExtVROCBuffer[i] = 100.0 * (curr_volume - prev_volume) / prev_volume;
+      else
+        ExtVROCBuffer[i] = ExtVROCBuffer[i - 1];
+    }
+  }
 
   /**
    * Returns the indicator's value.
@@ -71,9 +142,12 @@ class Indi_VROC : public Indicator {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_VROC::iVROC(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, _shift,
+                                  THIS_PTR);
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(),
                          /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, _shift);
         break;
       default:
