@@ -106,6 +106,7 @@ class Indi_Alligator : public Indicator {
    */
   Indi_Alligator(AlligatorParams &_p) : Indicator((IndicatorParams)_p) { params = _p; }
   Indi_Alligator(AlligatorParams &_p, ENUM_TIMEFRAMES _tf) : Indicator(INDI_ALLIGATOR, _tf) { params = _p; }
+  Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADX, _tf){};
 
   /**
    * Returns the indicator value.
