@@ -464,7 +464,7 @@ bool InitIndicators() {
   indis.Push(_indi_drawer = new Indi_Drawer(drawer_params));
 
   // "Applied Price over OHCL Indicator" indicator.
-  AppliedPriceParams applied_price_params(PRICE_HIGH);
+  AppliedPriceParams applied_price_params(PRICE_TYPICAL);
   applied_price_params.SetDraw(clrAquamarine, 0);
   PriceIndiParams applied_price_price_params;
   applied_price_params.SetDataSource(new Indi_Price(applied_price_price_params));

@@ -78,6 +78,7 @@ class Indi_ADX : public Indicator {
    */
   Indi_ADX(ADXParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
   Indi_ADX(ADXParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period, _p.applied_price), Indicator(INDI_ADX, _tf) {}
+  Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_ADX, _tf){};
 
   /**
    * Returns the indicator value.
