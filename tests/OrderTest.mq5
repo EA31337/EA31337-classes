@@ -67,7 +67,7 @@ void OnTick() {
       // No more orders to fit, closing orders.
       int _index = bar_processed - MAX_ORDERS;
       Order *_order = orders[_index];
-      switch (_order.GetData().type) {
+      switch (_order.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)) {
         case ORDER_TYPE_BUY:
           if (_order.IsOpen()) {
             string order_comment = StringFormat("Closing order: %d", _index + 1);
@@ -77,7 +77,7 @@ void OnTick() {
           break;
         case ORDER_TYPE_SELL:
           // Sell orders are expected to be closed by condition.
-          _order.Update();
+          _order.Refresh();
           break;
       }
       assertFalseOrExit(_order.IsOpen(), "Order not closed!");
@@ -93,7 +93,7 @@ void OnTick() {
  */
 bool OpenOrder(int _index, int _order_no) {
   // New request.
-  MqlTradeRequest _request = {0};
+  MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
   _request.action = TRADE_ACTION_DEAL;
   _request.comment = StringFormat("Order: %d", _order_no);
   _request.deviation = 50;
@@ -130,11 +130,13 @@ bool OpenOrder(int _index, int _order_no) {
   _result_dummy = _order_dummy.GetResult();
   assertTrueOrReturn(_result.retcode == _result.retcode, "Dummy order not completed!", false);
 
+  /* @todo
   Print("Request:  ", SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
   Print("Response: ",
         SerializerConverter::FromObject(MqlTradeResultProxy(_order.GetResult())).ToString<SerializerJson>());
   Print("Real:     ", SerializerConverter::FromObject(_order.GetData()).ToString<SerializerJson>());
   Print("Dummy:    ", SerializerConverter::FromObject(_order_dummy.GetData()).ToString<SerializerJson>());
+  */
 
   // assertTrueOrReturn(_order.GetData().price_current == _order_dummy.GetData().price_current, "Price current of dummy
   // order not correct!", false); // @fixme

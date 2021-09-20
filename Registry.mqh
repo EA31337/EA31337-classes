@@ -24,7 +24,7 @@
  * Class to provide storing mechanism.
  */
 class Registry {
-  struct data
+  struct RegistryData
   {
     string  key;
     string  val;
@@ -32,7 +32,7 @@ class Registry {
 
   int handle;
   string filename;
-  data array[], copyArray[];
+  RegistryData array[], copyArray[];
 
   public:
 

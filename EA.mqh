@@ -118,6 +118,14 @@ class EA {
     return eparams.Get<T>(_param);
   }
 
+  /**
+   * Gets a Trade's state value.
+   */
+  template <typename T>
+  T Get(ENUM_TRADE_STATE _state, string _symbol = NULL) {
+    return trade.GetByKey(_symbol != NULL ? _symbol : _Symbol).Get<T>(_state);
+  }
+
   /* Setters */
 
   /**
@@ -136,6 +144,17 @@ class EA {
     for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
       Strategy *_strat = iter.Value().Ptr();
       _strat.Set<T>(_param, _value);
+    }
+  }
+
+  /**
+   * Sets a trade parameter value for all trade instances.
+   */
+  template <typename T>
+  void Set(ENUM_TRADE_PARAM _param, T _value) {
+    for (DictObjectIterator<string, Trade> iter = trade.Begin(); iter.IsValid(); ++iter) {
+      Trade *_trade = iter.Value();
+      _trade.Set<T>(_param, _value);
     }
   }
 
@@ -178,6 +197,7 @@ class EA {
       StrategySignal _signal = _dsi.Value();
       if (_signal.CheckSignals(STRAT_SIGNAL_PROCESSED)) {
         // Ignores already processed signals.
+        // @todo: Not in use yet.
         continue;
       }
       Strategy *_strat = _signal.GetStrategy();
@@ -214,7 +234,6 @@ class EA {
             // Buy order open.
             _result &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
             if (_result && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
-              _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
               break;
             }
           }
@@ -227,12 +246,10 @@ class EA {
             // Sell order open.
             _result &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
             if (_result && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
-              _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
               break;
             }
           }
         }
-        _signal.AddSignals(STRAT_SIGNAL_PROCESSED);
         if (!_result) {
           _last_error = GetLastError();
           switch (_last_error) {
@@ -250,6 +267,8 @@ class EA {
     if (_last_error > 0) {
       logger.Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__);
     }
+    // Remove signals after processing.
+    strat_signals.Unset(_tick.time);
     return _result && _last_error == 0;
   }
 
@@ -263,7 +282,7 @@ class EA {
     bool _result = false;
     Trade *_trade = trade.GetByKey(_symbol);
     // Prepare a request.
-    MqlTradeRequest _request = _trade.GetTradeRequest(_cmd);
+    MqlTradeRequest _request = _trade.GetTradeOpenRequest(_cmd);
     _request.comment = _strat.GetOrderOpenComment();
     _request.magic = _strat.Get<long>(STRAT_PARAM_ID);
     _request.price = SymbolInfoStatic::GetOpenOffer(_symbol, _cmd);
@@ -298,9 +317,11 @@ class EA {
           Strategy *_strat = iter.Value().Ptr();
           Trade *_trade = trade.GetByKey(_Symbol);
           if (_strat.IsEnabled()) {
-            if (estate.new_periods != DATETIME_NONE) {
+            if (estate.new_periods >= DATETIME_MINUTE) {
               // Process when new periods started.
               _strat.OnPeriod(estate.new_periods);
+              _strat.ProcessTasks();
+              _trade.OnPeriod(estate.new_periods);
               eresults.stg_processed_periods++;
             }
             if (_strat.TickFilter(_tick)) {
@@ -308,12 +329,8 @@ class EA {
               _can_trade &= _can_trade && !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE,
                                                                  TRADE_STATE_TRADE_CANNOT);
               StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-              SignalAdd(_signal, _tick.time);
-              if (estate.new_periods != DATETIME_NONE) {
-                if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-                  _strat.ProcessOrders(_trade);
-                }
-                _strat.ProcessTasks();
+              if (_signal.GetSignalClose() != _signal.GetSignalOpen()) {
+                SignalAdd(_signal, _tick.time);
               }
               StgProcessResult _strat_result = _strat.GetProcessResult();
               eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
@@ -329,9 +346,13 @@ class EA {
           // On error, print logs.
           logger.Flush();
         }
+        if (estate.new_periods >= DATETIME_MINUTE) {
+          // Process data, tasks and trades on new periods.
+          ProcessTrades();
+        }
       }
       estate.last_updated.Update();
-      if (estate.new_periods > 0) {
+      if (estate.new_periods >= DATETIME_MINUTE) {
         // Process data and tasks on new periods.
         ProcessData();
         ProcessTasks();
@@ -701,6 +722,60 @@ class EA {
     return _trade.OrdersLoadByMagic(_strat.Get<long>(STRAT_PARAM_ID));
   }
 
+  /* Trade methods */
+
+  /**
+   * Process open trades.
+   *
+   * @return
+   *   Returns true on success, otherwise false.
+   */
+  bool ProcessTrades() {
+    bool _result = true;
+    ResetLastError();
+    for (DictObjectIterator<string, Trade> titer = trade.Begin(); titer.IsValid(); ++titer) {
+      Trade *_trade = titer.Value();
+      if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+        for (DictStructIterator<long, Ref<Order>> oiter = _trade.GetOrdersActive().Begin(); oiter.IsValid(); ++oiter) {
+          bool _sl_valid = false, _tp_valid = false;
+          double _sl_new = 0, _tp_new = 0;
+          Order *_order = oiter.Value().Ptr();
+          if (!_order.ShouldUpdate()) {
+            continue;
+          } else if (_order.IsClosed()) {
+            _trade.OrderMoveToHistory(_order);
+            continue;
+          }
+          ENUM_ORDER_TYPE _otype = _order.Get<ENUM_ORDER_TYPE>(ORDER_TYPE);
+          Strategy *_strat = strats.GetByKey(_order.Get<ulong>(ORDER_MAGIC)).Ptr();
+          Strategy *_strat_sl = _strat.GetStratSl();
+          Strategy *_strat_tp = _strat.GetStratTp();
+          if (_strat_sl != NULL) {
+            float _psl = _strat_sl.Get<float>(STRAT_PARAM_PSL);
+            int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
+            _sl_new = _trade.NormalizeSL(_strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl), _otype);
+            _sl_valid = _trade.IsValidOrderSL(_sl_new, _otype, _order.Get<double>(ORDER_SL), _psm > 0);
+            _sl_new = _sl_valid ? _sl_new : _order.Get<double>(ORDER_SL);
+          }
+          if (_strat_tp != NULL) {
+            float _ppl = _strat_tp.Get<float>(STRAT_PARAM_PPL);
+            int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
+            _tp_new = _trade.NormalizeTP(_strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl), _otype);
+            _tp_valid = _trade.IsValidOrderTP(_tp_new, _otype, _order.Get<double>(ORDER_TP), _ppm > 0);
+            _tp_new = _tp_valid ? _tp_new : _order.Get<double>(ORDER_TP);
+          }
+          if (_sl_valid || _tp_valid) {
+            _result &= _order.OrderModify(_sl_new, _tp_new);
+            if (_result) {
+              _order.Set(ORDER_PROP_TIME_LAST_UPDATE, TimeCurrent());
+            }
+          }
+        }
+      }
+    }
+    return _result && _LastError == ERR_NO_ERROR;
+  }
+
   /* Update methods */
 
   /**
@@ -960,7 +1035,9 @@ class EA {
     if ((estate.new_periods & DATETIME_MINUTE) != 0) {
       // New minute started.
 #ifndef __optimize__
-      logger.Flush();
+      if (Terminal::IsRealtime()) {
+        logger.Flush();
+      }
 #endif
     }
     if ((estate.new_periods & DATETIME_HOUR) != 0) {
@@ -969,6 +1046,9 @@ class EA {
     if ((estate.new_periods & DATETIME_DAY) != 0) {
       // New day started.
       UpdateLotSize();
+#ifndef __optimize__
+      logger.Flush();
+#endif
     }
     if ((estate.new_periods & DATETIME_WEEK) != 0) {
       // New week started.

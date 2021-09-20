@@ -182,7 +182,7 @@ class DictBase {
   /**
    * Returns number of used DictSlots.
    */
-  unsigned int Size() { return _DictSlots_ref._num_used; }
+  const unsigned int Size() { return _DictSlots_ref._num_used; }
 
   /**
    * Checks whether given key exists in the dictionary.

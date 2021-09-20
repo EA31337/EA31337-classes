@@ -220,5 +220,5 @@ enum INDICATOR_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_IS_LONG = 1 << 5,
   INDI_ENTRY_FLAG_IS_PRICE = 1 << 6,
   INDI_ENTRY_FLAG_IS_VALID = 1 << 7,
-  INDI_ENTRY_FLAG_INSUFFICIENT_DATA = 1 << 8,  // Entry has missing value for that shift and propbably won't ever have.
+  INDI_ENTRY_FLAG_INSUFFICIENT_DATA = 1 << 8,  // Entry has missing value for that shift and probably won't ever have.
 };

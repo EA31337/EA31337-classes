@@ -559,21 +559,25 @@ class Account {
       case ACCOUNT_COND_BAL_IN_PROFIT:
         return GetBalance() > start_balance;
       case ACCOUNT_COND_EQUITY_01PC_HIGH:
-        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 101;
+        return AccountEquity() > (GetTotalBalance()) / 100 * 101;
       case ACCOUNT_COND_EQUITY_01PC_LOW:
-        return AccountEquity() < (AccountBalance() + AccountCredit()) / 100 * 99;
+        return AccountEquity() < (GetTotalBalance()) / 100 * 99;
+      case ACCOUNT_COND_EQUITY_02PC_HIGH:
+        return AccountEquity() > (GetTotalBalance()) / 100 * 102;
+      case ACCOUNT_COND_EQUITY_02PC_LOW:
+        return AccountEquity() < (GetTotalBalance()) / 100 * 98;
       case ACCOUNT_COND_EQUITY_05PC_HIGH:
-        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 105;
+        return AccountEquity() > (GetTotalBalance()) / 100 * 105;
       case ACCOUNT_COND_EQUITY_05PC_LOW:
-        return AccountEquity() < (AccountBalance() + AccountCredit()) / 100 * 95;
+        return AccountEquity() < (GetTotalBalance()) / 100 * 95;
       case ACCOUNT_COND_EQUITY_10PC_HIGH:
-        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 110;
+        return AccountEquity() > (GetTotalBalance()) / 100 * 110;
       case ACCOUNT_COND_EQUITY_10PC_LOW:
-        return AccountEquity() < (AccountBalance() + AccountCredit()) / 100 * 90;
+        return AccountEquity() < (GetTotalBalance()) / 100 * 90;
       case ACCOUNT_COND_EQUITY_20PC_HIGH:
-        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 120;
+        return AccountEquity() > (GetTotalBalance()) / 100 * 120;
       case ACCOUNT_COND_EQUITY_20PC_LOW:
-        return AccountEquity() < (AccountBalance() + AccountCredit()) / 100 * 80;
+        return AccountEquity() < (GetTotalBalance()) / 100 * 80;
       case ACCOUNT_COND_EQUITY_IN_LOSS:
         return GetEquity() < GetTotalBalance();
       case ACCOUNT_COND_EQUITY_IN_PROFIT:

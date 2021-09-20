@@ -655,11 +655,9 @@ class Indi_MA : public Indicator {
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
+    IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
+    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
+      _entry.Resize(params.max_modes);
       _entry.timestamp = GetBarTime(_shift);
       for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
@@ -670,6 +668,8 @@ class Indi_MA : public Indicator {
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
+      } else {
+        _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
       }
     }
     return _entry;

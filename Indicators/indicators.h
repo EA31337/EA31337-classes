@@ -34,7 +34,7 @@
 #include "Indi_AO.mqh"
 #include "Indi_Alligator.mqh"
 #include "Indi_AppliedPrice.mqh"
-//#include "Indi_ASI.mqh"
+#include "Indi_ASI.mqh"
 #include "Indi_ATR.mqh"
 #include "Indi_BWMFI.mqh"
 #include "Indi_BWZT.mqh"
@@ -69,6 +69,7 @@
 #include "Indi_OBV.mqh"
 #include "Indi_OsMA.mqh"
 #include "Indi_Pattern.mqh"
+#include "Indi_Pivot.mqh"
 #include "Indi_Price.mqh"
 #include "Indi_PriceChannel.mqh"
 #include "Indi_PriceFeeder.mqh"
@@ -96,4 +97,3 @@
 
 // Special indicators.
 #include "Special/Indi_Math.mqh"
-#include "Special/Indi_Pivot.mqh"

@@ -129,12 +129,17 @@ class Dict : public DictBase<K, V> {
 
   /**
    * Returns value for a given key.
+   *
+   * @return
+   *   Returns value for a given key, otherwise the default value.
    */
   V GetByKey(const K _key, V _default = NULL) {
     unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, _key, position);
 
-    if (!slot) return _default;
+    if (!slot) {
+      return _default;
+    }
 
     return slot.value;
   }
@@ -351,11 +356,7 @@ class Dict : public DictBase<K, V> {
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
-#ifdef __MQL5__
     V _child = (V)NULL;
-#else
-    V _child;
-#endif
     while (_n1-- > 0) {
       Push(_child);
     }
