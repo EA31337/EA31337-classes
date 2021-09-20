@@ -26,7 +26,7 @@
 class Session {
 public:
 
-  struct data
+  struct SessionData
   {
     string  key;
     string  val;
@@ -34,7 +34,7 @@ public:
 
   int handle;
   string filename;
-  data array[], copyArray[];
+  SessionData array[], copyArray[];
 
   public:
 
