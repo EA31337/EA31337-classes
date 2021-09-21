@@ -59,7 +59,7 @@ class Indi_AC : public Indicator {
    * Class constructor.
    */
   Indi_AC(ACParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AC, _tf){};
+  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AC, _tf) { params.SetTf(_tf); };
 
   /**
    * Returns the indicator value.
