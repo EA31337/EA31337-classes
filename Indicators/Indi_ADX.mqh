@@ -37,7 +37,7 @@ struct ADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void ADXParams(unsigned int _period, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+  void ADXParams(unsigned int _period = 14, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : period(_period), applied_price(PRICE_TYPICAL) {
     itype = itype == INDI_NONE ? INDI_ADX : itype;
@@ -77,8 +77,7 @@ class Indi_ADX : public Indicator {
    * Class constructor.
    */
   Indi_ADX(ADXParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_ADX(ADXParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period, _p.applied_price), Indicator(INDI_ADX, _tf) {}
-  Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_ADX, _tf){};
+  Indi_ADX(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ADX, _tf) {}
 
   /**
    * Returns the indicator value.

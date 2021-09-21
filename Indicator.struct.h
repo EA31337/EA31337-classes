@@ -493,6 +493,7 @@ struct IndicatorParams {
   void SetName(string _name) { name = _name; };
   void SetShift(int _shift) { shift = _shift; }
   void SetSize(int _size) { max_buffers = _size; };
+  void SetTf(ENUM_TIMEFRAMES _tf) { tf.SetTf(_tf); }
   // Serializers.
   // SERIALIZER_EMPTY_STUB;
   // template <>
@@ -513,11 +514,7 @@ struct IndicatorState {
   IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
   // Getters.
   template <typename T>
-#ifdef __MQL4__
-  T Get(ENUM_INDICATOR_STATE_PROP _prop){
-#else
-  T Get(IndicatorState::ENUM_INDICATOR_STATE_PROP _prop) {
-#endif
+  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
     switch (_prop) {
       case INDICATOR_STATE_PROP_HANDLE:
         return (T)handle;
