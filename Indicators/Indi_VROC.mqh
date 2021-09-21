@@ -83,7 +83,7 @@ class Indi_VROC : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(

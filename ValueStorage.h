@@ -143,6 +143,14 @@ class ValueStorage : public IValueStorage {
     Alert(__FUNCSIG__, " is not supported!");
     DebugBreak();
   }
+
+  /**
+   * Sets buffer drawing attributes. Currently does nothing.
+   */
+  bool PlotIndexSetInteger(int prop_id, int prop_modifier_or_value, int prop_value) {
+    // @todo Implementation.
+    return true;
+  }
 };
 
 /**

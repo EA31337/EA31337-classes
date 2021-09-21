@@ -66,7 +66,7 @@ class Indi_WilliamsAD : public Indicator {
   }
 
   /**
-   * Calculates AMVolumes on the array of values.
+   * Calculates William's AD on the array of values.
    */
   static double iWADOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
                             IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
@@ -77,7 +77,7 @@ class Indi_WilliamsAD : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(

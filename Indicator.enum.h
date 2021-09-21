@@ -127,10 +127,11 @@ enum ENUM_INDICATOR_TYPE {
 
 /* Defines type of source data for indicator. */
 enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILTIN,    // Platform built-in
-  IDATA_ICUSTOM,    // iCustom: Custom indicator file
-  IDATA_INDICATOR,  // OnIndicator: Another indicator as a source of data
-  IDATA_MATH        // Math-based indicator
+  IDATA_BUILTIN,         // Platform built-in
+  IDATA_ICUSTOM,         // iCustom: Custom indicator file
+  IDATA_ICUSTOM_LEGACY,  // iCustom: Custom, legacy, provided by MT indicator file
+  IDATA_INDICATOR,       // OnIndicator: Another indicator as a source of data
+  IDATA_MATH             // Math-based indicator
 };
 
 /* Defines range value data type for indicator storage. */

@@ -169,7 +169,7 @@ class Indi_MA : public Indicator {
       }
 
       if (recalculate) {
-        _cache.SetPrevCalculated(0);
+        _cache.ResetPrevCalculated();
       }
 
       _cache.SetPrevCalculated(
@@ -367,6 +367,18 @@ class Indi_MA : public Indicator {
     for (i = limit; i < rates_total && !IsStopped(); i++)
       ExtLineBuffer[i] = (ExtLineBuffer[i - 1] * (InpMAPeriod - 1) + price[i].Get()) / InpMAPeriod;
     //---
+  }
+
+  static double ExponentialMA(const int position, const int period, const double prev_value,
+                              ValueStorage<double> &price) {
+    double result = 0.0;
+    //--- check period
+    if (period > 0) {
+      double pr = 2.0 / (period + 1.0);
+      result = price[position] * pr + prev_value * (1 - pr);
+    }
+
+    return (result);
   }
 
   static int ExponentialMAOnBuffer(const int rates_total, const int prev_calculated, const int begin, const int period,
@@ -682,6 +694,21 @@ class Indi_MA : public Indicator {
     MqlParam _param = {TYPE_DOUBLE};
     GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
+  }
+
+  /**
+   * Returns reusable indicator.
+   */
+  static Indi_MA *GetCached(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _ma_shift, ENUM_MA_METHOD _ma_method,
+                            ENUM_APPLIED_PRICE _ap) {
+    Indi_MA *_ptr;
+    string _key = Util::MakeKey(_symbol, (int)_tf, _period, _ma_shift, (int)_ma_method, (int)_ap);
+    if (!Objects<Indi_MA>::TryGet(_key, _ptr)) {
+      MAParams _params(_period, _ma_shift, _ma_method, _ap);
+      _ptr = Objects<Indi_MA>::Set(_key, new Indi_MA(_params));
+      _ptr.SetSymbol(_symbol);
+    }
+    return _ptr;
   }
 
   /* Getters */

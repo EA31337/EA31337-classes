@@ -83,7 +83,7 @@ class Indi_Volumes : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(Indi_Volumes::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),

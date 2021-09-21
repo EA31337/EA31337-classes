@@ -347,19 +347,6 @@ bool InitIndicators() {
   StochParams stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
   indis.Push(new Indi_Stochastic(stoch_params));
 
-  // Triple Exponential Moving Average (TEMA).
-  // @todo
-  // indis.Push(new Indi_TEMA(tema_params));
-  // Triple Exponential Moving Averages Oscillator (TRIX).
-  // @todo
-  // indis.Push(new Indi_TRIX(trix_params));
-  // Variable Index Dynamic Average (VIDYA).
-  // @todo
-  // indis.Push(new Indi_VIDYA(vidya_params));
-  // Volumes.
-  // @todo
-  // indis.Push(new Indi_Volumes(vol_params));
-
   // Williams' Percent Range (WPR).
   WPRParams wpr_params(14);
   indis.Push(new Indi_WPR(wpr_params));
@@ -486,35 +473,25 @@ bool InitIndicators() {
   CHVParams chv_params();
   indis.Push(new Indi_CHV(chv_params));
 
-// Color Bars.
-#ifdef __MQL5__
+  // Color Bars.
   ColorBarsParams color_bars_params();
   indis.Push(new Indi_ColorBars(color_bars_params));
-#endif
 
-// Color Candles Daily.
-#ifdef __MQL5__
+  // Color Candles Daily.
   ColorCandlesDailyParams color_candles_daily_params();
   indis.Push(new Indi_ColorCandlesDaily(color_candles_daily_params));
-#endif
 
-// Color Line.
-#ifdef __MQL5__
+  // Color Line.
   ColorLineParams color_line_params();
   indis.Push(new Indi_ColorLine(color_line_params));
-#endif
 
-// Detrended Price Oscillator.
-#ifdef __MQL5__
+  // Detrended Price Oscillator.
   DetrendedPriceParams detrended_params();
   indis.Push(new Indi_DetrendedPrice(detrended_params));
-#endif
 
-// Mass Index.
-#ifdef __MQL5__
+  // Mass Index.
   MassIndexParams mass_index_params();
   indis.Push(new Indi_MassIndex(mass_index_params));
-#endif
 
 // Price Channel.
 #ifdef __MQL5__
@@ -522,45 +499,33 @@ bool InitIndicators() {
   indis.Push(new Indi_PriceChannel(price_channel_params));
 #endif
 
-// Price Volume Trend.
-#ifdef __MQL5__
+  // Price Volume Trend.
   PriceVolumeTrendParams price_volume_trend_params();
   indis.Push(new Indi_PriceVolumeTrend(price_volume_trend_params));
-#endif
 
-// Bill Williams' Zone Trade.
-#ifdef __MQL5__
+  // Bill Williams' Zone Trade.
   BWZTParams bwzt_params();
   indis.Push(new Indi_BWZT(bwzt_params));
-#endif
 
   // Rate of Change.
   RateOfChangeParams rate_of_change_params();
   indis.Push(new Indi_RateOfChange(rate_of_change_params));
 
-// Triple Exponential Moving Average.
-#ifdef __MQL5__
+  // Triple Exponential Moving Average.
   TEMAParams tema_params();
   indis.Push(new Indi_TEMA(tema_params));
-#endif
 
-// Triple Exponential Average.
-#ifdef __MQL5__
+  // Triple Exponential Average.
   TRIXParams trix_params();
   indis.Push(new Indi_TRIX(trix_params));
-#endif
 
-// Ultimate Oscillator.
-#ifdef __MQL5__
+  // Ultimate Oscillator.
   UltimateOscillatorParams ultimate_oscillator_params();
   indis.Push(new Indi_UltimateOscillator(ultimate_oscillator_params));
-#endif
 
-// VIDYA.
-#ifdef __MQL5__
+  // VIDYA.
   VIDYAParams vidya_params();
   indis.Push(new Indi_VIDYA(vidya_params));
-#endif
 
   // Volumes.
   VolumesParams volumes_params();
@@ -622,7 +587,7 @@ bool InitIndicators() {
   }
 
   // Push white-listed indicators here.
-  // whitelisted_indis.Push(_indi_uo);
+  // whitelisted_indis.Push(_indi_test);
 
   return GetLastError() == ERR_NO_ERROR;
 }

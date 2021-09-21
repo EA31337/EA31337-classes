@@ -91,7 +91,7 @@ class Indi_TRIX : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(Indi_TRIX::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
