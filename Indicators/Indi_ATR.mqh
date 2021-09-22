@@ -34,7 +34,7 @@ double iATR(string _symbol, int _tf, int _period, int _shift) {
 struct ATRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void ATRParams(unsigned int _period, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
+  void ATRParams(unsigned int _period = 14, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : period(_period) {
     itype = INDI_ATR;
     max_modes = 1;
@@ -62,8 +62,8 @@ class Indi_ATR : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_ATR(ATRParams &_p) : Indicator((IndicatorParams)_p), params(_p) {}
-  Indi_ATR(ATRParams &_p, ENUM_TIMEFRAMES _tf) : Indicator(INDI_ATR, _tf), params(_p) {}
+  Indi_ATR(ATRParams &_p) : params(_p.period), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ATR, _tf) { params.SetTf(_tf); };
 
   /**
    * Returns the indicator value.
