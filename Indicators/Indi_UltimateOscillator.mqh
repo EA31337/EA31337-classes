@@ -138,6 +138,7 @@ class Indi_UltimateOscillator : public Indicator {
                        int InpSlowK, Indicator *ExtFastATRhandle, Indicator *ExtMiddleATRhandle,
                        Indicator *ExtSlowATRhandle) {
     double ExtDivider = InpFastK + InpMiddleK + InpSlowK;
+    double true_low;
     int ExtMaxPeriod = InpSlowPeriod;
     if (ExtMaxPeriod < InpMiddlePeriod) ExtMaxPeriod = InpMiddlePeriod;
     if (ExtMaxPeriod < InpFastPeriod) ExtMaxPeriod = InpFastPeriod;
@@ -175,9 +176,6 @@ class Indi_UltimateOscillator : public Indicator {
       return (0);
     }
 
-    Print(DoubleToString(ExtFastATRBuffer.FetchSeries(2), 8), ", ", DoubleToString(ExtFastATRBuffer.FetchSeries(1), 8),
-          ", ", DoubleToString(ExtFastATRBuffer.FetchSeries(0), 8));
-
     if (IsStopped())  // checking for stop flag
       return (0);
     if (CopyBuffer(ExtMiddleATRhandle, 0, 0, to_copy, ExtMiddleATRBuffer, rates_total) <= 0) {
@@ -198,7 +196,7 @@ class Indi_UltimateOscillator : public Indicator {
       //--- set value for first InpSlowPeriod bars
       for (i = 1; i <= InpSlowPeriod; i++) {
         ExtUOBuffer[i] = 0.0;
-        double true_low = MathMin(low[i].Get(), close[i - 1].Get());
+        true_low = MathMin(low[i].Get(), close[i - 1].Get());
         ExtBPBuffer[i] = close[i] - true_low;
       }
       //--- now we are going to calculate from start index in main loop
@@ -207,7 +205,7 @@ class Indi_UltimateOscillator : public Indicator {
       start = prev_calculated - 1;
     //--- the main loop of calculations
     for (i = start; i < rates_total && !IsStopped(); i++) {
-      double true_low = MathMin(low[i].Get(), close[i - 1].Get());
+      true_low = MathMin(low[i].Get(), close[i - 1].Get());
       ExtBPBuffer[i] = close[i] - true_low;  // buying pressure
 
       if (ExtFastATRBuffer[i] != 0.0 && ExtMiddleATRBuffer[i] != 0.0 && ExtSlowATRBuffer[i] != 0.0) {

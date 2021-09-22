@@ -79,20 +79,12 @@ class Indi_ZigZag : public Indicator {
    */
   static double iCustomZigZag(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _depth, int _deviation,
                               int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
-    return ::iCustom(_symbol, _tf, _name, _depth, _deviation, _backstep, _mode, _shift);
-  }
-
-  /**
-   * Returns value for ZigZag indicator.
-   */
-  static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep,
-                        ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
-#ifdef __MQL5___
+#ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep)) == INVALID_HANDLE) {
+      if ((_handle = ::iCustom(_symbol, _tf, _name, _depth, _deviation, _backstep)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
       } else if (Object::IsValid(_obj)) {
@@ -115,11 +107,19 @@ class Indi_ZigZag : public Indicator {
     }
     return _res[0];
 #else
+    return ::iCustom(_symbol, _tf, _name, _depth, _deviation, _backstep, _mode, _shift);
+#endif
+  }
+
+  /**
+   * Returns value for ZigZag indicator.
+   */
+  static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep,
+                        ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf,
                                                        Util::MakeKey("Indi_ZigZag", _depth, _deviation, _backstep));
     return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
                           _cache);
-#endif
   }
 
   /**

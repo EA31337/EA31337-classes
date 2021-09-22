@@ -98,7 +98,7 @@ class Indi_ColorLine : public Indicator {
                        ValueStorage<double> &ExtColorsBuffer, Indicator *ExtMAHandle) {
     static int ticks = 0, modified = 0;
     //--- check data
-    int calculated = BarsCalculated(ExtMAHandle, rates_total);
+    int i, calculated = BarsCalculated(ExtMAHandle, rates_total);
     if (calculated < rates_total) {
       Print("Not all data of ExtMAHandle is calculated (", calculated, " bars). Error ", GetLastError());
       return (0);
@@ -108,7 +108,7 @@ class Indi_ColorLine : public Indicator {
       //--- copy values of MA into indicator buffer ExtColorLineBuffer
       if (CopyBuffer(ExtMAHandle, 0, 0, rates_total, ExtColorLineBuffer, rates_total) <= 0) return (0);
       //--- now set line color for every bar
-      for (int i = 0; i < rates_total && !IsStopped(); i++) ExtColorsBuffer[i] = GetIndexOfColor(i);
+      for (i = 0; i < rates_total && !IsStopped(); i++) ExtColorsBuffer[i] = GetIndexOfColor(i);
     } else {
       //--- we can copy not all data
       int to_copy;
@@ -148,7 +148,7 @@ class Indi_ColorLine : public Indicator {
         //--- set start position
         int start = prev_calculated - 1;
         //--- now we set line color for every bar
-        for (int i = start; i < rates_total && !IsStopped(); i++) ExtColorsBuffer[i] = GetIndexOfColor(i);
+        for (i = start; i < rates_total && !IsStopped(); i++) ExtColorsBuffer[i] = GetIndexOfColor(i);
       }
     }
     //--- return value of prev_calculated for next call
