@@ -116,7 +116,6 @@ double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
 Indi_Drawer *_indi_drawer;
-Indicator *_indi_test;
 
 /**
  * Implements Init event handler.
@@ -354,7 +353,7 @@ bool InitIndicators() {
 
   // ZigZag.
   ZigZagParams zz_params(12, 5, 3);
-  indis.Push(_indi_test = new Indi_ZigZag(zz_params));
+  indis.Push(new Indi_ZigZag(zz_params));
 
   /* Special indicators */
 
@@ -452,10 +451,10 @@ bool InitIndicators() {
   indis.Push(_indi_drawer = new Indi_Drawer(drawer_params));
 
   // "Applied Price over OHCL Indicator" indicator.
-  AppliedPriceParams applied_price_params(PRICE_TYPICAL);
+  AppliedPriceParams applied_price_params();
   applied_price_params.SetDraw(clrAquamarine, 0);
   PriceIndiParams applied_price_price_params;
-  applied_price_params.SetDataSource(new Indi_Price(applied_price_price_params));
+  applied_price_params.SetDataSource(new Indi_Price(applied_price_price_params), PRICE_TYPICAL);
   indis.Push(new Indi_AppliedPrice(applied_price_params));
 
   // ADXW.
@@ -588,7 +587,7 @@ bool InitIndicators() {
   }
 
   // Push white-listed indicators here.
-  whitelisted_indis.Push(_indi_test);
+  // whitelisted_indis.Push(_indi_test);
 
   return GetLastError() == ERR_NO_ERROR;
 }
