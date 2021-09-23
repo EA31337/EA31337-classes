@@ -45,9 +45,9 @@ class Chart;
 #include "Serializer.mqh"
 #include "SerializerCsv.mqh"
 #include "SerializerJson.mqh"
-#include "ValueStorage.h"
-#include "ValueStorage.indicator.h"
-#include "ValueStorage.native.h"
+#include "Storage/ValueStorage.h"
+#include "Storage/ValueStorage.indicator.h"
+#include "Storage/ValueStorage.native.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).

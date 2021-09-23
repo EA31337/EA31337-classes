@@ -23,7 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../ValueStorage.price.h"
+#include "../Storage/ValueStorage.price.h"
 
 // Structs.
 struct VIDYAParams : IndicatorParams {

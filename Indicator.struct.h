@@ -42,7 +42,7 @@ struct ChartParams;
 #include "Indicator.enum.h"
 #include "Indicator.struct.cache.h"
 #include "SerializerNode.enum.h"
-#include "ValueStorage.indicator.h"
+#include "Storage/ValueStorage.indicator.h"
 
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {

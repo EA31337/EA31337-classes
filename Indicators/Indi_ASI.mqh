@@ -23,7 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../ValueStorage.all.h"
+#include "../Storage/ValueStorage.all.h"
 
 // Structs.
 struct ASIParams : IndicatorParams {

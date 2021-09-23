@@ -29,9 +29,9 @@
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
 #include "../Refs.mqh"
-#include "../Singleton.h"
+#include "../Storage/Singleton.h"
+#include "../Storage/ValueStorage.h"
 #include "../String.mqh"
-#include "../ValueStorage.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).

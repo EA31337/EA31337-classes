@@ -49,13 +49,13 @@
 #include "../EA.mqh"
 #include "../File.mqh"
 #include "../ISerializable.h"
-#include "../IValueStorage.h"
 #include "../Indicator.define.h"
 #include "../Indicator.mqh"
 #include "../IndicatorData.mqh"
 #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
+#include "../Storage/IValueStorage.h"
 //#include "../MQL4.mqh" // @removeme
 //#include "../MQL5.mqh" // @removeme
 #include "../Mail.mqh"
@@ -65,8 +65,6 @@
 #include "../MiniMatrix.h"
 #include "../Msg.mqh"
 #include "../Object.mqh"
-#include "../Objects.h"
-#include "../ObjectsCache.h"
 #include "../Order.mqh"
 #include "../Orders.mqh"
 #include "../Pattern.mqh"
@@ -76,6 +74,8 @@
 #include "../Registry.mqh"
 #include "../RegistryBinary.mqh"
 #include "../Report.mqh"
+#include "../Storage/Objects.h"
+#include "../Storage/ObjectsCache.h"
 // #include "../SVG.mqh" // @removeme
 #include "../Serializer.mqh"
 #include "../SerializerBinary.mqh"
@@ -91,10 +91,10 @@
 #include "../SerializerSqlite.mqh"
 #include "../Session.mqh"
 #include "../SetFile.mqh"
-#include "../Singleton.h"
 #include "../Socket.mqh"
 #include "../Stats.mqh"
 #include "../Std.h"
+#include "../Storage/Singleton.h"
 #include "../Strategy.mqh"
 #include "../String.mqh"
 #include "../SummaryReport.mqh"
@@ -102,12 +102,12 @@
 #include "../Task.mqh"
 #include "../Terminal.mqh"
 // #include "../Tester.mqh" // @removeme
+#include "../Storage/ValueStorage.h"
 #include "../Tests.mqh"
 #include "../Ticker.mqh"
 #include "../Timer.mqh"
 #include "../Trade.mqh"
 #include "../Util.h"
-#include "../ValueStorage.h"
 #include "../Web.mqh"
 
 // Includes indicator files.
