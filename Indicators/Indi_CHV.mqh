@@ -139,17 +139,14 @@ class Indi_CHV : public Indicator {
     CalculateInit(InpSmoothPeriod, InpCHVPeriod, InpSmoothType, ExtSmoothPeriod, ExtCHVPeriod);
 
     int i, pos, pos_chv;
-    //--- check for rates total
+    // Check for rates total.
     pos_chv = ExtCHVPeriod + ExtSmoothPeriod - 2;
     if (rates_total < pos_chv) return (0);
-    //--- start working
-    if (prev_calculated < 1)
-      pos = 0;
-    else
-      pos = prev_calculated - 1;
-    //--- fill H-L(i) buffer
+    // Start working.
+    pos = (prev_calculated < 1) ? 0 : prev_calculated - 1;
+    // Fill H-L(i) buffer.
     for (i = pos; i < rates_total && !IsStopped(); i++) ExtHLBuffer[i] = high[i] - low[i];
-    //--- calculate smoothed H-L(i) buffer
+    // Calculate smoothed H-L(i) buffer.
     if (pos < ExtSmoothPeriod - 1) {
       pos = ExtSmoothPeriod - 1;
       for (i = 0; i < pos; i++) ExtSHLBuffer[i] = 0.0;
@@ -158,9 +155,9 @@ class Indi_CHV : public Indicator {
       Indi_MA::SimpleMAOnBuffer(rates_total, prev_calculated, 0, ExtSmoothPeriod, ExtHLBuffer, ExtSHLBuffer);
     else
       Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, 0, ExtSmoothPeriod, ExtHLBuffer, ExtSHLBuffer);
-    //--- correct calc position
+    // Correct calc position.
     if (pos < pos_chv) pos = pos_chv;
-    //--- calculate CHV buffer
+    // Calculate CHV buffer.
     for (i = pos; i < rates_total && !IsStopped(); i++) {
       if (ExtSHLBuffer[i - ExtCHVPeriod] != 0.0)
         ExtCHVBuffer[i] =
@@ -168,7 +165,6 @@ class Indi_CHV : public Indicator {
       else
         ExtCHVBuffer[i] = 0.0;
     }
-    //---
     return (rates_total);
   }
 

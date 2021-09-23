@@ -199,7 +199,7 @@ class Indi_ADXW : public Indicator {
    */
   static double SmoothedMA(const int position, const int period, const double prev_value, ValueStorage<double> &price) {
     double result = 0.0;
-    //--- check period
+    // Check period.
     if (period > 0 && period <= (position + 1)) {
       if (position == period - 1) {
         for (int i = 0; i < period; i++) result += price[position - i].Get();

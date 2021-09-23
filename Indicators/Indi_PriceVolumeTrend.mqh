@@ -101,19 +101,18 @@ class Indi_PriceVolumeTrend : public Indicator {
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtPVTBuffer,
                        ENUM_APPLIED_VOLUME InpVolumeType) {
     if (rates_total < 2) return (0);
-    //--- start calculation
     int pos = prev_calculated - 1;
-    //--- correct position, when it's first iteration
+    // Correct position, when it's first iteration.
     if (pos < 0) {
       pos = 1;
       ExtPVTBuffer[0] = 0.0;
     }
-    //--- main cycle
+    // Main cycle.
     if (InpVolumeType == VOLUME_TICK)
       CalculatePVT(pos, rates_total, close, tick_volume, ExtPVTBuffer);
     else
       CalculatePVT(pos, rates_total, close, volume, ExtPVTBuffer);
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 
@@ -121,7 +120,7 @@ class Indi_PriceVolumeTrend : public Indicator {
                            ValueStorage<long> &volume, ValueStorage<double> &ExtPVTBuffer) {
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       double prev_close = close[i - 1].Get();
-      //--- calculate PVT value
+      // Calculate PVT value.
       if (prev_close != 0)
         ExtPVTBuffer[i] = ((close[i] - prev_close) / prev_close) * volume[i].Get() + ExtPVTBuffer[i - 1].Get();
       else

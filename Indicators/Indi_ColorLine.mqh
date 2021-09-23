@@ -97,20 +97,20 @@ class Indi_ColorLine : public Indicator {
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtColorLineBuffer,
                        ValueStorage<double> &ExtColorsBuffer, Indicator *ExtMAHandle) {
     static int ticks = 0, modified = 0;
-    //--- check data
+    // Check data.
     int i, calculated = BarsCalculated(ExtMAHandle, rates_total);
     if (calculated < rates_total) {
       Print("Not all data of ExtMAHandle is calculated (", calculated, " bars). Error ", GetLastError());
       return (0);
     }
-    //--- first calculation or number of bars was changed
+    // First calculation or number of bars was changed.
     if (prev_calculated == 0) {
-      //--- copy values of MA into indicator buffer ExtColorLineBuffer
+      // Copy values of MA into indicator buffer ExtColorLineBuffer.
       if (CopyBuffer(ExtMAHandle, 0, 0, rates_total, ExtColorLineBuffer, rates_total) <= 0) return (0);
-      //--- now set line color for every bar
+      // Now set line color for every bar.
       for (i = 0; i < rates_total && !IsStopped(); i++) ExtColorsBuffer[i] = GetIndexOfColor(i);
     } else {
-      //--- we can copy not all data
+      // We can copy not all data.
       int to_copy;
       if (prev_calculated > rates_total || prev_calculated < 0)
         to_copy = rates_total;
@@ -118,50 +118,59 @@ class Indi_ColorLine : public Indicator {
         to_copy = rates_total - prev_calculated;
         if (prev_calculated > 0) to_copy++;
       }
-      //--- copy values of MA into indicator buffer ExtColorLineBuffer
+      // Copy values of MA into indicator buffer ExtColorLineBuffer.
       int copied = CopyBuffer(ExtMAHandle, 0, 0, rates_total, ExtColorLineBuffer, rates_total);
       if (copied <= 0) return (0);
 
-      ticks++;         // ticks counting
-      if (ticks >= 5)  // it's time to change color scheme
-      {
-        ticks = 0;                        // reset counter
-        modified++;                       // counter of color changes
-        if (modified >= 3) modified = 0;  // reset counter
+      ticks++;
+      if (ticks >= 5) {
+        // Time to change color scheme.
+        ticks = 0;
+        // Counter of color changes.
+        modified++;
+        if (modified >= 3) modified = 0;
         switch (modified) {
-          case 0:  // first color scheme
+          case 0:
+            // First color scheme.
             ExtColorLineBuffer.PlotIndexSetInteger(PLOT_LINE_COLOR, 0, Red);
             ExtColorLineBuffer.PlotIndexSetInteger(PLOT_LINE_COLOR, 1, Blue);
             ExtColorLineBuffer.PlotIndexSetInteger(PLOT_LINE_COLOR, 2, Green);
             break;
-          case 1:  // second color scheme
+          case 1:
+            // Second color scheme.
             ExtColorLineBuffer.PlotIndexSetInteger(PLOT_LINE_COLOR, 0, Yellow);
             ExtColorLineBuffer.PlotIndexSetInteger(PLOT_LINE_COLOR, 1, Pink);
             ExtColorLineBuffer.PlotIndexSetInteger(PLOT_LINE_COLOR, 2, LightSlateGray);
             break;
-          default:  // third color scheme
+          default:
+            // Third color scheme.
             ExtColorLineBuffer.PlotIndexSetInteger(PLOT_LINE_COLOR, 0, LightGoldenrod);
             ExtColorLineBuffer.PlotIndexSetInteger(PLOT_LINE_COLOR, 1, Orchid);
             ExtColorLineBuffer.PlotIndexSetInteger(PLOT_LINE_COLOR, 2, LimeGreen);
         }
       } else {
-        //--- set start position
+        // Set start position.
         int start = prev_calculated - 1;
-        //--- now we set line color for every bar
+        // Now we set line color for every bar.
         for (i = start; i < rates_total && !IsStopped(); i++) ExtColorsBuffer[i] = GetIndexOfColor(i);
       }
     }
-    //--- return value of prev_calculated for next call
+    // Return value of prev_calculated for next call.
     return (rates_total);
   }
 
   static int GetIndexOfColor(const int i) {
     int j = i % 300;
-    if (j < 100)  // first index
+    if (j < 100) {
+      // First index.
       return (0);
-    if (j < 200)  // second index
+    }
+    if (j < 200) {
+      // Second index.
       return (1);
-    return (2);  // third index
+    }
+    // Third index.
+    return (2);
   }
 
   /**

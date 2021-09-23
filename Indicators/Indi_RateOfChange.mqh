@@ -100,17 +100,17 @@ class Indi_RateOfChange : public Indicator {
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &ExtRocBuffer, int ExtRocPeriod) {
     if (rates_total < ExtRocPeriod) return (0);
-    //--- preliminary calculations
+    // Preliminary calculations.
     int pos = prev_calculated - 1;
     if (pos < ExtRocPeriod) pos = ExtRocPeriod;
-    //--- the main loop of calculations
+    // The main loop of calculations.
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       if (price[i] == 0.0)
         ExtRocBuffer[i] = 0.0;
       else
         ExtRocBuffer[i] = (price[i] - price[i - ExtRocPeriod]) / price[i].Get() * 100;
     }
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 

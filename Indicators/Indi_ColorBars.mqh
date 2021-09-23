@@ -95,26 +95,23 @@ class Indi_ColorBars : public Indicator {
                        ValueStorage<double> &ExtCloseBuffer, ValueStorage<double> &ExtColorsBuffer) {
     int i = 0;
     bool vol_up = true;
-    //--- set position for beginning
+    // Set position for beginning.
     if (i < prev_calculated) i = prev_calculated - 1;
-    //--- start calculations
+    // Start calculations.
     while (i < rates_total && !IsStopped()) {
       ExtOpenBuffer[i] = open[i];
       ExtHighBuffer[i] = high[i];
       ExtLowBuffer[i] = low[i];
       ExtCloseBuffer[i] = close[i];
-      //--- determine volume change
+      // Determine volume change.
       if (i > 0) {
         if (tick_volume[i] > tick_volume[i - 1]) vol_up = true;
         if (tick_volume[i] < tick_volume[i - 1]) vol_up = false;
       }
-      if (vol_up)
-        ExtColorsBuffer[i] = 0.0;
-      else
-        ExtColorsBuffer[i] = 1.0;
+      ExtColorsBuffer[i] = vol_up ? 0.0 : 1.0;
       i++;
     }
-    //--- return value of prev_calculated for next call
+    // Return value of prev_calculated for next call.
     return (rates_total);
   }
 

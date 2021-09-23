@@ -159,7 +159,7 @@ class Indi_ZigZag : public Indicator {
     int shift = 0, back = 0, last_high_pos = 0, last_low_pos = 0;
     double val = 0, res = 0;
     double curlow = 0, curhigh = 0, last_high = 0, last_low = 0;
-    //--- initializing
+    // Initializing.
     if (prev_calculated == 0) {
       ArrayInitialize(ZigZagBuffer, 0.0);
       ArrayInitialize(HighMapBuffer, 0.0);
@@ -167,10 +167,10 @@ class Indi_ZigZag : public Indicator {
       start = InpDepth;
     }
 
-    //--- ZigZag was already calculated before
+    // ZigZag was already calculated before.
     if (prev_calculated > 0) {
       i = rates_total - 1;
-      //--- searching for the third extremum from the last uncompleted bar
+      // Searching for the third extremum from the last uncompleted bar.
       while (extreme_counter < ExtRecalc && i > rates_total - 100) {
         res = ZigZagBuffer[i].Get();
         if (res != 0.0) extreme_counter++;
@@ -179,7 +179,7 @@ class Indi_ZigZag : public Indicator {
       i++;
       start = i;
 
-      //--- what type of exremum we search for
+      // What type of extremum we search for.
       if (LowMapBuffer[i] != 0.0) {
         curlow = LowMapBuffer[i].Get();
         extreme_search = Peak;
@@ -187,7 +187,7 @@ class Indi_ZigZag : public Indicator {
         curhigh = HighMapBuffer[i].Get();
         extreme_search = Bottom;
       }
-      //--- clear indicator values
+      // Clear indicator values.
       for (i = start + 1; i < rates_total && !IsStopped(); i++) {
         ZigZagBuffer[i] = 0.0;
         LowMapBuffer[i] = 0.0;
@@ -195,51 +195,45 @@ class Indi_ZigZag : public Indicator {
       }
     }
 
-    //--- searching for high and low extremes
+    // Searching for high and low extremes.
     for (shift = start; shift < rates_total && !IsStopped(); shift++) {
-      //--- low
+      // Low.
       val = low[Lowest(low, InpDepth, shift)].Get();
-      if (val == last_low)
+      if (val == last_low) {
         val = 0.0;
-      else {
+      } else {
         last_low = val;
-        if ((low[shift] - val) > InpDeviation * _Point)
+        if ((low[shift] - val) > InpDeviation * _Point) {
           val = 0.0;
-        else {
+        } else {
           for (back = 1; back <= InpBackstep; back++) {
             res = LowMapBuffer[shift - back].Get();
             if ((res != 0) && (res > val)) LowMapBuffer[shift - back] = 0.0;
           }
         }
       }
-      if (low[shift] == val)
-        LowMapBuffer[shift] = val;
-      else
-        LowMapBuffer[shift] = 0.0;
-      //--- high
+      LowMapBuffer[shift] = (low[shift] == val) ? val : 0.0;
+      // High.
       val = high[Highest(high, InpDepth, shift)].Get();
-      if (val == last_high)
+      if (val == last_high) {
         val = 0.0;
-      else {
+      } else {
         last_high = val;
-        if ((val - high[shift].Get()) > InpDeviation * _Point)
+        if ((val - high[shift].Get()) > InpDeviation * _Point) {
           val = 0.0;
-        else {
+        } else {
           for (back = 1; back <= InpBackstep; back++) {
             res = HighMapBuffer[shift - back].Get();
             if ((res != 0) && (res < val)) HighMapBuffer[shift - back] = 0.0;
           }
         }
       }
-      if (high[shift] == val)
-        HighMapBuffer[shift] = val;
-      else
-        HighMapBuffer[shift] = 0.0;
+      HighMapBuffer[shift] = (high[shift] == val) ? val : 0.0;
     }
 
-    //--- set last values
-    if (extreme_search == 0)  // undefined values
-    {
+    // Set last values.
+    if (extreme_search == 0) {
+      // Undefined values.
       last_low = 0.0;
       last_high = 0.0;
     } else {
@@ -247,7 +241,7 @@ class Indi_ZigZag : public Indicator {
       last_high = curhigh;
     }
 
-    //--- final selection of extreme points for ZigZag
+    // Final selection of extreme points for ZigZag.
     for (shift = start; shift < rates_total && !IsStopped(); shift++) {
       res = 0.0;
       switch (extreme_search) {
@@ -304,7 +298,7 @@ class Indi_ZigZag : public Indicator {
       }
     }
 
-    //--- return value of prev_calculated for next call
+    // Return value of prev_calculated for next call.
     return (rates_total);
   }
 
@@ -316,15 +310,15 @@ class Indi_ZigZag : public Indicator {
 
     double max = array[start].Get();
     int index = start;
-    //--- start searching
+    // Start searching.
     for (int i = start - 1; i > start - depth && i >= 0; i--) {
       if (array[i] > max) {
         index = i;
         max = array[i].Get();
       }
     }
-    //--- return index of the highest bar
-    return (index);
+    // Return index of the highest bar.
+    return index;
   }
 
   /**
@@ -335,15 +329,15 @@ class Indi_ZigZag : public Indicator {
 
     double min = array[start].Get();
     int index = start;
-    //--- start searching
+    // Start searching.
     for (int i = start - 1; i > start - depth && i >= 0; i--) {
       if (array[i] < min) {
         index = i;
         min = array[i].Get();
       }
     }
-    //--- return index of the lowest bar
-    return (index);
+    // Return index of the lowest bar.
+    return index;
   }
 
   /**

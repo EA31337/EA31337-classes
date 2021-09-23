@@ -90,46 +90,41 @@ class Indi_WilliamsAD : public Indicator {
    * OnCalculate() method for Williams' AD indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtWADBuffer) {
-    //---
     if (rates_total < 2) return (0);
-    //--- start working
     int pos = prev_calculated - 1;
     if (pos < 1) {
       pos = 1;
       ExtWADBuffer[0] = 0.0;
     }
-    //--- main cycle
+    // Main cycle.
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
-      //--- get data
+      // Get data.
       double hi = high[i].Get();
       double lo = low[i].Get();
       double cl = close[i].Get();
       double prev_cl = close[i - 1].Get();
-      //--- calculate TRH and TRL
+      // Calculate TRH and TRL.
       double trh = MathMax(hi, prev_cl);
       double trl = MathMin(lo, prev_cl);
-      //--- calculate WA/D
+      // Calculate WA/D.
       if (IsEqualDoubles(cl, prev_cl, _Point)) {
         ExtWADBuffer[i] = ExtWADBuffer[i - 1];
       } else {
-        if (cl > prev_cl)
-          ExtWADBuffer[i] = ExtWADBuffer[i - 1] + cl - trl;
-        else
-          ExtWADBuffer[i] = ExtWADBuffer[i - 1] + cl - trh;
+        ExtWADBuffer[i] = (cl > prev_cl) ? ExtWADBuffer[i - 1] + cl - trl : ExtWADBuffer[i - 1] + cl - trh;
       }
     }
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 
   static bool IsEqualDoubles(double d1, double d2, double epsilon) {
     if (epsilon < 0.0) epsilon = -epsilon;
     if (epsilon > 0.1) epsilon = 0.00001;
-    //---
     double diff = d1 - d2;
-    if (diff > epsilon || diff < -epsilon) return (false);
-    //---
-    return (true);
+    if (diff > epsilon || diff < -epsilon) {
+      return (false);
+    }
+    return true;
   }
 
   /**

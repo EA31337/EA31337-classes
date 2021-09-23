@@ -105,18 +105,18 @@ class Indi_DetrendedPrice : public Indicator {
 
     int start;
     int first_index = begin + ExtMAPeriod - 1;
-    //--- preliminary filling
+    // Preliminary filling.
     if (prev_calculated < first_index) {
       ArrayInitialize(ExtDPOBuffer, 0.0);
       start = first_index;
       if (begin > 0) PlotIndexSetInteger(0, PLOT_DRAW_BEGIN, first_index);
     } else
       start = prev_calculated - 1;
-    //--- calculate simple moving average
+    // Calculate simple moving average.
     Indi_MA::SimpleMAOnBuffer(rates_total, prev_calculated, begin, ExtMAPeriod, price, ExtMABuffer);
-    //--- the main loop of calculations
+    // The main loop of calculations.
     for (int i = start; i < rates_total && !IsStopped(); i++) ExtDPOBuffer[i] = price[i] - ExtMABuffer[i];
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 

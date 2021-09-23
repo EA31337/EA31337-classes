@@ -98,19 +98,19 @@ class Indi_Volumes : public Indicator {
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtVolumesBuffer,
                        ValueStorage<double> &ExtColorsBuffer, ENUM_APPLIED_VOLUME InpVolumeType) {
     if (rates_total < 2) return (0);
-    //--- starting work
+    // Starting work.
     int pos = prev_calculated - 1;
-    //--- correct position
+    // Correct position.
     if (pos < 1) {
       ExtVolumesBuffer[0] = 0;
       pos = 1;
     }
-    //--- main cycle
+    // Main cycle.
     if (InpVolumeType == VOLUME_TICK)
       CalculateVolume(pos, rates_total, tick_volume, ExtVolumesBuffer, ExtColorsBuffer);
     else
       CalculateVolume(pos, rates_total, volume, ExtVolumesBuffer, ExtColorsBuffer);
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 
@@ -118,18 +118,13 @@ class Indi_Volumes : public Indicator {
                               ValueStorage<double> &ExtVolumesBuffer, ValueStorage<double> &ExtColorsBuffer) {
     ExtVolumesBuffer[0] = (double)volume[0].Get();
     ExtColorsBuffer[0] = 0.0;
-    //---
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       double curr_volume = (double)volume[i].Get();
       double prev_volume = (double)volume[i - 1].Get();
-      //--- calculate indicator
+      // Calculate indicator.
       ExtVolumesBuffer[i] = curr_volume;
-      if (curr_volume > prev_volume)
-        ExtColorsBuffer[i] = 0.0;
-      else
-        ExtColorsBuffer[i] = 1.0;
+      ExtColorsBuffer[i] = (curr_volume > prev_volume) ? 0.0 : 1.0;
     }
-    //---
   }
 
   /**
