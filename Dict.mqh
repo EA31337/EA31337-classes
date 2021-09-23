@@ -173,6 +173,19 @@ class Dict : public DictBase<K, V> {
     return slot.value == value;
   }
 
+  /**
+   * Checks whether dictionary contains given value.
+   */
+  bool Contains(const V value) {
+    for (DictIterator<K, V> i = Begin(); i.IsValid(); ++i) {
+      if (i.Value() == value) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
  protected:
   /**
    * Inserts value into given array of DictSlots.

@@ -38,7 +38,7 @@ struct ZigZagParams : IndicatorParams {
     itype = INDI_ZIGZAG;
     max_modes = FINAL_ZIGZAG_LINE_ENTRY;
     shift = _shift;
-    SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_BUILTIN);
     SetCustomIndicatorName("Examples\\ZigZag");
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
@@ -47,6 +47,12 @@ struct ZigZagParams : IndicatorParams {
     this = _params;
     tf = _tf;
   };
+};
+
+enum EnSearchMode {
+  Extremum = 0,  // searching for the first extremum
+  Peak = 1,      // searching for the next ZigZag peak
+  Bottom = -1    // searching for the next ZigZag bottom
 };
 
 /**
@@ -71,16 +77,14 @@ class Indi_ZigZag : public Indicator {
   /**
    * Returns value for ZigZag indicator.
    */
-  static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep,
-                        ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, _mode, _shift);
-#else  // __MQL5__
+  static double iCustomZigZag(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _depth, int _deviation,
+                              int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+#ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep)) == INVALID_HANDLE) {
+      if ((_handle = ::iCustom(_symbol, _tf, _name, _depth, _deviation, _backstep)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
       } else if (Object::IsValid(_obj)) {
@@ -102,7 +106,244 @@ class Indi_ZigZag : public Indicator {
       return EMPTY_VALUE;
     }
     return _res[0];
+#else
+    return ::iCustom(_symbol, _tf, _name, _depth, _deviation, _backstep, _mode, _shift);
 #endif
+  }
+
+  /**
+   * Returns value for ZigZag indicator.
+   */
+  static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep,
+                        ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf,
+                                                       Util::MakeKey("Indi_ZigZag", _depth, _deviation, _backstep));
+    return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
+                          _cache);
+  }
+
+  /**
+   * Calculates ZigZag on the array of values.
+   */
+  static double iZigZagOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _depth, int _deviation, int _backstep, int _mode,
+                               int _shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(1 + 2);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_ZigZag::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
+                                                    _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2), _depth,
+                                                    _deviation, _backstep));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for ZigZag indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ZigZagBuffer,
+                       ValueStorage<double> &HighMapBuffer, ValueStorage<double> &LowMapBuffer, int InpDepth,
+                       int InpDeviation, int InpBackstep) {
+    int ExtRecalc = 3;
+
+    if (rates_total < 100) return (0);
+    //---
+    int i = 0;
+    int start = 0, extreme_counter = 0, extreme_search = Extremum;
+    int shift = 0, back = 0, last_high_pos = 0, last_low_pos = 0;
+    double val = 0, res = 0;
+    double curlow = 0, curhigh = 0, last_high = 0, last_low = 0;
+    //--- initializing
+    if (prev_calculated == 0) {
+      ArrayInitialize(ZigZagBuffer, 0.0);
+      ArrayInitialize(HighMapBuffer, 0.0);
+      ArrayInitialize(LowMapBuffer, 0.0);
+      start = InpDepth;
+    }
+
+    //--- ZigZag was already calculated before
+    if (prev_calculated > 0) {
+      i = rates_total - 1;
+      //--- searching for the third extremum from the last uncompleted bar
+      while (extreme_counter < ExtRecalc && i > rates_total - 100) {
+        res = ZigZagBuffer[i].Get();
+        if (res != 0.0) extreme_counter++;
+        i--;
+      }
+      i++;
+      start = i;
+
+      //--- what type of exremum we search for
+      if (LowMapBuffer[i] != 0.0) {
+        curlow = LowMapBuffer[i].Get();
+        extreme_search = Peak;
+      } else {
+        curhigh = HighMapBuffer[i].Get();
+        extreme_search = Bottom;
+      }
+      //--- clear indicator values
+      for (i = start + 1; i < rates_total && !IsStopped(); i++) {
+        ZigZagBuffer[i] = 0.0;
+        LowMapBuffer[i] = 0.0;
+        HighMapBuffer[i] = 0.0;
+      }
+    }
+
+    //--- searching for high and low extremes
+    for (shift = start; shift < rates_total && !IsStopped(); shift++) {
+      //--- low
+      val = low[Lowest(low, InpDepth, shift)].Get();
+      if (val == last_low)
+        val = 0.0;
+      else {
+        last_low = val;
+        if ((low[shift] - val) > InpDeviation * _Point)
+          val = 0.0;
+        else {
+          for (back = 1; back <= InpBackstep; back++) {
+            res = LowMapBuffer[shift - back].Get();
+            if ((res != 0) && (res > val)) LowMapBuffer[shift - back] = 0.0;
+          }
+        }
+      }
+      if (low[shift] == val)
+        LowMapBuffer[shift] = val;
+      else
+        LowMapBuffer[shift] = 0.0;
+      //--- high
+      val = high[Highest(high, InpDepth, shift)].Get();
+      if (val == last_high)
+        val = 0.0;
+      else {
+        last_high = val;
+        if ((val - high[shift].Get()) > InpDeviation * _Point)
+          val = 0.0;
+        else {
+          for (back = 1; back <= InpBackstep; back++) {
+            res = HighMapBuffer[shift - back].Get();
+            if ((res != 0) && (res < val)) HighMapBuffer[shift - back] = 0.0;
+          }
+        }
+      }
+      if (high[shift] == val)
+        HighMapBuffer[shift] = val;
+      else
+        HighMapBuffer[shift] = 0.0;
+    }
+
+    //--- set last values
+    if (extreme_search == 0)  // undefined values
+    {
+      last_low = 0.0;
+      last_high = 0.0;
+    } else {
+      last_low = curlow;
+      last_high = curhigh;
+    }
+
+    //--- final selection of extreme points for ZigZag
+    for (shift = start; shift < rates_total && !IsStopped(); shift++) {
+      res = 0.0;
+      switch (extreme_search) {
+        case Extremum:
+          if (last_low == 0.0 && last_high == 0.0) {
+            if (HighMapBuffer[shift] != 0) {
+              last_high = high[shift].Get();
+              last_high_pos = shift;
+              extreme_search = Bottom;
+              ZigZagBuffer[shift] = last_high;
+              res = 1;
+            }
+            if (LowMapBuffer[shift] != 0.0) {
+              last_low = low[shift].Get();
+              last_low_pos = shift;
+              extreme_search = Peak;
+              ZigZagBuffer[shift] = last_low;
+              res = 1;
+            }
+          }
+          break;
+        case Peak:
+          if (LowMapBuffer[shift] != 0.0 && LowMapBuffer[shift] < last_low && HighMapBuffer[shift] == 0.0) {
+            ZigZagBuffer[last_low_pos] = 0.0;
+            last_low_pos = shift;
+            last_low = LowMapBuffer[shift].Get();
+            ZigZagBuffer[shift] = last_low;
+            res = 1;
+          }
+          if (HighMapBuffer[shift] != 0.0 && LowMapBuffer[shift] == 0.0) {
+            last_high = HighMapBuffer[shift].Get();
+            last_high_pos = shift;
+            ZigZagBuffer[shift] = last_high;
+            extreme_search = Bottom;
+            res = 1;
+          }
+          break;
+        case Bottom:
+          if (HighMapBuffer[shift] != 0.0 && HighMapBuffer[shift] > last_high && LowMapBuffer[shift] == 0.0) {
+            ZigZagBuffer[last_high_pos] = 0.0;
+            last_high_pos = shift;
+            last_high = HighMapBuffer[shift].Get();
+            ZigZagBuffer[shift] = last_high;
+          }
+          if (LowMapBuffer[shift] != 0.0 && HighMapBuffer[shift] == 0.0) {
+            last_low = LowMapBuffer[shift].Get();
+            last_low_pos = shift;
+            ZigZagBuffer[shift] = last_low;
+            extreme_search = Peak;
+          }
+          break;
+        default:
+          return (rates_total);
+      }
+    }
+
+    //--- return value of prev_calculated for next call
+    return (rates_total);
+  }
+
+  /**
+   * Search for the index of the highest bar.
+   */
+  static int Highest(ValueStorage<double> &array, const int depth, const int start) {
+    if (start < 0) return (0);
+
+    double max = array[start].Get();
+    int index = start;
+    //--- start searching
+    for (int i = start - 1; i > start - depth && i >= 0; i--) {
+      if (array[i] > max) {
+        index = i;
+        max = array[i].Get();
+      }
+    }
+    //--- return index of the highest bar
+    return (index);
+  }
+
+  /**
+   * Search for the index of the lowest bar.
+   */
+  static int Lowest(ValueStorage<double> &array, const int depth, const int start) {
+    if (start < 0) return (0);
+
+    double min = array[start].Get();
+    int index = start;
+    //--- start searching
+    for (int i = start - 1; i > start - depth && i >= 0; i--) {
+      if (array[i] < min) {
+        index = i;
+        min = array[i].Get();
+      }
+    }
+    //--- return index of the lowest bar
+    return (index);
   }
 
   /**
@@ -113,15 +354,16 @@ class Indi_ZigZag : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_BUILTIN:
+        _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _mode, _shift,
+                                      GetPointer(this));
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_ZigZag::iZigZag(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetDepth(),
-                                      GetDeviation(), GetBackstep(), _mode, _shift, GetPointer(this));
+        _value = Indi_ZigZag::iCustomZigZag(GetSymbol(), GetTf(), params.GetCustomIndicatorName(), GetDepth(),
+                                            GetDeviation(), GetBackstep(), _mode, _shift, GetPointer(this));
         break;
-      case IDATA_INDICATOR:
-        // @todo: Add custom calculation.
-        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
     }
     istate.is_ready = _value != EMPTY_VALUE && _LastError == ERR_NO_ERROR;
     istate.is_changed = false;

@@ -42,9 +42,9 @@ struct DataParamEntry;
 #include "../Indicators/Indi_AMA.mqh"
 #include "../Indicators/Indi_AO.mqh"
 #include "../Indicators/Indi_ASI.mqh"
-#include "../Indicators/Indi_AppliedPrice.mqh"
 #include "../Indicators/Indi_ATR.mqh"
 #include "../Indicators/Indi_Alligator.mqh"
+#include "../Indicators/Indi_AppliedPrice.mqh"
 #include "../Indicators/Indi_BWMFI.mqh"
 #include "../Indicators/Indi_BWZT.mqh"
 #include "../Indicators/Indi_Bands.mqh"
@@ -109,7 +109,7 @@ enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_EN
 // Global variables.
 Chart *chart;
 Dict<long, Indicator *> indis;
-Dict<long, bool> whitelisted_indis;
+Dict<int, Indicator *> whitelisted_indis;
 Dict<long, bool> tested;
 int bar_processed;
 double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235,
@@ -142,7 +142,7 @@ int OnInit() {
 void OnTick() {
   chart.OnTick();
 
-  if (chart.IsNewBar()) {
+  if (chart.IsNewBar() && chart.GetBarTime() <= 1525492300) {
     Redis *redis = _indi_drawer.Redis();
 
     if (redis.Simulated() && redis.Subscribed("DRAWER")) {
@@ -160,7 +160,7 @@ void OnTick() {
           continue;
         }
       } else {
-        if (!whitelisted_indis.KeyExists(iter.Key())) {
+        if (!whitelisted_indis.Contains(iter.Value())) {
           continue;
         }
       }
@@ -347,19 +347,6 @@ bool InitIndicators() {
   StochParams stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
   indis.Push(new Indi_Stochastic(stoch_params));
 
-  // Triple Exponential Moving Average (TEMA).
-  // @todo
-  // indis.Push(new Indi_TEMA(tema_params));
-  // Triple Exponential Moving Averages Oscillator (TRIX).
-  // @todo
-  // indis.Push(new Indi_TRIX(trix_params));
-  // Variable Index Dynamic Average (VIDYA).
-  // @todo
-  // indis.Push(new Indi_VIDYA(vidya_params));
-  // Volumes.
-  // @todo
-  // indis.Push(new Indi_Volumes(vol_params));
-
   // Williams' Percent Range (WPR).
   WPRParams wpr_params(14);
   indis.Push(new Indi_WPR(wpr_params));
@@ -464,10 +451,10 @@ bool InitIndicators() {
   indis.Push(_indi_drawer = new Indi_Drawer(drawer_params));
 
   // "Applied Price over OHCL Indicator" indicator.
-  AppliedPriceParams applied_price_params(PRICE_TYPICAL);
+  AppliedPriceParams applied_price_params();
   applied_price_params.SetDraw(clrAquamarine, 0);
   PriceIndiParams applied_price_price_params;
-  applied_price_params.SetDataSource(new Indi_Price(applied_price_price_params));
+  applied_price_params.SetDataSource(new Indi_Price(applied_price_price_params), PRICE_TYPICAL);
   indis.Push(new Indi_AppliedPrice(applied_price_params));
 
   // ADXW.
@@ -486,35 +473,25 @@ bool InitIndicators() {
   CHVParams chv_params();
   indis.Push(new Indi_CHV(chv_params));
 
-// Color Bars.
-#ifdef __MQL5__
+  // Color Bars.
   ColorBarsParams color_bars_params();
   indis.Push(new Indi_ColorBars(color_bars_params));
-#endif
 
-// Color Candles Daily.
-#ifdef __MQL5__
+  // Color Candles Daily.
   ColorCandlesDailyParams color_candles_daily_params();
   indis.Push(new Indi_ColorCandlesDaily(color_candles_daily_params));
-#endif
 
-// Color Line.
-#ifdef __MQL5__
+  // Color Line.
   ColorLineParams color_line_params();
   indis.Push(new Indi_ColorLine(color_line_params));
-#endif
 
-// Detrended Price Oscillator.
-#ifdef __MQL5__
+  // Detrended Price Oscillator.
   DetrendedPriceParams detrended_params();
   indis.Push(new Indi_DetrendedPrice(detrended_params));
-#endif
 
-// Mass Index.
-#ifdef __MQL5__
+  // Mass Index.
   MassIndexParams mass_index_params();
   indis.Push(new Indi_MassIndex(mass_index_params));
-#endif
 
 // Price Channel.
 #ifdef __MQL5__
@@ -522,65 +499,45 @@ bool InitIndicators() {
   indis.Push(new Indi_PriceChannel(price_channel_params));
 #endif
 
-// Price Volume Trend.
-#ifdef __MQL5__
+  // Price Volume Trend.
   PriceVolumeTrendParams price_volume_trend_params();
   indis.Push(new Indi_PriceVolumeTrend(price_volume_trend_params));
-#endif
 
-// Bill Williams' Zone Trade.
-#ifdef __MQL5__
+  // Bill Williams' Zone Trade.
   BWZTParams bwzt_params();
   indis.Push(new Indi_BWZT(bwzt_params));
-#endif
 
-// Rate of Change.
-#ifdef __MQL5__
+  // Rate of Change.
   RateOfChangeParams rate_of_change_params();
   indis.Push(new Indi_RateOfChange(rate_of_change_params));
-#endif
 
-// Triple Exponential Moving Average.
-#ifdef __MQL5__
+  // Triple Exponential Moving Average.
   TEMAParams tema_params();
   indis.Push(new Indi_TEMA(tema_params));
-#endif
 
-// Triple Exponential Average.
-#ifdef __MQL5__
+  // Triple Exponential Average.
   TRIXParams trix_params();
   indis.Push(new Indi_TRIX(trix_params));
-#endif
 
-// Ultimate Oscillator.
-#ifdef __MQL5__
+  // Ultimate Oscillator.
   UltimateOscillatorParams ultimate_oscillator_params();
   indis.Push(new Indi_UltimateOscillator(ultimate_oscillator_params));
-#endif
 
-// VIDYA.
-#ifdef __MQL5__
+  // VIDYA.
   VIDYAParams vidya_params();
   indis.Push(new Indi_VIDYA(vidya_params));
-#endif
 
-// Volumes.
-#ifdef __MQL5__
+  // Volumes.
   VolumesParams volumes_params();
   indis.Push(new Indi_Volumes(volumes_params));
-#endif
 
-// Volume Rate of Change.
-#ifdef __MQL5__
+  // Volume Rate of Change.
   VROCParams vol_rate_of_change_params();
   indis.Push(new Indi_VROC(vol_rate_of_change_params));
-#endif
 
-// Larry Williams' Accumulation/Distribution.
-#ifdef __MQL5__
+  // Larry Williams' Accumulation/Distribution.
   WilliamsADParams williams_ad_params();
   indis.Push(new Indi_WilliamsAD(williams_ad_params));
-#endif
 
 // ZigZag Color.
 #ifdef __MQL5__
@@ -629,8 +586,8 @@ bool InitIndicators() {
     tested.Set(iter.Key(), false);
   }
 
-  // Paste white-listed indicators here.
-  // whitelisted_indis.Set(INDI_RSI, true);
+  // Push white-listed indicators here.
+  // whitelisted_indis.Push(_indi_test);
 
   return GetLastError() == ERR_NO_ERROR;
 }
@@ -642,7 +599,7 @@ double MathCustomOp(double a, double b) { return 1.11 + (b - a) * 2.0; }
  */
 bool PrintIndicators(string _prefix = "") {
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    if (whitelisted_indis.Size() != 0 && !whitelisted_indis.KeyExists(iter.Key())) {
+    if (whitelisted_indis.Size() != 0 && !whitelisted_indis.Contains(iter.Value())) {
       continue;
     }
 
