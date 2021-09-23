@@ -142,13 +142,7 @@ int OnInit() {
 void OnTick() {
   chart.OnTick();
 
-  if (chart.IsNewBar() && chart.GetBarTime() <= 1525492300) {
-    Redis *redis = _indi_drawer.Redis();
-
-    if (redis.Simulated() && redis.Subscribed("DRAWER")) {
-      // redis.Messages().Enqueue("Tick number #" + IntegerToString(chart.GetTickIndex()));
-    }
-
+  if (chart.IsNewBar()) {
     bar_processed++;
     if (indis.Size() == 0) {
       return;
