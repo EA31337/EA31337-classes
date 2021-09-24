@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "Refs.mqh"
+#include "../Refs.mqh"
 
 // Prevents processing this includes file for the second time.
 #ifndef SINGLETON_H

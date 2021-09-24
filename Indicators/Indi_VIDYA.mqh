@@ -23,7 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../ValueStorage.price.h"
+#include "../Storage/ValueStorage.price.h"
 
 // Structs.
 struct VIDYAParams : IndicatorParams {
@@ -118,13 +118,13 @@ class Indi_VIDYA : public Indicator {
       for (i = 0; i < start; i++) VIDYA_Buffer[i] = price[i];
     } else
       start = prev_calculated - 1;
-    //--- main cycle
+    // Main cycle.
     for (i = start; i < rates_total && !IsStopped(); i++) {
       double mul_CMO = MathAbs(CalculateCMO(i, InpPeriodCMO, price));
-      //--- calculate VIDYA
+      // Calculate VIDYA.
       VIDYA_Buffer[i] = price[i] * ExtF * mul_CMO + VIDYA_Buffer[i - 1] * (1 - ExtF * mul_CMO);
     }
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 
@@ -134,7 +134,6 @@ class Indi_VIDYA : public Indicator {
   static double CalculateCMO(int pos, const int period, ValueStorage<double> &price) {
     double res = 0.0;
     double sum_up = 0.0, sum_down = 0.0;
-    //---
     if (pos >= period && pos < ArraySize(price)) {
       for (int i = 0; i < period; i++) {
         double diff = price[pos - i] - price[pos - i - 1];
@@ -145,7 +144,6 @@ class Indi_VIDYA : public Indicator {
       }
       if (sum_up + sum_down != 0.0) res = (sum_up - sum_down) / (sum_up + sum_down);
     }
-    //---
     return (res);
   }
 

@@ -30,10 +30,10 @@
 #include "../Indicator.mqh"
 #include "../Indicators/Indi_MA.mqh"
 #include "../Indicators/Indi_Price.mqh"
-#include "../Objects.h"
 #include "../Refs.mqh"
+#include "../Storage/Objects.h"
+#include "../Storage/ValueStorage.h"
 #include "../String.mqh"
-#include "../ValueStorage.h"
 
 // Structs.
 struct DEMAParams : IndicatorParams {

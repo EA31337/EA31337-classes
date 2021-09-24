@@ -21,43 +21,50 @@
 
 /**
  * @file
- * Time getter version of ValueStorage.
+ * Objects cache per key.
  */
+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "ObjectsCache.h"
-#include "Util.h"
-#include "ValueStorage.history.h"
+#include "../DictStruct.mqh"
+#include "../Refs.mqh"
 
 /**
- * Storage to retrieve time.
+ * Stores objects to be reused using a string-based key.
  */
-class TimeValueStorage : public HistoryValueStorage<datetime> {
+template <typename C>
+class Objects {
+  // Dictionary of key => reference to object.
+  static DictStruct<string, Ref<C>>* GetObjects() {
+    static DictStruct<string, Ref<C>> objects;
+    return &objects;
+  }
+
  public:
   /**
-   * Constructor.
+   * Tries to retrieve pointer to object for a given key. Returns true if object did exist.
    */
-  TimeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : HistoryValueStorage(_symbol, _tf) {}
-
-  /**
-   * Copy constructor.
-   */
-  TimeValueStorage(const TimeValueStorage &_r) : HistoryValueStorage(_r.symbol, _r.tf) {}
-
-  /**
-   * Returns pointer to TimeValueStorage of a given symbol and time-frame.
-   */
-  static TimeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
-    TimeValueStorage *_storage;
-    string _key = Util::MakeKey(_symbol, (int)_tf);
-    if (!ObjectsCache<TimeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<TimeValueStorage>::Set(_key, new TimeValueStorage(_symbol, _tf));
+  static bool TryGet(string& key, C*& out_ptr) {
+    int position;
+    if (!GetObjects().KeyExists(key, position)) {
+      out_ptr = NULL;
+      return false;
+    } else {
+      out_ptr = GetObjects().GetByPos(position).Ptr();
+      return true;
     }
-    return _storage;
   }
 
   /**
-   * Fetches value from a given shift. Takes into consideration as-series flag.
+   * Stores object pointer with a given key.
    */
-  virtual datetime Fetch(int _shift) { return iTime(symbol, tf, RealShift(_shift)); }
+  static C* Set(string& key, C* ptr) {
+    Ref<C> _ref(ptr);
+    GetObjects().Set(key, _ref);
+    return ptr;
+  }
 };

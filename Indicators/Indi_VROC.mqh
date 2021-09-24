@@ -102,18 +102,17 @@ class Indi_VROC : public Indicator {
       ExtPeriodVROC = InpPeriodVROC;
 
     if (rates_total < ExtPeriodVROC) return (0);
-    //--- starting work
     int pos = prev_calculated - 1;
     if (pos < ExtPeriodVROC - 1) {
       pos = ExtPeriodVROC - 1;
       for (int i = 0; i < pos; i++) ExtVROCBuffer[i] = 0.0;
     }
-    //--- main cycle by volume type
+    // Main cycle by volume type.
     if (InpVolumeType == VOLUME_TICK)
       CalculateVROC(pos, rates_total, tick_volume, ExtVROCBuffer, ExtPeriodVROC);
     else
       CalculateVROC(pos, rates_total, volume, ExtVROCBuffer, ExtPeriodVROC);
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 
@@ -122,7 +121,7 @@ class Indi_VROC : public Indicator {
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       double prev_volume = (double)(volume[i - (ExtPeriodVROC - 1)].Get());
       double curr_volume = (double)volume[i].Get();
-      //--- calculate VROC
+      // Calculate VROC.
       if (prev_volume != 0.0)
         ExtVROCBuffer[i] = 100.0 * (curr_volume - prev_volume) / prev_volume;
       else

@@ -128,7 +128,7 @@ class Indi_UltimateOscillator : public Indicator {
     if (ExtMaxPeriod < InpFastPeriod) ExtMaxPeriod = InpFastPeriod;
 
     if (rates_total < ExtMaxPeriod) return (0);
-    //--- not all data may be calculated
+    // Not all data may be calculated.
     int calculated = BarsCalculated(ExtFastATRhandle, rates_total);
     if (calculated < rates_total) {
       // Not all data of ExtFastATRhandle is calculated.
@@ -144,7 +144,7 @@ class Indi_UltimateOscillator : public Indicator {
       // Not all data of ExtFastATRhandle is calculated.
       return (0);
     }
-    //--- we can copy not all data
+    // We can copy not all data.
     int to_copy;
     if (prev_calculated > rates_total || prev_calculated < 0)
       to_copy = rates_total;
@@ -152,45 +152,43 @@ class Indi_UltimateOscillator : public Indicator {
       to_copy = rates_total - prev_calculated;
       if (prev_calculated > 0) to_copy++;
     }
-    //--- get ATR buffers
-    if (IsStopped())  // checking for stop flag
-      return (0);
+    // Get ATR buffers.
+    if (IsStopped()) return (0);
     if (CopyBuffer(ExtFastATRhandle, 0, 0, to_copy, ExtFastATRBuffer, rates_total) <= 0) {
       Print("getting ExtFastATRhandle is failed! Error ", GetLastError());
       return (0);
     }
 
-    if (IsStopped())  // checking for stop flag
-      return (0);
+    if (IsStopped()) return (0);
     if (CopyBuffer(ExtMiddleATRhandle, 0, 0, to_copy, ExtMiddleATRBuffer, rates_total) <= 0) {
       Print("getting ExtMiddleATRhandle is failed! Error ", GetLastError());
       return (0);
     }
-    if (IsStopped())  // checking for stop flag
-      return (0);
+    if (IsStopped()) return (0);
     if (CopyBuffer(ExtSlowATRhandle, 0, 0, to_copy, ExtSlowATRBuffer, rates_total) <= 0) {
       Print("getting ExtSlowATRhandle is failed! Error ", GetLastError());
       return (0);
     }
-    //--- preliminary calculations
+    // Preliminary calculations.
     int i, start;
     if (prev_calculated == 0) {
       ExtBPBuffer[0] = 0.0;
       ExtUOBuffer[0] = 0.0;
-      //--- set value for first InpSlowPeriod bars
+      // Set value for first InpSlowPeriod bars.
       for (i = 1; i <= InpSlowPeriod; i++) {
         ExtUOBuffer[i] = 0.0;
         true_low = MathMin(low[i].Get(), close[i - 1].Get());
         ExtBPBuffer[i] = close[i] - true_low;
       }
-      //--- now we are going to calculate from start index in main loop
+      // Now we are going to calculate from start index in main loop.
       start = InpSlowPeriod + 1;
     } else
       start = prev_calculated - 1;
-    //--- the main loop of calculations
+    // The main loop of calculations.
     for (i = start; i < rates_total && !IsStopped(); i++) {
       true_low = MathMin(low[i].Get(), close[i - 1].Get());
-      ExtBPBuffer[i] = close[i] - true_low;  // buying pressure
+      // Buying pressure.
+      ExtBPBuffer[i] = close[i] - true_low;
 
       if (ExtFastATRBuffer[i] != 0.0 && ExtMiddleATRBuffer[i] != 0.0 && ExtSlowATRBuffer[i] != 0.0) {
         double raw_uo = InpFastK * Indi_MA::SimpleMA(i, InpFastPeriod, ExtBPBuffer) / ExtFastATRBuffer[i].Get() +
@@ -198,9 +196,10 @@ class Indi_UltimateOscillator : public Indicator {
                         InpSlowK * Indi_MA::SimpleMA(i, InpSlowPeriod, ExtBPBuffer) / ExtSlowATRBuffer[i].Get();
         ExtUOBuffer[i] = raw_uo / ExtDivider * 100;
       } else
-        ExtUOBuffer[i] = ExtUOBuffer[i - 1];  // set current Ultimate value as previous Ultimate value
+        // Set current Ultimate value as previous Ultimate value.
+        ExtUOBuffer[i] = ExtUOBuffer[i - 1];
     }
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 

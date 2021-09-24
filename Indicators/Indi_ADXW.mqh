@@ -23,13 +23,13 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.h"
+#include "../Storage/ValueStorage.price.h"
+#include "../Storage/ValueStorage.spread.h"
+#include "../Storage/ValueStorage.tick_volume.h"
+#include "../Storage/ValueStorage.time.h"
+#include "../Storage/ValueStorage.volume.h"
 #include "../Util.h"
-#include "../ValueStorage.h"
-#include "../ValueStorage.price.h"
-#include "../ValueStorage.spread.h"
-#include "../ValueStorage.tick_volume.h"
-#include "../ValueStorage.time.h"
-#include "../ValueStorage.volume.h"
 #include "Indi_ADX.mqh"
 #include "Indi_Price.mqh"
 
@@ -197,7 +197,7 @@ class Indi_ADXW : public Indicator {
    */
   static double SmoothedMA(const int position, const int period, const double prev_value, ValueStorage<double> &price) {
     double result = 0.0;
-    //--- check period
+    // Check period.
     if (period > 0 && period <= (position + 1)) {
       if (position == period - 1) {
         for (int i = 0; i < period; i++) result += price[position - i].Get();

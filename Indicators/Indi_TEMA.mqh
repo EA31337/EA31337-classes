@@ -23,7 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../ValueStorage.price.h"
+#include "../Storage/ValueStorage.price.h"
 #include "Indi_MA.mqh"
 
 // Structs.
@@ -112,17 +112,17 @@ class Indi_TEMA : public Indicator {
       start = 0;
     else
       start = prev_calculated - 1;
-    //--- calculate EMA
+    // Calculate EMA.
     Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, 0, InpPeriodEMA, price, Ema);
-    //--- calculate EMA on EMA array
+    // Calculate EMA on EMA array.
     Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, InpPeriodEMA - 1, InpPeriodEMA, Ema, EmaOfEma);
-    //--- calculate EMA on EMA array on EMA array
+    // Calculate EMA on EMA array on EMA array.
     Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, 2 * InpPeriodEMA - 2, InpPeriodEMA, EmaOfEma,
                                    EmaOfEmaOfEma);
-    //--- calculate TEMA
+    // Calculate TEMA.
     for (int i = start; i < rates_total && !IsStopped(); i++)
       TemaBuffer[i] = 3 * Ema[i].Get() - 3 * EmaOfEma[i].Get() + EmaOfEmaOfEma[i].Get();
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 

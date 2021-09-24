@@ -34,8 +34,7 @@
 struct DemoIndiParams : IndicatorParams {
   // Struct constructors.
   void DemoIndiParams(int _shift = 0) {
-    itype = INDI_DEMO;
-    max_modes = 1;
+    itype = INDI_DEMO;    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetMaxModes(1);

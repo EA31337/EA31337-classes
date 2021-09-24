@@ -23,7 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../Objects.h"
+#include "../Storage/Objects.h"
 
 // Enums.
 

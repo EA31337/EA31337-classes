@@ -126,22 +126,21 @@ class Indi_MassIndex : public Indicator {
 
     int pos_mi = ExtSumPeriod + ExtPeriodEMA + ExtSecondPeriodEMA - 3;
     if (rates_total < pos_mi) return (0);
-    //--- start working
     int pos = prev_calculated - 1;
-    //--- correct position
     if (pos < 1) {
+      // Correct position.
       ExtHLBuffer[0] = high[0] - low[0];
       pos = 1;
     }
-    //--- main cycle
+    // Main cycle.
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
-      //--- fill main data buffer
+      // Fill main data buffer.
       ExtHLBuffer[i] = high[i] - low[i];
-      //--- calculate EMA values
+      // Calculate EMA values.
       ExtEHLBuffer[i] = Indi_MA::ExponentialMA(i, ExtPeriodEMA, ExtEHLBuffer[i - 1].Get(), ExtHLBuffer);
-      //--- calculate EMA on EMA values
+      // Calculate EMA on EMA values.
       ExtEEHLBuffer[i] = Indi_MA::ExponentialMA(i, ExtSecondPeriodEMA, ExtEEHLBuffer[i - 1].Get(), ExtEHLBuffer);
-      //--- calculate MI values
+      // Calculate MI values.
       double dtmp = 0.0;
       if (i >= pos_mi) {
         for (int j = 0; j < ExtSumPeriod; j++)
@@ -149,7 +148,7 @@ class Indi_MassIndex : public Indicator {
       }
       ExtMIBuffer[i] = dtmp;
     }
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 

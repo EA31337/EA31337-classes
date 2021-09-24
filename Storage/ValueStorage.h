@@ -93,9 +93,9 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
 #define INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT _price
 
 // Includes.
-#include "Array.mqh"
+#include "../Array.mqh"
+#include "../Util.h"
 #include "IValueStorage.h"
-#include "Util.h"
 #include "ValueStorage.accessor.h"
 
 /**

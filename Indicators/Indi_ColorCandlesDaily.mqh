@@ -94,22 +94,18 @@ class Indi_ColorCandlesDaily : public Indicator {
 
     int pos;
     MqlDateTime tstruct;
-    //---
-    if (prev_calculated < 1)
-      pos = 0;
-    else
-      pos = prev_calculated - 1;
-    //--- main cycle
+    pos = prev_calculated < 1 ? 0 : prev_calculated - 1;
+    // Main cycle.
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       ExtOpenBuffer[i] = open[i];
       ExtHighBuffer[i] = high[i];
       ExtLowBuffer[i] = low[i];
       ExtCloseBuffer[i] = close[i];
-      //--- set color for every candle
+      // Set color for every candle.
       TimeToStruct(time[i].Get(), tstruct);
       ExtColorsBuffer[i] = tstruct.day_of_week;
     }
-    //--- return value of prev_calculated for next call
+    // Return value of prev_calculated for next call.
     return (rates_total);
   }
 

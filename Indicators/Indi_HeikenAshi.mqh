@@ -167,7 +167,7 @@ class Indi_HeikenAshi : public Indicator {
                        ValueStorage<double> &ExtHBuffer, ValueStorage<double> &ExtOBuffer,
                        ValueStorage<double> &ExtCBuffer, ValueStorage<double> &ExtColorBuffer) {
     int start;
-    //--- preliminary calculations
+    // Preliminary calculations.
     if (prev_calculated == 0) {
       ExtLBuffer[0] = low[0];
       ExtHBuffer[0] = high[0];
@@ -177,7 +177,7 @@ class Indi_HeikenAshi : public Indicator {
     } else
       start = prev_calculated - 1;
 
-    //--- the main loop of calculations
+    // The main loop of calculations.
     for (int i = start; i < rates_total && !IsStopped(); i++) {
       double ha_open = (ExtOBuffer[i - 1] + ExtCBuffer[i - 1]) / 2;
       double ha_close = (open[i].Get() + high[i].Get() + low[i].Get() + close[i].Get()) / 4;
@@ -189,13 +189,9 @@ class Indi_HeikenAshi : public Indicator {
       ExtOBuffer[i] = ha_open;
       ExtCBuffer[i] = ha_close;
 
-      //--- set candle color
-      if (ha_open < ha_close)
-        ExtColorBuffer[i] = 0.0;  // set color DodgerBlue
-      else
-        ExtColorBuffer[i] = 1.0;  // set color Red
+      // Set candle color.
+      ExtColorBuffer[i] = (ha_open < ha_close) ? 0.0 : 1.0;
     }
-    //---
     return (rates_total);
   }
 
