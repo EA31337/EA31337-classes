@@ -40,8 +40,8 @@ struct StochParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_STO_PRICE price_field;
   // Struct constructors.
-  void StochParams(int _kperiod, int _dperiod, int _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf,
-                   int _shift = 0)
+  void StochParams(int _kperiod = 5, int _dperiod = 3, int _slowing = 3, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                   ENUM_STO_PRICE _pf = STO_LOWHIGH, int _shift = 0)
       : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {
     itype = INDI_STOCHASTIC;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
@@ -49,10 +49,6 @@ struct StochParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\Stochastic");
-  };
-  void StochParams(StochParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -67,14 +63,10 @@ class Indi_Stochastic : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Stochastic(StochParams &_p)
-      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field), Indicator((IndicatorParams)_p) {
+  Indi_Stochastic(StochParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
     params = _p;
   }
-  Indi_Stochastic(StochParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field), Indicator(INDI_STOCHASTIC, _tf) {
-    params = _p;
-  }
+  Indi_Stochastic(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_STOCHASTIC, _tf) {}
 
   /**
    * Calculates the Stochastic Oscillator and returns its value.
@@ -132,14 +124,12 @@ class Indi_Stochastic : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Stochastic::iStochastic(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                              GetKPeriod(), GetDPeriod(), GetSlowing(), GetMAMethod(), GetPriceField(),
-                                              _mode, _shift, GetPointer(this));
+        _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(),
+                                              GetMAMethod(), GetPriceField(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetKPeriod(), GetDPeriod(), GetSlowing() /*]*/, _mode,
-                         _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetKPeriod(),
+                         GetDPeriod(), GetSlowing() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

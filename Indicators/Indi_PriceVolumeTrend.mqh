@@ -28,21 +28,14 @@
 struct PriceVolumeTrendParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  void PriceVolumeTrendParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0,
-                              ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void PriceVolumeTrendParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) {
     applied_volume = _applied_volume;
     itype = INDI_PRICE_VOLUME_TREND;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\PVT");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void PriceVolumeTrendParams(PriceVolumeTrendParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -57,13 +50,11 @@ class Indi_PriceVolumeTrend : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_PriceVolumeTrend(PriceVolumeTrendParams &_params)
-      : params(_params.applied_volume), Indicator((IndicatorParams)_params) {
+  Indi_PriceVolumeTrend(PriceVolumeTrendParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator((IndicatorParams)_params, _tf) {
     params = _params;
   };
-  Indi_PriceVolumeTrend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE_VOLUME_TREND, _tf) {
-    params.tf = _tf;
-  };
+  Indi_PriceVolumeTrend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE_VOLUME_TREND, _tf){};
 
   /**
    * Built-in version of Price Volume Trend.

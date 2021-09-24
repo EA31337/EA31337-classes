@@ -38,7 +38,8 @@ struct MACDParams : IndicatorParams {
   unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void MACDParams(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap, int _shift = 0)
+  void MACDParams(unsigned int _efp = 12, unsigned int _esp = 26, unsigned int _sp = 9,
+                  ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
     itype = INDI_MACD;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
@@ -46,10 +47,6 @@ struct MACDParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
-  };
-  void MACDParams(MACDParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -64,15 +61,8 @@ class Indi_MACD : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MACD(MACDParams &_p)
-      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price),
-        Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_MACD(MACDParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price), Indicator(INDI_MACD, _tf) {
-    params = _p;
-  }
+  Indi_MACD(MACDParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) { params = _p; }
+  Indi_MACD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_MACD, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -128,14 +118,12 @@ class Indi_MACD : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            Indi_MACD::iMACD(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetEmaFastPeriod(),
-                             GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
+                                  GetAppliedPrice(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(), GetEmaSlowPeriod(),
-                         GetSignalPeriod(), GetAppliedPrice() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(),
+                         GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -32,19 +32,13 @@ struct BWZTParams : IndicatorParams {
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
-  void BWZTParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void BWZTParams(int _shift = 0) {
     itype = INDI_BWZT;
     max_modes = 5;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void BWZTParams(BWZTParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -59,8 +53,10 @@ class Indi_BWZT : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_BWZT(BWZTParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWZT, _tf) { params.tf = _tf; };
+  Indi_BWZT(BWZTParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_params, _tf) {
+    params = _params;
+  };
+  Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWZT, _tf){};
 
   /**
    * Built-in version of BWZT.

@@ -46,12 +46,6 @@ struct RSIParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
 
-  // Struct constructors.
-  void RSIParams(const RSIParams &r) {
-    period = r.period;
-    applied_price = r.applied_price;
-    custom_indi_name = r.custom_indi_name;
-  }
   void RSIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), applied_price(_ap) {
     itype = INDI_RSI;
@@ -61,11 +55,6 @@ struct RSIParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\RSI");
   };
-  void RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
-  };
-  void RSIParams(ENUM_TIMEFRAMES _tf) : period(12), applied_price(PRICE_WEIGHTED) { tf = _tf; }
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &s) {
@@ -95,11 +84,10 @@ class Indi_RSI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_RSI(const RSIParams &_params) : params(_params), Indicator((IndicatorParams)_params) { params = _params; }
-  Indi_RSI(const RSIParams &_params, ENUM_TIMEFRAMES _tf) : params(_params), Indicator(INDI_RSI, _tf) {
-    // @fixme
-    params.tf = _tf;
+  Indi_RSI(const RSIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_params, _tf) {
+    params = _params;
   }
+  Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RSI, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -321,18 +309,16 @@ class Indi_RSI : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_RSI::iRSI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.custom_indi_name, /* [ */ GetPeriod(), GetAppliedPrice() /* ] */, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */ GetPeriod(),
+                         GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value =
-            Indi_RSI::iRSIOnIndicator(GetDataSource(), GetPointer(this), Get<string>(CHART_PARAM_SYMBOL),
-                                      Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetAppliedPrice(), _shift);
+        _value = Indi_RSI::iRSIOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), GetPeriod(),
+                                           GetAppliedPrice(), _shift);
         break;
     }
     istate.is_ready = GetLastError() == ERR_NO_ERROR;

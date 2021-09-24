@@ -32,23 +32,16 @@ struct TEMAParams : IndicatorParams {
   unsigned int tema_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void TEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0,
-                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void TEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
     applied_price = _ap;
     itype = INDI_TEMA;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\TEMA");
-    SetDataSourceType(IDATA_BUILTIN);
     period = _period;
     shift = _shift;
     tema_shift = _tema_shift;
-    tf = _tf;
-  };
-  void TEMAParams(TEMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -63,10 +56,10 @@ class Indi_TEMA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_TEMA(TEMAParams &_params) : params(_params.period, _params.tema_shift), Indicator((IndicatorParams)_params) {
+  Indi_TEMA(TEMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_params, _tf) {
     params = _params;
   };
-  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TEMA, _tf) { params.tf = _tf; };
+  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TEMA, _tf){};
 
   /**
    * Built-in version of TEMA.

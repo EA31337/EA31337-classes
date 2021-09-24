@@ -57,10 +57,6 @@ struct OBVParams : IndicatorParams {
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
-  void OBVParams(OBVParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
-  };
 };
 
 /**
@@ -74,22 +70,13 @@ class Indi_OBV : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_OBV(OBVParams &_p)
+  Indi_OBV(OBVParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
 #ifdef __MQL4__
       : params(_p.applied_price),
 #else
       : params(_p.applied_volume),
 #endif
-        Indicator((IndicatorParams)_p) {
-  }
-  Indi_OBV(OBVParams &_p, ENUM_TIMEFRAMES _tf)
-#ifdef __MQL4__
-      : params(_p.applied_price),
-#else
-      : params(_p.applied_volume),
-#endif
-        Indicator(INDI_OBV, _tf) {
-    params = _p;
+        Indicator((IndicatorParams)_p, _tf) {
   }
   Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_OBV, _tf) {}
 
@@ -149,16 +136,14 @@ class Indi_OBV : public Indicator {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
-        _value = Indi_OBV::iOBV(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                GetAppliedPrice(), _shift);
+        _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
 #else  // __MQL5__
-        _value = Indi_OBV::iOBV(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                GetAppliedVolume(), _shift, GetPointer(this));
+        _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift, THIS_PTR);
 #endif
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/,
+                         0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

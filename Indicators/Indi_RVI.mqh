@@ -34,17 +34,13 @@ double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
 struct RVIParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void RVIParams(unsigned int _period, int _shift = 0) : period(_period) {
+  void RVIParams(unsigned int _period = 10, int _shift = 0) : period(_period) {
     itype = INDI_RVI;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\RVI");
-  };
-  void RVIParams(RVIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -59,8 +55,10 @@ class Indi_RVI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_RVI(const RVIParams &_p) : params(_p.period), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_RVI(const RVIParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period), Indicator(INDI_RVI, _tf) { params = _p; }
+  Indi_RVI(const RVIParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
+    params = _p;
+  }
+  Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RVI, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -114,12 +112,11 @@ class Indi_RVI : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_RVI::iRVI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                _mode, _shift, GetPointer(this));
+        _value = Indi_RVI::iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+                         _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -43,10 +43,6 @@ struct SARParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit It draws single dot for each bar!
     SetCustomIndicatorName("Examples\\ParabolicSAR");
   };
-  void SARParams(SARParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
-  };
 };
 
 /**
@@ -60,8 +56,8 @@ class Indi_SAR : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_SAR(SARParams &_p) : params(_p.step, _p.max), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_SAR(SARParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.step, _p.max), Indicator(INDI_SAR, _tf) { params = _p; }
+  Indi_SAR(SARParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) { params = _p; }
+  Indi_SAR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_SAR, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -113,12 +109,11 @@ class Indi_SAR : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_SAR::iSAR(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetStep(),
-                                GetMax(), _shift, GetPointer(this));
+        _value = Indi_SAR::iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetStep(), GetMax() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetStep(),
+                         GetMax() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

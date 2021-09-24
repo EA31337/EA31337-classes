@@ -29,8 +29,7 @@ struct VROCParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  void VROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0,
-                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void VROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) {
     applied_volume = _applied_volume;
     itype = INDI_VROC;
     max_modes = 1;
@@ -38,13 +37,7 @@ struct VROCParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VROC");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void VROCParams(VROCParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -59,8 +52,10 @@ class Indi_VROC : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_VROC(VROCParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf) { params.tf = _tf; };
+  Indi_VROC(VROCParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_params, _tf) {
+    params = _params;
+  };
+  Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf){};
 
   /**
    * Built-in version of VROC.

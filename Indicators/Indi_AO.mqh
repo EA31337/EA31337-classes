@@ -31,7 +31,7 @@ double iAO(string _symbol, int _tf, int _shift) { return Indi_AO::iAO(_symbol, (
 // Structs.
 struct AOParams : IndicatorParams {
   // Struct constructor.
-  void AOParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void AOParams(int _shift = 0) {
     itype = INDI_AO;
 #ifdef __MQL4__
     max_modes = 1;
@@ -42,11 +42,6 @@ struct AOParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
-    tf = _tf;
-  };
-  void AOParams(AOParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -61,8 +56,8 @@ class Indi_AO : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_AO(AOParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AO, _tf){};
+  Indi_AO(AOParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) { params = _p; };
+  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AO, _tf){};
 
   /**
    * Returns the indicator value.
@@ -115,12 +110,10 @@ class Indi_AO : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_AO::iAO(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift, _mode,
-                              GetPointer(this));
+        _value = Indi_AO::iAO(GetSymbol(), GetTf(), _shift, _mode, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

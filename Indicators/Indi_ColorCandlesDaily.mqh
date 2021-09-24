@@ -27,19 +27,13 @@
 // Structs.
 struct ColorCandlesDailyParams : IndicatorParams {
   // Struct constructor.
-  void ColorCandlesDailyParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ColorCandlesDailyParams(int _shift = 0) {
     itype = INDI_COLOR_CANDLES_DAILY;
     max_modes = 5;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorCandlesDaily");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void ColorCandlesDailyParams(ColorCandlesDailyParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -54,10 +48,11 @@ class Indi_ColorCandlesDaily : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_ColorCandlesDaily(ColorCandlesDailyParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_ColorCandlesDaily(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_CANDLES_DAILY, _tf) {
-    params.tf = _tf;
+  Indi_ColorCandlesDaily(ColorCandlesDailyParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator((IndicatorParams)_params, _tf) {
+    params = _params;
   };
+  Indi_ColorCandlesDaily(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_CANDLES_DAILY, _tf){};
 
   /**
    * "Built-in" version of Color Candles Daily.
@@ -126,7 +121,7 @@ class Indi_ColorCandlesDaily : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_ColorCandlesDaily::iCCD(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
+        _value = Indi_ColorCandlesDaily::iCCD(GetSymbol(), GetTf(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);

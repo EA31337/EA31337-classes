@@ -36,37 +36,18 @@ struct IndiAMAParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   void IndiAMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
-                     ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                     ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+                     ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
       : period(_period),
         fast_period(_fast_period),
         slow_period(_slow_period),
         ama_shift(_ama_shift),
         applied_price(_ap) {
-    itype = itype == INDI_NONE ? INDI_AMA : itype;
-    SetDataSourceType(_idstype);
+    itype = INDI_AMA;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetMaxModes(1);
     SetShift(_shift);
-    tf = _tf;
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        if (custom_indi_name == "") {
-          SetCustomIndicatorName("Examples\\AMA");
-        }
-        break;
-      case IDATA_INDICATOR:
-        if (GetDataSource() == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period), false);
-          SetDataSourceMode(0);
-        }
-        break;
-    }
-  };
-  void IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
+    SetCustomIndicatorName("Examples\\AMA");
   };
 };
 
@@ -81,8 +62,11 @@ class Indi_AMA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_AMA(IndiAMAParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AMA, _tf) { params.tf = _tf; };
+  Indi_AMA(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : params(_params.period, _tf), Indicator((IndicatorParams)_params) {
+    params = _params;
+  };
+  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AMA, _tf){};
 
   /**
    * Built-in version of AMA.
@@ -191,9 +175,6 @@ class Indi_AMA : public Indicator {
       double currentSSC = (CalculateER(i, price, ExtPeriodAMA) * (ExtFastSC - ExtSlowSC)) + ExtSlowSC;
       //--- calculate AMA
       double prevAMA = ExtAMABuffer[i - 1].Get();
-
-      //      Print(price[i].Get(), " == ", iOpen(NULL, 0, 2981 - (i)));
-
       ExtAMABuffer[i] = MathPow(currentSSC, 2) * (price[i] - prevAMA) + prevAMA;
     }
     //--- return value of prev_calculated for next call

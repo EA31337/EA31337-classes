@@ -36,18 +36,14 @@
 // Structs.
 struct ADXWParams : ADXParams {
   // Struct constructor.
-  void ADXWParams(int _period = 14, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : ADXParams(_period, _shift, _tf, _idstype) {
-    itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        SetCustomIndicatorName("Examples\\ADXW");
-        break;
-    }
+  void ADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
+                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : ADXParams(_period, _ap, _shift) {
+    itype = INDI_ADXW;
+    SetCustomIndicatorName("Examples\\ADXW");
   };
-  void ADXWParams(ADXWParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : ADXParams(_params, _tf) {}
-  void ADXWParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : ADXParams(_params, _tf) {}
+  void ADXWParams(ADXWParams &_params) { THIS_REF = _params; }
+  void ADXWParams(ADXParams &_params) { THIS_REF = _params; }
 };
 
 /**
@@ -61,8 +57,10 @@ class Indi_ADXW : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_ADXW(ADXWParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADXW, _tf) { params.tf = _tf; };
+  Indi_ADXW(ADXWParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_params, _tf) {
+    params = _params;
+  };
+  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADXW, _tf){};
 
   /**
    * Built-in version of ADX Wilder.

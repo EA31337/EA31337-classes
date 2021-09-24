@@ -28,21 +28,14 @@
 struct VolumesParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  void VolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0,
-                     ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void VolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) {
     applied_volume = _applied_volume;
     itype = INDI_VOLUMES;
     max_modes = 2;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Volumes");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void VolumesParams(VolumesParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -57,10 +50,11 @@ class Indi_Volumes : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Volumes(VolumesParams &_params) : params(_params.applied_volume), Indicator((IndicatorParams)_params) {
+  Indi_Volumes(VolumesParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator((IndicatorParams)_params, _tf) {
     params = _params;
   };
-  Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VOLUMES, _tf) { params.tf = _tf; };
+  Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VOLUMES, _tf){};
 
   /**
    * Built-in version of Volumes.

@@ -29,22 +29,15 @@ struct RateOfChangeParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void RateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0,
-                          ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void RateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
     applied_price = _ap;
     itype = INDI_RATE_OF_CHANGE;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ROC");
-    SetDataSourceType(IDATA_BUILTIN);
     period = _period;
     shift = _shift;
-    tf = _tf;
-  };
-  void RateOfChangeParams(RateOfChangeParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -59,10 +52,11 @@ class Indi_RateOfChange : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_RateOfChange(RateOfChangeParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) {
+  Indi_RateOfChange(RateOfChangeParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator((IndicatorParams)_params, _tf) {
     params = _params;
   };
-  Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RATE_OF_CHANGE, _tf) { params.tf = _tf; };
+  Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RATE_OF_CHANGE, _tf){};
 
   /**
    * Built-in version of Rate of Change.

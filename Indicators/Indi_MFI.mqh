@@ -35,7 +35,7 @@ struct MFIParams : IndicatorParams {
   unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume;  // Ignored in MT4.
   // Struct constructors.
-  void MFIParams(unsigned int _ma_period, ENUM_APPLIED_VOLUME _av = NULL, int _shift = 0)
+  void MFIParams(unsigned int _ma_period = 14, ENUM_APPLIED_VOLUME _av = VOLUME_TICK, int _shift = 0)
       : ma_period(_ma_period), applied_volume(_av) {
     itype = INDI_MFI;
     max_modes = 1;
@@ -43,10 +43,6 @@ struct MFIParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MFI");
-  };
-  void MFIParams(MFIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -61,10 +57,8 @@ class Indi_MFI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MFI(MFIParams &_p) : params(_p.ma_period, _p.applied_volume), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_MFI(MFIParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.ma_period, _p.applied_volume), Indicator(INDI_MFI, _tf) {
-    params = _p;
-  }
+  Indi_MFI(MFIParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) { params = _p; }
+  Indi_MFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_MFI, _tf) {}
 
   /**
    * Calculates the Money Flow Index indicator and returns its value.
@@ -126,16 +120,14 @@ class Indi_MFI : public Indicator {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
-        _value =
-            Indi_MFI::iMFI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), _shift);
+        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
 #else  // __MQL5__
-        _value = Indi_MFI::iMFI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                GetAppliedVolume(), _shift, GetPointer(this));
+        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift, THIS_PTR);
 #endif
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod(), VOLUME_TICK /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+                         VOLUME_TICK /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

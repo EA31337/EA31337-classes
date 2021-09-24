@@ -49,23 +49,17 @@ enum ENUM_HA_MODE {
 // Structs.
 struct HeikenAshiParams : IndicatorParams {
   // Struct constructors.
-  void HeikenAshiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void HeikenAshiParams(int _shift = 0) {
     itype = INDI_HEIKENASHI;
     max_modes = FINAL_HA_MODE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);  // @fixit It draws candles!
-    SetDataSourceType(IDATA_BUILTIN);
 #ifdef __MQL4__
     SetCustomIndicatorName("Heiken Ashi");
 #else
     SetCustomIndicatorName("Examples\\Heiken_Ashi");
 #endif
     shift = _shift;
-    tf = _tf;
-  };
-  void HeikenAshiParams(HeikenAshiParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -80,7 +74,9 @@ class Indi_HeikenAshi : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(IndicatorParams &_p) : Indicator((IndicatorParams)_p) {}
+  Indi_HeikenAshi(IndicatorParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
+    params = _p;
+  }
   Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_HEIKENASHI, _tf) {}
 
   /**
@@ -167,8 +163,8 @@ class Indi_HeikenAshi : public Indicator {
   /**
    * OnCalculate() method for Mass Index indicator.
    */
-  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtOBuffer,
-                       ValueStorage<double> &ExtHBuffer, ValueStorage<double> &ExtLBuffer,
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtLBuffer,
+                       ValueStorage<double> &ExtHBuffer, ValueStorage<double> &ExtOBuffer,
                        ValueStorage<double> &ExtCBuffer, ValueStorage<double> &ExtColorBuffer) {
     int start;
     //--- preliminary calculations
@@ -211,7 +207,7 @@ class Indi_HeikenAshi : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
+        _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
@@ -219,7 +215,7 @@ class Indi_HeikenAshi : public Indicator {
       case IDATA_ICUSTOM_LEGACY:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_HeikenAshi::iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode,
-                                                          _shift, GetPointer(this));
+                                                          _shift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

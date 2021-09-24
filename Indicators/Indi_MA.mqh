@@ -62,10 +62,6 @@ struct MAParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Moving Average");
   };
-  void MAParams(MAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
-  };
 };
 
 /**
@@ -79,13 +75,8 @@ class Indi_MA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MA(MAParams &_p) : params(_p.period, _p.shift, _p.ma_method, _p.applied_array), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_MA(MAParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.shift, _p.ma_method, _p.applied_array), Indicator(INDI_MA, _tf) {
-    params = _p;
-  }
+  Indi_MA(MAParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) { params = _p; }
+  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_MA, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -641,19 +632,17 @@ class Indi_MA : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_MA::iMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                              GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift,
+                              THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.custom_indi_name, /* [ */ GetPeriod(), GetMAShift(), GetMAMethod(),
-                         GetAppliedPrice() /* ] */, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */ GetPeriod(),
+                         GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(),
-                                         Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetSymbol(), GetTf(),
                                          GetPeriod(), GetMAShift(), GetMAMethod(), _shift);
         break;
     }

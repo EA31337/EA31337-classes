@@ -52,21 +52,17 @@ struct EnvelopesParams : IndicatorParams {
   void EnvelopesParams(int _ma_period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
                        ENUM_APPLIED_PRICE _ap = PRICE_OPEN, double _deviation = 2, int _shift = 0)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
-    itype = INDI_ENVELOPES;
 #ifdef __MQL5__
     // There is no LINE_MAIN in MQL5 for Envelopes.
     max_modes = 2;
 #else
     max_modes = 3;
 #endif
+    itype = INDI_ENVELOPES;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Envelopes");
-  };
-  void EnvelopesParams(EnvelopesParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -82,16 +78,10 @@ class Indi_Envelopes : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Envelopes(EnvelopesParams &_p)
-      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price, _p.deviation),
-        Indicator((IndicatorParams)_p) {
+  Indi_Envelopes(EnvelopesParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
     params = _p;
   }
-  Indi_Envelopes(EnvelopesParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price, _p.deviation),
-        Indicator(INDI_ENVELOPES, _tf) {
-    params = _p;
-  }
+  Indi_Envelopes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ENVELOPES, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -213,19 +203,17 @@ class Indi_Envelopes : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Envelopes::iEnvelopes(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                            GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(),
-                                            GetDeviation(), _mode, _shift, GetPointer(this));
+        _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
+                                            GetAppliedPrice(), GetDeviation(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /**/ GetMAPeriod(), GetMAMethod(), GetMAShift(),
-                         GetAppliedPrice(), GetDeviation() /**/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /**/ GetMAPeriod(),
+                         GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation() /**/, _mode, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Envelopes::iEnvelopesOnIndicator(
-            GetCache(), GetDataSource(), Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-            GetMAPeriod(), GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(), _mode, _shift);
+        _value = Indi_Envelopes::iEnvelopesOnIndicator(GetCache(), GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
+                                                       GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(),
+                                                       _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

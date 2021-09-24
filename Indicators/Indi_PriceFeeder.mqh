@@ -32,12 +32,11 @@ struct PriceFeederIndiParams : IndicatorParams {
   /**
    * Struct constructor.
    */
-  void PriceFeederIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void PriceFeederIndiParams(int _shift = 0) {
     itype = INDI_PRICE_FEEDER;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     shift = _shift;
-    tf = _tf;
   }
 
   /**
@@ -65,7 +64,10 @@ class Indi_PriceFeeder : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_PriceFeeder(PriceFeederIndiParams& _p) : Indicator((IndicatorParams)_p) { params = _p; };
+  Indi_PriceFeeder(PriceFeederIndiParams& _params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator((IndicatorParams)_params, _tf) {
+    params = _params;
+  };
   Indi_PriceFeeder(const double& _price_data[], int _total = 0)
       : params(_price_data, _total), Indicator(INDI_PRICE_FEEDER){};
 

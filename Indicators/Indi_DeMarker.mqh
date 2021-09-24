@@ -34,17 +34,14 @@ double iDeMarker(string _symbol, int _tf, int _period, int _shift) {
 struct DeMarkerParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void DeMarkerParams(unsigned int _period, int _shift = 0) : period(_period) {
+  void DeMarkerParams(unsigned int _period = 14, int _shift = 0) : period(_period) {
     itype = INDI_DEMARKER;
     max_modes = 1;
     shift = _shift;
+    itype = INDI_DEMARKER;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\DeMarker");
-  };
-  void DeMarkerParams(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -58,10 +55,10 @@ class Indi_DeMarker : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_DeMarker(DeMarkerParams &_p) : params(_p.period), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_DeMarker(DeMarkerParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period), Indicator(INDI_DEMARKER, _tf) {
+  Indi_DeMarker(DeMarkerParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
     params = _p;
   }
+  Indi_DeMarker(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DEMARKER, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -113,13 +110,11 @@ class Indi_DeMarker : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = _value =
-            Indi_DeMarker::iDeMarker(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                     _shift, GetPointer(this));
+        _value = _value = Indi_DeMarker::iDeMarker(GetSymbol(), GetTf(), GetPeriod(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+                         0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

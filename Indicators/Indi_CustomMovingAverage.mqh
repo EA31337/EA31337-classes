@@ -31,23 +31,16 @@ struct CustomMovingAverageParams : IndicatorParams {
   ENUM_MA_METHOD smooth_method;
   // Struct constructor.
   void CustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0,
-                                 ENUM_MA_METHOD _smooth_method = MODE_SMMA, int _shift = 0,
-                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+                                 ENUM_MA_METHOD _smooth_method = MODE_SMMA, int _shift = 0) {
     itype = INDI_CUSTOM_MOVING_AVG;
     max_modes = 3;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Custom Moving Average");
-    SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;
     smooth_shift = _smooth_shift;
-    tf = _tf;
-  };
-  void CustomMovingAverageParams(CustomMovingAverageParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -62,12 +55,11 @@ class Indi_CustomMovingAverage : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_CustomMovingAverage(CustomMovingAverageParams &_params) : Indicator((IndicatorParams)_params) {
+  Indi_CustomMovingAverage(CustomMovingAverageParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator((IndicatorParams)_params, _tf) {
     params = _params;
   };
-  Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM_MOVING_AVG, _tf) {
-    params.tf = _tf;
-  };
+  Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM_MOVING_AVG, _tf){};
 
   /**
    * Returns the indicator's value.
@@ -77,9 +69,8 @@ class Indi_CustomMovingAverage : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(), GetSmoothShift(),
-                         GetSmoothMethod() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
+                         GetSmoothShift(), GetSmoothMethod() /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

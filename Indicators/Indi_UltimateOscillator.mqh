@@ -36,8 +36,7 @@ struct UltimateOscillatorParams : IndicatorParams {
 
   // Struct constructor.
   void UltimateOscillatorParams(int _fast_period = 7, int _middle_period = 14, int _slow_period = 28, int _fast_k = 4,
-                                int _middle_k = 2, int _slow_k = 1, int _shift = 0,
-                                ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+                                int _middle_k = 2, int _slow_k = 1, int _shift = 0) {
     fast_k = _fast_k;
     fast_period = _fast_period;
     itype = INDI_ULTIMATE_OSCILLATOR;
@@ -46,24 +45,10 @@ struct UltimateOscillatorParams : IndicatorParams {
     middle_period = _middle_period;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
-    // SetDataSourceType(IDATA_ICUSTOM);
-    SetDataSourceType(IDATA_BUILTIN);
     SetCustomIndicatorName("Examples\\Ultimate_Oscillator");
-    // IC:  INDI_ULTIMATE_OSCILLATOR[1]: bar 1: 1525392000,130,45.93870749
-    // IC:  INDI_ULTIMATE_OSCILLATOR[1]: bar 1: 1525392120,130,36.36985216
-    // IC:  INDI_ULTIMATE_OSCILLATOR[1]: bar 1: 1525392180,130,40.82834908
-
-    // BIN: INDI_ULTIMATE_OSCILLATOR[1]: bar 2: 1525392240,130,53.10341381
-
-    // SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
     slow_k = _slow_k;
     slow_period = _slow_period;
-    tf = _tf;
-  };
-  void UltimateOscillatorParams(UltimateOscillatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -78,12 +63,11 @@ class Indi_UltimateOscillator : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_UltimateOscillator(UltimateOscillatorParams &_params) : Indicator((IndicatorParams)_params) {
+  Indi_UltimateOscillator(UltimateOscillatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator((IndicatorParams)_params, _tf) {
     params = _params;
   };
-  Indi_UltimateOscillator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ULTIMATE_OSCILLATOR, _tf) {
-    params.tf = _tf;
-  };
+  Indi_UltimateOscillator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ULTIMATE_OSCILLATOR, _tf){};
 
   /**
    * Built-in version of Ultimate Oscillator.
