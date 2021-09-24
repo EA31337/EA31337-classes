@@ -22,6 +22,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.all.h"
 
 // Enums.
 // Indicator mode identifiers used in ZigZag indicator.

@@ -29,6 +29,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.all.h"
 
 // Enums.
 enum ENUM_HA_MODE {

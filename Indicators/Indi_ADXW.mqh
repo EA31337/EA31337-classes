@@ -36,9 +36,9 @@
 // Structs.
 struct ADXWParams : ADXParams {
   // Struct constructor.
-  void ADXWParams(int _period = 14, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : ADXParams(_period, _shift, _tf, _idstype) {
+  void ADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
+                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+      : ADXParams(_period, _ap, _shift, _tf, _idstype) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
     switch (idstype) {
       case IDATA_ICUSTOM:

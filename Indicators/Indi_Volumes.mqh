@@ -36,7 +36,7 @@ struct VolumesParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Volumes");
-    SetDataSourceType(IDATA_BUILTIN);
+    SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
     tf = _tf;
   };

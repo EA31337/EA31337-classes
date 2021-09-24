@@ -272,7 +272,9 @@ bool InitIndicators() {
   indis.Push(new Indi_Gator(gator_params));
 
   // Heiken Ashi.
+#ifdef __MQL5__
   indis.Push(new Indi_HeikenAshi());
+#endif
 
   // Ichimoku Kinko Hyo.
   IchimokuParams ichi_params(9, 26, 52);
@@ -477,7 +479,9 @@ bool InitIndicators() {
 
   // Color Line.
   ColorLineParams color_line_params();
+#ifdef __MQL5__
   indis.Push(new Indi_ColorLine(color_line_params));
+#endif
 
   // Detrended Price Oscillator.
   DetrendedPriceParams detrended_params();
@@ -487,7 +491,7 @@ bool InitIndicators() {
   MassIndexParams mass_index_params();
   indis.Push(new Indi_MassIndex(mass_index_params));
 
-// Price Channel.
+  // Price Channel.
 #ifdef __MQL5__
   PriceChannelParams price_channel_params();
   indis.Push(new Indi_PriceChannel(price_channel_params));
@@ -499,7 +503,9 @@ bool InitIndicators() {
 
   // Bill Williams' Zone Trade.
   BWZTParams bwzt_params();
+#ifdef __MQL5__
   indis.Push(new Indi_BWZT(bwzt_params));
+#endif
 
   // Rate of Change.
   RateOfChangeParams rate_of_change_params();
@@ -515,7 +521,9 @@ bool InitIndicators() {
 
   // Ultimate Oscillator.
   UltimateOscillatorParams ultimate_oscillator_params();
+#ifdef __MQL5__
   indis.Push(new Indi_UltimateOscillator(ultimate_oscillator_params));
+#endif
 
   // VIDYA.
   VIDYAParams vidya_params();
@@ -523,7 +531,9 @@ bool InitIndicators() {
 
   // Volumes.
   VolumesParams volumes_params();
+#ifdef __MQL5__
   indis.Push(new Indi_Volumes(volumes_params));
+#endif
 
   // Volume Rate of Change.
   VROCParams vol_rate_of_change_params();
