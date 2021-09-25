@@ -525,6 +525,14 @@ class Chart : public Market {
   /* Setters */
 
   /**
+   * Sets a chart parameter value.
+   */
+  template <typename T>
+  void Set(ENUM_CHART_PARAM _param, T _value) {
+    cparams.Set<T>(_param, _value);
+  }
+
+  /**
    * Sets chart entry.
    */
   void SetEntry(ChartEntry &_entry) { c_entry = _entry; }

@@ -23,18 +23,20 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.all.h"
 
 // Structs.
 struct ASIParams : IndicatorParams {
   unsigned int period;
+  double mpc;
   // Struct constructor.
-  void ASIParams(double _mpc, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ASIParams(double _mpc = 300.0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_ASI;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ASI");
-    SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_BUILTIN);
     mpc = _mpc;
     shift = _shift;
     tf = _tf;
@@ -60,15 +62,115 @@ class Indi_ASI : public Indicator {
   Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ASI, _tf) { params.tf = _tf; };
 
   /**
+   * Built-in version of ASI.
+   */
+  static double iASI(string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0, int _shift = 0,
+                     Indicator *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_ASI", _mpc));
+    return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
+  }
+
+  /**
+   * Calculates ASI on the array of values.
+   */
+  static double iASIOnArray(INDICATOR_CALCULATE_PARAMS_LONG, double _mpc, int _mode, int _shift,
+                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(3);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_ASI::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
+                                                 _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2), _mpc));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnInit() method for ASI indicator.
+   */
+  static void CalculateInit(double InpT, double &ExtTpoints, double &ExtT) {
+    // Check for input value.
+    if (MathAbs(InpT) > 1e-7)
+      ExtT = InpT;
+    else {
+      ExtT = 300.0;
+      PrintFormat("Input parameter T has wrong value. Indicator will use T = %f.", ExtT);
+    }
+    // Calculate ExtTpoints value.
+    if (_Point > 1e-7)
+      ExtTpoints = ExtT * _Point;
+    else
+      ExtTpoints = ExtT * MathPow(10, -_Digits);
+  }
+
+  /**
+   * OnCalculate() method for ASI indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtASIBuffer,
+                       ValueStorage<double> &ExtSIBuffer, ValueStorage<double> &ExtTRBuffer, double InpT) {
+    double ExtTpoints, ExtT;
+
+    CalculateInit(InpT, ExtTpoints, ExtT);
+
+    if (rates_total < 2) return (0);
+    // Start calculation.
+    int pos = prev_calculated - 1;
+    // Correct position, when it's first iteration.
+    if (pos <= 0) {
+      pos = 1;
+      ExtASIBuffer[0] = 0.0;
+      ExtSIBuffer[0] = 0.0;
+      ExtTRBuffer[0] = high[0] - low[0];
+    }
+    // Main cycle.
+    for (int i = pos; i < rates_total && !IsStopped(); i++) {
+      // Get some data.
+      double dPrevClose = close[i - 1].Get();
+      double dPrevOpen = open[i - 1].Get();
+      double dClose = close[i].Get();
+      double dHigh = high[i].Get();
+      double dLow = low[i].Get();
+      // Fill TR buffer.
+      ExtTRBuffer[i] = MathMax(dHigh, dPrevClose) - MathMin(dLow, dPrevClose);
+      double ER = 0.0;
+      if (!(dPrevClose >= dLow && dPrevClose <= dHigh)) {
+        if (dPrevClose > dHigh) ER = MathAbs(dHigh - dPrevClose);
+        if (dPrevClose < dLow) ER = MathAbs(dLow - dPrevClose);
+      }
+      double K = MathMax(MathAbs(dHigh - dPrevClose), MathAbs(dLow - dPrevClose));
+      double SH = MathAbs(dPrevClose - dPrevOpen);
+      double R = ExtTRBuffer[i] - 0.5 * ER + 0.25 * SH;
+      // Calculate SI value.
+      if (R == 0.0 || ExtTpoints == 0.0)
+        ExtSIBuffer[i] = 0.0;
+      else
+        ExtSIBuffer[i] = 50 * (dClose - dPrevClose + 0.5 * (dClose - open[i].Get()) + 0.25 * (dPrevClose - dPrevOpen)) *
+                         (K / ExtTpoints) / R;
+      // Write down ASI buffer value.
+      ExtASIBuffer[i] = ExtASIBuffer[i - 1] + ExtSIBuffer[i];
+    }
+    // OnCalculate done. Return new prev_calculated.
+    return (rates_total);
+  }
+
+  /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_ASI::iASI(GetSymbol(), GetTf(), /*[*/ GetMaximumPriceChanging() /*]*/, _mode, _shift, THIS_PTR);
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(),
                          /*[*/ GetMaximumPriceChanging() /*]*/, 0, _shift);
         break;
       default:

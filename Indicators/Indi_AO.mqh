@@ -154,6 +154,18 @@ class Indi_AO : public Indicator {
   }
 
   /**
+   * Returns reusable indicator for a given symbol and time-frame.
+   */
+  static Indi_AO *GetCached(string _symbol, ENUM_TIMEFRAMES _tf) {
+    Indi_AO *_ptr;
+    string _key = Util::MakeKey(_symbol, (int)_tf);
+    if (!Objects<Indi_AO>::TryGet(_key, _ptr)) {
+      _ptr = Objects<Indi_AO>::Set(_key, new Indi_AO(_tf));
+    }
+    return _ptr;
+  }
+
+  /**
    * Returns the indicator's entry value.
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
