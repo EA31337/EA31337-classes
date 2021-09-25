@@ -23,7 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../ValueStorage.all.h"
+#include "../Storage/ValueStorage.all.h"
 
 // Structs.
 struct ASIParams : IndicatorParams {
@@ -82,7 +82,7 @@ class Indi_ASI : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(Indi_ASI::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
@@ -95,14 +95,14 @@ class Indi_ASI : public Indicator {
    * OnInit() method for ASI indicator.
    */
   static void CalculateInit(double InpT, double &ExtTpoints, double &ExtT) {
-    //--- check for input value
+    // Check for input value.
     if (MathAbs(InpT) > 1e-7)
       ExtT = InpT;
     else {
       ExtT = 300.0;
       PrintFormat("Input parameter T has wrong value. Indicator will use T = %f.", ExtT);
     }
-    //--- calculate ExtTpoints value
+    // Calculate ExtTpoints value.
     if (_Point > 1e-7)
       ExtTpoints = ExtT * _Point;
     else
@@ -119,24 +119,24 @@ class Indi_ASI : public Indicator {
     CalculateInit(InpT, ExtTpoints, ExtT);
 
     if (rates_total < 2) return (0);
-    //--- start calculation
+    // Start calculation.
     int pos = prev_calculated - 1;
-    //--- correct position, when it's first iteration
+    // Correct position, when it's first iteration.
     if (pos <= 0) {
       pos = 1;
       ExtASIBuffer[0] = 0.0;
       ExtSIBuffer[0] = 0.0;
       ExtTRBuffer[0] = high[0] - low[0];
     }
-    //--- main cycle
+    // Main cycle.
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
-      //--- get some data
+      // Get some data.
       double dPrevClose = close[i - 1].Get();
       double dPrevOpen = open[i - 1].Get();
       double dClose = close[i].Get();
       double dHigh = high[i].Get();
       double dLow = low[i].Get();
-      //--- fill TR buffer
+      // Fill TR buffer.
       ExtTRBuffer[i] = MathMax(dHigh, dPrevClose) - MathMin(dLow, dPrevClose);
       double ER = 0.0;
       if (!(dPrevClose >= dLow && dPrevClose <= dHigh)) {
@@ -146,16 +146,16 @@ class Indi_ASI : public Indicator {
       double K = MathMax(MathAbs(dHigh - dPrevClose), MathAbs(dLow - dPrevClose));
       double SH = MathAbs(dPrevClose - dPrevOpen);
       double R = ExtTRBuffer[i] - 0.5 * ER + 0.25 * SH;
-      //--- calculate SI value
+      // Calculate SI value.
       if (R == 0.0 || ExtTpoints == 0.0)
         ExtSIBuffer[i] = 0.0;
       else
         ExtSIBuffer[i] = 50 * (dClose - dPrevClose + 0.5 * (dClose - open[i].Get()) + 0.25 * (dPrevClose - dPrevOpen)) *
                          (K / ExtTpoints) / R;
-      //--- write down ASI buffer value
+      // Write down ASI buffer value.
       ExtASIBuffer[i] = ExtASIBuffer[i - 1] + ExtSIBuffer[i];
     }
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 

@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "DictStruct.mqh"
+#include "../DictStruct.mqh"
 
 /**
  * Makes DictStruct object pointers to be deleted at the end.

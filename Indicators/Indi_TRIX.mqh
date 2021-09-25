@@ -23,7 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../ValueStorage.price.h"
+#include "../Storage/ValueStorage.price.h"
 #include "Indi_MA.mqh"
 
 // Structs.
@@ -91,7 +91,7 @@ class Indi_TRIX : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(Indi_TRIX::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
@@ -108,28 +108,27 @@ class Indi_TRIX : public Indicator {
                        ValueStorage<double> &EMA, ValueStorage<double> &SecondEMA, ValueStorage<double> &ThirdEMA,
                        int InpPeriodEMA) {
     if (rates_total < 3 * InpPeriodEMA - 3) return (0);
-    //---
     int start, i;
     if (prev_calculated == 0) {
       start = 3 * (InpPeriodEMA - 1);
       for (i = 0; i < start; i++) TRIX_Buffer[i] = EMPTY_VALUE;
     } else
       start = prev_calculated - 1;
-    //--- calculate EMA
+    // Calculate EMA.
     Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, 0, InpPeriodEMA, price, EMA);
-    //--- calculate EMA on EMA array
+    // Calculate EMA on EMA array.
     Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, InpPeriodEMA - 1, InpPeriodEMA, EMA, SecondEMA);
-    //--- calculate EMA on EMA array on EMA array
+    // Calculate EMA on EMA array on EMA array.
     Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, 2 * InpPeriodEMA - 2, InpPeriodEMA, SecondEMA,
                                    ThirdEMA);
-    //--- calculate TRIX
+    // Calculate TRIX
     for (i = start; i < rates_total && !IsStopped(); i++) {
       if (ThirdEMA[i - 1] != 0.0)
         TRIX_Buffer[i] = (ThirdEMA[i] - ThirdEMA[i - 1]) / ThirdEMA[i - 1].Get();
       else
         TRIX_Buffer[i] = 0.0;
     }
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 

@@ -107,7 +107,7 @@ class Indi_BWZT : public Indicator {
                        ValueStorage<double> &ExtAOBuffer, ValueStorage<double> &ExtACBuffer, int DATA_LIMIT,
                        Indicator *ExtACHandle, Indicator *ExtAOHandle) {
     if (rates_total < DATA_LIMIT) return (0);
-    //--- not all data may be calculated
+    // Not all data may be calculated.
     int calculated = BarsCalculated(ExtACHandle, rates_total);
     if (calculated < rates_total) {
       // Not all data of ExtACHandle is calculated.
@@ -118,7 +118,7 @@ class Indi_BWZT : public Indicator {
       // Not all data of ExtAOHandle is calculated.
       return (0);
     }
-    //--- we can copy not all data
+    // We can copy not all data.
     int to_copy;
     if (prev_calculated > rates_total || prev_calculated < 0)
       to_copy = rates_total;
@@ -126,41 +126,40 @@ class Indi_BWZT : public Indicator {
       to_copy = rates_total - prev_calculated;
       if (prev_calculated > 0) to_copy++;
     }
-    //--- get AC buffer
-    if (IsStopped())  // checking for stop flag
-      return (0);
-    if (CopyBuffer(ExtACHandle, 0, 0, to_copy, ExtACBuffer) <= 0) {
+    // Get AC buffer.
+    if (IsStopped()) return (0);
+    if (CopyBuffer(ExtACHandle, 0, 0, to_copy, ExtACBuffer, rates_total) <= 0) {
       Print("Getting iAC is failed! Error ", GetLastError());
       return (0);
     }
-    //--- get AO buffer
-    if (IsStopped())  // checking for stop flag
-      return (0);
-    if (CopyBuffer(ExtAOHandle, 0, 0, to_copy, ExtAOBuffer) <= 0) {
+    // Get AO buffer.
+    if (IsStopped()) return (0);
+    if (CopyBuffer(ExtAOHandle, 0, 0, to_copy, ExtAOBuffer, rates_total) <= 0) {
       Print("Getting iAO is failed! Error ", GetLastError());
       return (0);
     }
-    //--- set first bar from what calculation will start
+    // Set first bar from what calculation will start.
     int start;
     if (prev_calculated < DATA_LIMIT)
       start = DATA_LIMIT;
     else
       start = prev_calculated - 1;
-    //--- the main loop of calculations
+    // The main loop of calculations.
     for (int i = start; i < rates_total && !IsStopped(); i++) {
       ExtOBuffer[i] = open[i];
       ExtHBuffer[i] = high[i];
       ExtLBuffer[i] = low[i];
       ExtCBuffer[i] = close[i];
 
-      //--- set color for candle
-      ExtColorBuffer[i] = 2.0;  // set gray Color
-      //--- check for Green Zone and set Color Green
+      // Set colors for candle.
+      // Set gray color.
+      ExtColorBuffer[i] = 2.0;
+      // Check for Green Zone and set Color Green.
       if (ExtACBuffer[i] > ExtACBuffer[i - 1] && ExtAOBuffer[i] > ExtAOBuffer[i - 1]) ExtColorBuffer[i] = 0.0;
-      //--- check for Red Zone and set Color Red
+      // Check for Red Zone and set Color Red.
       if (ExtACBuffer[i] < ExtACBuffer[i - 1] && ExtAOBuffer[i] < ExtAOBuffer[i - 1]) ExtColorBuffer[i] = 1.0;
     }
-    //--- return value of prev_calculated for next call
+    // Return value of prev_calculated for next call.
     return (rates_total);
   }
 

@@ -63,7 +63,6 @@
 #include "Indi_MA.mqh"
 #include "Indi_MACD.mqh"
 #include "Indi_MFI.mqh"
-#include "Indi_MarketFacilitationIndex.mqh"
 #include "Indi_MassIndex.mqh"
 #include "Indi_Momentum.mqh"
 #include "Indi_OBV.mqh"

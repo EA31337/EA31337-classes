@@ -23,22 +23,22 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.h"
+#include "../Storage/ValueStorage.price.h"
+#include "../Storage/ValueStorage.spread.h"
+#include "../Storage/ValueStorage.tick_volume.h"
+#include "../Storage/ValueStorage.time.h"
+#include "../Storage/ValueStorage.volume.h"
 #include "../Util.h"
-#include "../ValueStorage.h"
-#include "../ValueStorage.price.h"
-#include "../ValueStorage.spread.h"
-#include "../ValueStorage.tick_volume.h"
-#include "../ValueStorage.time.h"
-#include "../ValueStorage.volume.h"
 #include "Indi_ADX.mqh"
 #include "Indi_Price.mqh"
 
 // Structs.
 struct ADXWParams : ADXParams {
   // Struct constructor.
-  void ADXWParams(int _period = 14, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : ADXParams(_period, _shift, _tf, _idstype) {
+  void ADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
+                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+      : ADXParams(_period, _ap, _shift, _tf, _idstype) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
     switch (idstype) {
       case IDATA_ICUSTOM:
@@ -89,7 +89,7 @@ class Indi_ADXW : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(Indi_ADXW::Calculate(
@@ -199,7 +199,7 @@ class Indi_ADXW : public Indicator {
    */
   static double SmoothedMA(const int position, const int period, const double prev_value, ValueStorage<double> &price) {
     double result = 0.0;
-    //--- check period
+    // Check period.
     if (period > 0 && period <= (position + 1)) {
       if (position == period - 1) {
         for (int i = 0; i < period; i++) result += price[position - i].Get();

@@ -101,7 +101,7 @@ class Indi_CHO : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(Indi_CHO::Calculate(
@@ -119,13 +119,13 @@ class Indi_CHO : public Indicator {
                        ValueStorage<double> &ExtADBuffer, int InpFastMA, int InpSlowMA, ENUM_MA_METHOD InpSmoothMethod,
                        ENUM_APPLIED_VOLUME InpVolumeType) {
     if (rates_total < InpSlowMA) return (0);
-    //--- preliminary calculations
+    // Preliminary calculations.
     int i, start;
     if (prev_calculated < 2)
       start = 0;
     else
       start = prev_calculated - 2;
-    //--- calculate AD buffer
+    // Calculate AD buffer.
     if (InpVolumeType == VOLUME_TICK) {
       for (i = start; i < rates_total && !IsStopped(); i++) {
         ExtADBuffer[i] = AD(high[i].Get(), low[i].Get(), close[i].Get(), tick_volume[i].Get());
@@ -137,23 +137,21 @@ class Indi_CHO : public Indicator {
         if (i > 0) ExtADBuffer[i] += ExtADBuffer[i - 1];
       }
     }
-    //--- calculate EMA on array ExtADBuffer
+    // Calculate EMA on array ExtADBuffer.
     AverageOnArray(InpSmoothMethod, rates_total, prev_calculated, 0, InpFastMA, ExtADBuffer, ExtFastEMABuffer);
     AverageOnArray(InpSmoothMethod, rates_total, prev_calculated, 0, InpSlowMA, ExtADBuffer, ExtSlowEMABuffer);
-    //--- calculate chaikin oscillator
+    // Calculate chaikin oscillator.
     for (i = start; i < rates_total && !IsStopped(); i++) ExtCHOBuffer[i] = ExtFastEMABuffer[i] - ExtSlowEMABuffer[i];
-    //--- return value of prev_calculated for next call
+    // Return value of prev_calculated for next call.
     return (rates_total);
   }
 
   static double AD(double high, double low, double close, long volume) {
     double res = 0.0;
-    //---
     double sum = (close - low) - (high - close);
     if (sum != 0.0) {
       if (high != low) res = (sum / (high - low)) * volume;
     }
-    //---
     return (res);
   }
 

@@ -36,7 +36,7 @@ struct PriceVolumeTrendParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\PVT");
-    SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     tf = _tf;
   };
@@ -47,7 +47,7 @@ struct PriceVolumeTrendParams : IndicatorParams {
 };
 
 /**
- * Implements the Bill Williams' Accelerator/Decelerator oscillator.
+ * Implements the Price Volume Trend indicator.
  */
 class Indi_PriceVolumeTrend : public Indicator {
  protected:
@@ -66,15 +66,81 @@ class Indi_PriceVolumeTrend : public Indicator {
   };
 
   /**
+   * Built-in version of Price Volume Trend.
+   */
+  static double iPVT(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
+                     Indicator *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_PriceVolumeTrend", (int)_av));
+    return iPVTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
+  }
+
+  /**
+   * Calculates Price Volume Trend on the array of values.
+   */
+  static double iPVTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, ENUM_APPLIED_VOLUME _av, int _mode, int _shift,
+                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(
+        Indi_PriceVolumeTrend::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _av));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for Price Volume Trend indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtPVTBuffer,
+                       ENUM_APPLIED_VOLUME InpVolumeType) {
+    if (rates_total < 2) return (0);
+    int pos = prev_calculated - 1;
+    // Correct position, when it's first iteration.
+    if (pos < 0) {
+      pos = 1;
+      ExtPVTBuffer[0] = 0.0;
+    }
+    // Main cycle.
+    if (InpVolumeType == VOLUME_TICK)
+      CalculatePVT(pos, rates_total, close, tick_volume, ExtPVTBuffer);
+    else
+      CalculatePVT(pos, rates_total, close, volume, ExtPVTBuffer);
+    // OnCalculate done. Return new prev_calculated.
+    return (rates_total);
+  }
+
+  static void CalculatePVT(const int pos, const int rates_total, ValueStorage<double> &close,
+                           ValueStorage<long> &volume, ValueStorage<double> &ExtPVTBuffer) {
+    for (int i = pos; i < rates_total && !IsStopped(); i++) {
+      double prev_close = close[i - 1].Get();
+      // Calculate PVT value.
+      if (prev_close != 0)
+        ExtPVTBuffer[i] = ((close[i] - prev_close) / prev_close) * volume[i].Get() + ExtPVTBuffer[i - 1].Get();
+      else
+        ExtPVTBuffer[i] = ExtPVTBuffer[i - 1];
+    }
+  }
+
+  /**
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value =
+            Indi_PriceVolumeTrend::iPVT(GetSymbol(), GetTf(), /*[*/ GetAppliedVolume() /*]*/, _mode, _shift, THIS_PTR);
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(),
                          /*[*/ GetAppliedVolume() /*]*/, 0, _shift);
         break;
       default:

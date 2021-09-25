@@ -111,6 +111,23 @@ class Util {
   }
 
   /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G>
+  static string MakeKey(const A a, const B b, const C c, const D d, const E e, const F f, const G g) {
+    string _a = SerializerConversions::ValueToString(a);
+    string _b = SerializerConversions::ValueToString(b);
+    string _c = SerializerConversions::ValueToString(c);
+    string _d = SerializerConversions::ValueToString(d);
+    string _e = SerializerConversions::ValueToString(e);
+    string _f = SerializerConversions::ValueToString(f);
+    string _g = SerializerConversions::ValueToString(g);
+
+    return SeparatedMaybe(_a) + SeparatedMaybe(_b) + SeparatedMaybe(_c) + SeparatedMaybe(_d) + SeparatedMaybe(_e) +
+           SeparatedMaybe(_f) + _g;
+  }
+
+  /**
    * Creates string with separator if string was not empty.
    */
   static string SeparatedMaybe(string _value, string _separator = "/") {

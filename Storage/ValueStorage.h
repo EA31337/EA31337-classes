@@ -93,9 +93,9 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
 #define INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT _price
 
 // Includes.
-#include "Array.mqh"
+#include "../Array.mqh"
+#include "../Util.h"
 #include "IValueStorage.h"
-#include "Util.h"
 #include "ValueStorage.accessor.h"
 
 /**
@@ -142,6 +142,14 @@ class ValueStorage : public IValueStorage {
   virtual void Store(int _shift, C _value) {
     Alert(__FUNCSIG__, " is not supported!");
     DebugBreak();
+  }
+
+  /**
+   * Sets buffer drawing attributes. Currently does nothing.
+   */
+  bool PlotIndexSetInteger(int prop_id, int prop_modifier_or_value, int prop_value) {
+    // @todo Implementation.
+    return true;
   }
 };
 

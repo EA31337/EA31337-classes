@@ -24,8 +24,8 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 #include "../Indicators/Indi_Price.mqh"
-#include "../ValueStorage.h"
-#include "../ValueStorage.price.h"
+#include "../Storage/ValueStorage.h"
+#include "../Storage/ValueStorage.price.h"
 
 // Structs.
 struct IndiAMAParams : IndicatorParams {
@@ -114,7 +114,7 @@ class Indi_AMA : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(Indi_AMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
@@ -129,7 +129,7 @@ class Indi_AMA : public Indicator {
   static void CalculateInit(int InpPeriodAMA, int InpFastPeriodEMA, int InpSlowPeriodEMA, int InpShiftAMA,
                             double &ExtFastSC, double &ExtSlowSC, int &ExtPeriodAMA, int &ExtSlowPeriodEMA,
                             int &ExtFastPeriodEMA) {
-    //--- check for input values
+    // Check for input values.
     if (InpPeriodAMA <= 0) {
       ExtPeriodAMA = 10;
       PrintFormat(
@@ -152,7 +152,7 @@ class Indi_AMA : public Indicator {
     } else
       ExtFastPeriodEMA = InpFastPeriodEMA;
 
-    //--- calculate ExtFastSC & ExtSlowSC
+    // Calculate ExtFastSC & ExtSlowSC.
     ExtFastSC = 2.0 / (ExtFastPeriodEMA + 1.0);
     ExtSlowSC = 2.0 / (ExtSlowPeriodEMA + 1.0);
   }
@@ -172,31 +172,29 @@ class Indi_AMA : public Indicator {
                   ExtSlowPeriodEMA, ExtFastPeriodEMA);
 
     int i;
-    //--- check for rates count
+    // Check for rates count.
     if (rates_total < ExtPeriodAMA + begin) return (0);
-    //--- draw begin may be corrected
+    // Draw begin may be corrected.
     if (begin != 0) PlotIndexSetInteger(0, PLOT_DRAW_BEGIN, ExtPeriodAMA + begin);
-    //--- detect position
+    // Detect position.
     int pos = prev_calculated - 1;
-    //--- first calculations
+    // First calculations.
     if (pos < ExtPeriodAMA + begin) {
       pos = ExtPeriodAMA + begin;
       for (i = 0; i < pos - 1; i++) ExtAMABuffer[i] = 0.0;
 
       ExtAMABuffer[pos - 1] = price[pos - 1];
     }
-    //--- main cycle
+    // Main cycle.
     for (i = pos; i < rates_total && !IsStopped(); i++) {
-      //--- calculate SSC
+      // Calculate SSC.
       double currentSSC = (CalculateER(i, price, ExtPeriodAMA) * (ExtFastSC - ExtSlowSC)) + ExtSlowSC;
-      //--- calculate AMA
+      // Calculate AMA.
       double prevAMA = ExtAMABuffer[i - 1].Get();
-
-      //      Print(price[i].Get(), " == ", iOpen(NULL, 0, 2981 - (i)));
 
       ExtAMABuffer[i] = MathPow(currentSSC, 2) * (price[i] - prevAMA) + prevAMA;
     }
-    //--- return value of prev_calculated for next call
+    // Return value of prev_calculated for next call.
     return (rates_total);
   }
 

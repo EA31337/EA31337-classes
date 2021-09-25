@@ -94,7 +94,7 @@ class Indi_FrAMA : public Indicator {
     }
 
     if (_recalculate) {
-      _cache.SetPrevCalculated(0);
+      _cache.ResetPrevCalculated();
     }
 
     _cache.SetPrevCalculated(Indi_FrAMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
@@ -108,7 +108,7 @@ class Indi_FrAMA : public Indicator {
     if (rates_total < 2 * InpPeriodFrAMA) return (0);
 
     int start, i;
-    //--- start calculations
+    // Start calculations.
     if (prev_calculated == 0) {
       start = 2 * InpPeriodFrAMA - 1;
       for (i = 0; i <= start; i++)
@@ -116,7 +116,7 @@ class Indi_FrAMA : public Indicator {
     } else
       start = prev_calculated - 1;
 
-    //--- main cycle
+    // Main cycle.
     double math_log_2 = MathLog(2.0);
     for (i = start; i < rates_total && !IsStopped(); i++) {
       double hi1 = high[iHighest(high, InpPeriodFrAMA, rates_total - i - 1)].Get();
@@ -130,13 +130,12 @@ class Indi_FrAMA : public Indicator {
       double n3 = (hi3 - lo3) / (2 * InpPeriodFrAMA);
       double d = (MathLog(n1 + n2) - MathLog(n3)) / math_log_2;
       double alfa = MathExp(-4.6 * (d - 1.0));
-      //---
       double _iprice = PriceValueStorage::GetApplied(open, high, low, close, i, InpAppliedPrice);
 
       FrAmaBuffer[i] = alfa * _iprice + (1 - alfa) * FrAmaBuffer[i - 1].Get();
     }
 
-    //--- OnCalculate done. Return new prev_calculated.
+    // OnCalculate done. Return new prev_calculated.
     return (rates_total);
   }
 
