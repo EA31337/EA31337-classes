@@ -479,7 +479,7 @@ class Trade {
   /**
    * Free margin required for opening a position with the volume of one lot in the appropriate direction.
    */
-  static float GetMarginRequired(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+  static double GetMarginRequired(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
 #ifdef __MQL4__
     return MarketInfo(_symbol, MODE_MARGINREQUIRED);
 #else
@@ -487,11 +487,11 @@ class Trade {
     // https://www.mql5.com/en/docs/trading/ordercalcmargin
     double _margin_req;
     bool _result = Trade::OrderCalcMargin(_cmd, _symbol, 1, SymbolInfoStatic::GetAsk(_symbol), _margin_req);
-    return _result ? (float)_margin_req : 0;
+    return _result ? _margin_req : 0;
 #endif
   }
   float GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
-    return GetMarginRequired(GetChart().GetSymbol(), _cmd);
+    return (float)GetMarginRequired(GetChart().GetSymbol(), _cmd);
   }
 
   /* Lot size methods */

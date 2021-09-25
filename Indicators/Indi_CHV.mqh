@@ -23,22 +23,27 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "Indi_MA.mqh"
+
+// Enums.
+enum ENUM_CHV_SMOOTH_METHOD { CHV_SMOOTH_METHOD_SMA = 0, CHV_SMOOTH_METHOD_EMA = 1 };
 
 // Structs.
 struct CHVParams : IndicatorParams {
   unsigned int smooth_period;
   unsigned int chv_period;
-  ENUM_MA_METHOD smooth_method;
+  ENUM_CHV_SMOOTH_METHOD smooth_method;
   // Struct constructor.
-  void CHVParams(int _smooth_period = 10, int _chv_period = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
-                 int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void CHVParams(int _smooth_period = 10, int _chv_period = 10,
+                 ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0,
+                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     chv_period = _chv_period;
-    itype = INDI_CHAIKIN;
-    max_modes = 3;
+    itype = INDI_CHAIKIN_V;
+    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHV");
-    SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;
@@ -65,19 +70,118 @@ class Indi_CHV : public Indicator {
       : params(_params.smooth_period, _params.chv_period, _params.smooth_method), Indicator((IndicatorParams)_params) {
     params = _params;
   };
-  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN, _tf) { params.tf = _tf; };
+  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN_V, _tf) { params.tf = _tf; };
+
+  /**
+   * Built-in version of Chaikin Volatility.
+   */
+  static double iCHV(string _symbol, ENUM_TIMEFRAMES _tf, int _smooth_period, int _chv_period,
+                     ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
+        _symbol, _tf, Util::MakeKey("Indi_CHV", _smooth_period, _chv_period, _smooth_method));
+    return iCHVOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _smooth_period, _chv_period, _smooth_method, _mode,
+                       _shift, _cache);
+  }
+
+  /**
+   * Calculates Chaikin Volatility on the array of values.
+   */
+  static double iCHVOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _smooth_period, int _chv_period,
+                            ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode, int _shift,
+                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(3);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_CHV::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
+                                                 _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
+                                                 _smooth_period, _chv_period, _smooth_method));
+
+    // Returns value from the first calculation buffer.
+    // Returns first value for as-series array or last value for non-as-series array.
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnInit() method for Chaikin Volatility indicator.
+   */
+  static void CalculateInit(int InpSmoothPeriod, int InpCHVPeriod, ENUM_CHV_SMOOTH_METHOD InpSmoothType,
+                            int &ExtSmoothPeriod, int &ExtCHVPeriod) {
+    if (InpSmoothPeriod <= 0) {
+      ExtSmoothPeriod = 10;
+      PrintFormat(
+          "Incorrect value for input variable InpSmoothPeriod=%d. Indicator will use value=%d for calculations.",
+          InpSmoothPeriod, ExtSmoothPeriod);
+    } else
+      ExtSmoothPeriod = InpSmoothPeriod;
+    if (InpCHVPeriod <= 0) {
+      ExtCHVPeriod = 10;
+      PrintFormat("Incorrect value for input variable InpCHVPeriod=%d. Indicator will use value=%d for calculations.",
+                  InpCHVPeriod, ExtCHVPeriod);
+    } else
+      ExtCHVPeriod = InpCHVPeriod;
+  }
+
+  /**
+   * OnCalculate() method for Chaikin Volatility indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtCHVBuffer,
+                       ValueStorage<double> &ExtHLBuffer, ValueStorage<double> &ExtSHLBuffer, int InpSmoothPeriod,
+                       int InpCHVPeriod, ENUM_CHV_SMOOTH_METHOD InpSmoothType) {
+    int ExtSmoothPeriod, ExtCHVPeriod;
+
+    CalculateInit(InpSmoothPeriod, InpCHVPeriod, InpSmoothType, ExtSmoothPeriod, ExtCHVPeriod);
+
+    int i, pos, pos_chv;
+    // Check for rates total.
+    pos_chv = ExtCHVPeriod + ExtSmoothPeriod - 2;
+    if (rates_total < pos_chv) return (0);
+    // Start working.
+    pos = (prev_calculated < 1) ? 0 : prev_calculated - 1;
+    // Fill H-L(i) buffer.
+    for (i = pos; i < rates_total && !IsStopped(); i++) ExtHLBuffer[i] = high[i] - low[i];
+    // Calculate smoothed H-L(i) buffer.
+    if (pos < ExtSmoothPeriod - 1) {
+      pos = ExtSmoothPeriod - 1;
+      for (i = 0; i < pos; i++) ExtSHLBuffer[i] = 0.0;
+    }
+    if (InpSmoothType == CHV_SMOOTH_METHOD_SMA)
+      Indi_MA::SimpleMAOnBuffer(rates_total, prev_calculated, 0, ExtSmoothPeriod, ExtHLBuffer, ExtSHLBuffer);
+    else
+      Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, 0, ExtSmoothPeriod, ExtHLBuffer, ExtSHLBuffer);
+    // Correct calc position.
+    if (pos < pos_chv) pos = pos_chv;
+    // Calculate CHV buffer.
+    for (i = pos; i < rates_total && !IsStopped(); i++) {
+      if (ExtSHLBuffer[i - ExtCHVPeriod] != 0.0)
+        ExtCHVBuffer[i] =
+            100.0 * (ExtSHLBuffer[i] - ExtSHLBuffer[i - ExtCHVPeriod]) / ExtSHLBuffer[i - ExtCHVPeriod].Get();
+      else
+        ExtCHVBuffer[i] = 0.0;
+    }
+    return (rates_total);
+  }
 
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_CHV::iCHV(GetSymbol(), GetTf(), /*[*/ GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod() /*]*/,
+                                _mode, _shift);
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(), GetCHVPeriod(),
-                         GetSmoothMethod() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
+                         GetCHVPeriod(), GetSmoothMethod() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -98,7 +202,9 @@ class Indi_CHV : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(_shift);
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue(_mode, _shift);
+      }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
@@ -132,7 +238,7 @@ class Indi_CHV : public Indicator {
   /**
    * Get smooth method.
    */
-  ENUM_MA_METHOD GetSmoothMethod() { return params.smooth_method; }
+  ENUM_CHV_SMOOTH_METHOD GetSmoothMethod() { return params.smooth_method; }
 
   /* Setters */
 
@@ -155,7 +261,7 @@ class Indi_CHV : public Indicator {
   /**
    * Set smooth method.
    */
-  void SetSmoothMethod(ENUM_MA_METHOD _smooth_method) {
+  void SetSmoothMethod(ENUM_CHV_SMOOTH_METHOD _smooth_method) {
     istate.is_changed = true;
     params.smooth_method = _smooth_method;
   }

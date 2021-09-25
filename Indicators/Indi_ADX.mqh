@@ -22,41 +22,42 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "Indi_Price.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iADX(string _symbol, int _tf, int _period, int _ap, int _mode, int _shift) {
-  return Indi_ADX::iADX(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, (ENUM_ADX_LINE)_mode, _shift);
+  return Indi_ADX::iADX(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, (ENUM_INDI_ADX_LINE)_mode,
+                        _shift);
 }
 #endif
-
-// Indicator line identifiers used in ADX indicator.
-enum ENUM_ADX_LINE {
-#ifdef __MQL4__
-  LINE_MAIN_ADX = MODE_MAIN,    // Base indicator line.
-  LINE_PLUSDI = MODE_PLUSDI,    // +DI indicator line.
-  LINE_MINUSDI = MODE_MINUSDI,  // -DI indicator line.
-#else
-  LINE_MAIN_ADX = MAIN_LINE,    // Base indicator line.
-  LINE_PLUSDI = PLUSDI_LINE,    // +DI indicator line.
-  LINE_MINUSDI = MINUSDI_LINE,  // -DI indicator line.
-#endif
-  FINAL_ADX_LINE_ENTRY,
-};
 
 // Structs.
 struct ADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void ADXParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0)
-      : period(_period), applied_price(_applied_price) {
-    itype = INDI_ADX;
-    max_modes = FINAL_ADX_LINE_ENTRY;
-    shift = _shift;
+  void ADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
+                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+      : period(_period), applied_price(_ap) {
+    itype = itype == INDI_NONE ? INDI_ADX : itype;
+    SetDataSourceType(_idstype);
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
-    SetCustomIndicatorName("Examples\\ADX");
+    SetMaxModes(FINAL_INDI_ADX_LINE_ENTRY);
+    SetShift(_shift);
+    switch (idstype) {
+      case IDATA_ICUSTOM:
+        if (custom_indi_name == "") {
+          SetCustomIndicatorName("Examples\\ADX");
+        }
+        break;
+      case IDATA_INDICATOR:
+        if (indi_data_source == NULL) {
+          SetDataSource(Indi_Price::GetCached(_shift, _tf, applied_price, _period));
+        }
+        break;
+    }
   };
   void ADXParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -76,7 +77,7 @@ class Indi_ADX : public Indicator {
    * Class constructor.
    */
   Indi_ADX(ADXParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_ADX(ADXParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period, _p.applied_price), Indicator(INDI_ADX, _tf) {}
+  Indi_ADX(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ADX, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -86,9 +87,9 @@ class Indi_ADX : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iadx
    */
   static double iADX(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-                     ENUM_APPLIED_PRICE _applied_price,    // (MT5): not used
-                     ENUM_ADX_LINE _mode = LINE_MAIN_ADX,  // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 -
-                                                           // MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
+                     ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
+                     int _mode = LINE_MAIN_ADX,          // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 -
+                                                         // MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
                      int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
@@ -125,7 +126,7 @@ class Indi_ADX : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, int _shift = 0) {
+  double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
@@ -158,7 +159,7 @@ class Indi_ADX : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue((ENUM_ADX_LINE)_mode, _shift);
+        _entry.values[_mode] = Indi_ADX::GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) &&
                                                    _entry.IsWithinRange(0.0, 100.0));
@@ -175,11 +176,11 @@ class Indi_ADX : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
+    _param.double_value = GetEntry(_shift)[_mode];
     return _param;
   }
 
-  /* Class getters */
+  /* Getters */
 
   /**
    * Get period value.

@@ -31,7 +31,7 @@ double iAD(string _symbol, int _tf, int _shift) { return Indi_AD::iAD(_symbol, (
 // Structs.
 struct ADParams : IndicatorParams {
   // Struct constructor.
-  void ADParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  ADParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_AD;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
@@ -40,7 +40,7 @@ struct ADParams : IndicatorParams {
     shift = _shift;
     tf = _tf;
   };
-  void ADParams(ADParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  ADParams(ADParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
     tf = _tf;
   };
@@ -58,7 +58,7 @@ class Indi_AD : public Indicator {
    * Class constructor.
    */
   Indi_AD(ADParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AD, _tf){};
+  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AD, _tf) { params.SetTf(_tf); };
 
   /**
    * Returns the indicator value.

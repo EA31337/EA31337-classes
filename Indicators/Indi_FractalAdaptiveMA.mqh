@@ -25,23 +25,26 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct FrAMAParams : IndicatorParams {
+struct FrIndiAMAParams : IndicatorParams {
   unsigned int frama_shift;
   unsigned int period;
+  ENUM_APPLIED_PRICE applied_price;
+
   // Struct constructor.
-  void FrAMAParams(int _period = 14, int _frama_shift = 0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void FrIndiAMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0,
+                       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     frama_shift = _frama_shift;
     itype = INDI_FRAMA;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\FrAMA");
-    SetDataSourceType(IDATA_ICUSTOM);
+    applied_price = _ap;
     period = _period;
     shift = _shift;
     tf = _tf;
   };
-  void FrAMAParams(FrAMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void FrIndiAMAParams(FrIndiAMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
     tf = _tf;
   };
@@ -52,27 +55,104 @@ struct FrAMAParams : IndicatorParams {
  */
 class Indi_FrAMA : public Indicator {
  protected:
-  FrAMAParams params;
+  FrIndiAMAParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_FrAMA(FrAMAParams &_params) : params(_params.period, _params.frama_shift), Indicator((IndicatorParams)_params) {
+  Indi_FrAMA(FrIndiAMAParams &_params)
+      : params(_params.period, _params.frama_shift), Indicator((IndicatorParams)_params) {
     params = _params;
   };
   Indi_FrAMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRAMA, _tf) { params.tf = _tf; };
 
   /**
+   * Built-in version of FrAMA.
+   */
+  static double iFrAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
+                       int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+#ifdef __MQL5__
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
+#else
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf,
+                                                       Util::MakeKey("Indi_FrAMA", _ma_period, _ma_shift, (int)_ap));
+    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _mode, _shift, _ap, _cache);
+#endif
+  }
+
+  /**
+   * Calculates FrAMA on the array of values.
+   */
+  static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _ma_period, int _ma_shift, int _mode, int _shift,
+                              ENUM_APPLIED_PRICE _ap, IndicatorCalculateCache<double> *_cache,
+                              bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_FrAMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
+                                                   _ma_period, _ma_shift, _ap));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &FrAmaBuffer, int InpPeriodFrAMA,
+                       int InpShift, ENUM_APPLIED_PRICE InpAppliedPrice) {
+    if (rates_total < 2 * InpPeriodFrAMA) return (0);
+
+    int start, i;
+    // Start calculations.
+    if (prev_calculated == 0) {
+      start = 2 * InpPeriodFrAMA - 1;
+      for (i = 0; i <= start; i++)
+        FrAmaBuffer[i] = PriceValueStorage::GetApplied(open, high, low, close, i, InpAppliedPrice);
+    } else
+      start = prev_calculated - 1;
+
+    // Main cycle.
+    double math_log_2 = MathLog(2.0);
+    for (i = start; i < rates_total && !IsStopped(); i++) {
+      double hi1 = high[iHighest(high, InpPeriodFrAMA, rates_total - i - 1)].Get();
+      double lo1 = low[iLowest(low, InpPeriodFrAMA, rates_total - i - 1)].Get();
+      double hi2 = high[iHighest(high, InpPeriodFrAMA, rates_total - i + InpPeriodFrAMA - 1)].Get();
+      double lo2 = low[iLowest(low, InpPeriodFrAMA, rates_total - i + InpPeriodFrAMA - 1)].Get();
+      double hi3 = high[iHighest(high, 2 * InpPeriodFrAMA, rates_total - i - 1)].Get();
+      double lo3 = low[iLowest(low, 2 * InpPeriodFrAMA, rates_total - i - 1)].Get();
+      double n1 = (hi1 - lo1) / InpPeriodFrAMA;
+      double n2 = (hi2 - lo2) / InpPeriodFrAMA;
+      double n3 = (hi3 - lo3) / (2 * InpPeriodFrAMA);
+      double d = (MathLog(n1 + n2) - MathLog(n3)) / math_log_2;
+      double alfa = MathExp(-4.6 * (d - 1.0));
+      double _iprice = PriceValueStorage::GetApplied(open, high, low, close, i, InpAppliedPrice);
+
+      FrAmaBuffer[i] = alfa * _iprice + (1 - alfa) * FrAmaBuffer[i - 1].Get();
+    }
+
+    // OnCalculate done. Return new prev_calculated.
+    return (rates_total);
+  }
+
+  /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_FrAMA::iFrAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFRAMAShift(), GetAppliedPrice() /*]*/,
+                                    _mode, _shift, THIS_PTR);
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod(), GetFRAMAShift() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+                         GetFRAMAShift() /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -93,7 +173,9 @@ class Indi_FrAMA : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(_shift);
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue(_mode, _shift);
+      }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
@@ -124,6 +206,11 @@ class Indi_FrAMA : public Indicator {
    */
   unsigned int GetFRAMAShift() { return params.frama_shift; }
 
+  /**
+   * Get applied price.
+   */
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+
   /* Setters */
 
   /**
@@ -140,5 +227,13 @@ class Indi_FrAMA : public Indicator {
   void SetFRAMAShift(unsigned int _frama_shift) {
     istate.is_changed = true;
     params.frama_shift = _frama_shift;
+  }
+
+  /**
+   * Set applied price.
+   */
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+    istate.is_changed = true;
+    params.applied_price = _applied_price;
   }
 };

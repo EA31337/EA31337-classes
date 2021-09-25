@@ -34,13 +34,15 @@ double iATR(string _symbol, int _tf, int _period, int _shift) {
 struct ATRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void ATRParams(unsigned int _period, int _shift = 0) : period(_period) {
+  void ATRParams(unsigned int _period = 14, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
+      : period(_period) {
     itype = INDI_ATR;
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ATR");
+    tf = _tf;
   };
   void ATRParams(ATRParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -61,7 +63,7 @@ class Indi_ATR : public Indicator {
    * Class constructor.
    */
   Indi_ATR(ATRParams &_p) : params(_p.period), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_ATR(ATRParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period), Indicator(INDI_ATR, _tf) { params = _p; }
+  Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ATR, _tf) { params.SetTf(_tf); };
 
   /**
    * Returns the indicator value.
@@ -113,12 +115,10 @@ class Indi_ATR : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_ATR::iATR(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                _shift, GetPointer(this));
+        _value = Indi_ATR::iATR(GetSymbol(), GetTf(), GetPeriod(), _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -158,6 +158,20 @@ class Indi_ATR : public Indicator {
     MqlParam _param = {TYPE_DOUBLE};
     GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
+  }
+
+  /**
+   * Returns reusable indicator for a given parameters.
+   */
+  static Indi_ATR *GetCached(string _symbol, ENUM_TIMEFRAMES _tf, int _period) {
+    Indi_ATR *_ptr;
+    string _key = Util::MakeKey(_symbol, (int)_tf, _period);
+    if (!Objects<Indi_ATR>::TryGet(_key, _ptr)) {
+      ATRParams _params(_period, _tf);
+      _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_params));
+      _ptr.SetSymbol(_symbol);
+    }
+    return _ptr;
   }
 
   /* Getters */

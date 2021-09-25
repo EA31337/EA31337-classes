@@ -33,7 +33,7 @@ struct ColorCandlesDailyParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorCandlesDaily");
-    SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     tf = _tf;
   };
@@ -60,15 +60,72 @@ class Indi_ColorCandlesDaily : public Indicator {
   };
 
   /**
+   * "Built-in" version of Color Candles Daily.
+   */
+  static double iCCD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorCandlesDaily");
+    return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+  }
+
+  /**
+   * Calculates Color Candles Daily on the array of values.
+   */
+  static double iCCDOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(4 + 1);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_ColorCandlesDaily::Calculate(
+        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
+        _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4)));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for Color Candles Daily indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtOpenBuffer,
+                       ValueStorage<double> &ExtHighBuffer, ValueStorage<double> &ExtLowBuffer,
+                       ValueStorage<double> &ExtCloseBuffer, ValueStorage<double> &ExtColorsBuffer) {
+    color ExtColorOfDay[6] = {CLR_NONE, MediumSlateBlue, DarkGoldenrod, ForestGreen, BlueViolet, Red};
+
+    int pos;
+    MqlDateTime tstruct;
+    pos = prev_calculated < 1 ? 0 : prev_calculated - 1;
+    // Main cycle.
+    for (int i = pos; i < rates_total && !IsStopped(); i++) {
+      ExtOpenBuffer[i] = open[i];
+      ExtHighBuffer[i] = high[i];
+      ExtLowBuffer[i] = low[i];
+      ExtCloseBuffer[i] = close[i];
+      // Set color for every candle.
+      TimeToStruct(time[i].Get(), tstruct);
+      ExtColorsBuffer[i] = tstruct.day_of_week;
+    }
+    // Return value of prev_calculated for next call.
+    return (rates_total);
+  }
+
+  /**
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_ColorCandlesDaily::iCCD(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
