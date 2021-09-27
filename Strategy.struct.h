@@ -37,7 +37,6 @@
 #include "Task.struct.h"
 
 // Forward class declaration.
-class Indicator;
 class Strategy;
 class Trade;
 
@@ -76,8 +75,6 @@ struct StgParams {
   datetime refresh_time;                               // Order refresh frequency (in sec).
   short shift;                                         // Shift (relative to the current bar, 0 - default)
   ChartTf tf;                                          // Main timeframe where strategy operates on.
-  DictStruct<int, Ref<Indicator>> indicators_managed;  // Indicators list keyed by id.
-  Dict<int, Indicator *> indicators_unmanaged;         // Indicators list keyed by id.
   // Constructor.
   StgParams()
       : id(rand()),
@@ -142,7 +139,6 @@ struct StgParams {
         type(0),
         refresh_time(0) {}
   StgParams(StgParams &_stg_params) {
-    DeleteObjects();
     this = _stg_params;
   }
   // Deconstructor.
@@ -206,20 +202,9 @@ struct StgParams {
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
-  bool HasIndicator(int _id = 0) { return GetIndicator(_id) != NULL; }
   bool IsBoosted() { return is_boosted; }
   bool IsEnabled() { return is_enabled; }
   bool IsSuspended() { return is_suspended; }
-  Indicator *GetIndicator(int _id = 0) {
-    if (indicators_managed.KeyExists(_id)) {
-      return indicators_managed[_id].Ptr();
-    } else if (indicators_unmanaged.KeyExists(_id)) {
-      return indicators_unmanaged[_id];
-    }
-
-    Alert("Missing indicator id ", _id);
-    return NULL;
-  }
   // Setters.
   template <typename T>
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
@@ -312,14 +297,6 @@ struct StgParams {
     }
   }
   void SetId(long _id) { id = _id; }
-  void SetIndicator(Indicator *_indi, int _id = 0, bool _managed = true) {
-    if (_managed) {
-      Ref<Indicator> _ref = _indi;
-      indicators_managed.Set(_id, _ref);
-    } else {
-      indicators_unmanaged.Set(_id, _indi);
-    }
-  }
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
     // @todo: To remove.
   }
@@ -334,11 +311,6 @@ struct StgParams {
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
   void Suspended(bool _is_suspended) { is_suspended = _is_suspended; };
   void Boost(bool _is_boosted) { is_boosted = _is_boosted; };
-  void DeleteObjects() {
-    for (DictIterator<int, Indicator *> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
-      delete iter.Value();
-    }
-  }
   // Printers.
   string ToString() {
     // SerializerConverter _stub = SerializerConverter::MakeStubObject<StrategySignal>(SERIALIZER_FLAG_SKIP_HIDDEN);

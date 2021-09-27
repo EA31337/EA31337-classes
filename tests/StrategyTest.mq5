@@ -112,8 +112,8 @@ int OnInit() {
   StgParams stg2_params;
   stg2_params.Enabled(false);
   stg2_params.Suspended(true);
-  stg2_params.SetIndicator(new Indi_Demo(iparams));
   strat2 = new Stg2(stg2_params);
+  strat2.SetIndicator(new Indi_Demo(iparams));
   strat2.SetName("Stg2");
   assertTrueOrFail(strat2.GetName() == "Stg2", "Invalid Strategy name!");
   assertTrueOrFail(strat2.IsValid(), "Fail on IsValid()!");
