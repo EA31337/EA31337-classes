@@ -34,7 +34,7 @@ struct VIDYAParams : IndicatorParams {
 
   // Struct constructor.
   void VIDYAParams(unsigned int _cmo_period = 9, unsigned int _ma_period = 14, unsigned int _vidya_shift = 0,
-                   ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+                   ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
     applied_price = _ap;
     cmo_period = _cmo_period;
     itype = INDI_VIDYA;
@@ -43,14 +43,8 @@ struct VIDYAParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VIDYA");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
     vidya_shift = _vidya_shift;
-  };
-  void VIDYAParams(VIDYAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -65,8 +59,10 @@ class Indi_VIDYA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_VIDYA(VIDYAParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VIDYA, _tf) { params.tf = _tf; };
+  Indi_VIDYA(VIDYAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_params, _tf) {
+    params = _params;
+  };
+  Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VIDYA, _tf){};
 
   /**
    * Built-in version of iVIDyA.

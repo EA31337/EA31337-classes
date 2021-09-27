@@ -48,7 +48,8 @@ struct ForceParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void ForceParams(unsigned int _period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, int _shift = 0)
+  void ForceParams(unsigned int _period = 13, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                   ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : period(_period), ma_method(_ma_method), applied_price(_ap) {
     itype = INDI_FORCE;
     max_modes = 1;
@@ -56,10 +57,6 @@ struct ForceParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Force_Index");
-  };
-  void ForceParams(ForceParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -75,13 +72,10 @@ class Indi_Force : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Force(ForceParams &_p) : params(_p.period, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) {
+  Indi_Force(ForceParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
     params = _p;
   }
-  Indi_Force(ForceParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.ma_method, _p.applied_price), Indicator(INDI_FORCE, _tf) {
-    params = _p;
-  }
+  Indi_Force(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FORCE, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -133,13 +127,12 @@ class Indi_Force : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Force::iForce(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                    GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
+        _value =
+            Indi_Force::iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod(), GetMAMethod(), GetAppliedPrice(),
-                         VOLUME_TICK /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+                         GetMAMethod(), GetAppliedPrice(), VOLUME_TICK /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

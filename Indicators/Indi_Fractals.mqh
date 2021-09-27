@@ -33,18 +33,13 @@ double iFractals(string _symbol, int _tf, int _mode, int _shift) {
 // Structs.
 struct FractalsParams : IndicatorParams {
   // Struct constructors.
-  void FractalsParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void FractalsParams(int _shift = 0) {
     itype = INDI_FRACTALS;
     max_modes = FINAL_LO_UP_LINE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_ARROW);
     SetCustomIndicatorName("Examples\\Fractals");
     shift = _shift;
-    tf = _tf;
-  };
-  void FractalsParams(FractalsParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -59,7 +54,9 @@ class Indi_Fractals : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndicatorParams &_p) : Indicator((IndicatorParams)_p) {}
+  Indi_Fractals(IndicatorParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
+    params = _p;
+  }
   Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRACTALS, _tf) {}
 
   /**
@@ -114,12 +111,10 @@ class Indi_Fractals : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = _value = Indi_Fractals::iFractals(
-            Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _mode, _shift, GetPointer(this));
+        _value = _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

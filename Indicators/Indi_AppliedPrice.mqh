@@ -28,20 +28,14 @@
 struct AppliedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  AppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0,
-                     ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  AppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0) {
     itype = INDI_APPLIED_PRICE;
     max_modes = 1;
     applied_price = _applied_price;
+    SetDataSourceType(IDATA_INDICATOR);
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
-    SetDataSourceType(IDATA_INDICATOR);
     shift = _shift;
-    tf = _tf;
-  };
-  AppliedPriceParams(AppliedPriceParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -56,8 +50,11 @@ class Indi_AppliedPrice : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_AppliedPrice(AppliedPriceParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
-  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(PRICE_OPEN, 0, _tf), Indicator(INDI_PRICE, _tf){};
+  Indi_AppliedPrice(AppliedPriceParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator((IndicatorParams)_params, _tf) {
+    params = _params;
+  };
+  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf){};
 
   static double iAppliedPriceOnIndicator(Indicator *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];

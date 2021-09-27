@@ -46,8 +46,8 @@ struct ADXWParams : ADXParams {
         break;
     }
   };
-  void ADXWParams(ADXWParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : ADXParams(_params, _tf) {}
-  void ADXWParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : ADXParams(_params, _tf) {}
+  void ADXWParams(ADXWParams &_params) { THIS_REF = _params; }
+  void ADXWParams(ADXParams &_params) { THIS_REF = _params; }
 };
 
 /**
@@ -61,8 +61,10 @@ class Indi_ADXW : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_ADXW(ADXWParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADXW, _tf) { params.tf = _tf; };
+  Indi_ADXW(ADXWParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_params, _tf) {
+    params = _params;
+  };
+  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADXW, _tf){};
 
   /**
    * Built-in version of ADX Wilder.

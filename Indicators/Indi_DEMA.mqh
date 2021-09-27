@@ -41,33 +41,14 @@ struct DEMAParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void DEMAParams(unsigned int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _shift = 0,
-                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+  void DEMAParams(unsigned int _period = 14, int _ma_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : period(_period), ma_shift(_ma_shift), applied_price(_ap) {
-    itype = itype == INDI_NONE ? INDI_DEMA : itype;
-    SetDataSourceType(_idstype);
+    itype = INDI_DEMA;
+    SetCustomIndicatorName("Examples\\DEMA");
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetMaxModes(1);
     SetShift(_shift);
-    tf = _tf;
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        if (custom_indi_name == "") {
-          SetCustomIndicatorName("Examples\\DEMA");
-        }
-        break;
-      case IDATA_INDICATOR:
-        if (GetDataSource() == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period), false);
-          SetDataSourceMode(0);
-        }
-        break;
-    }
-  };
-  void DEMAParams(DEMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -82,14 +63,8 @@ class Indi_DEMA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_DEMA(DEMAParams &_p)
-      : params(_p.period, _p.ma_shift, _p.applied_price, _p.shift), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_DEMA(DEMAParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.ma_shift, _p.applied_price, _p.shift), Indicator(INDI_DEMA, _tf) {
-    params = _p;
-  }
+  Indi_DEMA(DEMAParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) { params = _p; }
+  Indi_DEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DEMA, _tf) {}
 
   /**
    * Updates the indicator value.
@@ -128,7 +103,7 @@ class Indi_DEMA : public Indicator {
     }
     return _res[0];
 #else
-    Indi_Price *_indi_price = Indi_Price::GetCached(_shift, _tf, _applied_price, _period);
+    Indi_Price *_indi_price = Indi_Price::GetCached(_symbol, _tf, _applied_price, _period, _shift);
     // Note that _applied_price and Indi_Price mode indices are compatible.
     return Indi_DEMA::iDEMAOnIndicator(_indi_price.GetCache(), _indi_price, 0, _period, _ma_shift, _shift);
 #endif
@@ -200,14 +175,13 @@ class Indi_DEMA : public Indicator {
         // We're getting DEMA from Price indicator.
 
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_DEMA::iDEMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                  GetMAShift(), GetAppliedPrice(), _shift, _mode, GetPointer(this));
+        _value = Indi_DEMA::iDEMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetAppliedPrice(), _shift, _mode,
+                                  GetPointer(this));
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                    params.custom_indi_name, /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /*[*/ GetPeriod(), GetMAShift(),
+                         GetAppliedPrice() /*]*/, _mode, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.

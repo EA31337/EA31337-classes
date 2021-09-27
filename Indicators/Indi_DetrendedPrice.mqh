@@ -30,24 +30,15 @@ struct DetrendedPriceParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void DetrendedPriceParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0,
-                            ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void DetrendedPriceParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
     applied_price = _ap;
     itype = INDI_DETRENDED_PRICE;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\DPO");
-    // INDI_DETRENDED_PRICE[1]: bar 1: 1525392000,130,-0.00001143
-    // SetDataSourceType(IDATA_ICUSTOM);
-    SetDataSourceType(IDATA_BUILTIN);
     period = _period;
     shift = _shift;
-    tf = _tf;
-  };
-  void DetrendedPriceParams(DetrendedPriceParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -62,8 +53,11 @@ class Indi_DetrendedPrice : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_DetrendedPrice(DetrendedPriceParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_DetrendedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DETRENDED_PRICE, _tf) { params.tf = _tf; };
+  Indi_DetrendedPrice(DetrendedPriceParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator((IndicatorParams)_params) {
+    params = _params;
+  };
+  Indi_DetrendedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DETRENDED_PRICE, _tf){};
 
   /**
    * Built-in version of AMA.

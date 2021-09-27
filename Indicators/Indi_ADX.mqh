@@ -46,22 +46,6 @@ struct ADXParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetMaxModes(FINAL_INDI_ADX_LINE_ENTRY);
     SetShift(_shift);
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        if (custom_indi_name == "") {
-          SetCustomIndicatorName("Examples\\ADX");
-        }
-        break;
-      case IDATA_INDICATOR:
-        if (indi_data_source == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf, applied_price, _period));
-        }
-        break;
-    }
-  };
-  void ADXParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -76,7 +60,7 @@ class Indi_ADX : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_ADX(ADXParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_ADX(ADXParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) { params = _p; }
   Indi_ADX(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ADX, _tf) {}
 
   /**
@@ -132,12 +116,11 @@ class Indi_ADX : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_ADX::iADX(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        _value = Indi_ADX::iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+                         _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

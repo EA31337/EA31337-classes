@@ -67,7 +67,7 @@ struct IchimokuParams : IndicatorParams {
   unsigned int kijun_sen;
   unsigned int senkou_span_b;
   // Struct constructors.
-  void IchimokuParams(unsigned int _ts, unsigned int _ks, unsigned int _ss_b, int _shift = 0)
+  void IchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
       : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {
     itype = INDI_ICHIMOKU;
     max_modes = FINAL_ICHIMOKU_LINE_ENTRY;
@@ -75,10 +75,6 @@ struct IchimokuParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Not sure if not mixed.
     SetCustomIndicatorName("Examples\\Ichimoku");
-  };
-  void IchimokuParams(IchimokuParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -93,14 +89,10 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IchimokuParams &_p)
-      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator((IndicatorParams)_p) {
+  Indi_Ichimoku(IchimokuParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
     params = _p;
   }
-  Indi_Ichimoku(IchimokuParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator(INDI_ICHIMOKU, _tf) {
-    params = _p;
-  }
+  Indi_Ichimoku(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ICHIMOKU, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -156,14 +148,12 @@ class Indi_Ichimoku : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            Indi_Ichimoku::iIchimoku(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                     GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift, GetPointer(this));
+        _value = Indi_Ichimoku::iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode,
+                                          _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetTenkanSen(), GetKijunSen(), GetSenkouSpanB() /*]*/,
-                         _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetTenkanSen(),
+                         GetKijunSen(), GetSenkouSpanB() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

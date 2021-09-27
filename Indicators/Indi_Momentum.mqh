@@ -54,10 +54,6 @@ struct MomentumParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Momentum");
   };
-  void MomentumParams(MomentumParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
-  };
 };
 
 /**
@@ -71,13 +67,10 @@ class Indi_Momentum : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Momentum(MomentumParams &_p) : params(_p.period, _p.applied_price, _p.shift), Indicator((IndicatorParams)_p) {
+  Indi_Momentum(MomentumParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
     params = _p;
   }
-  Indi_Momentum(MomentumParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.applied_price, _p.shift), Indicator(INDI_MOMENTUM, _tf) {
-    params = _p;
-  }
+  Indi_Momentum(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_MOMENTUM, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -158,19 +151,18 @@ class Indi_Momentum : public Indicator {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_Momentum::iMomentum(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                          GetPeriod(), GetAppliedPrice(), params.shift + _shift, GetPointer(this));
+        _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), params.shift + _shift,
+                                          THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+                         0, _shift);
         break;
       case IDATA_INDICATOR:
         ValidateSelectedDataSource();
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
-                                                     Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
+        _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
                                                      GetDataSourceMode(), params.shift + _shift);
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(params.shift + _shift), _value, 1);

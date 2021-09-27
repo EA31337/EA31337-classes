@@ -34,19 +34,14 @@ struct ZigZagParams : IndicatorParams {
   unsigned int deviation;
   unsigned int backstep;
   // Struct constructors.
-  void ZigZagParams(unsigned int _depth, unsigned int _deviation, unsigned int _backstep, int _shift = 0)
+  void ZigZagParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
       : depth(_depth), deviation(_deviation), backstep(_backstep) {
     itype = INDI_ZIGZAG;
     max_modes = FINAL_ZIGZAG_LINE_ENTRY;
     shift = _shift;
-    SetDataSourceType(IDATA_BUILTIN);
     SetCustomIndicatorName("Examples\\ZigZag");
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
-  };
-  void ZigZagParams(ZigZagParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -67,13 +62,10 @@ class Indi_ZigZag : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_ZigZag(ZigZagParams &_p) : params(_p.depth, _p.deviation, _p.backstep), Indicator((IndicatorParams)_p) {
+  Indi_ZigZag(ZigZagParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
     params = _p;
   }
-  Indi_ZigZag(ZigZagParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.depth, _p.deviation, _p.backstep), Indicator(INDI_ZIGZAG, _tf) {
-    params = _p;
-  }
+  Indi_ZigZag(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ZIGZAG, _tf) {}
 
   /**
    * Returns value for ZigZag indicator.
@@ -350,12 +342,12 @@ class Indi_ZigZag : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _mode, _shift,
-                                      GetPointer(this));
+                                      THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_ZigZag::iCustomZigZag(GetSymbol(), GetTf(), params.GetCustomIndicatorName(), GetDepth(),
-                                            GetDeviation(), GetBackstep(), _mode, _shift, GetPointer(this));
+                                            GetDeviation(), GetBackstep(), _mode, _shift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

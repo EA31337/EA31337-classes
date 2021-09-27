@@ -43,18 +43,13 @@ enum ENUM_MFI_COLOR {
 // Structs.
 struct BWMFIParams : IndicatorParams {
   // Struct constructors.
-  BWMFIParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  BWMFIParams(int _shift = 0) {
     itype = INDI_BWMFI;
     max_modes = FINAL_BWMFI_BUFFER_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
     shift = _shift;
-    tf = _tf;
-  };
-  BWMFIParams(BWMFIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -69,7 +64,9 @@ class Indi_BWMFI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_BWMFI(IndicatorParams &_p) : Indicator((IndicatorParams)_p) {}
+  Indi_BWMFI(BWMFIParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
+    params = _p;
+  }
   Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWMFI, _tf) {}
 
   /**
@@ -124,12 +121,11 @@ class Indi_BWMFI : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = _value = iBWMFI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift, _mode,
-                                 GetPointer(this));
+        _value = _value = iBWMFI(GetSymbol(), GetTf(), _shift, _mode, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/,
+                         _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -74,10 +74,6 @@ struct BandsParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\BB");
   };
-  void BandsParams(BandsParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
-  };
 };
 
 /**
@@ -92,14 +88,10 @@ class Indi_Bands : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Bands(BandsParams &_p)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p) {
+  Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
     params = _p;
   }
-  Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf) {
-    params = _p;
-  }
+  Indi_Bands(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BANDS, _tf) {}
 
   /**
    * Returns the indicator value.

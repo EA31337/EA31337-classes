@@ -33,8 +33,7 @@ struct CHOParams : IndicatorParams {
   ENUM_APPLIED_VOLUME input_volume;
   // Struct constructor.
   void CHOParams(int _fast_ma = 3, int _slow_ma = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
-                 ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0,
-                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+                 ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0) {
     fast_ma = _fast_ma;
     input_volume = _input_volume;
     itype = INDI_CHAIKIN;
@@ -45,11 +44,6 @@ struct CHOParams : IndicatorParams {
     shift = _shift;
     slow_ma = _slow_ma;
     smooth_method = _smooth_method;
-    tf = _tf;
-  };
-  void CHOParams(CHOParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -64,12 +58,10 @@ class Indi_CHO : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_CHO(CHOParams &_params)
-      : params(_params.fast_ma, _params.slow_ma, _params.smooth_method, _params.input_volume),
-        Indicator((IndicatorParams)_params) {
+  Indi_CHO(CHOParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_params, _tf) {
     params = _params;
   };
-  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN, _tf) { params.tf = _tf; };
+  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN, _tf){};
 
   /**
    * Built-in version of Chaikin Oscillator.
@@ -184,9 +176,8 @@ class Indi_CHO : public Indicator {
                                     GetInputVolume() /*]*/, _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetFastMA(), GetSlowMA(), GetSmoothMethod(),
-                         GetInputVolume() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetFastMA(),
+                         GetSlowMA(), GetSmoothMethod(), GetInputVolume() /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

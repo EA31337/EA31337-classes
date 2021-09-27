@@ -85,12 +85,7 @@ struct AlligatorParams : IndicatorParams {
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
-    SetDataSourceType(IDATA_BUILTIN);
     SetCustomIndicatorName("Examples\\Alligator");
-  };
-  void AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -104,8 +99,9 @@ class Indi_Alligator : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Alligator(AlligatorParams &_p) : Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_Alligator(AlligatorParams &_p, ENUM_TIMEFRAMES _tf) : Indicator(INDI_ALLIGATOR, _tf) { params = _p; }
+  Indi_Alligator(AlligatorParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
+    params = _p;
+  }
   Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADX, _tf){};
 
   /**
@@ -179,14 +175,12 @@ class Indi_Alligator : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Alligator::iAlligator(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                            GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(),
-                                            GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode,
-                                            _shift, GetPointer(this));
+        _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
+                                            GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),
+                                            GetAppliedPrice(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/
                          GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(),
                          GetLipsShift(), GetMAMethod(),
                          GetAppliedPrice()

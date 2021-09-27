@@ -60,10 +60,6 @@ struct StdDevParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\StdDev");
   };
-  void StdDevParams(StdDevParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
-  };
 };
 
 /**
@@ -77,14 +73,10 @@ class Indi_StdDev : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_StdDev(StdDevParams &_p)
-      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) {
+  Indi_StdDev(StdDevParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_p, _tf) {
     params = _p;
   }
-  Indi_StdDev(StdDevParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price), Indicator(INDI_STDDEV, _tf) {
-    params = _p;
-  }
+  Indi_StdDev(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_STDDEV, _tf) {}
 
   /**
    * Calculates the Standard Deviation indicator and returns its value.
@@ -224,9 +216,8 @@ class Indi_StdDev : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            Indi_StdDev::iStdDev(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetMAPeriod(),
-                                 GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),
+                                      GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value =
@@ -234,9 +225,8 @@ class Indi_StdDev : public Indicator {
                     params.GetCustomIndicatorName(), /*[*/ GetMAPeriod(), GetMAShift(), GetMAMethod() /*]*/, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_StdDev::iStdDevOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
-                                                 Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetMAPeriod(), GetMAShift(),
-                                                 GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_StdDev::iStdDevOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
+                                                 GetAppliedPrice(), _shift, THIS_PTR);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;

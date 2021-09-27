@@ -32,22 +32,15 @@ struct TRIXParams : IndicatorParams {
   unsigned int tema_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void TRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0,
-                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void TRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
     applied_price = _ap;
     itype = INDI_TRIX;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\TRIX");
-    SetDataSourceType(IDATA_BUILTIN);
     period = _period;
     shift = _shift;
-    tf = _tf;
-  };
-  void TRIXParams(TRIXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -62,8 +55,10 @@ class Indi_TRIX : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_TRIX(TRIXParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_TRIX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TRIX, _tf) { params.tf = _tf; };
+  Indi_TRIX(TRIXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_params, _tf) {
+    params = _params;
+  };
+  Indi_TRIX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TRIX, _tf){};
 
   /**
    * Built-in version of TriX.

@@ -33,33 +33,13 @@
 // Structs.
 struct DemoIndiParams : IndicatorParams {
   // Struct constructors.
-  void DemoIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                      ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN) {
-    itype = itype == INDI_NONE ? INDI_DEMO : itype;
-    max_modes = 1;
-    SetDataSourceType(_idstype);
+  void DemoIndiParams(int _shift = 0) {
+    itype = INDI_DEMO;    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetMaxModes(1);
     SetShift(_shift);
-    tf = _tf;
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        if (custom_indi_name == "") {
-          SetCustomIndicatorName("Examples\\Demo");
-        }
-        break;
-      case IDATA_INDICATOR:
-        if (GetDataSource() == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf), false);
-          SetDataSourceMode(0);
-        }
-        break;
-    }
-  };
-  void DemoIndiParams(DemoIndiParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
+    SetCustomIndicatorName("Examples\\Demo");
   };
 };
 
@@ -74,8 +54,10 @@ class Indi_Demo : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Demo(DemoIndiParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_DEMO, _tf){};
+  Indi_Demo(DemoIndiParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator((IndicatorParams)_params) {
+    params = _params;
+  };
+  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DEMO, _tf){};
 
   /**
    * Initialize indicator data drawing on custom data.
@@ -99,8 +81,7 @@ class Indi_Demo : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
-    double _value = Indi_Demo::iDemo(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift,
-                                     GetPointer(this));
+    double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _shift, THIS_PTR);
     istate.is_ready = true;
     istate.is_changed = false;
     if (iparams.is_draw) {
