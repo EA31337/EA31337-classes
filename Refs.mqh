@@ -129,7 +129,7 @@ class Dynamic {
    */
   Dynamic() {
 #ifdef __MQL__
-    if (CheckPointer(&this) == POINTER_DYNAMIC) {
+    if (CheckPointer(GetPointer(this)) == POINTER_DYNAMIC) {
 #else
     // For other languages we just assume that user knows what he does and creates all Dynamic instances on the heap.
     if (true) {
