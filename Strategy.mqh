@@ -93,6 +93,8 @@ class Strategy : public Object {
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
+  Dict<int, Indicator *> indicators_unmanaged;         // Indicators list (unmanaged).
+  DictStruct<int, Ref<Indicator>> indicators_managed;  // Indicators list (managed).
   DictStruct<short, TaskEntry> tasks;
   Log logger;  // Log instance.
   MqlTick last_tick;
@@ -156,7 +158,11 @@ class Strategy : public Object {
   /**
    * Class deconstructor.
    */
-  ~Strategy() { sparams.DeleteObjects(); }
+  ~Strategy() {
+    for (DictIterator<int, Indicator *> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
+      delete iter.Value();
+    }
+  }
 
   /* Processing methods */
 
@@ -302,12 +308,21 @@ class Strategy : public Object {
   /**
    * Returns handler to the strategy's indicator class.
    */
-  Indicator *GetIndicator(int _id = 0) { return sparams.GetIndicator(_id); }
+  Indicator *GetIndicator(int _id = 0) {
+    if (indicators_managed.KeyExists(_id)) {
+      return indicators_managed[_id].Ptr();
+    } else if (indicators_unmanaged.KeyExists(_id)) {
+      return indicators_unmanaged[_id];
+    }
+
+    Alert("Missing indicator id ", _id);
+    return NULL;
+  }
 
   /**
    * Returns strategy's indicators.
    */
-  DictStruct<int, Ref<Indicator>> GetIndicators() { return sparams.indicators_managed; }
+  DictStruct<int, Ref<Indicator>> GetIndicators() { return indicators_managed; }
 
   /* Struct getters */
 
@@ -568,6 +583,18 @@ class Strategy : public Object {
   void SetData(Dict<int, double> *_ddata) { ddata = _ddata; }
   void SetData(Dict<int, float> *_fdata) { fdata = _fdata; }
   void SetData(Dict<int, int> *_idata) { idata = _idata; }
+
+  /**
+   * Sets reference to indicator.
+   */
+  void SetIndicator(Indicator *_indi, int _id = 0, bool _managed = true) {
+    if (_managed) {
+      Ref<Indicator> _ref = _indi;
+      indicators_managed.Set(_id, _ref);
+    } else {
+      indicators_unmanaged.Set(_id, _indi);
+    }
+  }
 
   /* Static setters */
 
