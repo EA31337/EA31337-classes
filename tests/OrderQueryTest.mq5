@@ -36,6 +36,7 @@ bool Test01() {
   for (int i = -10; i <= 10; i++) {
     OrderData _odata;
     _odata.Set<float>(ORDER_PROP_PROFIT, (float)i);
+    _odata.Set(ORDER_TYPE, i % 2 == 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
     Ref<Order> _order = new Order(_odata);
     orders.Push(_order);
   }
@@ -70,6 +71,24 @@ bool Test01() {
       ORDER_PROP_PROFIT, 2, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT));
   assertTrueOrReturnFalse(_order_profit_gt_2.Ptr().Get<float>(ORDER_PROP_PROFIT) > 2,
                           "Order with profit greater than 2 not found!");
+
+  // Calculate profit sums (all, buys and sells).
+  float _order_profit_all = _oquery.CalcSumByProp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT);
+  assertTrueOrReturnFalse(_order_profit_all == 0, "All profit should be 0!");
+  float _order_profit_buy =
+      _oquery.CalcSumByPropWithCond<ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, ENUM_ORDER_TYPE, float>(
+          ORDER_PROP_PROFIT, ORDER_TYPE, ORDER_TYPE_BUY);
+  float _order_profit_sell =
+      _oquery.CalcSumByPropWithCond<ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, ENUM_ORDER_TYPE, float>(
+          ORDER_PROP_PROFIT, ORDER_TYPE, ORDER_TYPE_SELL);
+  assertTrueOrReturnFalse(_order_profit_buy == _order_profit_sell, "Profit of buys should equal profit of sells!");
+
+  // Find order type with the highest profit.
+  ENUM_ORDER_TYPE _order_types[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+  ENUM_ORDER_TYPE _order_type_highest_profit =
+      _oquery.FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+          _order_types, ORDER_PROP_PROFIT, ORDER_TYPE);
+  assertTrueOrReturnFalse(_order_type_highest_profit == 0.0f, "Highest profitable order type incorrect!");
 
   //_order_profit_best.ToString(); // @todo
   //_order_profit_worst.ToString(); // @todo

@@ -53,6 +53,9 @@ class OrderQuery : public Dynamic {
   /**
    * Calculates sum of order's value based on the property's enum.
    *
+   * @param
+   *   _prop Order's property to sum by (e.g. ORDER_PROP_PROFIT).
+   *
    * @return
    *   Returns sum of order's values.
    */
@@ -61,6 +64,24 @@ class OrderQuery : public Dynamic {
     T _sum = 0;
     for (DictStructIterator<long, Ref<Order>> iter = orders.Begin(); iter.IsValid(); ++iter) {
       _sum += iter.Value().Ptr().Get<T>(_prop);
+    }
+    return _sum;
+  }
+
+  /**
+   * Calculates sum of order's value based on the property's enum with condition.
+   *
+   * @return
+   *   Returns sum of order's values based on the condition.
+   */
+  template <typename E, typename ECT, typename ECV, typename T>
+  T CalcSumByPropWithCond(E _prop, ECT _prop_cond_type, ECV _prop_cond_value) {
+    T _sum = 0;
+    for (DictStructIterator<long, Ref<Order>> iter = orders.Begin(); iter.IsValid(); ++iter) {
+      Order *_order = iter.Value().Ptr();
+      if (_order.Get<ECV>(_prop_cond_type) == _prop_cond_value) {
+        _sum += _order.Get<T>(_prop);
+      }
     }
     return _sum;
   }
@@ -109,6 +130,33 @@ class OrderQuery : public Dynamic {
       }
     }
     return _order_ref_found;
+  }
+
+  /**
+   * Find property enum with the highest sum based on another property's enums.
+   *
+   * For example, you can find order's type which has the highest profit.
+   *
+   * @param
+   *   _props Array of properties to group the sums by.
+   *   _prop_sum Order's property to sum by (e.g. ORDER_PROP_PROFIT).
+   *
+   * @return
+   *   Returns property enum having the highest sum.
+   */
+  template <typename EP, typename ES, typename ECT, typename T>
+  EP FindPropBySum(ARRAY_REF(EP, _props), ES _prop_sum, ECT _prop_sum_type,
+                   STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP) _op = STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT)) {
+    EP _peak_type = _props[0];
+    T _peak_sum = CalcSumByPropWithCond<ES, ECT, EP, T>(_prop_sum, _prop_sum_type, _peak_type);
+    for (int _i = 1; _i < ArraySize(_props); _i++) {
+      T _sum = CalcSumByPropWithCond<ES, ECT, EP, T>(_prop_sum, _prop_sum_type, _props[_i]);
+      if (Compare(_sum, _op, _peak_sum)) {
+        _peak_sum = _sum;
+        _peak_type = _props[_i];
+      }
+    }
+    return _peak_type;
   }
 
   /**
