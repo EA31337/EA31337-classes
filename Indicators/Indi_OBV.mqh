@@ -57,10 +57,6 @@ struct OBVParams : IndicatorParams {
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
-  void OBVParams(OBVParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
-  };
 };
 
 /**
@@ -130,16 +126,14 @@ class Indi_OBV : public Indicator<OBVParams> {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
-        _value = Indi_OBV::iOBV(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                GetAppliedPrice(), _shift);
+        _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
 #else  // __MQL5__
-        _value = Indi_OBV::iOBV(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                GetAppliedVolume(), _shift, GetPointer(this));
+        _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift, THIS_PTR);
 #endif
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/,
+                         0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

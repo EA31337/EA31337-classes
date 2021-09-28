@@ -34,19 +34,13 @@ double iATR(string _symbol, int _tf, int _period, int _shift) {
 struct ATRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void ATRParams(unsigned int _period = 14, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
-      : period(_period) {
+  void ATRParams(unsigned int _period = 14, int _shift = 0) : period(_period) {
     itype = INDI_ATR;
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ATR");
-    tf = _tf;
-  };
-  void ATRParams(ATRParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -112,7 +106,7 @@ class Indi_ATR : public Indicator<ATRParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_ATR::iATR(GetSymbol(), GetTf(), GetPeriod(), _shift, GetPointer(this));
+        _value = Indi_ATR::iATR(GetSymbol(), GetTf(), GetPeriod(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);

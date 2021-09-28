@@ -27,19 +27,13 @@
 // Structs.
 struct WilliamsADParams : IndicatorParams {
   // Struct constructor.
-  void WilliamsADParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void WilliamsADParams(int _shift = 0) {
     itype = INDI_WILLIAMS_AD;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\W_AD");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void WilliamsADParams(WilliamsADParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 

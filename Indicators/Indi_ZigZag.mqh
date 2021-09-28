@@ -34,19 +34,14 @@ struct ZigZagParams : IndicatorParams {
   unsigned int deviation;
   unsigned int backstep;
   // Struct constructors.
-  void ZigZagParams(unsigned int _depth, unsigned int _deviation, unsigned int _backstep, int _shift = 0)
+  void ZigZagParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
       : depth(_depth), deviation(_deviation), backstep(_backstep) {
     itype = INDI_ZIGZAG;
     max_modes = FINAL_ZIGZAG_LINE_ENTRY;
     shift = _shift;
-    SetDataSourceType(IDATA_BUILTIN);
     SetCustomIndicatorName("Examples\\ZigZag");
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
-  };
-  void ZigZagParams(ZigZagParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -343,12 +338,12 @@ class Indi_ZigZag : public Indicator<ZigZagParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _mode, _shift,
-                                      GetPointer(this));
+                                      THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_ZigZag::iCustomZigZag(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), GetDepth(),
-                                            GetDeviation(), GetBackstep(), _mode, _shift, GetPointer(this));
+                                            GetDeviation(), GetBackstep(), _mode, _shift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

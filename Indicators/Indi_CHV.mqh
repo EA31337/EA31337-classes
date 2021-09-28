@@ -35,23 +35,16 @@ struct CHVParams : IndicatorParams {
   ENUM_CHV_SMOOTH_METHOD smooth_method;
   // Struct constructor.
   void CHVParams(int _smooth_period = 10, int _chv_period = 10,
-                 ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0,
-                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+                 ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0) {
     chv_period = _chv_period;
     itype = INDI_CHAIKIN_V;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHV");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;
-    tf = _tf;
-  };
-  void CHVParams(CHVParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -172,7 +165,7 @@ class Indi_CHV : public Indicator<CHVParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_CHV::iCHV(GetSymbol(), GetTf(), /*[*/ GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod() /*]*/,
-                                _mode, _shift);
+                                _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),

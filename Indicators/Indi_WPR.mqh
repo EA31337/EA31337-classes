@@ -34,17 +34,13 @@ double iWPR(string _symbol, int _tf, int _period, int _shift) {
 struct WPRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void WPRParams(unsigned int _period, int _shift = 0) : period(_period) {
+  void WPRParams(unsigned int _period = 14, int _shift = 0) : period(_period) {
     itype = INDI_WPR;
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\WPR");
-  };
-  void WPRParams(WPRParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -109,12 +105,11 @@ class Indi_WPR : public Indicator<WPRParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_WPR::iWPR(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                _shift, GetPointer(this));
+        _value = Indi_WPR::iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+                         0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

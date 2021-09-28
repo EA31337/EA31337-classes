@@ -27,19 +27,13 @@
 // Structs.
 struct ColorBarsParams : IndicatorParams {
   // Struct constructor.
-  void ColorBarsParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ColorBarsParams(int _shift = 0) {
     itype = INDI_COLOR_BARS;
     max_modes = 5;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorBars");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void ColorBarsParams(ColorBarsParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -121,7 +115,7 @@ class Indi_ColorBars : public Indicator<ColorBarsParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_ColorBars::iColorBars(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
+        _value = Indi_ColorBars::iColorBars(GetSymbol(), GetTf(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);

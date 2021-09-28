@@ -28,7 +28,7 @@
 struct PriceChannelParams : IndicatorParams {
   unsigned int period;
   // Struct constructor.
-  void PriceChannelParams(unsigned int _period = 22, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void PriceChannelParams(unsigned int _period = 22, int _shift = 0) {
     itype = INDI_PRICE_CHANNEL;
     max_modes = 3;
     period = _period;
@@ -37,11 +37,6 @@ struct PriceChannelParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Price_Channel");
     SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
-    tf = _tf;
-  };
-  void PriceChannelParams(PriceChannelParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -64,8 +59,8 @@ class Indi_PriceChannel : public Indicator<PriceChannelParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+                         0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

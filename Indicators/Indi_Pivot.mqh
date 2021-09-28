@@ -30,19 +30,13 @@
 struct IndiPivotParams : IndicatorParams {
   ENUM_PP_TYPE method;  // Pivot point calculation method.
   // Struct constructor.
-  void IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0) {
     itype = INDI_PIVOT;
     max_modes = 9;
     method = _method;
     SetDataValueType(TYPE_FLOAT);
     SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void IndiPivotParams(IndiPivotParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 

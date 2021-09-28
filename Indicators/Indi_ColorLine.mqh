@@ -28,19 +28,13 @@
 // Structs.
 struct ColorLineParams : IndicatorParams {
   // Struct constructor.
-  void ColorLineParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ColorLineParams(int _shift = 0) {
     itype = INDI_COLOR_LINE;
     max_modes = 2;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorLine");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void ColorLineParams(ColorLineParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -98,7 +92,7 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
     // Check data.
     int i, calculated = BarsCalculated(ExtMAHandle, rates_total);
     if (calculated < rates_total) {
-      Print("Not all data of ExtMAHandle is calculated (", calculated, " bars). Error ", GetLastError());
+      // Not all data of ExtMAHandle is calculated.
       return (0);
     }
     // First calculation or number of bars was changed.
@@ -179,11 +173,10 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_ColorLine::iColorLine(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
+        _value = Indi_ColorLine::iColorLine(GetSymbol(), GetTf(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         iparams.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

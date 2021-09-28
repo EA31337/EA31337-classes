@@ -23,6 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.all.h"
 #include "Indi_AC.mqh"
 #include "Indi_AO.mqh"
 
@@ -32,19 +33,13 @@ struct BWZTParams : IndicatorParams {
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
-  void BWZTParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void BWZTParams(int _shift = 0) {
     itype = INDI_BWZT;
     max_modes = 5;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void BWZTParams(BWZTParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 

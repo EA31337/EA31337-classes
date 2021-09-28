@@ -60,10 +60,6 @@ struct StdDevParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\StdDev");
   };
-  void StdDevParams(StdDevParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
-  };
 };
 
 /**
@@ -217,9 +213,8 @@ class Indi_StdDev : public Indicator<StdDevParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            Indi_StdDev::iStdDev(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetMAPeriod(),
-                                 GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),
+                                      GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
@@ -227,9 +222,8 @@ class Indi_StdDev : public Indicator<StdDevParams> {
                          _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_StdDev::iStdDevOnIndicator(indi_src, Get<string>(CHART_PARAM_SYMBOL),
-                                                 Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetMAPeriod(), GetMAShift(),
-                                                 GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_StdDev::iStdDevOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
+                                                 GetAppliedPrice(), _shift, THIS_PTR);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;

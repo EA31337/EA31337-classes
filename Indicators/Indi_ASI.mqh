@@ -30,20 +30,14 @@ struct ASIParams : IndicatorParams {
   unsigned int period;
   double mpc;
   // Struct constructor.
-  void ASIParams(double _mpc = 300.0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ASIParams(double _mpc = 300.0, int _shift = 0) {
     itype = INDI_ASI;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ASI");
-    SetDataSourceType(IDATA_BUILTIN);
     mpc = _mpc;
     shift = _shift;
-    tf = _tf;
-  };
-  void ASIParams(ASIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 

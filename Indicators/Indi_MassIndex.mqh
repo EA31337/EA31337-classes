@@ -31,8 +31,7 @@ struct MassIndexParams : IndicatorParams {
   int second_period;
   int sum_period;
   // Struct constructor.
-  void MassIndexParams(int _period = 9, int _second_period = 9, int _sum_period = 25, int _shift = 0,
-                       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void MassIndexParams(int _period = 9, int _second_period = 9, int _sum_period = 25, int _shift = 0) {
     itype = INDI_MASS_INDEX;
     max_modes = 1;
     period = _period;
@@ -40,14 +39,8 @@ struct MassIndexParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\MI");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     sum_period = _sum_period;
-    tf = _tf;
-  };
-  void MassIndexParams(MassIndexParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 

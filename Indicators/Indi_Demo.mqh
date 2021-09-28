@@ -33,11 +33,9 @@
 // Structs.
 struct DemoIndiParams : IndicatorParams {
   // Struct constructors.
-  void DemoIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                      ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN) {
-    itype = itype == INDI_NONE ? INDI_DEMO : itype;
+  void DemoIndiParams(int _shift = 0) {
+    itype = INDI_DEMO;
     max_modes = 1;
-    SetDataSourceType(_idstype);
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetMaxModes(1);
@@ -98,8 +96,7 @@ class Indi_Demo : public Indicator<DemoIndiParams> {
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
-    double _value = Indi_Demo::iDemo(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift,
-                                     GetPointer(this));
+    double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _shift, THIS_PTR);
     istate.is_ready = true;
     istate.is_changed = false;
     if (iparams.is_draw) {

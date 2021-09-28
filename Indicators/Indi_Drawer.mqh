@@ -48,10 +48,7 @@ class Indi_Drawer : public Indicator<DrawerParams> {
    * Class constructor.
    */
   Indi_Drawer(const DrawerParams &_params) : Indicator<DrawerParams>(_params), redis(true) { Init(); }
-  Indi_Drawer(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DRAWER, _tf), redis(true) {
-    // @fixme
-    Init();
-  }
+  Indi_Drawer(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DRAWER, _tf), redis(true) { Init(); }
 
   void Init() {
     // Drawer is always ready.
@@ -304,18 +301,16 @@ class Indi_Drawer : public Indicator<DrawerParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Drawer::iDrawer(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                      GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_Drawer::iDrawer(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         iparams.custom_indi_name, /* [ */ GetPeriod(), GetAppliedPrice() /* ] */, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
+                         GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Drawer::iDrawerOnIndicator(iparams.indi_src, GetPointer(this), Get<string>(CHART_PARAM_SYMBOL),
-                                                 Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetAppliedPrice(),
-                                                 _shift);
+        _value = Indi_Drawer::iDrawerOnIndicator(iparams.indi_data_source, THIS_PTR, GetSymbol(), GetTf(), GetPeriod(),
+                                                 GetAppliedPrice(), _shift);
         break;
     }
     istate.is_changed = false;

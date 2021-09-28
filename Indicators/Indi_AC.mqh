@@ -32,18 +32,13 @@ double iAC(string _symbol, int _tf, int _shift) { return Indi_AC::iAC(_symbol, (
 // Structs.
 struct ACParams : IndicatorParams {
   // Struct constructor.
-  void ACParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ACParams(int _shift = 0) {
     itype = INDI_AC;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
-    tf = _tf;
-  };
-  void ACParams(ACParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -108,7 +103,7 @@ class Indi_AC : public Indicator<ACParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, GetPointer(this));
+        _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);

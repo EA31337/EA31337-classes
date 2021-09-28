@@ -46,8 +46,8 @@ struct ADXWParams : ADXParams {
         break;
     }
   };
-  void ADXWParams(ADXWParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : ADXParams(_params, _tf) {}
-  void ADXWParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : ADXParams(_params, _tf) {}
+  void ADXWParams(ADXWParams &_params) { THIS_REF = _params; }
+  void ADXWParams(ADXParams &_params) { THIS_REF = _params; }
 };
 
 /**

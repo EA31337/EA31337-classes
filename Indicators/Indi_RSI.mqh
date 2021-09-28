@@ -48,12 +48,6 @@ struct RSIParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
  public:
-  // Struct constructors.
-  void RSIParams(const RSIParams &r) {
-    period = r.period;
-    applied_price = r.applied_price;
-    custom_indi_name = r.custom_indi_name;
-  }
   void RSIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), applied_price(_ap) {
     itype = INDI_RSI;
@@ -67,7 +61,6 @@ struct RSIParams : IndicatorParams {
     this = _params;
     tf = _tf;
   };
-  void RSIParams(ENUM_TIMEFRAMES _tf) : period(12), applied_price(PRICE_WEIGHTED) { tf = _tf; }
   // Getters.
   ENUM_APPLIED_PRICE GetAppliedPrice() { return applied_price; }
   unsigned int GetPeriod() { return period; }
@@ -327,19 +320,16 @@ class Indi_RSI : public Indicator<RSIParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_RSI::iRSI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                iparams.GetPeriod(), iparams.GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         iparams.custom_indi_name, /* [ */ iparams.GetPeriod(), iparams.GetAppliedPrice() /* ] */, 0,
-                         _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
+                         GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_RSI::iRSIOnIndicator(indi_src, GetPointer(this), Get<string>(CHART_PARAM_SYMBOL),
-                                           Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), iparams.GetPeriod(),
-                                           iparams.GetAppliedPrice(), _shift);
+        _value = Indi_RSI::iRSIOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), GetPeriod(),
+                                           GetAppliedPrice(), _shift);
         break;
     }
     istate.is_ready = GetLastError() == ERR_NO_ERROR;

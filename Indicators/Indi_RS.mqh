@@ -30,8 +30,7 @@
 struct RSParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  void RSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0,
-                ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void RSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) {
     applied_volume = _applied_volume;
     itype = INDI_RS;
     max_modes = 2;
@@ -39,11 +38,6 @@ struct RSParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_MATH);
     shift = _shift;
-    tf = _tf;
-  };
-  void RSParams(RSParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -58,10 +52,7 @@ class Indi_RS : public Indicator<RSParams> {
    * Class constructor.
    */
   Indi_RS(RSParams &_params) : iparams(_params), Indicator<RSParams>(_params) { Init(); };
-  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RS, _tf) {
-    iparams.tf = _tf;
-    Init();
-  };
+  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RS, _tf) { Init(); };
 
   void Init() {
     if (iparams.GetDataSourceType() == IDATA_MATH) {

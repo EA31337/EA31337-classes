@@ -32,22 +32,17 @@ struct ZigZagColorParams : IndicatorParams {
 
   // Struct constructor.
   void ZigZagColorParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3,
-                         int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+                         int _shift = 0) {
+    itype = INDI_ZIGZAG_COLOR;
     backstep = _backstep;
     depth = _depth;
     deviation = _deviation;
-    itype = INDI_ZIGZAG_COLOR;
     max_modes = 3;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ZigZagColor");
     SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
-    tf = _tf;
-  };
-  void ZigZagColorParams(ZigZagColorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
@@ -70,8 +65,7 @@ class Indi_ZigZagColor : public Indicator<ZigZagColorParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         iparams.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/, _mode, _shift);
         break;
       default:

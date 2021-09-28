@@ -31,8 +31,7 @@ struct FrIndiAMAParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
   // Struct constructor.
-  void FrIndiAMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0,
-                       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void FrIndiAMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
     frama_shift = _frama_shift;
     itype = INDI_FRAMA;
     max_modes = 1;
@@ -42,11 +41,6 @@ struct FrIndiAMAParams : IndicatorParams {
     applied_price = _ap;
     period = _period;
     shift = _shift;
-    tf = _tf;
-  };
-  void FrIndiAMAParams(FrIndiAMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
