@@ -36,9 +36,9 @@ SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
   _s.Pass(THIS_REF, "datetime", timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC);
   _s.Pass(THIS_REF, "flags", flags, SERIALIZER_FIELD_FLAG_DYNAMIC);
   for (int i = 0; i < _asize; i++) {
-    // _s.Pass(THIS_REF, (string)i, values[i], SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this
-    // work? _s.Pass(THIS_REF, (string)i, GetEntry(i), SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); //
-    // Can this work?
+    // _s.Pass(THIS_REF, (string)i, values[i], SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can
+    // this work? _s.Pass(THIS_REF, (string)i, GetEntry(i), SERIALIZER_FIELD_FLAG_DYNAMIC |
+    // SERIALIZER_FIELD_FLAG_FEATURE); // Can this work?
 
     if (CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
       _s.Pass(THIS_REF, (string)i, values[i].vdbl, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);

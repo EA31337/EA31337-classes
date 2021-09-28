@@ -66,22 +66,14 @@ struct ForceParams : IndicatorParams {
 /**
  * Implements the Force Index indicator.
  */
-class Indi_Force : public Indicator {
+class Indi_Force : public Indicator<ForceParams> {
  protected:
-  // Structs.
-  ForceParams params;
-
  public:
   /**
    * Class constructor.
    */
-  Indi_Force(ForceParams &_p) : params(_p.period, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_Force(ForceParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.ma_method, _p.applied_price), Indicator(INDI_FORCE, _tf) {
-    params = _p;
-  }
+  Indi_Force(ForceParams &_p) : Indicator<ForceParams>(_p) {}
+  Indi_Force(ENUM_TIMEFRAMES _tf) : Indicator(INDI_FORCE, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -91,7 +83,7 @@ class Indi_Force : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iforce
    */
   static double iForce(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_MA_METHOD _ma_method,
-                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator *_obj = NULL) {
+                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator<ForceParams> *_obj = NULL) {
 #ifdef __MQL4__
     return ::iForce(_symbol, _tf, _period, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
@@ -130,7 +122,7 @@ class Indi_Force : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Force::iForce(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
@@ -138,7 +130,7 @@ class Indi_Force : public Indicator {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod(), GetMAMethod(), GetAppliedPrice(),
+                         iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(), GetMAMethod(), GetAppliedPrice(),
                          VOLUME_TICK /*]*/, 0, _shift);
         break;
       default:
@@ -155,17 +147,17 @@ class Indi_Force : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -186,17 +178,17 @@ class Indi_Force : public Indicator {
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get MA method.
    */
-  ENUM_MA_METHOD GetMAMethod() { return params.ma_method; }
+  ENUM_MA_METHOD GetMAMethod() { return iparams.ma_method; }
 
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -205,7 +197,7 @@ class Indi_Force : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -213,7 +205,7 @@ class Indi_Force : public Indicator {
    */
   void SetMAMethod(ENUM_MA_METHOD _ma_method) {
     istate.is_changed = true;
-    params.ma_method = _ma_method;
+    iparams.ma_method = _ma_method;
   }
 
   /**
@@ -221,6 +213,6 @@ class Indi_Force : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

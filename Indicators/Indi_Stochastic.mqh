@@ -59,22 +59,13 @@ struct StochParams : IndicatorParams {
 /**
  * Implements the Stochastic Oscillator.
  */
-class Indi_Stochastic : public Indicator {
- protected:
-  StochParams params;
-
+class Indi_Stochastic : public Indicator<StochParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Stochastic(StochParams &_p)
-      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_Stochastic(StochParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field), Indicator(INDI_STOCHASTIC, _tf) {
-    params = _p;
-  }
+  Indi_Stochastic(StochParams &_p) : Indicator<StochParams>(_p) {}
+  Indi_Stochastic(ENUM_TIMEFRAMES _tf) : Indicator(INDI_STOCHASTIC, _tf) {}
 
   /**
    * Calculates the Stochastic Oscillator and returns its value.
@@ -89,7 +80,7 @@ class Indi_Stochastic : public Indicator {
       ENUM_STO_PRICE _price_field,  // (MT4 _price_field):      0      - Low/High,       1        - Close/Close
                                     // (MT5 _price_field): STO_LOWHIGH - Low/High, STO_CLOSECLOSE - Close/Close
       int _mode,                    // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0, Indicator *_obj = NULL) {
+      int _shift = 0, Indicator<StochParams> *_obj = NULL) {
 #ifdef __MQL4__
     return ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
 #else  // __MQL5__
@@ -129,7 +120,7 @@ class Indi_Stochastic : public Indicator {
   double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Stochastic::iStochastic(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
@@ -138,7 +129,7 @@ class Indi_Stochastic : public Indicator {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetKPeriod(), GetDPeriod(), GetSlowing() /*]*/, _mode,
+                         iparams.GetCustomIndicatorName(), /*[*/ GetKPeriod(), GetDPeriod(), GetSlowing() /*]*/, _mode,
                          _shift);
         break;
       default:
@@ -155,18 +146,18 @@ class Indi_Stochastic : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue((ENUM_SIGNAL_LINE)_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
                      !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGe(0));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -187,27 +178,27 @@ class Indi_Stochastic : public Indicator {
   /**
    * Get period of the %K line.
    */
-  int GetKPeriod() { return params.kperiod; }
+  int GetKPeriod() { return iparams.kperiod; }
 
   /**
    * Get period of the %D line.
    */
-  int GetDPeriod() { return params.dperiod; }
+  int GetDPeriod() { return iparams.dperiod; }
 
   /**
    * Get slowing value.
    */
-  int GetSlowing() { return params.slowing; }
+  int GetSlowing() { return iparams.slowing; }
 
   /**
    * Set MA method.
    */
-  ENUM_MA_METHOD GetMAMethod() { return params.ma_method; }
+  ENUM_MA_METHOD GetMAMethod() { return iparams.ma_method; }
 
   /**
    * Get price field parameter.
    */
-  ENUM_STO_PRICE GetPriceField() { return params.price_field; }
+  ENUM_STO_PRICE GetPriceField() { return iparams.price_field; }
 
   /* Setters */
 
@@ -216,7 +207,7 @@ class Indi_Stochastic : public Indicator {
    */
   void SetKPeriod(int _kperiod) {
     istate.is_changed = true;
-    params.kperiod = _kperiod;
+    iparams.kperiod = _kperiod;
   }
 
   /**
@@ -224,7 +215,7 @@ class Indi_Stochastic : public Indicator {
    */
   void SetDPeriod(int _dperiod) {
     istate.is_changed = true;
-    params.dperiod = _dperiod;
+    iparams.dperiod = _dperiod;
   }
 
   /**
@@ -232,7 +223,7 @@ class Indi_Stochastic : public Indicator {
    */
   void SetSlowing(int _slowing) {
     istate.is_changed = true;
-    params.slowing = _slowing;
+    iparams.slowing = _slowing;
   }
 
   /**
@@ -240,7 +231,7 @@ class Indi_Stochastic : public Indicator {
    */
   void SetMAMethod(ENUM_MA_METHOD _ma_method) {
     istate.is_changed = true;
-    params.ma_method = _ma_method;
+    iparams.ma_method = _ma_method;
   }
 
   /**
@@ -248,6 +239,6 @@ class Indi_Stochastic : public Indicator {
    */
   void SetPriceField(ENUM_STO_PRICE _price_field) {
     istate.is_changed = true;
-    params.price_field = _price_field;
+    iparams.price_field = _price_field;
   }
 };

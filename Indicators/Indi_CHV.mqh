@@ -58,25 +58,20 @@ struct CHVParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_CHV : public Indicator {
- protected:
-  CHVParams params;
-
+class Indi_CHV : public Indicator<CHVParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CHV(CHVParams &_params)
-      : params(_params.smooth_period, _params.chv_period, _params.smooth_method), Indicator((IndicatorParams)_params) {
-    params = _params;
-  };
-  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN_V, _tf) { params.tf = _tf; };
+  Indi_CHV(CHVParams &_params) : Indicator<CHVParams>(_params){};
+  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN_V, _tf){};
 
   /**
    * Built-in version of Chaikin Volatility.
    */
   static double iCHV(string _symbol, ENUM_TIMEFRAMES _tf, int _smooth_period, int _chv_period,
-                     ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+                     ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode = 0, int _shift = 0,
+                     Indicator<CHVParams> *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _symbol, _tf, Util::MakeKey("Indi_CHV", _smooth_period, _chv_period, _smooth_method));
     return iCHVOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _smooth_period, _chv_period, _smooth_method, _mode,
@@ -174,13 +169,13 @@ class Indi_CHV : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_CHV::iCHV(GetSymbol(), GetTf(), /*[*/ GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod() /*]*/,
                                 _mode, _shift);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
                          GetCHVPeriod(), GetSmoothMethod() /*]*/, _mode, _shift);
         break;
       default:
@@ -197,17 +192,17 @@ class Indi_CHV : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -228,17 +223,17 @@ class Indi_CHV : public Indicator {
   /**
    * Get smooth period.
    */
-  unsigned int GetSmoothPeriod() { return params.smooth_period; }
+  unsigned int GetSmoothPeriod() { return iparams.smooth_period; }
 
   /**
    * Get Chaikin period.
    */
-  unsigned int GetCHVPeriod() { return params.chv_period; }
+  unsigned int GetCHVPeriod() { return iparams.chv_period; }
 
   /**
    * Get smooth method.
    */
-  ENUM_CHV_SMOOTH_METHOD GetSmoothMethod() { return params.smooth_method; }
+  ENUM_CHV_SMOOTH_METHOD GetSmoothMethod() { return iparams.smooth_method; }
 
   /* Setters */
 
@@ -247,7 +242,7 @@ class Indi_CHV : public Indicator {
    */
   void SetSmoothPeriod(unsigned int _smooth_period) {
     istate.is_changed = true;
-    params.smooth_period = _smooth_period;
+    iparams.smooth_period = _smooth_period;
   }
 
   /**
@@ -255,7 +250,7 @@ class Indi_CHV : public Indicator {
    */
   void SetCHVPeriod(unsigned int _chv_period) {
     istate.is_changed = true;
-    params.chv_period = _chv_period;
+    iparams.chv_period = _chv_period;
   }
 
   /**
@@ -263,6 +258,6 @@ class Indi_CHV : public Indicator {
    */
   void SetSmoothMethod(ENUM_CHV_SMOOTH_METHOD _smooth_method) {
     istate.is_changed = true;
-    params.smooth_method = _smooth_method;
+    iparams.smooth_method = _smooth_method;
   }
 };

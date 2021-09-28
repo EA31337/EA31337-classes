@@ -66,32 +66,13 @@ struct OBVParams : IndicatorParams {
 /**
  * Implements the On Balance Volume indicator.
  */
-class Indi_OBV : public Indicator {
- protected:
-  OBVParams params;
-
+class Indi_OBV : public Indicator<OBVParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OBV(OBVParams &_p)
-#ifdef __MQL4__
-      : params(_p.applied_price),
-#else
-      : params(_p.applied_volume),
-#endif
-        Indicator((IndicatorParams)_p) {
-  }
-  Indi_OBV(OBVParams &_p, ENUM_TIMEFRAMES _tf)
-#ifdef __MQL4__
-      : params(_p.applied_price),
-#else
-      : params(_p.applied_volume),
-#endif
-        Indicator(INDI_OBV, _tf) {
-    params = _p;
-  }
-  Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_OBV, _tf) {}
+  Indi_OBV(OBVParams &_p) : Indicator<OBVParams>(_p) {}
+  Indi_OBV(ENUM_TIMEFRAMES _tf) : Indicator(INDI_OBV, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -106,7 +87,7 @@ class Indi_OBV : public Indicator {
 #else
                      ENUM_APPLIED_VOLUME _applied = VOLUME_TICK,  // MT5 only.
 #endif
-                     int _shift = 0, Indicator *_obj = NULL) {
+                     int _shift = 0, Indicator<OBVParams> *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, _applied, _shift);
 #else  // __MQL5__
@@ -145,7 +126,7 @@ class Indi_OBV : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
@@ -158,7 +139,7 @@ class Indi_OBV : public Indicator {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/, 0, _shift);
+                         iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -174,17 +155,17 @@ class Indi_OBV : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -207,12 +188,12 @@ class Indi_OBV : public Indicator {
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /**
    * Get applied volume type (MT5 only).
    */
-  ENUM_APPLIED_VOLUME GetAppliedVolume() { return params.applied_volume; }
+  ENUM_APPLIED_VOLUME GetAppliedVolume() { return iparams.applied_volume; }
 
   /* Setters */
 
@@ -226,7 +207,7 @@ class Indi_OBV : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 
   /**
@@ -237,6 +218,6 @@ class Indi_OBV : public Indicator {
    */
   void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
     istate.is_changed = true;
-    params.applied_volume = _applied_volume;
+    iparams.applied_volume = _applied_volume;
   }
 };

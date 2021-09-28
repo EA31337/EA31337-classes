@@ -54,24 +54,20 @@ struct PriceIndiParams : IndicatorParams {
 /**
  * Price Indicator.
  */
-class Indi_Price : public Indicator {
- protected:
-  PriceIndiParams params;
-
+class Indi_Price : public Indicator<PriceIndiParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Price(PriceIndiParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_Price(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN)
-      : params(_shift, _tf, _ap), Indicator(INDI_PRICE, _tf){};
+  Indi_Price(PriceIndiParams &_p) : Indicator<PriceIndiParams>(_p){};
+  Indi_Price(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf){};
 
   /**
    * Returns the indicator value.
    */
   static double iPrice(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                        Indi_Price *_obj = NULL) {
-    ENUM_APPLIED_PRICE _ap = _obj == NULL ? PRICE_MEDIAN : _obj.params.applied_price;
+    ENUM_APPLIED_PRICE _ap = _obj == NULL ? PRICE_MEDIAN : _obj.iparams.applied_price;
     return ChartStatic::iPrice(_ap, _symbol, _tf, _shift);
   }
 
@@ -97,7 +93,7 @@ class Indi_Price : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -107,7 +103,7 @@ class Indi_Price : public Indicator {
       _entry.values[INDI_PRICE_MODE_CLOSE] = GetValue(PRICE_CLOSE, _shift);
       _entry.values[INDI_PRICE_MODE_LOW] = GetValue(PRICE_LOW, _shift);
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-      _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
       idata.Add(_entry, _bar_time);
     }
     return _entry;

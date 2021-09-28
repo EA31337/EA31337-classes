@@ -41,23 +41,15 @@ double iDrawer(string _symbol, int _tf, int _period, int _ap, int _shift) {
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_Drawer : public Indicator {
- public:
-  DrawerParams params;
-  DictStruct<long, DrawerGainLossData> aux_data;
+class Indi_Drawer : public Indicator<DrawerParams> {
   Redis redis;
 
   /**
    * Class constructor.
    */
-  Indi_Drawer(const DrawerParams &_params) : params(_params), Indicator((IndicatorParams)_params), redis(true) {
-    params = _params;
-    Init();
-  }
-  Indi_Drawer(const DrawerParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params), Indicator(INDI_DRAWER, _tf), redis(true) {
+  Indi_Drawer(const DrawerParams &_params) : Indicator<DrawerParams>(_params), redis(true) { Init(); }
+  Indi_Drawer(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DRAWER, _tf), redis(true) {
     // @fixme
-    params.tf = _tf;
     Init();
   }
 
@@ -112,7 +104,7 @@ class Indi_Drawer : public Indicator {
   }
 
   virtual void OnTick() {
-    Indicator::OnTick();
+    Indicator<DrawerParams>::OnTick();
 
     ActionEntry action(INDI_ACTION_SET_VALUE);
     ArrayResize(action.args, 3);
@@ -163,16 +155,18 @@ class Indi_Drawer : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
   static double iDrawer(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, Indicator *_obj = NULL) {
+                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
+                        Indicator<IndicatorParams> *_obj = NULL) {
     return 1.0;
   }
 
   /**
    * Calculates non-SMMA version of Drawer on another indicator (uses iDrawerOnArray).
    */
-  static double iDrawerOnArrayOnIndicator(Indicator *_indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                                          unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,
-                                          int _shift = 0, Indi_Drawer *_obj = NULL) {
+  static double iDrawerOnArrayOnIndicator(Indicator<IndicatorParams> *_indi, string _symbol = NULL,
+                                          ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
+                                          ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
+                                          Indi_Drawer *_obj = NULL) {
     int i;
     double indi_values[];
     ArrayResize(indi_values, _period);
@@ -203,7 +197,7 @@ class Indi_Drawer : public Indicator {
    * Drawer values. To exactly replicate our Drawer numbers, a formula will need at
    * least 250 data points."
    */
-  static double iDrawerOnIndicator(Indicator *_indi, Indi_Drawer *_obj, string _symbol = NULL,
+  static double iDrawerOnIndicator(Indicator<IndicatorParams> *_indi, Indi_Drawer *_obj, string _symbol = NULL,
                                    ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                    ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0) {
     long _bar_time_curr = _obj.GetBarTime(_shift);
@@ -298,8 +292,8 @@ class Indi_Drawer : public Indicator {
    * extern ENUM_APPLIED_PRICE applied_price; // Required only for MQL4.
    * extern int shift;
    *
-   * Also, remember to use params.SetCustomIndicatorName(name) method to choose
-   * indicator name, e.g.,: params.SetCustomIndicatorName("Examples\\Drawer");
+   * Also, remember to use iparams.SetCustomIndicatorName(name) method to choose
+   * indicator name, e.g.,: iparams.SetCustomIndicatorName("Examples\\Drawer");
    *
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
@@ -307,7 +301,7 @@ class Indi_Drawer : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Drawer::iDrawer(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
@@ -316,12 +310,12 @@ class Indi_Drawer : public Indicator {
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.custom_indi_name, /* [ */ GetPeriod(), GetAppliedPrice() /* ] */, 0, _shift);
+                         iparams.custom_indi_name, /* [ */ GetPeriod(), GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Drawer::iDrawerOnIndicator(params.indi_data_source, GetPointer(this),
-                                                 Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                                 GetPeriod(), GetAppliedPrice(), _shift);
+        _value = Indi_Drawer::iDrawerOnIndicator(iparams.indi_src, GetPointer(this), Get<string>(CHART_PARAM_SYMBOL),
+                                                 Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetAppliedPrice(),
+                                                 _shift);
         break;
     }
     istate.is_changed = false;
@@ -335,10 +329,10 @@ class Indi_Drawer : public Indicator {
     unsigned int i;
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(iparams.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (_bar_time < 0) {
       // Return empty value on invalid bar time.
-      for (i = 0; i < iparams.max_modes; ++i) {
+      for (i = 0; i < iparams.GetMaxModes(); ++i) {
         _entry.values[i] = EMPTY_VALUE;
       }
       return _entry;
@@ -349,11 +343,11 @@ class Indi_Drawer : public Indicator {
       // Missing entry (which is correct).
       _entry.timestamp = GetBarTime(_shift);
 
-      for (i = 0; i < iparams.max_modes; ++i) {
+      for (i = 0; i < iparams.GetMaxModes(); ++i) {
         _entry.values[i] = 0;
       }
 
-      _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID | INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
     }
     return _entry;
@@ -377,19 +371,19 @@ class Indi_Drawer : public Indicator {
   /* Getters */
 
   /**
-   * Get indicator params.
+   * Get indicator iparams.
    */
-  DrawerParams GetParams() { return params; }
+  DrawerParams GetParams() { return iparams; }
 
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -398,7 +392,7 @@ class Indi_Drawer : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -406,6 +400,6 @@ class Indi_Drawer : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

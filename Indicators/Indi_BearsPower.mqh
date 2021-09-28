@@ -53,20 +53,13 @@ struct BearsPowerParams : IndicatorParams {
 /**
  * Implements the Bears Power indicator.
  */
-class Indi_BearsPower : public Indicator {
+class Indi_BearsPower : public Indicator<BearsPowerParams> {
  public:
-  BearsPowerParams params;
-
   /**
    * Class constructor.
    */
-  Indi_BearsPower(BearsPowerParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_BearsPower(BearsPowerParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.applied_price), Indicator(INDI_BEARS, _tf) {
-    params = _p;
-  }
+  Indi_BearsPower(BearsPowerParams &_p) : Indicator<BearsPowerParams>(_p) {}
+  Indi_BearsPower(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BEARS, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -77,7 +70,7 @@ class Indi_BearsPower : public Indicator {
    */
   static double iBearsPower(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                             ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
-                            int _shift = 0, Indicator *_obj = NULL) {
+                            int _shift = 0, Indicator<BearsPowerParams> *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBearsPower(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -116,7 +109,7 @@ class Indi_BearsPower : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = _value = iBearsPower(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
@@ -124,7 +117,7 @@ class Indi_BearsPower : public Indicator {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, _mode, _shift);
+                         iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -140,17 +133,17 @@ class Indi_BearsPower : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -171,14 +164,14 @@ class Indi_BearsPower : public Indicator {
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get applied price value.
    *
    * Note: Not used in MT5.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -187,7 +180,7 @@ class Indi_BearsPower : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -197,6 +190,6 @@ class Indi_BearsPower : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

@@ -73,25 +73,13 @@ struct EnvelopesParams : IndicatorParams {
 /**
  * Implements the Envelopes indicator.
  */
-class Indi_Envelopes : public Indicator {
- protected:
-  // Structs.
-  EnvelopesParams params;
-
+class Indi_Envelopes : public Indicator<EnvelopesParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Envelopes(EnvelopesParams &_p)
-      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price, _p.deviation),
-        Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_Envelopes(EnvelopesParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price, _p.deviation),
-        Indicator(INDI_ENVELOPES, _tf) {
-    params = _p;
-  }
+  Indi_Envelopes(EnvelopesParams &_p) : Indicator<EnvelopesParams>(_p) {}
+  Indi_Envelopes(EnvelopesParams &_p, ENUM_TIMEFRAMES _tf) : Indicator(INDI_ENVELOPES, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -104,7 +92,7 @@ class Indi_Envelopes : public Indicator {
                            int _ma_shift, ENUM_APPLIED_PRICE _ap, double _deviation,
                            int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                                        // UPPER_LINE, 1 - LOWER_LINE
-                           int _shift = 0, Indicator *_obj = NULL) {
+                           int _shift = 0, Indicator<EnvelopesParams> *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL4__
     return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _ap, _deviation, _mode, _shift);
@@ -147,8 +135,8 @@ class Indi_Envelopes : public Indicator {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, Indicator *_indi, string _symbol,
-                                      ENUM_TIMEFRAMES _tf, int _ma_period,
+  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, Indicator<EnvelopesParams> *_indi,
+                                      string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
                                       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                       int _indi_mode,  // Source indicator's mode index. May be -1 to use first buffer
                                       int _ma_shift, double _deviation,
@@ -210,7 +198,7 @@ class Indi_Envelopes : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Envelopes::iEnvelopes(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
@@ -219,13 +207,13 @@ class Indi_Envelopes : public Indicator {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /**/ GetMAPeriod(), GetMAMethod(), GetMAShift(),
+                         iparams.GetCustomIndicatorName(), /**/ GetMAPeriod(), GetMAMethod(), GetMAShift(),
                          GetAppliedPrice(), GetDeviation() /**/, _mode, _shift);
         break;
       case IDATA_INDICATOR:
         _value = Indi_Envelopes::iEnvelopesOnIndicator(
-            GetCache(), GetDataSource(), Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-            GetMAPeriod(), GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(), _mode, _shift);
+            GetCache(), indi_src, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetMAPeriod(),
+            GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -241,7 +229,7 @@ class Indi_Envelopes : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -255,7 +243,7 @@ class Indi_Envelopes : public Indicator {
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
                      !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -280,27 +268,27 @@ class Indi_Envelopes : public Indicator {
   /**
    * Get MA period value.
    */
-  int GetMAPeriod() { return params.ma_period; }
+  int GetMAPeriod() { return iparams.ma_period; }
 
   /**
    * Set MA method.
    */
-  ENUM_MA_METHOD GetMAMethod() { return params.ma_method; }
+  ENUM_MA_METHOD GetMAMethod() { return iparams.ma_method; }
 
   /**
    * Get MA shift value.
    */
-  int GetMAShift() { return params.ma_shift; }
+  int GetMAShift() { return iparams.ma_shift; }
 
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /**
    * Get deviation value.
    */
-  double GetDeviation() { return params.deviation; }
+  double GetDeviation() { return iparams.deviation; }
 
   /* Setters */
 
@@ -309,7 +297,7 @@ class Indi_Envelopes : public Indicator {
    */
   void SetMAPeriod(int _ma_period) {
     istate.is_changed = true;
-    params.ma_period = _ma_period;
+    iparams.ma_period = _ma_period;
   }
 
   /**
@@ -317,7 +305,7 @@ class Indi_Envelopes : public Indicator {
    */
   void SetMAMethod(ENUM_MA_METHOD _ma_method) {
     istate.is_changed = true;
-    params.ma_method = _ma_method;
+    iparams.ma_method = _ma_method;
   }
 
   /**
@@ -325,7 +313,7 @@ class Indi_Envelopes : public Indicator {
    */
   void SetMAShift(int _ma_shift) {
     istate.is_changed = true;
-    params.ma_shift = _ma_shift;
+    iparams.ma_shift = _ma_shift;
   }
 
   /**
@@ -333,7 +321,7 @@ class Indi_Envelopes : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _ap) {
     istate.is_changed = true;
-    params.applied_price = _ap;
+    iparams.applied_price = _ap;
   }
 
   /**
@@ -341,6 +329,6 @@ class Indi_Envelopes : public Indicator {
    */
   void SetDeviation(double _deviation) {
     istate.is_changed = true;
-    params.deviation = _deviation;
+    iparams.deviation = _deviation;
   }
 };

@@ -61,15 +61,12 @@ struct BWMFIParams : IndicatorParams {
 /**
  * Implements the Market Facilitation Index by Bill Williams indicator.
  */
-class Indi_BWMFI : public Indicator {
- protected:
-  BWMFIParams params;
-
+class Indi_BWMFI : public Indicator<BWMFIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BWMFI(IndicatorParams &_p) : Indicator((IndicatorParams)_p) {}
+  Indi_BWMFI(BWMFIParams &_p) : Indicator<BWMFIParams>(_p) {}
   Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWMFI, _tf) {}
 
   /**
@@ -80,7 +77,7 @@ class Indi_BWMFI : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/ibwmfi
    */
   static double iBWMFI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                       ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, Indicator *_obj = NULL) {
+                       ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, Indicator<BWMFIParams> *_obj = NULL) {
 #ifdef __MQL4__
     // Adjusting shift for MT4.
     _shift++;
@@ -121,7 +118,7 @@ class Indi_BWMFI : public Indicator {
   double GetValue(ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = _value = iBWMFI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift, _mode,
@@ -129,7 +126,7 @@ class Indi_BWMFI : public Indicator {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/, _mode, _shift);
+                         iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -145,7 +142,7 @@ class Indi_BWMFI : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -188,7 +185,7 @@ class Indi_BWMFI : public Indicator {
       _entry.values[BWMFI_HISTCOLOR] = _histcolor;
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[BWMFI_BUFFER] != 0 && !_entry.HasValue(EMPTY_VALUE));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

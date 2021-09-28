@@ -51,15 +51,12 @@ struct FractalsParams : IndicatorParams {
 /**
  * Implements the Fractals indicator.
  */
-class Indi_Fractals : public Indicator {
- protected:
-  FractalsParams params;
-
+class Indi_Fractals : public Indicator<FractalsParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndicatorParams &_p) : Indicator((IndicatorParams)_p) {}
+  Indi_Fractals(FractalsParams &_p) : Indicator<FractalsParams>(_p) {}
   Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRACTALS, _tf) {}
 
   /**
@@ -72,7 +69,7 @@ class Indi_Fractals : public Indicator {
   static double iFractals(string _symbol, ENUM_TIMEFRAMES _tf,
                           ENUM_LO_UP_LINE _mode,  // (MT4 _mode): 1 - MODE_UPPER, 2 - MODE_LOWER
                           int _shift = 0,         // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
-                          Indicator *_obj = NULL) {
+                          Indicator<FractalsParams> *_obj = NULL) {
 #ifdef __MQL4__
     return ::iFractals(_symbol, _tf, _mode, _shift);
 #else  // __MQL5__
@@ -111,7 +108,7 @@ class Indi_Fractals : public Indicator {
   double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = _value = Indi_Fractals::iFractals(
@@ -119,7 +116,7 @@ class Indi_Fractals : public Indicator {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), _mode, _shift);
+                         iparams.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -135,7 +132,7 @@ class Indi_Fractals : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -153,7 +150,7 @@ class Indi_Fractals : public Indicator {
 #endif
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue(_wrong_value));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

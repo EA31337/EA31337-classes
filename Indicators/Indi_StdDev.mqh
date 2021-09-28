@@ -69,22 +69,13 @@ struct StdDevParams : IndicatorParams {
 /**
  * Implements the Standard Deviation indicator.
  */
-class Indi_StdDev : public Indicator {
- protected:
-  StdDevParams params;
-
+class Indi_StdDev : public Indicator<StdDevParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_StdDev(StdDevParams &_p)
-      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_StdDev(StdDevParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price), Indicator(INDI_STDDEV, _tf) {
-    params = _p;
-  }
+  Indi_StdDev(StdDevParams &_p) : Indicator<StdDevParams>(_p) {}
+  Indi_StdDev(ENUM_TIMEFRAMES _tf) : Indicator(INDI_STDDEV, _tf) {}
 
   /**
    * Calculates the Standard Deviation indicator and returns its value.
@@ -94,7 +85,7 @@ class Indi_StdDev : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/istddev
    */
   static double iStdDev(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method,
-                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator *_obj = NULL) {
+                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator<StdDevParams> *_obj = NULL) {
 #ifdef __MQL4__
     return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
@@ -130,8 +121,10 @@ class Indi_StdDev : public Indicator {
   /**
    * Note that this method operates on current price (set by _applied_price).
    */
-  static double iStdDevOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift,
-                                   ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator *_obj = NULL) {
+  template <typename IT>
+  static double iStdDevOnIndicator(Indicator<IT> *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+                                   int _ma_shift, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
+                                   Indi_StdDev *_obj = NULL) {
     double _indi_value_buffer[];
     double _std_dev;
     int i;
@@ -221,7 +214,7 @@ class Indi_StdDev : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value =
@@ -229,12 +222,12 @@ class Indi_StdDev : public Indicator {
                                  GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        _value =
-            iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                    params.GetCustomIndicatorName(), /*[*/ GetMAPeriod(), GetMAShift(), GetMAMethod() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         iparams.GetCustomIndicatorName(), /*[*/ GetMAPeriod(), GetMAShift(), GetMAMethod() /*]*/, 0,
+                         _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_StdDev::iStdDevOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
+        _value = Indi_StdDev::iStdDevOnIndicator(indi_src, Get<string>(CHART_PARAM_SYMBOL),
                                                  Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetMAPeriod(), GetMAShift(),
                                                  GetAppliedPrice(), _shift, GetPointer(this));
         break;
@@ -250,7 +243,7 @@ class Indi_StdDev : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -258,7 +251,7 @@ class Indi_StdDev : public Indicator {
       _entry.values[0].Set(GetValue(_shift));
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -281,26 +274,26 @@ class Indi_StdDev : public Indicator {
    *
    * Averaging period for the calculation of the moving average.
    */
-  int GetMAPeriod() { return params.ma_period; }
+  int GetMAPeriod() { return iparams.ma_period; }
 
   /**
    * Get MA shift value.
    *
    * Indicators line offset relate to the chart by timeframe.
    */
-  unsigned int GetMAShift() { return params.ma_shift; }
+  unsigned int GetMAShift() { return iparams.ma_shift; }
 
   /**
    * Set MA method (smoothing type).
    */
-  ENUM_MA_METHOD GetMAMethod() { return params.ma_method; }
+  ENUM_MA_METHOD GetMAMethod() { return iparams.ma_method; }
 
   /**
    * Get applied price value.
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -311,7 +304,7 @@ class Indi_StdDev : public Indicator {
    */
   void SetMAPeriod(int _ma_period) {
     istate.is_changed = true;
-    params.ma_period = _ma_period;
+    iparams.ma_period = _ma_period;
   }
 
   /**
@@ -319,7 +312,7 @@ class Indi_StdDev : public Indicator {
    */
   void SetMAShift(int _ma_shift) {
     istate.is_changed = true;
-    params.ma_shift = _ma_shift;
+    iparams.ma_shift = _ma_shift;
   }
 
   /**
@@ -329,7 +322,7 @@ class Indi_StdDev : public Indicator {
    */
   void SetMAMethod(ENUM_MA_METHOD _ma_method) {
     istate.is_changed = true;
-    params.ma_method = _ma_method;
+    iparams.ma_method = _ma_method;
   }
 
   /**
@@ -342,6 +335,6 @@ class Indi_StdDev : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

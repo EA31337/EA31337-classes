@@ -367,7 +367,6 @@ struct IndicatorParams {
   color indi_color;                     // Indicator color.
   int indi_data_source_id;              // Id of the indicator to be used as data source.
   int indi_data_source_mode;            // Mode used as input from data source.
-  Indicator *indi_data_source;          // Custom indicator to be used as data source.
   bool indi_managed;                    // Whether indicator should be owned by indicator.
   ARRAY(DataParamEntry, input_params);  // Indicator input params.
   int indi_mode;                        // Index of indicator data to be used as data source.
@@ -385,7 +384,6 @@ struct IndicatorParams {
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
-        indi_data_source(NULL),
         indi_data_source_id(-1),
         indi_data_source_mode(0),
         itype(_itype),
@@ -404,7 +402,6 @@ struct IndicatorParams {
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
-        indi_data_source(NULL),
         indi_data_source_id(-1),
         indi_data_source_mode(0),
         is_draw(false),
@@ -417,7 +414,6 @@ struct IndicatorParams {
   void Init() {}
   /* Getters */
   string GetCustomIndicatorName() { return custom_indi_name; }
-  Indicator *GetDataSource() { return indi_data_source; }
   int GetDataSourceId() { return indi_data_source_id; }
   int GetDataSourceMode() { return indi_data_source_mode; }
   color GetIndicatorColor() { return indi_color; }
@@ -465,14 +461,8 @@ struct IndicatorParams {
     draw_window = _window;
   }
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
-  void SetDataSource(int _id, int _input_mode = -1) {
+  void SetDataSource(int _id, int _input_mode = -1, bool _managed = true) {
     indi_data_source_id = _id;
-    indi_data_source_mode = _input_mode;
-    idstype = IDATA_INDICATOR;
-  }
-  void SetDataSource(Indicator *_indi, bool _managed = true, int _input_mode = -1) {
-    indi_data_source_id = -1;
-    indi_data_source = _indi;
     indi_data_source_mode = _input_mode;
     indi_managed = _managed;
     idstype = IDATA_INDICATOR;

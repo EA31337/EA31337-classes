@@ -49,16 +49,13 @@ struct ADParams : IndicatorParams {
 /**
  * Implements the Accumulation/Distribution indicator.
  */
-class Indi_AD : public Indicator {
- protected:
-  ADParams params;
-
+class Indi_AD : public Indicator<ADParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AD(ADParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AD, _tf) { params.SetTf(_tf); };
+  Indi_AD(ADParams &_p) : Indicator<ADParams>(_p){};
+  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator<ADParams>(INDI_AD, _tf) { iparams.SetTf(_tf); };
 
   /**
    * Returns the indicator value.
@@ -68,7 +65,7 @@ class Indi_AD : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iad
    */
   static double iAD(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    Indicator *_obj = NULL) {
+                    Indicator<ADParams> *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAD(_symbol, _tf, _shift);
 #else  // __MQL5__
@@ -107,7 +104,7 @@ class Indi_AD : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_AD::iAD(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift,
@@ -115,7 +112,7 @@ class Indi_AD : public Indicator {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), _mode, _shift);
+                         iparams.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -131,17 +128,17 @@ class Indi_AD : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

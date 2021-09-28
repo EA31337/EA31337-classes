@@ -50,7 +50,7 @@ struct DrawerParams : IndicatorParams {
   void DrawerParams(DrawerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
     tf = _tf;
-    if (idstype == IDATA_INDICATOR && indi_data_source == NULL) {
+    if (idstype == IDATA_INDICATOR) {
       PriceIndiParams price_params(_tf);
       SetDataSource(new Indi_Price(price_params), true);
     }

@@ -50,10 +50,12 @@ struct DemoIndiParams : IndicatorParams {
         }
         break;
       case IDATA_INDICATOR:
-        if (GetDataSource() == NULL) {
+        /* @fixme
+        if (indi_src == NULL) {
           SetDataSource(Indi_Price::GetCached(_shift, _tf), false);
           SetDataSourceMode(0);
         }
+        */
         break;
     }
   };
@@ -66,23 +68,20 @@ struct DemoIndiParams : IndicatorParams {
 /**
  * Demo/Dummy Indicator.
  */
-class Indi_Demo : public Indicator {
- protected:
-  DemoIndiParams params;
-
+class Indi_Demo : public Indicator<DemoIndiParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Demo(DemoIndiParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_DEMO, _tf){};
+  Indi_Demo(DemoIndiParams &_params) : Indicator<DemoIndiParams>(_params){};
+  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DEMO, _tf){};
 
   /**
    * Initialize indicator data drawing on custom data.
    */
   bool InitDraw() {
     if (iparams.is_draw) {
-      draw = new DrawIndicator(&this);
+      draw = new DrawIndicator<DemoIndiParams>(&this);
     }
     return iparams.is_draw;
   }
@@ -91,7 +90,7 @@ class Indi_Demo : public Indicator {
    * Returns the indicator value.
    */
   static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                      Indicator *_obj = NULL) {
+                      Indicator<DemoIndiParams> *_obj = NULL) {
     return 0.1 + (0.1 * _obj.GetBarIndex());
   }
 
@@ -115,17 +114,17 @@ class Indi_Demo : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

@@ -36,10 +36,10 @@
 /**
  * Storage for direct access to indicator's buffer for a given mode.
  */
-template <typename C>
+template <typename C, typename TS>
 class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   // Pointer to indicator to access data from.
-  Indicator *indicator;
+  Indicator<TS> *indicator;
 
   // Mode of the target indicator.
   int mode;
@@ -48,7 +48,7 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   /**
    * Constructor.
    */
-  IndicatorBufferValueStorage(Indicator *_indi, int _mode = 0, bool _is_series = false)
+  IndicatorBufferValueStorage(Indicator<TS> *_indi, int _mode = 0, bool _is_series = false)
       : indicator(_indi), mode(_mode), HistoryValueStorage(_indi.GetSymbol(), _indi.GetTf()) {}
 
   /**

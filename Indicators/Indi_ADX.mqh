@@ -53,9 +53,11 @@ struct ADXParams : IndicatorParams {
         }
         break;
       case IDATA_INDICATOR:
-        if (indi_data_source == NULL) {
+        /* @fixme
+        if (indi_src == NULL) {
           SetDataSource(Indi_Price::GetCached(_shift, _tf, applied_price, _period));
         }
+        */
         break;
     }
   };
@@ -68,15 +70,12 @@ struct ADXParams : IndicatorParams {
 /**
  * Implements the Average Directional Movement Index indicator.
  */
-class Indi_ADX : public Indicator {
- protected:
-  ADXParams params;
-
+class Indi_ADX : public Indicator<ADXParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ADX(ADXParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_ADX(ADXParams &_p) : Indicator<ADXParams>(_p) {}
   Indi_ADX(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ADX, _tf) {}
 
   /**
@@ -90,7 +89,7 @@ class Indi_ADX : public Indicator {
                      ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
                      int _mode = LINE_MAIN_ADX,          // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 -
                                                          // MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
-                     int _shift = 0, Indicator *_obj = NULL) {
+                     int _shift = 0, Indicator<ADXParams> *_obj = NULL) {
 #ifdef __MQL4__
     return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
 #else  // __MQL5__
@@ -129,7 +128,7 @@ class Indi_ADX : public Indicator {
   double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_ADX::iADX(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
@@ -137,7 +136,7 @@ class Indi_ADX : public Indicator {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, _mode, _shift);
+                         iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -153,18 +152,18 @@ class Indi_ADX : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = Indi_ADX::GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) &&
                                                    _entry.IsWithinRange(0.0, 100.0));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -185,14 +184,14 @@ class Indi_ADX : public Indicator {
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get applied price value.
    *
    * Note: Not used in MT5.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -201,7 +200,7 @@ class Indi_ADX : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -211,6 +210,6 @@ class Indi_ADX : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

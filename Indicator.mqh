@@ -51,7 +51,7 @@ class Chart;
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
-bool IndicatorBuffers(int _count) { return Indicator::SetIndicatorBuffers(_count); }
+bool IndicatorBuffers(int _count) { return Indicator<IndicatorParams>::SetIndicatorBuffers(_count); }
 int IndicatorCounted(int _value = 0) {
   static int prev_calculated = 0;
   // https://docs.mql4.com/customind/indicatorcounted
@@ -63,12 +63,12 @@ int IndicatorCounted(int _value = 0) {
 /**
  * Class to deal with indicators.
  */
+template <typename TS>
 class Indicator : public Chart {
  protected:
   // Structs.
   BufferStruct<IndicatorDataEntry> idata;
-  DrawIndicator* draw;
-  IndicatorParams iparams;
+  DrawIndicator<TS>* draw;
   IndicatorState istate;
   void* mydata;
   bool is_feeding;                             // Whether FeedHistoryEntries is already working.
@@ -76,7 +76,9 @@ class Indicator : public Chart {
   DictStruct<int, Ref<Indicator>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
   ARRAY(ValueStorage<double>*, value_storages);
+  Indicator<IndicatorParams>* indi_src;  // // Indicator used as data source.
   IndicatorCalculateCache<double> cache;
+  TS iparams;
 
  public:
   /* Indicator enumerations */
@@ -96,20 +98,19 @@ class Indicator : public Chart {
   /**
    * Class constructor.
    */
-  Indicator() {}
-  Indicator(IndicatorParams& _iparams) : Chart(_iparams.GetTf()), draw(NULL), is_feeding(false), is_fed(false) {
-    iparams = _iparams;
+  Indicator() : indi_src(NULL) {}
+  Indicator(TS& _iparams)
+      : Chart(_iparams.GetTf()), draw(NULL), iparams(_iparams), is_feeding(false), is_fed(false), indi_src(NULL) {
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();
   }
-  Indicator(const IndicatorParams& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : Chart(_tf), draw(NULL), is_feeding(false), is_fed(false) {
-    iparams = _iparams;
+  Indicator(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Chart(_tf), draw(NULL), iparams(_iparams), is_feeding(false), is_fed(false), indi_src(NULL) {
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();
   }
   Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
-      : Chart(_tf), draw(NULL), is_feeding(false), is_fed(false) {
+      : Chart(_tf), draw(NULL), is_feeding(false), is_fed(false), indi_src(NULL) {
     iparams.SetIndicatorType(_itype);
     iparams.SetShift(_shift);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
@@ -129,13 +130,13 @@ class Indicator : public Chart {
       }
     }
 
-    if (iparams.indi_data_source != NULL && iparams.indi_managed) {
+    if (indi_src != NULL && iparams.indi_managed) {
       // User selected custom, managed data source.
-      if (CheckPointer(iparams.indi_data_source) == POINTER_INVALID) {
+      if (CheckPointer(indi_src) == POINTER_INVALID) {
         DebugBreak();
       }
-      delete iparams.indi_data_source;
-      iparams.indi_data_source = NULL;
+      delete indi_src;
+      indi_src = NULL;
     }
   }
 
@@ -151,7 +152,7 @@ class Indicator : public Chart {
    */
   bool InitDraw() {
     if (iparams.is_draw && !Object::IsValid(draw)) {
-      draw = new DrawIndicator(&this);
+      draw = new DrawIndicator<TS>(&this);
       draw.SetColorLine(iparams.indi_color);
     }
     return iparams.is_draw;
@@ -420,6 +421,39 @@ class Indicator : public Chart {
   }
 
   /**
+   * CopyBuffer() method to be used on Indicator instance with ValueStorage buffer.
+   *
+   * Note that data will be copied so that the oldest element will be located at the start of the physical memory
+   * allocated for the array
+   */
+  /*
+  static int CopyBuffer(Indicator<IndicatorParms>* _indi, int _mode, int _start, int _count, ValueStorage<T>& _buffer,
+  int _rates_total) { int _num_copied = 0; int _buffer_size = ArraySize(_buffer);
+
+    if (_buffer_size < _rates_total) {
+      _buffer_size = ArrayResize(_buffer, _rates_total);
+    }
+
+    for (int i = _start; i < _count; ++i) {
+      IndicatorDataEntry _entry = _indi.GetEntry(i);
+
+      if (!_entry.IsValid()) {
+        break;
+      }
+
+      T _value = _entry.GetValue<T>(_mode);
+
+      //    Print(_value);
+
+      _buffer[_buffer_size - i - 1] = _value;
+      ++_num_copied;
+    }
+
+    return _num_copied;
+  }
+  */
+
+  /**
    * Validates currently selected indicator used as data source.
    */
   void ValidateSelectedDataSource() {
@@ -494,20 +528,20 @@ class Indicator : public Chart {
   /**
    * Whether data source is selected.
    */
-  bool HasDataSource() { return iparams.GetDataSource() != NULL || iparams.GetDataSourceId() != -1; }
+  bool HasDataSource() { return GetDataSource() != NULL || iparams.GetDataSourceId() != -1; }
 
   /**
    * Returns currently selected data source without any validation.
    */
-  Indicator* GetDataSourceRaw() { return iparams.GetDataSource(); }
+  Indicator<TS>* GetDataSourceRaw() { return GetDataSource(); }
 
   /**
    * Returns currently selected data source doing validation.
    */
-  Indicator* GetDataSource() {
-    Indicator* _result = NULL;
-    if (iparams.GetDataSource() != NULL) {
-      _result = iparams.GetDataSource();
+  Indicator<TS>* GetDataSource() {
+    Indicator<TS>* _result = NULL;
+    if (GetDataSource() != NULL) {
+      _result = GetDataSource();
     } else if (iparams.GetDataSourceId() != -1) {
       int _source_id = iparams.GetDataSourceId();
 
@@ -694,7 +728,7 @@ class Indicator : public Chart {
 
   /* Getters */
 
-  int GetDataSourceMode() { return iparams.GetDataSourceMode(); }
+  int GetDataSourceMode() { return GetDataSourceMode(); }
 
   /**
    * Returns the highest bar's index (shift).
@@ -915,6 +949,15 @@ class Indicator : public Chart {
   template <typename T>
   void Set(ENUM_CHART_PARAM _param, T _value) {
     Chart::Set<T>(_param, _value);
+  }
+
+  /**
+   * Sets indicator data source.
+   */
+  template <typename TSA>
+  void SetDataSource(Indicator<TSA>* _indi, bool _managed = true, int _input_mode = -1) {
+    indi_src = _indi;
+    iparams.SetDataSource(-1, _input_mode, _managed);
   }
 
   /**
@@ -1144,7 +1187,7 @@ class Indicator : public Chart {
 
   ValueStorage<double>* GetValueStorage(int _mode = 0) {
     if (value_storages[_mode] == NULL) {
-      value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
+      value_storages[_mode] = new IndicatorBufferValueStorage<double, TS>(THIS_PTR, _mode);
     }
     return value_storages[_mode];
   }
@@ -1294,6 +1337,7 @@ class Indicator : public Chart {
 /**
  * BarsCalculated() method to be used on Indicator instance.
  */
+/*
 int BarsCalculated(Indicator* _indi, int _bars_required) {
   if (_bars_required == 0) {
     return _bars_required;
@@ -1321,38 +1365,6 @@ int BarsCalculated(Indicator* _indi, int _bars_required) {
 
   return _valid_history_count;
 }
-
-/**
- * CopyBuffer() method to be used on Indicator instance with ValueStorage buffer.
- *
- * Note that data will be copied so that the oldest element will be located at the start of the physical memory
- * allocated for the array
- */
-template <typename T>
-int CopyBuffer(Indicator* _indi, int _mode, int _start, int _count, ValueStorage<T>& _buffer, int _rates_total) {
-  int _num_copied = 0;
-  int _buffer_size = ArraySize(_buffer);
-
-  if (_buffer_size < _rates_total) {
-    _buffer_size = ArrayResize(_buffer, _rates_total);
-  }
-
-  for (int i = _start; i < _count; ++i) {
-    IndicatorDataEntry _entry = _indi.GetEntry(i);
-
-    if (!_entry.IsValid()) {
-      break;
-    }
-
-    T _value = _entry.GetValue<T>(_mode);
-
-    //    Print(_value);
-
-    _buffer[_buffer_size - i - 1] = _value;
-    ++_num_copied;
-  }
-
-  return _num_copied;
-}
+*/
 
 #endif

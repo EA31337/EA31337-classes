@@ -50,16 +50,13 @@ struct IndiPatternParams : IndicatorParams {
 /**
  * Implements Pattern Detector.
  */
-class Indi_Pattern : public Indicator {
- protected:
-  IndiPatternParams params;
-
+class Indi_Pattern : public Indicator<IndiPatternParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Pattern(IndiPatternParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
-  Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PATTERN, _tf) { params.tf = _tf; };
+  Indi_Pattern(IndiPatternParams &_params) : iparams(_params), Indicator<IndiPatternParams>(_params){};
+  Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PATTERN, _tf) { iparams.tf = _tf; };
 
   /**
    * Returns the indicator's struct value.
@@ -67,7 +64,7 @@ class Indi_Pattern : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.GetMaxModes());
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -78,10 +75,10 @@ class Indi_Pattern : public Indicator {
       int i;
       int _value = WRONG_VALUE;
 
-      switch (params.idstype) {
+      switch (iparams.idstype) {
         case IDATA_BUILTIN:
           // In this mode, price is fetched from chart.
-          for (i = 0; i < params.GetMaxModes(); ++i) {
+          for (i = 0; i < iparams.GetMaxModes(); ++i) {
             _ohlcs[i] = Chart::GetOHLC(_shift + i);
             if (!_ohlcs[i].IsValid()) {
               // Return empty entry on invalid candles.
@@ -93,7 +90,7 @@ class Indi_Pattern : public Indicator {
           // In this mode, price is fetched from given indicator. Such indicator
           // must have at least 4 buffers and define OHLC in the first 4 buffers.
           // Indi_Price is an example of such indicator.
-          if (GetDataSource() == NULL) {
+          if (indi_src == NULL) {
             GetLogger().Error(
                 "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
                 "which is a part of PatternParams structure.",
@@ -106,11 +103,11 @@ class Indi_Pattern : public Indicator {
             return _value;
           }
 
-          for (i = 0; i < params.GetMaxModes(); ++i) {
-            _ohlcs[i].open = GetDataSource().GetValue<float>(_shift + i, PRICE_OPEN);
-            _ohlcs[i].high = GetDataSource().GetValue<float>(_shift + i, PRICE_HIGH);
-            _ohlcs[i].low = GetDataSource().GetValue<float>(_shift + i, PRICE_LOW);
-            _ohlcs[i].close = GetDataSource().GetValue<float>(_shift + i, PRICE_CLOSE);
+          for (i = 0; i < iparams.GetMaxModes(); ++i) {
+            _ohlcs[i].open = indi_src.GetValue<float>(_shift + i, PRICE_OPEN);
+            _ohlcs[i].high = indi_src.GetValue<float>(_shift + i, PRICE_HIGH);
+            _ohlcs[i].low = indi_src.GetValue<float>(_shift + i, PRICE_LOW);
+            _ohlcs[i].close = indi_src.GetValue<float>(_shift + i, PRICE_CLOSE);
             if (!_ohlcs[i].IsValid()) {
               // Return empty entry on invalid candles.
               return _entry;
@@ -123,7 +120,7 @@ class Indi_Pattern : public Indicator {
 
       PatternEntry pattern(_ohlcs);
 
-      for (int _mode = 0; _mode < params.GetMaxModes(); _mode++) {
+      for (int _mode = 0; _mode < iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = pattern[_mode + 1];
       }
 
@@ -132,7 +129,7 @@ class Indi_Pattern : public Indicator {
 
       if (_entry.IsValid()) {
         istate.is_ready = true;
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
