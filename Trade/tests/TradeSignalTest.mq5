@@ -42,6 +42,7 @@ bool TestTradeSignalCloseBuyWithFilters() {
   _result &= !_signal1.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal1.GetSignalClose() == 0.0f;
   _result &= _signal1.GetSignalOpen() == 0.0f;
+  Print(_signal1.ToString());
   // 2nd method.
   TradeSignalEntry _entry2;
   _entry2.Set(SIGNAL_CLOSE_BUY_MAIN, true);
@@ -55,6 +56,7 @@ bool TestTradeSignalCloseBuyWithFilters() {
   _result &= !_signal2.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal2.GetSignalClose() == 0.0f;
   _result &= _signal2.GetSignalOpen() == 0.0f;
+  Print(_signal2.ToString());
   return _result;
 }
 
@@ -70,6 +72,7 @@ bool TestTradeSignalCloseBuyWithoutFilters() {
   _result &= !_signal1.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal1.GetSignalClose() >= 0.5;
   _result &= _signal1.GetSignalOpen() == 0.0f;
+  Print(_signal1.ToString());
   // 2nd method.
   TradeSignalEntry _entry2;
   _entry2.Set(SIGNAL_CLOSE_BUY_MAIN, true);
@@ -80,6 +83,7 @@ bool TestTradeSignalCloseBuyWithoutFilters() {
   _result &= !_signal2.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal2.GetSignalClose() >= 0.5f;
   _result &= _signal2.GetSignalOpen() == 0.0f;
+  Print(_signal2.ToString());
   return _result;
 }
 
@@ -96,6 +100,7 @@ bool TestTradeSignalCloseSellWithFilters() {
   _result &= !_signal1.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal1.GetSignalClose() == 0.0f;
   _result &= _signal1.GetSignalOpen() == 0.0f;
+  Print(_signal1.ToString());
   // 2nd method.
   TradeSignalEntry _entry2;
   _entry2.Set(SIGNAL_CLOSE_SELL_MAIN, true);
@@ -109,6 +114,7 @@ bool TestTradeSignalCloseSellWithFilters() {
   _result &= !_signal2.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal2.GetSignalClose() == 0.0f;
   _result &= _signal2.GetSignalOpen() == 0.0f;
+  Print(_signal2.ToString());
   return _result;
 }
 
@@ -124,6 +130,7 @@ bool TestTradeSignalCloseSellWithoutFilters() {
   _result &= !_signal1.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal1.GetSignalClose() <= -0.5;
   _result &= _signal1.GetSignalOpen() == 0.0f;
+  Print(_signal1.ToString());
   // 2nd method.
   TradeSignalEntry _entry2;
   _entry2.Set(SIGNAL_CLOSE_SELL_MAIN, true);
@@ -134,10 +141,9 @@ bool TestTradeSignalCloseSellWithoutFilters() {
   _result &= !_signal2.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal2.GetSignalClose() <= -0.5;
   _result &= _signal2.GetSignalOpen() == 0.0f;
+  Print(_signal2.ToString());
   return _result;
 }
-
-// --
 
 // Test signals to open buy trade with filters.
 bool TestTradeSignalOpenBuyWithFilters() {
@@ -152,6 +158,7 @@ bool TestTradeSignalOpenBuyWithFilters() {
   _result &= !_signal1.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal1.GetSignalClose() == 0.0f;
   _result &= _signal1.GetSignalOpen() == 0.0f;
+  Print(_signal1.ToString());
   // 2nd method.
   TradeSignalEntry _entry2;
   _entry2.Set(SIGNAL_OPEN_BUY_MAIN, true);
@@ -165,6 +172,7 @@ bool TestTradeSignalOpenBuyWithFilters() {
   _result &= !_signal2.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal2.GetSignalClose() == 0.0f;
   _result &= _signal2.GetSignalOpen() == 0.0f;
+  Print(_signal2.ToString());
   return _result;
 }
 
@@ -180,6 +188,7 @@ bool TestTradeSignalOpenBuyWithoutFilters() {
   _result &= !_signal1.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal1.GetSignalClose() == 0.0f;
   _result &= _signal1.GetSignalOpen() >= 0.5;
+  Print(_signal1.ToString());
   // 2nd method.
   TradeSignalEntry _entry2;
   _entry2.Set(SIGNAL_OPEN_BUY_MAIN, true);
@@ -190,6 +199,7 @@ bool TestTradeSignalOpenBuyWithoutFilters() {
   _result &= !_signal2.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal2.GetSignalClose() == 0.0f;
   _result &= _signal2.GetSignalOpen() >= 0.5f;
+  Print(_signal2.ToString());
   return _result;
 }
 
@@ -206,6 +216,7 @@ bool TestTradeSignalOpenSellWithFilters() {
   _result &= !_signal1.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal1.GetSignalClose() == 0.0f;
   _result &= _signal1.GetSignalOpen() == 0.0f;
+  Print(_signal1.ToString());
   // 2nd method.
   TradeSignalEntry _entry2;
   _entry2.Set(SIGNAL_OPEN_SELL_MAIN, true);
@@ -219,6 +230,7 @@ bool TestTradeSignalOpenSellWithFilters() {
   _result &= !_signal2.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal2.GetSignalClose() == 0.0f;
   _result &= _signal2.GetSignalOpen() == 0.0f;
+  Print(_signal2.ToString());
   return _result;
 }
 
@@ -234,6 +246,7 @@ bool TestTradeSignalOpenSellWithoutFilters() {
   _result &= _signal1.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal1.GetSignalClose() == 0.0f;
   _result &= _signal1.GetSignalOpen() <= -0.5;
+  Print(_signal1.ToString());
   // 2nd method.
   TradeSignalEntry _entry2;
   _entry2.Set(SIGNAL_OPEN_SELL_MAIN, true);
@@ -244,6 +257,7 @@ bool TestTradeSignalOpenSellWithoutFilters() {
   _result &= _signal2.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal2.GetSignalClose() == 0.0f;
   _result &= _signal2.GetSignalOpen() <= -0.5;
+  Print(_signal2.ToString());
   return _result;
 }
 
@@ -260,6 +274,7 @@ bool TestTradeSignalNone() {
   _result &= !_signal1.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal1.GetSignalClose() == 0.0f;
   _result &= _signal1.GetSignalOpen() == 0.0f;
+  Print(_signal1.ToString());
   // 2nd method.
   TradeSignalEntry _entry2;
   TradeSignal _signal2(_entry2);
@@ -270,6 +285,7 @@ bool TestTradeSignalNone() {
   _result &= !_signal2.ShouldOpen(ORDER_TYPE_SELL);
   _result &= _signal2.GetSignalClose() == 0.0f;
   _result &= _signal2.GetSignalOpen() == 0.0f;
+  Print(_signal2.ToString());
   return _result;
 }
 

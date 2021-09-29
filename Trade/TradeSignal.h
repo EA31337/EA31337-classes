@@ -120,4 +120,25 @@ class TradeSignal {
    *   Returns 0 on a neutral signal or when signals are in conflict.
    */
   float GetSignalOpen() { return float(int(ShouldOpen(ORDER_TYPE_BUY)) - int(ShouldOpen(ORDER_TYPE_SELL))); }
+
+  /* Serializers */
+
+  /**
+   * Serialize an instance class.
+   *
+   * @return
+   *   Returns a JSON serialized instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.PassStruct(THIS_REF, "signal", signal);
+    return SerializerNodeObject;
+  }
+
+  /**
+   * Converts the signal to a string.
+   *
+   * @return
+   *   Returns a JSON serialized signal.
+   */
+  string ToString() { return signal.ToString(); }
 };
