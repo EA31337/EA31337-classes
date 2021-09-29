@@ -235,3 +235,23 @@ jobs:
         with:
           Script: ${{ matrix.test }}
           RunOnFail: "exit 0"
+
+  Trade-Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Trade/tests
+    needs: Compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - TradeSignalTest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: ${{ matrix.test }}
