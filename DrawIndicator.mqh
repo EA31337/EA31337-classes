@@ -36,7 +36,7 @@
 #include "Object.mqh"
 
 // Forward declaration.
-class Indicator;
+class IndicatorBase;
 
 class DrawPoint {
  public:
@@ -52,12 +52,11 @@ class DrawPoint {
   DrawPoint(datetime _time = NULL, double _value = 0) : time(_time), value(_value) {}
 };
 
-template <typename IDT>
 class DrawIndicator {
  protected:
   color color_line;
   Draw* draw;
-  Indicator<IDT>* indi;
+  IndicatorBase* indi;
 
  public:
   // Object variables.
@@ -68,7 +67,7 @@ class DrawIndicator {
   /**
    * Class constructor.
    */
-  DrawIndicator(Indicator<IDT> *_indi) : indi(_indi) {
+  DrawIndicator(IndicatorBase* _indi) : indi(_indi) {
     // color_line = Object::IsValid(_indi) ? _indi.GetParams().indi_color : clrRed; // @fixme
     draw = new Draw();
   }

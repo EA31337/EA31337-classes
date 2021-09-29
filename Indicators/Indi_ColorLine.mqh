@@ -65,7 +65,7 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
    * Calculates Color Line on the array of values.
    */
   static double iColorLineOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
-                                  IndicatorCalculateCache<double> *_cache, Indi_ColorLine *_indi_ma,
+                                  IndicatorCalculateCache<double> *_cache, IndicatorBase *_indi_ma,
                                   bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 

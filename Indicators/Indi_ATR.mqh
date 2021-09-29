@@ -50,6 +50,7 @@ struct ATRParams : IndicatorParams {
  * Note: It doesn't give independent signals. It is used to define volatility (trend strength).
  */
 class Indi_ATR : public Indicator<ATRParams> {
+ public:
   /**
    * Class constructor.
    */

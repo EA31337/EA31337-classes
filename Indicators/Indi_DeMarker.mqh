@@ -49,6 +49,7 @@ struct DeMarkerParams : IndicatorParams {
  * Implements the DeMarker indicator.
  */
 class Indi_DeMarker : public Indicator<DeMarkerParams> {
+ public:
   /**
    * Class constructor.
    */

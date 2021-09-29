@@ -104,12 +104,12 @@ class Indi_CCI : public Indicator<CCIParams> {
 #endif
   }
 
-  static double iCCIOnIndicator(Indicator<CCIParams> *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+  static double iCCIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                 int _mode, int _shift = 0) {
     _indi.ValidateDataSourceMode(_mode);
 
     double _indi_value_buffer[];
-    IndicatorDataEntry _entry(_indi.GetParams().GetMaxModes());
+    IndicatorDataEntry _entry(_indi.GetModeCount());
 
     ArrayResize(_indi_value_buffer, _period);
 

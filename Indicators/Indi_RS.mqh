@@ -51,13 +51,14 @@ class Indi_RS : public Indicator<RSParams> {
   /**
    * Class constructor.
    */
-  Indi_RS(RSParams &_params) : iparams(_params), Indicator<RSParams>(_params) { Init(); };
+  Indi_RS(RSParams &_params) : Indicator<RSParams>(_params) { Init(); };
   Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RS, _tf) { Init(); };
 
   void Init() {
     if (iparams.GetDataSourceType() == IDATA_MATH) {
       PriceIndiParams _iprice_params();
-      iprice = new Indi_Price(_iprice_params);
+      // @fixit
+      Indi_Price *_iprice_close = Indi_Price::GetCached(NULL, 0, /*unused*/ PRICE_CLOSE, 0);
 
       MathParams _imath0_params(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
       _imath0_params.SetDataSource(iprice.Ptr(), false);

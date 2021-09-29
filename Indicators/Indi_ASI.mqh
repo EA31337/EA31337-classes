@@ -49,7 +49,7 @@ class Indi_ASI : public Indicator<ASIParams> {
   /**
    * Class constructor.
    */
-  Indi_ASI(ASIParams &_params) : iparams(_params.mpc), Indicator<ASIParams>(_params){};
+  Indi_ASI(ASIParams &_params) : Indicator<ASIParams>(_params){};
   Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ASI, _tf){};
 
   /**

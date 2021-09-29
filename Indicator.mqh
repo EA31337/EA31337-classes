@@ -39,6 +39,7 @@ class Chart;
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
 #include "Indicator.struct.signal.h"
+#include "IndicatorBase.h"
 #include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
@@ -49,35 +50,13 @@ class Chart;
 #include "Storage/ValueStorage.indicator.h"
 #include "Storage/ValueStorage.native.h"
 
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compatibility).
-bool IndicatorBuffers(int _count) { return Indicator<IndicatorParams>::SetIndicatorBuffers(_count); }
-int IndicatorCounted(int _value = 0) {
-  static int prev_calculated = 0;
-  // https://docs.mql4.com/customind/indicatorcounted
-  prev_calculated = _value > 0 ? _value : prev_calculated;
-  return prev_calculated;
-}
-#endif
-
 /**
  * Class to deal with indicators.
  */
 template <typename TS>
-class Indicator : public Chart {
+class Indicator : public IndicatorBase {
  protected:
   // Structs.
-  BufferStruct<IndicatorDataEntry> idata;
-  DrawIndicator<TS>* draw;
-  IndicatorState istate;
-  void* mydata;
-  bool is_feeding;                             // Whether FeedHistoryEntries is already working.
-  bool is_fed;                                 // Whether FeedHistoryEntries already done its job.
-  DictStruct<int, Ref<Indicator>> indicators;  // Indicators list keyed by id.
-  bool indicator_builtin;
-  ARRAY(ValueStorage<double>*, value_storages);
-  Indicator<IndicatorParams>* indi_src;  // // Indicator used as data source.
-  IndicatorCalculateCache<double> cache;
   TS iparams;
 
  public:
@@ -98,19 +77,19 @@ class Indicator : public Chart {
   /**
    * Class constructor.
    */
-  Indicator() : indi_src(NULL) {}
-  Indicator(TS& _iparams)
-      : Chart(_iparams.GetTf()), draw(NULL), iparams(_iparams), is_feeding(false), is_fed(false), indi_src(NULL) {
+  // Indicator() : IndicatorBase() {}
+  Indicator(TS& _iparams) : IndicatorBase(_iparams.GetTf()) {
+    iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();
   }
-  Indicator(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : Chart(_tf), draw(NULL), iparams(_iparams), is_feeding(false), is_fed(false), indi_src(NULL) {
+  Indicator(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorBase(_tf) {
+    iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();
   }
   Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
-      : Chart(_tf), draw(NULL), is_feeding(false), is_fed(false), indi_src(NULL) {
+      : IndicatorBase(_tf) {
     iparams.SetIndicatorType(_itype);
     iparams.SetShift(_shift);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
@@ -152,7 +131,7 @@ class Indicator : public Chart {
    */
   bool InitDraw() {
     if (iparams.is_draw && !Object::IsValid(draw)) {
-      draw = new DrawIndicator<TS>(&this);
+      draw = new DrawIndicator(THIS_PTR);
       draw.SetColorLine(iparams.indi_color);
     }
     return iparams.is_draw;
@@ -167,126 +146,6 @@ class Indicator : public Chart {
     if (draw) {
       delete draw;
     }
-  }
-
-  /* Defines MQL backward compatible methods */
-
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(DUMMY);
-#endif
-  }
-
-  template <typename A>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a);
-#endif
-  }
-
-  template <typename A, typename B>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b);
-#endif
-  }
-
-  template <typename A, typename B, typename C>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, int _mode,
-                 int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, int _mode,
-                 int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e,
-                 int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, H _h, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, H _h, I _i, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
-            typename J>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, H _h, I _i, J _j, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
-            typename J, typename K>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, H _h, I _i, J _j, K _k, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k);
-#endif
   }
 
   /* Buffer methods */
@@ -465,7 +324,7 @@ class Indicator : public Chart {
   /**
    * Loads and validates built-in indicators whose can be used as data source.
    */
-  void ValidateDataSource(Indicator* _target, Indicator* _source) {
+  void ValidateDataSource(IndicatorBase* _target, IndicatorBase* _source) {
     if (_target == NULL) {
       Alert("Internal Error! _target is NULL in ", __FUNCTION_LINE__, ".");
       DebugBreak();
@@ -483,19 +342,18 @@ class Indicator : public Chart {
       return;
     }
 
-    if (_source.iparams.max_modes > 1 && _target.GetDataSourceMode() == -1) {
+    if (_source.GetModeCount() > 1 && _target.GetDataSourceMode() == -1) {
       // Mode must be selected if source indicator has more that one mode.
       Alert("Warning! ", GetName(),
             " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
-      _target.iparams.SetDataSourceMode(0);
+      _target.SetDataSourceMode(0);
       DebugBreak();
-    } else if (_source.iparams.max_modes == 1 && _target.GetDataSourceMode() == -1) {
-      _target.iparams.SetDataSourceMode(0);
-    } else if (_target.GetDataSourceMode() < 0 ||
-               (unsigned int)_target.GetDataSourceMode() > _source.iparams.max_modes) {
+    } else if (_source.GetModeCount() == 1 && _target.GetDataSourceMode() == -1) {
+      _target.SetDataSourceMode(0);
+    } else if (_target.GetDataSourceMode() < 0 || _target.GetDataSourceMode() > _source.GetModeCount()) {
       Alert("Error! ", _target.GetName(),
             " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
-            _source.iparams.GetMaxModes(), ".");
+            _source.GetModeCount(), ".");
       DebugBreak();
     }
   }
@@ -523,32 +381,34 @@ class Indicator : public Chart {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual Indicator* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return NULL; }
+  virtual IndicatorBase* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return NULL; }
+
+  /* Operator overloading methods */
 
   /**
-   * Whether data source is selected.
+   * Access indicator entry data using [] operator.
    */
-  bool HasDataSource() { return GetDataSource() != NULL || iparams.GetDataSourceId() != -1; }
+  IndicatorDataEntry operator[](int _shift) { return GetEntry(_shift); }
+  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
+  IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
 
-  /**
-   * Returns currently selected data source without any validation.
-   */
-  Indicator<TS>* GetDataSourceRaw() { return GetDataSource(); }
+  /* Getters */
 
   /**
    * Returns currently selected data source doing validation.
    */
-  Indicator<TS>* GetDataSource() {
-    Indicator<TS>* _result = NULL;
-    if (GetDataSource() != NULL) {
-      _result = GetDataSource();
+  IndicatorBase* GetDataSource() {
+    IndicatorBase* _result = NULL;
+
+    if (GetDataSourceRaw() != NULL) {
+      _result = GetDataSourceRaw();
     } else if (iparams.GetDataSourceId() != -1) {
       int _source_id = iparams.GetDataSourceId();
 
       if (indicators.KeyExists(_source_id)) {
         _result = indicators[_source_id].Ptr();
       } else {
-        Ref<Indicator> _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
+        Ref<IndicatorBase> _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
 
         if (!_source.IsSet()) {
           Alert(GetName(), " has no built-in source indicator ", _source_id);
@@ -565,295 +425,17 @@ class Indicator : public Chart {
     return _result;
   }
 
-  /* Operator overloading methods */
+  /**
+   * Gets number of modes available to retrieve by GetValue().
+   */
+  virtual int GetModeCount() { return 0; }
 
   /**
-   * Access indicator entry data using [] operator.
+   * Whether data source is selected.
    */
-  IndicatorDataEntry operator[](int _shift) { return GetEntry(_shift); }
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
-  IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
-
-  /* Getters */
-
-  /**
-   * Returns buffers' cache.
-   */
-  IndicatorCalculateCache<double>* GetCache() { return &cache; }
-
-  /**
-   * Gets an indicator's chart parameter value.
-   */
-  template <typename T>
-  T Get(ENUM_CHART_PARAM _param) {
-    return Chart::Get<T>(_param);
-  }
-
-  /**
-   * Gets an indicator's state property value.
-   */
-  template <typename T>
-  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
-    return istate.Get<T>(_prop);
-  }
-
-  /**
-   * Gets an indicator property flag.
-   */
-  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = 0) {
-    IndicatorDataEntry _entry = GetEntry(_shift);
-    return _entry.CheckFlag(_prop);
-  }
+  virtual bool HasDataSource() { return GetDataSourceRaw() != NULL || iparams.GetDataSourceId() != -1; }
 
   /* State methods */
-
-  /**
-   * Checks for crossover.
-   *
-   * @return
-   *   Returns true when values are crossing over, otherwise false.
-   */
-  bool IsCrossover(int _shift1 = 0, int _shift2 = 1, int _mode1 = 0, int _mode2 = 0) {
-    double _curr_value1 = GetEntry(_shift1)[_mode1];
-    double _prev_value1 = GetEntry(_shift2)[_mode1];
-    double _curr_value2 = GetEntry(_shift1)[_mode2];
-    double _prev_value2 = GetEntry(_shift2)[_mode2];
-    return ((_curr_value1 > _prev_value1 && _curr_value2 < _prev_value2) ||
-            (_prev_value1 > _curr_value1 && _prev_value2 < _curr_value2));
-  }
-
-  /**
-   * Checks if values are decreasing.
-   *
-   * @param int _rows
-   *   Numbers of rows to check.
-   * @param int _mode
-   *   Indicator index mode to check.
-   * @param int _shift
-   *   Shift which is the final value to take into the account.
-   *
-   * @return
-   *   Returns true when values are increasing.
-   */
-  bool IsDecreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
-    bool _result = true;
-    for (int i = _shift + _rows - 1; i >= _shift && _result; i--) {
-      IndicatorDataEntry _entry_curr = GetEntry(i);
-      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
-      _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] < _entry_prev[_mode];
-      if (!_result) {
-        break;
-      }
-    }
-    return _result;
-  }
-
-  /**
-   * Checks if value decreased by the given percentage value.
-   *
-   * @param int _pct
-   *   Percentage value to use for comparison.
-   * @param int _mode
-   *   Indicator index mode to use.
-   * @param int _shift
-   *   Indicator value shift to use.
-   * @param int _count
-   *   Count of bars to compare change backward.
-   * @param int _hundreds
-   *   When true, use percentage in hundreds, otherwise 1 is 100%.
-   *
-   * @return
-   *   Returns true when value increased.
-   */
-  bool IsDecByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
-    bool _result = true;
-    IndicatorDataEntry _v0 = GetEntry(_shift);
-    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
-    _result &= _v0.IsValid() && _v1.IsValid();
-    _result &= _result && Math::ChangeInPct(_v1[_mode], _v0[_mode], _hundreds) < _pct;
-    return _result;
-  }
-
-  /**
-   * Checks if values are increasing.
-   *
-   * @param int _rows
-   *   Numbers of rows to check.
-   * @param int _mode
-   *   Indicator index mode to check.
-   * @param int _shift
-   *   Shift which is the final value to take into the account.
-   *
-   * @return
-   *   Returns true when values are increasing.
-   */
-  bool IsIncreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
-    bool _result = true;
-    for (int i = _shift + _rows - 1; i >= _shift && _result; i--) {
-      IndicatorDataEntry _entry_curr = GetEntry(i);
-      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
-      _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] > _entry_prev[_mode];
-      if (!_result) {
-        break;
-      }
-    }
-    return _result;
-  }
-
-  /**
-   * Checks if value increased by the given percentage value.
-   *
-   * @param int _pct
-   *   Percentage value to use for comparison.
-   * @param int _mode
-   *   Indicator index mode to use.
-   * @param int _shift
-   *   Indicator value shift to use.
-   * @param int _count
-   *   Count of bars to compare change backward.
-   * @param int _hundreds
-   *   When true, use percentage in hundreds, otherwise 1 is 100%.
-   *
-   * @return
-   *   Returns true when value increased.
-   */
-  bool IsIncByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
-    bool _result = true;
-    IndicatorDataEntry _v0 = GetEntry(_shift);
-    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
-    _result &= _v0.IsValid() && _v1.IsValid();
-    _result &= _result && Math::ChangeInPct(_v1[_mode], _v0[_mode], _hundreds) > _pct;
-    return _result;
-  }
-
-  /* Getters */
-
-  int GetDataSourceMode() { return GetDataSourceMode(); }
-
-  /**
-   * Returns the highest bar's index (shift).
-   */
-  template <typename T>
-  int GetHighest(int count = WHOLE_ARRAY, int start_bar = 0) {
-    int max_idx = -1;
-    double max = -DBL_MAX;
-    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-
-    for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).GetMax<T>(iparams.max_modes);
-      if (value > max) {
-        max = value;
-        max_idx = shift;
-      }
-    }
-
-    return max_idx;
-  }
-
-  /**
-   * Returns the lowest bar's index (shift).
-   */
-  template <typename T>
-  int GetLowest(int count = WHOLE_ARRAY, int start_bar = 0) {
-    int min_idx = -1;
-    double min = DBL_MAX;
-    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-
-    for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).GetMin<T>(iparams.max_modes);
-      if (value < min) {
-        min = value;
-        min_idx = shift;
-      }
-    }
-
-    return min_idx;
-  }
-
-  /**
-   * Returns the highest value.
-   */
-  template <typename T>
-  double GetMax(int start_bar = 0, int count = WHOLE_ARRAY) {
-    double max = NULL;
-    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-
-    for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).GetMax<T>(iparams.max_modes);
-      if (max == NULL || value > max) {
-        max = value;
-      }
-    }
-
-    return max;
-  }
-
-  /**
-   * Returns the lowest value.
-   */
-  template <typename T>
-  double GetMin(int start_bar, int count = WHOLE_ARRAY) {
-    double min = NULL;
-    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-
-    for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).GetMin<T>(iparams.max_modes);
-      if (min == NULL || value < min) {
-        min = value;
-      }
-    }
-
-    return min;
-  }
-
-  /**
-   * Returns average value.
-   */
-  template <typename T>
-  double GetAvg(int start_bar, int count = WHOLE_ARRAY) {
-    int num_values = 0;
-    double sum = 0;
-    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-
-    for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value_min = GetEntry(shift).GetMin<T>(iparams.max_modes);
-      double value_max = GetEntry(shift).GetMax<T>(iparams.max_modes);
-
-      sum += value_min + value_max;
-      num_values += 2;
-    }
-
-    return sum / num_values;
-  }
-
-  /**
-   * Returns median of values.
-   */
-  template <typename T>
-  double GetMed(int start_bar, int count = WHOLE_ARRAY) {
-    double array[];
-
-    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    int num_bars = last_bar - start_bar + 1;
-    int index = 0;
-
-    ArrayResize(array, num_bars);
-
-    for (int shift = start_bar; shift <= last_bar; ++shift) {
-      array[index++] = GetEntry(shift).GetAvg<T>(iparams.max_modes);
-    }
-
-    ArraySort(array);
-    double median;
-    int len = ArraySize(array);
-    if (len % 2 == 0) {
-      median = (array[len / 2] + array[(len / 2) - 1]) / 2;
-    } else {
-      median = array[len / 2];
-    }
-
-    return median;
-  }
 
   /**
    * Gets indicator's params.
@@ -913,9 +495,7 @@ class Indicator : public Chart {
    */
   string GetFullName() {
     return iparams.name + "[" + IntegerToString(iparams.GetMaxModes()) + "]" +
-           (HasDataSource() ? (" (over " + GetDataSource().GetName() + "[" +
-                               IntegerToString(GetDataSource().GetParams().GetMaxModes()) + "])")
-                            : "");
+           (HasDataSource() ? (" (over " + GetDataSource().GetFullName() + ")") : "");
   }
 
   /**
@@ -1187,7 +767,7 @@ class Indicator : public Chart {
 
   ValueStorage<double>* GetValueStorage(int _mode = 0) {
     if (value_storages[_mode] == NULL) {
-      value_storages[_mode] = new IndicatorBufferValueStorage<double, TS>(THIS_PTR, _mode);
+      value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
     }
     return value_storages[_mode];
   }
@@ -1198,7 +778,8 @@ class Indicator : public Chart {
   template <typename T>
   T GetValue(int _shift = 0, int _mode = -1) {
     T _result;
-    int _index = _mode != -1 ? _mode : iparams.indi_mode;
+    // @fixit We probably don't want to retrieve source mode from there.
+    int _index = _mode != -1 ? _mode : GetDataSourceMode();
     GetEntry(_shift).values[_index].Get(_result);
     ResetLastError();
     return _result;
@@ -1276,8 +857,8 @@ class Indicator : public Chart {
     if (iparams.is_draw) {
       // Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
       for (int i = 0; i < (int)iparams.max_modes; ++i)
-        draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.indi_mode), GetBarTime(0),
-                        GetEntry(0)[i], iparams.draw_window);
+        draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.GetDataSourceMode()),
+                        GetBarTime(0), GetEntry(0)[i], iparams.draw_window);
     }
   }
 
@@ -1333,38 +914,5 @@ class Indicator : public Chart {
     return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
   }
 };
-
-/**
- * BarsCalculated() method to be used on Indicator instance.
- */
-/*
-int BarsCalculated(Indicator* _indi, int _bars_required) {
-  if (_bars_required == 0) {
-    return _bars_required;
-  }
-
-  IndicatorDataEntry _entry = _indi.GetEntry(_bars_required - 1);
-  // GetEntry() could end up with an error. It is okay.
-  ResetLastError();
-
-  int _valid_history_count = 0;
-
-  if (!_entry.IsValid()) {
-    // We don't have sufficient data. Counting how much data we have.
-
-    for (int i = 0; i < _bars_required; ++i) {
-      IndicatorDataEntry _check_entry = _indi.GetEntry(i);
-      if (!_check_entry.IsValid()) {
-        break;
-      }
-      ++_valid_history_count;
-    }
-  } else {
-    _valid_history_count = _bars_required;
-  }
-
-  return _valid_history_count;
-}
-*/
 
 #endif

@@ -110,6 +110,7 @@ class Indi_SAR : public Indicator<SARParams> {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetStep(),
+                         GetMax() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

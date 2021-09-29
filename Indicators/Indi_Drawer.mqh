@@ -44,6 +44,7 @@ double iDrawer(string _symbol, int _tf, int _period, int _ap, int _shift) {
 class Indi_Drawer : public Indicator<DrawerParams> {
   Redis redis;
 
+ public:
   /**
    * Class constructor.
    */
@@ -152,8 +153,7 @@ class Indi_Drawer : public Indicator<DrawerParams> {
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
   static double iDrawer(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
-                        Indicator<IndicatorParams> *_obj = NULL) {
+                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, IndicatorBase *_obj = NULL) {
     return 1.0;
   }
 
@@ -171,7 +171,7 @@ class Indi_Drawer : public Indicator<DrawerParams> {
     double result;
 
     for (i = _shift; i < (int)_shift + (int)_period; i++) {
-      indi_values[_shift + _period - (i - _shift) - 1] = _indi[i][_obj.GetParams().indi_mode];
+      indi_values[_shift + _period - (i - _shift) - 1] = _indi[i][_obj.GetDataSourceMode()];
     }
 
     result = iDrawerOnArray(indi_values, 0, _period - 1, 0);
@@ -194,7 +194,7 @@ class Indi_Drawer : public Indicator<DrawerParams> {
    * Drawer values. To exactly replicate our Drawer numbers, a formula will need at
    * least 250 data points."
    */
-  static double iDrawerOnIndicator(Indicator<IndicatorParams> *_indi, Indi_Drawer *_obj, string _symbol = NULL,
+  static double iDrawerOnIndicator(IndicatorBase *_indi, Indi_Drawer *_obj, string _symbol = NULL,
                                    ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                    ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0) {
     long _bar_time_curr = _obj.GetBarTime(_shift);
@@ -206,7 +206,7 @@ class Indi_Drawer : public Indicator<DrawerParams> {
     // Looks like MT uses specified period as start of the SMMA calculations.
     _obj.FeedHistoryEntries(_period);
 
-    int i;
+    //    int i;
     double indi_values[];
     ArrayResize(indi_values, _period);
 
@@ -214,40 +214,43 @@ class Indi_Drawer : public Indicator<DrawerParams> {
 
     // SMMA-based version of Drawer.
     DrawerGainLossData last_data, new_data;
-    unsigned int data_position;
+    //    unsigned int data_position;
     double diff;
-    int _mode = _obj.GetParams().indi_mode;
+    int _mode = _obj.GetDataSourceMode();
 
-    if (!_obj.aux_data.KeyExists(_bar_time_prev, data_position)) {
-      // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
-      double sum_gain = 0;
-      double sum_loss = 0;
+    /*
+      @fixit
+        if (!_obj.aux_data.KeyExists(_bar_time_prev, data_position)) {
+          // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
+          double sum_gain = 0;
+          double sum_loss = 0;
 
-      for (i = 1; i < (int)_period; i++) {
-        double price_new = _indi[(_shift + 1) + i - 1][_mode];
-        double price_old = _indi[(_shift + 1) + i][_mode];
+          for (i = 1; i < (int)_period; i++) {
+            double price_new = _indi[(_shift + 1) + i - 1][_mode];
+            double price_old = _indi[(_shift + 1) + i][_mode];
 
-        if (price_new == 0.0 || price_old == 0.0) {
-          // Missing history price data, skipping calculations.
-          return 0.0;
-        }
+            if (price_new == 0.0 || price_old == 0.0) {
+              // Missing history price data, skipping calculations.
+              return 0.0;
+            }
 
-        diff = price_new - price_old;
+            diff = price_new - price_old;
 
-        if (diff > 0) {
-          sum_gain += diff;
+            if (diff > 0) {
+              sum_gain += diff;
+            } else {
+              sum_loss += -diff;
+            }
+          }
+
+          // Calculating SMA-based values.
+          last_data.avg_gain = sum_gain / _period;
+          last_data.avg_loss = sum_loss / _period;
         } else {
-          sum_loss += -diff;
+          // Data already exists, retrieving it by position got by KeyExists().
+          last_data = _obj.aux_data.GetByPos(data_position);
         }
-      }
-
-      // Calculating SMA-based values.
-      last_data.avg_gain = sum_gain / _period;
-      last_data.avg_loss = sum_loss / _period;
-    } else {
-      // Data already exists, retrieving it by position got by KeyExists().
-      last_data = _obj.aux_data.GetByPos(data_position);
-    }
+    */
 
     diff = _indi[_shift][_mode] - _indi[_shift + 1][_mode];
 
@@ -262,7 +265,10 @@ class Indi_Drawer : public Indicator<DrawerParams> {
     new_data.avg_gain = (last_data.avg_gain * (_period - 1) + curr_gain) / _period;
     new_data.avg_loss = (last_data.avg_loss * (_period - 1) + curr_loss) / _period;
 
-    _obj.aux_data.Set(_bar_time_curr, new_data);
+    /*
+      @fixit
+        _obj.aux_data.Set(_bar_time_curr, new_data);
+    */
 
     if (new_data.avg_loss == 0.0)
       // @fixme Why 0 loss?
@@ -309,7 +315,7 @@ class Indi_Drawer : public Indicator<DrawerParams> {
                          GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Drawer::iDrawerOnIndicator(iparams.indi_data_source, THIS_PTR, GetSymbol(), GetTf(), GetPeriod(),
+        _value = Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), GetPeriod(),
                                                  GetAppliedPrice(), _shift);
         break;
     }
@@ -321,7 +327,7 @@ class Indi_Drawer : public Indicator<DrawerParams> {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
-    unsigned int i;
+    int i;
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
     IndicatorDataEntry _entry(iparams.GetMaxModes());

@@ -93,6 +93,7 @@ struct AlligatorParams : IndicatorParams {
  * Implements the Alligator indicator.
  */
 class Indi_Alligator : public Indicator<AlligatorParams> {
+ public:
   /**
    * Class constructor.
    */

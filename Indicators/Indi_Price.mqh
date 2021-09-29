@@ -130,7 +130,8 @@ class Indi_Price : public Indicator<PriceIndiParams> {
     Indi_Price *_indi_price;
     if (!Objects<Indi_Price>::TryGet(_key, _indi_price)) {
       PriceIndiParams _indi_price_params(_shift, _applied_price);
-      _indi_price = Objects<Indi_Price>::Set(_key, new Indi_Price(_indi_price_params, _tf));
+      _indi_price_params.SetTf(_tf);
+      _indi_price = Objects<Indi_Price>::Set(_key, new Indi_Price(_indi_price_params));
       _indi_price.SetSymbol(_symbol);
     }
     return _indi_price;

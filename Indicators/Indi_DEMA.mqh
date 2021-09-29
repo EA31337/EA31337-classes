@@ -49,7 +49,6 @@ struct DEMAParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetMaxModes(1);
     SetShift(_shift);
-    tf = _tf;
     switch (idstype) {
       case IDATA_ICUSTOM:
         if (custom_indi_name == "") {
@@ -127,8 +126,7 @@ class Indi_DEMA : public Indicator<DEMAParams> {
 #endif
   }
 
-  template <typename IT>
-  static double iDEMAOnIndicator(IndicatorCalculateCache<double> *cache, Indicator<IT> *indi, int indi_mode,
+  static double iDEMAOnIndicator(IndicatorCalculateCache<double> *cache, IndicatorBase *indi, int indi_mode,
                                  unsigned int ma_period, unsigned int ma_shift, int shift) {
     return iDEMAOnArray(indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, shift, cache);
   }
@@ -180,9 +178,6 @@ class Indi_DEMA : public Indicator<DEMAParams> {
   }
 
   /**
-
-
-  /**
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
@@ -204,8 +199,8 @@ class Indi_DEMA : public Indicator<DEMAParams> {
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
-        _value =
-            Indi_DEMA::iDEMAOnIndicator(GetCache(), indi_src, GetDataSourceMode(), GetPeriod(), GetMAShift(), _shift);
+        _value = Indi_DEMA::iDEMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetPeriod(),
+                                             GetMAShift(), _shift);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;

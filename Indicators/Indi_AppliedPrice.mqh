@@ -47,11 +47,10 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
   /**
    * Class constructor.
    */
-  Indi_AppliedPrice(AppliedPriceParams &_params) : iparams(_params), Indicator<AppliedPriceParams>(_params){};
-  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : iparams(PRICE_OPEN, 0, _tf), Indicator(INDI_PRICE, _tf){};
+  Indi_AppliedPrice(AppliedPriceParams &_params) : Indicator<AppliedPriceParams>(_params){};
+  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf){};
 
-  static double iAppliedPriceOnIndicator(Indicator<AppliedPriceParams> *_indi, ENUM_APPLIED_PRICE _applied_price,
-                                         int _shift = 0) {
+  static double iAppliedPriceOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];
     _indi[_shift].GetArray(_ohlc, 4);
     return BarOHLC::GetAppliedPrice(_applied_price, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);
@@ -70,10 +69,14 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
           // (e.g. for applied price of Indi_Price).
           iparams.SetDataSourceMode(GetAppliedPrice());
         }
+
+        // @fixit
+        /*
         if (indi_src.GetParams().GetMaxModes() != 4) {
           Print("Indi_AppliedPrice indicator requires that has at least 4 modes/buffers (OHLC)!");
           DebugBreak();
         }
+        */
         _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(indi_src, GetAppliedPrice(), _shift);
         break;
       default:

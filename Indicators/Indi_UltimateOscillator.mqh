@@ -74,9 +74,9 @@ class Indi_UltimateOscillator : public Indicator<UltimateOscillatorParams> {
         Util::MakeKey("Indi_UltimateOscillator", _fast_period, _middle_period, _slow_period, _fast_k, _middle_k,
                       _slow_k));
 
-    Indicator *_indi_atr_fast = Indi_ATR::GetCached(_symbol, _tf, _fast_period);
-    Indicator *_indi_atr_middle = Indi_ATR::GetCached(_symbol, _tf, _middle_period);
-    Indicator *_indi_atr_slow = Indi_ATR::GetCached(_symbol, _tf, _slow_period);
+    IndicatorBase *_indi_atr_fast = Indi_ATR::GetCached(_symbol, _tf, _fast_period);
+    IndicatorBase *_indi_atr_middle = Indi_ATR::GetCached(_symbol, _tf, _middle_period);
+    IndicatorBase *_indi_atr_slow = Indi_ATR::GetCached(_symbol, _tf, _slow_period);
 
     return iUOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_period, _middle_period, _slow_period, _fast_k,
                       _middle_k, _slow_k, _mode, _shift, _cache, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow);
