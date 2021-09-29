@@ -113,6 +113,21 @@ class TradeSignal {
   float GetSignalClose() { return float(int(ShouldClose(ORDER_TYPE_BUY)) - int(ShouldClose(ORDER_TYPE_SELL))); }
 
   /**
+   * Gets signal's close direction.
+   *
+   * @return
+   *   Returns +1 for upwards, -1 for downwards, or 0 for a neutral direction.
+   */
+  char GetSignalCloseDirection() {
+    if (signal.CheckSignals(SIGNAL_CLOSE_UPWARDS)) {
+      return 1;
+    } else if (signal.CheckSignals(SIGNAL_CLOSE_DOWNWARDS)) {
+      return -1;
+    }
+    return 0;
+  }
+
+  /**
    * Gets signal's strength to open.
    *
    * @return
@@ -120,6 +135,21 @@ class TradeSignal {
    *   Returns 0 on a neutral signal or when signals are in conflict.
    */
   float GetSignalOpen() { return float(int(ShouldOpen(ORDER_TYPE_BUY)) - int(ShouldOpen(ORDER_TYPE_SELL))); }
+
+  /**
+   * Gets signal's open direction.
+   *
+   * @return
+   *   Returns +1 for upwards, -1 for downwards, or 0 for a neutral direction.
+   */
+  char GetSignalOpenDirection() {
+    if (signal.CheckSignals(SIGNAL_OPEN_UPWARDS)) {
+      return 1;
+    } else if (signal.CheckSignals(SIGNAL_OPEN_DOWNWARDS)) {
+      return -1;
+    }
+    return 0;
+  }
 
   /* Serializers */
 
