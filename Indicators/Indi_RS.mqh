@@ -57,17 +57,18 @@ class Indi_RS : public Indicator<RSParams> {
   void Init() {
     if (iparams.GetDataSourceType() == IDATA_MATH) {
       PriceIndiParams _iprice_params();
-      // @fixit
-      Indi_Price *_iprice_close = Indi_Price::GetCached(NULL, 0, /*unused*/ PRICE_CLOSE, 0);
+      // @todo Symbol should be already defined for a chart.
+      // @todo If it's not, move initialization to GetValue()/GetEntry() method.
+      Indi_Price *_iprice = Indi_Price::GetCached(GetSymbol(), GetTf(), 0);
 
       MathParams _imath0_params(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
-      _imath0_params.SetDataSource(iprice.Ptr(), false);
-      Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_params);
-
       MathParams _imath1_params(MATH_OP_SUB, PRICE_CLOSE, 1, PRICE_CLOSE, 0);
-      _imath1_params.SetDataSource(iprice.Ptr(), false);
+      _imath0_params.SetTf(GetTf());
+      _imath1_params.SetTf(GetTf());
+      Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_params);
       Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_params);
-
+      _imath0.Ptr().SetDataSource(_iprice, false, 0);
+      _imath1.Ptr().SetDataSource(_iprice, false, 0);
       imath.Set(0, _imath0);
       imath.Set(1, _imath1);
     }

@@ -89,8 +89,7 @@ class Indi_DEMA : public Indicator<DEMAParams> {
    * - https://www.mql5.com/en/docs/indicators/IDEMA
    */
   static double iDEMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, unsigned int _ma_shift,
-                      ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0,
-                      Indicator<DEMAParams> *_obj = NULL) {
+                      ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0, IndicatorBase *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
@@ -120,7 +119,7 @@ class Indi_DEMA : public Indicator<DEMAParams> {
     }
     return _res[0];
 #else
-    Indi_Price *_indi_price = Indi_Price::GetCached(_symbol, _tf, _applied_price, _period, _shift);
+    Indi_Price *_indi_price = Indi_Price::GetCached(_symbol, _tf, _shift);
     // Note that _applied_price and Indi_Price mode indices are compatible.
     return Indi_DEMA::iDEMAOnIndicator(_indi_price.GetCache(), _indi_price, 0, _period, _ma_shift, _shift);
 #endif

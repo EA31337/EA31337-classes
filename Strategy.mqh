@@ -93,7 +93,7 @@ class Strategy : public Object {
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
-  Dict<int, Indicator<IndicatorParams> *> indicators_unmanaged;         // Indicators list (unmanaged).
+  Dict<int, IndicatorBase *> indicators_unmanaged;                      // Indicators list (unmanaged).
   DictStruct<int, Ref<Indicator<IndicatorParams>>> indicators_managed;  // Indicators list (managed).
   DictStruct<short, TaskEntry> tasks;
   Log logger;  // Log instance.
@@ -159,7 +159,7 @@ class Strategy : public Object {
    * Class deconstructor.
    */
   ~Strategy() {
-    for (DictIterator<int, Indicator<IndicatorParams> *> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
+    for (DictIterator<int, IndicatorBase *> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
       delete iter.Value();
     }
   }
@@ -308,7 +308,7 @@ class Strategy : public Object {
   /**
    * Returns handler to the strategy's indicator class.
    */
-  Indicator<IndicatorParams> *GetIndicator(int _id = 0) {
+  IndicatorBase *GetIndicator(int _id = 0) {
     if (indicators_managed.KeyExists(_id)) {
       return indicators_managed[_id].Ptr();
     } else if (indicators_unmanaged.KeyExists(_id)) {
@@ -588,7 +588,7 @@ class Strategy : public Object {
    * Sets reference to indicator.
    */
   template <typename TS>
-  void SetIndicator(Indicator<TS> *_indi, int _id = 0, bool _managed = true) {
+  void SetIndicator(IndicatorBase *_indi, int _id = 0, bool _managed = true) {
     if (_managed) {
       Ref<Indicator<TS>> _ref = _indi;
       indicators_managed.Set(_id, _ref);
@@ -1268,7 +1268,7 @@ class Strategy : public Object {
     int _count = (int)fmax(fabs(_level), fabs(_method));
     int _direction = Order::OrderDirection(_cmd, _mode);
     Chart *_chart = trade.GetChart();
-    Indicator<IndicatorParams> *_indi = GetIndicator();
+    IndicatorBase *_indi = GetIndicator();
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {

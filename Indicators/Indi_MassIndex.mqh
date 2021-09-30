@@ -59,7 +59,7 @@ class Indi_MassIndex : public Indicator<MassIndexParams> {
    * Built-in version of Mass Index.
    */
   static double iMI(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _second_period, int _sum_period,
-                    int _mode = 0, int _shift = 0, Indicator<MassIndexParams> *_obj = NULL) {
+                    int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _symbol, _tf, Util::MakeKey("Indi_MassIndex", _period, _second_period, _sum_period));
     return iMIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _second_period, _sum_period, _mode, _shift,

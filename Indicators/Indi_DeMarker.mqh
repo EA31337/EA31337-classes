@@ -64,7 +64,7 @@ class Indi_DeMarker : public Indicator<DeMarkerParams> {
    * - https://www.mql5.com/en/docs/indicators/idemarker
    */
   static double iDeMarker(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                          Indicator<DeMarkerParams> *_obj = NULL) {
+                          IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iDeMarker(_symbol, _tf, _period, _shift);
 #else  // __MQL5__

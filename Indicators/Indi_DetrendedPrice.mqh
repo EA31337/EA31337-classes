@@ -57,7 +57,7 @@ class Indi_DetrendedPrice : public Indicator<DetrendedPriceParams> {
    * Built-in version of AMA.
    */
   static double iDPO(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                     int _shift = 0, Indicator<DetrendedPriceParams> *_obj = NULL) {
+                     int _shift = 0, IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
                                                         Util::MakeKey("Indi_DPO", _period, (int)_ap));
     return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);

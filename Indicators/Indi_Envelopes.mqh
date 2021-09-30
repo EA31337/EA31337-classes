@@ -88,7 +88,7 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
                            int _ma_shift, ENUM_APPLIED_PRICE _ap, double _deviation,
                            int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                                        // UPPER_LINE, 1 - LOWER_LINE
-                           int _shift = 0, Indicator<EnvelopesParams> *_obj = NULL) {
+                           int _shift = 0, IndicatorBase *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL4__
     return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _ap, _deviation, _mode, _shift);
@@ -131,8 +131,8 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, Indicator<EnvelopesParams> *_indi,
-                                      string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, IndicatorBase *_indi, string _symbol,
+                                      ENUM_TIMEFRAMES _tf, int _ma_period,
                                       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                       int _indi_mode,  // Source indicator's mode index. May be -1 to use first buffer
                                       int _ma_shift, double _deviation,

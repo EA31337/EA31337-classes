@@ -79,7 +79,7 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
    * Returns value for iHeikenAshi indicator.
    */
   static double iCustomLegacyHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift = 0,
-                                        Indicator<HeikenAshiParams> *_obj = NULL) {
+                                        IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     // Low and High prices could be in reverse order when using MT4's built-in indicator, so we need to retrieve both
     // and return correct one.

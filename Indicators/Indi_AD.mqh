@@ -60,7 +60,7 @@ class Indi_AD : public Indicator<ADParams> {
    * - https://www.mql5.com/en/docs/indicators/iad
    */
   static double iAD(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    Indicator<ADParams> *_obj = NULL) {
+                    IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAD(_symbol, _tf, _shift);
 #else  // __MQL5__

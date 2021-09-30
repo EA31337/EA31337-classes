@@ -77,7 +77,7 @@ class Indi_Demo : public Indicator<DemoIndiParams> {
    * Returns the indicator value.
    */
   static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                      Indicator<DemoIndiParams> *_obj = NULL) {
+                      IndicatorBase *_obj = NULL) {
     return 0.1 + (0.1 * _obj.GetBarIndex());
   }
 

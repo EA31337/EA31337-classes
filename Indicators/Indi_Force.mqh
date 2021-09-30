@@ -80,7 +80,7 @@ class Indi_Force : public Indicator<ForceParams> {
    * - https://www.mql5.com/en/docs/indicators/iforce
    */
   static double iForce(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_MA_METHOD _ma_method,
-                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator<ForceParams> *_obj = NULL) {
+                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iForce(_symbol, _tf, _period, _ma_method, _applied_price, _shift);
 #else  // __MQL5__

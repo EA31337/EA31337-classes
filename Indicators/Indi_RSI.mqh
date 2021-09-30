@@ -89,6 +89,8 @@ struct RSIGainLossData {
  * Implements the Relative Strength Index indicator.
  */
 class Indi_RSI : public Indicator<RSIParams> {
+  DictStruct<long, RSIGainLossData> aux_data;
+
  public:
   /**
    * Class constructor.
@@ -104,8 +106,7 @@ class Indi_RSI : public Indicator<RSIParams> {
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
   static double iRSI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                     ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
-                     Indicator<RSIParams> *_obj = NULL) {
+                     ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iRSI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -142,7 +143,7 @@ class Indi_RSI : public Indicator<RSIParams> {
    * Calculates non-SMMA version of RSI on another indicator (uses iRSIOnArray).
    */
   template <typename IT>
-  static double iRSIOnArrayOnIndicator(Indicator<IT> *_indi, string _symbol = NULL,
+  static double iRSIOnArrayOnIndicator(IndicatorBase *_indi, string _symbol = NULL,
                                        ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
                                        Indi_RSI *_obj = NULL) {
@@ -373,8 +374,7 @@ class Indi_RSI : public Indicator<RSIParams> {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  /* @fixme
-  virtual Indicator *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
       BandsParams bands_params();
       return new Indi_Bands(bands_params);
@@ -398,7 +398,6 @@ class Indi_RSI : public Indicator<RSIParams> {
       return new Indi_StdDev(stddev_params);
     }
 
-    return Indicator::FetchDataSource(_id);
+    return IndicatorBase::FetchDataSource(_id);
   }
-  */
 };

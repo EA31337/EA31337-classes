@@ -81,7 +81,7 @@ class Indi_StdDev : public Indicator<StdDevParams> {
    * - https://www.mql5.com/en/docs/indicators/istddev
    */
   static double iStdDev(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method,
-                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator<StdDevParams> *_obj = NULL) {
+                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__

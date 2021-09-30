@@ -71,7 +71,7 @@ class Indi_CCI : public Indicator<CCIParams> {
    * - https://www.mql5.com/en/docs/indicators/icci
    */
   static double iCCI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _applied_price,
-                     int _shift = 0, Indicator<CCIParams> *_obj = NULL) {
+                     int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iCCI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__

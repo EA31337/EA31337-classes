@@ -100,14 +100,7 @@ class Indicator : public IndicatorBase {
    * Class deconstructor.
    */
   ~Indicator() {
-    ReleaseHandle();
     DeinitDraw();
-
-    for (int i = 0; i < ArraySize(value_storages); ++i) {
-      if (value_storages[i] != NULL) {
-        delete value_storages[i];
-      }
-    }
 
     if (indi_src != NULL && iparams.indi_managed) {
       // User selected custom, managed data source.
@@ -286,7 +279,7 @@ class Indicator : public IndicatorBase {
    * allocated for the array
    */
   /*
-  static int CopyBuffer(Indicator<IndicatorParms>* _indi, int _mode, int _start, int _count, ValueStorage<T>& _buffer,
+  static int CopyBuffer(IndicatorBase * _indi, int _mode, int _start, int _count, ValueStorage<T>& _buffer,
   int _rates_total) { int _num_copied = 0; int _buffer_size = ArraySize(_buffer);
 
     if (_buffer_size < _rates_total) {
@@ -412,6 +405,7 @@ class Indicator : public IndicatorBase {
 
         if (!_source.IsSet()) {
           Alert(GetName(), " has no built-in source indicator ", _source_id);
+          DebugBreak();
         } else {
           indicators.Set(_source_id, _source);
 
@@ -534,8 +528,7 @@ class Indicator : public IndicatorBase {
   /**
    * Sets indicator data source.
    */
-  template <typename TSA>
-  void SetDataSource(Indicator<TSA>* _indi, bool _managed = true, int _input_mode = -1) {
+  void SetDataSource(IndicatorBase* _indi, bool _managed, int _input_mode) {
     indi_src = _indi;
     iparams.SetDataSource(-1, _input_mode, _managed);
   }
@@ -765,91 +758,7 @@ class Indicator : public IndicatorBase {
     is_fed = true;
   }
 
-  ValueStorage<double>* GetValueStorage(int _mode = 0) {
-    if (value_storages[_mode] == NULL) {
-      value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
-    }
-    return value_storages[_mode];
-  }
-
-  /**
-   * Returns indicator value for a given shift and mode.
-   */
-  template <typename T>
-  T GetValue(int _shift = 0, int _mode = -1) {
-    T _result;
-    // @fixit We probably don't want to retrieve source mode from there.
-    int _index = _mode != -1 ? _mode : GetDataSourceMode();
-    GetEntry(_shift).values[_index].Get(_result);
-    ResetLastError();
-    return _result;
-  }
-
-  /**
-   * Returns price corresponding to indicator value for a given shift and mode.
-   *
-   * Can be useful for calculating trailing stops based on the indicator.
-   *
-   * @return
-   * Returns price value of the corresponding indicator values.
-   */
-  template <typename T>
-  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL) {
-    float _price = 0;
-    if (iparams.GetIDataValueRange() != IDATA_RANGE_PRICE) {
-      _price = (float)GetPrice(_ap, _shift);
-    } else if (iparams.GetIDataValueRange() == IDATA_RANGE_PRICE) {
-      // When indicator values are the actual prices.
-      T _values[4];
-      if (!CopyValues(_values, 4, _shift, _mode)) {
-        // When values aren't valid, return 0.
-        return _price;
-      }
-      datetime _bar_time = GetBarTime(_shift);
-      float _value = 0;
-      BarOHLC _ohlc(_values, _bar_time);
-      _price = _ohlc.GetAppliedPrice(_ap);
-    }
-    return _price;
-  }
-
-  /**
-   * Returns values for a given shift.
-   *
-   * Note: Remember to check if shift exists by HasValidEntry(shift).
-   */
-  template <typename T>
-  bool GetValues(int _shift, T& _out1, T& _out2) {
-    IndicatorDataEntry _entry = GetEntry(_shift);
-    _out1 = _entry.values[0];
-    _out2 = _entry.values[1];
-    bool _result = GetLastError() != 4401;
-    ResetLastError();
-    return _result;
-  }
-
-  template <typename T>
-  bool GetValues(int _shift, T& _out1, T& _out2, T& _out3) {
-    IndicatorDataEntry _entry = GetEntry(_shift);
-    _out1 = _entry.values[0];
-    _out2 = _entry.values[1];
-    _out3 = _entry.values[2];
-    bool _result = GetLastError() != 4401;
-    ResetLastError();
-    return _result;
-  }
-
-  template <typename T>
-  bool GetValues(int _shift, T& _out1, T& _out2, T& _out3, T& _out4) {
-    IndicatorDataEntry _entry = GetEntry(_shift);
-    _out1 = _entry.values[0];
-    _out2 = _entry.values[1];
-    _out3 = _entry.values[2];
-    _out4 = _entry.values[3];
-    bool _result = GetLastError() != 4401;
-    ResetLastError();
-    return _result;
-  }
+  ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return iparams.idvrange; }
 
   virtual void OnTick() {
     Chart::OnTick();

@@ -68,7 +68,7 @@ class Indi_OBV : public Indicator<OBVParams> {
    * Class constructor.
    */
   Indi_OBV(OBVParams &_p) : Indicator<OBVParams>(_p) {}
-  Indi_OBV(ENUM_TIMEFRAMES _tf) : Indicator(INDI_OBV, _tf) {}
+  Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_OBV, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -83,7 +83,7 @@ class Indi_OBV : public Indicator<OBVParams> {
 #else
                      ENUM_APPLIED_VOLUME _applied = VOLUME_TICK,  // MT5 only.
 #endif
-                     int _shift = 0, Indicator<OBVParams> *_obj = NULL) {
+                     int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, _applied, _shift);
 #else  // __MQL5__

@@ -54,7 +54,7 @@ class Indi_PriceVolumeTrend : public Indicator<PriceVolumeTrendParams> {
    * Built-in version of Price Volume Trend.
    */
   static double iPVT(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
-                     Indicator<PriceVolumeTrendParams> *_obj = NULL) {
+                     IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_PriceVolumeTrend", (int)_av));
     return iPVTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
   }

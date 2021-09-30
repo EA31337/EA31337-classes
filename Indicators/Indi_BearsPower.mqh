@@ -66,7 +66,7 @@ class Indi_BearsPower : public Indicator<BearsPowerParams> {
    */
   static double iBearsPower(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                             ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
-                            int _shift = 0, Indicator<BearsPowerParams> *_obj = NULL) {
+                            int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBearsPower(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__

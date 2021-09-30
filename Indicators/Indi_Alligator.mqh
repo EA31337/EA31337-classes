@@ -121,7 +121,7 @@ class Indi_Alligator : public Indicator<AlligatorParams> {
   static double iAlligator(string _symbol, ENUM_TIMEFRAMES _tf, int _jaw_period, int _jaw_shift, int _teeth_period,
                            int _teeth_shift, int _lips_period, int _lips_shift, ENUM_MA_METHOD _ma_method,
                            ENUM_APPLIED_PRICE _applied_price, ENUM_ALLIGATOR_LINE _mode, int _shift = 0,
-                           Indicator<AlligatorParams> *_obj = NULL) {
+                           IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                         _ma_method, _applied_price, _mode, _shift);

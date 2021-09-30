@@ -63,7 +63,7 @@ class Indi_VIDYA : public Indicator<VIDYAParams> {
    * Built-in version of iVIDyA.
    */
   static double iVIDyA(string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period, int _ema_period, int _ma_shift,
-                       ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, Indicator<VIDYAParams> *_obj = NULL) {
+                       ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iVIDyA(_symbol, _tf, _cmo_period, _ema_period, _ma_shift, _ap), _mode, _shift);
 #else

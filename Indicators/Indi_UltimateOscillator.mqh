@@ -68,7 +68,7 @@ class Indi_UltimateOscillator : public Indicator<UltimateOscillatorParams> {
    */
   static double iUO(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period, int _middle_period, int _slow_period,
                     int _fast_k, int _middle_k, int _slow_k, int _mode = 0, int _shift = 0,
-                    Indicator<UltimateOscillatorParams> *_obj = NULL) {
+                    IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _symbol, _tf,
         Util::MakeKey("Indi_UltimateOscillator", _fast_period, _middle_period, _slow_period, _fast_k, _middle_k,
@@ -87,9 +87,8 @@ class Indi_UltimateOscillator : public Indicator<UltimateOscillatorParams> {
    */
   static double iUOOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_period, int _middle_period, int _slow_period,
                            int _fast_k, int _middle_k, int _slow_k, int _mode, int _shift,
-                           IndicatorCalculateCache<double> *_cache, Indicator<ATRParams> *_indi_atr_fast,
-                           Indicator<ATRParams> *_indi_atr_middle, Indicator<ATRParams> *_indi_atr_slow,
-                           bool _recalculate = false) {
+                           IndicatorCalculateCache<double> *_cache, IndicatorBase *_indi_atr_fast,
+                           IndicatorBase *_indi_atr_middle, IndicatorBase *_indi_atr_slow, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {

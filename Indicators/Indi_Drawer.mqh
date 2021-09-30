@@ -160,7 +160,7 @@ class Indi_Drawer : public Indicator<DrawerParams> {
   /**
    * Calculates non-SMMA version of Drawer on another indicator (uses iDrawerOnArray).
    */
-  static double iDrawerOnArrayOnIndicator(Indicator<IndicatorParams> *_indi, string _symbol = NULL,
+  static double iDrawerOnArrayOnIndicator(IndicatorBase *_indi, string _symbol = NULL,
                                           ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                           ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
                                           Indi_Drawer *_obj = NULL) {

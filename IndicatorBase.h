@@ -781,11 +781,7 @@ class IndicatorBase : public Chart {
   /**
    * Sets indicator data source.
    */
-  template <typename TSA>
-  void SetDataSource(Indicator<TSA>* _indi, bool _managed = true, int _input_mode = -1) {
-    indi_src = _indi;
-    iparams.SetDataSource(-1, _input_mode, _managed);
-  }
+  virtual void SetDataSource(IndicatorBase* _indi, bool _managed, int _input_mode) = 0;
 
   /**
    * Sets data source's input mode.
@@ -1009,6 +1005,8 @@ class IndicatorBase : public Chart {
     is_fed = true;
   }
 
+  virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = 0;
+
   ValueStorage<double>* GetValueStorage(int _mode = 0) {
     if (value_storages[_mode] == NULL) {
       value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
@@ -1039,9 +1037,9 @@ class IndicatorBase : public Chart {
   template <typename T>
   float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL) {
     float _price = 0;
-    if (iparams.GetIDataValueRange() != IDATA_RANGE_PRICE) {
+    if (GetIDataValueRange() != IDATA_RANGE_PRICE) {
       _price = (float)GetPrice(_ap, _shift);
-    } else if (iparams.GetIDataValueRange() == IDATA_RANGE_PRICE) {
+    } else if (GetIDataValueRange() == IDATA_RANGE_PRICE) {
       // When indicator values are the actual prices.
       T _values[4];
       if (!CopyValues(_values, 4, _shift, _mode)) {

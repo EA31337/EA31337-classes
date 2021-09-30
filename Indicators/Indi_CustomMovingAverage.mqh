@@ -36,6 +36,7 @@ struct CustomMovingAverageParams : IndicatorParams {
     max_modes = 3;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
+    SetDataSourceType(IDATA_ICUSTOM);
     SetCustomIndicatorName("Examples\\Custom Moving Average");
     shift = _shift;
     smooth_method = _smooth_method;

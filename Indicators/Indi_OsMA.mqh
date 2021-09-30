@@ -69,7 +69,7 @@ class Indi_OsMA : public Indicator<OsMAParams> {
    */
   static double iOsMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ema_fast_period, int _ema_slow_period,
                       int _signal_period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
-                      Indicator<OsMAParams> *_obj = NULL) {
+                      IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _shift);
 #else  // __MQL5__

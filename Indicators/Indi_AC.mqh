@@ -61,7 +61,7 @@ class Indi_AC : public Indicator<ACParams> {
    * - https://www.mql5.com/en/docs/indicators/iac
    */
   static double iAC(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    Indicator<ACParams> *_obj = NULL) {
+                    IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAC(_symbol, _tf, _shift);
 #else  // __MQL5__

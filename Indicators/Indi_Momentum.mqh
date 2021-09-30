@@ -75,7 +75,7 @@ class Indi_Momentum : public Indicator<MomentumParams> {
    * - https://www.mql5.com/en/docs/indicators/imomentum
    */
   static double iMomentum(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _ap,
-                          int _shift = 0, Indicator<MomentumParams> *_obj = NULL) {
+                          int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMomentum(_symbol, _tf, _period, _ap, _shift);
 #else  // __MQL5__

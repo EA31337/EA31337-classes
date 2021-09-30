@@ -65,7 +65,7 @@ class Indi_ATR : public Indicator<ATRParams> {
    * - https://www.mql5.com/en/docs/indicators/iatr
    */
   static double iATR(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                     Indicator<ATRParams> *_obj = NULL) {
+                     IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iATR(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
