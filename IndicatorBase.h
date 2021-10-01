@@ -1182,9 +1182,13 @@ int CopyBuffer(IndicatorBase* _indi, int _mode, int _start, int _count, ValueSto
 /**
  * BarsCalculated() method to be used on Indicator instance.
  */
-int BarsCalculated(IndicatorBase* _indi, int _bars_required) {
+int BarsCalculated(IndicatorBase* _indi, int _bars_required, int _bars_at_least = -1) {
   if (_bars_required == 0) {
     return _bars_required;
+  }
+
+  if (_bars_at_least != -1) {
+    _bars_required = _bars_at_least;
   }
 
   IndicatorDataEntry _entry = _indi.GetEntry(_bars_required - 1);

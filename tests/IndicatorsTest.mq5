@@ -510,7 +510,7 @@ bool InitIndicators() {
 
   // Bill Williams' Zone Trade.
   BWZTParams bwzt_params();
-  indis.Push(new Indi_BWZT(bwzt_params));
+  // indis.Push(new Indi_BWZT(bwzt_params));
 
   // Rate of Change.
   RateOfChangeParams rate_of_change_params();
@@ -526,15 +526,18 @@ bool InitIndicators() {
 
   // Ultimate Oscillator.
   UltimateOscillatorParams ultimate_oscillator_params();
-  indis.Push(new Indi_UltimateOscillator(ultimate_oscillator_params));
+  // indis.Push(new Indi_UltimateOscillator(ultimate_oscillator_params));
 
   // VIDYA.
   VIDYAParams vidya_params();
   indis.Push(new Indi_VIDYA(vidya_params));
 
+#ifdef __MQL5__
+  // @fixit Should work also in MT4!
   // Volumes.
   VolumesParams volumes_params();
   indis.Push(new Indi_Volumes(volumes_params));
+#endif
 
   // Volume Rate of Change.
   VROCParams vol_rate_of_change_params();

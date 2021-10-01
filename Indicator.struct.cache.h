@@ -114,6 +114,11 @@ class IndicatorCalculateCache : public Dynamic {
   bool HasBuffers() { return ArraySize(buffers) != 0; }
 
   /**
+   * Returns number of added buffers.
+   */
+  int NumBuffers() { return ArraySize(buffers); }
+
+  /**
    * Returns existing or new cache as a child of current one. Useful when indicator uses other indicators and requires
    * unique caches for them.
    */
