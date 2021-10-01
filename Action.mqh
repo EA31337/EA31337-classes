@@ -141,7 +141,7 @@ class Action {
 #ifdef INDICATOR_MQH
       case ACTION_TYPE_INDICATOR:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Indicator<IndicatorParams> *)_entry.obj).ExecuteAction((ENUM_INDICATOR_ACTION)_entry.action_id);
+          _result = ((IndicatorBase *)_entry.obj).ExecuteAction((ENUM_INDICATOR_ACTION)_entry.action_id);
         } else {
           _result = false;
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);

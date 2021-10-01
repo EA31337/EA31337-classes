@@ -65,7 +65,7 @@ class Indi_MFI : public Indicator<MFIParams> {
    * - https://www.mql5.com/en/docs/indicators/imfi
    */
   static double iMFI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                     Indicator<MFIParams> *_obj = NULL) {
+                     IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, _shift);
 #else  // __MQL5__

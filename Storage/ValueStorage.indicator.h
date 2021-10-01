@@ -30,16 +30,19 @@
 #pragma once
 #endif
 
+// Forward declarations.
+class IndicatorBase;
+
 // Includes.
 #include "ValueStorage.history.h"
 
 /**
  * Storage for direct access to indicator's buffer for a given mode.
  */
-template <typename C, typename TS>
+template <typename C>
 class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   // Pointer to indicator to access data from.
-  Indicator<TS> *indicator;
+  IndicatorBase *indicator;
 
   // Mode of the target indicator.
   int mode;
@@ -48,7 +51,7 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   /**
    * Constructor.
    */
-  IndicatorBufferValueStorage(Indicator<TS> *_indi, int _mode = 0, bool _is_series = false)
+  IndicatorBufferValueStorage(IndicatorBase *_indi, int _mode = 0, bool _is_series = false)
       : indicator(_indi), mode(_mode), HistoryValueStorage(_indi.GetSymbol(), _indi.GetTf()) {}
 
   /**

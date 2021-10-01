@@ -55,7 +55,7 @@ class Indi_Volumes : public Indicator<VolumesParams> {
    * Built-in version of Volumes.
    */
   static double iVolumes(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
-                         Indicator<VolumesParams> *_obj = NULL) {
+                         IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_Volumes", (int)_av));
     return iVolumesOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
   }
@@ -78,6 +78,10 @@ class Indi_Volumes : public Indicator<VolumesParams> {
     _cache.SetPrevCalculated(Indi_Volumes::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
                                                      _cache.GetBuffer<double>(1), _av));
 
+    for (int i = 0; i < _cache.NumBuffers(); ++i) {
+      Print("(Mode #", _mode, ", Buffer #", i, " = ", _cache.GetTailValue<double>(i, _shift));
+    }
+
     return _cache.GetTailValue<double>(_mode, _shift);
   }
 
@@ -87,6 +91,7 @@ class Indi_Volumes : public Indicator<VolumesParams> {
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtVolumesBuffer,
                        ValueStorage<double> &ExtColorsBuffer, ENUM_APPLIED_VOLUME InpVolumeType) {
     if (rates_total < 2) return (0);
+
     // Starting work.
     int pos = prev_calculated - 1;
     // Correct position.
@@ -94,6 +99,7 @@ class Indi_Volumes : public Indicator<VolumesParams> {
       ExtVolumesBuffer[0] = 0;
       pos = 1;
     }
+
     // Main cycle.
     if (InpVolumeType == VOLUME_TICK)
       CalculateVolume(pos, rates_total, tick_volume, ExtVolumesBuffer, ExtColorsBuffer);
@@ -113,6 +119,8 @@ class Indi_Volumes : public Indicator<VolumesParams> {
       // Calculate indicator.
       ExtVolumesBuffer[i] = curr_volume;
       ExtColorsBuffer[i] = (curr_volume > prev_volume) ? 0.0 : 1.0;
+
+      Print("Volume: ", ExtVolumesBuffer[i].Get(), ", ", ExtColorsBuffer[i].Get());
     }
   }
 
@@ -150,9 +158,11 @@ class Indi_Volumes : public Indicator<VolumesParams> {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
+        double _v = GetValue(_mode, _shift);
+        _entry.values[_mode] = _v;
+        Print("Volumes[", _mode, "] = ", _v);
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);

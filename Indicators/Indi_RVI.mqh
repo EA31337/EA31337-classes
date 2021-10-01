@@ -65,7 +65,7 @@ class Indi_RVI : public Indicator<RVIParams> {
   static double iRVI(
       string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 10,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,  // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0, Indicator<RVIParams> *_obj = NULL) {
+      int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iRVI(_symbol, _tf, _period, _mode, _shift);
 #else  // __MQL5__

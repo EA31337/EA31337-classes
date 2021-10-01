@@ -65,7 +65,7 @@ class Indi_ADXW : public Indicator<ADXWParams> {
    * Built-in version of ADX Wilder.
    */
   static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = LINE_MAIN_ADX,
-                           int _shift = 0, Indicator<ADXWParams> *_obj = NULL) {
+                           int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
 #else

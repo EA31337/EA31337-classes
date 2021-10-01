@@ -56,7 +56,7 @@ class Indi_RateOfChange : public Indicator<RateOfChangeParams> {
    * Built-in version of Rate of Change.
    */
   static double iROC(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                     int _shift = 0, Indicator<RateOfChangeParams> *_obj = NULL) {
+                     int _shift = 0, IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
                                                         Util::MakeKey("Indi_RateOfChange", _period, (int)_ap));
     return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);

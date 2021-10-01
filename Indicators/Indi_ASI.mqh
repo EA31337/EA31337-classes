@@ -49,14 +49,14 @@ class Indi_ASI : public Indicator<ASIParams> {
   /**
    * Class constructor.
    */
-  Indi_ASI(ASIParams &_params) : iparams(_params.mpc), Indicator<ASIParams>(_params){};
+  Indi_ASI(ASIParams &_params) : Indicator<ASIParams>(_params){};
   Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ASI, _tf){};
 
   /**
    * Built-in version of ASI.
    */
   static double iASI(string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0, int _shift = 0,
-                     Indicator<ASIParams> *_obj = NULL) {
+                     IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_ASI", _mpc));
     return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
   }

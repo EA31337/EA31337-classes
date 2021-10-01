@@ -71,7 +71,7 @@ class Indi_CCI : public Indicator<CCIParams> {
    * - https://www.mql5.com/en/docs/indicators/icci
    */
   static double iCCI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _applied_price,
-                     int _shift = 0, Indicator<CCIParams> *_obj = NULL) {
+                     int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iCCI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -104,12 +104,12 @@ class Indi_CCI : public Indicator<CCIParams> {
 #endif
   }
 
-  static double iCCIOnIndicator(Indicator<CCIParams> *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+  static double iCCIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                 int _mode, int _shift = 0) {
     _indi.ValidateDataSourceMode(_mode);
 
     double _indi_value_buffer[];
-    IndicatorDataEntry _entry(_indi.GetParams().GetMaxModes());
+    IndicatorDataEntry _entry(_indi.GetModeCount());
 
     ArrayResize(_indi_value_buffer, _period);
 

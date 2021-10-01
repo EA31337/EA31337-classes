@@ -51,8 +51,7 @@ class Indi_ColorCandlesDaily : public Indicator<ColorCandlesDailyParams> {
   /**
    * "Built-in" version of Color Candles Daily.
    */
-  static double iCCD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                     Indicator<ColorCandlesDailyParams> *_obj = NULL) {
+  static double iCCD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorCandlesDaily");
     return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }

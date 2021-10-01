@@ -52,7 +52,7 @@ class Indi_ColorBars : public Indicator<ColorBarsParams> {
    * "Built-in" version of Color Bars.
    */
   static double iColorBars(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                           Indicator<ColorBarsParams> *_obj = NULL) {
+                           IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorCandlesDaily");
     return iColorBarsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }

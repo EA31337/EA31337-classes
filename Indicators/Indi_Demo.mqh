@@ -40,7 +40,6 @@ struct DemoIndiParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetMaxModes(1);
     SetShift(_shift);
-    tf = _tf;
     switch (idstype) {
       case IDATA_ICUSTOM:
         if (custom_indi_name == "") {
@@ -75,20 +74,10 @@ class Indi_Demo : public Indicator<DemoIndiParams> {
   Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DEMO, _tf){};
 
   /**
-   * Initialize indicator data drawing on custom data.
-   */
-  bool InitDraw() {
-    if (iparams.is_draw) {
-      draw = new DrawIndicator<DemoIndiParams>(&this);
-    }
-    return iparams.is_draw;
-  }
-
-  /**
    * Returns the indicator value.
    */
   static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                      Indicator<DemoIndiParams> *_obj = NULL) {
+                      IndicatorBase *_obj = NULL) {
     return 0.1 + (0.1 * _obj.GetBarIndex());
   }
 

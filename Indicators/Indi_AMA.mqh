@@ -47,7 +47,6 @@ struct IndiAMAParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetMaxModes(1);
     SetShift(_shift);
-    tf = _tf;
     switch (idstype) {
       case IDATA_ICUSTOM:
         if (custom_indi_name == "") {
@@ -86,7 +85,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    */
   static double iAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period, int _fast_ema_period, int _slow_ema_period,
                      int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
-                     Indicator<IndiAMAParams> *_obj = NULL) {
+                     IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iAMA(_symbol, _tf, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap), _mode, _shift);

@@ -55,7 +55,7 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Class constructor.
    */
-  Indi_Candle(CandleParams &_params) : iparams(_params), Indicator<CandleParams>(_params){};
+  Indi_Candle(CandleParams &_params) : Indicator<CandleParams>(_params){};
   Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CANDLE, _tf) { iparams.tf = _tf; };
 
   /**

@@ -66,8 +66,7 @@ class Indi_ZigZag : public Indicator<ZigZagParams> {
    * Returns value for ZigZag indicator.
    */
   static double iCustomZigZag(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _depth, int _deviation,
-                              int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0,
-                              Indicator<ZigZagParams> *_obj = NULL) {
+                              int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];

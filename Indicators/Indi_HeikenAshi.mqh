@@ -79,7 +79,7 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
    * Returns value for iHeikenAshi indicator.
    */
   static double iCustomLegacyHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift = 0,
-                                        Indicator<HeikenAshiParams> *_obj = NULL) {
+                                        IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     // Low and High prices could be in reverse order when using MT4's built-in indicator, so we need to retrieve both
     // and return correct one.
@@ -159,8 +159,8 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
   /**
    * OnCalculate() method for Mass Index indicator.
    */
-  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtLBuffer,
-                       ValueStorage<double> &ExtHBuffer, ValueStorage<double> &ExtOBuffer,
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtOBuffer,
+                       ValueStorage<double> &ExtHBuffer, ValueStorage<double> &ExtLBuffer,
                        ValueStorage<double> &ExtCBuffer, ValueStorage<double> &ExtColorBuffer) {
     int start;
     // Preliminary calculations.
@@ -199,6 +199,23 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
+#ifdef __MQL4__
+        // Converting MQL4's enum into MQL5 one, as OnCalculate uses further one.
+        switch (_mode) {
+          case HA_OPEN:
+            _mode = (ENUM_HA_MODE)0;
+            break;
+          case HA_HIGH:
+            _mode = (ENUM_HA_MODE)1;
+            break;
+          case HA_LOW:
+            _mode = (ENUM_HA_MODE)2;
+            break;
+          case HA_CLOSE:
+            _mode = (ENUM_HA_MODE)3;
+            break;
+        }
+#endif
         _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:

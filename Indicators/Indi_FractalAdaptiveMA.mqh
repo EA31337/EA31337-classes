@@ -59,7 +59,7 @@ class Indi_FrAMA : public Indicator<FrIndiAMAParams> {
    * Built-in version of FrAMA.
    */
   static double iFrAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                       int _mode = 0, int _shift = 0, Indicator<FrIndiAMAParams> *_obj = NULL) {
+                       int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
 #else

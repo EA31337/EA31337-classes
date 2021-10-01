@@ -84,7 +84,7 @@ class Indi_MA : public Indicator<MAParams> {
    */
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
                     ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_array, int _shift = 0,
-                    Indicator<MAParams> *_obj = NULL) {
+                    IndicatorBase *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array, _shift);
@@ -121,7 +121,7 @@ class Indi_MA : public Indicator<MAParams> {
   /**
    * Calculates MA on another indicator.
    */
-  static double iMAOnIndicator(IndicatorCalculateCache<double> *cache, Indicator<MAParams> *indi, int indi_mode,
+  static double iMAOnIndicator(IndicatorCalculateCache<double> *cache, IndicatorBase *indi, int indi_mode,
                                string symbol, ENUM_TIMEFRAMES tf, unsigned int ma_period, unsigned int ma_shift,
                                ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                int shift = 0) {

@@ -96,7 +96,7 @@ class Indi_Bands : public Indicator<BandsParams> {
    */
   static double iBands(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
                        ENUM_APPLIED_PRICE _applied_price, ENUM_BANDS_LINE _mode = BAND_BASE, int _shift = 0,
-                       Indicator<BandsParams> *_obj = NULL) {
+                       IndicatorBase *_obj = NULL) {
     ResetLastError();
 
 #ifdef __MQL4__
@@ -136,8 +136,7 @@ class Indi_Bands : public Indicator<BandsParams> {
    *
    * When _applied_price is set to -1, method will
    */
-  template <typename IT>
-  static double iBandsOnIndicator(Indicator<IT> *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+  static double iBandsOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                   double _deviation, int _bands_shift,
                                   ENUM_BANDS_LINE _mode,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
@@ -241,20 +240,17 @@ class Indi_Bands : public Indicator<BandsParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            Indi_Bands::iBands(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                               GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
+                                    GetAppliedPrice(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         iparams.custom_indi_name, /* [ */ GetPeriod(), GetBandsShift(), GetDeviation(),
-                         GetAppliedPrice() /* ] */, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
+                         GetBandsShift(), GetDeviation(), GetAppliedPrice() /* ] */, _mode, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
-        _value = Indi_Bands::iBandsOnIndicator(indi_src, Get<string>(CHART_PARAM_SYMBOL),
-                                               Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetDeviation(),
-                                               GetBandsShift(), _mode, _shift, &this);
+        _value = Indi_Bands::iBandsOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
+                                               GetBandsShift(), _mode, _shift, THIS_PTR);
         break;
     }
     istate.is_changed = false;
@@ -300,8 +296,7 @@ class Indi_Bands : public Indicator<BandsParams> {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  /* @fixme
-  virtual Indicator *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
       BandsParams bands_params();
       return new Indi_Bands(bands_params);
@@ -325,9 +320,8 @@ class Indi_Bands : public Indicator<BandsParams> {
       return new Indi_StdDev(stddev_params);
     }
 
-    return Indicator::FetchDataSource(_id);
+    return IndicatorBase::FetchDataSource(_id);
   }
-  */
 
   /* Getters */
 

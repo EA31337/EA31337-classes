@@ -64,7 +64,7 @@ class Indi_SAR : public Indicator<SARParams> {
    * - https://www.mql5.com/en/docs/indicators/isar
    */
   static double iSAR(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, double _step = 0.02,
-                     double _max = 0.2, int _shift = 0, Indicator<SARParams> *_obj = NULL) {
+                     double _max = 0.2, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iSAR(_symbol, _tf, _step, _max, _shift);
 #else  // __MQL5__
@@ -110,6 +110,7 @@ class Indi_SAR : public Indicator<SARParams> {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetStep(),
+                         GetMax() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

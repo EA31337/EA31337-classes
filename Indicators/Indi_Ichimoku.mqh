@@ -101,7 +101,7 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
    * - https://www.mql5.com/en/docs/indicators/iichimoku
    */
   static double iIchimoku(string _symbol, ENUM_TIMEFRAMES _tf, int _tenkan_sen, int _kijun_sen, int _senkou_span_b,
-                          int _mode, int _shift = 0, Indicator<IchimokuParams> *_obj = NULL) {
+                          int _mode, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
 #else  // __MQL5__

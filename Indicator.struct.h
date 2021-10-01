@@ -31,6 +31,7 @@
 #endif
 
 // Forward declaration.
+template <typename TS>
 class Indicator;
 struct ChartParams;
 
@@ -369,7 +370,6 @@ struct IndicatorParams {
   int indi_data_source_mode;            // Mode used as input from data source.
   bool indi_managed;                    // Whether indicator should be owned by indicator.
   ARRAY(DataParamEntry, input_params);  // Indicator input params.
-  int indi_mode;                        // Index of indicator data to be used as data source.
   bool is_draw;                         // Draw active.
   int draw_window;                      // Drawing window.
   string custom_indi_name;              // Name of the indicator passed to iCustom() method.
@@ -389,7 +389,6 @@ struct IndicatorParams {
         itype(_itype),
         is_draw(false),
         indi_color(clrNONE),
-        indi_mode(0),
         draw_window(0) {
     SetDataSourceType(_idstype);
     Init();
@@ -406,7 +405,6 @@ struct IndicatorParams {
         indi_data_source_mode(0),
         is_draw(false),
         indi_color(clrNONE),
-        indi_mode(0),
         draw_window(0) {
     SetDataSourceType(_idstype);
     Init();

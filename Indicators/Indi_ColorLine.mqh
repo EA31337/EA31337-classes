@@ -53,7 +53,7 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
    * "Built-in" version of Color Line.
    */
   static double iColorLine(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                           Indicator<ColorLineParams> *_obj = NULL) {
+                           IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorLine");
 
     Indi_MA *_indi_ma = Indi_MA::GetCached(_symbol, _tf, 10, 0, MODE_EMA, PRICE_CLOSE);
@@ -65,7 +65,7 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
    * Calculates Color Line on the array of values.
    */
   static double iColorLineOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
-                                  IndicatorCalculateCache<double> *_cache, Indi_ColorLine *_indi_ma,
+                                  IndicatorCalculateCache<double> *_cache, IndicatorBase *_indi_ma,
                                   bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -87,12 +87,13 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
    * OnCalculate() method for Color Line indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtColorLineBuffer,
-                       ValueStorage<double> &ExtColorsBuffer, Indi_ColorLine *ExtMAHandle) {
+                       ValueStorage<double> &ExtColorsBuffer, IndicatorBase *ExtMAHandle) {
     static int ticks = 0, modified = 0;
     // Check data.
     int i, calculated = BarsCalculated(ExtMAHandle, rates_total);
-    if (calculated < rates_total) {
+    if (calculated < rates_total && calculated < 1000) {
       // Not all data of ExtMAHandle is calculated.
+      Print("Not all MA data calculate for ColorLine! Expected ", rates_total, ", got only ", calculated);
       return (0);
     }
     // First calculation or number of bars was changed.

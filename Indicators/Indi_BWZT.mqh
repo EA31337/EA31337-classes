@@ -57,8 +57,7 @@ class Indi_BWZT : public Indicator<BWZTParams> {
   /**
    * Built-in version of BWZT.
    */
-  static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                      Indicator<BWZTParams> *_obj = NULL) {
+  static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_BWZT");
 
     Indi_AC *_indi_ac = Indi_AC::GetCached(_symbol, _tf);
@@ -98,7 +97,7 @@ class Indi_BWZT : public Indicator<BWZTParams> {
                        ValueStorage<double> &ExtHBuffer, ValueStorage<double> &ExtLBuffer,
                        ValueStorage<double> &ExtCBuffer, ValueStorage<double> &ExtColorBuffer,
                        ValueStorage<double> &ExtAOBuffer, ValueStorage<double> &ExtACBuffer, int DATA_LIMIT,
-                       Indicator<ACParams> *ExtACHandle, Indicator<AOParams> *ExtAOHandle) {
+                       IndicatorBase *ExtACHandle, IndicatorBase *ExtAOHandle) {
     if (rates_total < DATA_LIMIT) return (0);
     // Not all data may be calculated.
     int calculated = BarsCalculated(ExtACHandle, rates_total);

@@ -59,7 +59,7 @@ class Indi_TRIX : public Indicator<TRIXParams> {
    * Built-in version of TriX.
    */
   static double iTriX(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                      int _shift = 0, Indicator<TRIXParams> *_obj = NULL) {
+                      int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iTriX(_symbol, _tf, _ma_period, _ap), _mode, _shift);
 #else

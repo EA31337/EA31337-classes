@@ -63,7 +63,7 @@ class Indi_WPR : public Indicator<WPRParams> {
    * - https://www.mql5.com/en/docs/indicators/iwpr
    */
   static double iWPR(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                     int _shift = 0, Indicator<WPRParams> *_obj = NULL) {
+                     int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iWPR(_symbol, _tf, _period, _shift);
 #else  // __MQL5__

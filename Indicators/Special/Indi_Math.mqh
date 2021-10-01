@@ -91,8 +91,8 @@ class Indi_Math : public Indicator<MathParams> {
   /**
    * Class constructor.
    */
-  Indi_Math(MathParams &_params) : Indicator<MathParams>(_params) { };
-  Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_SPECIAL_MATH, _tf) { };
+  Indi_Math(MathParams &_params) : Indicator<MathParams>(_params){};
+  Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_SPECIAL_MATH, _tf){};
 
   /**
    * Returns the indicator's value.
@@ -166,18 +166,17 @@ class Indi_Math : public Indicator<MathParams> {
     return _param;
   }
 
-  static double iMathOnIndicator(Indicator<IndicatorParams> *_indi, string _symbol, ENUM_TIMEFRAMES _tf,
-                                 ENUM_MATH_OP op, unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
+  static double iMathOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_MATH_OP op,
+                                 unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
                                  unsigned int _shift_2, unsigned int _mode, int _shift, Indi_Math *_obj) {
     double _val_1 = _indi.GetValue<double>(_shift_1, _mode_1);
     double _val_2 = _indi.GetValue<double>(_shift_2, _mode_2);
     return Math::Op(op, _val_1, _val_2);
   }
 
-  static double iMathOnIndicator(Indicator<IndicatorParams> *_indi, string _symbol, ENUM_TIMEFRAMES _tf,
-                                 MathCustomOpFunction _op, unsigned int _mode_1, unsigned int _mode_2,
-                                 unsigned int _shift_1, unsigned int _shift_2, unsigned int _mode, int _shift,
-                                 Indi_Math *_obj) {
+  static double iMathOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, MathCustomOpFunction _op,
+                                 unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
+                                 unsigned int _shift_2, unsigned int _mode, int _shift, Indi_Math *_obj) {
     double _val_1 = _indi.GetValue<double>(_shift_1, _mode_1);
     double _val_2 = _indi.GetValue<double>(_shift_2, _mode_2);
     return _op(_val_1, _val_2);

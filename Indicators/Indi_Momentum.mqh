@@ -75,7 +75,7 @@ class Indi_Momentum : public Indicator<MomentumParams> {
    * - https://www.mql5.com/en/docs/indicators/imomentum
    */
   static double iMomentum(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _ap,
-                          int _shift = 0, Indicator<MomentumParams> *_obj = NULL) {
+                          int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMomentum(_symbol, _tf, _period, _ap, _shift);
 #else  // __MQL5__
@@ -108,10 +108,10 @@ class Indi_Momentum : public Indicator<MomentumParams> {
 #endif
   }
 
-  static double iMomentumOnIndicator(Indicator<MomentumParams> *_indi, string _symbol, ENUM_TIMEFRAMES _tf,
-                                     unsigned int _period, int _mode, int _shift = 0) {
+  static double iMomentumOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+                                     int _mode, int _shift = 0) {
     double _indi_value_buffer[];
-    IndicatorDataEntry _entry(_indi.GetParams().GetMaxModes());
+    IndicatorDataEntry _entry(_indi.GetModeCount());
 
     _period += 1;
 
