@@ -103,6 +103,7 @@ struct StgParams {
         lot_size_factor(1.0),
         max_risk(1.0),
         max_spread(0.0),
+        shift(0),
         tp_max(0),
         sl_max(0),
         type(0),

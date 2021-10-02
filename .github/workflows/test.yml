@@ -58,6 +58,7 @@ jobs:
           - BufferStructTest
           - BufferTest
           - ChartTest
+          - CompileIndicatorsTest
           - ConditionTest
           - DatabaseTest
           - DrawIndicatorTest
@@ -188,7 +189,6 @@ jobs:
       matrix:
         test:
           - CollectionTest
-          - CompileIndicatorsTest
           - ConfigTest
           - ConvertTest
           - DateTimeTest

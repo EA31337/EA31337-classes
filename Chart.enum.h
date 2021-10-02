@@ -88,20 +88,6 @@ enum ENUM_TIMEFRAMES_INDEX {
   FINAL_ENUM_TIMEFRAMES_INDEX = 21
 };
 
-/* Define type of periods using bitwise operators. */
-enum ENUM_TIMEFRAMES_BITS {
-  M1B = 1 << 0,   //   =1: 1 minute
-  M5B = 1 << 1,   //   =2: 5 minutes
-  M15B = 1 << 2,  //   =4: 15 minutes
-  M30B = 1 << 3,  //   =8: 30 minutes
-  H1B = 1 << 4,   //  =16: 1 hour
-  H4B = 1 << 5,   //  =32: 4 hours
-  H8B = 1 << 6,   //  =64: 8 hours
-  D1B = 1 << 7,   // =128: Daily
-  W1B = 1 << 8,   // =256: Weekly
-  MN1B = 1 << 9,  // =512: Monthly
-};
-
 #ifndef __MQLBUILD__
 /**
  * Defines chart timeframes.
