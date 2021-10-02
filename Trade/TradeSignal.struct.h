@@ -56,6 +56,7 @@ struct TradeSignalEntry {
   ENUM_TIMEFRAMES tf;    // Timeframe.
   float strength;        // Signal strength.
   float weight;          // Signal weight.
+  long magic_id;         // Magic identifier.
   unsigned int signals;  // Store signals (@see: ENUM_TRADE_SIGNAL_FLAG).
 
  public:
@@ -94,6 +95,7 @@ struct TradeSignalEntry {
 
   // Enumeration for strategy signal properties.
   enum ENUM_TRADE_SIGNAL_PROP {
+    TRADE_SIGNAL_PROP_MAGIC_ID,
     TRADE_SIGNAL_PROP_SIGNALS,
     TRADE_SIGNAL_PROP_STRENGTH,
     TRADE_SIGNAL_PROP_TF,
@@ -107,15 +109,18 @@ struct TradeSignalEntry {
   };
 
   /* Constructor */
-  TradeSignalEntry(unsigned int _signals, float _strength = 0.0f)
-      : signals(_signals), strength(_strength), tf(PERIOD_CURRENT), weight(0.0f) {}
-  TradeSignalEntry(ENUM_TIMEFRAMES _tf = NULL, float _strength = 0.0f, float _weight = 0.0f)
-      : signals(0), strength(_strength), tf(_tf), weight(_weight) {}
+  TradeSignalEntry(unsigned int _signals, float _strength = 0.0f, long _magic_id = 0)
+      : magic_id(_magic_id), signals(_signals), strength(_strength), tf(PERIOD_CURRENT), weight(0.0f) {}
+  TradeSignalEntry(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, long _magic_id = 0, float _strength = 0.0f,
+                   float _weight = 0.0f)
+      : magic_id(_magic_id), signals(0), strength(_strength), tf(_tf), weight(_weight) {}
   TradeSignalEntry(const TradeSignalEntry &_entry) { this = _entry; }
   /* Getters */
   template <typename T>
   T Get(STRUCT_ENUM(TradeSignalEntry, ENUM_TRADE_SIGNAL_PROP) _prop) {
     switch (_prop) {
+      case TRADE_SIGNAL_PROP_MAGIC_ID:
+        return (T)magic_id;
       case TRADE_SIGNAL_PROP_SIGNALS:
         return (T)signals;
       case TRADE_SIGNAL_PROP_STRENGTH:
@@ -133,6 +138,9 @@ struct TradeSignalEntry {
   template <typename T>
   void Set(STRUCT_ENUM(TradeSignalEntry, ENUM_TRADE_SIGNAL_PROP) _prop, T _value) {
     switch (_prop) {
+      case TRADE_SIGNAL_PROP_MAGIC_ID:
+        magic_id = (long)_value;
+        return;
       case TRADE_SIGNAL_PROP_SIGNALS:
         signals = (unsigned int)_value;
         return;
