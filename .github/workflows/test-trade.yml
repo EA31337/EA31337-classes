@@ -22,7 +22,7 @@ jobs:
         uses: fx31337/mql-compile-action@master
         with:
           init-platform: true
-          path: 'Trade/'
+          path: 'Trade/tests'
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
