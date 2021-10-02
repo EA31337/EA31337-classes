@@ -39,7 +39,9 @@ class TradeSignal {
   /**
    * Class constructor.
    */
-  TradeSignal(const TradeSignalEntry &_signal) : signal(_signal) {}
+  TradeSignal() {}
+  TradeSignal(const TradeSignalEntry &_entry) : signal(_entry) {}
+  TradeSignal(const TradeSignal &_signal) : signal(_signal.GetSignal()) {}
 
   /* Getters */
 
@@ -53,8 +55,13 @@ class TradeSignal {
    */
   template <typename TV>
   TV Get(STRUCT_ENUM(TradeSignalEntry, ENUM_TRADE_SIGNAL_PROP) _prop) {
-    signal.Get<TV>(_prop);
+    return signal.Get<TV>(_prop);
   }
+
+  /**
+   * Gets a signal entry.
+   */
+  TradeSignalEntry GetSignal() const { return signal; }
 
   /* Setters */
 
@@ -154,7 +161,7 @@ class TradeSignal {
   /* Serializers */
 
   /**
-   * Serialize an instance class.
+   * Serializes this class.
    *
    * @return
    *   Returns a JSON serialized instance.
@@ -165,7 +172,7 @@ class TradeSignal {
   }
 
   /**
-   * Converts the signal to a string.
+   * Converts this class into a string.
    *
    * @return
    *   Returns a JSON serialized signal.

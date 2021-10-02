@@ -26,7 +26,6 @@
 
 // Includes.
 #include "../../Test.mqh"
-#include "../../Trade.mqh"
 #include "../TradeSignal.h"
 
 // Test signals to close buy trade with filters.

@@ -27,24 +27,26 @@
 
 // Includes.
 #include "../Serializer.mqh"
+#include "../SerializerConverter.mqh"
+#include "../SerializerJson.mqh"
 
 // Defines.
-#define SIGNAL_CLOSE_BUY_SIGNAL STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_BUY_SIGNAL)
-#define SIGNAL_CLOSE_BUY_MAIN STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_BUY_MAIN)
 #define SIGNAL_CLOSE_BUY_FILTER STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_BUY_FILTER)
+#define SIGNAL_CLOSE_BUY_MAIN STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_BUY_MAIN)
+#define SIGNAL_CLOSE_BUY_SIGNAL STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_BUY_SIGNAL)
 #define SIGNAL_CLOSE_DOWNWARDS STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_DOWNWARDS)
-#define SIGNAL_CLOSE_SELL_SIGNAL STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_SELL_SIGNAL)
-#define SIGNAL_CLOSE_SELL_MAIN STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_SELL_MAIN)
 #define SIGNAL_CLOSE_SELL_FILTER STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_SELL_FILTER)
+#define SIGNAL_CLOSE_SELL_MAIN STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_SELL_MAIN)
+#define SIGNAL_CLOSE_SELL_SIGNAL STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_SELL_SIGNAL)
 #define SIGNAL_CLOSE_TIME_FILTER STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_TIME_FILTER)
 #define SIGNAL_CLOSE_UPWARDS STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_UPWARDS)
-#define SIGNAL_OPEN_BUY_SIGNAL STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_BUY_SIGNAL)
-#define SIGNAL_OPEN_BUY_MAIN STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_BUY_MAIN)
 #define SIGNAL_OPEN_BUY_FILTER STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_BUY_FILTER)
+#define SIGNAL_OPEN_BUY_MAIN STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_BUY_MAIN)
+#define SIGNAL_OPEN_BUY_SIGNAL STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_BUY_SIGNAL)
 #define SIGNAL_OPEN_DOWNWARDS STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_DOWNWARDS)
-#define SIGNAL_OPEN_SELL_SIGNAL STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_SELL_SIGNAL)
-#define SIGNAL_OPEN_SELL_MAIN STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_SELL_MAIN)
 #define SIGNAL_OPEN_SELL_FILTER STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_SELL_FILTER)
+#define SIGNAL_OPEN_SELL_MAIN STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_SELL_MAIN)
+#define SIGNAL_OPEN_SELL_SIGNAL STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_SELL_SIGNAL)
 #define SIGNAL_OPEN_TIME_FILTER STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_TIME_FILTER)
 #define SIGNAL_OPEN_UPWARDS STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_UPWARDS)
 
@@ -62,17 +64,18 @@ struct TradeSignalEntry {
   // Enumeration for strategy bitwise signal flags.
   enum ENUM_TRADE_SIGNAL_FLAG {
     TRADE_SIGNAL_FLAG_NONE = 0 << 0,
-    TRADE_SIGNAL_FLAG_CLOSE_BUY_MAIN = 1 << 0,     // Main signal for close buy
-    TRADE_SIGNAL_FLAG_CLOSE_BUY_FILTER = 1 << 1,   // Filter for close buy
-    TRADE_SIGNAL_FLAG_CLOSE_SELL_MAIN = 1 << 2,    // Main signal for close sell
-    TRADE_SIGNAL_FLAG_CLOSE_SELL_FILTER = 1 << 3,  // Filter for close sell
+    TRADE_SIGNAL_FLAG_CLOSE_BUY_FILTER = 1 << 0,   // Filter for close buy
+    TRADE_SIGNAL_FLAG_CLOSE_BUY_MAIN = 1 << 1,     // Main signal for close buy
+    TRADE_SIGNAL_FLAG_CLOSE_SELL_FILTER = 1 << 2,  // Filter for close sell
+    TRADE_SIGNAL_FLAG_CLOSE_SELL_MAIN = 1 << 3,    // Main signal for close sell
     TRADE_SIGNAL_FLAG_CLOSE_TIME_FILTER = 1 << 4,  // Time filter to close
-    TRADE_SIGNAL_FLAG_OPEN_BUY_MAIN = 1 << 5,      // Main signal for close buy
+    TRADE_SIGNAL_FLAG_EXPIRED = 1 << 5,            // Signal expired
     TRADE_SIGNAL_FLAG_OPEN_BUY_FILTER = 1 << 6,    // Filter for close buy
-    TRADE_SIGNAL_FLAG_OPEN_SELL_MAIN = 1 << 7,     // Main signal for close sell
+    TRADE_SIGNAL_FLAG_OPEN_BUY_MAIN = 1 << 7,      // Main signal for close buy
     TRADE_SIGNAL_FLAG_OPEN_SELL_FILTER = 1 << 8,   // Filter for close sell
-    TRADE_SIGNAL_FLAG_OPEN_TIME_FILTER = 1 << 9,   // Time filter to open
-    TRADE_SIGNAL_FLAG_PROCESSED = 1 << 10,         // Signal proceed
+    TRADE_SIGNAL_FLAG_OPEN_SELL_MAIN = 1 << 9,     // Main signal for close sell
+    TRADE_SIGNAL_FLAG_OPEN_TIME_FILTER = 1 << 10,  // Time filter to open
+    TRADE_SIGNAL_FLAG_PROCESSED = 1 << 11,         // Signal proceed
     // Pre-defined signal conditions.
     TRADE_SIGNAL_FLAG_CLOSE_BUY_SIGNAL =
         TRADE_SIGNAL_FLAG_CLOSE_BUY_MAIN ^ (TRADE_SIGNAL_FLAG_CLOSE_BUY_FILTER | TRADE_SIGNAL_FLAG_CLOSE_TIME_FILTER),
@@ -112,7 +115,7 @@ struct TradeSignalEntry {
   /* Getters */
   template <typename T>
   T Get(STRUCT_ENUM(TradeSignalEntry, ENUM_TRADE_SIGNAL_PROP) _prop) {
-    switch (_param) {
+    switch (_prop) {
       case TRADE_SIGNAL_PROP_SIGNALS:
         return (T)signals;
       case TRADE_SIGNAL_PROP_STRENGTH:
@@ -129,7 +132,7 @@ struct TradeSignalEntry {
   /* Setters */
   template <typename T>
   void Set(STRUCT_ENUM(TradeSignalEntry, ENUM_TRADE_SIGNAL_PROP) _prop, T _value) {
-    switch (_param) {
+    switch (_prop) {
       case TRADE_SIGNAL_PROP_SIGNALS:
         signals = (unsigned int)_value;
         return;
