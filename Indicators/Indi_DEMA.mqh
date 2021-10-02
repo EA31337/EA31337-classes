@@ -80,7 +80,7 @@ class Indi_DEMA : public Indicator<DEMAParams> {
    * Class constructor.
    */
   Indi_DEMA(DEMAParams &_p) : Indicator<DEMAParams>(_p) {}
-  Indi_DEMA(DEMAParams &_p, ENUM_TIMEFRAMES _tf) : Indicator(INDI_DEMA, _tf) {}
+  Indi_DEMA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DEMA, _tf) {}
 
   /**
    * Updates the indicator value.
@@ -125,9 +125,9 @@ class Indi_DEMA : public Indicator<DEMAParams> {
 #endif
   }
 
-  static double iDEMAOnIndicator(IndicatorCalculateCache<double> *cache, IndicatorBase *indi, int indi_mode,
+  static double iDEMAOnIndicator(IndicatorCalculateCache<double> *cache, IndicatorBase *_indi, int indi_mode,
                                  unsigned int ma_period, unsigned int ma_shift, int shift) {
-    return iDEMAOnArray(indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, shift, cache);
+    return iDEMAOnArray(_indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, shift, cache);
   }
 
   static double iDEMAOnArray(ValueStorage<double> &price, int total, unsigned int ma_period, unsigned int ma_shift,

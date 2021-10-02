@@ -75,7 +75,7 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
    * Class constructor.
    */
   Indi_Envelopes(EnvelopesParams &_p) : Indicator<EnvelopesParams>(_p) {}
-  Indi_Envelopes(EnvelopesParams &_p, ENUM_TIMEFRAMES _tf) : Indicator(INDI_ENVELOPES, _tf) {}
+  Indi_Envelopes(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ENVELOPES, _tf) {}
 
   /**
    * Returns the indicator value.

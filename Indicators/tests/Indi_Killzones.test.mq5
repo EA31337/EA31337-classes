@@ -28,7 +28,7 @@
  * Test functionality of Indi_Killzones indicator class.
  */
 
-Indi_Killzones indi(PERIOD_CURRENT, 1);
+Indi_Killzones indi(PERIOD_CURRENT);
 
 /**
  * Implements Init event handler.

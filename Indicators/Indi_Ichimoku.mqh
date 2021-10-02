@@ -87,7 +87,7 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
    * Class constructor.
    */
   Indi_Ichimoku(IchimokuParams &_p) : Indicator<IchimokuParams>(_p) {}
-  Indi_Ichimoku(IchimokuParams &_p, ENUM_TIMEFRAMES _tf) : Indicator(INDI_ICHIMOKU, _tf) {}
+  Indi_Ichimoku(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ICHIMOKU, _tf) {}
 
   /**
    * Returns the indicator value.

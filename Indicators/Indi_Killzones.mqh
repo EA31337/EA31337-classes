@@ -93,19 +93,16 @@ struct Indi_Killzones_Time : MarketTimeForex {
 /**
  * Implements Pivot Detector.
  */
-class Indi_Killzones : public Indicator {
+class Indi_Killzones : public Indicator<IndiKillzonesParams> {
  protected:
   Indi_Killzones_Time ikt;
-  IndiKillzonesParams iparams;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Killzones(IndiKillzonesParams &_params) : iparams(_params), Indicator((IndicatorParams)_params){};
-  Indi_Killzones(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_KILLZONES, _tf, _shift) {
-    iparams.tf = _tf;
-  };
+  Indi_Killzones(IndiKillzonesParams &_p) : Indicator<IndiKillzonesParams>(_p) {}
+  Indi_Killzones(ENUM_TIMEFRAMES _tf) : Indicator(INDI_KILLZONES, _tf) {}
 
   /**
    * Returns the indicator's value.
@@ -114,7 +111,7 @@ class Indi_Killzones : public Indicator {
     ResetLastError();
     float _value = FLT_MAX;
     int _index = (int)floor(_mode / 2);
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // Builtin mode not supported.
         SetUserError(ERR_INVALID_PARAMETER);
@@ -149,7 +146,7 @@ class Indi_Killzones : public Indicator {
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(iparams.GetMaxModes());
       _entry.timestamp = GetBarTime(_shift);
-      for (unsigned int _mode = 0; _mode < iparams.GetMaxModes(); _mode++) {
+      for (unsigned int _mode = 0; _mode < (uint)iparams.GetMaxModes(); _mode++) {
         float _value = GetValue(_mode, _shift);
         if (IsValidValue(_value, _mode, _shift)) {
           _entry.values[_mode] = _value;
