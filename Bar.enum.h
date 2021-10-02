@@ -38,5 +38,4 @@ enum ENUM_PP_TYPE {
   PP_FLOOR = 4,       // Most basic and popular type of pivots used in Forex trading technical analysis
   PP_TOM_DEMARK = 5,  // Tom DeMark's pivot point (predicted lows and highs of the period)
   PP_WOODIE = 6,      // Woodie's pivot point are giving more weight to the Close price of the previous period
-  FINAL_ENUM_PP_TYPE_ENTRY
 };

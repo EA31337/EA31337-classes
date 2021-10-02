@@ -104,11 +104,10 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
 
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
 
-      istate.is_ready = true;
-
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
+        istate.is_ready = true;
       }
     }
     return _entry;
@@ -118,8 +117,8 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    * Returns the indicator's entry value.
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_INT};
-    _param.integer_value = GetEntry(_shift).GetValue<int>(_mode);
+    MqlParam _param = {TYPE_FLOAT};
+    _param.double_value = GetEntry(_shift).GetValue<float>(_mode);
     return _param;
   }
 

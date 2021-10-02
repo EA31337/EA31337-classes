@@ -742,7 +742,9 @@ class EA {
           Order *_order = oiter.Value().Ptr();
           if (!_order.ShouldUpdate()) {
             continue;
-          } else if (_order.IsClosed()) {
+          }
+          _order.ProcessConditions();
+          if (_order.IsClosed()) {
             _trade.OrderMoveToHistory(_order);
             continue;
           }

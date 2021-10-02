@@ -2581,9 +2581,9 @@ class Order : public SymbolInfo {
   /**
    * Process order conditions.
    */
-  bool ProcessConditions() {
+  bool ProcessConditions(bool _refresh = false) {
     bool _result = true;
-    if (IsOpen() && ShouldCloseOrder()) {
+    if (IsOpen(_refresh) && ShouldCloseOrder()) {
       string _reason = "Close condition";
 #ifdef __MQL__
       // _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
