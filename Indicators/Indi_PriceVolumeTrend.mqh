@@ -23,6 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.all.h"
 
 // Structs.
 struct PriceVolumeTrendParams : IndicatorParams {

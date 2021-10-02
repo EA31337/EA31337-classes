@@ -28,7 +28,7 @@
  * Test functionality of Indi_FractalAdaptiveMA indicator class.
  */
 
-Indi_FractalAdaptiveMA indi(PERIOD_CURRENT);
+Indi_FrAMA indi(PERIOD_CURRENT);
 
 /**
  * Implements Init event handler.

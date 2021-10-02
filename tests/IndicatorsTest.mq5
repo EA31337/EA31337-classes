@@ -264,7 +264,7 @@ bool InitIndicators() {
   indis.Push(new Indi_Fractals());
 
   // Fractal Adaptive Moving Average (FRAMA).
-  FrIndiAMAParams frama_params();
+  IndiFrAMAParams frama_params();
   indis.Push(new Indi_FrAMA(frama_params));
 
   // Gator Oscillator.

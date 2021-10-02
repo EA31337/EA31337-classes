@@ -23,6 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.all.h"
 #include "Indi_ATR.mqh"
 
 // Structs.

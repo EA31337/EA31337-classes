@@ -23,6 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.price.h"
 
 // Structs.
 struct RateOfChangeParams : IndicatorParams {
