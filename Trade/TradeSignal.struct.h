@@ -109,11 +109,9 @@ struct TradeSignalEntry {
   };
 
   /* Constructor */
-  TradeSignalEntry(unsigned int _signals, float _strength = 0.0f, long _magic_id = 0)
-      : magic_id(_magic_id), signals(_signals), strength(_strength), tf(PERIOD_CURRENT), weight(0.0f) {}
-  TradeSignalEntry(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, long _magic_id = 0, float _strength = 0.0f,
-                   float _weight = 0.0f)
-      : magic_id(_magic_id), signals(0), strength(_strength), tf(_tf), weight(_weight) {}
+  TradeSignalEntry(unsigned int _signals = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, long _magic_id = 0,
+                   float _strength = 0.0f, float _weight = 0.0f)
+      : magic_id(_magic_id), signals(_signals), strength(_strength), tf(_tf), weight(_weight) {}
   TradeSignalEntry(const TradeSignalEntry &_entry) { this = _entry; }
   /* Getters */
   template <typename T>

@@ -106,14 +106,11 @@ int OnInit() {
  */
 void OnTick() {
   if (stg_rsi.TickFilter(SymbolInfoStatic::GetTick(_Symbol), 1)) {
-    StrategySignal _signal = stg_rsi.ProcessSignals();
-    if (_signal.CheckSignals(STRAT_SIGNAL_OPEN_BUY)) {
-      assertTrueOrExit(_signal.GetOpenDirection() == 1, "Wrong order open direction!");
+    if (stg_rsi.SignalOpen(ORDER_TYPE_BUY)) {
       MqlTradeRequest _request =
           trade.GetTradeOpenRequest(ORDER_TYPE_BUY, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
       trade.RequestSend(_request);
-    } else if (_signal.CheckSignals(STRAT_SIGNAL_OPEN_SELL)) {
-      assertTrueOrExit(_signal.GetOpenDirection() == -1, "Wrong order open direction!");
+    } else if (stg_rsi.SignalOpen(ORDER_TYPE_SELL)) {
       MqlTradeRequest _request =
           trade.GetTradeOpenRequest(ORDER_TYPE_SELL, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
       trade.RequestSend(_request);

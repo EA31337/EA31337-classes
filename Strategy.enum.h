@@ -80,7 +80,8 @@ enum ENUM_STRATEGY_PARAM {
   STRAT_PARAM_PPM,         // Signal profit method
   STRAT_PARAM_PSL,         // Price stop level
   STRAT_PARAM_PSM,         // Price stop method
-  STRAT_PARAM_SCF,         // Signal close filter
+  STRAT_PARAM_SCFM,        // Signal close filter method
+  STRAT_PARAM_SCFT,        // Signal close filter time
   STRAT_PARAM_SCL,         // Signal close level
   STRAT_PARAM_SCM,         // Signal close method
   STRAT_PARAM_SHIFT,       // Shift
