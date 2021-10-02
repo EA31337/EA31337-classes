@@ -359,14 +359,15 @@ class Indicator : public IndicatorBase {
   void ValidateDataSourceMode(int& _out_mode) {
     if (_out_mode == -1) {
       // First mode will be used by default, or, if selected indicator has more than one mode, error will happen.
-      if (iparams.max_modes != 1) {
+      if (iparams.GetMaxModes() != 1) {
         Alert("Error: ", GetName(), " must have exactly one possible mode in order to skip using SetDataSourceMode()!");
         DebugBreak();
       }
       _out_mode = 0;
-    } else if (_out_mode + 1 > (int)iparams.max_modes) {
-      Alert("Error: ", GetName(), " have ", iparams.max_modes, " mode(s) buy you tried to reference mode with index ",
-            _out_mode, "! Ensure that you properly set mode via SetDataSourceMode().");
+    } else if (_out_mode + 1 > (int)iparams.GetMaxModes()) {
+      Alert("Error: ", GetName(), " have ", iparams.GetMaxModes(),
+            " mode(s) buy you tried to reference mode with index ", _out_mode,
+            "! Ensure that you properly set mode via SetDataSourceMode().");
       DebugBreak();
     }
   }
@@ -465,19 +466,9 @@ class Indicator : public IndicatorBase {
   }
 
   /**
-   * Get indicator type.
-   */
-  ENUM_INDICATOR_TYPE GetType() { return iparams.itype; }
-
-  /**
    * Get pointer to data of indicator.
    */
   BufferStruct<IndicatorDataEntry>* GetData() { return GetPointer(idata); }
-
-  /**
-   * Get data type of indicator.
-   */
-  ENUM_DATATYPE GetDataType() { return iparams.dtype; }
 
   /**
    * Get name of the indicator.
@@ -510,7 +501,7 @@ class Indicator : public IndicatorBase {
         break;
     }
 
-    name += IntegerToString(iparams.max_modes) + (iparams.max_modes == 1 ? " mode" : " modes");
+    name += IntegerToString(iparams.GetMaxModes()) + (iparams.GetMaxModes() == 1 ? " mode" : " modes");
 
     return name + ")";
   }
@@ -765,7 +756,7 @@ class Indicator : public IndicatorBase {
 
     if (iparams.is_draw) {
       // Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
-      for (int i = 0; i < (int)iparams.max_modes; ++i)
+      for (int i = 0; i < (int)iparams.GetMaxModes(); ++i)
         draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.GetDataSourceMode()),
                         GetBarTime(0), GetEntry(0)[i], iparams.draw_window);
     }
@@ -797,7 +788,7 @@ class Indicator : public IndicatorBase {
    * Returns the indicator's struct value.
    */
   virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    IndicatorDataEntry _entry(iparams.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     _entry = idata.GetByKey(GetBarTime(_shift), _entry);
     return _entry;
   };

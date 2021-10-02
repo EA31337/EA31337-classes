@@ -93,8 +93,8 @@ class Strategy : public Object {
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
-  Dict<int, IndicatorBase *> indicators_unmanaged;                      // Indicators list (unmanaged).
-  DictStruct<int, Ref<Indicator<IndicatorParams>>> indicators_managed;  // Indicators list (managed).
+  Dict<int, IndicatorBase *> indicators_unmanaged;         // Indicators list (unmanaged).
+  DictStruct<int, Ref<IndicatorBase>> indicators_managed;  // Indicators list (managed).
   DictStruct<short, TaskEntry> tasks;
   Log logger;  // Log instance.
   MqlTick last_tick;
@@ -322,7 +322,7 @@ class Strategy : public Object {
   /**
    * Returns strategy's indicators.
    */
-  DictStruct<int, Ref<Indicator<IndicatorParams>>> GetIndicators() { return indicators_managed; }
+  DictStruct<int, Ref<IndicatorBase>> GetIndicators() { return indicators_managed; }
 
   /* Struct getters */
 
@@ -587,10 +587,9 @@ class Strategy : public Object {
   /**
    * Sets reference to indicator.
    */
-  template <typename TS>
   void SetIndicator(IndicatorBase *_indi, int _id = 0, bool _managed = true) {
     if (_managed) {
-      Ref<Indicator<TS>> _ref = _indi;
+      Ref<IndicatorBase> _ref = _indi;
       indicators_managed.Set(_id, _ref);
     } else {
       indicators_unmanaged.Set(_id, _indi);
