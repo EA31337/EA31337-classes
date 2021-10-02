@@ -63,7 +63,6 @@ class EA {
 
   // Data variables.
   BufferStruct<ChartEntry> data_chart;
-  BufferStruct<DictStruct<short, StrategySignal>> strat_signals;
   BufferStruct<SymbolInfoEntry> data_symbol;
   Dict<string, double> ddata;  // Custom user data.
   Dict<string, int> idata;     // Custom user data.
@@ -130,17 +129,17 @@ class EA {
   }
 
   /**
-   * Process strategy's signal entry.
+   * Gets a strategy's signal entry.
    *
-   * @param bool _should_open
-   *   True if method should open the orders, otherwise only process the signals.
-   * @param bool _should_close
-   *   True if method should close the orders, otherwise only process the signals.
+   * @param Strategy _strat
+   *   Reference to strategy to get the signal from.
+   * @param bool _trade_allowed
+   *   True if trade is allowed.
    * @param int _shift
    *   Bar shift.
    *
    * @return
-   *   Returns StrategySignal struct.
+   *   Returns TradeSignalEntry struct.
    */
   TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, bool _trade_allowed = true, int _shift = -1) {
     // float _bf = 1.0;
@@ -156,7 +155,6 @@ class EA {
     int _som = _strat.Get<int>(STRAT_PARAM_SOM);
     int _ss = _shift >= 0 ? _shift : _strat.Get<int>(STRAT_PARAM_SHIFT);
     unsigned int _signals = 0;
-    // StrategySignal _signal(THIS_PTR, trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
     // sparams.Get<float>(STRAT_PARAM_WEIGHT));
     if (_trade_allowed) {
       // Process boost factor and lot size.
@@ -246,7 +244,6 @@ class EA {
     bool _result = true;
     int _last_error = ERR_NO_ERROR;
     ResetLastError();
-    // DictStruct<short, StrategySignal> _ds = strat_signals.GetByKey(_tick.time);
     for (DictObjectIterator<int, TradeSignal> _iter = tsm.GetIterSignalsActive(); _iter.IsValid(); ++_iter) {
       bool _result_local = true;
       TradeSignal *_signal = _iter.Value();
@@ -670,17 +667,6 @@ class EA {
       }
     }
     return _result;
-  }
-  */
-
-  /**
-   * Adds strategy's signal for further processing.
-   */
-  /*
-  bool SignalAdd(StrategySignal &_signal, long _time) {
-    DictStruct<short, StrategySignal> _ds = strat_signals.GetByKey(_time);
-    _ds.Push(_signal);
-    return strat_signals.Set(_time, _ds);
   }
   */
 
@@ -1116,6 +1102,7 @@ class EA {
     }
     if ((estate.new_periods & DATETIME_HOUR) != 0) {
       // New hour started.
+      tsm.Refresh();
     }
     if ((estate.new_periods & DATETIME_DAY) != 0) {
       // New day started.
@@ -1126,7 +1113,6 @@ class EA {
     }
     if ((estate.new_periods & DATETIME_WEEK) != 0) {
       // New week started.
-      strat_signals.Clear();
     }
     if ((estate.new_periods & DATETIME_MONTH) != 0) {
       // New month started.

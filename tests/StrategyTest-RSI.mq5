@@ -50,7 +50,7 @@ class Stg_RSI : public Strategy {
     Indi_RSI *_indi = GetIndicator();
     bool _result = _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, _shift);
     _result &=
-        (_cmd == ORDER_TYPE_BUY && _indi[_shift][0] <= 30) || (_cmd == ORDER_TYPE_SELL && _indi[_shift][0] >= 70);
+        (_cmd == ORDER_TYPE_BUY && _indi[_shift][0] <= 20) || (_cmd == ORDER_TYPE_SELL && _indi[_shift][0] >= 80);
     return _result;
   }
 
