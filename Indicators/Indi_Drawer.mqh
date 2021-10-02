@@ -221,39 +221,36 @@ class Indi_Drawer : public Indicator<DrawerParams> {
     double diff;
     int _mode = _obj.GetDataSourceMode();
 
-    /*
-      @fixit
-        if (!_obj.aux_data.KeyExists(_bar_time_prev, data_position)) {
-          // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
-          double sum_gain = 0;
-          double sum_loss = 0;
+    if (!_obj.aux_data.KeyExists(_bar_time_prev, data_position)) {
+      // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
+      double sum_gain = 0;
+      double sum_loss = 0;
 
-          for (i = 1; i < (int)_period; i++) {
-            double price_new = _indi[(_shift + 1) + i - 1][_mode];
-            double price_old = _indi[(_shift + 1) + i][_mode];
+      for (i = 1; i < (int)_period; i++) {
+        double price_new = _indi[(_shift + 1) + i - 1][_mode];
+        double price_old = _indi[(_shift + 1) + i][_mode];
 
-            if (price_new == 0.0 || price_old == 0.0) {
-              // Missing history price data, skipping calculations.
-              return 0.0;
-            }
-
-            diff = price_new - price_old;
-
-            if (diff > 0) {
-              sum_gain += diff;
-            } else {
-              sum_loss += -diff;
-            }
-          }
-
-          // Calculating SMA-based values.
-          last_data.avg_gain = sum_gain / _period;
-          last_data.avg_loss = sum_loss / _period;
-        } else {
-          // Data already exists, retrieving it by position got by KeyExists().
-          last_data = _obj.aux_data.GetByPos(data_position);
+        if (price_new == 0.0 || price_old == 0.0) {
+          // Missing history price data, skipping calculations.
+          return 0.0;
         }
-    */
+
+        diff = price_new - price_old;
+
+        if (diff > 0) {
+          sum_gain += diff;
+        } else {
+          sum_loss += -diff;
+        }
+      }
+
+      // Calculating SMA-based values.
+      last_data.avg_gain = sum_gain / _period;
+      last_data.avg_loss = sum_loss / _period;
+    } else {
+      // Data already exists, retrieving it by position got by KeyExists().
+      last_data = _obj.aux_data.GetByPos(data_position);
+    }
 
     diff = _indi[_shift][_mode] - _indi[_shift + 1][_mode];
 
