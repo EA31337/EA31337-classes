@@ -450,14 +450,6 @@ class IndicatorBase : public Chart {
    */
   virtual int GetModeCount() { return 0; }
 
-  /**
-   * Gets an indicator property flag.
-   */
-  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = -1) {
-    IndicatorDataEntry _entry = GetEntry(_shift >= 0 ? _shift : iparams.GetShift());
-    return _entry.CheckFlag(_prop);
-  }
-
   /* State methods */
 
   /**

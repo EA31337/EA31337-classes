@@ -140,6 +140,16 @@ class Indicator : public IndicatorBase {
     }
   }
 
+  /* Getters */
+
+  /**
+   * Gets an indicator property flag.
+   */
+  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = -1) {
+    IndicatorDataEntry _entry = GetEntry(_shift >= 0 ? _shift : iparams.GetShift());
+    return _entry.CheckFlag(_prop);
+  }
+
   /* Buffer methods */
 
   virtual string CacheKey() { return GetName(); }
