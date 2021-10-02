@@ -61,8 +61,8 @@ struct ADXParams : IndicatorParams {
         break;
     }
   };
-  void ADXParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void ADXParams(ADXParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
   };
 };
@@ -75,7 +75,7 @@ class Indi_ADX : public Indicator<ADXParams> {
   /**
    * Class constructor.
    */
-  Indi_ADX(ADXParams &_p) : Indicator<ADXParams>(_p) {}
+  Indi_ADX(ADXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ADXParams>(_p, _indi_src) {}
   Indi_ADX(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ADX, _tf) {}
 
   /**

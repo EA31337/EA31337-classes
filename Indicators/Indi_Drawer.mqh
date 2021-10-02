@@ -48,7 +48,10 @@ class Indi_Drawer : public Indicator<DrawerParams> {
   /**
    * Class constructor.
    */
-  Indi_Drawer(const DrawerParams &_params) : Indicator<DrawerParams>(_params), redis(true) { Init(); }
+  Indi_Drawer(const DrawerParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<DrawerParams>(_p, _indi_src), redis(true) {
+    Init();
+  }
   Indi_Drawer(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DRAWER, _tf), redis(true) { Init(); }
 
   void Init() {

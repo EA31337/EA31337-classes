@@ -50,7 +50,8 @@ class Indi_RateOfChange : public Indicator<RateOfChangeParams> {
   /**
    * Class constructor.
    */
-  Indi_RateOfChange(RateOfChangeParams &_params) : Indicator<RateOfChangeParams>(_params){};
+  Indi_RateOfChange(RateOfChangeParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<RateOfChangeParams>(_p, _indi_src){};
   Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RATE_OF_CHANGE, _tf){};
 
   /**

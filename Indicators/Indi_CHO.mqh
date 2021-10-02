@@ -56,7 +56,7 @@ class Indi_CHO : public Indicator<CHOParams> {
   /**
    * Class constructor.
    */
-  Indi_CHO(CHOParams &_params) : Indicator<CHOParams>(_params){};
+  Indi_CHO(CHOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CHOParams>(_p, _indi_src){};
   Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN, _tf){};
 
   /**

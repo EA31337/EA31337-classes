@@ -49,7 +49,7 @@ class Indi_Volumes : public Indicator<VolumesParams> {
   /**
    * Class constructor.
    */
-  Indi_Volumes(VolumesParams &_params) : Indicator<VolumesParams>(_params){};
+  Indi_Volumes(VolumesParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<VolumesParams>(_p, _indi_src){};
   Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VOLUMES, _tf){};
 
   /**

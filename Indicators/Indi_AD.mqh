@@ -49,7 +49,7 @@ class Indi_AD : public Indicator<ADParams> {
   /**
    * Class constructor.
    */
-  Indi_AD(ADParams &_p) : Indicator<ADParams>(_p){};
+  Indi_AD(ADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ADParams>(_p, _indi_src){};
   Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator<ADParams>(INDI_AD, _tf) { iparams.SetTf(_tf); };
 
   /**

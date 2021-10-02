@@ -41,8 +41,8 @@ struct DrawerParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Drawer");
     SetDataValueType(TYPE_DOUBLE);
   };
-  void DrawerParams(DrawerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void DrawerParams(DrawerParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
   };
   // Serializers.

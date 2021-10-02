@@ -60,7 +60,7 @@ class Indi_Stochastic : public Indicator<StochParams> {
   /**
    * Class constructor.
    */
-  Indi_Stochastic(StochParams &_p) : Indicator<StochParams>(_p) {}
+  Indi_Stochastic(StochParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<StochParams>(_p, _indi_src) {}
   Indi_Stochastic(ENUM_TIMEFRAMES _tf) : Indicator(INDI_STOCHASTIC, _tf) {}
 
   /**

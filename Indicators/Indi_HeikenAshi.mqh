@@ -72,7 +72,7 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(HeikenAshiParams &_p) : Indicator<HeikenAshiParams>(_p) {}
+  Indi_HeikenAshi(HeikenAshiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<HeikenAshiParams>(_p, _indi_src) {}
   Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_HEIKENASHI, _tf) {}
 
   /**

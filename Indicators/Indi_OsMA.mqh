@@ -57,7 +57,7 @@ class Indi_OsMA : public Indicator<OsMAParams> {
   /**
    * Class constructor.
    */
-  Indi_OsMA(OsMAParams &_p) : Indicator<OsMAParams>(_p) {}
+  Indi_OsMA(OsMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<OsMAParams>(_p, _indi_src) {}
   Indi_OsMA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_OSMA, _tf) {}
 
   /**

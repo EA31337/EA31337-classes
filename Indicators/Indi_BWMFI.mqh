@@ -61,7 +61,7 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
   /**
    * Class constructor.
    */
-  Indi_BWMFI(BWMFIParams &_p) : Indicator<BWMFIParams>(_p) {}
+  Indi_BWMFI(BWMFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BWMFIParams>(_p, _indi_src) {}
   Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWMFI, _tf) {}
 
   /**

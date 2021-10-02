@@ -49,7 +49,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Class constructor.
    */
-  Indi_Pattern(IndiPatternParams &_params) : Indicator<IndiPatternParams>(_params){};
+  Indi_Pattern(IndiPatternParams& _p, IndicatorBase* _indi_src = NULL) : Indicator<IndiPatternParams>(_p, _indi_src){};
   Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PATTERN, _tf) { iparams.tf = _tf; };
 
   /**

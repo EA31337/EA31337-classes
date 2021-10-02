@@ -69,7 +69,7 @@ class Indi_Force : public Indicator<ForceParams> {
   /**
    * Class constructor.
    */
-  Indi_Force(ForceParams &_p) : Indicator<ForceParams>(_p) {}
+  Indi_Force(ForceParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ForceParams>(_p, _indi_src) {}
   Indi_Force(ENUM_TIMEFRAMES _tf) : Indicator(INDI_FORCE, _tf) {}
 
   /**

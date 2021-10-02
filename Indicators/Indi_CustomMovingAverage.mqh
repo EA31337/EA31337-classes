@@ -53,7 +53,8 @@ class Indi_CustomMovingAverage : public Indicator<CustomMovingAverageParams> {
   /**
    * Class constructor.
    */
-  Indi_CustomMovingAverage(CustomMovingAverageParams &_params) : Indicator<CustomMovingAverageParams>(_params){};
+  Indi_CustomMovingAverage(CustomMovingAverageParams& _p, IndicatorBase* _indi_src = NULL)
+      : Indicator<CustomMovingAverageParams>(_p, _indi_src){};
   Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM_MOVING_AVG, _tf){};
 
   /**

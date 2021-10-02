@@ -56,7 +56,7 @@ class Indi_VIDYA : public Indicator<VIDYAParams> {
   /**
    * Class constructor.
    */
-  Indi_VIDYA(VIDYAParams &_params) : Indicator<VIDYAParams>(_params){};
+  Indi_VIDYA(VIDYAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<VIDYAParams>(_p, _indi_src){};
   Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VIDYA, _tf){};
 
   /**

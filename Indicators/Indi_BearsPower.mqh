@@ -54,7 +54,7 @@ class Indi_BearsPower : public Indicator<BearsPowerParams> {
   /**
    * Class constructor.
    */
-  Indi_BearsPower(BearsPowerParams &_p) : Indicator<BearsPowerParams>(_p) {}
+  Indi_BearsPower(BearsPowerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BearsPowerParams>(_p, _indi_src) {}
   Indi_BearsPower(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BEARS, _tf) {}
 
   /**

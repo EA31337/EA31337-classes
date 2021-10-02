@@ -54,7 +54,7 @@ class Indi_BullsPower : public Indicator<BullsPowerParams> {
   /**
    * Class constructor.
    */
-  Indi_BullsPower(BullsPowerParams &_p) : Indicator<BullsPowerParams>(_p) {}
+  Indi_BullsPower(BullsPowerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BullsPowerParams>(_p, _indi_src) {}
   Indi_BullsPower(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BULLS, _tf) {}
 
   /**

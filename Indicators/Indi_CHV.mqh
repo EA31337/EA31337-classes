@@ -57,7 +57,7 @@ class Indi_CHV : public Indicator<CHVParams> {
   /**
    * Class constructor.
    */
-  Indi_CHV(CHVParams &_params) : Indicator<CHVParams>(_params){};
+  Indi_CHV(CHVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CHVParams>(_p, _indi_src){};
   Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN_V, _tf){};
 
   /**

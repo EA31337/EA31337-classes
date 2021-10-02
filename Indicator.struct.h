@@ -411,19 +411,19 @@ struct IndicatorParams {
   };
   void Init() {}
   /* Getters */
-  string GetCustomIndicatorName() { return custom_indi_name; }
-  int GetDataSourceId() { return indi_data_source_id; }
-  int GetDataSourceMode() { return indi_data_source_mode; }
-  color GetIndicatorColor() { return indi_color; }
-  int GetMaxModes() { return (int)max_modes; }
-  int GetMaxParams() { return (int)max_params; }
-  int GetShift() { return shift; }
-  ENUM_DATATYPE GetDataValueType() { return dtype; }
-  ENUM_IDATA_SOURCE_TYPE GetDataSourceType() { return idstype; }
-  ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return idvrange; }
-  ENUM_TIMEFRAMES GetTf() { return tf.GetTf(); }
+  string GetCustomIndicatorName() const { return custom_indi_name; }
+  int GetDataSourceId() const { return indi_data_source_id; }
+  int GetDataSourceMode() const { return indi_data_source_mode; }
+  color GetIndicatorColor() const { return indi_color; }
+  int GetMaxModes() const { return (int)max_modes; }
+  int GetMaxParams() const { return (int)max_params; }
+  int GetShift() const { return shift; }
+  ENUM_DATATYPE GetDataValueType() const { return dtype; }
+  ENUM_IDATA_SOURCE_TYPE GetDataSourceType() const { return idstype; }
+  ENUM_IDATA_VALUE_RANGE GetIDataValueRange() const { return idvrange; }
+  ENUM_TIMEFRAMES GetTf() const { return tf.GetTf(); }
   template <typename T>
-  T GetInputParam(int _index, T _default) {
+  T GetInputParam(int _index, T _default) const {
     DataParamEntry _param = input_params[_index];
     switch (_param.type) {
       case TYPE_BOOL:

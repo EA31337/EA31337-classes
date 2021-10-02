@@ -53,7 +53,7 @@ class Indi_AO : public Indicator<AOParams> {
   /**
    * Class constructor.
    */
-  Indi_AO(AOParams &_p) : Indicator<AOParams>(_p){};
+  Indi_AO(AOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<AOParams>(_p, _indi_src){};
   Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AO, _tf){};
 
   /**

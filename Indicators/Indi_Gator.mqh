@@ -105,7 +105,7 @@ class Indi_Gator : public Indicator<GatorParams> {
   /**
    * Class constructor.
    */
-  Indi_Gator(GatorParams &_p) : Indicator<GatorParams>(_p) {}
+  Indi_Gator(GatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<GatorParams>(_p, _indi_src) {}
   Indi_Gator(ENUM_TIMEFRAMES _tf) : Indicator(INDI_GATOR, _tf) {}
 
   /**

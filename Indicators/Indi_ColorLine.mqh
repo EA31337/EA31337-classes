@@ -47,7 +47,7 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
   /**
    * Class constructor.
    */
-  Indi_ColorLine(ColorLineParams &_params) : Indicator<ColorLineParams>(_params){};
+  Indi_ColorLine(ColorLineParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ColorLineParams>(_p, _indi_src){};
   Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_LINE, _tf){};
 
   /**

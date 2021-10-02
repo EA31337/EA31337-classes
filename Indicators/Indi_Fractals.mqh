@@ -51,7 +51,7 @@ class Indi_Fractals : public Indicator<FractalsParams> {
   /**
    * Class constructor.
    */
-  Indi_Fractals(FractalsParams &_p) : Indicator<FractalsParams>(_p) {}
+  Indi_Fractals(FractalsParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<FractalsParams>(_p, _indi_src) {}
   Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRACTALS, _tf) {}
 
   /**

@@ -54,7 +54,7 @@ class Indi_MFI : public Indicator<MFIParams> {
   /**
    * Class constructor.
    */
-  Indi_MFI(MFIParams &_p) : Indicator<MFIParams>(_p) {}
+  Indi_MFI(MFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MFIParams>(_p, _indi_src) {}
   Indi_MFI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MFI, _tf) {}
 
   /**

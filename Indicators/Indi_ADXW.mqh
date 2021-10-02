@@ -46,8 +46,8 @@ struct ADXWParams : ADXParams {
         break;
     }
   };
-  void ADXWParams(ADXWParams &_params) { THIS_REF = _params; }
-  void ADXWParams(ADXParams &_params) { THIS_REF = _params; }
+  void ADXWParams(ADXWParams &_p, IndicatorBase *_indi_src = NULL) { THIS_REF = _p; }
+  void ADXWParams(ADXParams &_p) { THIS_REF = _p; }
 };
 
 /**
@@ -58,7 +58,7 @@ class Indi_ADXW : public Indicator<ADXWParams> {
   /**
    * Class constructor.
    */
-  Indi_ADXW(ADXWParams &_params) : Indicator<ADXWParams>(_params){};
+  Indi_ADXW(ADXWParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ADXWParams>(_p, _indi_src){};
   Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADXW, _tf){};
 
   /**

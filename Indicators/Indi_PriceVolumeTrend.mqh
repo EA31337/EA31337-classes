@@ -48,7 +48,8 @@ class Indi_PriceVolumeTrend : public Indicator<PriceVolumeTrendParams> {
   /**
    * Class constructor.
    */
-  Indi_PriceVolumeTrend(PriceVolumeTrendParams &_params) : Indicator<PriceVolumeTrendParams>(_params){};
+  Indi_PriceVolumeTrend(PriceVolumeTrendParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<PriceVolumeTrendParams>(_p, _indi_src){};
   Indi_PriceVolumeTrend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE_VOLUME_TREND, _tf){};
 
   /**

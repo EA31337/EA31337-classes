@@ -41,8 +41,8 @@ struct CandleParams : IndicatorParams {
     shift = _shift;
     tf = _tf;
   };
-  void CandleParams(CandleParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void CandleParams(CandleParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
   };
 };
@@ -55,7 +55,7 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Class constructor.
    */
-  Indi_Candle(CandleParams &_params) : Indicator<CandleParams>(_params){};
+  Indi_Candle(CandleParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CandleParams>(_p, _indi_src){};
   Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CANDLE, _tf) { iparams.tf = _tf; };
 
   /**

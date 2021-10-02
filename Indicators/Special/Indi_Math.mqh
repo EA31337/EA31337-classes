@@ -77,8 +77,8 @@ struct MathParams : IndicatorParams {
     tf = _tf;
   };
 
-  void MathParams(MathParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void MathParams(MathParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
   };
 };
@@ -91,7 +91,7 @@ class Indi_Math : public Indicator<MathParams> {
   /**
    * Class constructor.
    */
-  Indi_Math(MathParams &_params) : Indicator<MathParams>(_params){};
+  Indi_Math(MathParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MathParams>(_p, _indi_src){};
   Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_SPECIAL_MATH, _tf){};
 
   /**

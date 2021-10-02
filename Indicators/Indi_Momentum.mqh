@@ -64,7 +64,7 @@ class Indi_Momentum : public Indicator<MomentumParams> {
   /**
    * Class constructor.
    */
-  Indi_Momentum(MomentumParams &_p) : Indicator<MomentumParams>(_p) {}
+  Indi_Momentum(MomentumParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MomentumParams>(_p, _indi_src) {}
   Indi_Momentum(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MOMENTUM, _tf) {}
 
   /**

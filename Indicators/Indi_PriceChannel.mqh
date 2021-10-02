@@ -48,7 +48,8 @@ class Indi_PriceChannel : public Indicator<PriceChannelParams> {
   /**
    * Class constructor.
    */
-  Indi_PriceChannel(PriceChannelParams &_params) : Indicator<PriceChannelParams>(_params){};
+  Indi_PriceChannel(PriceChannelParams& _p, IndicatorBase* _indi_src = NULL)
+      : Indicator<PriceChannelParams>(_p, _indi_src){};
   Indi_PriceChannel(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE_CHANNEL, _tf){};
 
   /**

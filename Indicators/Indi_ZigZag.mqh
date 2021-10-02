@@ -59,7 +59,7 @@ class Indi_ZigZag : public Indicator<ZigZagParams> {
   /**
    * Class constructor.
    */
-  Indi_ZigZag(ZigZagParams &_p) : Indicator<ZigZagParams>(_p) {}
+  Indi_ZigZag(ZigZagParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ZigZagParams>(_p, _indi_src) {}
   Indi_ZigZag(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ZIGZAG, _tf) {}
 
   /**

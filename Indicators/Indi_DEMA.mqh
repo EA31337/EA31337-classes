@@ -65,8 +65,8 @@ struct DEMAParams : IndicatorParams {
         break;
     }
   };
-  void DEMAParams(DEMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void DEMAParams(DEMAParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
   };
 };
@@ -79,7 +79,7 @@ class Indi_DEMA : public Indicator<DEMAParams> {
   /**
    * Class constructor.
    */
-  Indi_DEMA(DEMAParams &_p) : Indicator<DEMAParams>(_p) {}
+  Indi_DEMA(DEMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<DEMAParams>(_p, _indi_src) {}
   Indi_DEMA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DEMA, _tf) {}
 
   /**

@@ -58,7 +58,7 @@ class Indi_MACD : public Indicator<MACDParams> {
   /**
    * Class constructor.
    */
-  Indi_MACD(MACDParams &_p) : Indicator<MACDParams>(_p) {}
+  Indi_MACD(MACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MACDParams>(_p, _indi_src) {}
   Indi_MACD(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MACD, _tf) {}
 
   /**

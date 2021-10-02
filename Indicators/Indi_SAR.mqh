@@ -53,7 +53,7 @@ class Indi_SAR : public Indicator<SARParams> {
   /**
    * Class constructor.
    */
-  Indi_SAR(SARParams &_p) : Indicator<SARParams>(_p) {}
+  Indi_SAR(SARParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<SARParams>(_p, _indi_src) {}
   Indi_SAR(ENUM_TIMEFRAMES _tf) : Indicator(INDI_SAR, _tf) {}
 
   /**

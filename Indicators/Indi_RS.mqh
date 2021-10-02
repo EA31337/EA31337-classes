@@ -51,22 +51,22 @@ class Indi_RS : public Indicator<RSParams> {
   /**
    * Class constructor.
    */
-  Indi_RS(RSParams &_params) : Indicator<RSParams>(_params) { Init(); };
+  Indi_RS(RSParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RSParams>(_p, _indi_src) { Init(); };
   Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RS, _tf) { Init(); };
 
   void Init() {
     if (iparams.GetDataSourceType() == IDATA_MATH) {
-      PriceIndiParams _iprice_params();
+      PriceIndiParams _iprice_p();
       // @todo Symbol should be already defined for a chart.
       // @todo If it's not, move initialization to GetValue()/GetEntry() method.
       Indi_Price *_iprice = Indi_Price::GetCached(GetSymbol(), GetTf(), 0);
 
-      MathParams _imath0_params(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
-      MathParams _imath1_params(MATH_OP_SUB, PRICE_CLOSE, 1, PRICE_CLOSE, 0);
-      _imath0_params.SetTf(GetTf());
-      _imath1_params.SetTf(GetTf());
-      Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_params);
-      Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_params);
+      MathParams _imath0_p(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
+      MathParams _imath1_p(MATH_OP_SUB, PRICE_CLOSE, 1, PRICE_CLOSE, 0);
+      _imath0_p.SetTf(GetTf());
+      _imath1_p.SetTf(GetTf());
+      Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_p);
+      Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_p);
       _imath0.Ptr().SetDataSource(_iprice, false, 0);
       _imath1.Ptr().SetDataSource(_iprice, false, 0);
       imath.Set(0, _imath0);

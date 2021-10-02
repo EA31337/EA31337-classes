@@ -57,8 +57,8 @@ struct RSIParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\RSI");
     SetPeriod(_period);
   };
-  void RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void RSIParams(RSIParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
   };
   // Getters.
@@ -95,7 +95,7 @@ class Indi_RSI : public Indicator<RSIParams> {
   /**
    * Class constructor.
    */
-  Indi_RSI(const RSIParams &_params) : Indicator<RSIParams>(_params) {}
+  Indi_RSI(RSIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RSIParams>(_p, _indi_src) {}
   Indi_RSI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_RSI, _tf) {}
 
   /**
@@ -376,25 +376,25 @@ class Indi_RSI : public Indicator<RSIParams> {
    */
   virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
-      BandsParams bands_params();
+      BandsParams bands_params;
       return new Indi_Bands(bands_params);
     } else if (_id == INDI_CCI) {
-      CCIParams cci_params();
+      CCIParams cci_params;
       return new Indi_CCI(cci_params);
     } else if (_id == INDI_ENVELOPES) {
-      EnvelopesParams env_params();
+      EnvelopesParams env_params;
       return new Indi_Envelopes(env_params);
     } else if (_id == INDI_MOMENTUM) {
-      MomentumParams mom_params();
+      MomentumParams mom_params;
       return new Indi_Momentum(mom_params);
     } else if (_id == INDI_MA) {
-      MAParams ma_params();
+      MAParams ma_params;
       return new Indi_MA(ma_params);
     } else if (_id == INDI_RSI) {
-      RSIParams _rsi_params();
+      RSIParams _rsi_params;
       return new Indi_RSI(_rsi_params);
     } else if (_id == INDI_STDDEV) {
-      StdDevParams stddev_params();
+      StdDevParams stddev_params;
       return new Indi_StdDev(stddev_params);
     }
 

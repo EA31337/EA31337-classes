@@ -58,8 +58,8 @@ struct IndiKillzonesParams : IndicatorParams {
     SetShift(_shift);
     tf = _tf;
   };
-  void IndiKillzonesParams(IndiKillzonesParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void IndiKillzonesParams(IndiKillzonesParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
   };
 };
@@ -101,7 +101,8 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   /**
    * Class constructor.
    */
-  Indi_Killzones(IndiKillzonesParams &_p) : Indicator<IndiKillzonesParams>(_p) {}
+  Indi_Killzones(IndiKillzonesParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiKillzonesParams>(_p, _indi_src) {}
   Indi_Killzones(ENUM_TIMEFRAMES _tf) : Indicator(INDI_KILLZONES, _tf) {}
 
   /**

@@ -53,7 +53,7 @@ class Indi_DeMarker : public Indicator<DeMarkerParams> {
   /**
    * Class constructor.
    */
-  Indi_DeMarker(DeMarkerParams &_p) : Indicator<DeMarkerParams>(_p) {}
+  Indi_DeMarker(DeMarkerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<DeMarkerParams>(_p, _indi_src) {}
   Indi_DeMarker(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DEMARKER, _tf) {}
 
   /**

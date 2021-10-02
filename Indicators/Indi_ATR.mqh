@@ -54,7 +54,7 @@ class Indi_ATR : public Indicator<ATRParams> {
   /**
    * Class constructor.
    */
-  Indi_ATR(ATRParams &_p) : Indicator<ATRParams>(_p) {}
+  Indi_ATR(ATRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ATRParams>(_p, _indi_src) {}
   Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ATR, _tf){};
 
   /**
@@ -159,8 +159,8 @@ class Indi_ATR : public Indicator<ATRParams> {
     Indi_ATR *_ptr;
     string _key = Util::MakeKey(_symbol, (int)_tf, _period);
     if (!Objects<Indi_ATR>::TryGet(_key, _ptr)) {
-      ATRParams _params(_period, _tf);
-      _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_params));
+      ATRParams _p(_period, _tf);
+      _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_p));
       _ptr.SetSymbol(_symbol);
     }
     return _ptr;

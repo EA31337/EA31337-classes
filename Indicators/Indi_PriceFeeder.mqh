@@ -61,7 +61,8 @@ class Indi_PriceFeeder : public Indicator<PriceFeederIndiParams> {
   /**
    * Class constructor.
    */
-  Indi_PriceFeeder(PriceFeederIndiParams& _p) : Indicator<PriceFeederIndiParams>(_p){};
+  Indi_PriceFeeder(PriceFeederIndiParams& _p, IndicatorBase* _indi_src = NULL)
+      : Indicator<PriceFeederIndiParams>(_p, _indi_src){};
   Indi_PriceFeeder(const double& _price_data[], int _total = 0) : Indicator(INDI_PRICE_FEEDER) {
     ArrayCopy(iparams.price_data, _price_data);
   };

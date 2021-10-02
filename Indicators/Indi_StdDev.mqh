@@ -70,7 +70,7 @@ class Indi_StdDev : public Indicator<StdDevParams> {
   /**
    * Class constructor.
    */
-  Indi_StdDev(StdDevParams &_p) : Indicator<StdDevParams>(_p) {}
+  Indi_StdDev(StdDevParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<StdDevParams>(_p, _indi_src) {}
   Indi_StdDev(ENUM_TIMEFRAMES _tf) : Indicator(INDI_STDDEV, _tf) {}
 
   /**

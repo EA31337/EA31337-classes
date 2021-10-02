@@ -51,7 +51,8 @@ class Indi_DetrendedPrice : public Indicator<DetrendedPriceParams> {
   /**
    * Class constructor.
    */
-  Indi_DetrendedPrice(DetrendedPriceParams &_params) : Indicator<DetrendedPriceParams>(_params){};
+  Indi_DetrendedPrice(DetrendedPriceParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<DetrendedPriceParams>(_p, _indi_src){};
   Indi_DetrendedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DETRENDED_PRICE, _tf){};
 
   /**

@@ -47,7 +47,8 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
   /**
    * Class constructor.
    */
-  Indi_AppliedPrice(AppliedPriceParams &_params) : Indicator<AppliedPriceParams>(_params){};
+  Indi_AppliedPrice(AppliedPriceParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<AppliedPriceParams>(_p, _indi_src){};
   Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf){};
 
   static double iAppliedPriceOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {

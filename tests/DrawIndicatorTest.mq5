@@ -36,7 +36,7 @@
 
 // Global variables.
 Chart *chart;
-Dict<long, Indicator *> indis;
+Dict<long, IndicatorBase *> indis;
 int bar_processed;
 
 /**
@@ -64,8 +64,8 @@ void OnTick() {
   if (chart.IsNewBar()) {
     bar_processed++;
 
-    for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-      Indicator *_indi = iter.Value();
+    for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+      IndicatorBase *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
@@ -81,7 +81,7 @@ void OnTick() {
 void OnDeinit(const int reason) {
   delete chart;
 
-  for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     delete iter.Value();
   }
 }
@@ -98,7 +98,7 @@ bool InitIndicators() {
 
   // Moving Average.
   MAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
-  Indicator *indi_ma = new Indi_MA(ma_params);
+  IndicatorBase *indi_ma = new Indi_MA(ma_params);
   indis.Set(INDI_MA, indi_ma);
 
   // Relative Strength Index (RSI).
@@ -109,38 +109,38 @@ bool InitIndicators() {
 
   // Demo/Dummy Indicator.
   DemoIndiParams demo_params;
-  Indicator *indi_demo = new Indi_Demo(demo_params);
+  IndicatorBase *indi_demo = new Indi_Demo(demo_params);
   indis.Set(INDI_DEMO, indi_demo);
 
   // Current Price (used by custom indicators)  .
   PriceIndiParams price_params();
   price_params.SetDraw(clrGreenYellow);
-  Indicator *indi_price = new Indi_Price(price_params);
+  IndicatorBase *indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
   // Bollinger Bands over Price indicator.
   PriceIndiParams price_params_4_bands();
-  Indicator *indi_price_4_bands = new Indi_Price(price_params_4_bands);
+  IndicatorBase *indi_price_4_bands = new Indi_Price(price_params_4_bands);
   BandsParams bands_on_price_params();
   bands_on_price_params.SetDraw(clrCadetBlue);
-  bands_on_price_params.SetDataSource(indi_price_4_bands, true, INDI_PRICE_MODE_OPEN);
-  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params));
+  // bands_on_price_params.SetDataSource(indi_price_4_bands, true, INDI_PRICE_MODE_OPEN);
+  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params, indi_price_4_bands));
 
   // Moving Average (MA) over Price indicator.
   PriceIndiParams price_params_4_ma();
-  Indicator *indi_price_4_ma = new Indi_Price(price_params_4_ma);
+  IndicatorBase *indi_price_4_ma = new Indi_Price(price_params_4_ma);
   MAParams ma_on_price_params();
   ma_on_price_params.SetDraw(clrYellowGreen);
-  ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
+  // ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
-  Indicator *indi_ma_on_price = new Indi_MA(ma_on_price_params);
+  IndicatorBase *indi_ma_on_price = new Indi_MA(ma_on_price_params, indi_price_4_ma);
   indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
 
   // Relative Strength Index (RSI) over Price indicator.
   PriceIndiParams price_params_4_rsi();
-  Indicator *indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
+  IndicatorBase *indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
   RSIParams rsi_on_price_params();
-  rsi_on_price_params.SetDataSource(indi_price_4_rsi, true, INDI_PRICE_MODE_OPEN);
+  // rsi_on_price_params.SetDataSource(indi_price_4_rsi, true, INDI_PRICE_MODE_OPEN);
   rsi_on_price_params.SetDraw(clrBisque, 1);
   indis.Set(INDI_RSI_ON_PRICE, indi_price_4_rsi);
 
@@ -151,8 +151,8 @@ bool InitIndicators() {
  * Print indicators.
  */
 bool PrintIndicators(string _prefix = "") {
-  for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    Indicator *_indi = iter.Value();
+  for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    IndicatorBase *_indi = iter.Value();
     MqlParam _value = _indi.GetEntryValue();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
         GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {

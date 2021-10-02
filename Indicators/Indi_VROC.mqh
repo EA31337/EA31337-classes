@@ -50,7 +50,7 @@ class Indi_VROC : public Indicator<VROCParams> {
   /**
    * Class constructor.
    */
-  Indi_VROC(VROCParams &_params) : Indicator<VROCParams>(_params){};
+  Indi_VROC(VROCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<VROCParams>(_p, _indi_src){};
   Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf){};
 
   /**

@@ -52,7 +52,7 @@ class Indi_TRIX : public Indicator<TRIXParams> {
   /**
    * Class constructor.
    */
-  Indi_TRIX(TRIXParams &_params) : Indicator<TRIXParams>(_params){};
+  Indi_TRIX(TRIXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<TRIXParams>(_p, _indi_src){};
   Indi_TRIX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TRIX, _tf){};
 
   /**

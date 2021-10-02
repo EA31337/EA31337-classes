@@ -63,8 +63,8 @@ struct IndiAMAParams : IndicatorParams {
         break;
     }
   };
-  void IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void IndiAMAParams(IndiAMAParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
   };
 };
@@ -77,7 +77,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   /**
    * Class constructor.
    */
-  Indi_AMA(IndiAMAParams &_params) : Indicator<IndiAMAParams>(_params){};
+  Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiAMAParams>(_p, _indi_src){};
   Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AMA, _tf){};
 
   /**

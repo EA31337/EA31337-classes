@@ -67,7 +67,7 @@ class Indi_OBV : public Indicator<OBVParams> {
   /**
    * Class constructor.
    */
-  Indi_OBV(OBVParams &_p) : Indicator<OBVParams>(_p) {}
+  Indi_OBV(OBVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<OBVParams>(_p, _indi_src) {}
   Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_OBV, _tf) {}
 
   /**

@@ -77,8 +77,7 @@ class Indicator : public IndicatorBase {
   /**
    * Class constructor.
    */
-  // Indicator() : IndicatorBase() {}
-  Indicator(TS& _iparams) : IndicatorBase(_iparams.GetTf()) {
+  Indicator(const TS& _iparams, IndicatorBase* _indi_src = NULL) : IndicatorBase(_iparams.GetTf(), NULL, _indi_src) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();

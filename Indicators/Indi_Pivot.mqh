@@ -48,7 +48,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Class constructor.
    */
-  Indi_Pivot(IndiPivotParams &_params) : Indicator<IndiPivotParams>(_params){};
+  Indi_Pivot(IndiPivotParams& _p, IndicatorBase* _indi_src = NULL) : Indicator<IndiPivotParams>(_p, _indi_src){};
   Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PIVOT, _tf) { iparams.tf = _tf; };
 
   /**

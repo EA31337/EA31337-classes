@@ -50,7 +50,7 @@ class Indi_AC : public Indicator<ACParams> {
   /**
    * Class constructor.
    */
-  Indi_AC(ACParams &_params) : Indicator<ACParams>(_params){};
+  Indi_AC(ACParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ACParams>(_p, _indi_src){};
   Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AC, _tf){};
 
   /**

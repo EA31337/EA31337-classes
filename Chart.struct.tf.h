@@ -122,7 +122,7 @@ struct ChartTf {
    * @param
    * _tf ENUM_TIMEFRAMES_INDEX Specify timeframe index enum.
    */
-  static ENUM_TIMEFRAMES IndexToTf(ENUM_TIMEFRAMES_INDEX index) {
+  static ENUM_TIMEFRAMES const IndexToTf(ENUM_TIMEFRAMES_INDEX index) {
     // @todo: Convert it into a loop and using tf constant, see: TfToIndex().
     switch (index) {
       case M1:

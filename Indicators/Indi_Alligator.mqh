@@ -97,7 +97,7 @@ class Indi_Alligator : public Indicator<AlligatorParams> {
   /**
    * Class constructor.
    */
-  Indi_Alligator(AlligatorParams &_p) : Indicator<AlligatorParams>(_p) {}
+  Indi_Alligator(AlligatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<AlligatorParams>(_p, _indi_src) {}
   Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADX, _tf){};
 
   /**

@@ -54,7 +54,8 @@ class Indi_ZigZagColor : public Indicator<ZigZagColorParams> {
   /**
    * Class constructor.
    */
-  Indi_ZigZagColor(ZigZagColorParams &_params) : Indicator<ZigZagColorParams>(_params){};
+  Indi_ZigZagColor(ZigZagColorParams& _p, IndicatorBase* _indi_src = NULL)
+      : Indicator<ZigZagColorParams>(_p, _indi_src){};
   Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf){};
 
   /**

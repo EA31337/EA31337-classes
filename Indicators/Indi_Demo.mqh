@@ -56,8 +56,8 @@ struct DemoIndiParams : IndicatorParams {
         break;
     }
   };
-  void DemoIndiParams(DemoIndiParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void DemoIndiParams(DemoIndiParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
   };
 };
@@ -70,7 +70,7 @@ class Indi_Demo : public Indicator<DemoIndiParams> {
   /**
    * Class constructor.
    */
-  Indi_Demo(DemoIndiParams &_params) : Indicator<DemoIndiParams>(_params){};
+  Indi_Demo(DemoIndiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<DemoIndiParams>(_p, _indi_src){};
   Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DEMO, _tf){};
 
   /**

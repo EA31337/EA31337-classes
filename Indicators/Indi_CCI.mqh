@@ -60,7 +60,7 @@ class Indi_CCI : public Indicator<CCIParams> {
   /**
    * Class constructor.
    */
-  Indi_CCI(CCIParams &_p) : Indicator<CCIParams>(_p) {}
+  Indi_CCI(CCIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CCIParams>(_p, _indi_src) {}
   Indi_CCI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_CCI, _tf) {}
 
   /**

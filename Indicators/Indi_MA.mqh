@@ -72,7 +72,7 @@ class Indi_MA : public Indicator<MAParams> {
   /**
    * Class constructor.
    */
-  Indi_MA(MAParams &_p) : Indicator<MAParams>(_p) {}
+  Indi_MA(MAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MAParams>(_p, _indi_src) {}
   Indi_MA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MA, _tf) {}
 
   /**
@@ -689,8 +689,8 @@ class Indi_MA : public Indicator<MAParams> {
     Indi_MA *_ptr;
     string _key = Util::MakeKey(_symbol, (int)_tf, _period, _ma_shift, (int)_ma_method, (int)_ap);
     if (!Objects<Indi_MA>::TryGet(_key, _ptr)) {
-      MAParams _params(_period, _ma_shift, _ma_method, _ap);
-      _ptr = Objects<Indi_MA>::Set(_key, new Indi_MA(_params));
+      MAParams _p(_period, _ma_shift, _ma_method, _ap);
+      _ptr = Objects<Indi_MA>::Set(_key, new Indi_MA(_p));
       _ptr.SetSymbol(_symbol);
     }
     return _ptr;

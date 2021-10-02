@@ -52,7 +52,7 @@ class Indi_WPR : public Indicator<WPRParams> {
   /**
    * Class constructor.
    */
-  Indi_WPR(WPRParams &_p) : Indicator<WPRParams>(_p) {}
+  Indi_WPR(WPRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<WPRParams>(_p, _indi_src) {}
   Indi_WPR(ENUM_TIMEFRAMES _tf) : Indicator(INDI_WPR, _tf) {}
 
   /**

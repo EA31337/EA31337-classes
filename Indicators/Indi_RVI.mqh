@@ -52,7 +52,7 @@ class Indi_RVI : public Indicator<RVIParams> {
   /**
    * Class constructor.
    */
-  Indi_RVI(const RVIParams &_p) : Indicator<RVIParams>(_p) {}
+  Indi_RVI(const RVIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RVIParams>(_p, _indi_src) {}
   Indi_RVI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_RVI, _tf) {}
 
   /**
