@@ -27,6 +27,7 @@ jobs:
       - name: Compile
         uses: fx31337/mql-compile-action@master
         with:
+          ignore-warnings: true
           init-platform: true
           verbose: true
       - name: Print compiled files
