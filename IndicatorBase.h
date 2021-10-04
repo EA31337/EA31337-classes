@@ -102,23 +102,17 @@ class IndicatorBase : public Chart {
   /**
    * Class constructor.
    */
-  IndicatorBase() : indi_src(NULL) {
-    is_feeding = is_fed = false;
-  }
+  IndicatorBase() : indi_src(NULL) { is_feeding = is_fed = false; }
 
   /**
    * Class constructor.
    */
-  IndicatorBase(ChartParams& _cparams)
-    : indi_src(NULL), Chart(_cparams) {
-    is_feeding = is_fed = false;
-  }
+  IndicatorBase(ChartParams& _cparams) : indi_src(NULL), Chart(_cparams) { is_feeding = is_fed = false; }
 
   /**
    * Class constructor.
    */
-  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, IndicatorBase* _indi_src = NULL)
-    : indi_src(_indi_src), Chart(_tf, _symbol) {
+  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : Chart(_tf, _symbol) {
     is_feeding = is_fed = false;
     indi_src = NULL;
   }
@@ -126,8 +120,7 @@ class IndicatorBase : public Chart {
   /**
    * Class constructor.
    */
-  IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL, IndicatorBase* _indi_src = NULL)
-    : indi_src(_indi_src), Chart(_tfi, _symbol) {
+  IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : Chart(_tfi, _symbol) {
     is_feeding = is_fed = false;
     indi_src = NULL;
   }
