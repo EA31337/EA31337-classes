@@ -79,10 +79,6 @@ class Indi_Volumes : public Indicator<VolumesParams> {
     _cache.SetPrevCalculated(Indi_Volumes::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
                                                      _cache.GetBuffer<double>(1), _av));
 
-    for (int i = 0; i < _cache.NumBuffers(); ++i) {
-      Print("(Mode #", _mode, ", Buffer #", i, " = ", _cache.GetTailValue<double>(i, _shift));
-    }
-
     return _cache.GetTailValue<double>(_mode, _shift);
   }
 
@@ -120,8 +116,6 @@ class Indi_Volumes : public Indicator<VolumesParams> {
       // Calculate indicator.
       ExtVolumesBuffer[i] = curr_volume;
       ExtColorsBuffer[i] = (curr_volume > prev_volume) ? 0.0 : 1.0;
-
-      Print("Volume: ", ExtVolumesBuffer[i].Get(), ", ", ExtColorsBuffer[i].Get());
     }
   }
 
@@ -161,7 +155,6 @@ class Indi_Volumes : public Indicator<VolumesParams> {
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         double _v = GetValue(_mode, _shift);
         _entry.values[_mode] = _v;
-        Print("Volumes[", _mode, "] = ", _v);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
