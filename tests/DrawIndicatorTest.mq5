@@ -124,7 +124,7 @@ bool InitIndicators() {
   BandsParams bands_on_price_params();
   bands_on_price_params.SetDraw(clrCadetBlue);
   // bands_on_price_params.SetDataSource(indi_price_4_bands, true, INDI_PRICE_MODE_OPEN);
-  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params, indi_price_4_bands));
+  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params, indi_price_4_bands, true));
 
   // Moving Average (MA) over Price indicator.
   PriceIndiParams price_params_4_ma();

@@ -64,4 +64,5 @@ SerializerNodeType DrawerParams::Serialize(Serializer &s) {
 struct DrawerGainLossData {
   double avg_gain;
   double avg_loss;
+  DrawerGainLossData() { avg_gain = avg_loss = 0.0; }
 };
