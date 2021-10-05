@@ -57,6 +57,7 @@ struct TradeSignalEntry {
   float strength;        // Signal strength.
   float weight;          // Signal weight.
   long magic_id;         // Magic identifier.
+  long timestamp;        // Creation timestamp
   unsigned int signals;  // Store signals (@see: ENUM_TRADE_SIGNAL_FLAG).
 
  public:
@@ -99,6 +100,7 @@ struct TradeSignalEntry {
     TRADE_SIGNAL_PROP_SIGNALS,
     TRADE_SIGNAL_PROP_STRENGTH,
     TRADE_SIGNAL_PROP_TF,
+    TRADE_SIGNAL_PROP_TIME,
     TRADE_SIGNAL_PROP_WEIGHT,
   };
   // Enumeration for strategy signal types.
@@ -110,8 +112,8 @@ struct TradeSignalEntry {
 
   /* Constructor */
   TradeSignalEntry(unsigned int _signals = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, long _magic_id = 0,
-                   float _strength = 0.0f, float _weight = 0.0f)
-      : magic_id(_magic_id), signals(_signals), strength(_strength), tf(_tf), weight(_weight) {}
+                   float _strength = 0.0f, float _weight = 0.0f, long _time = 0)
+      : magic_id(_magic_id), signals(_signals), strength(_strength), tf(_tf), timestamp(_time), weight(_weight) {}
   TradeSignalEntry(const TradeSignalEntry &_entry) { this = _entry; }
   /* Getters */
   template <typename T>
@@ -125,6 +127,8 @@ struct TradeSignalEntry {
         return (T)strength;
       case TRADE_SIGNAL_PROP_TF:
         return (T)tf;
+      case TRADE_SIGNAL_PROP_TIME:
+        return (T)timestamp;
       case TRADE_SIGNAL_PROP_WEIGHT:
         return (T)weight;
     }
@@ -147,6 +151,9 @@ struct TradeSignalEntry {
         return;
       case TRADE_SIGNAL_PROP_TF:
         tf = (ENUM_TIMEFRAMES)_value;
+        return;
+      case TRADE_SIGNAL_PROP_TIME:
+        timestamp = (long)_value;
         return;
       case TRADE_SIGNAL_PROP_WEIGHT:
         weight = (float)_value;

@@ -175,6 +175,7 @@ class EA {
     _signals |= !_strat.SignalCloseFilterTime(_scfm) ? SIGNAL_OPEN_TIME_FILTER : 0;
     TradeSignalEntry _sentry(_signals, _strat.Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF), _strat.Get<long>(STRAT_PARAM_ID));
     _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_STRENGTH), _strat.SignalOpen(_sofm, _sol, _ss));
+    _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME), ::TimeGMT());
     return _sentry;
   }
 
