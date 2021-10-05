@@ -45,8 +45,8 @@ bool TestSignalsProcessed() {
     _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
   }
   _tsm.Refresh();
-  // @fixme: // _result &= _tsm.GetSignalsActive().Size() == 0;
-  // @fixme: // _result &= _tsm.GetSignalsExpired().Size() == 0;
+  _result &= _tsm.GetSignalsActive().Size() == 0;
+  _result &= _tsm.GetSignalsExpired().Size() == 0;
   _result &= _tsm.GetSignalsProcessed().Size() == 10;
   Print(_tsm.ToString());
   return _result;

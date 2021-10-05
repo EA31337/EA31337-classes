@@ -42,7 +42,11 @@ class TradeSignalManager : Dynamic {
   /**
    * Class constructor.
    */
-  TradeSignalManager() {}
+  TradeSignalManager() {
+    signals_active.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
+    signals_expired.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
+    signals_processed.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
+  }
 
   /* Getters */
 
@@ -93,12 +97,12 @@ class TradeSignalManager : Dynamic {
     for (DictObjectIterator<int, TradeSignal> iter = GetIterSignalsActive(); iter.IsValid(); ++iter) {
       TradeSignal *_signal = iter.Value();
       if (_signal.Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED))) {
-        signals_active.Unset(iter.Key());
+        signals_active.Unset(iter);
         signals_processed.Push(_signal);
         continue;
       }
       if (_signal.Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_EXPIRED))) {
-        signals_active.Unset(iter.Key());
+        signals_active.Unset(iter);
         signals_expired.Push(_signal);
         continue;
       }
