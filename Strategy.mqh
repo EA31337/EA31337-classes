@@ -145,17 +145,6 @@ class Strategy : public Object {
   Log *GetLogger() { return GetPointer(logger); }
 
   /**
-   * Class copy constructor.
-   */
-  /*
-  Strategy(const Strategy &_strat) {
-    // @todo
-    sparams = _strat.GetParams();
-    // ...
-  }
-  */
-
-  /**
    * Class deconstructor.
    */
   ~Strategy() {
@@ -177,7 +166,6 @@ class Strategy : public Object {
    */
   StgProcessResult Process(unsigned short _periods_started = DATETIME_NONE) {
     sresult.last_error = ERR_NO_ERROR;
-    // last_signal = ProcessSignals();
     if (_periods_started > 0) {
       ProcessTasks();
     }
@@ -254,11 +242,6 @@ class Strategy : public Object {
   /* Class getters */
 
   /**
-   * Returns access to Chart information.
-   */
-  // Chart *GetChart() { return trade.GetChart(); }
-
-  /**
    * Returns handler to the strategy's indicator class.
    */
   Indicator *GetIndicator(int _id = 0) {
@@ -322,11 +305,6 @@ class Strategy : public Object {
   }
 
   /**
-   * Get strategy's last signal entry.
-   */
-  // TradeSignalEntry GetLastSignalEntry() { return last_signal; }
-
-  /**
    * Gets pointer to strategy's stop-loss strategy.
    */
   Strategy *GetStratSl() { return strat_sl; }
@@ -345,11 +323,6 @@ class Strategy : public Object {
    * Get strategy's ID.
    */
   virtual long GetId() { return sparams.id; }
-
-  /**
-   * Get strategy's timeframe.
-   */
-  // ENUM_TIMEFRAMES GetTf() { return trade.GetChart().GetTf(); }
 
   /**
    * Get strategy's signal open method.

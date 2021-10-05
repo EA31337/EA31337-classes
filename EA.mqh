@@ -143,7 +143,6 @@ class EA {
    */
   TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, bool _trade_allowed = true, int _shift = -1) {
     // float _bf = 1.0;
-    // float _ls = 0;
     float _scl = _strat.Get<float>(STRAT_PARAM_SCL);
     float _sol = _strat.Get<float>(STRAT_PARAM_SOL);
     int _scfm = _strat.Get<int>(STRAT_PARAM_SCFM);
@@ -252,11 +251,9 @@ class EA {
         // Ignores already processed signals.
         continue;
       }
-      // Strategy *_strat = _signal.GetStrategy();
       Trade *_trade = trade.GetByKey(_Symbol);
       Strategy *_strat =
           strats.GetByKey(_signal.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID))).Ptr();
-      // _signal.Get<bool>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)),
       if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
         float _sig_close = _signal.GetSignalClose();
         string _comment_close =
@@ -287,7 +284,7 @@ class EA {
         if (_sig_open >= 0.5f) {
           // Open signal for buy.
           // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-          if (_sig_f == 0) {  // || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
+          if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
             _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
             // Buy order open.
             _result_local &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
@@ -300,7 +297,7 @@ class EA {
         if (_sig_open <= -0.5f) {
           // Open signal for sell.
           // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-          if (_sig_f == 0) {  // || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
+          if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
             _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
             // Sell order open.
             _result_local &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
@@ -330,8 +327,7 @@ class EA {
     if (_last_error > 0) {
       logger.Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__);
     }
-    // Remove signals after processing.
-    // strat_signals.Unset(_tick.time);
+    // Refresh signals after processing.
     tsm.Refresh();
     return _result && _last_error == 0;
   }
@@ -403,8 +399,6 @@ class EA {
                 eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
                 eresults.stg_processed++;
               }
-              /*
-               */
             }
           }
         }

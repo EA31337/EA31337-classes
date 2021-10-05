@@ -182,6 +182,7 @@ struct TradeSignalEntry {
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &_s) {
     _s.PassEnum(THIS_REF, "tf", tf);
+    _s.Pass(THIS_REF, "timestamp", timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     _s.Pass(THIS_REF, "strength", strength, SERIALIZER_FIELD_FLAG_DYNAMIC);
     _s.Pass(THIS_REF, "weight", weight, SERIALIZER_FIELD_FLAG_DYNAMIC);
     int _size = sizeof(int) * 8;
