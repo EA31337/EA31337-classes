@@ -44,6 +44,14 @@ enum ENUM_DICT_OVERFLOW_REASON {
 };
 
 /**
+ * Dictionary flags.
+ */
+enum ENUM_DICT_FLAG {
+  DICT_FLAG_NONE = 0,
+  DICT_FLAG_FILL_HOLES_UNSORTED = 1,
+};
+
+/**
  * Dictionary overflow listener. arguments are:
  * - ENUM_DICT_OVERFLOW_REASON overflow_reason
  * - int current_dict_size
@@ -65,11 +73,15 @@ class DictBase {
   // Whether Dict operates in yet uknown mode, as dict or as list.
   DictMode _mode;
 
+  // Dictionary flags.
+  int _flags;
+
  public:
   DictBase() {
     _hash = rand();
     _current_id = 0;
     _mode = DictModeUnknown;
+    _flags = 0;
   }
 
   /**
@@ -91,6 +103,16 @@ class DictBase {
   }
 
   const unsigned int GetSlotCount() const { return ArraySize(_DictSlots_ref.DictSlots); }
+
+  /**
+   * Adds flags to dict.
+   */
+  void AddFlags(int flags) { _flags |= flags; }
+
+  /**
+   * Checks whether dict have all given flags.
+   */
+  bool HasFlags(int flags) { return (_flags & flags) == flags; }
 
   DictSlot<K, V>* GetSlot(const unsigned int index) {
     if (index >= GetSlotCount()) {
@@ -147,15 +169,49 @@ class DictBase {
   int GetMode() { return _mode; }
 
   /**
+   * Removes value from the dictionary by the given iterator. Could be used to remove value on Dict with
+   * DICT_FLAG_FILL_HOLES_UNSORTED flag.
+   */
+  void Unset(DictIteratorBase<K, V>& iter) {
+    InternalUnset(iter.Key());
+    if (HasFlags(DICT_FLAG_FILL_HOLES_UNSORTED)) {
+      // After incrementing, iterator will use moved slot.
+      iter.ShiftPosition(-1, true);
+    }
+  }
+
+  /**
    * Removes value from the dictionary by the given key (if exists).
    */
   void Unset(const K key) {
+    if (HasFlags(DICT_FLAG_FILL_HOLES_UNSORTED)) {
+      Print(
+          "Unset on Dict with DICT_FLAG_FILL_HOLES_UNSORTED flag must be called by passing the iterator, instead of "
+          "the key. Thus way iterator will continue with proper value after incrementation.");
+      DebugBreak();
+      return;
+    }
+    InternalUnset(key);
+  }
+
+  /**
+   * Removes value from the dictionary by the given key (if exists).
+   */
+  void InternalUnset(const K key) {
     if (ArraySize(_DictSlots_ref.DictSlots) == 0) {
       // Nothing to unset.
       return;
     }
 
-    unsigned int position = Hash(key) % ArraySize(_DictSlots_ref.DictSlots);
+    unsigned int position;
+
+    if (GetMode() == DictModeList) {
+      // In list mode value index is the slot index.
+      position = (int)key;
+    } else {
+      position = Hash(key) % ArraySize(_DictSlots_ref.DictSlots);
+    }
+
     unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
 
     while (tries_left-- > 0) {
@@ -164,11 +220,32 @@ class DictBase {
         return;
       }
 
-      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey() &&
-          _DictSlots_ref.DictSlots[position].key == key) {
-        // Key perfectly matches, it indicates key exists in the dictionary.
+      bool _should_be_removed = false;
+
+      if (_DictSlots_ref.DictSlots[position].IsUsed()) {
+        if (GetMode() == DictModeList) {
+          _should_be_removed = position == (int)key;
+        } else {
+          _should_be_removed =
+              _DictSlots_ref.DictSlots[position].HasKey() && _DictSlots_ref.DictSlots[position].key == key;
+        }
+      }
+
+      if (_should_be_removed) {
+        // Key/index perfectly matches, it indicates key/index exists in the dictionary.
         _DictSlots_ref.DictSlots[position].RemoveFlags(DICT_SLOT_IS_USED);
-        --_DictSlots_ref._num_used;
+
+        if (GetMode() == DictModeDict) {
+          // In List mode we don't decrement number of used elements.
+          --_DictSlots_ref._num_used;
+        } else if (HasFlags(DICT_FLAG_FILL_HOLES_UNSORTED)) {
+          // This is List mode and we need to fill this hole.
+          FillHoleUnsorted(position);
+        }
+        return;
+      } else if (GetMode() == DictModeList) {
+        Print("Internal error. Slot should have been removed!");
+        DebugBreak();
         return;
       }
 
@@ -177,6 +254,24 @@ class DictBase {
     }
 
     // No key found.
+  }
+
+  /**
+   * Moves last slot to given one to fill the hole after removing the value.
+   */
+  void FillHoleUnsorted(int _hole_slot_idx) {
+    // After moving last element to fill the hole we
+    if (_hole_slot_idx == Size() - 1) {
+      // We've just removed last element, thus don't need to do anything.
+    } else {
+      // Moving last slot into given one.
+      _DictSlots_ref.DictSlots[_hole_slot_idx] = _DictSlots_ref.DictSlots[Size() - 1];
+
+      // Marking last slot as unused.
+      _DictSlots_ref.DictSlots[Size() - 1].RemoveFlags(DICT_SLOT_IS_USED);
+    }
+    // One element less in the List-based Dict.
+    --_DictSlots_ref._num_used;
   }
 
   /**
