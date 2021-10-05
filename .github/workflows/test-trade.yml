@@ -49,6 +49,7 @@ jobs:
       matrix:
         test:
           - TradeSignalTest
+          - TradeSignalManagerTest
     steps:
       - uses: actions/download-artifact@v2
         with:
