@@ -77,9 +77,13 @@ class Indicator : public IndicatorBase {
   /**
    * Class constructor.
    */
-  Indicator(const TS& _iparams, IndicatorBase* _indi_src = NULL) : IndicatorBase(_iparams.GetTf(), NULL, _indi_src) {
+  Indicator(const TS& _iparams, IndicatorBase* _indi_src = NULL, bool _indi_managed = true, int _indi_mode = 0)
+      : IndicatorBase(_iparams.GetTf(), NULL) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
+    if (_indi_src != NULL) {
+      SetDataSource(_indi_src, _indi_managed, _indi_mode);
+    }
     Init();
   }
   Indicator(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorBase(_tf) {

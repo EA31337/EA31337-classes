@@ -92,7 +92,8 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
     static int ticks = 0, modified = 0;
     // Check data.
     int i, calculated = BarsCalculated(ExtMAHandle, rates_total);
-    if (calculated < rates_total && calculated < 1000) {
+    // @added History of 100 values should be enough for MA.
+    if (calculated < rates_total && calculated < 100) {
       // Not all data of ExtMAHandle is calculated.
       Print("Not all MA data calculate for ColorLine! Expected ", rates_total, ", got only ", calculated);
       return (0);

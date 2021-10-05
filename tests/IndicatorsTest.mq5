@@ -532,12 +532,9 @@ bool InitIndicators() {
   VIDYAParams vidya_params();
   indis.Push(new Indi_VIDYA(vidya_params));
 
-#ifdef __MQL5__
-  // @fixit Should work also in MT4!
   // Volumes.
   VolumesParams volumes_params();
   indis.Push(new Indi_Volumes(volumes_params));
-#endif
 
   // Volume Rate of Change.
   VROCParams vol_rate_of_change_params();
@@ -553,11 +550,9 @@ bool InitIndicators() {
   indis.Push(new Indi_ZigZagColor(zigzag_color_params));
 #endif
 
-#ifdef __MQL5__
   // Custom Moving Average.
   CustomMovingAverageParams cma_params();
   indis.Push(new Indi_CustomMovingAverage(cma_params));
-#endif
 
   // Math (specialized indicator).
   MathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);

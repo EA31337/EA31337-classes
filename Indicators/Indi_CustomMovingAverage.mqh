@@ -37,7 +37,11 @@ struct CustomMovingAverageParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_ICUSTOM);
+#ifdef __MQL5__
     SetCustomIndicatorName("Examples\\Custom Moving Average");
+#else
+    SetCustomIndicatorName("Custom Moving Averages");
+#endif
     shift = _shift;
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;

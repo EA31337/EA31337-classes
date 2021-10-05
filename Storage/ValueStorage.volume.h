@@ -58,5 +58,13 @@ class VolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual long Fetch(int _shift) { return iVolume(symbol, tf, RealShift(_shift)); }
+  virtual long Fetch(int _shift) {
+    ResetLastError();
+    long _volume = iVolume(symbol, tf, RealShift(_shift));
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Cannot fetch iVolume! Error: ", _LastError);
+      DebugBreak();
+    }
+    return _volume;
+  }
 };

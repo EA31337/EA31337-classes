@@ -69,6 +69,9 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
           // Future validation of indi_src will check if we set mode for source indicator
           // (e.g. for applied price of Indi_Price).
           iparams.SetDataSourceMode(GetAppliedPrice());
+        } else {
+          Print("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");
+          DebugBreak();
         }
 
         // @fixit
