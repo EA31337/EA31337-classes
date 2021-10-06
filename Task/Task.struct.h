@@ -31,8 +31,8 @@
 #endif
 
 // Includes.
-#include "Action.struct.h"
-#include "Condition.struct.h"
+#include "../Action.struct.h"
+#include "../Condition.struct.h"
 #include "Task.enum.h"
 
 struct TaskEntry {

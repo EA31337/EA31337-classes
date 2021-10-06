@@ -38,7 +38,7 @@
 //#include "Market.enum.h"
 #include "Order.enum.h"
 #include "Strategy.enum.h"
-#include "Task.enum.h"
+#include "Task/Task.enum.h"
 #include "Trade.enum.h"
 
 struct ConditionEntry {

@@ -34,7 +34,7 @@
 #include "Serializer.mqh"
 #include "Strategy.enum.h"
 #include "Strategy.struct.pricestop.h"
-#include "Task.struct.h"
+#include "Task/Task.struct.h"
 
 // Forward class declaration.
 class Strategy;

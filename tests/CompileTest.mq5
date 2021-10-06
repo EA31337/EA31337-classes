@@ -99,7 +99,7 @@
 #include "../String.mqh"
 #include "../SummaryReport.mqh"
 #include "../SymbolInfo.mqh"
-#include "../Task.mqh"
+#include "../Task/Task.h"
 #include "../Terminal.mqh"
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"

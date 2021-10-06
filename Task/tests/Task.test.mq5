@@ -28,12 +28,12 @@
 struct DataParamEntry;
 
 // Includes.
-#include "../Action.mqh"
-#include "../Chart.mqh"
-#include "../DictObject.mqh"
-#include "../EA.mqh"
-#include "../Task.mqh"
-#include "../Test.mqh"
+#include "../../Action.mqh"
+#include "../../Chart.mqh"
+#include "../../DictObject.mqh"
+#include "../../EA.mqh"
+#include "../Task.h"
+#include "../../Test.mqh"
 
 // Global variables.
 Chart *chart;

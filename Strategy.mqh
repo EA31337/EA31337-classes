@@ -36,7 +36,7 @@ class Trade;
 #include "Strategy.enum.h"
 #include "Strategy.struct.h"
 #include "String.mqh"
-#include "Task.mqh"
+#include "Task/Task.h"
 #include "Trade.mqh"
 
 // Defines.
