@@ -30,18 +30,18 @@
 #define ACTION_MQH
 
 // Forward class declaration.
-class Action;
+class TaskAction;
 
 // Includes.
-#include "Action.enum.h"
-#include "Action.struct.h"
-#include "EA.mqh"
-#include "Task/TaskCondition.enum.h"
+#include "../EA.mqh"
+#include "TaskAction.enum.h"
+#include "TaskAction.struct.h"
+#include "TaskCondition.enum.h"
 
 /**
- * Action class.
+ * TaskAction class.
  */
-class Action {
+class TaskAction {
  public:
  protected:
   // Class variables.
@@ -49,30 +49,30 @@ class Action {
 
  public:
   // Class variables.
-  DictStruct<short, ActionEntry> actions;
+  DictStruct<short, TaskActionEntry> actions;
 
   /* Special methods */
 
   /**
    * Class constructor.
    */
-  Action() {}
-  Action(ActionEntry &_entry) { actions.Push(_entry); }
-  Action(long _action_id, ENUM_ACTION_TYPE _type) {
-    ActionEntry _entry(_action_id, _type);
+  TaskAction() {}
+  TaskAction(TaskActionEntry &_entry) { actions.Push(_entry); }
+  TaskAction(long _action_id, ENUM_ACTION_TYPE _type) {
+    TaskActionEntry _entry(_action_id, _type);
     actions.Push(_entry);
   }
   template <typename T>
-  Action(T _action_id, void *_obj = NULL) {
-    ActionEntry _entry(_action_id);
+  TaskAction(T _action_id, void *_obj = NULL) {
+    TaskActionEntry _entry(_action_id);
     if (_obj != NULL) {
       _entry.SetObject(_obj);
     }
     actions.Push(_entry);
   }
   template <typename T>
-  Action(T _action_id, MqlParam &_args[], void *_obj = NULL) {
-    ActionEntry _entry(_action_id);
+  TaskAction(T _action_id, MqlParam &_args[], void *_obj = NULL) {
+    TaskActionEntry _entry(_action_id);
     _entry.SetArgs(_args);
     if (_obj != NULL) {
       _entry.SetObject(_obj);
@@ -83,7 +83,7 @@ class Action {
   /**
    * Class copy constructor.
    */
-  Action(Action &_cond) { actions = _cond.GetActions(); }
+  TaskAction(TaskAction &_cond) { actions = _cond.GetActions(); }
 
   /* Main methods */
 
@@ -92,9 +92,9 @@ class Action {
    */
   bool Execute() {
     bool _result = true, _executed = false;
-    for (DictStructIterator<short, ActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, TaskActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
       bool _curr_result = false;
-      ActionEntry _entry = iter.Value();
+      TaskActionEntry _entry = iter.Value();
       if (!_entry.IsValid()) {
         // Ignore invalid entries.
         continue;
@@ -109,12 +109,12 @@ class Action {
   /**
    * Execute specific action.
    */
-  static bool Execute(ActionEntry &_entry) {
+  static bool Execute(TaskActionEntry &_entry) {
     bool _result = false;
     switch (_entry.type) {
       case ACTION_TYPE_ACTION:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Action *)_entry.obj).ExecuteAction((ENUM_ACTION_ACTION)_entry.action_id, _entry.args);
+          _result = ((TaskAction *)_entry.obj).ExecuteAction((ENUM_ACTION_ACTION)_entry.action_id, _entry.args);
         } else {
           _result = false;
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
@@ -247,15 +247,15 @@ class Action {
   /**
    * Returns actions.
    */
-  DictStruct<short, ActionEntry> *GetActions() { return &actions; }
+  DictStruct<short, TaskActionEntry> *GetActions() { return &actions; }
 
   /**
    * Count entry flags.
    */
   unsigned int GetFlagCount(ENUM_ACTION_ENTRY_FLAGS _flag) {
     unsigned int _counter = 0;
-    for (DictStructIterator<short, ActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
-      ActionEntry _entry = iter.Value();
+    for (DictStructIterator<short, TaskActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
+      TaskActionEntry _entry = iter.Value();
       if (_entry.HasFlag(_flag)) {
         _counter++;
       }
@@ -270,8 +270,8 @@ class Action {
    */
   bool SetFlags(ENUM_ACTION_ENTRY_FLAGS _flag, bool _value = true) {
     unsigned int _counter = 0;
-    for (DictStructIterator<short, ActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
-      ActionEntry _entry = iter.Value();
+    for (DictStructIterator<short, TaskActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
+      TaskActionEntry _entry = iter.Value();
       switch (_value) {
         case false:
           if (_entry.HasFlag(_flag)) {
@@ -296,7 +296,7 @@ class Action {
    * Checks for Task condition.
    *
    * @param ENUM_ACTION_CONDITION _cond
-   *   Action condition.
+   *   TaskAction condition.
    * @return
    *   Returns true when the condition is met.
    */
@@ -318,20 +318,20 @@ class Action {
         // Is invalid.
         return IsInvalid();
       default:
-        logger.Ptr().Error(StringFormat("Invalid Action condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        logger.Ptr().Error(StringFormat("Invalid TaskAction condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
   bool CheckCondition(ENUM_ACTION_CONDITION _cond) {
     ARRAY(DataParamEntry, _args);
-    return Action::CheckCondition(_cond, _args);
+    return TaskAction::CheckCondition(_cond, _args);
   }
 
   /**
    * Execute action of action.
    *
    * @param ENUM_ACTION_ACTION _action
-   *   Action of action to execute.
+   *   TaskAction of action to execute.
    * @return
    *   Returns true when the action has been executed successfully.
    */
@@ -364,7 +364,7 @@ class Action {
   }
   bool ExecuteAction(ENUM_ACTION_ACTION _action) {
     ARRAY(DataParamEntry, _args);
-    return Action::ExecuteAction(_action, _args);
+    return TaskAction::ExecuteAction(_action, _args);
   }
 
   /* Other methods */

@@ -24,10 +24,10 @@
 struct IndicatorParams;
 
 // Includes.
-#include "../Action.mqh"
 #include "../DictStruct.mqh"
 #include "../Indicator.mqh"
 #include "../Redis.mqh"
+#include "../Task/TaskAction.h"
 #include "Indi_Drawer.struct.h"
 #include "Indi_Price.mqh"
 
@@ -114,7 +114,7 @@ class Indi_Drawer : public Indicator {
   virtual void OnTick() {
     Indicator::OnTick();
 
-    ActionEntry action(INDI_ACTION_SET_VALUE);
+    TaskActionEntry action(INDI_ACTION_SET_VALUE);
     ArrayResize(action.args, 3);
     action.args[0].type = TYPE_LONG;
     action.args[0].integer_value = GetBarTime();
@@ -141,7 +141,7 @@ class Indi_Drawer : public Indicator {
       Print("Got: ", message.Message);
 #endif
       if (message.Command == "message" && message.Channel == "INDICATOR_DRAW") {
-        ActionEntry action_entry;
+        TaskActionEntry action_entry;
         SerializerConverter::FromString<SerializerJson>(message.Message).ToObject(action_entry);
         ExecuteAction((ENUM_INDICATOR_ACTION)action_entry.action_id, action_entry.args);
 #ifdef __debug__

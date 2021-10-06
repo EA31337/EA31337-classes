@@ -26,8 +26,8 @@
 
 // Includes.
 #include "../Account.mqh"
-#include "../Action.mqh"
 #include "../Array.mqh"
+#include "../Task/TaskAction.h"
 //#include "../BasicTrade.mqh" // @removeme
 #include "../Buffer.mqh"
 #include "../BufferStruct.mqh"

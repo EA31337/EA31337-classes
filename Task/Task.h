@@ -30,12 +30,12 @@
 #define TASK_MQH
 
 // Includes.
-#include "../Action.mqh"
 #include "../DictStruct.mqh"
 #include "../Refs.mqh"
-#include "../Task/TaskCondition.h"
 #include "Task.enum.h"
 #include "Task.struct.h"
+#include "TaskAction.h"
+#include "TaskCondition.h"
 
 class Task {
  protected:
@@ -99,8 +99,8 @@ class Task {
     bool _result = false;
     if (_entry.IsActive()) {
       if (TaskCondition::Test(_entry.GetCondition())) {
-        ActionEntry _action = _entry.GetAction();
-        Action::Execute(_action);
+        TaskActionEntry _action = _entry.GetAction();
+        TaskAction::Execute(_action);
         if (_action.IsDone()) {
           _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE, _action.IsDone());
           _entry.SetFlag(TASK_ENTRY_FLAG_IS_FAILED, _action.IsFailed());

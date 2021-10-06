@@ -28,10 +28,11 @@
 struct DataParamEntry;
 
 // Includes.
-#include "../../Action.mqh"
 #include "../../Chart.mqh"
 #include "../../DictObject.mqh"
 #include "../../EA.mqh"
+#include "../TaskAction.h"
+#include "../TaskCondition.h"
 #include "../../Test.mqh"
 #include "../Task.h"
 

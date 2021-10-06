@@ -222,7 +222,7 @@ struct EAProcessResult {
 
 /* Defines EA state variables. */
 struct EAState {
-  unsigned short flags;      // Action flags.
+  unsigned short flags;      // TaskAction flags.
   unsigned int new_periods;  // Started periods.
   DateTime last_updated;     // Last updated.
   // Constructor.
