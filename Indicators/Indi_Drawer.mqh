@@ -114,6 +114,7 @@ class Indi_Drawer : public Indicator {
   virtual void OnTick() {
     Indicator::OnTick();
 
+    /* @fixme
     TaskActionEntry action(INDI_ACTION_SET_VALUE);
     ArrayResize(action.args, 3);
     action.args[0].type = TYPE_LONG;
@@ -124,9 +125,11 @@ class Indi_Drawer : public Indicator {
 
     action.args[2].type = TYPE_DOUBLE;
     action.args[2].double_value = 1.25;
+    */
 
-    string json = SerializerConverter::FromObject(action).ToString<SerializerJson>(/*SERIALIZER_JSON_NO_WHITESPACES*/);
+    //string json = SerializerConverter::FromObject(action).ToString<SerializerJson>(/*SERIALIZER_JSON_NO_WHITESPACES*/);
 
+    /* @fixme
     RedisMessage msg;
     msg.Add("message");
     msg.Add("INDICATOR_DRAW");
@@ -151,6 +154,7 @@ class Indi_Drawer : public Indicator {
         // Drawing on the buffer.
       }
     }
+    */
   }
 
   Redis *Redis() { return &redis; }

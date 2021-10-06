@@ -30,88 +30,126 @@
 #endif
 
 // Includes.
-#include "../Account.enum.h"
-#include "../Chart.enum.h"
 #include "../Data.struct.h"
-#include "../EA.enum.h"
-#include "../Indicator.enum.h"
-#include "TaskAction.enum.h"
-//#include "../Market.enum.h"
-#include "../Order.enum.h"
-#include "../Serializer.mqh"
-#include "../Strategy.enum.h"
-#include "../Trade.enum.h"
+#include "../Std.h"
 #include "Task.enum.h"
 
 /* Entry for TaskAction class. */
 struct TaskActionEntry {
-  unsigned char flags;   /* TaskAction flags. */
-  datetime last_success; /* Time of the previous check. */
-  int frequency;         /* How often to check. */
-  long action_id;        /* TaskAction ID. */
-  short tries;           /* Number of retries left. */
-  void *obj;             /* Reference to associated object. */
-  ENUM_ACTION_TYPE type; /* TaskAction type. */
-  DataParamEntry args[]; /* TaskAction arguments. */
+ public:
+  // Defines enumerations.
+  enum ENUM_TASK_ACTION_ENTRY_PROP {
+    TASK_ACTION_ENTRY_FLAGS,
+    TASK_ACTION_ENTRY_FREQUENCY,
+    TASK_ACTION_ENTRY_ID,
+    TASK_ACTION_ENTRY_TRIES,
+    TASK_ACTION_ENTRY_TIME_LAST_RUN,
+  };
+  /* Defines action entry flags. */
+  enum ENUM_TASK_ACTION_ENTRY_FLAG {
+    TASK_ACTION_ENTRY_FLAG_NONE = 0 << 0,
+    TASK_ACTION_ENTRY_FLAG_IS_ACTIVE = 1 << 0,
+    TASK_ACTION_ENTRY_FLAG_IS_DONE = 1 << 1,
+    TASK_ACTION_ENTRY_FLAG_IS_FAILED = 1 << 2,
+    TASK_ACTION_ENTRY_FLAG_IS_INVALID = 1 << 3,
+  };
+
+ protected:
+  unsigned char flags;    /* TaskAction flags. */
+  datetime time_last_run; /* Time of the successful run. */
+  int freq;               /* How often to run (0 for no limit). */
+  long id;                /* TaskAction's enum ID. */
+  short tries;            /* Number of retries left. */
+  DataParamEntry args[];  /* TaskAction arguments. */
+ public:
   // Constructors.
-  TaskActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
-  TaskActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
+  TaskActionEntry() : flags(0), freq(0), id(WRONG_VALUE), time_last_run(0), tries(0) {}
+  TaskActionEntry(long _id)
+      : flags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE)), id(_id), time_last_run(0), tries(0) {}
   TaskActionEntry(TaskActionEntry &_ae) { this = _ae; }
-  TaskActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); }
-  TaskActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
-  TaskActionEntry(ENUM_INDICATOR_ACTION _action_id) : type(ACTION_TYPE_INDICATOR), action_id(_action_id) { Init(); }
-  TaskActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
-  TaskActionEntry(ENUM_TASK_ACTION _action_id) : type(ACTION_TYPE_TASK), action_id(_action_id) { Init(); }
-  TaskActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
-  // Deconstructor.
-  ~TaskActionEntry() {
-    // Object::Delete(obj);
-  }
   // Flag methods.
-  bool HasFlag(unsigned char _flag) { return bool(flags & _flag); }
+  bool HasFlag(unsigned char _flag) const { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
   void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
-  void SetFlag(ENUM_ACTION_ENTRY_FLAGS _flag, bool _value) {
-    if (_value)
+  void SetFlag(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_FLAG) _flag, bool _value) {
+    if (_value) {
       AddFlags(_flag);
-    else
+    } else {
       RemoveFlags(_flag);
+    }
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // State methods.
-  bool IsActive() { return HasFlag(ACTION_ENTRY_FLAG_IS_ACTIVE); }
-  bool IsDone() { return HasFlag(ACTION_ENTRY_FLAG_IS_DONE); }
-  bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
-  bool IsInvalid() { return HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
-  bool IsValid() { return !IsInvalid(); }
+  bool HasTriesLeft() const { return tries > 0; }
+  bool IsActive() const { return HasFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE)); }
+  bool IsDone() const { return HasFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_DONE)); }
+  bool IsFailed() const { return HasFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_FAILED)); }
+  bool IsInvalid() const { return HasFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID)); }
+  bool IsValid() const { return !IsInvalid(); }
   // Getters.
-  long GetId() { return action_id; }
-  ENUM_ACTION_TYPE GetType() { return type; }
-  // Setter methods.
+  bool Get(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_FLAG) _flag) const { return HasFlag(_flag); }
+  template <typename T>
+  T Get(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_PROP) _prop) const {
+    switch (_prop) {
+      case TASK_ACTION_ENTRY_FLAGS:
+        return (T)flags;
+      case TASK_ACTION_ENTRY_FREQUENCY:
+        return (T)freq;
+      case TASK_ACTION_ENTRY_ID:
+        return (T)id;
+      case TASK_ACTION_ENTRY_TRIES:
+        return (T)tries;
+      case TASK_ACTION_ENTRY_TIME_LAST_RUN:
+        return (T)time_last_run;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return WRONG_VALUE;
+  }
+  long GetId() const { return id; }
+  // Setters.
+  void TriesDec() { tries--; }
+  void Set(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_FLAG) _flag, bool _value = true) {
+    SetFlag(_flag, _value);
+  }
+  template <typename T>
+  void Set(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_PROP) _prop, T _value) {
+    switch (_prop) {
+      case TASK_ACTION_ENTRY_FLAGS:  // ID (magic number).
+        flags = (unsigned char)_value;
+        return;
+      case TASK_ACTION_ENTRY_FREQUENCY:
+        freq = (int)_value;
+        return;
+      case TASK_ACTION_ENTRY_ID:
+        id = (long)_value;
+        SetFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID), id == WRONG_VALUE);
+        return;
+      case TASK_ACTION_ENTRY_TRIES:
+        tries = (short)_value;
+        return;
+      case TASK_ACTION_ENTRY_TIME_LAST_RUN:
+        time_last_run = (datetime)_value;
+        return;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
   void AddArg(MqlParam &_arg) {
     // @todo: Add another value to args[].
-  }
-  void Init() {
-    flags = ACTION_ENTRY_FLAG_NONE;
-    frequency = 60;
-    SetFlag(ACTION_ENTRY_FLAG_IS_ACTIVE, action_id != WRONG_VALUE);
-    SetFlag(ACTION_ENTRY_FLAG_IS_INVALID, action_id == WRONG_VALUE);
-    last_success = 0;
-    tries = 1;
   }
   void SetArgs(ARRAY_REF(MqlParam, _args)) {
     // @todo: for().
   }
-  void SetObject(void *_obj) { obj = _obj; }
-  void SetTries(short _count) { tries = _count; }
-
+  // Serializers
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "flags", flags);
-    s.Pass(THIS_REF, "last_success", last_success);
-    s.Pass(THIS_REF, "action_id", action_id);
-    //  s.Pass(THIS_REF, "tries", tries);
-    s.PassEnum(THIS_REF, "type", type);
-    s.PassEnum(THIS_REF, "frequency", frequency);
+    s.Pass(THIS_REF, "id", id);
+    s.Pass(THIS_REF, "time_last_run", time_last_run);
+    s.Pass(THIS_REF, "tries", tries);
+    s.PassEnum(THIS_REF, "freq", freq);
     s.PassArray(this, "args", args);
     return SerializerNodeObject;
   }

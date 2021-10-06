@@ -238,12 +238,14 @@ class Strategy : public Object {
    */
   void AddTask(TaskEntry &_entry) {
     if (_entry.IsValid()) {
+      /* @fixme
       if (_entry.GetAction().GetType() == ACTION_TYPE_STRATEGY) {
         _entry.SetActionObject(GetPointer(this));
       }
       if (_entry.GetCondition().GetType() == COND_TYPE_STRATEGY) {
         _entry.SetConditionObject(GetPointer(this));
       }
+      */
       tasks.Push(_entry);
     }
   }

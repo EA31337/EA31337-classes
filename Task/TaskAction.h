@@ -26,30 +26,22 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef ACTION_MQH
-#define ACTION_MQH
-
-// Forward class declaration.
-class TaskAction;
+#ifndef TASK_ACTION_MQH
+#define TASK_ACTION_MQH
 
 // Includes.
-#include "../EA.mqh"
 #include "TaskAction.enum.h"
 #include "TaskAction.struct.h"
-#include "TaskCondition.enum.h"
 
 /**
  * TaskAction class.
  */
-class TaskAction {
- public:
- protected:
-  // Class variables.
-  Ref<Log> logger;
-
+template <typename TO>
+class TaskAction : TaskActionBase {
  public:
   // Class variables.
-  DictStruct<short, TaskActionEntry> actions;
+  TaskActionEntry entry;  // Action entry.
+  TO obj;                 // Object to run the action on.
 
   /* Special methods */
 
@@ -57,317 +49,67 @@ class TaskAction {
    * Class constructor.
    */
   TaskAction() {}
-  TaskAction(TaskActionEntry &_entry) { actions.Push(_entry); }
-  TaskAction(long _action_id, ENUM_ACTION_TYPE _type) {
-    TaskActionEntry _entry(_action_id, _type);
-    actions.Push(_entry);
-  }
-  template <typename T>
-  TaskAction(T _action_id, void *_obj = NULL) {
-    TaskActionEntry _entry(_action_id);
-    if (_obj != NULL) {
-      _entry.SetObject(_obj);
-    }
-    actions.Push(_entry);
-  }
-  template <typename T>
-  TaskAction(T _action_id, MqlParam &_args[], void *_obj = NULL) {
-    TaskActionEntry _entry(_action_id);
-    _entry.SetArgs(_args);
-    if (_obj != NULL) {
-      _entry.SetObject(_obj);
-    }
-    actions.Push(_entry);
-  }
-
-  /**
-   * Class copy constructor.
-   */
-  TaskAction(TaskAction &_cond) { actions = _cond.GetActions(); }
+  TaskAction(TaskActionEntry &_entry) : entry(_entry) {}
 
   /* Main methods */
 
   /**
-   * Execute actions.
+   * Runs an action.
    */
-  bool Execute() {
-    bool _result = true, _executed = false;
-    for (DictStructIterator<short, TaskActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
-      bool _curr_result = false;
-      TaskActionEntry _entry = iter.Value();
-      if (!_entry.IsValid()) {
-        // Ignore invalid entries.
-        continue;
-      }
-      if (_entry.IsActive()) {
-        _executed = _result &= Execute(_entry);
-      }
-    }
-    return _result && _executed;
-  }
-
-  /**
-   * Execute specific action.
-   */
-  static bool Execute(TaskActionEntry &_entry) {
-    bool _result = false;
-    switch (_entry.type) {
-      case ACTION_TYPE_ACTION:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((TaskAction *)_entry.obj).ExecuteAction((ENUM_ACTION_ACTION)_entry.action_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-      case ACTION_TYPE_EA:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((EA *)_entry.obj).ExecuteAction((ENUM_EA_ACTION)_entry.action_id);
-        } else {
-          _result = false;
-          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#ifdef ORDER_MQH
-      case ACTION_TYPE_ORDER:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Order *)_entry.obj).ExecuteAction((ENUM_ORDER_ACTION)_entry.action_id);
-        } else {
-          _result = false;
-          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#endif
-#ifdef INDICATOR_MQH
-      case ACTION_TYPE_INDICATOR:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Indicator *)_entry.obj).ExecuteAction((ENUM_INDICATOR_ACTION)_entry.action_id);
-        } else {
-          _result = false;
-          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#endif
-#ifdef STRATEGY_MQH
-      case ACTION_TYPE_STRATEGY:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Strategy *)_entry.obj).ExecuteAction((ENUM_STRATEGY_ACTION)_entry.action_id);
-        } else {
-          _result = false;
-          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#endif
-#ifdef TASK_MQH
-      case ACTION_TYPE_TASK:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Task *)_entry.obj).ExecuteAction((ENUM_TASK_ACTION)_entry.action_id);
-        } else {
-          _result = false;
-          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#endif
-      case ACTION_TYPE_TRADE:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Trade *)_entry.obj).ExecuteAction((ENUM_TRADE_ACTION)_entry.action_id);
-        } else {
-          _result = false;
-          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#ifdef TERMINAL_MQH
-      case ACTION_TYPE_TERMINAL:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Terminal *)_entry.obj).ExecuteAction((ENUM_TERMINAL_ACTION)_entry.action_id);
-        } else {
-          _result = false;
-          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#endif
-    }
+  bool Run() {
+    bool _result = entry.IsValid() && entry.HasTriesLeft();
+    _result &= obj.Run(entry);
     if (_result) {
-      _entry.AddFlags(ACTION_ENTRY_FLAG_IS_DONE);
-      _entry.RemoveFlags(ACTION_ENTRY_FLAG_IS_ACTIVE);
-      _entry.last_success = TimeCurrent();
+      entry.TriesDec();
+      entry.AddFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_DONE));
+      entry.RemoveFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE));
+      entry.Set(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_TIME_LAST_RUN), TimeCurrent());
     } else {
-      if (--_entry.tries <= 0) {
-        _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
-        _entry.RemoveFlags(ACTION_ENTRY_FLAG_IS_ACTIVE);
+      entry.TriesDec();
+      if (!entry.HasTriesLeft()) {
+        entry.AddFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID));
+        entry.RemoveFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE));
       }
     }
     return _result;
-  }
-
-  /* State methods */
-
-  /**
-   * Check if action is active.
-   */
-  bool IsActive() {
-    // The whole action is active when at least one action is active.
-    return GetFlagCount(ACTION_ENTRY_FLAG_IS_ACTIVE) > 0;
-  }
-
-  /**
-   * Check if action is done.
-   */
-  bool IsDone() {
-    // The whole action is done when all actions has been executed successfully.
-    return GetFlagCount(ACTION_ENTRY_FLAG_IS_DONE) == actions.Size();
-  }
-
-  /**
-   * Check if action has failed.
-   */
-  bool IsFailed() {
-    // The whole action is failed when at least one action failed.
-    return GetFlagCount(ACTION_ENTRY_FLAG_IS_FAILED) > 0;
-  }
-
-  /**
-   * Check if action is finished.
-   */
-  bool IsFinished() {
-    // The whole action is finished when there are no more active actions.
-    return GetFlagCount(ACTION_ENTRY_FLAG_IS_ACTIVE) == 0;
-  }
-
-  /**
-   * Check if action is invalid.
-   */
-  bool IsInvalid() {
-    // The whole action is invalid when at least one action is invalid.
-    return GetFlagCount(ACTION_ENTRY_FLAG_IS_INVALID) > 0;
   }
 
   /* Getters */
 
   /**
-   * Returns actions.
+   * Gets an entry's flag.
    */
-  DictStruct<short, TaskActionEntry> *GetActions() { return &actions; }
+  bool Get(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_FLAG) _flag) const { return entry.Get(_flag); }
 
   /**
-   * Count entry flags.
+   * Gets an entry's property value.
    */
-  unsigned int GetFlagCount(ENUM_ACTION_ENTRY_FLAGS _flag) {
-    unsigned int _counter = 0;
-    for (DictStructIterator<short, TaskActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
-      TaskActionEntry _entry = iter.Value();
-      if (_entry.HasFlag(_flag)) {
-        _counter++;
-      }
-    }
-    return _counter;
+  template <typename T>
+  T Get(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_PROP) _prop) const {
+    entry.Get<T>(_prop);
   }
+
+  /**
+   * Gets an reference to the object.
+   */
+  TO *GetObject() { return GetPointer(obj); }
 
   /* Setters */
 
   /**
-   * Sets entry flags.
+   * Sets an entry's flag.
    */
-  bool SetFlags(ENUM_ACTION_ENTRY_FLAGS _flag, bool _value = true) {
-    unsigned int _counter = 0;
-    for (DictStructIterator<short, TaskActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
-      TaskActionEntry _entry = iter.Value();
-      switch (_value) {
-        case false:
-          if (_entry.HasFlag(_flag)) {
-            _entry.SetFlag(_flag, _value);
-            _counter++;
-          }
-          break;
-        case true:
-          if (!_entry.HasFlag(_flag)) {
-            _entry.SetFlag(_flag, _value);
-            _counter++;
-          }
-          break;
-      }
-    }
-    return _counter > 0;
-  }
-
-  /* Conditions and actions */
-
-  /**
-   * Checks for Task condition.
-   *
-   * @param ENUM_ACTION_CONDITION _cond
-   *   TaskAction condition.
-   * @return
-   *   Returns true when the condition is met.
-   */
-  bool CheckCondition(ENUM_ACTION_CONDITION _cond, DataParamEntry &_args[]) {
-    switch (_cond) {
-      case ACTION_COND_IS_ACTIVE:
-        // Is active;
-        return IsActive();
-      case ACTION_COND_IS_DONE:
-        // Is done.
-        return IsDone();
-      case ACTION_COND_IS_FAILED:
-        // Is failed.
-        return IsFailed();
-      case ACTION_COND_IS_FINISHED:
-        // Is finished.
-        return IsFinished();
-      case ACTION_COND_IS_INVALID:
-        // Is invalid.
-        return IsInvalid();
-      default:
-        logger.Ptr().Error(StringFormat("Invalid TaskAction condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
-    }
-  }
-  bool CheckCondition(ENUM_ACTION_CONDITION _cond) {
-    ARRAY(DataParamEntry, _args);
-    return TaskAction::CheckCondition(_cond, _args);
+  void Set(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_FLAG) _flag, bool _value = true) {
+    entry.Set(_flag, _value);
   }
 
   /**
-   * Execute action of action.
-   *
-   * @param ENUM_ACTION_ACTION _action
-   *   TaskAction of action to execute.
-   * @return
-   *   Returns true when the action has been executed successfully.
+   * Sets an entry's property value.
    */
-  bool ExecuteAction(ENUM_ACTION_ACTION _action, DataParamEntry &_args[]) {
-    bool _result = true;
-    switch (_action) {
-      case ACTION_ACTION_DISABLE:
-        // Disable action.
-        return SetFlags(ACTION_ENTRY_FLAG_IS_ACTIVE, false);
-      case ACTION_ACTION_EXECUTE:
-        // Execute action.
-        return Execute();
-      case ACTION_ACTION_MARK_AS_DONE:
-        // Marks as done.
-        return SetFlags(ACTION_ENTRY_FLAG_IS_DONE);
-      case ACTION_ACTION_MARK_AS_FAILED:
-        // Mark as failed.
-        return SetFlags(ACTION_ENTRY_FLAG_IS_FAILED);
-      case ACTION_ACTION_MARK_AS_FINISHED:
-        // Mark as finished.
-        return SetFlags(ACTION_ENTRY_FLAG_IS_ACTIVE, false);
-      case ACTION_ACTION_MARK_AS_INVALID:
-        // Mark as invalid.
-        return SetFlags(ACTION_ENTRY_FLAG_IS_INVALID);
-      default:
-        logger.Ptr().Error(StringFormat("Invalid action of action: %s!", EnumToString(_action), __FUNCTION_LINE__));
-        return false;
-    }
-    return _result;
+  template <typename T>
+  void Set(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_PROP) _prop, T _value) {
+    entry.Set(_prop, _value);
   }
-  bool ExecuteAction(ENUM_ACTION_ACTION _action) {
-    ARRAY(DataParamEntry, _args);
-    return TaskAction::ExecuteAction(_action, _args);
-  }
-
-  /* Other methods */
 };
 
-#endif  // ACTION_MQH
+#endif  // TASK_ACTION_MQH

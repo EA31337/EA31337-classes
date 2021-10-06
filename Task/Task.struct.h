@@ -45,13 +45,8 @@ struct TaskEntry {
   // Constructors.
   void TaskEntry() { Init(); }
   void TaskEntry(TaskActionEntry &_action, TaskConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
-  void TaskEntry(long _aid, ENUM_ACTION_TYPE _atype, long _cid, ENUM_TASK_CONDITION_TYPE _ctype)
-      : action(_aid, _atype), cond(_cid, _ctype) {
-    Init();
-  }
   template <typename AE, typename CE>
-  void TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) {
-    Init();
+  void TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) { : action(_aid, _atype), cond(_cid, _ctype){Init()};
   }
   // Main methods.
   void Init() {
@@ -72,18 +67,16 @@ struct TaskEntry {
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // State methods.
-  bool IsActive() { return HasFlag(ACTION_ENTRY_FLAG_IS_ACTIVE); }
-  bool IsDone() { return HasFlag(ACTION_ENTRY_FLAG_IS_DONE); }
-  bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
-  bool IsValid() { return !HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
+  // bool IsActive() { return HasFlag(ACTION_ENTRY_FLAG_IS_ACTIVE); }
+  // bool IsDone() { return HasFlag(ACTION_ENTRY_FLAG_IS_DONE); }
+  // bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
+  bool IsValid() { return action.IsValid() && cond.IsValid(); }
   // Getters.
   long GetActionId() { return action.GetId(); }
   long GetConditionId() { return cond.GetId(); }
   TaskActionEntry GetAction() { return action; }
   TaskConditionEntry GetCondition() { return cond; }
-  ENUM_ACTION_TYPE GetActionType() { return action.GetType(); }
-  ENUM_TASK_CONDITION_TYPE GetConditionType() { return cond.GetType(); }
   // Setters.
-  void SetActionObject(void *_obj) { action.SetObject(_obj); }
-  void SetConditionObject(void *_obj) { cond.SetObject(_obj); }
+  // void SetActionObject(void *_obj) { action.SetObject(_obj); }
+  // void SetConditionObject(void *_obj) { cond.SetObject(_obj); }
 };

@@ -97,6 +97,7 @@ class Task {
    */
   static bool Process(TaskEntry &_entry) {
     bool _result = false;
+    /* @fixme
     if (_entry.IsActive()) {
       if (TaskCondition::Test(_entry.GetCondition())) {
         TaskActionEntry _action = _entry.GetAction();
@@ -111,6 +112,7 @@ class Task {
       _entry.last_process = TimeCurrent();
       _result = true;
     }
+    */
     return _result;
   }
 

@@ -617,6 +617,7 @@ class EA {
    */
   bool TaskAdd(TaskEntry &_entry) {
     bool _result = false;
+    /* @fixme
     if (_entry.IsValid()) {
       switch (_entry.GetConditionType()) {
         case COND_TYPE_ACCOUNT:
@@ -639,6 +640,7 @@ class EA {
       }
       _result |= tasks.Push(_entry);
     }
+    */
     return _result;
   }
 

@@ -59,7 +59,7 @@ int OnInit() {
   // Exporting to all possible formats once per hour.
   ea_params.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_STORE), EA_DATA_STORE_ALL);
   ea_params.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT), EA_DATA_EXPORT_ALL);
-  ea_params.SetTaskEntry(_task_export_per_hour);
+  //ea_params.SetTaskEntry(_task_export_per_hour);
   ea = new EA(ea_params);
   assertTrueOrFail(ea.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME)) == "EA",
                    StringFormat("Invalid EA name: %s!", ea.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME))));
@@ -69,7 +69,7 @@ int OnInit() {
   // Exporting to all possible formats once per hour.
   ea_params1.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_STORE), EA_DATA_STORE_ALL);
   ea_params1.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT), EA_DATA_EXPORT_ALL);
-  ea_params1.SetTaskEntry(_task_export_per_hour);
+  //ea_params1.SetTaskEntry(_task_export_per_hour);
   ea1 = new EA1(ea_params1);
   assertTrueOrFail(ea1.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME)) == "EA1", "Invalid EA1 name!");
 
@@ -78,7 +78,7 @@ int OnInit() {
   // Exporting to all possible formats once per hour.
   ea_params2.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_STORE), EA_DATA_STORE_ALL);
   ea_params2.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT), EA_DATA_EXPORT_ALL);
-  ea_params2.SetTaskEntry(_task_export_per_hour);
+  //ea_params2.SetTaskEntry(_task_export_per_hour);
   ea2 = new EA2(ea_params2);
   assertTrueOrFail(ea2.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME)) == "EA2", "Invalid EA2 name!");
 
