@@ -35,8 +35,8 @@ class Action;
 // Includes.
 #include "Action.enum.h"
 #include "Action.struct.h"
-#include "Condition.enum.h"
 #include "EA.mqh"
+#include "Task/TaskCondition.enum.h"
 
 /**
  * Action class.

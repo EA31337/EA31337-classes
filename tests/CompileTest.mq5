@@ -33,7 +33,6 @@
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
 #include "../Collection.mqh"
-#include "../Condition.mqh"
 #include "../Config.mqh"
 #include "../Convert.mqh"
 #include "../Database.mqh"
@@ -56,6 +55,7 @@
 #include "../Log.mqh"
 #include "../MD5.mqh"
 #include "../Storage/IValueStorage.h"
+#include "../Task/TaskCondition.h"
 //#include "../MQL4.mqh" // @removeme
 //#include "../MQL5.mqh" // @removeme
 #include "../Mail.mqh"

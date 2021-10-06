@@ -32,7 +32,6 @@
 // Includes.
 #include "Action.enum.h"
 #include "Chart.mqh"
-#include "Condition.enum.h"
 #include "Data.struct.h"
 #include "Dict.mqh"
 #include "DictObject.mqh"
@@ -47,6 +46,7 @@
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task/Task.h"
+#include "Task/TaskCondition.enum.h"
 #include "Terminal.mqh"
 #include "Trade.mqh"
 

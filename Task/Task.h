@@ -31,9 +31,9 @@
 
 // Includes.
 #include "../Action.mqh"
-#include "../Condition.mqh"
 #include "../DictStruct.mqh"
 #include "../Refs.mqh"
+#include "../Task/TaskCondition.h"
 #include "Task.enum.h"
 #include "Task.struct.h"
 
@@ -98,7 +98,7 @@ class Task {
   static bool Process(TaskEntry &_entry) {
     bool _result = false;
     if (_entry.IsActive()) {
-      if (Condition::Test(_entry.GetCondition())) {
+      if (TaskCondition::Test(_entry.GetCondition())) {
         ActionEntry _action = _entry.GetAction();
         Action::Execute(_action);
         if (_action.IsDone()) {

@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Includes Condition's enums.
+ * Includes TaskCondition's enums.
  */
 
 #ifndef __MQL__
@@ -85,7 +85,7 @@ enum ENUM_MARKET_EVENT {
 #endif
 
 /* Defines condition entry flags. */
-enum ENUM_CONDITION_ENTRY_FLAGS {
+enum ENUM_TASK_CONDITION_ENTRY_FLAGS {
   COND_ENTRY_FLAG_NONE = 0,
   COND_ENTRY_FLAG_IS_ACTIVE = 1,
   COND_ENTRY_FLAG_IS_EXPIRED = 2,
@@ -94,7 +94,7 @@ enum ENUM_CONDITION_ENTRY_FLAGS {
 };
 
 /* Defines condition statements (operators). */
-enum ENUM_CONDITION_STATEMENT {
+enum ENUM_TASK_CONDITION_STATEMENT {
   COND_AND = 1,  // Use AND statement.
   COND_OR,       // Use OR statement.
   COND_SEQ,      // Use sequential checks.
@@ -102,7 +102,7 @@ enum ENUM_CONDITION_STATEMENT {
 };
 
 /* Defines condition types. */
-enum ENUM_CONDITION_TYPE {
+enum ENUM_TASK_CONDITION_TYPE {
   COND_TYPE_ACCOUNT = 1,  // Account condition.
   COND_TYPE_ACTION,       // Action condition.
   COND_TYPE_CHART,        // Chart condition.

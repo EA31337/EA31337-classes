@@ -21,8 +21,8 @@
 
 /**
  * @file
- * Test functionality of Condition class.
+ * Test functionality of TaskCondition class.
  */
 
 // Includes.
-#include "ConditionTest.mq5"
+#include "TaskCondition.test.mq5"

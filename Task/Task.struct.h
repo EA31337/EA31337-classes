@@ -32,20 +32,20 @@
 
 // Includes.
 #include "../Action.struct.h"
-#include "../Condition.struct.h"
 #include "Task.enum.h"
+#include "TaskCondition.struct.h"
 
 struct TaskEntry {
-  ActionEntry action;     // Action of the task.
-  ConditionEntry cond;    // Condition of the task.
-  datetime expires;       // Time of expiration.
-  datetime last_process;  // Time of the last process.
-  datetime last_success;  // Time of the last success.
-  unsigned char flags;    // Action flags.
+  ActionEntry action;       // Action of the task.
+  TaskConditionEntry cond;  // TaskCondition of the task.
+  datetime expires;         // Time of expiration.
+  datetime last_process;    // Time of the last process.
+  datetime last_success;    // Time of the last success.
+  unsigned char flags;      // Action flags.
   // Constructors.
   void TaskEntry() { Init(); }
-  void TaskEntry(ActionEntry &_action, ConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
-  void TaskEntry(long _aid, ENUM_ACTION_TYPE _atype, long _cid, ENUM_CONDITION_TYPE _ctype)
+  void TaskEntry(ActionEntry &_action, TaskConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
+  void TaskEntry(long _aid, ENUM_ACTION_TYPE _atype, long _cid, ENUM_TASK_CONDITION_TYPE _ctype)
       : action(_aid, _atype), cond(_cid, _ctype) {
     Init();
   }
@@ -80,9 +80,9 @@ struct TaskEntry {
   long GetActionId() { return action.GetId(); }
   long GetConditionId() { return cond.GetId(); }
   ActionEntry GetAction() { return action; }
-  ConditionEntry GetCondition() { return cond; }
+  TaskConditionEntry GetCondition() { return cond; }
   ENUM_ACTION_TYPE GetActionType() { return action.GetType(); }
-  ENUM_CONDITION_TYPE GetConditionType() { return cond.GetType(); }
+  ENUM_TASK_CONDITION_TYPE GetConditionType() { return cond.GetType(); }
   // Setters.
   void SetActionObject(void *_obj) { action.SetObject(_obj); }
   void SetConditionObject(void *_obj) { cond.SetObject(_obj); }
