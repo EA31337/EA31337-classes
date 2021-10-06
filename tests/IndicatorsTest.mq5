@@ -510,7 +510,7 @@ bool InitIndicators() {
 
   // Bill Williams' Zone Trade.
   BWZTParams bwzt_params();
-  // indis.Push(new Indi_BWZT(bwzt_params));
+  indis.Push(new Indi_BWZT(bwzt_params));
 
   // Rate of Change.
   RateOfChangeParams rate_of_change_params();
@@ -526,7 +526,7 @@ bool InitIndicators() {
 
   // Ultimate Oscillator.
   UltimateOscillatorParams ultimate_oscillator_params();
-  // indis.Push(new Indi_UltimateOscillator(ultimate_oscillator_params));
+  indis.Push(new Indi_UltimateOscillator(ultimate_oscillator_params));
 
   // VIDYA.
   VIDYAParams vidya_params();
