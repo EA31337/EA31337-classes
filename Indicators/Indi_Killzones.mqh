@@ -111,7 +111,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   float GetValue(unsigned int _mode, int _shift = 0) {
     ResetLastError();
     float _value = FLT_MAX;
-    int _index = (int)floor(_mode / 2);
+    int _index = (int)_mode / 2;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // Builtin mode not supported.
@@ -149,9 +149,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
       _entry.timestamp = GetBarTime(_shift);
       for (unsigned int _mode = 0; _mode < (uint)iparams.GetMaxModes(); _mode++) {
         float _value = GetValue(_mode, _shift);
-        if (IsValidValue(_value, _mode, _shift)) {
-          _entry.values[_mode] = _value;
-        }
+        _entry.values[_mode] = IsValidValue(_value, _mode, _shift) ? _value : 0.0f;
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.IsGe<float>(0) && !_entry.HasValue<float>(FLT_MAX));
       if (_entry.IsValid()) {
