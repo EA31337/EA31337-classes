@@ -800,11 +800,27 @@ class Indicator : public IndicatorBase {
   /**
    * Returns the indicator's struct value.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    _entry = idata.GetByKey(GetBarTime(_shift), _entry);
+  IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
+    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
+      _entry.Resize(iparams.GetMaxModes());
+      _entry.timestamp = GetBarTime(_shift);
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
+        _entry.values[_mode] = GetValue(_mode, _shift);
+      }
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) &&
+                                                   !_entry.HasValue<double>(EMPTY_VALUE) &&
+                                                   !_entry.HasValue<double>(DBL_MAX));
+      if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
+        idata.Add(_entry, _bar_time);
+      } else {
+        _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
+      }
+    }
     return _entry;
-  };
+  }
 
   /**
    * Returns the indicator's entry value.
@@ -813,6 +829,15 @@ class Indicator : public IndicatorBase {
     MqlParam _param = {TYPE_FLOAT};
     _param.double_value = (float)GetEntry(_shift).GetValue<float>(_mode);
     return _param;
+  }
+
+  /**
+   * Returns the indicator's value.
+   */
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
+    istate.is_changed = false;
+    istate.is_ready = false;
+    return EMPTY_VALUE;
   }
 
   /**
