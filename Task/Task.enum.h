@@ -30,14 +30,14 @@
 #pragma once
 #endif
 
-/* Structure for task actions for Action class. */
+/* Structure for task actions for TaskAction class. */
 enum ENUM_TASK_ACTION {
   TASK_ACTION_NONE = 0,  // Does nothing.
   TASK_ACTION_PROCESS,   // Process tasks.
   FINAL_TASK_ACTION_ENTRY
 };
 
-/* Structure for task conditions for Action class. */
+/* Structure for task conditions for TaskAction class. */
 enum ENUM_TASK_CONDITION {
   TASK_COND_NONE = 0,     // Empty condition.
   TASK_COND_IS_ACTIVE,    // Is active.

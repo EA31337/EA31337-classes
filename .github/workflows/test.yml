@@ -40,7 +40,6 @@ jobs:
       matrix:
         test:
           - AccountTest
-          - ActionTest
           - BufferStructTest
           - BufferTest
           - ChartTest

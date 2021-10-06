@@ -104,7 +104,7 @@ enum ENUM_TASK_CONDITION_STATEMENT {
 /* Defines condition types. */
 enum ENUM_TASK_CONDITION_TYPE {
   COND_TYPE_ACCOUNT = 1,  // Account condition.
-  COND_TYPE_ACTION,       // Action condition.
+  COND_TYPE_ACTION,       // TaskAction condition.
   COND_TYPE_CHART,        // Chart condition.
   COND_TYPE_DATETIME,     // Datetime condition.
   COND_TYPE_EA,           // EA condition.
@@ -164,7 +164,7 @@ enum ENUM_ACCOUNT_CONDITION {
   FINAL_ACCOUNT_CONDITION_ENTRY
 };
 
-/* Action conditions. */
+/* TaskAction conditions. */
 enum ENUM_ACTION_CONDITION {
   ACTION_COND_NONE = 0,     // Empty condition.
   ACTION_COND_IS_ACTIVE,    // Is active.

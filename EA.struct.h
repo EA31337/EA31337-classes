@@ -225,7 +225,7 @@ struct EAState {
  public:                  // @todo: Move to protected.
   DateTime last_updated;  // Last updated.
  protected:
-  unsigned int flags;        // Action flags.
+  unsigned int flags;      // TaskAction flags.
   unsigned int new_periods;  // Started periods.
  public:
   /* Struct's enumerations */

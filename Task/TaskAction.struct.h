@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Includes Action's structs.
+ * Includes TaskAction's structs.
  */
 
 #ifndef __MQL__
@@ -30,41 +30,41 @@
 #endif
 
 // Includes.
-#include "Account/Account.enum.h"
-#include "Action.enum.h"
-#include "Chart.enum.h"
-#include "Data.struct.h"
-#include "EA.enum.h"
-#include "Indicator.enum.h"
-//#include "Market.enum.h"
-#include "Order.enum.h"
-#include "Serializer.mqh"
-#include "Strategy.enum.h"
-#include "Task/Task.enum.h"
-#include "Trade.enum.h"
+#include "../Account/Account.enum.h"
+#include "../Chart.enum.h"
+#include "../Data.struct.h"
+#include "../EA.enum.h"
+#include "../Indicator.enum.h"
+#include "TaskAction.enum.h"
+//#include "../Market.enum.h"
+#include "../Order.enum.h"
+#include "../Serializer.mqh"
+#include "../Strategy.enum.h"
+#include "../Trade.enum.h"
+#include "Task.enum.h"
 
-/* Entry for Action class. */
-struct ActionEntry {
-  unsigned char flags;   /* Action flags. */
+/* Entry for TaskAction class. */
+struct TaskActionEntry {
+  unsigned char flags;   /* TaskAction flags. */
   datetime last_success; /* Time of the previous check. */
   int frequency;         /* How often to check. */
-  long action_id;        /* Action ID. */
+  long action_id;        /* TaskAction ID. */
   short tries;           /* Number of retries left. */
   void *obj;             /* Reference to associated object. */
-  ENUM_ACTION_TYPE type; /* Action type. */
-  DataParamEntry args[]; /* Action arguments. */
+  ENUM_ACTION_TYPE type; /* TaskAction type. */
+  DataParamEntry args[]; /* TaskAction arguments. */
   // Constructors.
-  ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
-  ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
-  ActionEntry(ActionEntry &_ae) { this = _ae; }
-  ActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); }
-  ActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
-  ActionEntry(ENUM_INDICATOR_ACTION _action_id) : type(ACTION_TYPE_INDICATOR), action_id(_action_id) { Init(); }
-  ActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
-  ActionEntry(ENUM_TASK_ACTION _action_id) : type(ACTION_TYPE_TASK), action_id(_action_id) { Init(); }
-  ActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
+  TaskActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
+  TaskActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
+  TaskActionEntry(TaskActionEntry &_ae) { this = _ae; }
+  TaskActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); }
+  TaskActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
+  TaskActionEntry(ENUM_INDICATOR_ACTION _action_id) : type(ACTION_TYPE_INDICATOR), action_id(_action_id) { Init(); }
+  TaskActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
+  TaskActionEntry(ENUM_TASK_ACTION _action_id) : type(ACTION_TYPE_TASK), action_id(_action_id) { Init(); }
+  TaskActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
   // Deconstructor.
-  ~ActionEntry() {
+  ~TaskActionEntry() {
     // Object::Delete(obj);
   }
   // Flag methods.

@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Test functionality of Action class.
+ * Test functionality of TaskAction class.
  */
 
 // Defines.
@@ -31,15 +31,15 @@
 struct DataParamEntry;
 
 // Includes.
-#include "../Action.mqh"
-#include "../DictObject.mqh"
-#include "../EA.mqh"
-#include "../Test.mqh"
+#include "../../DictObject.mqh"
+#include "../../EA.mqh"
+#include "../../Test.mqh"
+#include "../TaskAction.h"
 
 // Global variables.
 Chart *chart;
 EA *ea;
-DictObject<short, Action> actions;
+DictObject<short, TaskAction> actions;
 
 // Define strategy classes.
 class Stg1 : public Strategy {
@@ -79,12 +79,12 @@ int OnInit() {
   assertTrueOrReturnFalse(ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
 #ifdef ACTION_EA_ENABLED
   // Disables EA and confirm it's disabled.
-  Action *action1 = new Action(EA_ACTION_DISABLE, ea);
+  TaskAction *action1 = new TaskAction(EA_ACTION_DISABLE, ea);
   action1.Execute();
   assertTrueOrReturnFalse(!ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
   delete action1;
   // Re-enables EA and confirm it's enabled.
-  Action *action2 = new Action(EA_ACTION_ENABLE, ea);
+  TaskAction *action2 = new TaskAction(EA_ACTION_ENABLE, ea);
   action2.Execute();
   assertTrueOrReturnFalse(ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
   delete action2;
