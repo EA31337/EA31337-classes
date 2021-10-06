@@ -40,7 +40,7 @@
 #include "Order.enum.h"
 #include "Serializer.mqh"
 #include "Strategy.enum.h"
-#include "Task.enum.h"
+#include "Task/Task.enum.h"
 #include "Trade.enum.h"
 
 /* Entry for Action class. */

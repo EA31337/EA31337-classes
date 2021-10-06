@@ -46,7 +46,7 @@
 #include "SerializerSqlite.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
-#include "Task.mqh"
+#include "Task/Task.h"
 #include "Terminal.mqh"
 #include "Trade.mqh"
 #include "Trade/TradeSignal.h"

@@ -32,7 +32,7 @@
 
 // Includes.
 #include "DateTime.mqh"
-#include "Task.struct.h"
+#include "Task/Task.struct.h"
 
 /* Defines EA config parameters. */
 struct EAParams {
