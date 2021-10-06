@@ -29,12 +29,12 @@ class Market;
 class SymbolInfo;
 
 // Includes.
-#include "Condition.enum.h"
 #include "Market.struct.h"
 #include "Math.h"
 #include "Order.mqh"
 #include "Serializer.mqh"
 #include "SymbolInfo.mqh"
+#include "Task/TaskCondition.enum.h"
 
 // Structs.
 // Market info.

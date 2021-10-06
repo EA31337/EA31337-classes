@@ -32,8 +32,8 @@ struct DataParamEntry;
 #include "../../Chart.mqh"
 #include "../../DictObject.mqh"
 #include "../../EA.mqh"
-#include "../Task.h"
 #include "../../Test.mqh"
+#include "../Task.h"
 
 // Global variables.
 Chart *chart;
