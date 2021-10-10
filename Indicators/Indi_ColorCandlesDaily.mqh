@@ -29,7 +29,7 @@
 struct ColorCandlesDailyParams : IndicatorParams {
   // Struct constructor.
   void ColorCandlesDailyParams(int _shift = 0) {
-    itype = INDI_COLOR_CANDLES_DAILY;
+    itype = itype == INDI_NONE ? INDI_COLOR_CANDLES_DAILY : itype;
     max_modes = 5;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

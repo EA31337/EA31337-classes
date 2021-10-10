@@ -33,7 +33,7 @@ struct MassIndexParams : IndicatorParams {
   int sum_period;
   // Struct constructor.
   void MassIndexParams(int _period = 9, int _second_period = 9, int _sum_period = 25, int _shift = 0) {
-    itype = INDI_MASS_INDEX;
+    itype = itype == INDI_NONE ? INDI_MASS_INDEX : itype;
     max_modes = 1;
     period = _period;
     second_period = _second_period;

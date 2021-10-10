@@ -69,7 +69,7 @@ struct IchimokuParams : IndicatorParams {
   // Struct constructors.
   void IchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
       : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {
-    itype = INDI_ICHIMOKU;
+    itype = itype == INDI_NONE ? INDI_ICHIMOKU : itype;
     max_modes = FINAL_ICHIMOKU_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

@@ -58,7 +58,7 @@ struct EnvelopesParams : IndicatorParams {
 #else
     max_modes = 3;
 #endif
-    itype = INDI_ENVELOPES;
+    itype = itype == INDI_NONE ? INDI_ENVELOPES : itype;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);

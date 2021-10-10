@@ -35,7 +35,7 @@ struct ATRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
   void ATRParams(unsigned int _period = 14, int _shift = 0) : period(_period) {
-    itype = INDI_ATR;
+    itype = itype == INDI_NONE ? INDI_ATR : itype;
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

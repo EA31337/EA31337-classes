@@ -53,7 +53,7 @@ struct StdDevParams : IndicatorParams {
   void StdDevParams(int _ma_period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
                     ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
-    itype = INDI_STDDEV;
+    itype = itype == INDI_NONE ? INDI_STDDEV : itype;
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

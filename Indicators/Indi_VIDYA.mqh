@@ -37,7 +37,7 @@ struct VIDYAParams : IndicatorParams {
                    ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
     applied_price = _ap;
     cmo_period = _cmo_period;
-    itype = INDI_VIDYA;
+    itype = itype == INDI_NONE ? INDI_VIDYA : itype;
     ma_period = _ma_period;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);

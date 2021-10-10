@@ -42,7 +42,7 @@ struct IndiAMAParams : IndicatorParams {
         slow_period(_slow_period),
         ama_shift(_ama_shift),
         applied_price(_ap) {
-    itype = INDI_AMA;
+    itype = itype == INDI_NONE ? INDI_AMA : itype;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetMaxModes(1);

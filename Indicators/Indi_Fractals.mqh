@@ -34,7 +34,7 @@ double iFractals(string _symbol, int _tf, int _mode, int _shift) {
 struct FractalsParams : IndicatorParams {
   // Struct constructors.
   void FractalsParams(int _shift = 0) {
-    itype = INDI_FRACTALS;
+    itype = itype == INDI_NONE ? INDI_FRACTALS : itype;
     max_modes = FINAL_LO_UP_LINE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_ARROW);

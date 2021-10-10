@@ -37,7 +37,7 @@ struct BullsPowerParams : IndicatorParams {
   // Struct constructor.
   void BullsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : period(_period), applied_price(_ap) {
-    itype = INDI_BULLS;
+    itype = itype == INDI_NONE ? INDI_BULLS : itype;
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

@@ -33,7 +33,7 @@ double iAC(string _symbol, int _tf, int _shift) { return Indi_AC::iAC(_symbol, (
 struct ACParams : IndicatorParams {
   // Struct constructor.
   void ACParams(int _shift = 0) {
-    itype = INDI_AC;
+    itype = itype == INDI_NONE ? INDI_AC : itype;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

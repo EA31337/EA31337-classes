@@ -44,7 +44,7 @@ enum ENUM_MFI_COLOR {
 struct BWMFIParams : IndicatorParams {
   // Struct constructors.
   BWMFIParams(int _shift = 0) {
-    itype = INDI_BWMFI;
+    itype = itype == INDI_NONE ? INDI_BWMFI : itype;
     max_modes = FINAL_BWMFI_BUFFER_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

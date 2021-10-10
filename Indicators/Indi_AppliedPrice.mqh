@@ -29,7 +29,7 @@ struct AppliedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   AppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0) {
-    itype = INDI_APPLIED_PRICE;
+    itype = itype == INDI_NONE ? INDI_APPLIED_PRICE : itype;
     max_modes = 1;
     applied_price = _applied_price;
     SetDataSourceType(IDATA_INDICATOR);

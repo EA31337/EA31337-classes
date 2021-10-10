@@ -32,7 +32,7 @@ double iAD(string _symbol, int _tf, int _shift) { return Indi_AD::iAD(_symbol, (
 struct ADParams : IndicatorParams {
   // Struct constructor.
   ADParams(int _shift = 0) {
-    itype = INDI_AD;
+    itype = itype == INDI_NONE ? INDI_AD : itype;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

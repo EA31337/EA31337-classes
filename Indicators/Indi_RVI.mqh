@@ -35,7 +35,7 @@ struct RVIParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
   void RVIParams(unsigned int _period = 10, int _shift = 0) : period(_period) {
-    itype = INDI_RVI;
+    itype = itype == INDI_NONE ? INDI_RVI : itype;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

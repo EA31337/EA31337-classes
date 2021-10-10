@@ -29,7 +29,7 @@
 struct WilliamsADParams : IndicatorParams {
   // Struct constructor.
   void WilliamsADParams(int _shift = 0) {
-    itype = INDI_WILLIAMS_AD;
+    itype = itype == INDI_NONE ? INDI_WILLIAMS_AD : itype;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

@@ -39,7 +39,7 @@ struct CHOParams : IndicatorParams {
                  ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0) {
     fast_ma = _fast_ma;
     input_volume = _input_volume;
-    itype = INDI_CHAIKIN;
+    itype = itype == INDI_NONE ? INDI_CHAIKIN : itype;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

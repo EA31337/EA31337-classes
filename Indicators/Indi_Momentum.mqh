@@ -47,7 +47,7 @@ struct MomentumParams : IndicatorParams {
   // Struct constructors.
   void MomentumParams(unsigned int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), applied_price(_ap) {
-    itype = INDI_MOMENTUM;
+    itype = itype == INDI_NONE ? INDI_MOMENTUM : itype;
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

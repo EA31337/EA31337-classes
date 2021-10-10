@@ -32,7 +32,7 @@ struct CustomMovingAverageParams : IndicatorParams {
   // Struct constructor.
   void CustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0,
                                  ENUM_MA_METHOD _smooth_method = MODE_SMMA, int _shift = 0) {
-    itype = INDI_CUSTOM_MOVING_AVG;
+    itype = itype == INDI_NONE ? INDI_CUSTOM_MOVING_AVG : itype;
     max_modes = 3;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

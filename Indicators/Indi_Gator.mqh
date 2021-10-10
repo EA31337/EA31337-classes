@@ -88,7 +88,7 @@ struct GatorParams : IndicatorParams {
         lips_shift(_ls),
         ma_method(_mm),
         applied_price(_ap) {
-    itype = INDI_GATOR;
+    itype = itype == INDI_NONE ? INDI_GATOR : itype;
     max_modes = FINAL_GATOR_LINE_HISTOGRAM_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

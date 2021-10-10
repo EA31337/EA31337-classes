@@ -41,7 +41,7 @@ struct MACDParams : IndicatorParams {
   void MACDParams(unsigned int _efp = 12, unsigned int _esp = 26, unsigned int _sp = 9,
                   ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
-    itype = INDI_MACD;
+    itype = itype == INDI_NONE ? INDI_MACD : itype;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

@@ -31,7 +31,7 @@ struct ASIParams : IndicatorParams {
   double mpc;
   // Struct constructor.
   void ASIParams(double _mpc = 300.0, int _shift = 0) {
-    itype = INDI_ASI;
+    itype = itype == INDI_NONE ? INDI_ASI : itype;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

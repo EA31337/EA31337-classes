@@ -40,7 +40,7 @@ struct CHVParams : IndicatorParams {
   void CHVParams(int _smooth_period = 10, int _chv_period = 10,
                  ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0) {
     chv_period = _chv_period;
-    itype = INDI_CHAIKIN_V;
+    itype = itype == INDI_NONE ? INDI_CHAIKIN_V : itype;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

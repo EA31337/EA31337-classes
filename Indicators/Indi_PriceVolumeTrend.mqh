@@ -31,7 +31,7 @@ struct PriceVolumeTrendParams : IndicatorParams {
   // Struct constructor.
   void PriceVolumeTrendParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) {
     applied_volume = _applied_volume;
-    itype = INDI_PRICE_VOLUME_TREND;
+    itype = itype == INDI_NONE ? INDI_PRICE_VOLUME_TREND : itype;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

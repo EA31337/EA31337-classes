@@ -43,7 +43,7 @@ struct StochParams : IndicatorParams {
   void StochParams(int _kperiod = 5, int _dperiod = 3, int _slowing = 3, ENUM_MA_METHOD _ma_method = MODE_SMA,
                    ENUM_STO_PRICE _pf = STO_LOWHIGH, int _shift = 0)
       : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {
-    itype = INDI_STOCHASTIC;
+    itype = itype == INDI_NONE ? INDI_STOCHASTIC : itype;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

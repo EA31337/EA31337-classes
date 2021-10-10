@@ -80,7 +80,7 @@ struct AlligatorParams : IndicatorParams {
         lips_shift(_ls),
         ma_method(_mm),
         applied_price(_ap) {
-    itype = INDI_ALLIGATOR;
+    itype = itype == INDI_NONE ? INDI_ALLIGATOR : itype;
     max_modes = FINAL_ALLIGATOR_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

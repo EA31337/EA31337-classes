@@ -33,7 +33,7 @@ struct ZigZagColorParams : IndicatorParams {
   // Struct constructor.
   void ZigZagColorParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3,
                          int _shift = 0) {
-    itype = INDI_ZIGZAG_COLOR;
+    itype = itype == INDI_NONE ? INDI_ZIGZAG_COLOR : itype;
     backstep = _backstep;
     depth = _depth;
     deviation = _deviation;

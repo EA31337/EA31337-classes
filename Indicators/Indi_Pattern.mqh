@@ -33,7 +33,7 @@
 struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
   void IndiPatternParams(int _shift = 0) {
-    itype = INDI_PATTERN;
+    itype = itype == INDI_NONE ? INDI_PATTERN : itype;
     max_modes = 5;
     SetDataValueType(TYPE_INT);
     SetDataValueRange(IDATA_RANGE_BITWISE);

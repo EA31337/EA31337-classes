@@ -41,7 +41,7 @@ struct UltimateOscillatorParams : IndicatorParams {
                                 int _middle_k = 2, int _slow_k = 1, int _shift = 0) {
     fast_k = _fast_k;
     fast_period = _fast_period;
-    itype = INDI_ULTIMATE_OSCILLATOR;
+    itype = itype == INDI_NONE ? INDI_ULTIMATE_OSCILLATOR : itype;
     max_modes = 1;
     middle_k = _middle_k;
     middle_period = _middle_period;

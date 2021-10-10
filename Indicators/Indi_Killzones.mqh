@@ -50,7 +50,7 @@ struct IndiKillzonesParams : IndicatorParams {
   ENUM_PP_TYPE method;  // Pivot point calculation method.
   // Struct constructor.
   void IndiKillzonesParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_PIVOT;
+    itype = itype == INDI_NONE ? INDI_PIVOT : itype;
     max_modes = FINAL_INDI_KILLZONES_MODE_ENTRY;
     SetDataValueType(TYPE_FLOAT);
     SetDataValueRange(IDATA_RANGE_MIXED);

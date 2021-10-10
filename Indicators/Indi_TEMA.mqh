@@ -34,7 +34,7 @@ struct TEMAParams : IndicatorParams {
   // Struct constructor.
   void TEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
     applied_price = _ap;
-    itype = INDI_TEMA;
+    itype = itype == INDI_NONE ? INDI_TEMA : itype;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

@@ -32,7 +32,7 @@ double iAO(string _symbol, int _tf, int _shift) { return Indi_AO::iAO(_symbol, (
 struct AOParams : IndicatorParams {
   // Struct constructor.
   void AOParams(int _shift = 0) {
-    itype = INDI_AO;
+    itype = itype == INDI_NONE ? INDI_AO : itype;
 #ifdef __MQL4__
     max_modes = 1;
 #else

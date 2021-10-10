@@ -34,7 +34,7 @@ struct BWZTParams : IndicatorParams {
   unsigned int sum_period;
   // Struct constructor.
   void BWZTParams(int _shift = 0) {
-    itype = INDI_BWZT;
+    itype = itype == INDI_NONE ? INDI_BWZT : itype;
     max_modes = 5;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

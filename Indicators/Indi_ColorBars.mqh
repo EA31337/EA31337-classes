@@ -29,7 +29,7 @@
 struct ColorBarsParams : IndicatorParams {
   // Struct constructor.
   void ColorBarsParams(int _shift = 0) {
-    itype = INDI_COLOR_BARS;
+    itype = itype == INDI_NONE ? INDI_COLOR_BARS : itype;
     max_modes = 5;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

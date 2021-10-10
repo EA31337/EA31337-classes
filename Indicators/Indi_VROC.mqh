@@ -32,7 +32,7 @@ struct VROCParams : IndicatorParams {
   // Struct constructor.
   void VROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) {
     applied_volume = _applied_volume;
-    itype = INDI_VROC;
+    itype = itype == INDI_NONE ? INDI_VROC : itype;
     max_modes = 1;
     period = _period;
     SetDataValueType(TYPE_DOUBLE);
