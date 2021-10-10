@@ -30,8 +30,7 @@
 struct IndiPivotParams : IndicatorParams {
   ENUM_PP_TYPE method;  // Pivot point calculation method.
   // Struct constructor.
-  void IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0) {
-    itype = itype == INDI_NONE ? INDI_PIVOT : itype;
+  void IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0) : IndicatorParams(INDI_PIVOT) {
     max_modes = 9;
     method = _method;
     SetDataValueType(TYPE_FLOAT);

@@ -51,14 +51,18 @@ struct EnvelopesParams : IndicatorParams {
   // Struct constructors.
   void EnvelopesParams(int _ma_period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
                        ENUM_APPLIED_PRICE _ap = PRICE_OPEN, double _deviation = 2, int _shift = 0)
-      : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
+      : ma_period(_ma_period),
+        ma_shift(_ma_shift),
+        ma_method(_ma_method),
+        applied_price(_ap),
+        deviation(_deviation),
+        IndicatorParams(INDI_ENVELOPES) {
 #ifdef __MQL5__
     // There is no LINE_MAIN in MQL5 for Envelopes.
     max_modes = 2;
 #else
     max_modes = 3;
 #endif
-    itype = itype == INDI_NONE ? INDI_ENVELOPES : itype;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);

@@ -35,10 +35,10 @@ struct CHOParams : IndicatorParams {
   ENUM_APPLIED_VOLUME input_volume;
   // Struct constructor.
   void CHOParams(int _fast_ma = 3, int _slow_ma = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
-                 ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0) {
+                 ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0)
+      : IndicatorParams(INDI_CHAIKIN) {
     fast_ma = _fast_ma;
     input_volume = _input_volume;
-    itype = itype == INDI_NONE ? INDI_CHAIKIN : itype;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

@@ -29,9 +29,9 @@
 struct VolumesParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  void VolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) {
+  void VolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+      : IndicatorParams(INDI_VOLUMES) {
     applied_volume = _applied_volume;
-    itype = itype == INDI_NONE ? INDI_VOLUMES : itype;
     max_modes = 2;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

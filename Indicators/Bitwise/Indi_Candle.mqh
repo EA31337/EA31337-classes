@@ -32,8 +32,7 @@
 // Structs.
 struct CandleParams : IndicatorParams {
   // Struct constructor.
-  void CandleParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = itype == INDI_NONE ? INDI_CANDLE : itype;
+  void CandleParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_CANDLE) {
     max_modes = 1;
     SetDataValueType(TYPE_INT);
     SetDataValueRange(IDATA_RANGE_RANGE);
@@ -41,7 +40,7 @@ struct CandleParams : IndicatorParams {
     shift = _shift;
     tf = _tf;
   };
-  void CandleParams(CandleParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void CandleParams(CandleParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_CANDLE) {
     this = _p;
     tf = _tf;
   };

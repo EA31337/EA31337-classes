@@ -50,8 +50,7 @@ enum ENUM_HA_MODE {
 // Structs.
 struct HeikenAshiParams : IndicatorParams {
   // Struct constructors.
-  void HeikenAshiParams(int _shift = 0) {
-    itype = itype == INDI_NONE ? INDI_HEIKENASHI : itype;
+  void HeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI) {
     max_modes = FINAL_HA_MODE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);  // @fixit It draws candles!

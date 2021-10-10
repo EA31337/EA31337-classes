@@ -34,11 +34,9 @@ double iDeMarker(string _symbol, int _tf, int _period, int _shift) {
 struct DeMarkerParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void DeMarkerParams(unsigned int _period = 14, int _shift = 0) : period(_period) {
-    itype = itype == INDI_NONE ? INDI_DEMARKER : itype;
+  void DeMarkerParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_DEMARKER) {
     max_modes = 1;
     shift = _shift;
-    itype = itype == INDI_NONE ? INDI_DEMARKER : itype;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\DeMarker");

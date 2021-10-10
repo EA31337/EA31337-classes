@@ -39,8 +39,7 @@ enum ENUM_INDI_PRICE_MODE {
 // Structs.
 struct PriceIndiParams : IndicatorParams {
   // Struct constructor.
-  void PriceIndiParams(int _shift = 0) {
-    itype = itype == INDI_NONE ? INDI_PRICE : itype;
+  void PriceIndiParams(int _shift = 0) : IndicatorParams(INDI_PRICE) {
     max_modes = FINAL_INDI_PRICE_MODE;
     SetDataValueType(TYPE_DOUBLE);
     SetShift(_shift);

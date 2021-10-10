@@ -34,8 +34,7 @@ double iWPR(string _symbol, int _tf, int _period, int _shift) {
 struct WPRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void WPRParams(unsigned int _period = 14, int _shift = 0) : period(_period) {
-    itype = itype == INDI_NONE ? INDI_WPR : itype;
+  void WPRParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_WPR) {
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

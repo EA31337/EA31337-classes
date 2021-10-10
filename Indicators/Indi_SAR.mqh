@@ -35,8 +35,8 @@ struct SARParams : IndicatorParams {
   double step;
   double max;
   // Struct constructors.
-  void SARParams(double _step = 0.02, double _max = 0.2, int _shift = 0) : step(_step), max(_max) {
-    itype = itype == INDI_NONE ? INDI_SAR : itype;
+  void SARParams(double _step = 0.02, double _max = 0.2, int _shift = 0)
+      : step(_step), max(_max), IndicatorParams(INDI_SAR) {
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

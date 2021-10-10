@@ -42,8 +42,7 @@ struct CCIParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
   void CCIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
-      : period(_period), applied_price(_applied_price) {
-    itype = itype == INDI_NONE ? INDI_CCI : itype;
+      : period(_period), applied_price(_applied_price), IndicatorParams(INDI_CCI) {
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);

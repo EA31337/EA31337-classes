@@ -30,9 +30,9 @@ struct RateOfChangeParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void RateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
+  void RateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+      : IndicatorParams(INDI_RATE_OF_CHANGE) {
     applied_price = _ap;
-    itype = itype == INDI_NONE ? INDI_RATE_OF_CHANGE : itype;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
