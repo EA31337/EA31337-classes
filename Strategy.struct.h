@@ -43,38 +43,39 @@ class Trade;
 /* Structure for strategy parameters. */
 struct StgParams {
   // Strategy config parameters.
-  bool is_enabled;                                     // State of the strategy (whether enabled or not).
-  bool is_suspended;                                   // State of the strategy (whether suspended or not)
-  bool is_boosted;                                     // State of the boost feature (to increase lot size).
-  float weight;                                        // Weight of the strategy.
-  long order_close_time;                               // Order close time in mins (>0) or bars (<0).
-  float order_close_loss;                              // Order close loss (in pips).
-  float order_close_profit;                            // Order close profit (in pips).
-  int signal_open_method;                              // Signal open method.
-  float signal_open_level;                             // Signal open level.
-  int signal_open_filter_method;                       // Signal open filter method.
-  int signal_open_filter_time;                         // Signal open filter time.
-  int signal_open_boost;                               // Signal open boost method (for lot size increase).
-  int signal_close_method;                             // Signal close method.
-  float signal_close_level;                            // Signal close level.
-  int signal_close_filter;                             // Signal close filter method.
-  int price_profit_method;                             // Price profit method.
-  float price_profit_level;                            // Price profit level.
-  int price_stop_method;                               // Price stop method.
-  float price_stop_level;                              // Price stop level.
-  int tick_filter_method;                              // Tick filter.
-  float trend_threshold;                               // Trend strength threshold.
-  float lot_size;                                      // Lot size to trade.
-  float lot_size_factor;                               // Lot size multiplier factor.
-  float max_risk;                                      // Maximum risk to take (1.0 = normal, 2.0 = 2x).
-  float max_spread;                                    // Maximum spread to trade (in pips).
-  int tp_max;                                          // Hard limit on maximum take profit (in pips).
-  int sl_max;                                          // Hard limit on maximum stop loss (in pips).
-  int type;                                            // Strategy type (@see: ENUM_STRATEGY).
-  long id;                                             // Unique identifier of the strategy.
-  datetime refresh_time;                               // Order refresh frequency (in sec).
-  short shift;                                         // Shift (relative to the current bar, 0 - default)
-  ChartTf tf;                                          // Main timeframe where strategy operates on.
+  bool is_enabled;                 // State of the strategy (whether enabled or not).
+  bool is_suspended;               // State of the strategy (whether suspended or not)
+  bool is_boosted;                 // State of the boost feature (to increase lot size).
+  float weight;                    // Weight of the strategy.
+  long order_close_time;           // Order close time in mins (>0) or bars (<0).
+  float order_close_loss;          // Order close loss (in pips).
+  float order_close_profit;        // Order close profit (in pips).
+  int signal_open_method;          // Signal open method.
+  float signal_open_level;         // Signal open level.
+  int signal_open_filter_method;   // Signal open filter method.
+  int signal_open_filter_time;     // Signal open filter time.
+  int signal_open_boost;           // Signal open boost method (for lot size increase).
+  int signal_close_method;         // Signal close method.
+  float signal_close_level;        // Signal close level.
+  int signal_close_filter_method;  // Signal close filter method.
+  int signal_close_filter_time;    // Signal close filter method.
+  int price_profit_method;         // Price profit method.
+  float price_profit_level;        // Price profit level.
+  int price_stop_method;           // Price stop method.
+  float price_stop_level;          // Price stop level.
+  int tick_filter_method;          // Tick filter.
+  float trend_threshold;           // Trend strength threshold.
+  float lot_size;                  // Lot size to trade.
+  float lot_size_factor;           // Lot size multiplier factor.
+  float max_risk;                  // Maximum risk to take (1.0 = normal, 2.0 = 2x).
+  float max_spread;                // Maximum spread to trade (in pips).
+  int tp_max;                      // Hard limit on maximum take profit (in pips).
+  int sl_max;                      // Hard limit on maximum stop loss (in pips).
+  int type;                        // Strategy type (@see: ENUM_STRATEGY).
+  long id;                         // Unique identifier of the strategy.
+  datetime refresh_time;           // Order refresh frequency (in sec).
+  short shift;                     // Shift (relative to the current bar, 0 - default)
+  ChartTf tf;                      // Main timeframe where strategy operates on.
   // Constructor.
   StgParams()
       : id(rand()),
@@ -92,7 +93,8 @@ struct StgParams {
         signal_open_boost(0),
         signal_close_method(0),
         signal_close_level(0),
-        signal_close_filter(0),
+        signal_close_filter_method(0),
+        signal_close_filter_time(0),
         price_profit_method(0),
         price_profit_level(0),
         price_stop_method(0),
@@ -119,7 +121,7 @@ struct StgParams {
         signal_open_level(_sol),
         signal_open_boost(_sob),
         signal_close_method(_scm),
-        signal_close_filter(_scf),
+        signal_close_filter_method(_scf),
         signal_close_level(_scl),
         price_profit_method(_psm),
         price_profit_level(_psl),
@@ -139,9 +141,7 @@ struct StgParams {
         sl_max(0),
         type(0),
         refresh_time(0) {}
-  StgParams(StgParams &_stg_params) {
-    this = _stg_params;
-  }
+  StgParams(StgParams &_stg_params) { this = _stg_params; }
   // Deconstructor.
   ~StgParams() {}
 
@@ -181,8 +181,10 @@ struct StgParams {
         return (T)signal_open_filter_time;
       case STRAT_PARAM_SOB:
         return (T)signal_open_boost;
-      case STRAT_PARAM_SCF:
-        return (T)signal_close_filter;
+      case STRAT_PARAM_SCFM:
+        return (T)signal_close_filter_method;
+      case STRAT_PARAM_SCFT:
+        return (T)signal_close_filter_time;
       case STRAT_PARAM_SCM:
         return (T)signal_close_method;
       case STRAT_PARAM_SHIFT:
@@ -261,8 +263,11 @@ struct StgParams {
       case STRAT_PARAM_SOB:  // Signal open boost method
         signal_open_boost = (int)_value;
         return;
-      case STRAT_PARAM_SCF:  // Signal close filter
-        signal_close_filter = (int)_value;
+      case STRAT_PARAM_SCFM:  // Signal close filter method
+        signal_close_filter_method = (int)_value;
+        return;
+      case STRAT_PARAM_SCFT:  // Signal close filter time
+        signal_close_filter_time = (int)_value;
         return;
       case STRAT_PARAM_SCM:  // Signal close method
         signal_close_method = (int)_value;
@@ -337,6 +342,8 @@ struct StgParams {
     s.Pass(THIS_REF, "soft", signal_open_filter_time);
     s.Pass(THIS_REF, "sob", signal_open_boost);
     s.Pass(THIS_REF, "scm", signal_close_method);
+    s.Pass(THIS_REF, "scfm", signal_close_filter_method);
+    s.Pass(THIS_REF, "scft", signal_close_filter_time);
     s.Pass(THIS_REF, "scl", signal_close_level);
     s.Pass(THIS_REF, "ppm", price_profit_method);
     s.Pass(THIS_REF, "ppl", price_profit_level);
@@ -403,146 +410,6 @@ struct StgProcessResult {
     _s.Pass(THIS_REF, "tasks_processed", tasks_processed, SERIALIZER_FIELD_FLAG_DYNAMIC);
     _s.Pass(THIS_REF, "tasks_processed_not", tasks_processed_not, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
-  }
-};
-
-/* Structure for strategy's signals. */
-struct StrategySignal {
- protected:
-  ENUM_TIMEFRAMES tf;    // Timeframe.
-  float strength;        // Signal strength.
-  float weight;          // Signal weight.
-  unsigned int signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
-  Strategy *strat;
-
- public:
-  // Enumeration for strategy signal properties.
-  enum ENUM_STRATEGY_SIGNAL_PROP {
-    STRATEGY_SIGNAL_PROP_SIGNALS,
-    STRATEGY_SIGNAL_PROP_STRENGTH,
-    STRATEGY_SIGNAL_PROP_TF,
-    STRATEGY_SIGNAL_PROP_WEIGHT,
-  };
-  // Enumeration for strategy signal types.
-  enum ENUM_STRATEGY_SIGNAL_TYPE {
-    STRAT_SIGNAL_SELL = -1,    // Signal to sell.
-    STRAT_SIGNAL_NEUTRAL = 0,  // Neutral signal.
-    STRAT_SIGNAL_BUY = 1,      // Signal to buy.
-  };
-
-  /* Constructor */
-  StrategySignal(Strategy *_strat = NULL, ENUM_TIMEFRAMES _tf = NULL, float _weight = 0.0f)
-      : signals(0), strat(_strat), tf(_tf), weight(_weight) {}
-  /* Getters */
-  template <typename T>
-  T Get(unsigned int _param) {
-    switch (_param) {
-      case STRATEGY_SIGNAL_PROP_SIGNALS:
-        return (T)signals;
-      case STRATEGY_SIGNAL_PROP_STRENGTH:
-        return (T)strength;
-      case STRATEGY_SIGNAL_PROP_TF:
-        return (T)tf;
-      case STRATEGY_SIGNAL_PROP_WEIGHT:
-        return (T)weight;
-    }
-    SetUserError(ERR_INVALID_PARAMETER);
-    return (T)WRONG_VALUE;
-  }
-  float GetSignalClose() { return float(int(ShouldClose(ORDER_TYPE_BUY)) - int(ShouldClose(ORDER_TYPE_SELL))); }
-  float GetSignalOpen() { return float(int(ShouldOpen(ORDER_TYPE_BUY)) - int(ShouldOpen(ORDER_TYPE_SELL))); }
-  Strategy *GetStrategy() { return strat; }
-  /* Setters */
-  template <typename T>
-  void Set(unsigned int _param, T _value) {
-    switch (_param) {
-      case STRATEGY_SIGNAL_PROP_SIGNALS:
-        signals = (unsigned int)_value;
-        return;
-      case STRATEGY_SIGNAL_PROP_STRENGTH:
-        strength = (float)_value;
-        return;
-      case STRATEGY_SIGNAL_PROP_TF:
-        tf = (ENUM_TIMEFRAMES)_value;
-        return;
-      case STRATEGY_SIGNAL_PROP_WEIGHT:
-        weight = (float)_value;
-        return;
-    }
-    SetUserError(ERR_INVALID_PARAMETER);
-  }
-  void SetStrategy(Strategy *_strat) { strat = _strat; }
-  /* Signal open and close methods */
-  bool ShouldClose(ENUM_ORDER_TYPE _cmd) {
-    switch (_cmd) {
-      case ORDER_TYPE_BUY:
-        return CheckSignalsAll(STRAT_SIGNAL_CLOSE_BUY | STRAT_SIGNAL_CLOSE_BUY_PASS);
-      case ORDER_TYPE_SELL:
-        return CheckSignalsAll(STRAT_SIGNAL_CLOSE_SELL | STRAT_SIGNAL_CLOSE_SELL_PASS);
-    }
-    return false;
-  }
-  bool ShouldOpen(ENUM_ORDER_TYPE _cmd) {
-    switch (_cmd) {
-      case ORDER_TYPE_BUY:
-        return CheckSignalsAll(STRAT_SIGNAL_OPEN_BUY | STRAT_SIGNAL_OPEN_BUY_PASS | STRAT_SIGNAL_TIME_PASS);
-      case ORDER_TYPE_SELL:
-        return CheckSignalsAll(STRAT_SIGNAL_OPEN_SELL | STRAT_SIGNAL_OPEN_SELL_PASS | STRAT_SIGNAL_TIME_PASS);
-    }
-    return false;
-  }
-  /* Signal methods for bitwise operations */
-  bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }
-  bool CheckSignalsAll(unsigned int _flags) { return (signals & _flags) == _flags; }
-  char GetCloseDirection() {
-    if (CheckSignals(STRAT_SIGNAL_CLOSE_BUY & ~STRAT_SIGNAL_CLOSE_SELL)) {
-      return 1;
-    } else if (CheckSignals(STRAT_SIGNAL_CLOSE_SELL & ~STRAT_SIGNAL_CLOSE_BUY)) {
-      return -1;
-    }
-    return 0;
-  }
-  char GetOpenDirection() {
-    if (CheckSignals(STRAT_SIGNAL_OPEN_BUY & ~STRAT_SIGNAL_OPEN_SELL)) {
-      return 1;
-    } else if (CheckSignals(STRAT_SIGNAL_OPEN_SELL & ~STRAT_SIGNAL_OPEN_BUY)) {
-      return -1;
-    }
-    return 0;
-  }
-  unsigned int GetSignals() { return signals; }
-  /* Setters */
-  void AddSignals(unsigned int _flags) { signals |= _flags; }
-  void RemoveSignals(unsigned int _flags) { signals &= ~_flags; }
-  void SetSignal(ENUM_STRATEGY_SIGNAL_FLAG _flag, bool _value = true) {
-    if (_value) {
-      AddSignals(_flag);
-    } else {
-      RemoveSignals(_flag);
-    }
-  }
-  void SetSignals(unsigned int _flags) { signals = _flags; }
-  // Serializers.
-  SERIALIZER_EMPTY_STUB;
-  SerializerNodeType Serialize(Serializer &_s) {
-    _s.PassEnum(THIS_REF, "tf", tf);
-    _s.Pass(THIS_REF, "strenght", strength, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(THIS_REF, "weight", weight, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    if (Object::IsValid(strat)) {
-      string _sname = strat.GetName();
-      _s.Pass(THIS_REF, "strat", _sname);
-    }
-    int _size = sizeof(int) * 8;
-    for (int i = 0; i < _size; i++) {
-      int _value = CheckSignals(1 << i) ? 1 : 0;
-      _s.Pass(THIS_REF, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
-    }
-    return SerializerNodeObject;
-  }
-  string ToString() {
-    // SerializerConverter _stub = SerializerConverter::MakeStubObject<StrategySignal>(SERIALIZER_FLAG_SKIP_HIDDEN);
-    return SerializerConverter::FromObject(THIS_REF, SERIALIZER_FLAG_SKIP_HIDDEN)
-        .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
   }
 };
 

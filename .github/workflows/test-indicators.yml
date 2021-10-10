@@ -1,22 +1,18 @@
 ---
-name: Test
+name: Test Indicators
 
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - '**.h'
-      - '*.mq?'
-      - '**.mq?'
-      - '**/*.mq?'
-      - '.github/workflows/test.yml'
+      - 'Indicator**'
+      - 'Indicators/**'
+      - '.github/workflows/test-indicators.yml'
   push:
     paths:
-      - '**.h'
-      - '*.mq?'
-      - '**.mq?'
-      - '**/*.mq?'
-      - '.github/workflows/test.yml'
+      - 'Indicator**'
+      - 'Indicators/**'
+      - '.github/workflows/test-indicators.yml'
 
 jobs:
 
@@ -28,6 +24,7 @@ jobs:
         uses: fx31337/mql-compile-action@master
         with:
           init-platform: true
+          path: 'Indicators/tests'
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
@@ -43,55 +40,7 @@ jobs:
           name: files-ex5
           path: '**/*.ex5'
 
-  Experts-MQL4:
-    defaults:
-      run:
-        shell: bash
-        working-directory: tests
-    needs: Compile
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test:
-          - AccountTest
-          - ActionTest
-          - BufferStructTest
-          - BufferTest
-          - ChartTest
-          - CompileIndicatorsTest
-          - ConditionTest
-          - DatabaseTest
-          - DrawIndicatorTest
-          - EATest
-          - IndicatorDataTest
-          - IndicatorTest
-          - IndicatorsTest
-          - MailTest
-          - MarketTest
-          - MatrixTest
-          - OrderTest
-          - OrdersTest
-          - StatsTest
-          - StrategyTest
-          - StrategyTest-RSI
-          - SymbolInfoTest
-          - SummaryReportTest
-          - TaskTest
-          - TickerTest
-          - TradeTest
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          BtYears: 2020
-          TestExpert: ${{ matrix.test }}
-
-  Indicators-MQL4:
+  Indicators-Tests-MQL4:
     defaults:
       run:
         shell: bash
@@ -177,81 +126,3 @@ jobs:
           BtMonths: 1
           BtYears: 2020
           TestExpert: ${{ matrix.test }}
-
-  Scripts-MQL4:
-    defaults:
-      run:
-        shell: bash
-        working-directory: tests
-    needs: Compile
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test:
-          - CollectionTest
-          - ConfigTest
-          - ConvertTest
-          - DateTimeTest
-          - DictTest
-          - LogTest
-          - MD5Test
-          - MathTest
-          - OrderQuery
-          - ProfilerTest
-          - RefsTest
-          - SerializerTest
-          - TerminalTest
-          - TimerTest
-          - ValueStorageTest
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: ${{ matrix.test }}
-
-  Scripts-MQL4-Ignore:
-    defaults:
-      run:
-        shell: bash
-        working-directory: tests
-    needs: Compile
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test:
-          # @fixme: GH-266
-          - RedisTest
-          # @fixme: GH-266
-          - WebTest
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: ${{ matrix.test }}
-          RunOnFail: "exit 0"
-
-  Trade-Tests-MQL4:
-    defaults:
-      run:
-        shell: bash
-        working-directory: Trade/tests
-    needs: Compile
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test:
-          - TradeSignalTest
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: ${{ matrix.test }}
