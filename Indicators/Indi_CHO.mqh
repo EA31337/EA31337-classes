@@ -24,9 +24,8 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
-#include "Indi_MA.mqh"
-#include "../Storage/ValueStorage.all.h"
 #include "../Util.h"
+#include "Indi_MA.mqh"
 
 // Structs.
 struct CHOParams : IndicatorParams {

@@ -24,9 +24,8 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
-#include "Indi_MA.mqh"
-#include "../Storage/ValueStorage.all.h"
 #include "../Util.h"
+#include "Indi_MA.mqh"
 
 // Enums.
 enum ENUM_CHV_SMOOTH_METHOD { CHV_SMOOTH_METHOD_SMA = 0, CHV_SMOOTH_METHOD_EMA = 1 };
