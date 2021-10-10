@@ -34,8 +34,8 @@ double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
 struct RVIParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void RVIParams(unsigned int _period = 10, int _shift = 0) : period(_period), IndicatorParams(INDI_RVI) {
-    max_modes = FINAL_SIGNAL_LINE_ENTRY;
+  void RVIParams(unsigned int _period = 10, int _shift = 0)
+      : period(_period), IndicatorParams(INDI_RVI, FINAL_SIGNAL_LINE_ENTRY) {
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

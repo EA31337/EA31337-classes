@@ -32,9 +32,8 @@ struct DetrendedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   void DetrendedPriceParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_DETRENDED_PRICE) {
+      : IndicatorParams(INDI_DETRENDED_PRICE, 1) {
     applied_price = _ap;
-    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\DPO");

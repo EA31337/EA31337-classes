@@ -28,8 +28,7 @@
 struct PriceChannelParams : IndicatorParams {
   unsigned int period;
   // Struct constructor.
-  void PriceChannelParams(unsigned int _period = 22, int _shift = 0) : IndicatorParams(INDI_PRICE_CHANNEL) {
-    max_modes = 3;
+  void PriceChannelParams(unsigned int _period = 22, int _shift = 0) : IndicatorParams(INDI_PRICE_CHANNEL, 3) {
     period = _period;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

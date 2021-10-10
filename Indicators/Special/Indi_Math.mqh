@@ -43,8 +43,7 @@ struct MathParams : IndicatorParams {
   void MathParams(ENUM_MATH_OP _op = MATH_OP_SUB, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
                   unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
                   ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : IndicatorParams(INDI_SPECIAL_MATH) {
-    max_modes = 1;
+      : IndicatorParams(INDI_SPECIAL_MATH, 1) {
     mode_1 = _mode_1;
     mode_2 = _mode_2;
     op_builtin = _op;

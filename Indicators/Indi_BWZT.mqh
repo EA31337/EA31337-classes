@@ -33,8 +33,7 @@ struct BWZTParams : IndicatorParams {
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
-  void BWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT) {
-    max_modes = 5;
+  void BWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, 5) {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");

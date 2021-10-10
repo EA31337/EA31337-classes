@@ -375,12 +375,12 @@ struct IndicatorParams {
   string custom_indi_name;              // Name of the indicator passed to iCustom() method.
   /* Special methods */
   // Constructor.
-  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
-                  string _name = "")
+  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, unsigned int _max_modes = 1,
+                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
       : custom_indi_name(""),
         name(_name),
         shift(0),
-        max_modes(1),
+        max_modes(_max_modes),
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),

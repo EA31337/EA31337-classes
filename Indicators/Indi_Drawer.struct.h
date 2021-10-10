@@ -35,9 +35,8 @@ struct DrawerParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
 
-  DrawerParams(unsigned int _period = 10, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE) : period(_period), applied_price(_ap), IndicatorParams(INDI_DRAWER) {
+  DrawerParams(unsigned int _period = 10, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE) : period(_period), applied_price(_ap), IndicatorParams(INDI_DRAWER, 0) {
     // Fetching history data is not yet implemented.
-    max_modes = 0;
     SetCustomIndicatorName("Examples\\Drawer");
     SetDataValueType(TYPE_DOUBLE);
   };

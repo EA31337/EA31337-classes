@@ -56,8 +56,7 @@ struct StdDevParams : IndicatorParams {
         ma_shift(_ma_shift),
         ma_method(_ma_method),
         applied_price(_ap),
-        IndicatorParams(INDI_STDDEV) {
-    max_modes = 1;
+        IndicatorParams(INDI_STDDEV, 1) {
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

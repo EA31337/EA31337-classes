@@ -56,11 +56,9 @@ struct EnvelopesParams : IndicatorParams {
         ma_method(_ma_method),
         applied_price(_ap),
         deviation(_deviation),
-        IndicatorParams(INDI_ENVELOPES) {
-#ifdef __MQL5__
-    // There is no LINE_MAIN in MQL5 for Envelopes.
-    max_modes = 2;
-#else
+        IndicatorParams(INDI_ENVELOPES, 2) {
+#ifdef __MQL4__
+    // There is extra LINE_MAIN in MQL4 for Envelopes.
     max_modes = 3;
 #endif
     shift = _shift;

@@ -31,9 +31,8 @@ struct VROCParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
   void VROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_VROC) {
+      : IndicatorParams(INDI_VROC, 1) {
     applied_volume = _applied_volume;
-    max_modes = 1;
     period = _period;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);

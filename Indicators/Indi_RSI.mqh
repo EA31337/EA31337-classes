@@ -49,8 +49,7 @@ struct RSIParams : IndicatorParams {
 
  public:
   void RSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : applied_price(_ap), IndicatorParams(INDI_RSI) {
-    max_modes = 1;
+      : applied_price(_ap), IndicatorParams(INDI_RSI, 1) {
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);

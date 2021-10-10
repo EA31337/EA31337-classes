@@ -30,8 +30,7 @@ struct ASIParams : IndicatorParams {
   unsigned int period;
   double mpc;
   // Struct constructor.
-  void ASIParams(double _mpc = 300.0, int _shift = 0) : IndicatorParams(INDI_ASI) {
-    max_modes = 1;
+  void ASIParams(double _mpc = 300.0, int _shift = 0) : IndicatorParams(INDI_ASI, 1) {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ASI");

@@ -42,10 +42,9 @@ struct IndiAMAParams : IndicatorParams {
         slow_period(_slow_period),
         ama_shift(_ama_shift),
         applied_price(_ap),
-        IndicatorParams(INDI_AMA) {
+        IndicatorParams(INDI_AMA, 1) {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
-    SetMaxModes(1);
     SetShift(_shift);
     switch (idstype) {
       case IDATA_ICUSTOM:
@@ -63,7 +62,7 @@ struct IndiAMAParams : IndicatorParams {
         break;
     }
   };
-  void IndiAMAParams(IndiAMAParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void IndiAMAParams(IndiAMAParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_AMA, 1) {
     this = _p;
     tf = _tf;
   };

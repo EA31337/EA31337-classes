@@ -31,8 +31,7 @@ double iAD(string _symbol, int _tf, int _shift) { return Indi_AD::iAD(_symbol, (
 // Structs.
 struct ADParams : IndicatorParams {
   // Struct constructor.
-  ADParams(int _shift = 0) : IndicatorParams(INDI_AD) {
-    max_modes = 1;
+  ADParams(int _shift = 0) : IndicatorParams(INDI_AD, 1) {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\AD");

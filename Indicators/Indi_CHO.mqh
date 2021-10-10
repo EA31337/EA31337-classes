@@ -36,10 +36,9 @@ struct CHOParams : IndicatorParams {
   // Struct constructor.
   void CHOParams(int _fast_ma = 3, int _slow_ma = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
                  ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_CHAIKIN) {
+      : IndicatorParams(INDI_CHAIKIN, 1) {
     fast_ma = _fast_ma;
     input_volume = _input_volume;
-    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHO");

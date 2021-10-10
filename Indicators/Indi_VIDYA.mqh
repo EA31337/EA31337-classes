@@ -35,11 +35,10 @@ struct VIDYAParams : IndicatorParams {
   // Struct constructor.
   void VIDYAParams(unsigned int _cmo_period = 9, unsigned int _ma_period = 14, unsigned int _vidya_shift = 0,
                    ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_VIDYA) {
+      : IndicatorParams(INDI_VIDYA, 1) {
     applied_price = _ap;
     cmo_period = _cmo_period;
     ma_period = _ma_period;
-    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VIDYA");

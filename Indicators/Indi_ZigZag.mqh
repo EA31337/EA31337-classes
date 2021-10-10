@@ -35,8 +35,10 @@ struct ZigZagParams : IndicatorParams {
   unsigned int backstep;
   // Struct constructors.
   void ZigZagParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
-      : depth(_depth), deviation(_deviation), backstep(_backstep), IndicatorParams(INDI_ZIGZAG) {
-    max_modes = FINAL_ZIGZAG_LINE_ENTRY;
+      : depth(_depth),
+        deviation(_deviation),
+        backstep(_backstep),
+        IndicatorParams(INDI_ZIGZAG, FINAL_ZIGZAG_LINE_ENTRY) {
     shift = _shift;
     SetCustomIndicatorName("Examples\\ZigZag");
     SetDataValueType(TYPE_DOUBLE);

@@ -49,8 +49,8 @@ enum ENUM_INDI_KILLZONES_MODE {
 struct IndiKillzonesParams : IndicatorParams {
   ENUM_PP_TYPE method;  // Pivot point calculation method.
   // Struct constructor.
-  void IndiKillzonesParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_PIVOT) {
-    max_modes = FINAL_INDI_KILLZONES_MODE_ENTRY;
+  void IndiKillzonesParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : IndicatorParams(INDI_PIVOT, FINAL_INDI_KILLZONES_MODE_ENTRY) {
     SetDataValueType(TYPE_FLOAT);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_CHART);

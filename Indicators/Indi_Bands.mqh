@@ -66,8 +66,11 @@ struct BandsParams : IndicatorParams {
   // Struct constructors.
   void BandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0,
                    ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : period(_period), deviation(_deviation), bshift(_bshift), applied_price(_ap), IndicatorParams(INDI_BANDS) {
-    max_modes = FINAL_BANDS_LINE_ENTRY;
+      : period(_period),
+        deviation(_deviation),
+        bshift(_bshift),
+        applied_price(_ap),
+        IndicatorParams(INDI_BANDS, FINAL_BANDS_LINE_ENTRY) {
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
