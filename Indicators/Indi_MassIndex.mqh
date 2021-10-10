@@ -33,10 +33,9 @@ struct MassIndexParams : IndicatorParams {
   int sum_period;
   // Struct constructor.
   void MassIndexParams(int _period = 9, int _second_period = 9, int _sum_period = 25, int _shift = 0)
-      : IndicatorParams(INDI_MASS_INDEX, 1) {
+      : IndicatorParams(INDI_MASS_INDEX, 1, TYPE_DOUBLE) {
     period = _period;
     second_period = _second_period;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\MI");
     shift = _shift;

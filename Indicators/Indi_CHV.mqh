@@ -38,9 +38,8 @@ struct CHVParams : IndicatorParams {
   // Struct constructor.
   void CHVParams(int _smooth_period = 10, int _chv_period = 10,
                  ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0)
-      : IndicatorParams(INDI_CHAIKIN_V, 1) {
+      : IndicatorParams(INDI_CHAIKIN_V, 1, TYPE_DOUBLE) {
     chv_period = _chv_period;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHV");
     shift = _shift;

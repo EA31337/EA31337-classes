@@ -32,8 +32,7 @@ struct CustomMovingAverageParams : IndicatorParams {
   // Struct constructor.
   void CustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0,
                                  ENUM_MA_METHOD _smooth_method = MODE_SMMA, int _shift = 0)
-      : IndicatorParams(INDI_CUSTOM_MOVING_AVG, 3) {
-    SetDataValueType(TYPE_DOUBLE);
+      : IndicatorParams(INDI_CUSTOM_MOVING_AVG, 3, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_ICUSTOM);
 #ifdef __MQL5__

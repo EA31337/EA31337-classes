@@ -28,8 +28,7 @@
 // Structs.
 struct ColorBarsParams : IndicatorParams {
   // Struct constructor.
-  void ColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS, 5) {
-    SetDataValueType(TYPE_DOUBLE);
+  void ColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS, 5, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorBars");
     shift = _shift;

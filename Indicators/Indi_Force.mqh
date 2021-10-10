@@ -50,9 +50,8 @@ struct ForceParams : IndicatorParams {
   // Struct constructors.
   void ForceParams(unsigned int _period = 13, ENUM_MA_METHOD _ma_method = MODE_SMA,
                    ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : period(_period), ma_method(_ma_method), applied_price(_ap), IndicatorParams(INDI_FORCE, 1) {
+      : period(_period), ma_method(_ma_method), applied_price(_ap), IndicatorParams(INDI_FORCE, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Force_Index");
   };

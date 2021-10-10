@@ -42,9 +42,8 @@ struct DEMAParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
   void DEMAParams(unsigned int _period = 14, int _ma_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : period(_period), ma_shift(_ma_shift), applied_price(_ap), IndicatorParams(INDI_DEMA, 1) {
+      : period(_period), ma_shift(_ma_shift), applied_price(_ap), IndicatorParams(INDI_DEMA, 1, TYPE_DOUBLE) {
     SetCustomIndicatorName("Examples\\DEMA");
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetShift(_shift);
     switch (idstype) {

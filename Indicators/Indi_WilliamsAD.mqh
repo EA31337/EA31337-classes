@@ -28,8 +28,7 @@
 // Structs.
 struct WilliamsADParams : IndicatorParams {
   // Struct constructor.
-  void WilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD, 1) {
-    SetDataValueType(TYPE_DOUBLE);
+  void WilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\W_AD");
     shift = _shift;

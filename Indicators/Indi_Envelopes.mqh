@@ -56,13 +56,12 @@ struct EnvelopesParams : IndicatorParams {
         ma_method(_ma_method),
         applied_price(_ap),
         deviation(_deviation),
-        IndicatorParams(INDI_ENVELOPES, 2) {
+        IndicatorParams(INDI_ENVELOPES, 2, TYPE_DOUBLE) {
 #ifdef __MQL4__
     // There is extra LINE_MAIN in MQL4 for Envelopes.
     max_modes = 3;
 #endif
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Envelopes");
   };

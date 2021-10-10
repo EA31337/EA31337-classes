@@ -32,18 +32,15 @@ struct PriceFeederIndiParams : IndicatorParams {
   /**
    * Struct constructor.
    */
-  void PriceFeederIndiParams(int _shift = 0) : IndicatorParams(INDI_PRICE_FEEDER, 1) {
-    SetDataValueType(TYPE_DOUBLE);
-    shift = _shift;
-  }
+  void PriceFeederIndiParams(int _shift = 0) : IndicatorParams(INDI_PRICE_FEEDER, 1, TYPE_DOUBLE) { shift = _shift; }
 
   /**
    * Struct constructor.
    *
    * @todo Use more modes (full OHCL).
    */
-  void PriceFeederIndiParams(const double& _price_data[], int _total = 0) : IndicatorParams(INDI_PRICE_FEEDER, 1) {
-    SetDataValueType(TYPE_DOUBLE);
+  void PriceFeederIndiParams(const double& _price_data[], int _total = 0)
+      : IndicatorParams(INDI_PRICE_FEEDER, 1, TYPE_DOUBLE) {
     tf = PERIOD_CURRENT;
     ArrayCopy(price_data, _price_data, 0, 0, _total == 0 ? WHOLE_ARRAY : _total);
   };

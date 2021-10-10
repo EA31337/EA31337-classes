@@ -36,9 +36,8 @@ struct SARParams : IndicatorParams {
   double max;
   // Struct constructors.
   void SARParams(double _step = 0.02, double _max = 0.2, int _shift = 0)
-      : step(_step), max(_max), IndicatorParams(INDI_SAR, 1) {
+      : step(_step), max(_max), IndicatorParams(INDI_SAR, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit It draws single dot for each bar!
     SetCustomIndicatorName("Examples\\ParabolicSAR");
   };

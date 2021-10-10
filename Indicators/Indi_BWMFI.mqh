@@ -43,8 +43,7 @@ enum ENUM_MFI_COLOR {
 // Structs.
 struct BWMFIParams : IndicatorParams {
   // Struct constructors.
-  BWMFIParams(int _shift = 0) : IndicatorParams(INDI_BWMFI, FINAL_BWMFI_BUFFER_ENTRY) {
-    SetDataValueType(TYPE_DOUBLE);
+  BWMFIParams(int _shift = 0) : IndicatorParams(INDI_BWMFI, FINAL_BWMFI_BUFFER_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
     shift = _shift;

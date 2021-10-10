@@ -43,9 +43,8 @@ struct OsMAParams : IndicatorParams {
         ema_slow_period(_esp),
         signal_period(_sp),
         applied_price(_ap),
-        IndicatorParams(INDI_OSMA, 1) {
+        IndicatorParams(INDI_OSMA, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OsMA");
   };

@@ -71,9 +71,8 @@ struct IchimokuParams : IndicatorParams {
       : tenkan_sen(_ts),
         kijun_sen(_ks),
         senkou_span_b(_ss_b),
-        IndicatorParams(INDI_ICHIMOKU, FINAL_ICHIMOKU_LINE_ENTRY) {
+        IndicatorParams(INDI_ICHIMOKU, FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Not sure if not mixed.
     SetCustomIndicatorName("Examples\\Ichimoku");
   };

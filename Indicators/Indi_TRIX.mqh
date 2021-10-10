@@ -33,9 +33,8 @@ struct TRIXParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   void TRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_TRIX, 1) {
+      : IndicatorParams(INDI_TRIX, 1, TYPE_DOUBLE) {
     applied_price = _ap;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\TRIX");
     period = _period;

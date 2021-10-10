@@ -35,9 +35,8 @@ struct RVIParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
   void RVIParams(unsigned int _period = 10, int _shift = 0)
-      : period(_period), IndicatorParams(INDI_RVI, FINAL_SIGNAL_LINE_ENTRY) {
+      : period(_period), IndicatorParams(INDI_RVI, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\RVI");
   };

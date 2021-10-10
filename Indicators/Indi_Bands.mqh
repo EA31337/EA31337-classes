@@ -70,9 +70,8 @@ struct BandsParams : IndicatorParams {
         deviation(_deviation),
         bshift(_bshift),
         applied_price(_ap),
-        IndicatorParams(INDI_BANDS, FINAL_BANDS_LINE_ENTRY) {
+        IndicatorParams(INDI_BANDS, FINAL_BANDS_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\BB");
   };

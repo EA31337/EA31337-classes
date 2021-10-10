@@ -39,9 +39,8 @@ struct ADXParams : IndicatorParams {
   // Struct constructors.
   void ADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX, FINAL_INDI_ADX_LINE_ENTRY) {
+      : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX, FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE) {
     SetDataSourceType(_idstype);
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetShift(_shift);
     switch (idstype) {
@@ -59,7 +58,8 @@ struct ADXParams : IndicatorParams {
         break;
     }
   };
-  void ADXParams(ADXParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_ADX) {
+  void ADXParams(ADXParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : IndicatorParams(INDI_ADX, FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE) {
     this = _p;
     tf = _tf;
   };

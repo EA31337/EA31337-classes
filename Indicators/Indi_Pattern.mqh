@@ -32,8 +32,7 @@
 // Structs.
 struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
-  void IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN, 5) {
-    SetDataValueType(TYPE_INT);
+  void IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN, 5, TYPE_INT) {
     SetDataValueRange(IDATA_RANGE_BITWISE);
     shift = _shift;
   };

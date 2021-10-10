@@ -47,9 +47,8 @@ struct StochParams : IndicatorParams {
         slowing(_slowing),
         ma_method(_ma_method),
         price_field(_pf),
-        IndicatorParams(INDI_STOCHASTIC, FINAL_SIGNAL_LINE_ENTRY) {
+        IndicatorParams(INDI_STOCHASTIC, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\Stochastic");
   };

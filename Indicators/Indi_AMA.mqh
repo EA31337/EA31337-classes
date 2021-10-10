@@ -42,8 +42,7 @@ struct IndiAMAParams : IndicatorParams {
         slow_period(_slow_period),
         ama_shift(_ama_shift),
         applied_price(_ap),
-        IndicatorParams(INDI_AMA, 1) {
-    SetDataValueType(TYPE_DOUBLE);
+        IndicatorParams(INDI_AMA, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetShift(_shift);
     switch (idstype) {

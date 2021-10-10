@@ -36,9 +36,8 @@ struct BearsPowerParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
   void BearsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : period(_period), applied_price(_ap), IndicatorParams(INDI_BEARS, 1) {
+      : period(_period), applied_price(_ap), IndicatorParams(INDI_BEARS, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Bears");
   };

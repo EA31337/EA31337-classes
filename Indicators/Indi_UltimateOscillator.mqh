@@ -39,12 +39,11 @@ struct UltimateOscillatorParams : IndicatorParams {
   // Struct constructor.
   void UltimateOscillatorParams(int _fast_period = 7, int _middle_period = 14, int _slow_period = 28, int _fast_k = 4,
                                 int _middle_k = 2, int _slow_k = 1, int _shift = 0)
-      : IndicatorParams(INDI_ULTIMATE_OSCILLATOR, 1) {
+      : IndicatorParams(INDI_ULTIMATE_OSCILLATOR, 1, TYPE_DOUBLE) {
     fast_k = _fast_k;
     fast_period = _fast_period;
     middle_k = _middle_k;
     middle_period = _middle_period;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Ultimate_Oscillator");
     shift = _shift;

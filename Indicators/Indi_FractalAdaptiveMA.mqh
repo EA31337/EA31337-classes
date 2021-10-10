@@ -33,9 +33,8 @@ struct IndiFrAMAParams : IndicatorParams {
 
   // Struct constructor.
   void IndiFrAMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_FRAMA, 1) {
+      : IndicatorParams(INDI_FRAMA, 1, TYPE_DOUBLE) {
     frama_shift = _frama_shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\FrAMA");
     applied_price = _ap;

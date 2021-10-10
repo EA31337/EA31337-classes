@@ -29,8 +29,7 @@
 // Structs.
 struct ColorLineParams : IndicatorParams {
   // Struct constructor.
-  void ColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE, 2) {
-    SetDataValueType(TYPE_DOUBLE);
+  void ColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE, 2, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorLine");
     shift = _shift;

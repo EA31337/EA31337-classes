@@ -44,9 +44,8 @@ struct MACDParams : IndicatorParams {
         ema_slow_period(_esp),
         signal_period(_sp),
         applied_price(_ap),
-        IndicatorParams(INDI_MACD, FINAL_SIGNAL_LINE_ENTRY) {
+        IndicatorParams(INDI_MACD, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };

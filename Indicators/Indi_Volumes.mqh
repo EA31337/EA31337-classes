@@ -30,9 +30,8 @@ struct VolumesParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
   void VolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_VOLUMES, 2) {
+      : IndicatorParams(INDI_VOLUMES, 2, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Volumes");
     SetDataSourceType(IDATA_BUILTIN);

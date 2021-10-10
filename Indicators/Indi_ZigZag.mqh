@@ -38,10 +38,9 @@ struct ZigZagParams : IndicatorParams {
       : depth(_depth),
         deviation(_deviation),
         backstep(_backstep),
-        IndicatorParams(INDI_ZIGZAG, FINAL_ZIGZAG_LINE_ENTRY) {
+        IndicatorParams(INDI_ZIGZAG, FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
     SetCustomIndicatorName("Examples\\ZigZag");
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
   };
 };

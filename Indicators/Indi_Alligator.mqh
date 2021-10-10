@@ -80,9 +80,8 @@ struct AlligatorParams : IndicatorParams {
         lips_shift(_ls),
         ma_method(_mm),
         applied_price(_ap),
-        IndicatorParams(INDI_ALLIGATOR, FINAL_ALLIGATOR_LINE_ENTRY) {
+        IndicatorParams(INDI_ALLIGATOR, FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Alligator");
   };
