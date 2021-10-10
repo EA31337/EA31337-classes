@@ -51,14 +51,6 @@ struct IndiAMAParams : IndicatorParams {
           SetCustomIndicatorName("Examples\\AMA");
         }
         break;
-      case IDATA_INDICATOR:
-        /* @fixme
-        if (indi_src == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period), false);
-          SetDataSourceMode(0);
-        }
-        */
-        break;
     }
   };
   void IndiAMAParams(IndiAMAParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_AMA, 1) {

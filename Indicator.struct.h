@@ -354,6 +354,7 @@ struct IndicatorDataEntry {
 
 /* Structure for indicator parameters. */
 struct IndicatorParams {
+ public: // @todo: Change it to protected.
   string name;                      // Name of the indicator.
   int shift;                        // Shift (relative to the current bar, 0 - default).
   unsigned int max_buffers;         // Max buffers to store.
@@ -373,6 +374,7 @@ struct IndicatorParams {
   bool is_draw;                         // Draw active.
   int draw_window;                      // Drawing window.
   string custom_indi_name;              // Name of the indicator passed to iCustom() method.
+ public:
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, unsigned int _max_modes = 1,

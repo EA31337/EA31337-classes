@@ -42,14 +42,6 @@ struct DemoIndiParams : IndicatorParams {
           SetCustomIndicatorName("Examples\\Demo");
         }
         break;
-      case IDATA_INDICATOR:
-        /* @fixme
-        if (indi_src == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf), false);
-          SetDataSourceMode(0);
-        }
-        */
-        break;
     }
   };
   void DemoIndiParams(DemoIndiParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_DEMO, 1) {

@@ -52,14 +52,6 @@ struct DEMAParams : IndicatorParams {
           SetCustomIndicatorName("Examples\\DEMA");
         }
         break;
-      case IDATA_INDICATOR:
-        /* @fixme
-        if (indi_src == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period), false);
-          SetDataSourceMode(0);
-        }
-        */
-        break;
     }
   };
   void DEMAParams(DEMAParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

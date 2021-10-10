@@ -49,13 +49,6 @@ struct ADXParams : IndicatorParams {
           SetCustomIndicatorName("Examples\\ADX");
         }
         break;
-      case IDATA_INDICATOR:
-        /* @fixme
-        if (indi_src == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf, applied_price, _period));
-        }
-        */
-        break;
     }
   };
   void ADXParams(ADXParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)

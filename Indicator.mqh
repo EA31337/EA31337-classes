@@ -119,6 +119,17 @@ class Indicator : public IndicatorBase {
 
   bool Init() {
     ArrayResize(value_storages, iparams.GetMaxModes());
+    switch (iparams.GetDataSourceType()) {
+      case IDATA_BUILTIN:
+        break;
+      case IDATA_ICUSTOM:
+        break;
+      case IDATA_INDICATOR:
+        if (indi_src == NULL) {
+          // SetDataSource(Indi_Price::GetCached(iparams.GetShift(), GetTf(), PRICE_TYPICAL, _period), true);
+        }
+        break;
+    }
     return InitDraw();
   }
 
@@ -502,7 +513,7 @@ class Indicator : public IndicatorBase {
   string GetDescriptiveName() {
     string name = iparams.name + " (";
 
-    switch (iparams.idstype) {
+    switch (iparams.GetDataSourceType()) {
       case IDATA_BUILTIN:
         name += "built-in, ";
         break;
