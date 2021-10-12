@@ -80,7 +80,8 @@ enum ENUM_STRATEGY_PARAM {
   STRAT_PARAM_PPM,         // Signal profit method
   STRAT_PARAM_PSL,         // Price stop level
   STRAT_PARAM_PSM,         // Price stop method
-  STRAT_PARAM_SCF,         // Signal close filter
+  STRAT_PARAM_SCFM,        // Signal close filter method
+  STRAT_PARAM_SCFT,        // Signal close filter time
   STRAT_PARAM_SCL,         // Signal close level
   STRAT_PARAM_SCM,         // Signal close method
   STRAT_PARAM_SHIFT,       // Shift
@@ -94,22 +95,6 @@ enum ENUM_STRATEGY_PARAM {
   STRAT_PARAM_TYPE,        // Type
   STRAT_PARAM_WEIGHT,      // Weight
   FINAL_ENUM_STRATEGY_PARAM
-};
-
-/* Enumeration for strategy bitwise signal flags. */
-enum ENUM_STRATEGY_SIGNAL_FLAG {
-  STRAT_SIGNAL_NONE = 0 << 0,
-  STRAT_SIGNAL_CLOSE_BUY = 1 << 0,        // Close signal for buy
-  STRAT_SIGNAL_CLOSE_BUY_PASS = 1 << 1,   // Close signal for buy passed by filter
-  STRAT_SIGNAL_CLOSE_SELL = 1 << 2,       // Close signal for sell
-  STRAT_SIGNAL_CLOSE_SELL_PASS = 1 << 3,  // Close signal for sell passed by filter
-  STRAT_SIGNAL_OPEN_BUY = 1 << 4,         // Open signal for buy
-  STRAT_SIGNAL_OPEN_BUY_PASS = 1 << 5,    // Open signal for buy passed by filter
-  STRAT_SIGNAL_OPEN_SELL = 1 << 6,        // Open signal for sell
-  STRAT_SIGNAL_OPEN_SELL_PASS = 1 << 7,   // Open signal for sell passed by filter
-  STRAT_SIGNAL_PROCESSED = 1 << 8,        // Signal proceed
-  STRAT_SIGNAL_TIME_PASS = 1 << 9,        // Open signal passed by time filter
-  FINAL_ENUM_STRATEGY_SIGNAL_FLAG
 };
 
 /* Enumeration for strategy periodical statistics. */

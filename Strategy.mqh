@@ -100,8 +100,8 @@ class Strategy : public Object {
   MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
-  StrategySignal last_signals;    // Last signals.
   Trade trade;                    // Trade instance.
+                                  // TradeSignalEntry last_signal;    // Last signals.
 
  private:
   // Strategy statistics.
@@ -145,17 +145,6 @@ class Strategy : public Object {
   Log *GetLogger() { return GetPointer(logger); }
 
   /**
-   * Class copy constructor.
-   */
-  /*
-  Strategy(const Strategy &_strat) {
-    // @todo
-    sparams = _strat.GetParams();
-    // ...
-  }
-  */
-
-  /**
    * Class deconstructor.
    */
   ~Strategy() {
@@ -165,53 +154,6 @@ class Strategy : public Object {
   }
 
   /* Processing methods */
-
-  /**
-   * Process strategy's signals.
-   *
-   * @param bool _should_open
-   *   True if method should open the orders, otherwise only process the signals.
-   * @param bool _should_close
-   *   True if method should close the orders, otherwise only process the signals.
-   * @param int _shift
-   *   Bar shift.
-   *
-   * @return
-   *   Returns StrategySignal struct.
-   */
-  StrategySignal ProcessSignals(bool _trade_allowed = true, int _shift = -1) {
-    // float _bf = 1.0;
-    // float _ls = 0;
-    int _ss = _shift >= 0 ? _shift : sparams.shift;
-    StrategySignal _signal(THIS_PTR, trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                           sparams.Get<float>(STRAT_PARAM_WEIGHT));
-    if (_trade_allowed) {
-      float _sol = sparams.Get<float>(STRAT_PARAM_SOL);
-      int _sob = sparams.Get<int>(STRAT_PARAM_SOB);
-      int _sofm = sparams.Get<int>(STRAT_PARAM_SOFM);
-      int _soft = sparams.Get<int>(STRAT_PARAM_SOFT);
-      int _som = sparams.Get<int>(STRAT_PARAM_SOM);
-      // Process boost factor and lot size.
-      // sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
-      // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
-      // Process open signals when trade is allowed.
-      _signal.SetSignal(STRAT_SIGNAL_OPEN_BUY, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_OPEN_BUY_PASS, SignalOpenFilterMethod(ORDER_TYPE_BUY, _sofm));
-      _signal.SetSignal(STRAT_SIGNAL_OPEN_SELL, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_OPEN_SELL_PASS, SignalOpenFilterMethod(ORDER_TYPE_SELL, _sofm));
-      _signal.SetSignal(STRAT_SIGNAL_TIME_PASS, SignalOpenFilterTime(_soft));
-    }
-    // Process close signals.
-    float _scl = sparams.Get<float>(STRAT_PARAM_SCL);
-    int _scf = sparams.Get<int>(STRAT_PARAM_SCF);
-    int _scm = sparams.Get<int>(STRAT_PARAM_SCM);
-    _signal.SetSignal(STRAT_SIGNAL_CLOSE_BUY, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss));
-    _signal.SetSignal(STRAT_SIGNAL_CLOSE_BUY_PASS, SignalCloseFilter(ORDER_TYPE_BUY, _scf));
-    _signal.SetSignal(STRAT_SIGNAL_CLOSE_SELL, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss));
-    _signal.SetSignal(STRAT_SIGNAL_CLOSE_SELL_PASS, SignalCloseFilter(ORDER_TYPE_SELL, _scf));
-    last_signals = _signal;
-    return _signal;
-  }
 
   /**
    * Process strategy's signals and orders.
@@ -224,7 +166,6 @@ class Strategy : public Object {
    */
   StgProcessResult Process(unsigned short _periods_started = DATETIME_NONE) {
     sresult.last_error = ERR_NO_ERROR;
-    last_signals = ProcessSignals();
     if (_periods_started > 0) {
       ProcessTasks();
     }
@@ -301,11 +242,6 @@ class Strategy : public Object {
   /* Class getters */
 
   /**
-   * Returns access to Chart information.
-   */
-  // Chart *GetChart() { return trade.GetChart(); }
-
-  /**
    * Returns handler to the strategy's indicator class.
    */
   IndicatorBase *GetIndicator(int _id = 0) {
@@ -369,11 +305,6 @@ class Strategy : public Object {
   }
 
   /**
-   * Get strategy's last signals.
-   */
-  StrategySignal GetLastSignals() { return last_signals; }
-
-  /**
    * Gets pointer to strategy's stop-loss strategy.
    */
   Strategy *GetStratSl() { return strat_sl; }
@@ -392,11 +323,6 @@ class Strategy : public Object {
    * Get strategy's ID.
    */
   virtual long GetId() { return sparams.id; }
-
-  /**
-   * Get strategy's timeframe.
-   */
-  // ENUM_TIMEFRAMES GetTf() { return trade.GetChart().GetTf(); }
 
   /**
    * Get strategy's signal open method.
@@ -1122,7 +1048,7 @@ class Strategy : public Object {
    */
   virtual float SignalOpen(int _method = 0, float _level = 0.0f, int _shift = 0) {
     // @todo
-    return false;
+    return 0.0f;
   };
 
   /**
@@ -1155,13 +1081,32 @@ class Strategy : public Object {
   }
 
   /**
+   * Checks strategy's trade's close signal time filter.
+   *
+   * @param
+   *   _method - method to filter a closing trade (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true if trade should be closed, otherwise false.
+   */
+  virtual bool SignalCloseFilterTime(int _method = 0) {
+    bool _result = true;
+    if (_method != 0) {
+      MarketTimeForex _mtf(::TimeGMT());
+      _result &= _mtf.CheckHours(_method);         // 0-127
+      _method = _method > 0 ? _method : !_method;  // -127-127
+    }
+    return _result;
+  }
+
+  /**
    * Checks strategy's trade's open signal time filter.
    *
    * @param
    *   _method - method to filter a trade (bitwise AND operation)
    *
    * @result bool
-   *   Returns true when trade should be opened, otherwise false.
+   *   Returns true if trade should be opened, otherwise false.
    */
   virtual bool SignalOpenFilterTime(int _method = 0) {
     bool _result = true;
@@ -1324,8 +1269,6 @@ class Strategy : public Object {
   SerializerNodeType Serialize(Serializer &_s) {
     _s.PassStruct(THIS_REF, "strat-params", sparams);
     _s.PassStruct(THIS_REF, "strat-results", sresult, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.PassStruct(THIS_REF, "strat-signals", last_signals,
-                  SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     return SerializerNodeObject;
   }
 };

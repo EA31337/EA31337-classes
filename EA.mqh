@@ -49,6 +49,8 @@
 #include "Task.mqh"
 #include "Terminal.mqh"
 #include "Trade.mqh"
+#include "Trade/TradeSignal.h"
+#include "Trade/TradeSignalManager.h"
 
 class EA {
  protected:
@@ -61,7 +63,6 @@ class EA {
 
   // Data variables.
   BufferStruct<ChartEntry> data_chart;
-  BufferStruct<DictStruct<short, StrategySignal>> strat_signals;
   BufferStruct<SymbolInfoEntry> data_symbol;
   Dict<string, double> ddata;  // Custom user data.
   Dict<string, int> idata;     // Custom user data.
@@ -72,6 +73,7 @@ class EA {
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
+  TradeSignalManager tsm;
 
  public:
   /**
@@ -124,6 +126,56 @@ class EA {
   template <typename T>
   T Get(ENUM_TRADE_STATE _state, string _symbol = NULL) {
     return trade.GetByKey(_symbol != NULL ? _symbol : _Symbol).Get<T>(_state);
+  }
+
+  /**
+   * Gets a strategy's signal entry.
+   *
+   * @param Strategy _strat
+   *   Reference to strategy to get the signal from.
+   * @param bool _trade_allowed
+   *   True if trade is allowed.
+   * @param int _shift
+   *   Bar shift.
+   *
+   * @return
+   *   Returns TradeSignalEntry struct.
+   */
+  TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, bool _trade_allowed = true, int _shift = -1) {
+    // float _bf = 1.0;
+    float _scl = _strat.Get<float>(STRAT_PARAM_SCL);
+    float _sol = _strat.Get<float>(STRAT_PARAM_SOL);
+    int _scfm = _strat.Get<int>(STRAT_PARAM_SCFM);
+    int _scft = _strat.Get<int>(STRAT_PARAM_SCFT);
+    int _scm = _strat.Get<int>(STRAT_PARAM_SCM);
+    int _sob = _strat.Get<int>(STRAT_PARAM_SOB);
+    int _sofm = _strat.Get<int>(STRAT_PARAM_SOFM);
+    int _soft = _strat.Get<int>(STRAT_PARAM_SOFT);
+    int _som = _strat.Get<int>(STRAT_PARAM_SOM);
+    int _ss = _shift >= 0 ? _shift : _strat.Get<int>(STRAT_PARAM_SHIFT);
+    unsigned int _signals = 0;
+    // sparams.Get<float>(STRAT_PARAM_WEIGHT));
+    if (_trade_allowed) {
+      // Process boost factor and lot size.
+      // sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
+      // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
+      // Process open signals when trade is allowed.
+      _signals |= _strat.SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss) ? SIGNAL_OPEN_BUY_MAIN : 0;
+      _signals |= !_strat.SignalOpenFilterMethod(ORDER_TYPE_BUY, _sofm) ? SIGNAL_OPEN_BUY_FILTER : 0;
+      _signals |= _strat.SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss) ? SIGNAL_OPEN_SELL_MAIN : 0;
+      _signals |= !_strat.SignalOpenFilterMethod(ORDER_TYPE_SELL, _sofm) ? SIGNAL_OPEN_SELL_FILTER : 0;
+      _signals |= !_strat.SignalOpenFilterTime(_soft) ? SIGNAL_OPEN_TIME_FILTER : 0;
+    }
+    // Process close signals.
+    _signals |= _strat.SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss) ? SIGNAL_CLOSE_BUY_MAIN : 0;
+    _signals |= !_strat.SignalCloseFilter(ORDER_TYPE_BUY, _scfm) ? SIGNAL_CLOSE_BUY_FILTER : 0;
+    _signals |= _strat.SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss) ? SIGNAL_CLOSE_SELL_MAIN : 0;
+    _signals |= !_strat.SignalCloseFilter(ORDER_TYPE_SELL, _scfm) ? SIGNAL_CLOSE_SELL_FILTER : 0;
+    _signals |= !_strat.SignalCloseFilterTime(_scfm) ? SIGNAL_OPEN_TIME_FILTER : 0;
+    TradeSignalEntry _sentry(_signals, _strat.Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF), _strat.Get<long>(STRAT_PARAM_ID));
+    _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_STRENGTH), _strat.SignalOpen(_sofm, _sol, _ss));
+    _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME), ::TimeGMT());
+    return _sentry;
   }
 
   /* Setters */
@@ -192,32 +244,34 @@ class EA {
     bool _result = true;
     int _last_error = ERR_NO_ERROR;
     ResetLastError();
-    DictStruct<short, StrategySignal> _ds = strat_signals.GetByKey(_tick.time);
-    for (DictStructIterator<short, StrategySignal> _dsi = _ds.Begin(); _dsi.IsValid(); ++_dsi) {
-      StrategySignal _signal = _dsi.Value();
-      if (_signal.CheckSignals(STRAT_SIGNAL_PROCESSED)) {
+    for (DictObjectIterator<int, TradeSignal> _iter = tsm.GetIterSignalsActive(); _iter.IsValid(); ++_iter) {
+      bool _result_local = true;
+      TradeSignal *_signal = _iter.Value();
+      if (_signal.Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED))) {
         // Ignores already processed signals.
-        // @todo: Not in use yet.
         continue;
       }
-      Strategy *_strat = _signal.GetStrategy();
       Trade *_trade = trade.GetByKey(_Symbol);
+      Strategy *_strat =
+          strats.GetByKey(_signal.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID))).Ptr();
       if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
         float _sig_close = _signal.GetSignalClose();
+        string _comment_close =
+            _strat != NULL && _sig_close != 0.0f ? _strat.GetOrderCloseComment() : __FUNCTION_LINE__;
         // Check if we should close the orders.
         if (_sig_close >= 0.5f) {
           // Close signal for buy order.
-          _result &= _trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
-              ORDER_MAGIC, _strat.Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_BUY, MATH_COND_EQ,
-              ORDER_REASON_CLOSED_BY_SIGNAL, _strat.GetOrderCloseComment());
+          _trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
+              ORDER_MAGIC, _signal.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)), ORDER_TYPE,
+              ORDER_TYPE_BUY, MATH_COND_EQ, ORDER_REASON_CLOSED_BY_SIGNAL, _comment_close);
           // Buy orders closed.
           _strat.OnOrderClose(ORDER_TYPE_BUY);
         }
         if (_sig_close <= -0.5f) {
           // Close signal for sell order.
-          _result &= _trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
-              ORDER_MAGIC, _strat.Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_SELL, MATH_COND_EQ,
-              ORDER_REASON_CLOSED_BY_SIGNAL, _strat.GetOrderCloseComment());
+          _trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
+              ORDER_MAGIC, _signal.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)), ORDER_TYPE,
+              ORDER_TYPE_SELL, MATH_COND_EQ, ORDER_REASON_CLOSED_BY_SIGNAL, _comment_close);
           // Sell orders closed.
           _strat.OnOrderClose(ORDER_TYPE_SELL);
         }
@@ -225,15 +279,17 @@ class EA {
       if (_trade_allowed) {
         float _sig_open = _signal.GetSignalOpen();
         unsigned int _sig_f = eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER));
+        string _comment_open = _strat != NULL && _sig_open != 0.0f ? _strat.GetOrderOpenComment() : __FUNCTION_LINE__;
         // Open orders on signals.
         if (_sig_open >= 0.5f) {
           // Open signal for buy.
           // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-          if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
-            _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
+          if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
+            _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
             // Buy order open.
-            _result &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
-            if (_result && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+            _result_local &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
+            if (_result_local && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+              _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
               break;
             }
           }
@@ -241,16 +297,19 @@ class EA {
         if (_sig_open <= -0.5f) {
           // Open signal for sell.
           // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-          if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
-            _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
+          if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
+            _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
             // Sell order open.
-            _result &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
-            if (_result && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+            _result_local &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
+            if (_result_local && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+              _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
               break;
             }
           }
         }
-        if (!_result) {
+        if (_result_local) {
+          _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
+        } else {
           _last_error = GetLastError();
           switch (_last_error) {
             case ERR_NOT_ENOUGH_MEMORY:
@@ -262,13 +321,14 @@ class EA {
           }
         }
       }
+      _result &= _result_local;
     }
     _last_error = GetLastError();
     if (_last_error > 0) {
       logger.Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__);
     }
-    // Remove signals after processing.
-    strat_signals.Unset(_tick.time);
+    // Refresh signals after processing.
+    tsm.Refresh();
     return _result && _last_error == 0;
   }
 
@@ -328,20 +388,22 @@ class EA {
               _can_trade &= _can_trade && !_strat.IsSuspended();
               _can_trade &= _can_trade && !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE,
                                                                  TRADE_STATE_TRADE_CANNOT);
-              StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-              if (_signal.GetSignalClose() != _signal.GetSignalOpen()) {
-                SignalAdd(_signal, _tick.time);
+              TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
+              if (_sentry.Get<uint>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
+                TradeSignal _signal(_sentry);
+                if (_signal.GetSignalClose() != _signal.GetSignalOpen()) {
+                  tsm.SignalAdd(_signal);  //, _tick.time);
+                }
+                StgProcessResult _strat_result = _strat.GetProcessResult();
+                eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
+                eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
+                eresults.stg_processed++;
               }
-              StgProcessResult _strat_result = _strat.GetProcessResult();
-              eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-              eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
-              eresults.stg_processed++;
             }
           }
         }
         // Process all strategies' signals and trigger trading orders.
-        ProcessSignals(GetMarket().GetLastTick(),
-                       eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER)));
+        ProcessSignals(_tick, eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER)));
         if (eresults.last_error > ERR_NO_ERROR) {
           // On error, print logs.
           logger.Flush();
@@ -574,6 +636,7 @@ class EA {
    * @return
    *   Returns 1 when buy signal exists, -1 for sell, otherwise 0 for neutral signal.
    */
+  /* @fixme: Convert into TradeSignal format.
   float GetSignalOpenFiltered(StrategySignal &_signal, unsigned int _sf) {
     float _result = _signal.GetSignalOpen();
     ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
@@ -600,15 +663,7 @@ class EA {
     }
     return _result;
   }
-
-  /**
-   * Adds strategy's signal for further processing.
-   */
-  bool SignalAdd(StrategySignal &_signal, long _time) {
-    DictStruct<short, StrategySignal> _ds = strat_signals.GetByKey(_time);
-    _ds.Push(_signal);
-    return strat_signals.Set(_time, _ds);
-  }
+  */
 
   /* Tasks */
 
@@ -1044,6 +1099,7 @@ class EA {
     }
     if ((estate.new_periods & DATETIME_HOUR) != 0) {
       // New hour started.
+      tsm.Refresh();
     }
     if ((estate.new_periods & DATETIME_DAY) != 0) {
       // New day started.
@@ -1054,7 +1110,6 @@ class EA {
     }
     if ((estate.new_periods & DATETIME_WEEK) != 0) {
       // New week started.
-      strat_signals.Clear();
     }
     if ((estate.new_periods & DATETIME_MONTH) != 0) {
       // New month started.

@@ -298,7 +298,7 @@ class Dict : public DictBase<K, V> {
   /**
    * Shrinks or expands array of DictSlots.
    */
-  bool Resize(unsigned int new_size) {
+  bool Resize(int new_size) {
     if (new_size <= MathMin(_DictSlots_ref._num_used, ArraySize(_DictSlots_ref.DictSlots))) {
       // We already use minimum number of slots possible.
       return true;
@@ -308,7 +308,7 @@ class Dict : public DictBase<K, V> {
 
     if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) return false;
 
-    unsigned int i;
+    int i;
 
     for (i = 0; i < new_size; ++i) {
       new_DictSlots.DictSlots[i].SetFlags(0);
@@ -317,7 +317,7 @@ class Dict : public DictBase<K, V> {
     new_DictSlots._num_used = 0;
 
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
-    for (i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+    for (i = 0; i < ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (!_DictSlots_ref.DictSlots[i].IsUsed()) continue;
 
       if (_DictSlots_ref.DictSlots[i].HasKey()) {
