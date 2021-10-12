@@ -801,6 +801,26 @@ class Indicator : public IndicatorBase {
   virtual bool IsDataSourceModeSelectable() { return true; }
 
   /**
+   * Checks if indicator entry is valid.
+   *
+   * @return
+   *   Returns true if entry is valid (has valid values), otherwise false.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
+    bool _result = true;
+    _result &= !_entry.HasValue<double>(NULL);
+    _result &= !_entry.HasValue<double>(EMPTY_VALUE);
+    if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
+      _result &= !_entry.HasValue<double>(DBL_MAX);
+    } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
+      _result &= !_entry.HasValue<double>(FLT_MAX);
+    } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
+      _result &= !_entry.HasValue<double>(INT_MAX);
+    }
+    return _result;
+  }
+
+  /**
    * Update indicator.
    */
   virtual bool Update() {
@@ -810,8 +830,13 @@ class Indicator : public IndicatorBase {
 
   /**
    * Returns the indicator's struct value.
+   *
+   * @see: IndicatorDataEntry.
+   *
+   * @return
+   *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
+  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
@@ -820,9 +845,7 @@ class Indicator : public IndicatorBase {
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) &&
-                                                   !_entry.HasValue<double>(EMPTY_VALUE) &&
-                                                   !_entry.HasValue<double>(DBL_MAX));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
