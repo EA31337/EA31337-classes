@@ -112,7 +112,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return true; }
+  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return true; }  // @todo
 
   /**
    * Returns the indicator's entry value.

@@ -174,9 +174,9 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
       _histcolor = GetValue(BWMFI_HISTCOLOR, _shift);
 #endif
       _entry.values[BWMFI_HISTCOLOR] = _histcolor;
+      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -190,12 +190,5 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
     MqlParam _param = {TYPE_DOUBLE};
     GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
-  }
-
-  /**
-   * Checks if indicator entry values are valid.
-   */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return _entry.values[BWMFI_BUFFER] != 0 && !_entry.HasValue(EMPTY_VALUE);
   }
 };

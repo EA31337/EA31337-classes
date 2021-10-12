@@ -232,7 +232,7 @@ class Indi_DEMA : public Indicator<DEMAParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return _entry.IsGt<double>(0) && _entry.IsLt<double>(DBL_MAX);
+    return Indicator<DEMAParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0) && _entry.IsLt<double>(DBL_MAX);
   }
 
   /* Getters */

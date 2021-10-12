@@ -201,7 +201,7 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0);
+    return Indicator<IchimokuParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0);
   }
 
   /* Getters */
