@@ -1172,11 +1172,9 @@ int BarsCalculated(IndicatorBase* _indi, int _bars_required, int _bars_at_least 
     return _bars_required;
   }
 
-  if (_bars_at_least != -1) {
-    _bars_required = _bars_at_least;
-  }
+  int _bars_to_satisfy = (_bars_at_least != -1) ? _bars_at_least : _bars_required;
 
-  IndicatorDataEntry _entry = _indi.GetEntry(_bars_required - 1);
+  IndicatorDataEntry _entry = _indi.GetEntry(_bars_to_satisfy - 1);
   // GetEntry() could end up with an error. It is okay.
   ResetLastError();
 
@@ -1185,7 +1183,7 @@ int BarsCalculated(IndicatorBase* _indi, int _bars_required, int _bars_at_least 
   if (!_entry.IsValid()) {
     // We don't have sufficient data. Counting how much data we have.
 
-    for (int i = 0; i < _bars_required; ++i) {
+    for (int i = 0; i < _bars_to_satisfy; ++i) {
       IndicatorDataEntry _check_entry = _indi.GetEntry(i);
       if (!_check_entry.IsValid()) {
         break;
@@ -1194,6 +1192,11 @@ int BarsCalculated(IndicatorBase* _indi, int _bars_required, int _bars_at_least 
     }
   } else {
     _valid_history_count = _bars_required;
+  }
+
+  if (_bars_at_least != -1 && _valid_history_count >= _bars_at_least) {
+    // Faking BarsCalculated() that be have all the required bars.
+    return _bars_required;
   }
 
   return _valid_history_count;
