@@ -248,7 +248,7 @@ class Indi_ADXW : public Indicator<ADXWParams> {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_DOUBLE, true);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
       }
@@ -263,6 +263,13 @@ class Indi_ADXW : public Indicator<ADXWParams> {
     MqlParam _param = {TYPE_DOUBLE};
     _param.double_value = GetEntry(_shift)[_mode];
     return _param;
+  }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE);
   }
 
   /* Getters */

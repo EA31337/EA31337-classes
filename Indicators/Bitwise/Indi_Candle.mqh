@@ -111,6 +111,7 @@ class Indi_Candle : public Indicator<CandleParams> {
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
       istate.is_ready = true;
 
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);

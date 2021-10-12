@@ -274,9 +274,7 @@ class Indi_Bands : public Indicator<BandsParams> {
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue((ENUM_BANDS_LINE)_mode, _shift);
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-                     !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0) &&
-                         _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl());
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
@@ -293,6 +291,14 @@ class Indi_Bands : public Indicator<BandsParams> {
     GetEntry(_shift).values[_mode].Get(_param.double_value);
     // GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
+  }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0) &&
+           _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl();
   }
 
   /**

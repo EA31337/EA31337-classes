@@ -99,8 +99,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
                       _entry.values[3].vflt, _entry.values[4].vflt, _entry.values[5].vflt, _entry.values[6].vflt,
                       _entry.values[7].vflt, _entry.values[8].vflt);
 
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
-
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
@@ -109,6 +108,11 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
     }
     return _entry;
   }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return true; }
 
   /**
    * Returns the indicator's entry value.

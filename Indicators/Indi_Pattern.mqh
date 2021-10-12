@@ -116,8 +116,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
       }
 
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _ohlcs[0].IsValid() && _entry.values[1] > 0);
-
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry) && _ohlcs[0].IsValid());
       if (_entry.IsValid()) {
         istate.is_ready = true;
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
@@ -126,6 +125,11 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
     }
     return _entry;
   }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return _entry.values[1] > 0; }
 
   /**
    * Returns the indicator's entry value.

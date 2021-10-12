@@ -150,7 +150,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
         float _value = GetValue(_mode, _shift);
         _entry.values[_mode] = IsValidValue(_value, _mode, _shift) ? _value : 0.0f;
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.IsGe<float>(0) && !_entry.HasValue<float>(FLT_MAX));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
@@ -171,6 +171,13 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
     MqlParam _param = {TYPE_INT};
     _param.integer_value = GetEntry(_shift).GetValue<int>(_mode);
     return _param;
+  }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return _entry.IsGe<float>(0) && !_entry.HasValue<float>(FLT_MAX);
   }
 
   /* Getters */

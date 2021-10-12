@@ -214,9 +214,7 @@ class Indi_Gator : public Indicator<GatorParams> {
       _entry.values[LINE_UPPER_HISTCOLOR] = GetValue(LINE_UPPER_HISTCOLOR, _shift);
       _entry.values[LINE_LOWER_HISTCOLOR] = GetValue(LINE_LOWER_HISTCOLOR, _shift);
 #endif
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-                     !_entry.HasValue(EMPTY_VALUE) && (_entry.values[LINE_UPPER_HISTOGRAM].GetDbl() != 0 ||
-                                                       _entry.values[LINE_LOWER_HISTOGRAM].GetDbl() != 0));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
@@ -232,6 +230,14 @@ class Indi_Gator : public Indicator<GatorParams> {
     MqlParam _param = {TYPE_DOUBLE};
     GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
+  }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue(EMPTY_VALUE) &&
+           (_entry.values[LINE_UPPER_HISTOGRAM].GetDbl() != 0 || _entry.values[LINE_LOWER_HISTOGRAM].GetDbl() != 0);
   }
 
   /* Getters */

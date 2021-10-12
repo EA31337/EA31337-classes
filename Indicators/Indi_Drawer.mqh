@@ -89,7 +89,6 @@ class Indi_Drawer : public Indicator<DrawerParams> {
 
       // Assuming that passed values are correct.
       entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-
       idata.Add(entry, _args[0].integer_value);
       return true;
     }

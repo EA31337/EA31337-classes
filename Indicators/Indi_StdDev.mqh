@@ -244,7 +244,7 @@ class Indi_StdDev : public Indicator<StdDevParams> {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0].Set(GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
@@ -260,6 +260,13 @@ class Indi_StdDev : public Indicator<StdDevParams> {
     MqlParam _param = {TYPE_DOUBLE};
     GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
+  }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE);
   }
 
   /* Getters */

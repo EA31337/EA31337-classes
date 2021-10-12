@@ -150,8 +150,7 @@ class Indi_ADX : public Indicator<ADXParams> {
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = Indi_ADX::GetValue(_mode, _shift);
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) &&
-                                                   _entry.IsWithinRange(0.0, 100.0));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
@@ -167,6 +166,13 @@ class Indi_ADX : public Indicator<ADXParams> {
     MqlParam _param = {TYPE_DOUBLE};
     _param.double_value = GetEntry(_shift)[_mode];
     return _param;
+  }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsWithinRange(0.0, 100.0);
   }
 
   /* Getters */

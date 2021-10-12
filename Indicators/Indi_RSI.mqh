@@ -351,7 +351,7 @@ class Indi_RSI : public Indicator<RSIParams> {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_DOUBLE, iparams.GetDataValueType() == TYPE_DOUBLE);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
@@ -367,6 +367,13 @@ class Indi_RSI : public Indicator<RSIParams> {
     MqlParam _param = {TYPE_DOUBLE};
     GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
+  }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE);
   }
 
   /**
