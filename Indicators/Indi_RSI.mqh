@@ -184,8 +184,6 @@ class Indi_RSI : public Indicator<RSIParams> {
       // Return empty value on invalid bar time.
       return EMPTY_VALUE;
     }
-    // Looks like MT uses specified period as start of the SMMA calculations.
-    _obj.FeedHistoryEntries(_period);
 
     int i;
     double indi_values[];

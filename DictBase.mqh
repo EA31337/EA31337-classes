@@ -26,6 +26,7 @@
 
 // Includes.
 #include "Convert.mqh"
+#include "Dict.enum.h"
 #include "DictIteratorBase.mqh"
 #include "DictSlot.mqh"
 #include "Serializer.mqh"
