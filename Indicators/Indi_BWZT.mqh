@@ -97,12 +97,12 @@ class Indi_BWZT : public Indicator<BWZTParams> {
                        IndicatorBase *ExtACHandle, IndicatorBase *ExtAOHandle) {
     if (rates_total < DATA_LIMIT) return (0);
     // Not all data may be calculated.
-    int calculated = BarsCalculated(ExtACHandle, rates_total);
+    int calculated = BarsCalculated(ExtACHandle);
     if (calculated < rates_total) {
       // Not all data of ExtACHandle is calculated.
       return (0);
     }
-    calculated = BarsCalculated(ExtAOHandle, rates_total);
+    calculated = BarsCalculated(ExtAOHandle);
     if (calculated < rates_total) {
       // Not all data of ExtAOHandle is calculated.
       return (0);

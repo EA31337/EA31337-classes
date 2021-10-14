@@ -124,6 +124,7 @@ int OnInit() {
   bool _result = true;
   // Initialize chart.
   chart = new Chart();
+  Print("We have ", Bars(NULL, 0), " bars to analyze");
   // Initialize indicators.
   _result &= InitIndicators();
   Print("Indicators to test: ", indis.Size());

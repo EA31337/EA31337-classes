@@ -127,17 +127,17 @@ class Indi_UltimateOscillator : public Indicator<UltimateOscillatorParams> {
 
     if (rates_total < ExtMaxPeriod) return (0);
     // Not all data may be calculated.
-    int calculated = BarsCalculated(ExtFastATRhandle, rates_total, min_bars_required);
+    int calculated = BarsCalculated(ExtFastATRhandle);
     if (calculated < rates_total) {
       // Not all data of ExtFastATRhandle is calculated.
       return (0);
     }
-    calculated = BarsCalculated(ExtMiddleATRhandle, rates_total, min_bars_required);
+    calculated = BarsCalculated(ExtMiddleATRhandle);
     if (calculated < rates_total) {
       // Not all data of ExtFastATRhandle is calculated.
       return (0);
     }
-    calculated = BarsCalculated(ExtSlowATRhandle, rates_total, min_bars_required);
+    calculated = BarsCalculated(ExtSlowATRhandle);
     if (calculated < rates_total) {
       // Not all data of ExtFastATRhandle is calculated.
       return (0);

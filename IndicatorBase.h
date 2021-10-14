@@ -75,8 +75,8 @@ class IndicatorBase : public Chart {
   DrawIndicator* draw;
   IndicatorState istate;
   void* mydata;
-  bool is_feeding;                                 // Whether FeedHistoryEntries is already working.
-  bool is_fed;                                     // Whether FeedHistoryEntries already done its job.
+  bool is_fed;                                     // Whether calc_start_bar is already calculated.
+  int calc_start_bar;                              // Index of the first valid bar (from 0).
   DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
   ARRAY(ValueStorage<double>*, value_storages);
@@ -102,18 +102,18 @@ class IndicatorBase : public Chart {
   /**
    * Class constructor.
    */
-  IndicatorBase() : indi_src(NULL) { is_feeding = is_fed = false; }
+  IndicatorBase() : indi_src(NULL) { is_fed = false; }
 
   /**
    * Class constructor.
    */
-  IndicatorBase(ChartParams& _cparams) : indi_src(NULL), Chart(_cparams) { is_feeding = is_fed = false; }
+  IndicatorBase(ChartParams& _cparams) : indi_src(NULL), Chart(_cparams) { is_fed = false; }
 
   /**
    * Class constructor.
    */
   IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : Chart(_tf, _symbol) {
-    is_feeding = is_fed = false;
+    is_fed = false;
     indi_src = NULL;
   }
 
@@ -121,7 +121,7 @@ class IndicatorBase : public Chart {
    * Class constructor.
    */
   IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : Chart(_tfi, _symbol) {
-    is_feeding = is_fed = false;
+    is_fed = false;
     indi_src = NULL;
   }
 
@@ -965,31 +965,6 @@ class IndicatorBase : public Chart {
     return true;
   }
 
-  /**
-   * Feed history entries.
-   */
-  void FeedHistoryEntries(int period, int shift = 0) {
-    if (is_feeding || is_fed) {
-      // Avoiding forever loop.
-      return;
-    }
-
-    is_feeding = true;
-
-    for (int i = shift + period; i > shift; --i) {
-      if (ChartStatic::iPrice(PRICE_OPEN, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), i) <=
-          0) {
-        // No data for that entry
-        continue;
-      }
-
-      GetEntry(i);
-    }
-
-    is_feeding = false;
-    is_fed = true;
-  }
-
   virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = 0;
 
   ValueStorage<double>* GetValueStorage(int _mode = 0) {
@@ -1129,6 +1104,31 @@ class IndicatorBase : public Chart {
         SerializerConverter::MakeStubObject<IndicatorDataEntry>(_serializer_flags, _entry.GetSize());
     return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
   }
+
+  int GetBarsCalculated() {
+    int _bars = Bars(GetSymbol(), GetTf());
+
+    if (!is_fed) {
+      calc_start_bar = 0;
+
+      // Calculating start_bar.
+      for (int i = 0; i < _bars; ++i) {
+        // Iterating from the oldest.
+        IndicatorDataEntry _entry = GetEntry(_bars - i - 1);
+
+        if (_entry.IsValid()) {
+          // From this point we assume that future entries will be all valid.
+          calc_start_bar = i;
+          is_fed = true;
+
+          return _bars - calc_start_bar;
+        }
+      }
+    }
+
+    // Assuming all entries are calculated (even if have invalid values).
+    return _bars;
+  }
 };
 
 /**
@@ -1165,39 +1165,6 @@ int CopyBuffer(IndicatorBase* _indi, int _mode, int _start, int _count, ValueSto
 }
 
 /**
- * BarsCalculated() method to be used on Indicator instance.
+ * BarsCalculated()-compatible method to be used on Indicator instance.
  */
-int BarsCalculated(IndicatorBase* _indi, int _bars_required, int _bars_at_least = -1) {
-  if (_bars_required == 0) {
-    return _bars_required;
-  }
-
-  int _bars_to_satisfy = (_bars_at_least != -1) ? _bars_at_least : _bars_required;
-
-  IndicatorDataEntry _entry = _indi.GetEntry(_bars_to_satisfy - 1);
-  // GetEntry() could end up with an error. It is okay.
-  ResetLastError();
-
-  int _valid_history_count = 0;
-
-  if (!_entry.IsValid()) {
-    // We don't have sufficient data. Counting how much data we have.
-
-    for (int i = 0; i < _bars_to_satisfy; ++i) {
-      IndicatorDataEntry _check_entry = _indi.GetEntry(i);
-      if (!_check_entry.IsValid()) {
-        break;
-      }
-      ++_valid_history_count;
-    }
-  } else {
-    _valid_history_count = _bars_required;
-  }
-
-  if (_bars_at_least != -1 && _valid_history_count >= _bars_at_least) {
-    // Faking BarsCalculated() that be have all the required bars.
-    return _bars_required;
-  }
-
-  return _valid_history_count;
-}
+int BarsCalculated(IndicatorBase* _indi) { return _indi.GetBarsCalculated(); }

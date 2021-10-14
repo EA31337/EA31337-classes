@@ -26,6 +26,7 @@
 #endif
 
 #include "DictBase.mqh"
+#include "DictSlotsRef.h"
 #include "SerializerConversions.h"
 
 template <typename K, typename V>
@@ -135,23 +136,5 @@ class DictIteratorBase {
     _slotIdx += shift;
     _index += shift;
     _invalid_until_incremented |= invalid_until_incremented;
-  }
-};
-
-template <typename K, typename V>
-class DictSlot;
-
-template <typename K, typename V>
-struct DictSlotsRef {
-  DictSlot<K, V> DictSlots[];
-
-  // Incremental index for dict operating in list mode.
-  int _list_index;
-
-  int _num_used;
-
-  DictSlotsRef() {
-    _list_index = 0;
-    _num_used = 0;
   }
 };
