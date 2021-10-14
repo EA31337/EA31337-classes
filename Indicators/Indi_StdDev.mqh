@@ -50,8 +50,8 @@ struct StdDevParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void StdDevParams(int _ma_period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
-                    ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  StdDevParams(int _ma_period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
+               ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : ma_period(_ma_period),
         ma_shift(_ma_shift),
         ma_method(_ma_method),
@@ -60,6 +60,10 @@ struct StdDevParams : IndicatorParams {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\StdDev");
+  };
+  StdDevParams(StdDevParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

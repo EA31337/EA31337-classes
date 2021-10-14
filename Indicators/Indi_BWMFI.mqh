@@ -48,6 +48,10 @@ struct BWMFIParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
     shift = _shift;
   };
+  BWMFIParams(BWMFIParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
+  };
 };
 
 /**

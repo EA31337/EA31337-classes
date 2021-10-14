@@ -35,6 +35,10 @@ struct AppliedPriceParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     shift = _shift;
   };
+  AppliedPriceParams(AppliedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
+  };
 };
 
 /**

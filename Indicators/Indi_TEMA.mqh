@@ -32,7 +32,7 @@ struct TEMAParams : IndicatorParams {
   unsigned int tema_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void TEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  TEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_TEMA, 1, TYPE_DOUBLE) {
     applied_price = _ap;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -40,6 +40,10 @@ struct TEMAParams : IndicatorParams {
     period = _period;
     shift = _shift;
     tema_shift = _tema_shift;
+  };
+  TEMAParams(TEMAParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

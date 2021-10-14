@@ -34,7 +34,7 @@ struct ZigZagParams : IndicatorParams {
   unsigned int deviation;
   unsigned int backstep;
   // Struct constructors.
-  void ZigZagParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
+  ZigZagParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
       : depth(_depth),
         deviation(_deviation),
         backstep(_backstep),
@@ -42,6 +42,10 @@ struct ZigZagParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\ZigZag");
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
+  };
+  ZigZagParams(ZigZagParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

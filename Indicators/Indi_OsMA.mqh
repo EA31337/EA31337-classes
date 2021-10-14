@@ -38,7 +38,7 @@ struct OsMAParams : IndicatorParams {
   int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void OsMAParams(int _efp = 12, int _esp = 26, int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  OsMAParams(int _efp = 12, int _esp = 26, int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : ema_fast_period(_efp),
         ema_slow_period(_esp),
         signal_period(_sp),
@@ -47,6 +47,10 @@ struct OsMAParams : IndicatorParams {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OsMA");
+  };
+  OsMAParams(OsMAParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

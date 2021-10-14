@@ -28,10 +28,14 @@
 // Structs.
 struct ColorCandlesDailyParams : IndicatorParams {
   // Struct constructor.
-  void ColorCandlesDailyParams(int _shift = 0) : IndicatorParams(INDI_COLOR_CANDLES_DAILY, 5, TYPE_DOUBLE) {
+  ColorCandlesDailyParams(int _shift = 0) : IndicatorParams(INDI_COLOR_CANDLES_DAILY, 5, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorCandlesDaily");
     shift = _shift;
+  };
+  ColorCandlesDailyParams(ColorCandlesDailyParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

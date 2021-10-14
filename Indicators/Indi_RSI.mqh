@@ -48,15 +48,15 @@ struct RSIParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
  public:
-  void RSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  RSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : applied_price(_ap), IndicatorParams(INDI_RSI, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\RSI");
     SetPeriod(_period);
   };
-  void RSIParams(RSIParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _p;
+  RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
   // Getters.

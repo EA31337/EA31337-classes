@@ -36,8 +36,8 @@ struct CHVParams : IndicatorParams {
   unsigned int chv_period;
   ENUM_CHV_SMOOTH_METHOD smooth_method;
   // Struct constructor.
-  void CHVParams(int _smooth_period = 10, int _chv_period = 10,
-                 ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0)
+  CHVParams(int _smooth_period = 10, int _chv_period = 10,
+            ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0)
       : IndicatorParams(INDI_CHAIKIN_V, 1, TYPE_DOUBLE) {
     chv_period = _chv_period;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -45,6 +45,10 @@ struct CHVParams : IndicatorParams {
     shift = _shift;
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;
+  };
+  CHVParams(CHVParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

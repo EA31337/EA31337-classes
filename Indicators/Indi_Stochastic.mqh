@@ -40,8 +40,8 @@ struct StochParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_STO_PRICE price_field;
   // Struct constructors.
-  void StochParams(int _kperiod = 5, int _dperiod = 3, int _slowing = 3, ENUM_MA_METHOD _ma_method = MODE_SMA,
-                   ENUM_STO_PRICE _pf = STO_LOWHIGH, int _shift = 0)
+  StochParams(int _kperiod = 5, int _dperiod = 3, int _slowing = 3, ENUM_MA_METHOD _ma_method = MODE_SMA,
+              ENUM_STO_PRICE _pf = STO_LOWHIGH, int _shift = 0)
       : kperiod(_kperiod),
         dperiod(_dperiod),
         slowing(_slowing),
@@ -51,6 +51,10 @@ struct StochParams : IndicatorParams {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\Stochastic");
+  };
+  StochParams(StochParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

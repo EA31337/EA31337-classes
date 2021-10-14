@@ -31,13 +31,17 @@ double iAO(string _symbol, int _tf, int _shift) { return Indi_AO::iAO(_symbol, (
 // Structs.
 struct AOParams : IndicatorParams {
   // Struct constructor.
-  void AOParams(int _shift = 0) : IndicatorParams(INDI_AO, 2, TYPE_DOUBLE) {
+  AOParams(int _shift = 0) : IndicatorParams(INDI_AO, 2, TYPE_DOUBLE) {
 #ifdef __MQL4__
     max_modes = 1;
 #endif
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
+  };
+  AOParams(AOParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

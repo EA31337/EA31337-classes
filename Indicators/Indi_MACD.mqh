@@ -38,8 +38,8 @@ struct MACDParams : IndicatorParams {
   unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void MACDParams(unsigned int _efp = 12, unsigned int _esp = 26, unsigned int _sp = 9,
-                  ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  MACDParams(unsigned int _efp = 12, unsigned int _esp = 26, unsigned int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE,
+             int _shift = 0)
       : ema_fast_period(_efp),
         ema_slow_period(_esp),
         signal_period(_sp),
@@ -48,6 +48,10 @@ struct MACDParams : IndicatorParams {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
+  };
+  MACDParams(MACDParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

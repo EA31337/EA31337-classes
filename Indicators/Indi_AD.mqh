@@ -36,6 +36,10 @@ struct ADParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\AD");
     shift = _shift;
   };
+  ADParams(ADParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
+  };
 };
 
 /**

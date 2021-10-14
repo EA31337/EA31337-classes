@@ -34,11 +34,14 @@ double iATR(string _symbol, int _tf, int _period, int _shift) {
 struct ATRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void ATRParams(unsigned int _period = 14, int _shift = 0)
-      : period(_period), IndicatorParams(INDI_ATR, 1, TYPE_DOUBLE) {
+  ATRParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_ATR, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ATR");
+  };
+  ATRParams(ATRParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

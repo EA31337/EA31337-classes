@@ -64,8 +64,8 @@ struct BandsParams : IndicatorParams {
   unsigned int bshift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void BandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0,
-                   ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  BandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0, ENUM_APPLIED_PRICE _ap = PRICE_OPEN,
+              int _shift = 0)
       : period(_period),
         deviation(_deviation),
         bshift(_bshift),
@@ -74,6 +74,10 @@ struct BandsParams : IndicatorParams {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\BB");
+  };
+  BandsParams(BandsParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

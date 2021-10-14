@@ -50,7 +50,7 @@ enum ENUM_HA_MODE {
 // Structs.
 struct HeikenAshiParams : IndicatorParams {
   // Struct constructors.
-  void HeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI, FINAL_HA_MODE_ENTRY, TYPE_DOUBLE) {
+  HeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI, FINAL_HA_MODE_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);  // @fixit It draws candles!
 #ifdef __MQL4__
     SetCustomIndicatorName("Heiken Ashi");
@@ -58,6 +58,10 @@ struct HeikenAshiParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Heiken_Ashi");
 #endif
     shift = _shift;
+  };
+  HeikenAshiParams(HeikenAshiParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

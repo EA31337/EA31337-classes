@@ -35,8 +35,8 @@ struct IndiAMAParams : IndicatorParams {
   unsigned int ama_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void IndiAMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
-                     ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
+  IndiAMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
+                ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
       : period(_period),
         fast_period(_fast_period),
         slow_period(_slow_period),
@@ -53,8 +53,8 @@ struct IndiAMAParams : IndicatorParams {
         break;
     }
   };
-  void IndiAMAParams(IndiAMAParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_AMA, 1) {
-    this = _p;
+  IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };

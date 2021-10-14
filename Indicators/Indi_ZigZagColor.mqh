@@ -31,8 +31,7 @@ struct ZigZagColorParams : IndicatorParams {
   unsigned int backstep;
 
   // Struct constructor.
-  void ZigZagColorParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3,
-                         int _shift = 0)
+  ZigZagColorParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
       : IndicatorParams(INDI_ZIGZAG_COLOR, 3, TYPE_DOUBLE) {
     backstep = _backstep;
     depth = _depth;
@@ -41,6 +40,10 @@ struct ZigZagColorParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\ZigZagColor");
     SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
+  };
+  ZigZagColorParams(ZigZagColorParams& _params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
