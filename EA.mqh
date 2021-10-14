@@ -435,7 +435,7 @@ class EA {
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
       for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
         Strategy *_strati = iter.Value().Ptr();
-        Indicator *_indi = _strati.GetIndicator();
+        IndicatorBase *_indi = _strati.GetIndicator();
         if (_indi != NULL) {
           ENUM_TIMEFRAMES _itf = _indi.GetParams().tf.GetTf();
           IndicatorDataEntry _ientry = _indi.GetEntry();

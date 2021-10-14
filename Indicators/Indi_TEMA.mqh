@@ -32,47 +32,33 @@ struct TEMAParams : IndicatorParams {
   unsigned int tema_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void TEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0,
-                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void TEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+      : IndicatorParams(INDI_TEMA, 1, TYPE_DOUBLE) {
     applied_price = _ap;
-    itype = INDI_TEMA;
-    max_modes = 1;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\TEMA");
-    SetDataSourceType(IDATA_BUILTIN);
     period = _period;
     shift = _shift;
     tema_shift = _tema_shift;
-    tf = _tf;
-  };
-  void TEMAParams(TEMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Triple Exponential Moving Average indicator.
  */
-class Indi_TEMA : public Indicator {
- protected:
-  TEMAParams params;
-
+class Indi_TEMA : public Indicator<TEMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_TEMA(TEMAParams &_params) : params(_params.period, _params.tema_shift), Indicator((IndicatorParams)_params) {
-    params = _params;
-  };
-  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TEMA, _tf) { params.tf = _tf; };
+  Indi_TEMA(TEMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<TEMAParams>(_p, _indi_src){};
+  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TEMA, _tf){};
 
   /**
    * Built-in version of TEMA.
    */
   static double iTEMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                      int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+                      int _mode = 0, int _shift = 0, Indi_TEMA *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iTEMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
 #else
@@ -139,13 +125,13 @@ class Indi_TEMA : public Indicator {
   double GetValue(int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_TEMA::iTEMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetTEMAShift(), GetAppliedPrice() /*]*/, 0,
                                   _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetTEMAShift() /*]*/, 0, _shift);
         break;
       default:
@@ -162,15 +148,15 @@ class Indi_TEMA : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0] = GetValue(_shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -186,22 +172,29 @@ class Indi_TEMA : public Indicator {
     return _param;
   }
 
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE);
+  }
+
   /* Getters */
 
   /**
    * Get period.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get TEMA shift.
    */
-  unsigned int GetTEMAShift() { return params.tema_shift; }
+  unsigned int GetTEMAShift() { return iparams.tema_shift; }
 
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -210,7 +203,7 @@ class Indi_TEMA : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -218,7 +211,7 @@ class Indi_TEMA : public Indicator {
    */
   void SetTEMAShift(unsigned int _tema_shift) {
     istate.is_changed = true;
-    params.tema_shift = _tema_shift;
+    iparams.tema_shift = _tema_shift;
   }
 
   /**
@@ -226,6 +219,6 @@ class Indi_TEMA : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

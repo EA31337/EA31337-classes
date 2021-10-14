@@ -112,7 +112,7 @@ class Dict : public DictBase<K, V> {
    * Inserts or replaces value for a given key.
    */
   bool Set(K key, V value) {
-    if (!InsertInto(_DictSlots_ref, key, value)) return false;
+    if (!InsertInto(_DictSlots_ref, key, value, true)) return false;
     return true;
   }
 
@@ -190,7 +190,14 @@ class Dict : public DictBase<K, V> {
   /**
    * Inserts value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V value) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V value, bool allow_resize) {
+    // Will resize dict if there were performance problems before.
+    if (allow_resize && !dictSlotsRef.IsPerformant()) {
+      if (!GrowUp()) {
+        return false;
+      }
+    }
+
     if (_mode == DictModeUnknown)
       _mode = DictModeDict;
     else if (_mode != DictModeDict) {
@@ -213,8 +220,8 @@ class Dict : public DictBase<K, V> {
       }
 
       if (keySlot == NULL) {
-        // We need to expand array of DictSlotsRef.DictSlots (by 25%).
-        if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
+        // We need to expand array of DictSlotsRef.DictSlots (by 25% by default).
+        if (!GrowUp()) return false;
       }
     }
 
@@ -254,6 +261,8 @@ class Dict : public DictBase<K, V> {
         // Slot overwrite is not needed. Using empty slot.
         ++dictSlotsRef._num_used;
       }
+
+      dictSlotsRef.AddConflicts(_num_conflicts);
     }
 
     dictSlotsRef.DictSlots[position].key = key;
@@ -275,8 +284,8 @@ class Dict : public DictBase<K, V> {
     }
 
     if (dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {
-      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
-      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
+      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots.
+      if (!GrowUp()) return false;
     }
 
     unsigned int position = Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
@@ -293,6 +302,13 @@ class Dict : public DictBase<K, V> {
     ++dictSlotsRef._list_index;
     ++dictSlotsRef._num_used;
     return true;
+  }
+
+  /**
+   * Expands array of DictSlots by given percentage value.
+   */
+  bool GrowUp(int percent = DICT_GROW_UP_PERCENT_DEFAULT) {
+    return Resize(MathMax(10, (int)((float)ArraySize(_DictSlots_ref.DictSlots) * ((float)(percent + 100) / 100.0f))));
   }
 
   /**
@@ -321,7 +337,7 @@ class Dict : public DictBase<K, V> {
       if (!_DictSlots_ref.DictSlots[i].IsUsed()) continue;
 
       if (_DictSlots_ref.DictSlots[i].HasKey()) {
-        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value))
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value, false))
           return false;
       } else {
         if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value)) return false;

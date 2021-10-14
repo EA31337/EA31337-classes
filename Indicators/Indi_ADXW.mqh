@@ -46,29 +46,26 @@ struct ADXWParams : ADXParams {
         break;
     }
   };
-  void ADXWParams(ADXWParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : ADXParams(_params, _tf) {}
-  void ADXWParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : ADXParams(_params, _tf) {}
+  void ADXWParams(ADXWParams &_p, IndicatorBase *_indi_src = NULL) { THIS_REF = _p; }
+  void ADXWParams(ADXParams &_p) { THIS_REF = _p; }
 };
 
 /**
  * Implements the Average Directional Movement Index indicator by Welles Wilder.
  */
-class Indi_ADXW : public Indicator {
- protected:
-  ADXWParams params;
-
+class Indi_ADXW : public Indicator<ADXWParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ADXW(ADXWParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADXW, _tf) { params.tf = _tf; };
+  Indi_ADXW(ADXWParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ADXWParams>(_p, _indi_src){};
+  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADXW, _tf){};
 
   /**
    * Built-in version of ADX Wilder.
    */
   static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = LINE_MAIN_ADX,
-                           int _shift = 0, Indicator *_obj = NULL) {
+                           int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
 #else
@@ -219,13 +216,13 @@ class Indi_ADXW : public Indicator {
   double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_ADXW::iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          _mode, _shift);
         break;
       default:
@@ -234,29 +231,6 @@ class Indi_ADXW : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_DOUBLE, true);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -273,7 +247,7 @@ class Indi_ADXW : public Indicator {
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /* Setters */
 
@@ -282,6 +256,6 @@ class Indi_ADXW : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 };

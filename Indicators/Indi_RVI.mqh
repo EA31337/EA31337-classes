@@ -34,33 +34,24 @@ double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
 struct RVIParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void RVIParams(unsigned int _period, int _shift = 0) : period(_period) {
-    itype = INDI_RVI;
-    max_modes = FINAL_SIGNAL_LINE_ENTRY;
+  void RVIParams(unsigned int _period = 10, int _shift = 0)
+      : period(_period), IndicatorParams(INDI_RVI, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\RVI");
-  };
-  void RVIParams(RVIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Relative Vigor Index indicator.
  */
-class Indi_RVI : public Indicator {
- protected:
-  RVIParams params;
-
+class Indi_RVI : public Indicator<RVIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_RVI(const RVIParams &_p) : params(_p.period), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_RVI(const RVIParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period), Indicator(INDI_RVI, _tf) { params = _p; }
+  Indi_RVI(const RVIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RVIParams>(_p, _indi_src) {}
+  Indi_RVI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_RVI, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -72,7 +63,7 @@ class Indi_RVI : public Indicator {
   static double iRVI(
       string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 10,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,  // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0, Indicator *_obj = NULL) {
+      int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iRVI(_symbol, _tf, _period, _mode, _shift);
 #else  // __MQL5__
@@ -111,15 +102,14 @@ class Indi_RVI : public Indicator {
   double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_RVI::iRVI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                _mode, _shift, GetPointer(this));
+        _value = Indi_RVI::iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+                         _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -135,17 +125,17 @@ class Indi_RVI : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue((ENUM_SIGNAL_LINE)_mode, _shift);
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -161,12 +151,19 @@ class Indi_RVI : public Indicator {
     return _param;
   }
 
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE);
+  }
+
   /* Getters */
 
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /* Setters */
 
@@ -175,6 +172,6 @@ class Indi_RVI : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 };

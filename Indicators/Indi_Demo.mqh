@@ -33,32 +33,19 @@
 // Structs.
 struct DemoIndiParams : IndicatorParams {
   // Struct constructors.
-  void DemoIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                      ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN) {
-    itype = itype == INDI_NONE ? INDI_DEMO : itype;
-    max_modes = 1;
-    SetDataSourceType(_idstype);
-    SetDataValueType(TYPE_DOUBLE);
+  void DemoIndiParams(int _shift = 0) : IndicatorParams(INDI_DEMO, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
-    SetMaxModes(1);
     SetShift(_shift);
-    tf = _tf;
     switch (idstype) {
       case IDATA_ICUSTOM:
         if (custom_indi_name == "") {
           SetCustomIndicatorName("Examples\\Demo");
         }
         break;
-      case IDATA_INDICATOR:
-        if (GetDataSource() == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf), false);
-          SetDataSourceMode(0);
-        }
-        break;
     }
   };
-  void DemoIndiParams(DemoIndiParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void DemoIndiParams(DemoIndiParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_DEMO, 1) {
+    this = _p;
     tf = _tf;
   };
 };
@@ -66,32 +53,19 @@ struct DemoIndiParams : IndicatorParams {
 /**
  * Demo/Dummy Indicator.
  */
-class Indi_Demo : public Indicator {
- protected:
-  DemoIndiParams params;
-
+class Indi_Demo : public Indicator<DemoIndiParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Demo(DemoIndiParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_DEMO, _tf){};
-
-  /**
-   * Initialize indicator data drawing on custom data.
-   */
-  bool InitDraw() {
-    if (iparams.is_draw) {
-      draw = new DrawIndicator(&this);
-    }
-    return iparams.is_draw;
-  }
+  Indi_Demo(DemoIndiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<DemoIndiParams>(_p, _indi_src){};
+  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DEMO, _tf){};
 
   /**
    * Returns the indicator value.
    */
   static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                      Indicator *_obj = NULL) {
+                      IndicatorBase *_obj = NULL) {
     return 0.1 + (0.1 * _obj.GetBarIndex());
   }
 
@@ -99,37 +73,13 @@ class Indi_Demo : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
-    double _value = Indi_Demo::iDemo(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift,
-                                     GetPointer(this));
+    double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _shift, THIS_PTR);
     istate.is_ready = true;
     istate.is_changed = false;
     if (iparams.is_draw) {
       draw.DrawLineTo(GetName(), GetBarTime(_shift), _value);
     }
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**

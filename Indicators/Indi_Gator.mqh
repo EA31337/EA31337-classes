@@ -78,8 +78,8 @@ struct GatorParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
   // Struct constructors.
-  void GatorParams(int _jp, int _js, int _tp, int _ts, int _lp, int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap,
-                   int _shift = 0)
+  void GatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
+                   ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
       : jaw_period(_jp),
         jaw_shift(_js),
         teeth_period(_tp),
@@ -87,43 +87,24 @@ struct GatorParams : IndicatorParams {
         lips_period(_lp),
         lips_shift(_ls),
         ma_method(_mm),
-        applied_price(_ap) {
-    itype = INDI_GATOR;
-    max_modes = FINAL_GATOR_LINE_HISTOGRAM_ENTRY;
+        applied_price(_ap),
+        IndicatorParams(INDI_GATOR, FINAL_GATOR_LINE_HISTOGRAM_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Gator");
-  };
-  void GatorParams(GatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Gator oscillator.
  */
-class Indi_Gator : public Indicator {
- protected:
-  GatorParams params;
-
+class Indi_Gator : public Indicator<GatorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Gator(GatorParams &_p)
-      : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
-               _p.ma_method, _p.applied_price),
-        Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_Gator(GatorParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
-               _p.ma_method, _p.applied_price),
-        Indicator(INDI_GATOR, _tf) {
-    params = _p;
-  }
+  Indi_Gator(GatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<GatorParams>(_p, _indi_src) {}
+  Indi_Gator(ENUM_TIMEFRAMES _tf) : Indicator(INDI_GATOR, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -146,7 +127,7 @@ class Indi_Gator : public Indicator {
   static double iGator(string _symbol, ENUM_TIMEFRAMES _tf, int _jaw_period, int _jaw_shift, int _teeth_period,
                        int _teeth_shift, int _lips_period, int _lips_shift, ENUM_MA_METHOD _ma_method,
                        ENUM_APPLIED_PRICE _applied_price, ENUM_GATOR_HISTOGRAM _mode, int _shift = 0,
-                       Indicator *_obj = NULL) {
+                       IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                     _ma_method, _applied_price, _mode, _shift);
@@ -187,16 +168,15 @@ class Indi_Gator : public Indicator {
   double GetValue(ENUM_GATOR_HISTOGRAM _mode, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Gator::iGator(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                    GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(),
-                                    GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
+                                    GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(),
+                                    _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /**/
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/
                          GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(),
                          GetLipsShift(), GetMAMethod(),
                          GetAppliedPrice()
@@ -217,7 +197,7 @@ class Indi_Gator : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -234,11 +214,9 @@ class Indi_Gator : public Indicator {
       _entry.values[LINE_UPPER_HISTCOLOR] = GetValue(LINE_UPPER_HISTCOLOR, _shift);
       _entry.values[LINE_LOWER_HISTCOLOR] = GetValue(LINE_LOWER_HISTCOLOR, _shift);
 #endif
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-                     !_entry.HasValue(EMPTY_VALUE) && (_entry.values[LINE_UPPER_HISTOGRAM].GetDbl() != 0 ||
-                                                       _entry.values[LINE_LOWER_HISTOGRAM].GetDbl() != 0));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -254,47 +232,55 @@ class Indi_Gator : public Indicator {
     return _param;
   }
 
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue(EMPTY_VALUE) &&
+           (_entry.values[LINE_UPPER_HISTOGRAM].GetDbl() != 0 || _entry.values[LINE_LOWER_HISTOGRAM].GetDbl() != 0);
+  }
+
   /* Getters */
 
   /**
    * Get jaw period value.
    */
-  unsigned int GetJawPeriod() { return params.jaw_period; }
+  unsigned int GetJawPeriod() { return iparams.jaw_period; }
 
   /**
    * Get jaw shift value.
    */
-  unsigned int GetJawShift() { return params.jaw_shift; }
+  unsigned int GetJawShift() { return iparams.jaw_shift; }
 
   /**
    * Get teeth period value.
    */
-  unsigned int GetTeethPeriod() { return params.teeth_period; }
+  unsigned int GetTeethPeriod() { return iparams.teeth_period; }
 
   /**
    * Get teeth shift value.
    */
-  unsigned int GetTeethShift() { return params.teeth_shift; }
+  unsigned int GetTeethShift() { return iparams.teeth_shift; }
 
   /**
    * Get lips period value.
    */
-  unsigned int GetLipsPeriod() { return params.lips_period; }
+  unsigned int GetLipsPeriod() { return iparams.lips_period; }
 
   /**
    * Get lips shift value.
    */
-  unsigned int GetLipsShift() { return params.lips_shift; }
+  unsigned int GetLipsShift() { return iparams.lips_shift; }
 
   /**
    * Get MA method.
    */
-  ENUM_MA_METHOD GetMAMethod() { return params.ma_method; }
+  ENUM_MA_METHOD GetMAMethod() { return iparams.ma_method; }
 
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -303,7 +289,7 @@ class Indi_Gator : public Indicator {
    */
   void SetJawPeriod(int _jaw_period) {
     istate.is_changed = true;
-    params.jaw_period = _jaw_period;
+    iparams.jaw_period = _jaw_period;
   }
 
   /**
@@ -311,7 +297,7 @@ class Indi_Gator : public Indicator {
    */
   void SetJawShift(int _jaw_shift) {
     istate.is_changed = true;
-    params.jaw_shift = _jaw_shift;
+    iparams.jaw_shift = _jaw_shift;
   }
 
   /**
@@ -319,7 +305,7 @@ class Indi_Gator : public Indicator {
    */
   void SetTeethPeriod(int _teeth_period) {
     istate.is_changed = true;
-    params.teeth_period = _teeth_period;
+    iparams.teeth_period = _teeth_period;
   }
 
   /**
@@ -327,7 +313,7 @@ class Indi_Gator : public Indicator {
    */
   void SetTeethShift(int _teeth_shift) {
     istate.is_changed = true;
-    params.teeth_period = _teeth_shift;
+    iparams.teeth_period = _teeth_shift;
   }
 
   /**
@@ -335,7 +321,7 @@ class Indi_Gator : public Indicator {
    */
   void SetLipsPeriod(int _lips_period) {
     istate.is_changed = true;
-    params.lips_period = _lips_period;
+    iparams.lips_period = _lips_period;
   }
 
   /**
@@ -343,7 +329,7 @@ class Indi_Gator : public Indicator {
    */
   void SetLipsShift(int _lips_shift) {
     istate.is_changed = true;
-    params.lips_period = _lips_shift;
+    iparams.lips_period = _lips_shift;
   }
 
   /**
@@ -351,7 +337,7 @@ class Indi_Gator : public Indicator {
    */
   void SetMAMethod(ENUM_MA_METHOD _ma_method) {
     istate.is_changed = true;
-    params.ma_method = _ma_method;
+    iparams.ma_method = _ma_method;
   }
 
   /**
@@ -359,6 +345,6 @@ class Indi_Gator : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

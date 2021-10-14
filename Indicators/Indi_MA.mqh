@@ -54,38 +54,27 @@ struct MAParams : IndicatorParams {
   // Struct constructors.
   void MAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
                 ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap) {
-    itype = INDI_MA;
-    max_modes = 1;
+      : period(_period),
+        ma_shift(_ma_shift),
+        ma_method(_ma_method),
+        applied_array(_ap),
+        IndicatorParams(INDI_MA, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Moving Average");
-  };
-  void MAParams(MAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Moving Average indicator.
  */
-class Indi_MA : public Indicator {
- protected:
-  MAParams params;
-
+class Indi_MA : public Indicator<MAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MA(MAParams &_p) : params(_p.period, _p.shift, _p.ma_method, _p.applied_array), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_MA(MAParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.shift, _p.ma_method, _p.applied_array), Indicator(INDI_MA, _tf) {
-    params = _p;
-  }
+  Indi_MA(MAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MAParams>(_p, _indi_src) {}
+  Indi_MA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MA, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -96,7 +85,7 @@ class Indi_MA : public Indicator {
    */
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
                     ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_array, int _shift = 0,
-                    Indicator *_obj = NULL) {
+                    IndicatorBase *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array, _shift);
@@ -133,11 +122,11 @@ class Indi_MA : public Indicator {
   /**
    * Calculates MA on another indicator.
    */
-  static double iMAOnIndicator(IndicatorCalculateCache<double> *cache, Indicator *indi, int indi_mode, string symbol,
-                               ENUM_TIMEFRAMES tf, unsigned int ma_period, unsigned int ma_shift,
+  static double iMAOnIndicator(IndicatorCalculateCache<double> *cache, IndicatorBase *_indi, int indi_mode,
+                               string symbol, ENUM_TIMEFRAMES tf, unsigned int ma_period, unsigned int ma_shift,
                                ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                int shift = 0) {
-    return iMAOnArray(indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, ma_method, shift, cache);
+    return iMAOnArray(_indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, ma_method, shift, cache);
   }
 
   /**
@@ -637,53 +626,26 @@ class Indi_MA : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_MA::iMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                              GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift,
+                              THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.custom_indi_name, /* [ */ GetPeriod(), GetMAShift(), GetMAMethod(),
-                         GetAppliedPrice() /* ] */, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
+                         GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(),
-                                         Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetSymbol(), GetTf(),
                                          GetPeriod(), GetMAShift(), GetMAMethod(), _shift);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
-    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
-      _entry.Resize(params.max_modes);
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) &&
-                                                   !_entry.HasValue<double>(EMPTY_VALUE) &&
-                                                   !_entry.HasValue<double>(DBL_MAX));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      } else {
-        _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -703,8 +665,8 @@ class Indi_MA : public Indicator {
     Indi_MA *_ptr;
     string _key = Util::MakeKey(_symbol, (int)_tf, _period, _ma_shift, (int)_ma_method, (int)_ap);
     if (!Objects<Indi_MA>::TryGet(_key, _ptr)) {
-      MAParams _params(_period, _ma_shift, _ma_method, _ap);
-      _ptr = Objects<Indi_MA>::Set(_key, new Indi_MA(_params));
+      MAParams _p(_period, _ma_shift, _ma_method, _ap);
+      _ptr = Objects<Indi_MA>::Set(_key, new Indi_MA(_p));
       _ptr.SetSymbol(_symbol);
     }
     return _ptr;
@@ -717,26 +679,26 @@ class Indi_MA : public Indicator {
    *
    * Averaging period for the calculation of the moving average.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get MA shift value.
    *
    * Indicators line offset relate to the chart by timeframe.
    */
-  unsigned int GetMAShift() { return params.ma_shift; }
+  unsigned int GetMAShift() { return iparams.ma_shift; }
 
   /**
    * Set MA method (smoothing type).
    */
-  ENUM_MA_METHOD GetMAMethod() { return params.ma_method; }
+  ENUM_MA_METHOD GetMAMethod() { return iparams.ma_method; }
 
   /**
    * Get applied price value.
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_array; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_array; }
 
   /* Setters */
 
@@ -747,7 +709,7 @@ class Indi_MA : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -755,7 +717,7 @@ class Indi_MA : public Indicator {
    */
   void SetMAShift(int _ma_shift) {
     istate.is_changed = true;
-    params.ma_shift = _ma_shift;
+    iparams.ma_shift = _ma_shift;
   }
 
   /**
@@ -765,7 +727,7 @@ class Indi_MA : public Indicator {
    */
   void SetMAMethod(ENUM_MA_METHOD _ma_method) {
     istate.is_changed = true;
-    params.ma_method = _ma_method;
+    iparams.ma_method = _ma_method;
   }
 
   /**
@@ -778,7 +740,7 @@ class Indi_MA : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_array) {
     istate.is_changed = true;
-    params.applied_array = _applied_array;
+    iparams.applied_array = _applied_array;
   }
 };
 #endif  // INDI_MA_MQH

@@ -36,9 +36,9 @@ SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
   _s.Pass(THIS_REF, "datetime", timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC);
   _s.Pass(THIS_REF, "flags", flags, SERIALIZER_FIELD_FLAG_DYNAMIC);
   for (int i = 0; i < _asize; i++) {
-    // _s.Pass(THIS_REF, (string)i, values[i], SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this
-    // work? _s.Pass(THIS_REF, (string)i, GetEntry(i), SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); //
-    // Can this work?
+    // _s.Pass(THIS_REF, (string)i, values[i], SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can
+    // this work? _s.Pass(THIS_REF, (string)i, GetEntry(i), SERIALIZER_FIELD_FLAG_DYNAMIC |
+    // SERIALIZER_FIELD_FLAG_FEATURE); // Can this work?
 
     if (CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
       _s.Pass(THIS_REF, (string)i, values[i].vdbl, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
@@ -92,7 +92,6 @@ SerializerNodeType IndicatorParams::Serialize(Serializer &s) {
   // s.PassObject(this, "indicator", indi_data); // @todo
   // s.Pass(THIS_REF, "indi_data_ownership", indi_data_ownership);
   s.Pass(THIS_REF, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
-  s.Pass(THIS_REF, "indi_mode", indi_mode);
   s.Pass(THIS_REF, "is_draw", is_draw);
   s.Pass(THIS_REF, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
   s.Pass(THIS_REF, "custom_indi_name", custom_indi_name);

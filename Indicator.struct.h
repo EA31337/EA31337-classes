@@ -31,6 +31,7 @@
 #endif
 
 // Forward declaration.
+template <typename TS>
 class Indicator;
 struct ChartParams;
 
@@ -353,6 +354,7 @@ struct IndicatorDataEntry {
 
 /* Structure for indicator parameters. */
 struct IndicatorParams {
+ public: // @todo: Change it to protected.
   string name;                      // Name of the indicator.
   int shift;                        // Shift (relative to the current bar, 0 - default).
   unsigned int max_buffers;         // Max buffers to store.
@@ -367,31 +369,30 @@ struct IndicatorParams {
   color indi_color;                     // Indicator color.
   int indi_data_source_id;              // Id of the indicator to be used as data source.
   int indi_data_source_mode;            // Mode used as input from data source.
-  Indicator *indi_data_source;          // Custom indicator to be used as data source.
   bool indi_managed;                    // Whether indicator should be owned by indicator.
   ARRAY(DataParamEntry, input_params);  // Indicator input params.
-  int indi_mode;                        // Index of indicator data to be used as data source.
   bool is_draw;                         // Draw active.
   int draw_window;                      // Drawing window.
   string custom_indi_name;              // Name of the indicator passed to iCustom() method.
+ public:
   /* Special methods */
   // Constructor.
-  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, unsigned int _max_modes = 1,
+                  ENUM_DATATYPE _dtype = TYPE_DOUBLE, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                   string _name = "")
       : custom_indi_name(""),
+        dtype(_dtype),
         name(_name),
         shift(0),
-        max_modes(1),
+        max_modes(_max_modes),
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
-        indi_data_source(NULL),
         indi_data_source_id(-1),
         indi_data_source_mode(0),
         itype(_itype),
         is_draw(false),
         indi_color(clrNONE),
-        indi_mode(0),
         draw_window(0) {
     SetDataSourceType(_idstype);
     Init();
@@ -404,32 +405,29 @@ struct IndicatorParams {
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
-        indi_data_source(NULL),
         indi_data_source_id(-1),
         indi_data_source_mode(0),
         is_draw(false),
         indi_color(clrNONE),
-        indi_mode(0),
         draw_window(0) {
     SetDataSourceType(_idstype);
     Init();
   };
   void Init() {}
   /* Getters */
-  string GetCustomIndicatorName() { return custom_indi_name; }
-  Indicator *GetDataSource() { return indi_data_source; }
-  int GetDataSourceId() { return indi_data_source_id; }
-  int GetDataSourceMode() { return indi_data_source_mode; }
-  color GetIndicatorColor() { return indi_color; }
-  int GetMaxModes() { return (int)max_modes; }
-  int GetMaxParams() { return (int)max_params; }
-  int GetShift() { return shift; }
-  ENUM_DATATYPE GetDataValueType() { return dtype; }
-  ENUM_IDATA_SOURCE_TYPE GetDataSourceType() { return idstype; }
-  ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return idvrange; }
-  ENUM_TIMEFRAMES GetTf() { return tf.GetTf(); }
+  string GetCustomIndicatorName() const { return custom_indi_name; }
+  int GetDataSourceId() const { return indi_data_source_id; }
+  int GetDataSourceMode() const { return indi_data_source_mode; }
+  color GetIndicatorColor() const { return indi_color; }
+  int GetMaxModes() const { return (int)max_modes; }
+  int GetMaxParams() const { return (int)max_params; }
+  int GetShift() const { return shift; }
+  ENUM_DATATYPE GetDataValueType() const { return dtype; }
+  ENUM_IDATA_SOURCE_TYPE GetDataSourceType() const { return idstype; }
+  ENUM_IDATA_VALUE_RANGE GetIDataValueRange() const { return idvrange; }
+  ENUM_TIMEFRAMES GetTf() const { return tf.GetTf(); }
   template <typename T>
-  T GetInputParam(int _index, T _default) {
+  T GetInputParam(int _index, T _default) const {
     DataParamEntry _param = input_params[_index];
     switch (_param.type) {
       case TYPE_BOOL:
@@ -465,14 +463,8 @@ struct IndicatorParams {
     draw_window = _window;
   }
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
-  void SetDataSource(int _id, int _input_mode = -1) {
+  void SetDataSource(int _id, int _input_mode = -1, bool _managed = true) {
     indi_data_source_id = _id;
-    indi_data_source_mode = _input_mode;
-    idstype = IDATA_INDICATOR;
-  }
-  void SetDataSource(Indicator *_indi, bool _managed = true, int _input_mode = -1) {
-    indi_data_source_id = -1;
-    indi_data_source = _indi;
     indi_data_source_mode = _input_mode;
     indi_managed = _managed;
     idstype = IDATA_INDICATOR;

@@ -93,8 +93,8 @@ class Strategy : public Object {
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
-  Dict<int, Indicator *> indicators_unmanaged;         // Indicators list (unmanaged).
-  DictStruct<int, Ref<Indicator>> indicators_managed;  // Indicators list (managed).
+  Dict<int, IndicatorBase *> indicators_unmanaged;         // Indicators list (unmanaged).
+  DictStruct<int, Ref<IndicatorBase>> indicators_managed;  // Indicators list (managed).
   DictStruct<short, TaskEntry> tasks;
   Log logger;  // Log instance.
   MqlTick last_tick;
@@ -148,7 +148,7 @@ class Strategy : public Object {
    * Class deconstructor.
    */
   ~Strategy() {
-    for (DictIterator<int, Indicator *> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
+    for (DictIterator<int, IndicatorBase *> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
       delete iter.Value();
     }
   }
@@ -244,7 +244,7 @@ class Strategy : public Object {
   /**
    * Returns handler to the strategy's indicator class.
    */
-  Indicator *GetIndicator(int _id = 0) {
+  IndicatorBase *GetIndicator(int _id = 0) {
     if (indicators_managed.KeyExists(_id)) {
       return indicators_managed[_id].Ptr();
     } else if (indicators_unmanaged.KeyExists(_id)) {
@@ -258,7 +258,7 @@ class Strategy : public Object {
   /**
    * Returns strategy's indicators.
    */
-  DictStruct<int, Ref<Indicator>> GetIndicators() { return indicators_managed; }
+  DictStruct<int, Ref<IndicatorBase>> GetIndicators() { return indicators_managed; }
 
   /* Struct getters */
 
@@ -513,9 +513,9 @@ class Strategy : public Object {
   /**
    * Sets reference to indicator.
    */
-  void SetIndicator(Indicator *_indi, int _id = 0, bool _managed = true) {
+  void SetIndicator(IndicatorBase *_indi, int _id = 0, bool _managed = true) {
     if (_managed) {
-      Ref<Indicator> _ref = _indi;
+      Ref<IndicatorBase> _ref = _indi;
       indicators_managed.Set(_id, _ref);
     } else {
       indicators_unmanaged.Set(_id, _indi);
@@ -1212,7 +1212,7 @@ class Strategy : public Object {
     int _count = (int)fmax(fabs(_level), fabs(_method));
     int _direction = Order::OrderDirection(_cmd, _mode);
     Chart *_chart = trade.GetChart();
-    Indicator *_indi = GetIndicator();
+    IndicatorBase *_indi = GetIndicator();
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {

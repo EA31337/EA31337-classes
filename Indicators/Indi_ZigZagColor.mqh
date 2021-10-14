@@ -32,41 +32,29 @@ struct ZigZagColorParams : IndicatorParams {
 
   // Struct constructor.
   void ZigZagColorParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3,
-                         int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+                         int _shift = 0)
+      : IndicatorParams(INDI_ZIGZAG_COLOR, 3, TYPE_DOUBLE) {
     backstep = _backstep;
     depth = _depth;
     deviation = _deviation;
-    itype = INDI_ZIGZAG_COLOR;
-    max_modes = 3;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ZigZagColor");
     SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
-    tf = _tf;
-  };
-  void ZigZagColorParams(ZigZagColorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_ZigZagColor : public Indicator {
- protected:
-  ZigZagColorParams params;
-
+class Indi_ZigZagColor : public Indicator<ZigZagColorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ZigZagColor(ZigZagColorParams &_params)
-      : params(_params.depth, _params.deviation, _params.backstep), Indicator((IndicatorParams)_params) {
-    params = _params;
-  };
-  Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf) { params.tf = _tf; };
+  Indi_ZigZagColor(ZigZagColorParams& _p, IndicatorBase* _indi_src = NULL)
+      : Indicator<ZigZagColorParams>(_p, _indi_src){};
+  Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf){};
 
   /**
    * Returns the indicator's value.
@@ -74,10 +62,9 @@ class Indi_ZigZagColor : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/, _mode, _shift);
         break;
       default:
@@ -89,29 +76,6 @@ class Indi_ZigZagColor : public Indicator {
   }
 
   /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[0].Get<double>() != EMPTY_VALUE);
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
    * Returns the indicator's entry value.
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
@@ -120,22 +84,27 @@ class Indi_ZigZagColor : public Indicator {
     return _param;
   }
 
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
+
   /* Getters */
 
   /**
    * Get depth.
    */
-  unsigned int GetDepth() { return params.depth; }
+  unsigned int GetDepth() { return iparams.depth; }
 
   /**
    * Get deviation.
    */
-  unsigned int GetDeviation() { return params.deviation; }
+  unsigned int GetDeviation() { return iparams.deviation; }
 
   /**
    * Get backstep.
    */
-  unsigned int GetBackstep() { return params.backstep; }
+  unsigned int GetBackstep() { return iparams.backstep; }
 
   /* Setters */
 
@@ -144,7 +113,7 @@ class Indi_ZigZagColor : public Indicator {
    */
   void SetDepth(unsigned int _depth) {
     istate.is_changed = true;
-    params.depth = _depth;
+    iparams.depth = _depth;
   }
 
   /**
@@ -152,7 +121,7 @@ class Indi_ZigZagColor : public Indicator {
    */
   void SetDeviation(unsigned int _deviation) {
     istate.is_changed = true;
-    params.deviation = _deviation;
+    iparams.deviation = _deviation;
   }
 
   /**
@@ -160,6 +129,6 @@ class Indi_ZigZagColor : public Indicator {
    */
   void SetBackstep(unsigned int _backstep) {
     istate.is_changed = true;
-    params.backstep = _backstep;
+    iparams.backstep = _backstep;
   }
 };

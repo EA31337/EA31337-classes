@@ -23,9 +23,9 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "Indi_MA.mqh"
 #include "../Storage/ValueStorage.all.h"
 #include "../Util.h"
+#include "Indi_MA.mqh"
 
 // Structs.
 struct CHOParams : IndicatorParams {
@@ -35,50 +35,35 @@ struct CHOParams : IndicatorParams {
   ENUM_APPLIED_VOLUME input_volume;
   // Struct constructor.
   void CHOParams(int _fast_ma = 3, int _slow_ma = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
-                 ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0,
-                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+                 ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0)
+      : IndicatorParams(INDI_CHAIKIN, 1, TYPE_DOUBLE) {
     fast_ma = _fast_ma;
     input_volume = _input_volume;
-    itype = INDI_CHAIKIN;
-    max_modes = 1;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHO");
     shift = _shift;
     slow_ma = _slow_ma;
     smooth_method = _smooth_method;
-    tf = _tf;
-  };
-  void CHOParams(CHOParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_CHO : public Indicator {
- protected:
-  CHOParams params;
-
+class Indi_CHO : public Indicator<CHOParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CHO(CHOParams &_params)
-      : params(_params.fast_ma, _params.slow_ma, _params.smooth_method, _params.input_volume),
-        Indicator((IndicatorParams)_params) {
-    params = _params;
-  };
-  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN, _tf) { params.tf = _tf; };
+  Indi_CHO(CHOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CHOParams>(_p, _indi_src){};
+  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN, _tf){};
 
   /**
    * Built-in version of Chaikin Oscillator.
    */
   static double iChaikin(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period, int _slow_ma_period,
                          ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
-                         Indicator *_obj = NULL) {
+                         IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iChaikin(_symbol, _tf, _fast_ma_period, _slow_ma_period, _ma_method, _av),
                                       _mode, _shift);
@@ -180,15 +165,14 @@ class Indi_CHO : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_CHO::iChaikin(GetSymbol(), GetTf(), /*[*/ GetSlowMA(), GetFastMA(), GetSmoothMethod(),
                                     GetInputVolume() /*]*/, _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetFastMA(), GetSlowMA(), GetSmoothMethod(),
-                         GetInputVolume() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetFastMA(),
+                         GetSlowMA(), GetSmoothMethod(), GetInputVolume() /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -196,29 +180,6 @@ class Indi_CHO : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -235,22 +196,22 @@ class Indi_CHO : public Indicator {
   /**
    * Get fast moving average.
    */
-  unsigned int GetFastMA() { return params.fast_ma; }
+  unsigned int GetFastMA() { return iparams.fast_ma; }
 
   /**
    * Get slow moving average.
    */
-  unsigned int GetSlowMA() { return params.slow_ma; }
+  unsigned int GetSlowMA() { return iparams.slow_ma; }
 
   /**
    * Get smooth method.
    */
-  ENUM_MA_METHOD GetSmoothMethod() { return params.smooth_method; }
+  ENUM_MA_METHOD GetSmoothMethod() { return iparams.smooth_method; }
 
   /**
    * Get input volume.
    */
-  ENUM_APPLIED_VOLUME GetInputVolume() { return params.input_volume; }
+  ENUM_APPLIED_VOLUME GetInputVolume() { return iparams.input_volume; }
 
   /* Setters */
 
@@ -259,7 +220,7 @@ class Indi_CHO : public Indicator {
    */
   void SetFastMA(unsigned int _fast_ma) {
     istate.is_changed = true;
-    params.fast_ma = _fast_ma;
+    iparams.fast_ma = _fast_ma;
   }
 
   /**
@@ -267,7 +228,7 @@ class Indi_CHO : public Indicator {
    */
   void SetSlowMA(unsigned int _slow_ma) {
     istate.is_changed = true;
-    params.slow_ma = _slow_ma;
+    iparams.slow_ma = _slow_ma;
   }
 
   /**
@@ -275,7 +236,7 @@ class Indi_CHO : public Indicator {
    */
   void SetSmoothMethod(ENUM_MA_METHOD _smooth_method) {
     istate.is_changed = true;
-    params.smooth_method = _smooth_method;
+    iparams.smooth_method = _smooth_method;
   }
 
   /**
@@ -283,6 +244,6 @@ class Indi_CHO : public Indicator {
    */
   void SetInputVolume(ENUM_APPLIED_VOLUME _input_volume) {
     istate.is_changed = true;
-    params.input_volume = _input_volume;
+    iparams.input_volume = _input_volume;
   }
 };

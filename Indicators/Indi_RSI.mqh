@@ -43,29 +43,28 @@ double iRSIOnArray(double &_arr[], int _total, int _period, int _shift) {
 
 // Structs.
 struct RSIParams : IndicatorParams {
-  unsigned int period;
+ protected:
+  int period;
   ENUM_APPLIED_PRICE applied_price;
 
-  // Struct constructors.
-  void RSIParams(const RSIParams &r) {
-    period = r.period;
-    applied_price = r.applied_price;
-    custom_indi_name = r.custom_indi_name;
-  }
-  void RSIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : period(_period), applied_price(_ap) {
-    itype = INDI_RSI;
-    max_modes = 1;
+ public:
+  void RSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+      : applied_price(_ap), IndicatorParams(INDI_RSI, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\RSI");
+    SetPeriod(_period);
   };
-  void RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void RSIParams(RSIParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
   };
-  void RSIParams(ENUM_TIMEFRAMES _tf) : period(12), applied_price(PRICE_WEIGHTED) { tf = _tf; }
+  // Getters.
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return applied_price; }
+  int GetPeriod() { return period; }
+  // Setters.
+  void SetPeriod(int _period) { period = _period; }
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _ap) { applied_price = _ap; }
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &s) {
@@ -87,19 +86,15 @@ struct RSIGainLossData {
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_RSI : public Indicator {
- public:
-  RSIParams params;
+class Indi_RSI : public Indicator<RSIParams> {
   DictStruct<long, RSIGainLossData> aux_data;
 
+ public:
   /**
    * Class constructor.
    */
-  Indi_RSI(const RSIParams &_params) : params(_params), Indicator((IndicatorParams)_params) { params = _params; }
-  Indi_RSI(const RSIParams &_params, ENUM_TIMEFRAMES _tf) : params(_params), Indicator(INDI_RSI, _tf) {
-    // @fixme
-    params.tf = _tf;
-  }
+  Indi_RSI(RSIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RSIParams>(_p, _indi_src) {}
+  Indi_RSI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_RSI, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -109,7 +104,7 @@ class Indi_RSI : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
   static double iRSI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                     ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, Indicator *_obj = NULL) {
+                     ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iRSI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -145,9 +140,11 @@ class Indi_RSI : public Indicator {
   /**
    * Calculates non-SMMA version of RSI on another indicator (uses iRSIOnArray).
    */
-  static double iRSIOnArrayOnIndicator(Indicator *_indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                                       unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,
-                                       int _shift = 0, Indi_RSI *_obj = NULL) {
+  template <typename IT>
+  static double iRSIOnArrayOnIndicator(IndicatorBase *_indi, string _symbol = NULL,
+                                       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
+                                       ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
+                                       Indi_RSI *_obj = NULL) {
     int i;
     double indi_values[];
     ArrayResize(indi_values, _period);
@@ -178,7 +175,7 @@ class Indi_RSI : public Indicator {
    * RSI values. To exactly replicate our RSI numbers, a formula will need at
    * least 250 data points."
    */
-  static double iRSIOnIndicator(Indicator *_indi, Indi_RSI *_obj, string _symbol = NULL,
+  static double iRSIOnIndicator(IndicatorBase *_indi, Indi_RSI *_obj, string _symbol = NULL,
                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                 ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0) {
     long _bar_time_curr = _obj.GetBarTime(_shift);
@@ -187,8 +184,6 @@ class Indi_RSI : public Indicator {
       // Return empty value on invalid bar time.
       return EMPTY_VALUE;
     }
-    // Looks like MT uses specified period as start of the SMMA calculations.
-    _obj.FeedHistoryEntries(_period);
 
     int i;
     double indi_values[];
@@ -200,7 +195,7 @@ class Indi_RSI : public Indicator {
     RSIGainLossData last_data, new_data;
     unsigned int data_position;
     double diff;
-    int _mode = _obj.GetParams().indi_mode;
+    int _mode = _obj.GetDataSourceMode();
 
     if (!_obj.aux_data.KeyExists(_bar_time_prev, data_position)) {
       // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
@@ -309,8 +304,8 @@ class Indi_RSI : public Indicator {
    * extern ENUM_APPLIED_PRICE applied_price; // Required only for MQL4.
    * extern int shift;
    *
-   * Also, remember to use params.SetCustomIndicatorName(name) method to choose
-   * indicator name, e.g.,: params.SetCustomIndicatorName("Examples\\RSI");
+   * Also, remember to use iparams.SetCustomIndicatorName(name) method to choose
+   * indicator name, e.g.,: iparams.SetCustomIndicatorName("Examples\\RSI");
    *
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
@@ -318,51 +313,25 @@ class Indi_RSI : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_RSI::iRSI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), iparams.GetPeriod(), iparams.GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.custom_indi_name, /* [ */ GetPeriod(), GetAppliedPrice() /* ] */, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ iparams.GetPeriod(),
+                         iparams.GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value =
-            Indi_RSI::iRSIOnIndicator(GetDataSource(), GetPointer(this), Get<string>(CHART_PARAM_SYMBOL),
-                                      Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetAppliedPrice(), _shift);
+        _value = Indi_RSI::iRSIOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), iparams.GetPeriod(),
+                                           iparams.GetAppliedPrice(), _shift);
         break;
     }
     istate.is_ready = GetLastError() == ERR_NO_ERROR;
     istate.is_changed = false;
     ResetLastError();
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_DOUBLE, iparams.GetDataValueType() == TYPE_DOUBLE);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -374,68 +343,33 @@ class Indi_RSI : public Indicator {
     return _param;
   }
 
-  /* Getters */
-
-  /**
-   * Get indicator params.
-   */
-  RSIParams GetParams() { return params; }
-
-  /**
-   * Get period value.
-   */
-  unsigned int GetPeriod() { return params.period; }
-
-  /**
-   * Get applied price value.
-   */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
-
-  /* Setters */
-
-  /**
-   * Set period value.
-   */
-  void SetPeriod(unsigned int _period) {
-    istate.is_changed = true;
-    params.period = _period;
-  }
-
-  /**
-   * Set applied price value.
-   */
-  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-    istate.is_changed = true;
-    params.applied_price = _applied_price;
-  }
-
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual Indicator *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
-      BandsParams bands_params();
+      BandsParams bands_params;
       return new Indi_Bands(bands_params);
     } else if (_id == INDI_CCI) {
-      CCIParams cci_params();
+      CCIParams cci_params;
       return new Indi_CCI(cci_params);
     } else if (_id == INDI_ENVELOPES) {
-      EnvelopesParams env_params();
+      EnvelopesParams env_params;
       return new Indi_Envelopes(env_params);
     } else if (_id == INDI_MOMENTUM) {
-      MomentumParams mom_params();
+      MomentumParams mom_params;
       return new Indi_Momentum(mom_params);
     } else if (_id == INDI_MA) {
-      MAParams ma_params();
+      MAParams ma_params;
       return new Indi_MA(ma_params);
     } else if (_id == INDI_RSI) {
-      RSIParams _rsi_params();
+      RSIParams _rsi_params;
       return new Indi_RSI(_rsi_params);
     } else if (_id == INDI_STDDEV) {
-      StdDevParams stddev_params();
+      StdDevParams stddev_params;
       return new Indi_StdDev(stddev_params);
     }
 
-    return Indicator::FetchDataSource(_id);
+    return IndicatorBase::FetchDataSource(_id);
   }
 };

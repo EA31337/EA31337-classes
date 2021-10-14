@@ -35,33 +35,24 @@ struct SARParams : IndicatorParams {
   double step;
   double max;
   // Struct constructors.
-  void SARParams(double _step = 0.02, double _max = 0.2, int _shift = 0) : step(_step), max(_max) {
-    itype = INDI_SAR;
-    max_modes = 1;
+  void SARParams(double _step = 0.02, double _max = 0.2, int _shift = 0)
+      : step(_step), max(_max), IndicatorParams(INDI_SAR, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit It draws single dot for each bar!
     SetCustomIndicatorName("Examples\\ParabolicSAR");
-  };
-  void SARParams(SARParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Parabolic Stop and Reverse system indicator.
  */
-class Indi_SAR : public Indicator {
- protected:
-  SARParams params;
-
+class Indi_SAR : public Indicator<SARParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_SAR(SARParams &_p) : params(_p.step, _p.max), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_SAR(SARParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.step, _p.max), Indicator(INDI_SAR, _tf) { params = _p; }
+  Indi_SAR(SARParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<SARParams>(_p, _indi_src) {}
+  Indi_SAR(ENUM_TIMEFRAMES _tf) : Indicator(INDI_SAR, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -71,7 +62,7 @@ class Indi_SAR : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/isar
    */
   static double iSAR(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, double _step = 0.02,
-                     double _max = 0.2, int _shift = 0, Indicator *_obj = NULL) {
+                     double _max = 0.2, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iSAR(_symbol, _tf, _step, _max, _shift);
 #else  // __MQL5__
@@ -110,15 +101,14 @@ class Indi_SAR : public Indicator {
   double GetValue(int _mode, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_SAR::iSAR(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetStep(),
-                                GetMax(), _shift, GetPointer(this));
+        _value = Indi_SAR::iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetStep(), GetMax() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetStep(),
+                         GetMax() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -126,29 +116,6 @@ class Indi_SAR : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -165,12 +132,12 @@ class Indi_SAR : public Indicator {
   /**
    * Get step of price increment.
    */
-  double GetStep() { return params.step; }
+  double GetStep() { return iparams.step; }
 
   /**
    * Get the maximum step.
    */
-  double GetMax() { return params.max; }
+  double GetMax() { return iparams.max; }
 
   /* Setters */
 
@@ -179,7 +146,7 @@ class Indi_SAR : public Indicator {
    */
   void SetStep(double _step) {
     istate.is_changed = true;
-    params.step = _step;
+    iparams.step = _step;
   }
 
   /**
@@ -187,6 +154,6 @@ class Indi_SAR : public Indicator {
    */
   void SetMax(double _max) {
     istate.is_changed = true;
-    params.max = _max;
+    iparams.max = _max;
   }
 };

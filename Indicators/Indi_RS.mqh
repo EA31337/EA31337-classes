@@ -30,55 +30,43 @@
 struct RSParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  void RSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0,
-                ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void RSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+      : IndicatorParams(INDI_RS, 2, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
-    itype = INDI_RS;
-    max_modes = 2;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_MATH);
     shift = _shift;
-    tf = _tf;
-  };
-  void RSParams(RSParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_RS : public Indicator {
- protected:
-  RSParams params;
-  Ref<Indi_Price> iprice;
+class Indi_RS : public Indicator<RSParams> {
   DictStruct<int, Ref<Indi_Math>> imath;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_RS(RSParams &_params) : params(_params), Indicator((IndicatorParams)_params) { Init(); };
-  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RS, _tf) {
-    params.tf = _tf;
-    Init();
-  };
+  Indi_RS(RSParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RSParams>(_p, _indi_src) { Init(); };
+  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RS, _tf) { Init(); };
 
   void Init() {
-    if (params.GetDataSourceType() == IDATA_MATH) {
-      PriceIndiParams _iprice_params();
-      iprice = new Indi_Price(_iprice_params);
+    if (iparams.GetDataSourceType() == IDATA_MATH) {
+      PriceIndiParams _iprice_p();
+      // @todo Symbol should be already defined for a chart.
+      // @todo If it's not, move initialization to GetValue()/GetEntry() method.
+      Indi_Price *_iprice = Indi_Price::GetCached(GetSymbol(), GetTf(), 0);
 
-      MathParams _imath0_params(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
-      _imath0_params.SetDataSource(iprice.Ptr(), false);
-      Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_params);
-
-      MathParams _imath1_params(MATH_OP_SUB, PRICE_CLOSE, 1, PRICE_CLOSE, 0);
-      _imath1_params.SetDataSource(iprice.Ptr(), false);
-      Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_params);
-
+      MathParams _imath0_p(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
+      MathParams _imath1_p(MATH_OP_SUB, PRICE_CLOSE, 1, PRICE_CLOSE, 0);
+      _imath0_p.SetTf(GetTf());
+      _imath1_p.SetTf(GetTf());
+      Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_p);
+      Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_p);
+      _imath0.Ptr().SetDataSource(_iprice, false, 0);
+      _imath1.Ptr().SetDataSource(_iprice, false, 0);
       imath.Set(0, _imath0);
       imath.Set(1, _imath1);
     }
@@ -90,7 +78,7 @@ class Indi_RS : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_MATH:
         _value = imath[_mode].Ptr().GetValue();
         break;
@@ -103,29 +91,6 @@ class Indi_RS : public Indicator {
   }
 
   /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
    * Returns the indicator's entry value.
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
@@ -134,12 +99,17 @@ class Indi_RS : public Indicator {
     return _param;
   }
 
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return true; }
+
   /* Getters */
 
   /**
    * Get applied volume.
    */
-  ENUM_APPLIED_VOLUME GetAppliedVolume() { return params.applied_volume; }
+  ENUM_APPLIED_VOLUME GetAppliedVolume() { return iparams.applied_volume; }
 
   /* Setters */
 
@@ -148,6 +118,6 @@ class Indi_RS : public Indicator {
    */
   void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
     istate.is_changed = true;
-    params.applied_volume = _applied_volume;
+    iparams.applied_volume = _applied_volume;
   }
 };

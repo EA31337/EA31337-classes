@@ -108,8 +108,8 @@ enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_EN
 
 // Global variables.
 Chart *chart;
-Dict<long, Indicator *> indis;
-Dict<int, Indicator *> whitelisted_indis;
+Dict<long, IndicatorBase *> indis;
+Dict<int, IndicatorBase *> whitelisted_indis;
 Dict<long, bool> tested;
 int bar_processed;
 double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235,
@@ -124,6 +124,7 @@ int OnInit() {
   bool _result = true;
   // Initialize chart.
   chart = new Chart();
+  Print("We have ", Bars(NULL, 0), " bars to analyze");
   // Initialize indicators.
   _result &= InitIndicators();
   Print("Indicators to test: ", indis.Size());
@@ -147,7 +148,7 @@ void OnTick() {
     if (indis.Size() == 0) {
       return;
     }
-    for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
       if (whitelisted_indis.Size() == 0) {
         if (tested.GetByKey(iter.Key())) {
           // Indicator is already tested, skipping.
@@ -159,7 +160,7 @@ void OnTick() {
         }
       }
 
-      Indicator *_indi = iter.Value();
+      IndicatorBase *_indi = iter.Value();
 
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
@@ -185,7 +186,7 @@ void OnDeinit(const int reason) {
 
   delete chart;
 
-  for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     delete iter.Value();
   }
 
@@ -225,7 +226,7 @@ bool InitIndicators() {
 
   // Bollinger Bands.
   BandsParams bands_params(20, 2, 0, PRICE_OPEN);
-  Indicator *indi_bands = new Indi_Bands(bands_params);
+  IndicatorBase *indi_bands = new Indi_Bands(bands_params);
   indis.Push(indi_bands);
 
   // Bollinger Bands over RSI.
@@ -264,7 +265,7 @@ bool InitIndicators() {
   indis.Push(new Indi_Fractals());
 
   // Fractal Adaptive Moving Average (FRAMA).
-  FrIndiAMAParams frama_params();
+  IndiFrAMAParams frama_params();
   indis.Push(new Indi_FrAMA(frama_params));
 
   // Gator Oscillator.
@@ -272,9 +273,7 @@ bool InitIndicators() {
   indis.Push(new Indi_Gator(gator_params));
 
   // Heiken Ashi.
-#ifdef __MQL5__
   indis.Push(new Indi_HeikenAshi());
-#endif
 
   // Ichimoku Kinko Hyo.
   IchimokuParams ichi_params(9, 26, 52);
@@ -282,17 +281,17 @@ bool InitIndicators() {
 
   // Moving Average.
   MAParams ma_params(13, 0, MODE_SMA, PRICE_OPEN);
-  Indicator *indi_ma = new Indi_MA(ma_params);
+  IndicatorBase *indi_ma = new Indi_MA(ma_params);
   indis.Push(indi_ma);
 
   // DEMA.
   DEMAParams dema_params(13, 2, PRICE_OPEN);
-  Indicator *indi_dema = new Indi_DEMA(dema_params);
+  IndicatorBase *indi_dema = new Indi_DEMA(dema_params);
   indis.Push(indi_dema);
 
   // MACD.
   MACDParams macd_params(12, 26, 9, PRICE_CLOSE);
-  Indicator *macd = new Indi_MACD(macd_params);
+  IndicatorBase *macd = new Indi_MACD(macd_params);
   indis.Push(macd);
 
   // Money Flow Index (MFI).
@@ -332,12 +331,13 @@ bool InitIndicators() {
   indis.Push(new Indi_StdDev(stddev_params));
 
   // Standard Deviation (StdDev).
-  Indicator *indi_price_for_stdev = new Indi_Price(PriceIndiParams());
+  IndicatorBase *indi_price_for_stdev = new Indi_Price(PriceIndiParams());
 
   StdDevParams stddev_on_price_params();
-  stddev_on_price_params.SetDataSource(indi_price_for_stdev, true, PRICE_OPEN);
   stddev_on_price_params.SetDraw(clrBlue, 1);
-  indis.Push(new Indi_StdDev(stddev_on_price_params));
+  Indi_StdDev *indi_stddev_on_price = new Indi_StdDev(stddev_on_price_params);
+  indi_stddev_on_price.SetDataSource(indi_price_for_stdev, true, PRICE_OPEN);
+  indis.Push(indi_stddev_on_price);
 
   // Stochastic Oscillator.
   StochParams stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
@@ -359,85 +359,94 @@ bool InitIndicators() {
   // Current Price.
   PriceIndiParams price_params();
   // price_params.SetDraw(clrAzure);
-  Indicator *indi_price = new Indi_Price(price_params);
+  IndicatorBase *indi_price = new Indi_Price(price_params);
   indis.Push(indi_price);
 
   // Bollinger Bands over Price indicator.
   PriceIndiParams price_params_4_bands();
-  Indicator *indi_price_4_bands = new Indi_Price(price_params_4_bands);
+  IndicatorBase *indi_price_4_bands = new Indi_Price(price_params_4_bands);
   BandsParams bands_on_price_params();
   bands_on_price_params.SetDraw(clrCadetBlue);
-  bands_on_price_params.SetDataSource(indi_price_4_bands, true, INDI_PRICE_MODE_OPEN);
-  indis.Push(new Indi_Bands(bands_on_price_params));
+  Indi_Bands *indi_bands_on_price = new Indi_Bands(bands_on_price_params);
+  indi_bands_on_price.SetDataSource(indi_price_4_bands, true, INDI_PRICE_MODE_OPEN);
+  indis.Push(indi_bands_on_price);
 
   // Standard Deviation (StdDev) over MA(SMA).
   // NOTE: If you set ma_shift parameter for MA, then StdDev will no longer
   // match built-in StdDev indicator (as it doesn't use ma_shift for averaging).
   MAParams ma_sma_params_for_stddev();
-  Indicator *indi_ma_sma_for_stddev = new Indi_MA(ma_sma_params_for_stddev);
+  IndicatorBase *indi_ma_sma_for_stddev = new Indi_MA(ma_sma_params_for_stddev);
 
   StdDevParams stddev_params_on_ma_sma(13, 10);
   stddev_params_on_ma_sma.SetDraw(true, 1);
-  stddev_params_on_ma_sma.SetDataSource(indi_ma_sma_for_stddev, true, 0);
-  indis.Push(new Indi_StdDev(stddev_params_on_ma_sma));
+
+  Indi_StdDev *indi_stddev_on_ma_sma = new Indi_StdDev(stddev_params_on_ma_sma);
+  indi_stddev_on_ma_sma.SetDataSource(indi_ma_sma_for_stddev, true, 0);
+  indis.Push(indi_stddev_on_ma_sma);
 
   // Standard Deviation (StdDev) in SMA mode over Price.
   PriceIndiParams price_params_for_stddev_sma();
-  Indicator *indi_price_for_stddev_sma = new Indi_Price(price_params_for_stddev_sma);
+  IndicatorBase *indi_price_for_stddev_sma = new Indi_Price(price_params_for_stddev_sma);
 
   StdDevParams stddev_sma_on_price_params();
   stddev_sma_on_price_params.SetDraw(true, 1);
-  stddev_sma_on_price_params.SetDataSource(indi_price_for_stddev_sma, true, INDI_PRICE_MODE_OPEN);
-  indis.Push(new Indi_StdDev(stddev_sma_on_price_params));
+  Indi_StdDev *indi_stddev_on_sma = new Indi_StdDev(stddev_sma_on_price_params);
+  indi_stddev_on_sma.SetDataSource(indi_price_for_stddev_sma, true, INDI_PRICE_MODE_OPEN);
+  indis.Push(indi_stddev_on_sma);
 
   // Moving Average (MA) over Price indicator.
   PriceIndiParams price_params_4_ma();
-  Indicator *indi_price_4_ma = new Indi_Price(price_params_4_ma);
+  IndicatorBase *indi_price_4_ma = new Indi_Price(price_params_4_ma);
   MAParams ma_on_price_params(13, 0, MODE_SMA, PRICE_OPEN, 0);
   ma_on_price_params.SetDraw(clrYellowGreen);
-  ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
-  indis.Push(new Indi_MA(ma_on_price_params));
+  Indi_MA *indi_ma_on_price = new Indi_MA(ma_on_price_params);
+  indi_ma_on_price.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
+  indis.Push(indi_ma_on_price);
 
   // Commodity Channel Index (CCI) over Price indicator.
   PriceIndiParams price_params_4_cci();
-  Indicator *indi_price_4_cci = new Indi_Price(price_params_4_cci);
+  IndicatorBase *indi_price_4_cci = new Indi_Price(price_params_4_cci);
   CCIParams cci_on_price_params();
   cci_on_price_params.SetDraw(clrYellowGreen, 1);
-  cci_on_price_params.SetDataSource(indi_price_4_cci, true, INDI_PRICE_MODE_OPEN);
-  Indicator *indi_cci_on_price = new Indi_CCI(cci_on_price_params);
+  IndicatorBase *indi_cci_on_price = new Indi_CCI(cci_on_price_params);
+  indi_cci_on_price.SetDataSource(indi_price_4_cci, true, INDI_PRICE_MODE_OPEN);
   indis.Push(indi_cci_on_price);
 
   // Envelopes over Price indicator.
   PriceIndiParams price_params_4_envelopes();
-  Indicator *indi_price_4_envelopes = new Indi_Price(price_params_4_envelopes);
+  IndicatorBase *indi_price_4_envelopes = new Indi_Price(price_params_4_envelopes);
   EnvelopesParams env_on_price_params();
-  env_on_price_params.SetDataSource(indi_price_4_envelopes, true, INDI_PRICE_MODE_OPEN);
   env_on_price_params.SetDraw(clrBrown);
-  indis.Push(new Indi_Envelopes(env_on_price_params));
+  Indi_Envelopes *indi_envelopes_on_price = new Indi_Envelopes(env_on_price_params);
+  indi_envelopes_on_price.SetDataSource(indi_price_4_envelopes, true, INDI_PRICE_MODE_OPEN);
+  indis.Push(indi_envelopes_on_price);
 
   // DEMA over Price indicator.
   PriceIndiParams price_params_4_dema();
-  Indicator *indi_price_4_dema = new Indi_Price(price_params_4_dema);
+  IndicatorBase *indi_price_4_dema = new Indi_Price(price_params_4_dema);
   DEMAParams dema_on_price_params(13, 2, PRICE_OPEN);
-  dema_on_price_params.SetDataSource(indi_price_4_dema, true, INDI_PRICE_MODE_OPEN);
   dema_on_price_params.SetDraw(clrRed);
-  indis.Push(new Indi_DEMA(dema_on_price_params));
+  Indi_DEMA *indi_dema_on_price = new Indi_DEMA(dema_on_price_params);
+  indi_dema_on_price.SetDataSource(indi_price_4_dema, true, INDI_PRICE_MODE_OPEN);
+  indis.Push(indi_dema_on_price);
 
   // Momentum over Price indicator.
-  Indicator *indi_price_4_momentum = new Indi_Price();
+  IndicatorBase *indi_price_4_momentum = new Indi_Price();
   MomentumParams mom_on_price_params();
-  mom_on_price_params.SetDataSource(indi_price_4_momentum);
   mom_on_price_params.SetDraw(clrDarkCyan);
-  indis.Push(new Indi_Momentum(mom_on_price_params));
+  Indi_Momentum *indi_momentum_on_price = new Indi_Momentum(mom_on_price_params);
+  indi_momentum_on_price.SetDataSource(indi_price_4_momentum, true, 0);
+  indis.Push(indi_momentum_on_price);
 
   // Relative Strength Index (RSI) over Price indicator.
   PriceIndiParams price_params_4_rsi();
-  Indicator *indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
+  IndicatorBase *indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
   RSIParams rsi_on_price_params();
-  rsi_on_price_params.SetDataSource(indi_price_4_rsi, true, INDI_PRICE_MODE_OPEN);
   rsi_on_price_params.SetDraw(clrBisque, 1);
-  indis.Push(new Indi_RSI(rsi_on_price_params));
+  Indi_RSI *indi_rsi_on_price = new Indi_RSI(rsi_on_price_params);
+  indi_rsi_on_price.SetDataSource(indi_price_4_rsi, true, INDI_PRICE_MODE_OPEN);
+  indis.Push(indi_rsi_on_price);
 
   // Drawer (socket-based) indicator.
   DrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
@@ -450,8 +459,9 @@ bool InitIndicators() {
   AppliedPriceParams applied_price_params();
   applied_price_params.SetDraw(clrAquamarine, 0);
   PriceIndiParams applied_price_price_params;
-  applied_price_params.SetDataSource(new Indi_Price(applied_price_price_params), PRICE_TYPICAL);
-  indis.Push(new Indi_AppliedPrice(applied_price_params));
+  Indi_AppliedPrice *indi_applied_price_on_price = new Indi_AppliedPrice(applied_price_params);
+  indi_applied_price_on_price.SetDataSource(new Indi_Price(applied_price_price_params), true, PRICE_TYPICAL);
+  indis.Push(indi_applied_price_on_price);
 
   // ADXW.
   ADXWParams adxw_params(14);
@@ -479,9 +489,7 @@ bool InitIndicators() {
 
   // Color Line.
   ColorLineParams color_line_params();
-#ifdef __MQL5__
   indis.Push(new Indi_ColorLine(color_line_params));
-#endif
 
   // Detrended Price Oscillator.
   DetrendedPriceParams detrended_params();
@@ -491,8 +499,8 @@ bool InitIndicators() {
   MassIndexParams mass_index_params();
   indis.Push(new Indi_MassIndex(mass_index_params));
 
-  // Price Channel.
 #ifdef __MQL5__
+  // Price Channel.
   PriceChannelParams price_channel_params();
   indis.Push(new Indi_PriceChannel(price_channel_params));
 #endif
@@ -503,9 +511,7 @@ bool InitIndicators() {
 
   // Bill Williams' Zone Trade.
   BWZTParams bwzt_params();
-#ifdef __MQL5__
   indis.Push(new Indi_BWZT(bwzt_params));
-#endif
 
   // Rate of Change.
   RateOfChangeParams rate_of_change_params();
@@ -521,9 +527,7 @@ bool InitIndicators() {
 
   // Ultimate Oscillator.
   UltimateOscillatorParams ultimate_oscillator_params();
-#ifdef __MQL5__
   indis.Push(new Indi_UltimateOscillator(ultimate_oscillator_params));
-#endif
 
   // VIDYA.
   VIDYAParams vidya_params();
@@ -531,9 +535,7 @@ bool InitIndicators() {
 
   // Volumes.
   VolumesParams volumes_params();
-#ifdef __MQL5__
   indis.Push(new Indi_Volumes(volumes_params));
-#endif
 
   // Volume Rate of Change.
   VROCParams vol_rate_of_change_params();
@@ -543,31 +545,31 @@ bool InitIndicators() {
   WilliamsADParams williams_ad_params();
   indis.Push(new Indi_WilliamsAD(williams_ad_params));
 
-// ZigZag Color.
 #ifdef __MQL5__
+  // ZigZag Color.
   ZigZagColorParams zigzag_color_params();
   indis.Push(new Indi_ZigZagColor(zigzag_color_params));
 #endif
 
-// Custom Moving Average.
-#ifdef __MQL5__
+  // Custom Moving Average.
   CustomMovingAverageParams cma_params();
   indis.Push(new Indi_CustomMovingAverage(cma_params));
-#endif
 
   // Math (specialized indicator).
   MathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
-  math_params.SetDataSource(indi_bands, false, 0);
   math_params.SetDraw(clrBlue);
   math_params.SetName("Bands(UP - LO)");
-  indis.Push(new Indi_Math(math_params));
+  Indi_Math *indi_math_1 = new Indi_Math(math_params);
+  indi_math_1.SetDataSource(indi_bands, false, 0);
+  indis.Push(indi_math_1);
 
   // Math (specialized indicator) via custom math method.
   MathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
-  math_custom_params.SetDataSource(indi_bands, false, 0);
   math_custom_params.SetDraw(clrBeige);
   math_custom_params.SetName("Bands(Custom math fn)");
-  indis.Push(new Indi_Math(math_custom_params));
+  Indi_Math *indi_math_2 = new Indi_Math(math_custom_params);
+  indi_math_2.SetDataSource(indi_bands, false, 0);
+  indis.Push(indi_math_2);
 
   // RS (Math-based) indicator.
   RSParams rs_params();
@@ -586,7 +588,7 @@ bool InitIndicators() {
   indis.Push(new Indi_Candle(candle_params));
 
   // Mark all as untested.
-  for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     tested.Set(iter.Key(), false);
   }
 
@@ -602,13 +604,13 @@ double MathCustomOp(double a, double b) { return 1.11 + (b - a) * 2.0; }
  * Print indicators.
  */
 bool PrintIndicators(string _prefix = "") {
-  for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     if (whitelisted_indis.Size() != 0 && !whitelisted_indis.Contains(iter.Value())) {
       continue;
     }
 
-    Indicator *_indi = iter.Value();
-    string _indi_name = _indi.GetName();
+    IndicatorBase *_indi = iter.Value();
+    string _indi_name = _indi.GetFullName();
     MqlParam _value = _indi.GetEntryValue();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
         GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {

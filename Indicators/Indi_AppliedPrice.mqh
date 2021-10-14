@@ -28,38 +28,28 @@
 struct AppliedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  AppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0,
-                     ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_APPLIED_PRICE;
-    max_modes = 1;
+  AppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
+      : IndicatorParams(INDI_APPLIED_PRICE, 1, TYPE_DOUBLE) {
     applied_price = _applied_price;
-    SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_PRICE);
     SetDataSourceType(IDATA_INDICATOR);
+    SetDataValueRange(IDATA_RANGE_PRICE);
     shift = _shift;
-    tf = _tf;
-  };
-  AppliedPriceParams(AppliedPriceParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the "Applied Price over OHCL Indicator" indicator, e.g. over Indi_Price.
  */
-class Indi_AppliedPrice : public Indicator {
- protected:
-  AppliedPriceParams params;
-
+class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AppliedPrice(AppliedPriceParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
-  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(PRICE_OPEN, 0, _tf), Indicator(INDI_PRICE, _tf){};
+  Indi_AppliedPrice(AppliedPriceParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<AppliedPriceParams>(_p, _indi_src){};
+  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf){};
 
-  static double iAppliedPriceOnIndicator(Indicator *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
+  static double iAppliedPriceOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];
     _indi[_shift].GetArray(_ohlc, 4);
     return BarOHLC::GetAppliedPrice(_applied_price, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);
@@ -71,18 +61,25 @@ class Indi_AppliedPrice : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_INDICATOR:
         if (HasDataSource()) {
-          // Future validation of GetDataSource() will check if we set mode for source indicator
+          // Future validation of indi_src will check if we set mode for source indicator
           // (e.g. for applied price of Indi_Price).
           iparams.SetDataSourceMode(GetAppliedPrice());
+        } else {
+          Print("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");
+          DebugBreak();
         }
-        if (GetDataSource().GetParams().GetMaxModes() != 4) {
+
+        // @fixit
+        /*
+        if (indi_src.GetParams().GetMaxModes() != 4) {
           Print("Indi_AppliedPrice indicator requires that has at least 4 modes/buffers (OHLC)!");
           DebugBreak();
         }
-        _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _shift);
+        */
+        _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(indi_src, GetAppliedPrice(), _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -90,29 +87,6 @@ class Indi_AppliedPrice : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -129,7 +103,7 @@ class Indi_AppliedPrice : public Indicator {
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -138,6 +112,6 @@ class Indi_AppliedPrice : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

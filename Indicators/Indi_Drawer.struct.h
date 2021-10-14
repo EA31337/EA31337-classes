@@ -35,27 +35,14 @@ struct DrawerParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
 
-  // Struct constructors.
-  void DrawerParams(const DrawerParams &r) {
-    period = r.period;
-    applied_price = r.applied_price;
-    custom_indi_name = r.custom_indi_name;
-  }
-  void DrawerParams(unsigned int _period, ENUM_APPLIED_PRICE _ap) : period(_period), applied_price(_ap) {
-    itype = INDI_DRAWER;
-    max_modes = 0;
-    custom_indi_name = "Examples\\Drawer";
-    SetDataValueType(TYPE_DOUBLE);
+  DrawerParams(unsigned int _period = 10, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE) : period(_period), applied_price(_ap), IndicatorParams(INDI_DRAWER, 0, TYPE_DOUBLE) {
+    // Fetching history data is not yet implemented.
+    SetCustomIndicatorName("Examples\\Drawer");
   };
-  void DrawerParams(DrawerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  void DrawerParams(DrawerParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _p;
     tf = _tf;
-    if (idstype == IDATA_INDICATOR && indi_data_source == NULL) {
-      PriceIndiParams price_params(_tf);
-      SetDataSource(new Indi_Price(price_params), true);
-    }
   };
-  void DrawerParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : period(12), applied_price(PRICE_WEIGHTED) { tf = _tf; }
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &s);
@@ -75,4 +62,5 @@ SerializerNodeType DrawerParams::Serialize(Serializer &s) {
 struct DrawerGainLossData {
   double avg_gain;
   double avg_loss;
+  DrawerGainLossData() { avg_gain = avg_loss = 0.0; }
 };

@@ -31,34 +31,23 @@ double iAD(string _symbol, int _tf, int _shift) { return Indi_AD::iAD(_symbol, (
 // Structs.
 struct ADParams : IndicatorParams {
   // Struct constructor.
-  ADParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_AD;
-    max_modes = 1;
-    SetDataValueType(TYPE_DOUBLE);
+  ADParams(int _shift = 0) : IndicatorParams(INDI_AD, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\AD");
     shift = _shift;
-    tf = _tf;
-  };
-  ADParams(ADParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Accumulation/Distribution indicator.
  */
-class Indi_AD : public Indicator {
- protected:
-  ADParams params;
-
+class Indi_AD : public Indicator<ADParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AD(ADParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AD, _tf) { params.SetTf(_tf); };
+  Indi_AD(ADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ADParams>(_p, _indi_src){};
+  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator<ADParams>(INDI_AD, _tf) { iparams.SetTf(_tf); };
 
   /**
    * Returns the indicator value.
@@ -68,7 +57,7 @@ class Indi_AD : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iad
    */
   static double iAD(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    Indicator *_obj = NULL) {
+                    IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAD(_symbol, _tf, _shift);
 #else  // __MQL5__
@@ -107,15 +96,13 @@ class Indi_AD : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_AD::iAD(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift,
-                              GetPointer(this));
+        _value = Indi_AD::iAD(GetSymbol(), GetTf(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -123,29 +110,6 @@ class Indi_AD : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**

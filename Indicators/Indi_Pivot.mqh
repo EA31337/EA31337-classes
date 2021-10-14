@@ -30,35 +30,23 @@
 struct IndiPivotParams : IndicatorParams {
   ENUM_PP_TYPE method;  // Pivot point calculation method.
   // Struct constructor.
-  void IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_PIVOT;
-    max_modes = 9;
+  void IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0) : IndicatorParams(INDI_PIVOT, 9, TYPE_FLOAT) {
     method = _method;
-    SetDataValueType(TYPE_FLOAT);
     SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
-    tf = _tf;
-  };
-  void IndiPivotParams(IndiPivotParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements Pivot Detector.
  */
-class Indi_Pivot : public Indicator {
- protected:
-  IndiPivotParams params;
-
+class Indi_Pivot : public Indicator<IndiPivotParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Pivot(IndiPivotParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
-  Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PIVOT, _tf) { params.tf = _tf; };
+  Indi_Pivot(IndiPivotParams& _p, IndicatorBase* _indi_src = NULL) : Indicator<IndiPivotParams>(_p, _indi_src){};
+  Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PIVOT, _tf) { iparams.tf = _tf; };
 
   /**
    * Returns the indicator's struct value.
@@ -66,7 +54,7 @@ class Indi_Pivot : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -76,7 +64,7 @@ class Indi_Pivot : public Indicator {
       BarOHLC _ohlc;
       int _value = WRONG_VALUE;
 
-      switch (params.idstype) {
+      switch (iparams.idstype) {
         case IDATA_BUILTIN:
           // In this mode, price is fetched from chart.
           _ohlc = Chart::GetOHLC(_shift);
@@ -98,10 +86,10 @@ class Indi_Pivot : public Indicator {
             return _value;
           }
 
-          _ohlc.open = GetDataSource().GetValue<float>(_shift, PRICE_OPEN);
-          _ohlc.high = GetDataSource().GetValue<float>(_shift, PRICE_HIGH);
-          _ohlc.low = GetDataSource().GetValue<float>(_shift, PRICE_LOW);
-          _ohlc.close = GetDataSource().GetValue<float>(_shift, PRICE_CLOSE);
+          _ohlc.open = indi_src.GetValue<float>(_shift, PRICE_OPEN);
+          _ohlc.high = indi_src.GetValue<float>(_shift, PRICE_HIGH);
+          _ohlc.low = indi_src.GetValue<float>(_shift, PRICE_LOW);
+          _ohlc.close = indi_src.GetValue<float>(_shift, PRICE_CLOSE);
           break;
         default:
           SetUserError(ERR_INVALID_PARAMETER);
@@ -111,16 +99,20 @@ class Indi_Pivot : public Indicator {
                       _entry.values[3].vflt, _entry.values[4].vflt, _entry.values[5].vflt, _entry.values[6].vflt,
                       _entry.values[7].vflt, _entry.values[8].vflt);
 
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
-
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
         istate.is_ready = true;
       }
     }
     return _entry;
   }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return true; }  // @todo
 
   /**
    * Returns the indicator's entry value.
@@ -136,7 +128,7 @@ class Indi_Pivot : public Indicator {
   /**
    * Get pivot point calculation method.
    */
-  ENUM_PP_TYPE GetMethod() { return params.method; }
+  ENUM_PP_TYPE GetMethod() { return iparams.method; }
 
   /* Setters */
 
@@ -145,7 +137,7 @@ class Indi_Pivot : public Indicator {
    */
   void SetMethod(ENUM_PP_TYPE _method) {
     istate.is_changed = true;
-    params.method = _method;
+    iparams.method = _method;
   }
 
   /**

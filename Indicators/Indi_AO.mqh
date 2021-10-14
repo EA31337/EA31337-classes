@@ -31,38 +31,26 @@ double iAO(string _symbol, int _tf, int _shift) { return Indi_AO::iAO(_symbol, (
 // Structs.
 struct AOParams : IndicatorParams {
   // Struct constructor.
-  void AOParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_AO;
+  void AOParams(int _shift = 0) : IndicatorParams(INDI_AO, 2, TYPE_DOUBLE) {
 #ifdef __MQL4__
     max_modes = 1;
-#else
-    max_modes = 2;
 #endif
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
-    tf = _tf;
-  };
-  void AOParams(AOParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Awesome oscillator.
  */
-class Indi_AO : public Indicator {
- protected:
-  AOParams params;
-
+class Indi_AO : public Indicator<AOParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AO(AOParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AO, _tf){};
+  Indi_AO(AOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<AOParams>(_p, _indi_src){};
+  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AO, _tf){};
 
   /**
    * Returns the indicator value.
@@ -72,7 +60,7 @@ class Indi_AO : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iao
    */
   static double iAO(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, int _mode = 0,
-                    Indicator *_obj = NULL) {
+                    IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     // Note: In MQL4 _mode is not supported.
     return ::iAO(_symbol, _tf, _shift);
@@ -91,7 +79,7 @@ class Indi_AO : public Indicator {
     if (Terminal::IsVisualMode()) {
       // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
       // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
+      int _bars_calc = ::BarsCalculated(_handle);
       if (GetLastError() > 0) {
         return EMPTY_VALUE;
       } else if (_bars_calc <= 2) {
@@ -112,15 +100,13 @@ class Indi_AO : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_AO::iAO(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift, _mode,
-                              GetPointer(this));
+        _value = Indi_AO::iAO(GetSymbol(), GetTf(), _shift, _mode, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -128,29 +114,6 @@ class Indi_AO : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[0].Get<double>() != EMPTY_VALUE);
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -164,6 +127,11 @@ class Indi_AO : public Indicator {
     }
     return _ptr;
   }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
 
   /**
    * Returns the indicator's entry value.

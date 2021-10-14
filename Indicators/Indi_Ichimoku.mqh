@@ -67,40 +67,27 @@ struct IchimokuParams : IndicatorParams {
   unsigned int kijun_sen;
   unsigned int senkou_span_b;
   // Struct constructors.
-  void IchimokuParams(unsigned int _ts, unsigned int _ks, unsigned int _ss_b, int _shift = 0)
-      : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {
-    itype = INDI_ICHIMOKU;
-    max_modes = FINAL_ICHIMOKU_LINE_ENTRY;
+  void IchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
+      : tenkan_sen(_ts),
+        kijun_sen(_ks),
+        senkou_span_b(_ss_b),
+        IndicatorParams(INDI_ICHIMOKU, FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Not sure if not mixed.
     SetCustomIndicatorName("Examples\\Ichimoku");
-  };
-  void IchimokuParams(IchimokuParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Ichimoku Kinko Hyo indicator.
  */
-class Indi_Ichimoku : public Indicator {
- protected:
-  IchimokuParams params;
-
+class Indi_Ichimoku : public Indicator<IchimokuParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IchimokuParams &_p)
-      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_Ichimoku(IchimokuParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator(INDI_ICHIMOKU, _tf) {
-    params = _p;
-  }
+  Indi_Ichimoku(IchimokuParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IchimokuParams>(_p, _indi_src) {}
+  Indi_Ichimoku(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ICHIMOKU, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -114,7 +101,7 @@ class Indi_Ichimoku : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iichimoku
    */
   static double iIchimoku(string _symbol, ENUM_TIMEFRAMES _tf, int _tenkan_sen, int _kijun_sen, int _senkou_span_b,
-                          int _mode, int _shift = 0, Indicator *_obj = NULL) {
+                          int _mode, int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
 #else  // __MQL5__
@@ -153,17 +140,15 @@ class Indi_Ichimoku : public Indicator {
   double GetValue(ENUM_ICHIMOKU_LINE _mode, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            Indi_Ichimoku::iIchimoku(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                     GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift, GetPointer(this));
+        _value = Indi_Ichimoku::iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode,
+                                          _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetTenkanSen(), GetKijunSen(), GetSenkouSpanB() /*]*/,
-                         _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetTenkanSen(),
+                         GetKijunSen(), GetSenkouSpanB() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -179,7 +164,7 @@ class Indi_Ichimoku : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -194,10 +179,9 @@ class Indi_Ichimoku : public Indicator {
       _entry.values[LINE_SENKOUSPANA] = GetValue(LINE_SENKOUSPANA, _shift);
       _entry.values[LINE_SENKOUSPANB] = GetValue(LINE_SENKOUSPANB, _shift);
       _entry.values[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift + 26);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-                     !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -213,22 +197,29 @@ class Indi_Ichimoku : public Indicator {
     return _param;
   }
 
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return Indicator<IchimokuParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0);
+  }
+
   /* Getters */
 
   /**
    * Get period of Tenkan-sen line.
    */
-  unsigned int GetTenkanSen() { return params.tenkan_sen; }
+  unsigned int GetTenkanSen() { return iparams.tenkan_sen; }
 
   /**
    * Get period of Kijun-sen line.
    */
-  unsigned int GetKijunSen() { return params.kijun_sen; }
+  unsigned int GetKijunSen() { return iparams.kijun_sen; }
 
   /**
    * Get period of Senkou Span B line.
    */
-  unsigned int GetSenkouSpanB() { return params.senkou_span_b; }
+  unsigned int GetSenkouSpanB() { return iparams.senkou_span_b; }
 
   /* Setters */
 
@@ -237,7 +228,7 @@ class Indi_Ichimoku : public Indicator {
    */
   void SetTenkanSen(unsigned int _tenkan_sen) {
     istate.is_changed = true;
-    params.tenkan_sen = _tenkan_sen;
+    iparams.tenkan_sen = _tenkan_sen;
   }
 
   /**
@@ -245,7 +236,7 @@ class Indi_Ichimoku : public Indicator {
    */
   void SetKijunSen(unsigned int _kijun_sen) {
     istate.is_changed = true;
-    params.kijun_sen = _kijun_sen;
+    iparams.kijun_sen = _kijun_sen;
   }
 
   /**
@@ -253,6 +244,6 @@ class Indi_Ichimoku : public Indicator {
    */
   void SetSenkouSpanB(unsigned int _senkou_span_b) {
     istate.is_changed = true;
-    params.senkou_span_b = _senkou_span_b;
+    iparams.senkou_span_b = _senkou_span_b;
   }
 };
