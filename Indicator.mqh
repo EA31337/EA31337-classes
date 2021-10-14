@@ -413,6 +413,131 @@ class Indicator : public IndicatorBase {
   /* Getters */
 
   /**
+   * Returns the highest bar's index (shift).
+   */
+  template <typename T>
+  int GetHighest(int count = WHOLE_ARRAY, int start_bar = 0) {
+    int max_idx = -1;
+    double max = -DBL_MAX;
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).GetMax<T>(GetModeCount());
+      if (value > max) {
+        max = value;
+        max_idx = shift;
+      }
+    }
+
+    return max_idx;
+  }
+
+  /**
+   * Returns the lowest bar's index (shift).
+   */
+  template <typename T>
+  int GetLowest(int count = WHOLE_ARRAY, int start_bar = 0) {
+    int min_idx = -1;
+    double min = DBL_MAX;
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).GetMin<T>(GetModeCount());
+      if (value < min) {
+        min = value;
+        min_idx = shift;
+      }
+    }
+
+    return min_idx;
+  }
+
+  /**
+   * Returns the highest value.
+   */
+  template <typename T>
+  double GetMax(int start_bar = 0, int count = WHOLE_ARRAY) {
+    double max = NULL;
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).GetMax<T>(iparams.GetMaxModes());
+      if (max == NULL || value > max) {
+        max = value;
+      }
+    }
+
+    return max;
+  }
+
+  /**
+   * Returns the lowest value.
+   */
+  template <typename T>
+  double GetMin(int start_bar, int count = WHOLE_ARRAY) {
+    double min = NULL;
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).GetMin<T>(iparams.GetMaxModes());
+      if (min == NULL || value < min) {
+        min = value;
+      }
+    }
+
+    return min;
+  }
+
+  /**
+   * Returns average value.
+   */
+  template <typename T>
+  double GetAvg(int start_bar, int count = WHOLE_ARRAY) {
+    int num_values = 0;
+    double sum = 0;
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value_min = GetEntry(shift).GetMin<T>(iparams.GetMaxModes());
+      double value_max = GetEntry(shift).GetMax<T>(iparams.GetMaxModes());
+
+      sum += value_min + value_max;
+      num_values += 2;
+    }
+
+    return sum / num_values;
+  }
+
+  /**
+   * Returns median of values.
+   */
+  template <typename T>
+  double GetMed(int start_bar, int count = WHOLE_ARRAY) {
+    double array[];
+
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int num_bars = last_bar - start_bar + 1;
+    int index = 0;
+
+    ArrayResize(array, num_bars);
+
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      array[index++] = GetEntry(shift).GetAvg<T>(iparams.GetMaxModes());
+    }
+
+    ArraySort(array);
+    double median;
+    int len = ArraySize(array);
+    if (len % 2 == 0) {
+      median = (array[len / 2] + array[(len / 2) - 1]) / 2;
+    } else {
+      median = array[len / 2];
+    }
+
+    return median;
+  }
+
+  /**
    * Returns currently selected data source doing validation.
    */
   IndicatorBase* GetDataSource() {
@@ -453,8 +578,6 @@ class Indicator : public IndicatorBase {
    * Whether data source is selected.
    */
   virtual bool HasDataSource() { return GetDataSourceRaw() != NULL || iparams.GetDataSourceId() != -1; }
-
-  /* State methods */
 
   /**
    * Gets indicator's params.

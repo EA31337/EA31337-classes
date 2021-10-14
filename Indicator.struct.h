@@ -354,7 +354,7 @@ struct IndicatorDataEntry {
 
 /* Structure for indicator parameters. */
 struct IndicatorParams {
- public: // @todo: Change it to protected.
+ public:                            // @todo: Change it to protected.
   string name;                      // Name of the indicator.
   int shift;                        // Shift (relative to the current bar, 0 - default).
   unsigned int max_buffers;         // Max buffers to store.
