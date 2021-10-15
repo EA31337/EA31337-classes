@@ -378,8 +378,8 @@ struct IndicatorParams {
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, unsigned int _max_modes = 1,
-                  ENUM_DATATYPE _dtype = TYPE_DOUBLE, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
-                  string _name = "")
+                  ENUM_DATATYPE _dtype = TYPE_DOUBLE, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
       : custom_indi_name(""),
         dtype(_dtype),
         name(_name),
@@ -395,7 +395,6 @@ struct IndicatorParams {
         indi_color(clrNONE),
         draw_window(0),
         tf(_tf) {
-    SetDataSourceType(_idstype);
     Init();
   };
   IndicatorParams(string _name, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
@@ -411,7 +410,6 @@ struct IndicatorParams {
         is_draw(false),
         indi_color(clrNONE),
         draw_window(0) {
-    SetDataSourceType(_idstype);
     Init();
   };
   // Copy constructor.

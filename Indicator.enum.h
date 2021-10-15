@@ -128,7 +128,7 @@ enum ENUM_INDICATOR_TYPE {
 
 /* Defines type of source data for indicator. */
 enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILTIN,         // Platform built-in
+  IDATA_BUILTIN = 0,     // Platform built-in
   IDATA_CHART,           // Chart calculation
   IDATA_ICUSTOM,         // iCustom: Custom indicator file
   IDATA_ICUSTOM_LEGACY,  // iCustom: Custom, legacy, provided by MT indicator file

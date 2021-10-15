@@ -126,7 +126,8 @@ class Indicator : public IndicatorBase {
         break;
       case IDATA_INDICATOR:
         if (indi_src == NULL) {
-          // SetDataSource(Indi_Price::GetCached(iparams.GetShift(), GetTf(), PRICE_TYPICAL, _period), true);
+          // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
+          // SetDataSource(_indi_price, true, PRICE_OPEN);
         }
         break;
     }
