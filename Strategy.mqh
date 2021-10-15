@@ -967,6 +967,7 @@ class Strategy : public Object {
         // Process on every minute.
         _val = _tick.time % 60 < last_tick.time % 60;
         _res = _method > 0 ? _res & _val : _res | _val;
+        last_tick = _tick;
       }
       if (METHOD(_method_abs, 1)) {  // 2
         // Process low and high ticks of a bar.
