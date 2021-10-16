@@ -23,27 +23,23 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.price.h"
 
 // Structs.
 struct RateOfChangeParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void RateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0,
-                          ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  RateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+      : IndicatorParams(INDI_RATE_OF_CHANGE, 1, TYPE_DOUBLE) {
     applied_price = _ap;
-    itype = INDI_RATE_OF_CHANGE;
-    max_modes = 1;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ROC");
-    SetDataSourceType(IDATA_BUILTIN);
     period = _period;
     shift = _shift;
-    tf = _tf;
   };
-  void RateOfChangeParams(RateOfChangeParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  RateOfChangeParams(RateOfChangeParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -51,24 +47,20 @@ struct RateOfChangeParams : IndicatorParams {
 /**
  * Implements the Rate of Change indicator.
  */
-class Indi_RateOfChange : public Indicator {
- protected:
-  RateOfChangeParams params;
-
+class Indi_RateOfChange : public Indicator<RateOfChangeParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_RateOfChange(RateOfChangeParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) {
-    params = _params;
-  };
-  Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RATE_OF_CHANGE, _tf) { params.tf = _tf; };
+  Indi_RateOfChange(RateOfChangeParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<RateOfChangeParams>(_p, _indi_src){};
+  Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RATE_OF_CHANGE, _tf){};
 
   /**
    * Built-in version of Rate of Change.
    */
   static double iROC(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                     int _shift = 0, Indicator *_obj = NULL) {
+                     int _shift = 0, IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
                                                         Util::MakeKey("Indi_RateOfChange", _period, (int)_ap));
     return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);
@@ -117,16 +109,16 @@ class Indi_RateOfChange : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_RateOfChange::iROC(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode,
                                          _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _shift);
         break;
       default:
@@ -135,29 +127,6 @@ class Indi_RateOfChange : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -174,12 +143,12 @@ class Indi_RateOfChange : public Indicator {
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /**
    * Get period.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /* Setters */
 
@@ -188,7 +157,7 @@ class Indi_RateOfChange : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 
   /**
@@ -196,6 +165,6 @@ class Indi_RateOfChange : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 };

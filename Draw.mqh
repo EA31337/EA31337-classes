@@ -31,6 +31,7 @@ class Draw;
 
 // Includes.
 #include "Chart.mqh"
+#include "Data.define.h"
 
 #ifndef __MQL4__
 // Defines macros (for MQL4 backward compatibility).

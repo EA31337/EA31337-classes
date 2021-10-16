@@ -126,7 +126,7 @@ class DictStruct : public DictBase<K, V> {
    * Inserts or replaces value for a given key.
    */
   bool Set(K key, V& value) {
-    if (!InsertInto(_DictSlots_ref, key, value)) return false;
+    if (!InsertInto(_DictSlots_ref, key, value, true)) return false;
     return true;
   }
 
@@ -220,7 +220,14 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value, bool allow_resize) {
+    // Will resize dict if there were performance problems before.
+    if (allow_resize && !dictSlotsRef.IsPerformant()) {
+      if (!GrowUp()) {
+        return false;
+      }
+    }
+
     if (_mode == DictModeUnknown)
       _mode = DictModeDict;
     else if (_mode != DictModeDict) {
@@ -242,8 +249,8 @@ class DictStruct : public DictBase<K, V> {
       }
 
       if (keySlot == NULL) {
-        // We need to expand array of DictSlotsRef.DictSlots (by 25%).
-        if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
+        // We need to expand array of DictSlotsRef.DictSlots.
+        if (!GrowUp()) return false;
       }
     }
 
@@ -283,6 +290,8 @@ class DictStruct : public DictBase<K, V> {
         // Slot overwrite is not needed. Using empty slot.
         ++dictSlotsRef._num_used;
       }
+
+      dictSlotsRef.AddConflicts(_num_conflicts);
     }
 
     dictSlotsRef.DictSlots[position].key = key;
@@ -303,8 +312,8 @@ class DictStruct : public DictBase<K, V> {
     }
 
     if (dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {
-      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
-      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
+      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots.
+      if (!GrowUp()) return false;
     }
 
     unsigned int position = Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
@@ -324,9 +333,16 @@ class DictStruct : public DictBase<K, V> {
   }
 
   /**
+   * Expands array of DictSlots by given percentage value.
+   */
+  bool GrowUp(int percent = DICT_GROW_UP_PERCENT_DEFAULT) {
+    return Resize(MathMax(10, (int)((float)ArraySize(_DictSlots_ref.DictSlots) * ((float)(percent + 100) / 100.0f))));
+  }
+
+  /**
    * Shrinks or expands array of DictSlots.
    */
-  bool Resize(unsigned int new_size) {
+  bool Resize(int new_size) {
     if (new_size <= MathMin(_DictSlots_ref._num_used, ArraySize(_DictSlots_ref.DictSlots))) {
       // We already use minimum number of slots possible.
       return true;
@@ -336,12 +352,18 @@ class DictStruct : public DictBase<K, V> {
 
     if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) return false;
 
+    int i;
+
+    for (i = 0; i < new_size; ++i) {
+      new_DictSlots.DictSlots[i].SetFlags(0);
+    }
+
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
-    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+    for (i = 0; i < ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (!_DictSlots_ref.DictSlots[i].IsUsed()) continue;
 
       if (_DictSlots_ref.DictSlots[i].HasKey()) {
-        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value))
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value, false))
           return false;
       } else {
         if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value)) return false;

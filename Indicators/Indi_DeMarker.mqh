@@ -34,16 +34,14 @@ double iDeMarker(string _symbol, int _tf, int _period, int _shift) {
 struct DeMarkerParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void DeMarkerParams(unsigned int _period, int _shift = 0) : period(_period) {
-    itype = INDI_DEMARKER;
-    max_modes = 1;
+  DeMarkerParams(unsigned int _period = 14, int _shift = 0)
+      : period(_period), IndicatorParams(INDI_DEMARKER, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\DeMarker");
   };
-  void DeMarkerParams(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  DeMarkerParams(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -51,17 +49,13 @@ struct DeMarkerParams : IndicatorParams {
 /**
  * Implements the DeMarker indicator.
  */
-class Indi_DeMarker : public Indicator {
+class Indi_DeMarker : public Indicator<DeMarkerParams> {
  public:
-  DeMarkerParams params;
-
   /**
    * Class constructor.
    */
-  Indi_DeMarker(DeMarkerParams &_p) : params(_p.period), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_DeMarker(DeMarkerParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period), Indicator(INDI_DEMARKER, _tf) {
-    params = _p;
-  }
+  Indi_DeMarker(DeMarkerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<DeMarkerParams>(_p, _indi_src) {}
+  Indi_DeMarker(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DEMARKER, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -71,7 +65,7 @@ class Indi_DeMarker : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/idemarker
    */
   static double iDeMarker(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                          Indicator *_obj = NULL) {
+                          IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iDeMarker(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
@@ -107,19 +101,17 @@ class Indi_DeMarker : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = _value =
-            Indi_DeMarker::iDeMarker(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                     _shift, GetPointer(this));
+        _value = _value = Indi_DeMarker::iDeMarker(GetSymbol(), GetTf(), GetPeriod(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+                         0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -127,29 +119,6 @@ class Indi_DeMarker : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -166,7 +135,7 @@ class Indi_DeMarker : public Indicator {
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /* Setters */
 
@@ -175,6 +144,6 @@ class Indi_DeMarker : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 };

@@ -277,10 +277,16 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static long iVolume(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+  static long iVolume(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
 #ifdef __MQL4__
-    return ::iVolume(_symbol, _tf, _shift);  // Same as: Volume[_shift]
-#else                                        // __MQL5__
+    ResetLastError();
+    long _volume = ::iVolume(_symbol, _tf, _shift);  // Same as: Volume[_shift]
+    if (_LastError != ERR_NO_ERROR) {
+      _volume = EMPTY_VALUE;
+      ResetLastError();
+    }
+    return _volume;
+#else  // __MQL5__
     ARRAY(long, _arr);
     ArraySetAsSeries(_arr, true);
     return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;

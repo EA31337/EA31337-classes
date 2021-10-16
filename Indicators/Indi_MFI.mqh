@@ -35,17 +35,14 @@ struct MFIParams : IndicatorParams {
   unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume;  // Ignored in MT4.
   // Struct constructors.
-  void MFIParams(unsigned int _ma_period, ENUM_APPLIED_VOLUME _av = NULL, int _shift = 0)
-      : ma_period(_ma_period), applied_volume(_av) {
-    itype = INDI_MFI;
-    max_modes = 1;
+  MFIParams(unsigned int _ma_period = 14, ENUM_APPLIED_VOLUME _av = VOLUME_TICK, int _shift = 0)
+      : ma_period(_ma_period), applied_volume(_av), IndicatorParams(INDI_MFI, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MFI");
   };
-  void MFIParams(MFIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  MFIParams(MFIParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -53,18 +50,13 @@ struct MFIParams : IndicatorParams {
 /**
  * Implements the Money Flow Index indicator.
  */
-class Indi_MFI : public Indicator {
- protected:
-  MFIParams params;
-
+class Indi_MFI : public Indicator<MFIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MFI(MFIParams &_p) : params(_p.ma_period, _p.applied_volume), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_MFI(MFIParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.ma_period, _p.applied_volume), Indicator(INDI_MFI, _tf) {
-    params = _p;
-  }
+  Indi_MFI(MFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MFIParams>(_p, _indi_src) {}
+  Indi_MFI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MFI, _tf) {}
 
   /**
    * Calculates the Money Flow Index indicator and returns its value.
@@ -74,7 +66,7 @@ class Indi_MFI : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/imfi
    */
   static double iMFI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                     Indicator *_obj = NULL) {
+                     IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
@@ -83,7 +75,7 @@ class Indi_MFI : public Indicator {
   }
   static double iMFI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                      ENUM_APPLIED_VOLUME _applied_volume,  // Not used in MT4.
-                     int _shift = 0, Indicator *_obj = NULL) {
+                     int _shift = 0, Indi_MFI *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
@@ -119,23 +111,21 @@ class Indi_MFI : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
-        _value =
-            Indi_MFI::iMFI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), _shift);
+        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
 #else  // __MQL5__
-        _value = Indi_MFI::iMFI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                GetAppliedVolume(), _shift, GetPointer(this));
+        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift, THIS_PTR);
 #endif
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetPeriod(), VOLUME_TICK /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+                         VOLUME_TICK /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -143,29 +133,6 @@ class Indi_MFI : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -184,14 +151,14 @@ class Indi_MFI : public Indicator {
    *
    * Period (amount of bars) for calculation of the indicator.
    */
-  unsigned int GetPeriod() { return params.ma_period; }
+  unsigned int GetPeriod() { return iparams.ma_period; }
 
   /**
    * Get applied volume type.
    *
    * Note: Ignored in MT4.
    */
-  ENUM_APPLIED_VOLUME GetAppliedVolume() { return params.applied_volume; }
+  ENUM_APPLIED_VOLUME GetAppliedVolume() { return iparams.applied_volume; }
 
   /* Setters */
 
@@ -202,7 +169,7 @@ class Indi_MFI : public Indicator {
    */
   void SetPeriod(unsigned int _ma_period) {
     istate.is_changed = true;
-    params.ma_period = _ma_period;
+    iparams.ma_period = _ma_period;
   }
 
   /**
@@ -215,6 +182,6 @@ class Indi_MFI : public Indicator {
    */
   void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
     istate.is_changed = true;
-    params.applied_volume = _applied_volume;
+    iparams.applied_volume = _applied_volume;
   }
 };

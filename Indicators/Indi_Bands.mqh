@@ -64,18 +64,19 @@ struct BandsParams : IndicatorParams {
   unsigned int bshift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void BandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0,
-                   ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : period(_period), deviation(_deviation), bshift(_bshift), applied_price(_ap) {
-    itype = INDI_BANDS;
-    max_modes = FINAL_BANDS_LINE_ENTRY;
+  BandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0, ENUM_APPLIED_PRICE _ap = PRICE_OPEN,
+              int _shift = 0)
+      : period(_period),
+        deviation(_deviation),
+        bshift(_bshift),
+        applied_price(_ap),
+        IndicatorParams(INDI_BANDS, FINAL_BANDS_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\BB");
   };
-  void BandsParams(BandsParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  BandsParams(BandsParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -83,23 +84,14 @@ struct BandsParams : IndicatorParams {
 /**
  * Implements the Bollinger Bands® indicator.
  */
-class Indi_Bands : public Indicator {
- protected:
-  // Structs.
-  BandsParams params;
-
+class Indi_Bands : public Indicator<BandsParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Bands(BandsParams &_p)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf) {
-    params = _p;
-  }
+  Indi_Bands(BandsParams &_p, IndicatorBase *_indi_src = NULL, bool _managed = true, int _mode = 0)
+      : Indicator<BandsParams>(_p, _indi_src, _managed, _mode) {}
+  Indi_Bands(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BANDS, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -110,7 +102,7 @@ class Indi_Bands : public Indicator {
    */
   static double iBands(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
                        ENUM_APPLIED_PRICE _applied_price, ENUM_BANDS_LINE _mode = BAND_BASE, int _shift = 0,
-                       Indicator *_obj = NULL) {
+                       IndicatorBase *_obj = NULL) {
     ResetLastError();
 
 #ifdef __MQL4__
@@ -150,11 +142,11 @@ class Indi_Bands : public Indicator {
    *
    * When _applied_price is set to -1, method will
    */
-  static double iBandsOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+  static double iBandsOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                   double _deviation, int _bands_shift,
                                   ENUM_BANDS_LINE _mode,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
-                                  int _shift, Indicator *_target = NULL) {
+                                  int _shift, Indi_Bands *_target = NULL) {
     double _indi_value_buffer[];
     double _std_dev;
     double _line_value;
@@ -242,62 +234,34 @@ class Indi_Bands : public Indicator {
    * extern double deviation;
    * extern ENUM_APPLIED_PRICE applied_price; // Required only for MQL4.
    *
-   * Also, remember to use params.SetCustomIndicatorName(name) method to choose
-   * indicator name, e.g.,: params.SetCustomIndicatorName("Examples\\BB");
+   * Also, remember to use iparams.SetCustomIndicatorName(name) method to choose
+   * indicator name, e.g.,: iparams.SetCustomIndicatorName("Examples\\BB");
    *
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
+  virtual double GetValue(int _mode = BAND_BASE, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            Indi_Bands::iBands(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                               GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
+                                    GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.custom_indi_name, /* [ */ GetPeriod(), GetBandsShift(), GetDeviation(),
-                         GetAppliedPrice() /* ] */, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
+                         GetBandsShift(), GetDeviation(), GetAppliedPrice() /* ] */, _mode, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
-        _value = Indi_Bands::iBandsOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
-                                               Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetDeviation(),
-                                               GetBandsShift(), _mode, _shift, &this);
+        _value = Indi_Bands::iBandsOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
+                                               GetBandsShift(), (ENUM_BANDS_LINE)_mode, _shift, THIS_PTR);
         break;
     }
     istate.is_changed = false;
     istate.is_ready = _LastError == ERR_NO_ERROR;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue((ENUM_BANDS_LINE)_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-                     !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0) &&
-                         _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl());
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -311,9 +275,17 @@ class Indi_Bands : public Indicator {
   }
 
   /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0) &&
+           _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl();
+  }
+
+  /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual Indicator *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
       BandsParams bands_params();
       return new Indi_Bands(bands_params);
@@ -337,7 +309,7 @@ class Indi_Bands : public Indicator {
       return new Indi_StdDev(stddev_params);
     }
 
-    return Indicator::FetchDataSource(_id);
+    return IndicatorBase::FetchDataSource(_id);
   }
 
   /* Getters */
@@ -345,22 +317,22 @@ class Indi_Bands : public Indicator {
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get deviation value.
    */
-  double GetDeviation() { return params.deviation; }
+  double GetDeviation() { return iparams.deviation; }
 
   /**
    * Get bands shift value.
    */
-  unsigned int GetBandsShift() { return params.bshift; }
+  unsigned int GetBandsShift() { return iparams.bshift; }
 
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -369,7 +341,7 @@ class Indi_Bands : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -377,7 +349,7 @@ class Indi_Bands : public Indicator {
    */
   void SetDeviation(double _deviation) {
     istate.is_changed = true;
-    params.deviation = _deviation;
+    iparams.deviation = _deviation;
   }
 
   /**
@@ -385,7 +357,7 @@ class Indi_Bands : public Indicator {
    */
   void SetBandsShift(int _bshift) {
     istate.is_changed = true;
-    params.bshift = _bshift;
+    iparams.bshift = _bshift;
   }
 
   /**
@@ -393,6 +365,6 @@ class Indi_Bands : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

@@ -61,7 +61,7 @@ class HistoryValueStorage : public ValueStorage<C> {
    */
   HistoryValueStorage(string _symbol, ENUM_TIMEFRAMES _tf, bool _is_series = false)
       : symbol(_symbol), tf(_tf), is_series(_is_series) {
-    start_bar_time = ChartStatic::iTime(_symbol, _tf, INDICATOR_BUFFER_VALUE_STORAGE_HISTORY - 1);
+    start_bar_time = ChartStatic::iTime(_symbol, _tf, BarsFromStart() - 1);
   }
 
   /**
@@ -79,22 +79,19 @@ class HistoryValueStorage : public ValueStorage<C> {
     if (is_series) {
       return _shift;
     } else {
-      int _bars_from_start = BarsFromStart();
-      return _bars_from_start - _shift;
+      return BarsFromStart() - _shift - 1;
     }
   }
 
   /**
-   * Number of bars passed from the start.
+   * Number of bars passed from the start. There will be a single bar at the start.
    */
-  int BarsFromStart() const {
-    return (int)((ChartStatic::iTime(symbol, tf, 0) - start_bar_time) / (long)PeriodSeconds(tf));
-  }
+  int BarsFromStart() const { return Bars(symbol, tf); }
 
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  virtual int Size() const { return BarsFromStart() + 1; }
+  virtual int Size() const { return BarsFromStart(); }
 
   /**
    * Resizes storage to given size.

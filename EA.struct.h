@@ -222,16 +222,16 @@ struct EAProcessResult {
 
 /* Defines EA state variables. */
 struct EAState {
-  unsigned short flags;      // TaskAction flags.
+  unsigned int flags;        // TaskAction flags.
   unsigned int new_periods;  // Started periods.
   DateTime last_updated;     // Last updated.
   // Constructor.
-  EAState() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
+  EAState() { EAState::AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
   // Struct methods.
   // Flag methods.
-  bool CheckFlag(unsigned short _flag) { return bool(flags & _flag); }
-  void AddFlags(unsigned short _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned short _flags) { flags &= ~_flags; }
+  bool CheckFlag(unsigned int _flag) { return bool(flags & _flag); }
+  void AddFlags(unsigned int _flags) { flags |= _flags; }
+  void RemoveFlags(unsigned int _flags) { flags &= ~_flags; }
   void SetFlag(ENUM_EA_STATE_FLAGS _flag, bool _value) {
     if (_value) {
       AddFlags(_flag);
@@ -239,7 +239,7 @@ struct EAState {
       RemoveFlags(_flag);
     }
   }
-  void SetFlags(unsigned short _flags) { flags = _flags; }
+  void SetFlags(unsigned int _flags) { flags = _flags; }
   // State methods.
   bool IsActive() { return CheckFlag(EA_STATE_FLAG_ACTIVE); }
   bool IsConnected() { return CheckFlag(EA_STATE_FLAG_CONNECTED); }

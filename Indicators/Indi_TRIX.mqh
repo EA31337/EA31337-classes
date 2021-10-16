@@ -32,21 +32,16 @@ struct TRIXParams : IndicatorParams {
   unsigned int tema_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void TRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0,
-                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  TRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+      : IndicatorParams(INDI_TRIX, 1, TYPE_DOUBLE) {
     applied_price = _ap;
-    itype = INDI_TRIX;
-    max_modes = 1;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\TRIX");
-    SetDataSourceType(IDATA_BUILTIN);
     period = _period;
     shift = _shift;
-    tf = _tf;
   };
-  void TRIXParams(TRIXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  TRIXParams(TRIXParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -54,22 +49,19 @@ struct TRIXParams : IndicatorParams {
 /**
  * Implements the Triple Exponential Average indicator.
  */
-class Indi_TRIX : public Indicator {
- protected:
-  TRIXParams params;
-
+class Indi_TRIX : public Indicator<TRIXParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_TRIX(TRIXParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_TRIX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TRIX, _tf) { params.tf = _tf; };
+  Indi_TRIX(TRIXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<TRIXParams>(_p, _indi_src){};
+  Indi_TRIX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TRIX, _tf){};
 
   /**
    * Built-in version of TriX.
    */
   static double iTriX(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                      int _shift = 0, Indicator *_obj = NULL) {
+                      int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iTriX(_symbol, _tf, _ma_period, _ap), _mode, _shift);
 #else
@@ -135,16 +127,16 @@ class Indi_TRIX : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value =
             Indi_TRIX::iTriX(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _shift);
         break;
       default:
@@ -153,29 +145,6 @@ class Indi_TRIX : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -192,12 +161,12 @@ class Indi_TRIX : public Indicator {
   /**
    * Get period.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -206,7 +175,7 @@ class Indi_TRIX : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -214,6 +183,6 @@ class Indi_TRIX : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

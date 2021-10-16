@@ -38,17 +38,18 @@ struct OsMAParams : IndicatorParams {
   int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void OsMAParams(int _efp, int _esp, int _sp, ENUM_APPLIED_PRICE _ap, int _shift = 0)
-      : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
-    itype = INDI_OSMA;
-    max_modes = 1;
+  OsMAParams(int _efp = 12, int _esp = 26, int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+      : ema_fast_period(_efp),
+        ema_slow_period(_esp),
+        signal_period(_sp),
+        applied_price(_ap),
+        IndicatorParams(INDI_OSMA, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OsMA");
   };
-  void OsMAParams(OsMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  OsMAParams(OsMAParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -56,23 +57,13 @@ struct OsMAParams : IndicatorParams {
 /**
  * Implements the Moving Average of Oscillator indicator.
  */
-class Indi_OsMA : public Indicator {
- protected:
-  OsMAParams params;
-
+class Indi_OsMA : public Indicator<OsMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OsMA(OsMAParams &_p)
-      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price),
-        Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_OsMA(OsMAParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price), Indicator(INDI_OSMA, _tf) {
-    params = _p;
-  }
+  Indi_OsMA(OsMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<OsMAParams>(_p, _indi_src) {}
+  Indi_OsMA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_OSMA, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -82,7 +73,8 @@ class Indi_OsMA : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iosma
    */
   static double iOsMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ema_fast_period, int _ema_slow_period,
-                      int _signal_period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator *_obj = NULL) {
+                      int _signal_period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
+                      IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _shift);
 #else  // __MQL5__
@@ -119,20 +111,19 @@ class Indi_OsMA : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            Indi_OsMA::iOsMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetEmaFastPeriod(),
-                             GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_OsMA::iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
+                                  GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(), GetEmaSlowPeriod(),
-                         GetSignalPeriod(), GetAppliedPrice() /*]*/, 0, _shift);
+        _value =
+            iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(),
+                    GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice() /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -140,29 +131,6 @@ class Indi_OsMA : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -181,28 +149,28 @@ class Indi_OsMA : public Indicator {
    *
    * Averaging period for the calculation of the moving average.
    */
-  int GetEmaFastPeriod() { return params.ema_fast_period; }
+  int GetEmaFastPeriod() { return iparams.ema_fast_period; }
 
   /**
    * Get slow EMA period value.
    *
    * Averaging period for the calculation of the moving average.
    */
-  int GetEmaSlowPeriod() { return params.ema_slow_period; }
+  int GetEmaSlowPeriod() { return iparams.ema_slow_period; }
 
   /**
    * Get signal period value.
    *
    * Averaging period for the calculation of the moving average.
    */
-  int GetSignalPeriod() { return params.signal_period; }
+  int GetSignalPeriod() { return iparams.signal_period; }
 
   /**
    * Get applied price value.
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -213,7 +181,7 @@ class Indi_OsMA : public Indicator {
    */
   void SetEmaFastPeriod(int _ema_fast_period) {
     istate.is_changed = true;
-    params.ema_fast_period = _ema_fast_period;
+    iparams.ema_fast_period = _ema_fast_period;
   }
 
   /**
@@ -223,7 +191,7 @@ class Indi_OsMA : public Indicator {
    */
   void SetEmaSlowPeriod(int _ema_slow_period) {
     istate.is_changed = true;
-    params.ema_slow_period = _ema_slow_period;
+    iparams.ema_slow_period = _ema_slow_period;
   }
 
   /**
@@ -233,7 +201,7 @@ class Indi_OsMA : public Indicator {
    */
   void SetSignalPeriod(int _signal_period) {
     istate.is_changed = true;
-    params.signal_period = _signal_period;
+    iparams.signal_period = _signal_period;
   }
 
   /**
@@ -246,6 +214,6 @@ class Indi_OsMA : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

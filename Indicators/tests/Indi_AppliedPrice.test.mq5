@@ -22,20 +22,23 @@
 // Includes.
 #include "../../Test.mqh"
 #include "../Indi_AppliedPrice.mqh"
+#include "../Indi_Price.mqh"
 
 /**
  * @file
  * Test functionality of Indi_AppliedPrice indicator class.
  */
 
-Indi_AppliedPrice indi(PERIOD_CURRENT);
+Indi_Price *indi_source_price = new Indi_Price();
+AppliedPriceParams indi_params();
+Ref<Indi_AppliedPrice> indi = new Indi_AppliedPrice(indi_params, indi_source_price);
 
 /**
  * Implements Init event handler.
  */
 int OnInit() {
   bool _result = true;
-  assertTrueOrFail(indi.IsValid(), "Error on IsValid!");
+  assertTrueOrFail(indi.IsSet(), "Error on IsSet!");
   // assertTrueOrFail(indi.IsValidEntry(), "Error on IsValidEntry!");
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
@@ -50,7 +53,7 @@ void OnTick() {
     // Process ticks each minute.
     if (_tick_new.time % 3600 < _tick_last.time % 3600) {
       // Print indicator values every hour.
-      Print(indi.ToString());
+      Print(indi.Ptr().ToString());
     }
   }
   _tick_last = _tick_new;

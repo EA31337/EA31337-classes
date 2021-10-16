@@ -35,37 +35,26 @@ struct IndiAMAParams : IndicatorParams {
   unsigned int ama_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void IndiAMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
-                     ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                     ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+  IndiAMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
+                ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
       : period(_period),
         fast_period(_fast_period),
         slow_period(_slow_period),
         ama_shift(_ama_shift),
-        applied_price(_ap) {
-    itype = itype == INDI_NONE ? INDI_AMA : itype;
-    SetDataSourceType(_idstype);
-    SetDataValueType(TYPE_DOUBLE);
+        applied_price(_ap),
+        IndicatorParams(INDI_AMA, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_PRICE);
-    SetMaxModes(1);
     SetShift(_shift);
-    tf = _tf;
     switch (idstype) {
       case IDATA_ICUSTOM:
         if (custom_indi_name == "") {
           SetCustomIndicatorName("Examples\\AMA");
         }
         break;
-      case IDATA_INDICATOR:
-        if (GetDataSource() == NULL) {
-          SetDataSource(Indi_Price::GetCached(_shift, _tf, _ap, _period), false);
-          SetDataSourceMode(0);
-        }
-        break;
     }
   };
-  void IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -73,22 +62,20 @@ struct IndiAMAParams : IndicatorParams {
 /**
  * Implements the AMA indicator.
  */
-class Indi_AMA : public Indicator {
- protected:
-  IndiAMAParams params;
-
+class Indi_AMA : public Indicator<IndiAMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AMA(IndiAMAParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AMA, _tf) { params.tf = _tf; };
+  Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiAMAParams>(_p, _indi_src){};
+  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AMA, _tf){};
 
   /**
    * Built-in version of AMA.
    */
   static double iAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period, int _fast_ema_period, int _slow_ema_period,
-                     int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+                     int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
+                     IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iAMA(_symbol, _tf, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap), _mode, _shift);
@@ -212,16 +199,16 @@ class Indi_AMA : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_AMA::iAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
                                 GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _shift);
 
         break;
@@ -238,29 +225,6 @@ class Indi_AMA : public Indicator {
   }
 
   /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
    * Returns the indicator's entry value.
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
@@ -274,27 +238,27 @@ class Indi_AMA : public Indicator {
   /**
    * Get AMA shift.
    */
-  unsigned int GetAMAShift() { return params.ama_shift; }
+  unsigned int GetAMAShift() { return iparams.ama_shift; }
 
   /**
    * Get period.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get fast period.
    */
-  unsigned int GetFastPeriod() { return params.fast_period; }
+  unsigned int GetFastPeriod() { return iparams.fast_period; }
 
   /**
    * Get slow period.
    */
-  unsigned int GetSlowPeriod() { return params.slow_period; }
+  unsigned int GetSlowPeriod() { return iparams.slow_period; }
 
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -303,7 +267,7 @@ class Indi_AMA : public Indicator {
    */
   void SetAMAShift(unsigned int _ama_shift) {
     istate.is_changed = true;
-    params.ama_shift = _ama_shift;
+    iparams.ama_shift = _ama_shift;
   }
 
   /**
@@ -311,7 +275,7 @@ class Indi_AMA : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -319,7 +283,7 @@ class Indi_AMA : public Indicator {
    */
   void SetFastPeriod(unsigned int _fast_period) {
     istate.is_changed = true;
-    params.fast_period = _fast_period;
+    iparams.fast_period = _fast_period;
   }
 
   /**
@@ -327,7 +291,7 @@ class Indi_AMA : public Indicator {
    */
   void SetSlowPeriod(unsigned int _slow_period) {
     istate.is_changed = true;
-    params.slow_period = _slow_period;
+    iparams.slow_period = _slow_period;
   }
 
   /**
@@ -335,6 +299,6 @@ class Indi_AMA : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

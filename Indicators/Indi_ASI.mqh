@@ -30,19 +30,15 @@ struct ASIParams : IndicatorParams {
   unsigned int period;
   double mpc;
   // Struct constructor.
-  void ASIParams(double _mpc = 300.0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_ASI;
-    max_modes = 1;
-    SetDataValueType(TYPE_DOUBLE);
+  ASIParams(double _mpc = 300.0, int _shift = 0)
+      : IndicatorParams(INDI_ASI, 1, TYPE_DOUBLE, PERIOD_CURRENT, IDATA_ONCALCULATE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ASI");
-    SetDataSourceType(IDATA_BUILTIN);
     mpc = _mpc;
     shift = _shift;
-    tf = _tf;
   };
-  void ASIParams(ASIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  ASIParams(ASIParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -50,22 +46,19 @@ struct ASIParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_ASI : public Indicator {
- protected:
-  ASIParams params;
-
+class Indi_ASI : public Indicator<ASIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ASI(ASIParams &_params) : params(_params.mpc), Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ASI, _tf) { params.tf = _tf; };
+  Indi_ASI(ASIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ASIParams>(_p, _indi_src){};
+  Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ASI, _tf){};
 
   /**
    * Built-in version of ASI.
    */
   static double iASI(string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0, int _shift = 0,
-                     Indicator *_obj = NULL) {
+                     IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_ASI", _mpc));
     return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
   }
@@ -162,46 +155,27 @@ class Indi_ASI : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
-      case IDATA_BUILTIN:
-        _value = Indi_ASI::iASI(GetSymbol(), GetTf(), /*[*/ GetMaximumPriceChanging() /*]*/, _mode, _shift, THIS_PTR);
-        break;
+    switch (iparams.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetMaximumPriceChanging() /*]*/, 0, _shift);
         break;
+      case IDATA_ONCALCULATE: {
+        INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(GetSymbol(), GetTf(),
+                                                           Util::MakeKey("Indi_ASI", GetMaximumPriceChanging()));
+        _value =
+            iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, GetMaximumPriceChanging(), _mode, _shift, _cache);
+        break;
+      }
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -218,7 +192,7 @@ class Indi_ASI : public Indicator {
   /**
    * Get maximum price changing value.
    */
-  double GetMaximumPriceChanging() { return params.mpc; }
+  double GetMaximumPriceChanging() { return iparams.mpc; }
 
   /* Setters */
 
@@ -227,6 +201,6 @@ class Indi_ASI : public Indicator {
    */
   void GetMaximumPriceChanging(double _mpc) {
     istate.is_changed = true;
-    params.mpc = _mpc;
+    iparams.mpc = _mpc;
   }
 };
