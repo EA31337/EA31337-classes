@@ -114,14 +114,14 @@ class Indi_MACD : public Indicator<MACDParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
+  virtual double GetValue(int _mode = LINE_MAIN, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
-                                  GetAppliedPrice(), _mode, _shift, THIS_PTR);
+                                  GetAppliedPrice(), (ENUM_SIGNAL_LINE)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value =

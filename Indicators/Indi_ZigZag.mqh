@@ -335,18 +335,18 @@ class Indi_ZigZag : public Indicator<ZigZagParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_ZIGZAG_LINE _mode, int _shift = 0) {
+  virtual double GetValue(int _mode, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _mode, _shift,
-                                      THIS_PTR);
+        _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(),
+                                      (ENUM_ZIGZAG_LINE)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_ZigZag::iCustomZigZag(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), GetDepth(),
-                                            GetDeviation(), GetBackstep(), _mode, _shift, THIS_PTR);
+                                            GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _shift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

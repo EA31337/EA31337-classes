@@ -75,8 +75,8 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
-    double _value = ChartStatic::iPrice(_ap, GetSymbol(), GetTf(), _shift);
+  virtual double GetValue(int _mode = PRICE_TYPICAL, int _shift = 0) {
+    double _value = ChartStatic::iPrice((ENUM_APPLIED_PRICE)_mode, GetSymbol(), GetTf(), _shift);
     istate.is_ready = true;
     istate.is_changed = false;
     return _value;

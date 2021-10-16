@@ -240,14 +240,14 @@ class Indi_Bands : public Indicator<BandsParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
+  virtual double GetValue(int _mode = BAND_BASE, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
-                                    GetAppliedPrice(), _mode, _shift, THIS_PTR);
+                                    GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
@@ -256,35 +256,12 @@ class Indi_Bands : public Indicator<BandsParams> {
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
         _value = Indi_Bands::iBandsOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
-                                               GetBandsShift(), _mode, _shift, THIS_PTR);
+                                               GetBandsShift(), (ENUM_BANDS_LINE)_mode, _shift, THIS_PTR);
         break;
     }
     istate.is_changed = false;
     istate.is_ready = _LastError == ERR_NO_ERROR;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = GetValue((ENUM_BANDS_LINE)_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**

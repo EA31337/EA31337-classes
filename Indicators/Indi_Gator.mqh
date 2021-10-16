@@ -169,7 +169,7 @@ class Indi_Gator : public Indicator<GatorParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_GATOR_HISTOGRAM _mode, int _shift = 0) {
+  virtual double GetValue(int _mode, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
@@ -177,7 +177,7 @@ class Indi_Gator : public Indicator<GatorParams> {
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
                                     GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(),
-                                    _mode, _shift, THIS_PTR);
+                                    (ENUM_GATOR_HISTOGRAM)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/

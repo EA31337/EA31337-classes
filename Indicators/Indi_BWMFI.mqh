@@ -42,11 +42,12 @@ enum ENUM_MFI_COLOR {
 
 // Structs.
 struct BWMFIParams : IndicatorParams {
+  ENUM_APPLIED_VOLUME ap;  // @todo
   // Struct constructors.
   BWMFIParams(int _shift = 0) : IndicatorParams(INDI_BWMFI, FINAL_BWMFI_BUFFER_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
-    SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
     shift = _shift;
+    SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
   };
   BWMFIParams(BWMFIParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
@@ -111,13 +112,13 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, int _shift = 0) {
+  virtual double GetValue(int _mode = BWMFI_BUFFER, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = _value = iBWMFI(GetSymbol(), GetTf(), _shift, _mode, THIS_PTR);
+        _value = Indi_BWMFI::iBWMFI(GetSymbol(), GetTf(), _shift, (ENUM_BWMFI_BUFFER)_mode, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/,

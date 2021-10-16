@@ -215,7 +215,7 @@ class Indi_ADXW : public Indicator<ADXWParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
+  virtual double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

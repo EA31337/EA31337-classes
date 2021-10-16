@@ -195,7 +195,7 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_HA_MODE _mode, int _shift = 0) {
+  virtual double GetValue(int _mode = HA_OPEN, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

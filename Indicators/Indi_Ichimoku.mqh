@@ -141,7 +141,7 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_ICHIMOKU_LINE _mode, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

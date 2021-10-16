@@ -30,7 +30,8 @@ struct ASIParams : IndicatorParams {
   unsigned int period;
   double mpc;
   // Struct constructor.
-  ASIParams(double _mpc = 300.0, int _shift = 0) : IndicatorParams(INDI_ASI, 1, TYPE_DOUBLE) {
+  ASIParams(double _mpc = 300.0, int _shift = 0)
+      : IndicatorParams(INDI_ASI, 1, TYPE_DOUBLE, PERIOD_CURRENT, IDATA_ONCALCULATE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ASI");
     mpc = _mpc;
@@ -154,7 +155,7 @@ class Indi_ASI : public Indicator<ASIParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
