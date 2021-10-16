@@ -133,6 +133,7 @@ enum ENUM_IDATA_SOURCE_TYPE {
   IDATA_ICUSTOM,         // iCustom: Custom indicator file
   IDATA_ICUSTOM_LEGACY,  // iCustom: Custom, legacy, provided by MT indicator file
   IDATA_INDICATOR,       // OnIndicator: Another indicator as a source of data
+  IDATA_ONCALCULATE,     // OnCalculate: Custom calculation function
   IDATA_MATH             // Math-based indicator
 };
 
