@@ -33,8 +33,8 @@ struct VIDYAParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
   // Struct constructor.
-  void VIDYAParams(unsigned int _cmo_period = 9, unsigned int _ma_period = 14, unsigned int _vidya_shift = 0,
-                   ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  VIDYAParams(unsigned int _cmo_period = 9, unsigned int _ma_period = 14, unsigned int _vidya_shift = 0,
+              ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_VIDYA, 1, TYPE_DOUBLE) {
     applied_price = _ap;
     cmo_period = _cmo_period;
@@ -43,6 +43,10 @@ struct VIDYAParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\VIDYA");
     shift = _shift;
     vidya_shift = _vidya_shift;
+  };
+  VIDYAParams(VIDYAParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -143,7 +147,7 @@ class Indi_VIDYA : public Indicator<VIDYAParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

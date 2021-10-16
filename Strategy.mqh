@@ -967,6 +967,7 @@ class Strategy : public Object {
         // Process on every minute.
         _val = _tick.time % 60 < last_tick.time % 60;
         _res = _method > 0 ? _res & _val : _res | _val;
+        last_tick = _tick;
       }
       if (METHOD(_method_abs, 1)) {  // 2
         // Process low and high ticks of a bar.
@@ -1216,7 +1217,7 @@ class Strategy : public Object {
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {
-      int _ishift = fmax(0, _direction > 0 ? _indi.GetHighest<double>(_bars) : _indi.GetLowest<double>(_bars));
+      int _ishift = 12; // @todo: Make it dynamic or as variable.
       float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
       _value = _value + (float)Math::ChangeByPct(fabs(_value - _chart.GetCloseOffer(0)), _level) * _direction;
       _psm.SetIndicatorPriceValue(_value);

@@ -49,8 +49,8 @@ struct EnvelopesParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   double deviation;
   // Struct constructors.
-  void EnvelopesParams(int _ma_period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
-                       ENUM_APPLIED_PRICE _ap = PRICE_OPEN, double _deviation = 2, int _shift = 0)
+  EnvelopesParams(int _ma_period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                  ENUM_APPLIED_PRICE _ap = PRICE_OPEN, double _deviation = 2, int _shift = 0)
       : ma_period(_ma_period),
         ma_shift(_ma_shift),
         ma_method(_ma_method),
@@ -64,6 +64,10 @@ struct EnvelopesParams : IndicatorParams {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Envelopes");
+  };
+  EnvelopesParams(EnvelopesParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -192,7 +196,7 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

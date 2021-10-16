@@ -30,8 +30,8 @@ struct CustomMovingAverageParams : IndicatorParams {
   unsigned int smooth_shift;
   ENUM_MA_METHOD smooth_method;
   // Struct constructor.
-  void CustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0,
-                                 ENUM_MA_METHOD _smooth_method = MODE_SMMA, int _shift = 0)
+  CustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0, ENUM_MA_METHOD _smooth_method = MODE_SMMA,
+                            int _shift = 0)
       : IndicatorParams(INDI_CUSTOM_MOVING_AVG, 3, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_ICUSTOM);
@@ -44,6 +44,10 @@ struct CustomMovingAverageParams : IndicatorParams {
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;
     smooth_shift = _smooth_shift;
+  };
+  CustomMovingAverageParams(CustomMovingAverageParams& _params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -62,7 +66,7 @@ class Indi_CustomMovingAverage : public Indicator<CustomMovingAverageParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

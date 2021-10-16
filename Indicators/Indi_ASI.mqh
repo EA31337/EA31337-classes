@@ -30,11 +30,16 @@ struct ASIParams : IndicatorParams {
   unsigned int period;
   double mpc;
   // Struct constructor.
-  void ASIParams(double _mpc = 300.0, int _shift = 0) : IndicatorParams(INDI_ASI, 1, TYPE_DOUBLE) {
+  ASIParams(double _mpc = 300.0, int _shift = 0)
+      : IndicatorParams(INDI_ASI, 1, TYPE_DOUBLE, PERIOD_CURRENT, IDATA_ONCALCULATE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ASI");
     mpc = _mpc;
     shift = _shift;
+  };
+  ASIParams(ASIParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -150,17 +155,21 @@ class Indi_ASI : public Indicator<ASIParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
-      case IDATA_BUILTIN:
-        _value = Indi_ASI::iASI(GetSymbol(), GetTf(), /*[*/ GetMaximumPriceChanging() /*]*/, _mode, _shift, THIS_PTR);
-        break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetMaximumPriceChanging() /*]*/, 0, _shift);
         break;
+      case IDATA_ONCALCULATE: {
+        INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(GetSymbol(), GetTf(),
+                                                           Util::MakeKey("Indi_ASI", GetMaximumPriceChanging()));
+        _value =
+            iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, GetMaximumPriceChanging(), _mode, _shift, _cache);
+        break;
+      }
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }

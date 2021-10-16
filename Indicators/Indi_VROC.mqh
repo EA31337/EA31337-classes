@@ -30,13 +30,17 @@ struct VROCParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  void VROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+  VROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_VROC, 1, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
     period = _period;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VROC");
     shift = _shift;
+  };
+  VROCParams(VROCParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -126,7 +130,7 @@ class Indi_VROC : public Indicator<VROCParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

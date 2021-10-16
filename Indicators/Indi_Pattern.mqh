@@ -32,9 +32,13 @@
 // Structs.
 struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
-  void IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN, 5, TYPE_INT) {
+  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN, 5, TYPE_INT) {
     SetDataValueRange(IDATA_RANGE_BITWISE);
     shift = _shift;
+  };
+  IndiPatternParams(IndiPatternParams& _params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 

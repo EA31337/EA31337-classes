@@ -40,9 +40,8 @@ struct MathParams : IndicatorParams {
   unsigned int shift_2;
 
   // Struct constructor.
-  void MathParams(ENUM_MATH_OP _op = MATH_OP_SUB, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
-                  unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
-                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+  MathParams(ENUM_MATH_OP _op = MATH_OP_SUB, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
+             unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
     mode_1 = _mode_1;
     mode_2 = _mode_2;
@@ -57,9 +56,8 @@ struct MathParams : IndicatorParams {
   };
 
   // Struct constructor.
-  void MathParams(MathCustomOpFunction _op, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
-                  unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
-                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+  MathParams(MathCustomOpFunction _op, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1, unsigned int _shift_1 = 0,
+             unsigned int _shift_2 = 0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
     max_modes = 1;
     mode_1 = _mode_1;
@@ -73,10 +71,8 @@ struct MathParams : IndicatorParams {
     shift_2 = _shift_2;
     tf = _tf;
   };
-
-  void MathParams(MathParams &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
-    this = _p;
+  MathParams(MathParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -95,7 +91,7 @@ class Indi_Math : public Indicator<MathParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

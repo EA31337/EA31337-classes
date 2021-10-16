@@ -33,10 +33,14 @@ struct BWZTParams : IndicatorParams {
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
-  void BWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, 5, TYPE_DOUBLE) {
+  BWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, 5, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
     shift = _shift;
+  };
+  BWZTParams(BWZTParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -155,7 +159,7 @@ class Indi_BWZT : public Indicator<BWZTParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

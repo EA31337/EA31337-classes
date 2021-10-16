@@ -35,6 +35,10 @@ struct AppliedPriceParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     shift = _shift;
   };
+  AppliedPriceParams(AppliedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
+  };
 };
 
 /**
@@ -58,7 +62,7 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

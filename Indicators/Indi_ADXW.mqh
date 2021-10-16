@@ -36,8 +36,8 @@
 // Structs.
 struct ADXWParams : ADXParams {
   // Struct constructor.
-  void ADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+  ADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
+             ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : ADXParams(_period, _ap, _shift, _tf, _idstype) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
     switch (idstype) {
@@ -46,8 +46,10 @@ struct ADXWParams : ADXParams {
         break;
     }
   };
-  void ADXWParams(ADXWParams &_p, IndicatorBase *_indi_src = NULL) { THIS_REF = _p; }
-  void ADXWParams(ADXParams &_p) { THIS_REF = _p; }
+  ADXWParams(ADXWParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
+  };
 };
 
 /**
@@ -213,7 +215,7 @@ class Indi_ADXW : public Indicator<ADXWParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
+  virtual double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

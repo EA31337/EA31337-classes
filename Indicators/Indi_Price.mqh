@@ -39,8 +39,12 @@ enum ENUM_INDI_PRICE_MODE {
 // Structs.
 struct PriceIndiParams : IndicatorParams {
   // Struct constructor.
-  void PriceIndiParams(int _shift = 0) : IndicatorParams(INDI_PRICE, FINAL_INDI_PRICE_MODE, TYPE_DOUBLE) {
+  PriceIndiParams(int _shift = 0) : IndicatorParams(INDI_PRICE, FINAL_INDI_PRICE_MODE, TYPE_DOUBLE) {
     SetShift(_shift);
+  };
+  PriceIndiParams(PriceIndiParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -71,8 +75,8 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
-    double _value = ChartStatic::iPrice(_ap, GetSymbol(), GetTf(), _shift);
+  virtual double GetValue(int _mode = PRICE_TYPICAL, int _shift = 0) {
+    double _value = ChartStatic::iPrice((ENUM_APPLIED_PRICE)_mode, GetSymbol(), GetTf(), _shift);
     istate.is_ready = true;
     istate.is_changed = false;
     return _value;

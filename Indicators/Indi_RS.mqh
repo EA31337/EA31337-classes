@@ -30,12 +30,16 @@
 struct RSParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  void RSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+  RSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_RS, 2, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_MATH);
     shift = _shift;
+  };
+  RSParams(RSParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -75,7 +79,7 @@ class Indi_RS : public Indicator<RSParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

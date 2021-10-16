@@ -34,8 +34,8 @@ struct CHOParams : IndicatorParams {
   ENUM_MA_METHOD smooth_method;
   ENUM_APPLIED_VOLUME input_volume;
   // Struct constructor.
-  void CHOParams(int _fast_ma = 3, int _slow_ma = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
-                 ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0)
+  CHOParams(int _fast_ma = 3, int _slow_ma = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
+            ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_CHAIKIN, 1, TYPE_DOUBLE) {
     fast_ma = _fast_ma;
     input_volume = _input_volume;
@@ -44,6 +44,10 @@ struct CHOParams : IndicatorParams {
     shift = _shift;
     slow_ma = _slow_ma;
     smooth_method = _smooth_method;
+  };
+  CHOParams(CHOParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -162,7 +166,7 @@ class Indi_CHO : public Indicator<CHOParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

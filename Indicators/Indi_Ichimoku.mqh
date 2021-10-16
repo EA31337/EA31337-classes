@@ -67,7 +67,7 @@ struct IchimokuParams : IndicatorParams {
   unsigned int kijun_sen;
   unsigned int senkou_span_b;
   // Struct constructors.
-  void IchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
+  IchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
       : tenkan_sen(_ts),
         kijun_sen(_ks),
         senkou_span_b(_ss_b),
@@ -75,6 +75,10 @@ struct IchimokuParams : IndicatorParams {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Not sure if not mixed.
     SetCustomIndicatorName("Examples\\Ichimoku");
+  };
+  IchimokuParams(IchimokuParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -137,7 +141,7 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_ICHIMOKU_LINE _mode, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

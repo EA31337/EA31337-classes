@@ -29,12 +29,16 @@
 struct PriceVolumeTrendParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  void PriceVolumeTrendParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+  PriceVolumeTrendParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_PRICE_VOLUME_TREND, 1, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\PVT");
     shift = _shift;
+  };
+  PriceVolumeTrendParams(PriceVolumeTrendParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -116,7 +120,7 @@ class Indi_PriceVolumeTrend : public Indicator<PriceVolumeTrendParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

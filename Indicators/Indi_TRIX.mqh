@@ -32,13 +32,17 @@ struct TRIXParams : IndicatorParams {
   unsigned int tema_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void TRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  TRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_TRIX, 1, TYPE_DOUBLE) {
     applied_price = _ap;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\TRIX");
     period = _period;
     shift = _shift;
+  };
+  TRIXParams(TRIXParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -123,7 +127,7 @@ class Indi_TRIX : public Indicator<TRIXParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

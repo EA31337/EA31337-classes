@@ -33,10 +33,14 @@ double iFractals(string _symbol, int _tf, int _mode, int _shift) {
 // Structs.
 struct FractalsParams : IndicatorParams {
   // Struct constructors.
-  void FractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS, FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE) {
+  FractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS, FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_ARROW);
     SetCustomIndicatorName("Examples\\Fractals");
     shift = _shift;
+  };
+  FractalsParams(FractalsParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -97,13 +101,13 @@ class Indi_Fractals : public Indicator<FractalsParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), _mode, _shift, THIS_PTR);
+        _value = _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), (ENUM_LO_UP_LINE)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);

@@ -78,8 +78,8 @@ struct GatorParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
   // Struct constructors.
-  void GatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
-                   ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
+  GatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
+              ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
       : jaw_period(_jp),
         jaw_shift(_js),
         teeth_period(_tp),
@@ -92,6 +92,10 @@ struct GatorParams : IndicatorParams {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Gator");
+  };
+  GatorParams(GatorParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -165,7 +169,7 @@ class Indi_Gator : public Indicator<GatorParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_GATOR_HISTOGRAM _mode, int _shift = 0) {
+  virtual double GetValue(int _mode, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
@@ -173,7 +177,7 @@ class Indi_Gator : public Indicator<GatorParams> {
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
                                     GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(),
-                                    _mode, _shift, THIS_PTR);
+                                    (ENUM_GATOR_HISTOGRAM)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/

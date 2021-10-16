@@ -32,17 +32,21 @@ struct PriceFeederIndiParams : IndicatorParams {
   /**
    * Struct constructor.
    */
-  void PriceFeederIndiParams(int _shift = 0) : IndicatorParams(INDI_PRICE_FEEDER, 1, TYPE_DOUBLE) { shift = _shift; }
+  PriceFeederIndiParams(int _shift = 0) : IndicatorParams(INDI_PRICE_FEEDER, 1, TYPE_DOUBLE) { shift = _shift; }
 
   /**
    * Struct constructor.
    *
    * @todo Use more modes (full OHCL).
    */
-  void PriceFeederIndiParams(const double& _price_data[], int _total = 0)
+  PriceFeederIndiParams(const double& _price_data[], int _total = 0)
       : IndicatorParams(INDI_PRICE_FEEDER, 1, TYPE_DOUBLE) {
     tf = PERIOD_CURRENT;
     ArrayCopy(price_data, _price_data, 0, 0, _total == 0 ? WHOLE_ARRAY : _total);
+  };
+  PriceFeederIndiParams(PriceFeederIndiParams& _params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -71,7 +75,7 @@ class Indi_PriceFeeder : public Indicator<PriceFeederIndiParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
+  virtual double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
     int data_size = ArraySize(iparams.price_data);
 
     if (_shift >= data_size || _shift < 0) return DBL_MIN;

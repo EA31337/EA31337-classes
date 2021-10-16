@@ -28,10 +28,14 @@
 // Structs.
 struct WilliamsADParams : IndicatorParams {
   // Struct constructor.
-  void WilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD, 1, TYPE_DOUBLE) {
+  WilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\W_AD");
     shift = _shift;
+  };
+  WilliamsADParams(WilliamsADParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -119,7 +123,7 @@ class Indi_WilliamsAD : public Indicator<WilliamsADParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

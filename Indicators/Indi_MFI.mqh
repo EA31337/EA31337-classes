@@ -35,11 +35,15 @@ struct MFIParams : IndicatorParams {
   unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume;  // Ignored in MT4.
   // Struct constructors.
-  void MFIParams(unsigned int _ma_period = 14, ENUM_APPLIED_VOLUME _av = VOLUME_TICK, int _shift = 0)
+  MFIParams(unsigned int _ma_period = 14, ENUM_APPLIED_VOLUME _av = VOLUME_TICK, int _shift = 0)
       : ma_period(_ma_period), applied_volume(_av), IndicatorParams(INDI_MFI, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MFI");
+  };
+  MFIParams(MFIParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -107,7 +111,7 @@ class Indi_MFI : public Indicator<MFIParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

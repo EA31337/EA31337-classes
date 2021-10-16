@@ -32,7 +32,7 @@ struct IndiFrAMAParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
   // Struct constructor.
-  void IndiFrAMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiFrAMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_FRAMA, 1, TYPE_DOUBLE) {
     frama_shift = _frama_shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -40,6 +40,10 @@ struct IndiFrAMAParams : IndicatorParams {
     applied_price = _ap;
     period = _period;
     shift = _shift;
+  };
+  IndiFrAMAParams(IndiFrAMAParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -129,7 +133,7 @@ class Indi_FrAMA : public Indicator<IndiFrAMAParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

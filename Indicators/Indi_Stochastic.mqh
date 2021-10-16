@@ -40,8 +40,8 @@ struct StochParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_STO_PRICE price_field;
   // Struct constructors.
-  void StochParams(int _kperiod = 5, int _dperiod = 3, int _slowing = 3, ENUM_MA_METHOD _ma_method = MODE_SMA,
-                   ENUM_STO_PRICE _pf = STO_LOWHIGH, int _shift = 0)
+  StochParams(int _kperiod = 5, int _dperiod = 3, int _slowing = 3, ENUM_MA_METHOD _ma_method = MODE_SMA,
+              ENUM_STO_PRICE _pf = STO_LOWHIGH, int _shift = 0)
       : kperiod(_kperiod),
         dperiod(_dperiod),
         slowing(_slowing),
@@ -51,6 +51,10 @@ struct StochParams : IndicatorParams {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\Stochastic");
+  };
+  StochParams(StochParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -115,7 +119,7 @@ class Indi_Stochastic : public Indicator<StochParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
+  virtual double GetValue(int _mode = LINE_MAIN, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
@@ -134,38 +138,6 @@ class Indi_Stochastic : public Indicator<StochParams> {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = GetValue((ENUM_SIGNAL_LINE)_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /**

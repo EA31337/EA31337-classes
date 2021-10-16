@@ -36,6 +36,10 @@ struct ADParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\AD");
     shift = _shift;
   };
+  ADParams(ADParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
+  };
 };
 
 /**
@@ -93,7 +97,7 @@ class Indi_AD : public Indicator<ADParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

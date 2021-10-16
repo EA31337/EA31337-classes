@@ -52,8 +52,8 @@ struct MAParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_array;
   // Struct constructors.
-  void MAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
-                ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  MAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
+           ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period),
         ma_shift(_ma_shift),
         ma_method(_ma_method),
@@ -62,6 +62,10 @@ struct MAParams : IndicatorParams {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Moving Average");
+  };
+  MAParams(MAParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -623,7 +627,7 @@ class Indi_MA : public Indicator<MAParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

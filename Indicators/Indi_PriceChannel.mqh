@@ -28,13 +28,16 @@
 struct PriceChannelParams : IndicatorParams {
   unsigned int period;
   // Struct constructor.
-  void PriceChannelParams(unsigned int _period = 22, int _shift = 0)
-      : IndicatorParams(INDI_PRICE_CHANNEL, 3, TYPE_DOUBLE) {
+  PriceChannelParams(unsigned int _period = 22, int _shift = 0) : IndicatorParams(INDI_PRICE_CHANNEL, 3, TYPE_DOUBLE) {
     period = _period;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Price_Channel");
     SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
+  };
+  PriceChannelParams(PriceChannelParams& _params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
+    tf = _tf;
   };
 };
 
@@ -53,7 +56,7 @@ class Indi_PriceChannel : public Indicator<PriceChannelParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
