@@ -171,7 +171,7 @@ class EA {
     _signals |= !_strat.SignalCloseFilter(ORDER_TYPE_BUY, _scfm) ? SIGNAL_CLOSE_BUY_FILTER : 0;
     _signals |= _strat.SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss) ? SIGNAL_CLOSE_SELL_MAIN : 0;
     _signals |= !_strat.SignalCloseFilter(ORDER_TYPE_SELL, _scfm) ? SIGNAL_CLOSE_SELL_FILTER : 0;
-    _signals |= !_strat.SignalCloseFilterTime(_scfm) ? SIGNAL_OPEN_TIME_FILTER : 0;
+    _signals |= !_strat.SignalCloseFilterTime(_scft) ? SIGNAL_CLOSE_TIME_FILTER : 0;
     TradeSignalEntry _sentry(_signals, _strat.Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF), _strat.Get<long>(STRAT_PARAM_ID));
     _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_STRENGTH), _strat.SignalOpen(_sofm, _sol, _ss));
     _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME), ::TimeGMT());
