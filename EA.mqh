@@ -402,8 +402,10 @@ class EA {
             }
           }
         }
-        // Process all strategies' signals and trigger trading orders.
-        ProcessSignals(_tick, eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER)));
+        if (tsm.GetSignalsActive().Size() > 0) {
+          // Process all strategies' signals and trigger trading orders.
+          ProcessSignals(_tick, eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER)));
+        }
         if (eresults.last_error > ERR_NO_ERROR) {
           // On error, print logs.
           logger.Flush();
