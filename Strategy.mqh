@@ -97,10 +97,8 @@ class Strategy : public Object {
   DictStruct<int, Ref<IndicatorBase>> indicators_managed;  // Indicators list (managed).
   DictStruct<short, TaskEntry> tasks;
   Log logger;  // Log instance.
-  MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
-  Trade trade;                    // Trade instance.
                                   // TradeSignalEntry last_signal;    // Last signals.
 
  private:
@@ -123,14 +121,9 @@ class Strategy : public Object {
    * Class constructor.
    */
   Strategy(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
-      : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
+      : sparams(_sparams), Object(GetPointer(this), __LINE__) {
     // Initialize variables.
     name = _name;
-    MqlTick _tick = {0};
-    last_tick = _tick;
-
-    // Link log instances.
-    logger.Link(trade.GetLogger());
 
     // Statistics variables.
     // UpdateOrderStats(EA_STATS_DAILY);
@@ -220,6 +213,7 @@ class Strategy : public Object {
   /**
    * Checks if the current price is in trend given the order type.
    */
+  /*
   bool IsTrend(ENUM_ORDER_TYPE _cmd) {
     bool _result = false;
     double _tvalue = TrendStrength();
@@ -233,6 +227,7 @@ class Strategy : public Object {
     }
     return _result;
   }
+  */
 
   /**
    * Check state of the strategy.
@@ -362,8 +357,7 @@ class Strategy : public Object {
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.chart.TfToString(),
     // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
 
-    return StringFormat("%s%s[%s]%s", _prefix, name, ChartTf::TfToString(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
-                        _suffix);
+    return StringFormat("%s%s%s", _prefix, name, _suffix);
   }
 
   /**
@@ -371,8 +365,7 @@ class Strategy : public Object {
    */
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
     // @todo: Add spread.
-    return StringFormat("%s%s[%s]%s", _prefix, name, ChartTf::TfToString(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
-                        _suffix);
+    return StringFormat("%s%s%s", _prefix, name, _suffix);
   }
 
   /**
@@ -462,14 +455,6 @@ class Strategy : public Object {
   template <typename T>
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
     sparams.Set<T>(_param, _value);
-  }
-
-  /**
-   * Sets a trade parameter value.
-   */
-  template <typename T>
-  void Set(ENUM_TRADE_PARAM _param, T _value) {
-    trade.Set<T>(_param, _value);
   }
 
   /**
@@ -667,21 +652,6 @@ class Strategy : public Object {
   }
   */
 
-  /**
-   * Initialize strategy.
-   */
-  bool Init() {
-    if (!trade.IsValid()) {
-      /* @fixme
-      logger.Warning(StringFormat("Could not initialize %s on %s timeframe!", GetName(),
-                                    trade.GetChart().TfToString()),
-                       __FUNCTION__ + ": ");
-      */
-      return false;
-    }
-    return true;
-  }
-
   /* Conditions and actions */
 
   /**
@@ -703,28 +673,17 @@ class Strategy : public Object {
         return sparams.IsEnabled();
       case STRAT_COND_IS_SUSPENDED:
         return sparams.IsSuspended();
+      /*
       case STRAT_COND_IS_TREND:
         _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
         return IsTrend((ENUM_ORDER_TYPE)_arg1l);
+      */
       case STRAT_COND_SIGNALOPEN: {
         ENUM_ORDER_TYPE _cmd = ArraySize(_args) > 1 ? (ENUM_ORDER_TYPE)_args[0].integer_value : ORDER_TYPE_BUY;
         int _method = ArraySize(_args) > 1 ? (int)_args[1].integer_value : 0;
         float _level = ArraySize(_args) > 2 ? (float)_args[2].double_value : 0;
         return SignalOpen(_cmd, _method, _level);
       }
-      case STRAT_COND_TRADE_COND:
-        // Args:
-        // 1st (i:0) - Trade's enum condition to check.
-        // 2rd... (i:1) - Optionally trade's arguments to pass.
-        if (arg_size > 0) {
-          DataParamEntry _sargs[];
-          ArrayResize(_sargs, ArraySize(_args) - 1);
-          for (int i = 0; i < ArraySize(_sargs); i++) {
-            _sargs[i] = _args[i + 1];
-          }
-          _result = trade.CheckCondition((ENUM_TRADE_CONDITION)_arg1l, _sargs);
-        }
-        return _result;
       default:
         GetLogger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
@@ -790,33 +749,6 @@ class Strategy : public Object {
       case STRAT_ACTION_SUSPEND:
         sparams.Suspended(true);
         return true;
-      case STRAT_ACTION_TRADE_EXE:
-        // Args:
-        // 1st (i:0) - Trade's enum action to execute.
-        // 2rd (i:1) - Trade's argument to pass.
-        if (arg_size > 0) {
-          DataParamEntry _sargs[];
-          ArrayResize(_sargs, ArraySize(_args) - 1);
-          for (int i = 0; i < ArraySize(_sargs); i++) {
-            _sargs[i] = _args[i + 1];
-          }
-          _result = trade.ExecuteAction((ENUM_TRADE_ACTION)_args[0].integer_value, _sargs);
-          /* @fixme
-          if (_result) {
-            Order *_order = trade.GetOrderLast();
-            switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
-              case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
-                // OnOrderClose();// @todo
-                break;
-              case TRADE_ACTION_ORDER_OPEN:
-                // @fixme: Operation on the structure copy.
-                OnOrderOpen(_order.GetParams());
-                break;
-            }
-          }
-          */
-        }
-        return _result;
       case STRAT_ACTION_UNSUSPEND:
         sparams.Suspended(false);
         return true;
@@ -950,79 +882,6 @@ class Strategy : public Object {
   }
 
   /**
-   * Filters strategy's market tick.
-   *
-   * @param
-   *   _method - signal method to filter a tick (bitwise AND operation)
-   *
-   * @result bool
-   *   Returns true when tick should be processed, otherwise false.
-   */
-  virtual bool TickFilter(const MqlTick &_tick, const int _method) {
-    bool _res = _method >= 0;
-    bool _val;
-    int _method_abs = fabs(_method);
-    if (_method_abs != 0) {
-      if (METHOD(_method_abs, 0)) {  // 1
-        // Process on every minute.
-        _val = _tick.time % 60 < last_tick.time % 60;
-        _res = _method > 0 ? _res & _val : _res | _val;
-        last_tick = _tick;
-      }
-      if (METHOD(_method_abs, 1)) {  // 2
-        // Process low and high ticks of a bar.
-        _val = _tick.bid >= trade.GetChart().GetHigh() || _tick.bid <= trade.GetChart().GetLow();
-        _res = _method > 0 ? _res & _val : _res | _val;
-      }
-      if (METHOD(_method_abs, 2)) {  // 4
-        // Process only peak prices of each minute.
-        static double _peak_high = _tick.bid, _peak_low = _tick.bid;
-        if (_tick.time % 60 < last_tick.time % 60) {
-          // Resets peaks each minute.
-          _peak_high = _peak_low = _tick.bid;
-        } else {
-          // Sets new peaks.
-          _peak_high = _tick.bid > _peak_high ? _tick.bid : _peak_high;
-          _peak_low = _tick.bid < _peak_low ? _tick.bid : _peak_low;
-        }
-        _val = (_tick.bid == _peak_high) || (_tick.bid == _peak_low);
-        _res = _method > 0 ? _res & _val : _res | _val;
-      }
-      if (METHOD(_method_abs, 3)) {  // 8
-        // Process only unique ticks (avoid duplicates).
-        _val = _tick.bid != last_tick.bid && _tick.ask != last_tick.ask;
-        _res = _method > 0 ? _res & _val : _res | _val;
-      }
-      if (METHOD(_method_abs, 4)) {  // 16
-        // Process ticks in the middle of the bar.
-        _val = (trade.GetChart().GetBarTime() +
-                (ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 2)) == TimeCurrent();
-        _res = _method > 0 ? _res & _val : _res | _val;
-      }
-      if (METHOD(_method_abs, 5)) {  // 32
-        // Process bar open price ticks.
-        _val = last_tick.time < trade.GetChart().GetBarTime();
-        _res = _method > 0 ? _res & _val : _res | _val;
-      }
-      if (METHOD(_method_abs, 6)) {  // 64
-        // Process every 10th of the bar.
-        _val = TimeCurrent() % (int)(ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 10) == 0;
-        _res = _method > 0 ? _res & _val : _res | _val;
-      }
-      if (METHOD(_method_abs, 7)) {  // 128
-        // Process tick on every 10 seconds.
-        _val = _tick.time % 10 < last_tick.time % 10;
-        _res = _method > 0 ? _res & _val : _res | _val;
-      }
-      if (_res) {
-        last_tick = _tick;
-      }
-    }
-    return _res;
-  }
-  virtual bool TickFilter(const MqlTick &_tick) { return TickFilter(_tick, sparams.Get<int>(STRAT_PARAM_TFM)); }
-
-  /**
    * Checks strategy's trade open signal.
    *
    * @param
@@ -1051,35 +910,6 @@ class Strategy : public Object {
     // @todo
     return 0.0f;
   };
-
-  /**
-   * Checks strategy's trade's open signal method filter.
-   *
-   * @param
-   *   _cmd    - type of trade order command
-   *   _method - method to filter a trade (bitwise AND operation)
-   *
-   * @result bool
-   *   Returns true when trade should be opened, otherwise false.
-   */
-  virtual bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) {
-    bool _result = true;
-    if (_method != 0) {
-      if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd);           // 1
-      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                      // 2
-      if (METHOD(_method, 2)) _result &= trade.IsPivot(_cmd);                // 4
-      if (METHOD(_method, 3)) _result &= !trade.HasOrderOppositeType(_cmd);  // 8
-      if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd);                 // 16
-      if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);        // 32
-      if (METHOD(_method, 6))
-        _result &= !trade.CheckCondition(
-            TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_LOW : ACCOUNT_COND_EQUITY_01PC_HIGH);  // 64
-      // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
-      // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
-      _method = _method > 0 ? _method : !_method;
-    }
-    return _result;
-  }
 
   /**
    * Checks strategy's trade's close signal time filter.
@@ -1159,37 +989,6 @@ class Strategy : public Object {
   }
 
   /**
-   * Checks strategy's trade close signal additional filter.
-   *
-   * @param
-   *   _cmd    - type of trade order command
-   *   _method - signal method to filter a trade (bitwise AND operation)
-   *
-   * @result bool
-   *   Returns true when trade should be closed, otherwise false.
-   */
-  virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0, int _shift = 0) {
-    bool _result = _method == 0;
-    if (_method != 0) {
-      if (METHOD(_method, 0)) _result |= _result || !trade.HasBarOrder(_cmd);  // 1
-      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);            // 2
-      if (METHOD(_method, 2)) _result |= _result || !trade.IsPivot(_cmd);      // 4
-      if (METHOD(_method, 3))
-        _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
-      if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd);                           // 16
-      if (METHOD(_method, 5)) _result |= _result || trade.HasOrderBetter(_cmd);                   // 32
-      if (METHOD(_method, 6))
-        _result |=
-            _result || trade.CheckCondition(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
-                                                                            : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
-      // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
-      // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
-      _method = _method > 0 ? _method : !_method;
-    }
-    return _result;
-  }
-
-  /**
    * Gets price stop value.
    *
    * @param
@@ -1202,6 +1001,7 @@ class Strategy : public Object {
    *   Returns current stop loss value when _mode is ORDER_TYPE_SL
    *   and profit take when _mode is ORDER_TYPE_TP.
    */
+  /*
   virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f,
                           short _bars = 4) {
     float _result = 0;
@@ -1221,20 +1021,23 @@ class Strategy : public Object {
       float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
       _value = _value + (float)Math::ChangeByPct(fabs(_value - _chart.GetCloseOffer(0)), _level) * _direction;
       _psm.SetIndicatorPriceValue(_value);
-      /*
-      //IndicatorDataEntry _data[];
-      if (_indi.CopyEntries(_data, 3, 0)) {
-        _psm.SetIndicatorDataEntry(_data);
-        _psm.SetIndicatorParams(_indi.GetParams());
-      }
       */
-      _result = _psm.GetValue(_ishift, _direction, _trade_dist);
-    } else {
-      int _pshift = _direction > 0 ? _chart.GetHighest(_count) : _chart.GetLowest(_count);
-      _result = _psm.GetValue(_pshift, _direction, _trade_dist);
-    }
-    return (float)_result;
+  /*
+  //IndicatorDataEntry _data[];
+  if (_indi.CopyEntries(_data, 3, 0)) {
+    _psm.SetIndicatorDataEntry(_data);
+    _psm.SetIndicatorParams(_indi.GetParams());
   }
+  */
+  /*
+  _result = _psm.GetValue(_ishift, _direction, _trade_dist);
+} else {
+  int _pshift = _direction > 0 ? _chart.GetHighest(_count) : _chart.GetLowest(_count);
+  _result = _psm.GetValue(_pshift, _direction, _trade_dist);
+}
+return (float)_result;
+}
+*/
 
   /**
    * Gets trend strength value.
@@ -1246,6 +1049,7 @@ class Strategy : public Object {
    *   Returns trend strength value from -1 (strong bearish) to +1 (strong bullish).
    *   Value closer to 0 indicates a neutral trend.
    */
+  /*
   virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1, int _shift = 1) {
     float _result = 0;
     Chart *_c = trade.GetChart();
@@ -1261,6 +1065,7 @@ class Strategy : public Object {
     }
     return _result;
   };
+  */
 
   /* Serializers */
 

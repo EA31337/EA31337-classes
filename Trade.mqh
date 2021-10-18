@@ -57,6 +57,7 @@ class Trade {
 
  protected:
   string name;
+  MqlTick last_tick;
   Ref<Order> order_last;
   // Strategy *strategy;  // Optional pointer to Strategy class.
 
@@ -1710,6 +1711,134 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     if ((_periods & DATETIME_YEAR) != 0) {
       // New year started.
     }
+  }
+
+  /**
+   * Checks strategy's trade's open signal method filter.
+   *
+   * @param
+   *   _cmd    - type of trade order command
+   *   _method - method to filter a trade (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true when trade should be opened, otherwise false.
+   */
+  virtual bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+    bool _result = true;
+    if (_method != 0) {
+      if (METHOD(_method, 0)) _result &= !HasBarOrder(_cmd);  // 1
+      // if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                      // 2
+      if (METHOD(_method, 2)) _result &= IsPivot(_cmd);                // 4
+      if (METHOD(_method, 3)) _result &= !HasOrderOppositeType(_cmd);  // 8
+      if (METHOD(_method, 4)) _result &= IsPeak(_cmd);                 // 16
+      if (METHOD(_method, 5)) _result &= !HasOrderBetter(_cmd);        // 32
+      // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
+      // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
+      _method = _method > 0 ? _method : !_method;
+    }
+    return _result;
+  }
+
+  /**
+   * Checks strategy's trade close signal additional filter.
+   *
+   * @param
+   *   _cmd    - type of trade order command
+   *   _method - signal method to filter a trade (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true when trade should be closed, otherwise false.
+   */
+  virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0, int _shift = 0) {
+    bool _result = _method == 0;
+    if (_method != 0) {
+      if (METHOD(_method, 0)) _result |= _result || !HasBarOrder(_cmd);  // 1
+      // if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);            // 2
+      if (METHOD(_method, 2)) _result |= _result || !IsPivot(_cmd);  // 4
+      if (METHOD(_method, 3))
+        _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
+      if (METHOD(_method, 4)) _result |= _result || IsPeak(_cmd);                                 // 16
+      if (METHOD(_method, 5)) _result |= _result || HasOrderBetter(_cmd);                         // 32
+      if (METHOD(_method, 6))
+        _result |= _result || CheckCondition(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
+                                                                             : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
+      // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
+      // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
+      _method = _method > 0 ? _method : !_method;
+    }
+    return _result;
+  }
+
+  /**
+   * Filters strategy's market tick.
+   *
+   * @param
+   *   _method - signal method to filter a tick (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true when tick should be processed, otherwise false.
+   */
+  virtual bool TickFilter(const MqlTick &_tick, const int _method) {
+    bool _res = _method >= 0;
+    bool _val;
+    int _method_abs = fabs(_method);
+    if (_method_abs != 0) {
+      if (METHOD(_method_abs, 0)) {  // 1
+        // Process on every minute.
+        _val = _tick.time % 60 < last_tick.time % 60;
+        _res = _method > 0 ? _res & _val : _res | _val;
+        last_tick = _tick;
+      }
+      if (METHOD(_method_abs, 1)) {  // 2
+        // Process low and high ticks of a bar.
+        _val = _tick.bid >= GetChart().GetHigh() || _tick.bid <= GetChart().GetLow();
+        _res = _method > 0 ? _res & _val : _res | _val;
+      }
+      if (METHOD(_method_abs, 2)) {  // 4
+        // Process only peak prices of each minute.
+        static double _peak_high = _tick.bid, _peak_low = _tick.bid;
+        if (_tick.time % 60 < last_tick.time % 60) {
+          // Resets peaks each minute.
+          _peak_high = _peak_low = _tick.bid;
+        } else {
+          // Sets new peaks.
+          _peak_high = _tick.bid > _peak_high ? _tick.bid : _peak_high;
+          _peak_low = _tick.bid < _peak_low ? _tick.bid : _peak_low;
+        }
+        _val = (_tick.bid == _peak_high) || (_tick.bid == _peak_low);
+        _res = _method > 0 ? _res & _val : _res | _val;
+      }
+      if (METHOD(_method_abs, 3)) {  // 8
+        // Process only unique ticks (avoid duplicates).
+        _val = _tick.bid != last_tick.bid && _tick.ask != last_tick.ask;
+        _res = _method > 0 ? _res & _val : _res | _val;
+      }
+      if (METHOD(_method_abs, 4)) {  // 16
+        // Process ticks in the middle of the bar.
+        _val = (GetChart().GetBarTime() + (ChartTf::TfToSeconds(Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 2)) ==
+               TimeCurrent();
+        _res = _method > 0 ? _res & _val : _res | _val;
+      }
+      if (METHOD(_method_abs, 5)) {  // 32
+        // Process bar open price ticks.
+        _val = last_tick.time < GetChart().GetBarTime();
+        _res = _method > 0 ? _res & _val : _res | _val;
+      }
+      if (METHOD(_method_abs, 6)) {  // 64
+        // Process every 10th of the bar.
+        _val = TimeCurrent() % (int)(ChartTf::TfToSeconds(Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 10) == 0;
+        _res = _method > 0 ? _res & _val : _res | _val;
+      }
+      if (METHOD(_method_abs, 7)) {  // 128
+        // Process tick on every 10 seconds.
+        _val = _tick.time % 10 < last_tick.time % 10;
+        _res = _method > 0 ? _res & _val : _res | _val;
+      }
+      if (_res) {
+        last_tick = _tick;
+      }
+    }
+    return _res;
   }
 
   /* Conditions */

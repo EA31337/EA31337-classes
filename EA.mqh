@@ -141,8 +141,9 @@ class EA {
    * @return
    *   Returns TradeSignalEntry struct.
    */
-  TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, bool _trade_allowed = true, int _shift = -1) {
+  TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, Trade *_trade, int _shift = -1) {
     // float _bf = 1.0;
+    bool _can_trade = !_strat.IsSuspended() && !_trade.CheckCondition(TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
     float _scl = _strat.Get<float>(STRAT_PARAM_SCL);
     float _sol = _strat.Get<float>(STRAT_PARAM_SOL);
     int _scfm = _strat.Get<int>(STRAT_PARAM_SCFM);
@@ -155,22 +156,22 @@ class EA {
     int _ss = _shift >= 0 ? _shift : _strat.Get<int>(STRAT_PARAM_SHIFT);
     unsigned int _signals = 0;
     // sparams.Get<float>(STRAT_PARAM_WEIGHT));
-    if (_trade_allowed) {
+    if (_can_trade) {
       // Process boost factor and lot size.
       // sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
       // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
       // Process open signals when trade is allowed.
       _signals |= _strat.SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss) ? SIGNAL_OPEN_BUY_MAIN : 0;
-      _signals |= !_strat.SignalOpenFilterMethod(ORDER_TYPE_BUY, _sofm) ? SIGNAL_OPEN_BUY_FILTER : 0;
+      _signals |= !_trade.SignalOpenFilterMethod(ORDER_TYPE_BUY, _sofm) ? SIGNAL_OPEN_BUY_FILTER : 0;
       _signals |= _strat.SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss) ? SIGNAL_OPEN_SELL_MAIN : 0;
-      _signals |= !_strat.SignalOpenFilterMethod(ORDER_TYPE_SELL, _sofm) ? SIGNAL_OPEN_SELL_FILTER : 0;
+      _signals |= !_trade.SignalOpenFilterMethod(ORDER_TYPE_SELL, _sofm) ? SIGNAL_OPEN_SELL_FILTER : 0;
       _signals |= !_strat.SignalOpenFilterTime(_soft) ? SIGNAL_OPEN_TIME_FILTER : 0;
     }
     // Process close signals.
     _signals |= _strat.SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss) ? SIGNAL_CLOSE_BUY_MAIN : 0;
-    _signals |= !_strat.SignalCloseFilter(ORDER_TYPE_BUY, _scfm) ? SIGNAL_CLOSE_BUY_FILTER : 0;
+    _signals |= !_trade.SignalCloseFilter(ORDER_TYPE_BUY, _scfm) ? SIGNAL_CLOSE_BUY_FILTER : 0;
     _signals |= _strat.SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss) ? SIGNAL_CLOSE_SELL_MAIN : 0;
-    _signals |= !_strat.SignalCloseFilter(ORDER_TYPE_SELL, _scfm) ? SIGNAL_CLOSE_SELL_FILTER : 0;
+    _signals |= !_trade.SignalCloseFilter(ORDER_TYPE_SELL, _scfm) ? SIGNAL_CLOSE_SELL_FILTER : 0;
     _signals |= !_strat.SignalCloseFilterTime(_scfm) ? SIGNAL_OPEN_TIME_FILTER : 0;
     TradeSignalEntry _sentry(_signals, _strat.Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF), _strat.Get<long>(STRAT_PARAM_ID));
     _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_STRENGTH), _strat.SignalOpen(_sofm, _sol, _ss));
@@ -285,7 +286,7 @@ class EA {
           // Open signal for buy.
           // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
           if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
-            _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
+            //_strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
             // Buy order open.
             _result_local &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
             if (_result_local && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
@@ -298,7 +299,7 @@ class EA {
           // Open signal for sell.
           // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
           if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
-            _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
+            //_strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
             // Sell order open.
             _result_local &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
             if (_result_local && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
@@ -384,11 +385,8 @@ class EA {
               _trade.OnPeriod(estate.new_periods);
               eresults.stg_processed_periods++;
             }
-            if (_strat.TickFilter(_tick)) {
-              _can_trade &= _can_trade && !_strat.IsSuspended();
-              _can_trade &= _can_trade && !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE,
-                                                                 TRADE_STATE_TRADE_CANNOT);
-              TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
+            if (_trade.TickFilter(_tick, _strat.Get<int>(STRAT_PARAM_TFM))) {
+              TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
               if (_sentry.Get<uint>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
                 TradeSignal _signal(_sentry);
                 if (_signal.GetSignalClose() != _signal.GetSignalOpen()) {
@@ -810,14 +808,14 @@ class EA {
           if (_strat_sl != NULL) {
             float _psl = _strat_sl.Get<float>(STRAT_PARAM_PSL);
             int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
-            _sl_new = _trade.NormalizeSL(_strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl), _otype);
+            //_sl_new = _trade.NormalizeSL(_strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl), _otype);
             _sl_valid = _trade.IsValidOrderSL(_sl_new, _otype, _order.Get<double>(ORDER_SL), _psm > 0);
             _sl_new = _sl_valid ? _sl_new : _order.Get<double>(ORDER_SL);
           }
           if (_strat_tp != NULL) {
             float _ppl = _strat_tp.Get<float>(STRAT_PARAM_PPL);
             int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
-            _tp_new = _trade.NormalizeTP(_strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl), _otype);
+            //_tp_new = _trade.NormalizeTP(_strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl), _otype);
             _tp_valid = _trade.IsValidOrderTP(_tp_new, _otype, _order.Get<double>(ORDER_TP), _ppm > 0);
             _tp_new = _tp_valid ? _tp_new : _order.Get<double>(ORDER_TP);
           }
@@ -1127,9 +1125,6 @@ class EA {
    *
    */
   virtual void OnStrategyAdd(Strategy *_strat) {
-    // Sets margin risk.
-    float _margin_risk = eparams.Get<float>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_RISK_MARGIN_MAX));
-    _strat.Set<float>(TRADE_PARAM_RISK_MARGIN, _margin_risk);
     // Link a logger instance.
     logger.Link(_strat.GetLogger());
     // Load existing strategy trades.
