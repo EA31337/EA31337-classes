@@ -27,13 +27,15 @@
 
 // Defines.
 #define TSM_PROP_FREQ STRUCT_ENUM(TradeSignalManagerParams, TSM_PARAMS_PROP_FREQ)
+#define TSM_PROP_LAST_CHECK STRUCT_ENUM(TradeSignalManagerParams, TSM_PARAMS_PROP_LAST_CHECK)
 
 /**
  * Structure to manage TradeSignalManager parameters.
  */
 struct TradeSignalManagerParams {
  protected:
-  short freq;  // Signal process refresh frequency (in sec).
+  long last_check;  // Last check.
+  short freq;       // Signal process refresh frequency (in sec).
 
  public:
   /* Struct's enumerations */
@@ -41,12 +43,13 @@ struct TradeSignalManagerParams {
   // Enumeration for strategy bitwise signal flags.
   enum ENUM_TSM_PARAMS_PROP {
     TSM_PARAMS_PROP_FREQ = 0,
+    TSM_PARAMS_PROP_LAST_CHECK,
   };
 
   /**
    * Struct constructor.
    */
-  TradeSignalManagerParams(short _freq = 10) : freq(_freq) {}
+  TradeSignalManagerParams(short _freq = 10) : freq(_freq), last_check(0) {}
 
   /**
    * Struct copy constructor.
@@ -60,6 +63,8 @@ struct TradeSignalManagerParams {
     switch (_prop) {
       case TSM_PARAMS_PROP_FREQ:
         return (T)freq;
+      case TSM_PARAMS_PROP_LAST_CHECK:
+        return (T)last_check;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
@@ -72,6 +77,9 @@ struct TradeSignalManagerParams {
     switch (_prop) {
       case TSM_PARAMS_PROP_FREQ:
         freq = (short)_value;
+        return;
+      case TSM_PARAMS_PROP_LAST_CHECK:
+        last_check = (long)_value;
         return;
     }
     SetUserError(ERR_INVALID_PARAMETER);

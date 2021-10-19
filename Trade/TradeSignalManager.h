@@ -41,7 +41,7 @@ class TradeSignalManager : Dynamic {
   TradeSignalManagerParams params;
 
   /**
-   * Init code.
+   * Init code (called on constructor).
    */
   void Init() {
     signals_active.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
@@ -135,6 +135,23 @@ class TradeSignalManager : Dynamic {
         continue;
       }
     }
+    Set<long>(TSM_PROP_LAST_CHECK, ::TimeGMT());
+  }
+
+  /* State methods */
+
+  /**
+   * Checks if signal manager is ready for signal processing based on the frequency param.
+   *
+   * @param
+   *   _update Update last check timestamp when true.
+   */
+  bool IsReady(bool _update = true) {
+    bool _res = Get<long>(TSM_PROP_LAST_CHECK) + Get<short>(TSM_PROP_FREQ) >= ::TimeGMT();
+    if (_res) {
+      Set<long>(TSM_PROP_LAST_CHECK, ::TimeGMT());
+    }
+    return _res;
   }
 
   /* Serializers */
