@@ -28,6 +28,7 @@
 // Includes.
 #include "../DictObject.mqh"
 #include "TradeSignal.h"
+#include "TradeSignalManager.struct.h"
 
 /**
  * Class to store and manage a trading signal.
@@ -37,18 +38,37 @@ class TradeSignalManager : Dynamic {
   DictObject<int, TradeSignal> signals_active;
   DictObject<int, TradeSignal> signals_expired;
   DictObject<int, TradeSignal> signals_processed;
+  TradeSignalManagerParams params;
 
- public:
   /**
-   * Class constructor.
+   * Init code.
    */
-  TradeSignalManager() {
+  void Init() {
     signals_active.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     signals_expired.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     signals_processed.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
   }
 
+ public:
+  /**
+   * Default class constructor.
+   */
+  TradeSignalManager() { Init(); }
+
+  /**
+   * Class constructor with parameters.
+   */
+  TradeSignalManager(TradeSignalManagerParams &_params) : params(_params) { Init(); }
+
   /* Getters */
+
+  /**
+   * Gets a property value.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM(TradeSignalManagerParams, ENUM_TSM_PARAMS_PROP) _prop) {
+    return params.Get<T>(_prop);
+  }
 
   /**
    * Gets an iterator instance.
@@ -78,6 +98,14 @@ class TradeSignalManager : Dynamic {
   DictObject<int, TradeSignal> *GetSignalsProcessed() { return &signals_processed; }
 
   /* Setters */
+
+  /**
+   * Sets a property value.
+   */
+  template <typename T>
+  void Set(STRUCT_ENUM(TradeSignalManagerParams, ENUM_TSM_PARAMS_PROP) _prop, T _value) {
+    params.Set<T>(_prop, _value);
+  }
 
   /* Signal methods */
 

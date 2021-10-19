@@ -205,7 +205,7 @@ class Trade {
   /* Setters */
 
   /**
-   * Gets a trade parameter value.
+   * Sets a trade parameter value.
    */
   template <typename T>
   void Set(ENUM_TRADE_PARAM _param, T _value) {
