@@ -76,8 +76,6 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
   static double iBWMFI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                        ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
-    // Adjusting shift for MT4.
-    _shift++;
     return ::iBWMFI(_symbol, _tf, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
