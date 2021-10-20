@@ -82,12 +82,12 @@ class EA {
   EA(EAParams &_params)
       : account(new Account), market(new Market(_params.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SYMBOL)))) {
     eparams = _params;
-    estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     UpdateStateFlags();
     // Add and process tasks.
     TaskAdd(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
     ProcessTasks();
-    estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
     // Initialize a trade instance for the current chart and symbol.
     ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
     TradeParams _tparams;
@@ -104,7 +104,7 @@ class EA {
    */
   ~EA() {
     // Process tasks on quit.
-    estate.SetFlag(EA_STATE_FLAG_ON_QUIT, true);
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_QUIT), true);
     ProcessTasks();
     // Deinitialize classes.
     Object::Delete(account);
@@ -113,11 +113,27 @@ class EA {
   /* Getters */
 
   /**
-   * Gets a strategy parameter value.
+   * Gets EA parameter value.
    */
   template <typename T>
   T Get(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_PROP) _param) {
     return eparams.Get<T>(_param);
+  }
+
+  /**
+   * Gets EA state flag value.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM(EAState, ENUM_EA_STATE_FLAGS) _prop) {
+    return estate.Get<T>(_prop);
+  }
+
+  /**
+   * Gets EA state property value.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM(EAState, ENUM_EA_STATE_PROP) _prop) {
+    return estate.Get<T>(_prop);
   }
 
   /**
@@ -377,11 +393,11 @@ class EA {
           Strategy *_strat = iter.Value().Ptr();
           Trade *_trade = trade.GetByKey(_Symbol);
           if (_strat.IsEnabled()) {
-            if (estate.new_periods >= DATETIME_MINUTE) {
+            if (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
               // Process when new periods started.
-              _strat.OnPeriod(estate.new_periods);
+              _strat.OnPeriod(estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)));
               _strat.ProcessTasks();
-              _trade.OnPeriod(estate.new_periods);
+              _trade.OnPeriod(estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)));
               eresults.stg_processed_periods++;
             }
             if (_strat.TickFilter(_tick)) {
@@ -410,13 +426,13 @@ class EA {
           // On error, print logs.
           logger.Flush();
         }
-        if (estate.new_periods >= DATETIME_MINUTE) {
+        if (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
           // Process data, tasks and trades on new periods.
           ProcessTrades();
         }
       }
       estate.last_updated.Update();
-      if (estate.new_periods >= DATETIME_MINUTE) {
+      if (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
         // Process data and tasks on new periods.
         ProcessData();
         ProcessTasks();
@@ -479,9 +495,9 @@ class EA {
    * Checks for new starting periods.
    */
   unsigned int ProcessPeriods() {
-    estate.new_periods = estate.last_updated.GetStartedPeriods();
+    estate.Set<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS), estate.last_updated.GetStartedPeriods());
     OnPeriod();
-    return estate.new_periods;
+    return estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS));
   }
 
   /**
@@ -841,12 +857,12 @@ class EA {
    * Update EA state flags.
    */
   void UpdateStateFlags() {
-    estate.SetFlag(EA_STATE_FLAG_CONNECTED, GetTerminal().IsConnected());
-    estate.SetFlag(EA_STATE_FLAG_LIBS_ALLOWED, GetTerminal().IsLibrariesAllowed());
-    estate.SetFlag(EA_STATE_FLAG_OPTIMIZATION, GetTerminal().IsOptimization());
-    estate.SetFlag(EA_STATE_FLAG_TESTING, GetTerminal().IsTesting());
-    estate.SetFlag(EA_STATE_FLAG_TRADE_ALLOWED, GetTerminal().IsTradeAllowed());
-    estate.SetFlag(EA_STATE_FLAG_VISUAL_MODE, GetTerminal().IsVisualMode());
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_CONNECTED), GetTerminal().IsConnected());
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_LIBS_ALLOWED), GetTerminal().IsLibrariesAllowed());
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_OPTIMIZATION), GetTerminal().IsOptimization());
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_TESTING), GetTerminal().IsTesting());
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_TRADE_ALLOWED), GetTerminal().IsTradeAllowed());
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_VISUAL_MODE), GetTerminal().IsVisualMode());
   }
 
   /**
@@ -896,20 +912,20 @@ class EA {
       case EA_COND_IS_ENABLED:
         return estate.IsEnabled();
       case EA_COND_IS_NOT_CONNECTED:
-        estate.SetFlag(EA_STATE_FLAG_CONNECTED, GetTerminal().IsConnected());
+        estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_CONNECTED), GetTerminal().IsConnected());
         return !estate.IsConnected();
       case EA_COND_ON_NEW_MINUTE:  // On new minute.
-        return (estate.new_periods & DATETIME_MINUTE) != 0;
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0;
       case EA_COND_ON_NEW_HOUR:  // On new hour.
-        return (estate.new_periods & DATETIME_HOUR) != 0;
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0;
       case EA_COND_ON_NEW_DAY:  // On new day.
-        return (estate.new_periods & DATETIME_DAY) != 0;
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0;
       case EA_COND_ON_NEW_WEEK:  // On new week.
-        return (estate.new_periods & DATETIME_WEEK) != 0;
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0;
       case EA_COND_ON_NEW_MONTH:  // On new month.
-        return (estate.new_periods & DATETIME_MONTH) != 0;
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0;
       case EA_COND_ON_NEW_YEAR:  // On new year.
-        return (estate.new_periods & DATETIME_YEAR) != 0;
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0;
       case EA_COND_ON_INIT:
         return estate.IsOnInit();
       case EA_COND_ON_QUIT:
@@ -1091,7 +1107,7 @@ class EA {
    * Executed when new time is started (like each minute).
    */
   virtual void OnPeriod() {
-    if ((estate.new_periods & DATETIME_MINUTE) != 0) {
+    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0) {
       // New minute started.
 #ifndef __optimize__
       if (Terminal::IsRealtime()) {
@@ -1099,24 +1115,24 @@ class EA {
       }
 #endif
     }
-    if ((estate.new_periods & DATETIME_HOUR) != 0) {
+    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0) {
       // New hour started.
       tsm.Refresh();
     }
-    if ((estate.new_periods & DATETIME_DAY) != 0) {
+    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0) {
       // New day started.
       UpdateLotSize();
 #ifndef __optimize__
       logger.Flush();
 #endif
     }
-    if ((estate.new_periods & DATETIME_WEEK) != 0) {
+    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0) {
       // New week started.
     }
-    if ((estate.new_periods & DATETIME_MONTH) != 0) {
+    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0) {
       // New month started.
     }
-    if ((estate.new_periods & DATETIME_YEAR) != 0) {
+    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0) {
       // New year started.
     }
   }
