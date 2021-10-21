@@ -80,8 +80,8 @@ class IndicatorBase : public Chart {
   DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
   ARRAY(ValueStorage<double>*, value_storages);
-  IndicatorBase* indi_src;  // // Indicator used as data source.
-  int indi_src_mode;        // Mode of source indicator
+  Ref<IndicatorBase> indi_src;  // // Indicator used as data source.
+  int indi_src_mode;            // Mode of source indicator
   IndicatorCalculateCache<double> cache;
 
  public:
@@ -404,7 +404,7 @@ class IndicatorBase : public Chart {
   /**
    * Returns currently selected data source without any validation.
    */
-  IndicatorBase* GetDataSourceRaw() { return indi_src; }
+  IndicatorBase* GetDataSourceRaw() { return indi_src.Ptr(); }
 
   /* Operator overloading methods */
 
@@ -641,7 +641,7 @@ class IndicatorBase : public Chart {
   /**
    * Sets indicator data source.
    */
-  virtual void SetDataSource(IndicatorBase* _indi, bool _managed, int _input_mode) = 0;
+  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode) = 0;
 
   /**
    * Sets data source's input mode.

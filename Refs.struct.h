@@ -195,10 +195,10 @@ struct Ref {
   /**
    * Makes a strong reference to the given object.
    */
-  void operator=(X* _ptr) {
+  X* operator=(X* _ptr) {
     if (ptr_object == _ptr) {
       // Assigning the same object.
-      return;
+      return Ptr();
     }
 
     Unset();
@@ -208,24 +208,37 @@ struct Ref {
     if (ptr_object != NULL) {
       if (CheckPointer(ptr_object) == POINTER_INVALID || ptr_object.ptr_ref_counter == NULL) {
         // Double check the pointer for invalid references. Can happen very rarely.
-        return;
+        return Ptr();
       }
       ++ptr_object.ptr_ref_counter.num_strong_refs;
 #ifdef __debug__
       Print(ptr_object.ptr_ref_counter.Debug());
 #endif
     }
+
+    return Ptr();
   }
 
   /**
    * Makes a strong reference to the given weakly-referenced object.
    */
-  void operator=(WeakRef<X>& right) { this = right.Ptr(); }
+  X* operator=(WeakRef<X>& right) {
+    this = right.Ptr();
+    return Ptr();
+  }
 
   /**
    * Makes a strong reference to the strongly-referenced object.
    */
-  void operator=(Ref<X>& right) { this = right.Ptr(); }
+  X* operator=(Ref<X>& right) {
+    this = right.Ptr();
+    return Ptr();
+  }
+
+  /**
+   * Equality operator.
+   */
+  bool operator==(const Ref<X>& r) { return ptr_object != NULL && ptr_object == r.ptr_object; }
 };
 
 /**
@@ -266,23 +279,23 @@ struct WeakRef {
   /**
    * Makes a strong reference to the given object.
    */
-  void operator=(X* _ptr) {
+  X* operator=(X* _ptr) {
     if (ptr_ref_counter == (_ptr == NULL ? NULL : _ptr.ptr_ref_counter)) {
       // Assigning the same object or the same NULL.
-      return;
+      return Ptr();
     }
 
     Unset();
 
     if (_ptr == NULL) {
       // Assigning NULL.
-      return;
+      return Ptr();
     }
 
     if (_ptr.ptr_ref_counter.deleted) {
       // Assigning already deleted object.
       ptr_ref_counter = NULL;
-      return;
+      return Ptr();
     }
 
     ptr_ref_counter = _ptr.ptr_ref_counter;
@@ -292,17 +305,30 @@ struct WeakRef {
 #endif
 
     ++ptr_ref_counter.num_weak_refs;
+
+    return Ptr();
   }
 
   /**
    * Makes a weak reference to the given weakly-referenced object.
    */
-  void operator=(WeakRef<X>& right) { this = right.Ptr(); }
+  X* operator=(WeakRef<X>& right) {
+    this = right.Ptr();
+    return Ptr();
+  }
 
   /**
    * Makes a weak reference to the strongly-referenced object.
    */
-  void operator=(Ref<X>& right) { this = right.Ptr(); }
+  X* operator=(Ref<X>& right) {
+    this = right.Ptr();
+    return Ptr();
+  }
+
+  /**
+   * Equality operator.
+   */
+  bool operator==(const WeakRef<X>& r) const { return ptr_ref_counter != NULL && ptr_ref_counter == r.ptr_ref_counter; }
 
   /**
    * Unbinds holding reference.

@@ -90,10 +90,10 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
             return _value;
           }
 
-          _ohlc.open = indi_src.GetValue<float>(_shift, PRICE_OPEN);
-          _ohlc.high = indi_src.GetValue<float>(_shift, PRICE_HIGH);
-          _ohlc.low = indi_src.GetValue<float>(_shift, PRICE_LOW);
-          _ohlc.close = indi_src.GetValue<float>(_shift, PRICE_CLOSE);
+          _ohlc.open = GetDataSource().GetValue<float>(_shift, PRICE_OPEN);
+          _ohlc.high = GetDataSource().GetValue<float>(_shift, PRICE_HIGH);
+          _ohlc.low = GetDataSource().GetValue<float>(_shift, PRICE_LOW);
+          _ohlc.close = GetDataSource().GetValue<float>(_shift, PRICE_CLOSE);
           break;
         default:
           SetUserError(ERR_INVALID_PARAMETER);
