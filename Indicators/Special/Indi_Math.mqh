@@ -96,7 +96,7 @@ class Indi_Math : public Indicator<MathParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_INDICATOR:
-        if (indi_src == NULL) {
+        if (!indi_src.IsSet()) {
           GetLogger().Error(
               "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
               "which is a part of MathParams structure.",
@@ -109,14 +109,14 @@ class Indi_Math : public Indicator<MathParams> {
         }
         switch (iparams.op_mode) {
           case MATH_OP_MODE_BUILTIN:
-            _value = Indi_Math::iMathOnIndicator(
-                indi_src, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                /*[*/ GetOpBuiltIn(), GetMode1(), GetMode2(), GetShift1(), GetShift2() /*]*/, 0, _shift, &this);
+            _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
+                                                 /*[*/ GetOpBuiltIn(), GetMode1(), GetMode2(), GetShift1(),
+                                                 GetShift2() /*]*/, 0, _shift, &this);
             break;
           case MATH_OP_MODE_CUSTOM_FUNCTION:
-            _value = Indi_Math::iMathOnIndicator(
-                indi_src, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                /*[*/ GetOpFunction(), GetMode1(), GetMode2(), GetShift1(), GetShift2() /*]*/, 0, _shift, &this);
+            _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
+                                                 /*[*/ GetOpFunction(), GetMode1(), GetMode2(), GetShift1(),
+                                                 GetShift2() /*]*/, 0, _shift, &this);
             break;
         }
         break;

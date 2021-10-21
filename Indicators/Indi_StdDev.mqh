@@ -29,6 +29,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "../Storage/ObjectsCache.h"
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
 
@@ -199,14 +200,26 @@ class Indi_StdDev : public Indicator<StdDevParams> {
    * Standard Deviation On Array is just a normal standard deviation over MA with a selected method.
    */
   static double iStdDevOnArray(const double &price[], int period, ENUM_MA_METHOD ma_method = MODE_SMA) {
-    Indi_PriceFeeder indi_price_feeder(price);
+    string _key = "Indi_PriceFeeder";
+    Indi_PriceFeeder *_indi_price_feeder;
+    if (!ObjectsCache<Indi_PriceFeeder>::TryGet(_key, _indi_price_feeder)) {
+      PriceFeederIndiParams _params();
+      _indi_price_feeder = ObjectsCache<Indi_PriceFeeder>::Set(_key, new Indi_PriceFeeder(_params));
+    }
+
+    // Filling reused price feeder.
+    _indi_price_feeder.SetPrices(price);
 
     MAParams ma_params(period, 0, ma_method, PRICE_OPEN);
     Indi_MA *_indi_ma =
         Indi_MA::GetCached("Indi_StdDev:Unbuffered", (ENUM_TIMEFRAMES)-1, period, 0, ma_method, (ENUM_APPLIED_PRICE)-1);
-    _indi_ma.SetDataSource(&indi_price_feeder, false, 0);  // Using first and only mode from price feeder.
 
-    return iStdDevOnIndicator(_indi_ma, NULL, NULL, period, 0, PRICE_OPEN, /*unused*/ 0);
+    _indi_ma.SetDataSource(_indi_price_feeder, 0);  // Using first and only mode from price feeder.
+    double _result = iStdDevOnIndicator(_indi_ma, NULL, NULL, period, 0, PRICE_OPEN, /*unused*/ 0);
+    // We don't want to store reference to indicator too long.
+    _indi_ma.SetDataSource(NULL, 0);
+
+    return _result;
   }
 
   /**
