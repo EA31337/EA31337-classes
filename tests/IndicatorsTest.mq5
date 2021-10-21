@@ -243,7 +243,8 @@ bool InitIndicators() {
   indis.Push(new Indi_BullsPower(bulls_params));
 
   // Market Facilitation Index (BWMFI).
-  indis.Push(new Indi_BWMFI());
+  BWMFIParams _bwmfi_params(1);
+  indis.Push(new Indi_BWMFI(_bwmfi_params));
 
   // Commodity Channel Index (CCI).
   CCIParams cci_params(14, PRICE_OPEN);
