@@ -934,6 +934,16 @@ class IndicatorBase : public Chart {
   /* Virtual methods */
 
   /**
+   * Returns the indicator's struct value.
+   */
+  virtual IndicatorDataEntry GetEntry(int _shift = 0) = NULL;
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  virtual DataParamEntry GetEntryValue(int _shift = 0, int _mode = 0) = NULL;
+
+  /**
    * Returns stored data in human-readable format.
    */
   // virtual bool ToString() = NULL; // @fixme?
@@ -950,23 +960,6 @@ class IndicatorBase : public Chart {
     // @todo
     return false;
   };
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    IndicatorDataEntry _entry;
-    return _entry;
-  };
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_FLOAT};
-    _param.double_value = (float)GetEntry(_shift).GetValue<float>(_mode);
-    return _param;
-  }
 
   /**
    * Returns the indicator's value in plain format.

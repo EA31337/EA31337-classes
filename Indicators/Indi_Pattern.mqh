@@ -134,13 +134,4 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return _entry.values[1] > 0; }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_INT};
-    _param.integer_value = GetEntry(_shift).GetValue<int>(_mode);
-    return _param;
-  }
 };

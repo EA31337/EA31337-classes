@@ -167,6 +167,7 @@ void OnTick() {
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true);  // Mark as tested.
+        indis.Unset(iter.Key());
       }
     }
   }

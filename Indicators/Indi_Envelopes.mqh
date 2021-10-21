@@ -249,19 +249,6 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
   }
 
   /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-#ifdef __MQL4__
-    // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
-    _mode = _mode > 0 ? _mode - 1 : _mode;
-#endif
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
-  }
-
-  /**
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {

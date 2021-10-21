@@ -117,13 +117,4 @@ class Indi_Candle : public Indicator<CandleParams> {
     }
     return _entry;
   }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_INT};
-    _param.integer_value = GetEntry(_shift).GetValue<int>();
-    return _param;
-  }
 };

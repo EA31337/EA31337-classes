@@ -115,14 +115,4 @@ class Indi_PriceFeeder : public Indicator<PriceFeederIndiParams> {
     }
     return _entry;
   }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    // @todo Use more modes (full OHCL).
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
-  }
 };

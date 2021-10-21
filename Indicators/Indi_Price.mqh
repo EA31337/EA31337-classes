@@ -105,15 +105,6 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   }
 
   /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
-  }
-
-  /**
    * Returns already cached version of Indi_Price for a given parameters.
    */
   static Indi_Price *GetCached(string _symbol, ENUM_TIMEFRAMES _tf, int _shift) {

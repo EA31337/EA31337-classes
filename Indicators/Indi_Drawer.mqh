@@ -219,21 +219,6 @@ class Indi_Drawer : public Indicator<DrawerParams> {
     return _entry;
   }
 
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    IndicatorDataEntry entry = GetEntry(_shift);
-    if (_mode < ArraySize(entry.values)) {
-      entry.values[_mode].Get(_param.double_value);
-      return _param;
-    }
-
-    _param.double_value = 0;
-    return _param;
-  }
-
   /* Getters */
 
   /**
