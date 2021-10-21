@@ -103,6 +103,7 @@ struct TradeSignalEntry {
     TRADE_SIGNAL_PROP_TIME,
     TRADE_SIGNAL_PROP_WEIGHT,
   };
+
   // Enumeration for strategy signal types.
   enum ENUM_TRADE_SIGNAL_OP {
     TRADE_SIGNAL_OP_SELL = -1,    // Signal to sell.
