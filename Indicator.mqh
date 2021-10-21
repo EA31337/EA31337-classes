@@ -308,9 +308,6 @@ class Indicator : public IndicatorBase {
       }
 
       T _value = _entry.GetValue<T>(_mode);
-
-      //    Print(_value);
-
       _buffer[_buffer_size - i - 1] = _value;
       ++_num_copied;
     }
@@ -896,7 +893,7 @@ class Indicator : public IndicatorBase {
    */
   virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
     bool _result = true;
-    //_result &= !_entry.HasValue<double>(NULL);
+    _result &= !_entry.HasValue<double>(NULL);
     _result &= !_entry.HasValue<double>(EMPTY_VALUE);
     if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
       _result &= !_entry.HasValue<double>(DBL_MAX);
