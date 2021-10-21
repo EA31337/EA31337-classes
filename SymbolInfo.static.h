@@ -118,6 +118,55 @@ class SymbolInfoStatic {
   }
 
   /**
+   * Get a contract lot size in the base currency.
+   */
+  static double GetTradeContractSize(string _symbol) {
+    // Same as: MarketInfo(symbol, MODE_LOTSIZE);
+    return SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_CONTRACT_SIZE);
+  }
+
+  /**
+   * Get a market distance in points.
+   *
+   * Minimal permissible distance value in points for StopLoss/TakeProfit.
+   *
+   * This is due that at placing of a pending order, the open price cannot be too close to the market.
+   * The minimal distance of the pending price from the current market one in points can be obtained
+   * using the MarketInfo() function with the MODE_STOPLEVEL parameter.
+   * Related error messages:
+   *   Error 130 (ERR_INVALID_STOPS) happens In case of false open price of a pending order.
+   *   Error 145 (ERR_TRADE_MODIFY_DENIED) happens when modification of order was too close to market.
+   *
+   * @see: https://book.mql4.com/appendix/limits
+   */
+  static long GetTradeDistanceInPts(string _symbol) {
+    return fmax(GetTradeStopsLevel(_symbol), GetFreezeLevel(_symbol));
+  }
+
+  /**
+   * Get a market distance in pips.
+   *
+   * Minimal permissible distance value in pips for StopLoss/TakeProfit.
+   *
+   * @see: https://book.mql4.com/appendix/limits
+   */
+  static double GetTradeDistanceInPips(string _symbol) {
+    unsigned int _pts_per_pip = GetPointsPerPip(_symbol);
+    return _pts_per_pip > 0 ? double(GetTradeDistanceInPts(_symbol) / _pts_per_pip) : 0;
+  }
+
+  /**
+   * Get a market gap in value.
+   *
+   * Minimal permissible distance value in value for StopLoss/TakeProfit.
+   *
+   * @see: https://book.mql4.com/appendix/limits
+   */
+  static double GetTradeDistanceInValue(string _symbol) {
+    return GetTradeDistanceInPts(_symbol) * GetPointSize(_symbol);
+  }
+
+  /**
    * Get pip precision.
    */
   static unsigned int GetPipDigits(string _symbol) { return GetDigits(_symbol) < 4 ? 2 : 4; }
@@ -292,15 +341,6 @@ class SymbolInfoStatic {
    */
   static long GetTradeStopsLevel(string _symbol) {
     return SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_STOPS_LEVEL);
-  }
-
-  /**
-   * Get a contract lot size in the base currency.
-   */
-  static double GetTradeContractSize(string _symbol) {
-    return SymbolInfoStatic::SymbolInfoDouble(
-        _symbol,
-        SYMBOL_TRADE_CONTRACT_SIZE);  // Same as: MarketInfo(symbol, MODE_LOTSIZE);
   }
 
   /**

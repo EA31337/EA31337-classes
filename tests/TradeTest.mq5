@@ -50,19 +50,6 @@ int OnInit() {
   assertTrueOrFail(trade1.GetChart().Get<string>(CHART_PARAM_SYMBOL) == _Symbol, "Fail on GetSymbol()!");
   // assertTrueOrFail(trade1.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
 
-  assertTrueOrFail(
-      trade1.GetTradeDistanceInPts() >= 0 && trade1.GetTradeDistanceInPts() == Trade::GetTradeDistanceInPts(_Symbol),
-      "Invalid GetTradeDistanceInPts()!");
-  assertTrueOrFail(
-      trade1.GetTradeDistanceInPips() >= 0 && trade1.GetTradeDistanceInPips() == Trade::GetTradeDistanceInPips(_Symbol),
-      "Invalid GetTradeDistanceInPips()!");
-  assertTrueOrFail(trade1.GetTradeDistanceInValue() >= 0 &&
-                       (float)trade1.GetTradeDistanceInValue() == (float)Trade::GetTradeDistanceInValue(_Symbol),
-                   "Invalid GetTradeDistanceInValue()!");
-  Print("Trade1: ", trade1.ToString());
-  // Clean up.
-  delete trade1;
-
   // Test 2.
   ChartParams _cparams_m5(PERIOD_M5, _Symbol);
   Trade *trade2 = new Trade(trade_params_defaults, _cparams_m5);

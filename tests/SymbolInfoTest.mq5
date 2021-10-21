@@ -118,6 +118,23 @@ int OnInit() {
   assertTrueOrFail(si.GetMarginInit() == SymbolInfoStatic::GetMarginInit(_Symbol), "Invalid: GetMarginInit()!");
   assertTrueOrFail(si.GetMarginMaintenance() == SymbolInfoStatic::GetMarginMaintenance(_Symbol),
                    "Invalid: GetMarginMaintenance()!");
+  // @todo
+
+  /* @see: SymbolInfoStatic
+  assertTrueOrFail(
+      trade1.GetTradeDistanceInPts() >= 0 && trade1.GetTradeDistanceInPts() == Trade::GetTradeDistanceInPts(_Symbol),
+      "Invalid GetTradeDistanceInPts()!");
+  assertTrueOrFail(
+      trade1.GetTradeDistanceInPips() >= 0 && trade1.GetTradeDistanceInPips() == Trade::GetTradeDistanceInPips(_Symbol),
+      "Invalid GetTradeDistanceInPips()!");
+  assertTrueOrFail(trade1.GetTradeDistanceInValue() >= 0 &&
+                       (float)trade1.GetTradeDistanceInValue() == (float)Trade::GetTradeDistanceInValue(_Symbol),
+                   "Invalid GetTradeDistanceInValue()!");
+  Print("Trade1: ", trade1.ToString());
+  // Clean up.
+  delete trade1;
+  */
+
   // Test saving ticks.
   si.SaveTick(dtick);
   si.SaveTick(ltick);

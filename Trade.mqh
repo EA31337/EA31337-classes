@@ -1053,11 +1053,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     // @fixme
     // _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), GetChart().GetVolumeMin()) : _lot_size;
-    return (float)_price +
-           GetTradeDistanceInValue()
-           // + Convert::MoneyToValue(account.GetTotalBalance() / 100 * _risk_margin, _lot_size)
-           // + Convert::MoneyToValue(account.GetMarginAvail() / 100 * _risk_margin, _lot_size)
-           + _margin * Order::OrderDirection(_cmd, _mode);
+    return float(_price +
+                 SymbolInfoStatic::GetTradeDistanceInValue(GetChart().Get<string>(CHART_PARAM_SYMBOL))
+                 // + Convert::MoneyToValue(account.GetTotalBalance() / 100 * _risk_margin, _lot_size)
+                 // + Convert::MoneyToValue(account.GetMarginAvail() / 100 * _risk_margin, _lot_size)
+                 + _margin * Order::OrderDirection(_cmd, _mode));
   }
   float GetMaxSL(ENUM_ORDER_TYPE _cmd = NULL, float _lot_size = 0, float _risk_margin = 1.0) {
     return GetMaxSLTP(_cmd, _lot_size, ORDER_TYPE_SL, _risk_margin);
@@ -1119,48 +1119,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   }
 
   /**
-   * Get a market distance in points.
-   *
-   * Minimal permissible distance value in points for StopLoss/TakeProfit.
-   *
-   * This is due that at placing of a pending order, the open price cannot be too close to the market.
-   * The minimal distance of the pending price from the current market one in points can be obtained
-   * using the MarketInfo() function with the MODE_STOPLEVEL parameter.
-   * Related error messages:
-   *   Error 130 (ERR_INVALID_STOPS) happens In case of false open price of a pending order.
-   *   Error 145 (ERR_TRADE_MODIFY_DENIED) happens when modification of order was too close to market.
-   *
-   * @see: https://book.mql4.com/appendix/limits
-   */
-  static long GetTradeDistanceInPts(string _symbol) {
-    return fmax(SymbolInfoStatic::GetTradeStopsLevel(_symbol), SymbolInfoStatic::GetFreezeLevel(_symbol));
-  }
-  long GetTradeDistanceInPts() { return GetTradeDistanceInPts(GetChart().GetSymbol()); }
-
-  /**
    * Get a market distance in pips.
    *
    * Minimal permissible distance value in pips for StopLoss/TakeProfit.
-   *
-   * @see: https://book.mql4.com/appendix/limits
    */
-  static double GetTradeDistanceInPips(string _symbol) {
-    unsigned int _pts_per_pip = SymbolInfoStatic::GetPointsPerPip(_symbol);
-    return (double)(_pts_per_pip > 0 ? (GetTradeDistanceInPts(_symbol) / _pts_per_pip) : 0);
-  }
-  double GetTradeDistanceInPips() { return GetTradeDistanceInPips(GetChart().GetSymbol()); }
+  // double GetTradeDistanceInPips() { return GetTradeDistanceInPips(GetChart().GetSymbol()); }
 
   /**
    * Get a market gap in value.
    *
    * Minimal permissible distance value in value for StopLoss/TakeProfit.
-   *
-   * @see: https://book.mql4.com/appendix/limits
    */
-  static double GetTradeDistanceInValue(string _symbol) {
-    return Trade::GetTradeDistanceInPts(_symbol) * SymbolInfoStatic::GetPointSize(_symbol);
-  }
-  float GetTradeDistanceInValue() { return (float)GetTradeDistanceInValue(GetChart().GetSymbol()); }
+  // float GetTradeDistanceInValue() { return (float)GetTradeDistanceInValue(GetChart().GetSymbol()); }
 
   /* Trend methods */
 
@@ -1430,10 +1400,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         switch (_mode) {
           // Bid - StopLoss >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_SL:
-            return fmin(_value, GetChart().GetBid() - GetTradeDistanceInValue());
+            return fmin(_value, GetChart().GetBid() - SymbolInfoStatic::GetTradeDistanceInValue(
+                                                          GetChart().Get<string>(CHART_PARAM_SYMBOL)));
           // TakeProfit - Bid >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_TP:
-            return fmax(_value, GetChart().GetBid() + GetTradeDistanceInValue());
+            return fmax(_value, GetChart().GetBid() + SymbolInfoStatic::GetTradeDistanceInValue(
+                                                          GetChart().Get<string>(CHART_PARAM_SYMBOL)));
           default:
             logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
@@ -1445,10 +1417,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         switch (_mode) {
           // StopLoss - Ask >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_SL:
-            return fmax(_value, GetChart().GetAsk() + GetTradeDistanceInValue());
+            return fmax(_value, GetChart().GetAsk() + SymbolInfoStatic::GetTradeDistanceInValue(
+                                                          GetChart().Get<string>(CHART_PARAM_SYMBOL)));
           // Ask - TakeProfit >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_TP:
-            return fmin(_value, GetChart().GetAsk() - GetTradeDistanceInValue());
+            return fmin(_value, GetChart().GetAsk() - SymbolInfoStatic::GetTradeDistanceInValue(
+                                                          GetChart().Get<string>(CHART_PARAM_SYMBOL)));
           default:
             logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
@@ -1481,7 +1455,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @see: https://book.mql4.com/appendix/limits
    */
   double IsValidOrderPrice(ENUM_ORDER_TYPE _cmd, double price) {
-    double distance = GetTradeDistanceInValue();
+    double distance = SymbolInfoStatic::GetTradeDistanceInValue(GetChart().Get<string>(CHART_PARAM_SYMBOL));
     // bool result;
     switch (_cmd) {
       case ORDER_TYPE_BUY_STOP:
@@ -1512,7 +1486,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     if (_value == 0 && _value == _value_prev) {
       return _is_valid;
     }
-    double _min_distance = GetTradeDistanceInPips();
+    double _min_distance = SymbolInfoStatic::GetTradeDistanceInPips(GetChart().Get<string>(CHART_PARAM_SYMBOL));
     double _price = GetChart().GetOpenOffer(_cmd);
     unsigned int _digits = GetChart().GetDigits();
     switch (_cmd) {
@@ -1527,7 +1501,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
     }
     if (_is_valid && _value_prev > 0) {
-      _is_valid &= Convert::GetValueDiffInPips(_value, _value_prev, true, _digits) > GetTradeDistanceInPips();
+      _is_valid &= Convert::GetValueDiffInPips(_value, _value_prev, true, _digits) >
+                   SymbolInfoStatic::GetTradeDistanceInPips(GetChart().Get<string>(CHART_PARAM_SYMBOL));
     }
 #ifdef __debug__
     if (!_is_valid) {
@@ -1564,7 +1539,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     double openprice = GetChart().GetOpenOffer(_cmd);
     double closeprice = GetChart().GetCloseOffer(_cmd);
     // The minimum distance of SYMBOL_TRADE_STOPS_LEVEL taken into account.
-    double distance = GetTradeDistanceInValue();
+    double distance = SymbolInfoStatic::GetTradeDistanceInValue(GetChart().Get<string>(CHART_PARAM_SYMBOL));
     // bool result;
     switch (_cmd) {
       case ORDER_TYPE_BUY:
@@ -1632,7 +1607,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     if (_value == 0 && _value == _value_prev) {
       return _is_valid;
     }
-    double _min_distance = GetTradeDistanceInPips();
+    double _min_distance = SymbolInfoStatic::GetTradeDistanceInPips(GetChart().Get<string>(CHART_PARAM_SYMBOL));
     double _price = GetChart().GetOpenOffer(_cmd);
     unsigned int _digits = GetChart().GetDigits();
     switch (_cmd) {
@@ -1647,7 +1622,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
     }
     if (_is_valid && _value_prev > 0) {
-      _is_valid &= Convert::GetValueDiffInPips(_value, _value_prev, true, _digits) > GetTradeDistanceInPips();
+      _is_valid &= Convert::GetValueDiffInPips(_value, _value_prev, true, _digits) >
+                   SymbolInfoStatic::GetTradeDistanceInPips(GetChart().Get<string>(CHART_PARAM_SYMBOL));
     }
 #ifdef __debug__
     if (!_is_valid) {
