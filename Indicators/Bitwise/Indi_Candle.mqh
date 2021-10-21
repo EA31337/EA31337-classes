@@ -79,7 +79,7 @@ class Indi_Candle : public Indicator<CandleParams> {
           // In this mode, price is fetched from given indicator. Such indicator
           // must have at least 4 buffers and define OHLC in the first 4 buffers.
           // Indi_Price is an example of such indicator.
-          if (indi_src == NULL) {
+          if (!indi_src.IsSet()) {
             GetLogger().Error(
                 "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
                 "which is a part of CandleParams structure.",
@@ -93,10 +93,10 @@ class Indi_Candle : public Indicator<CandleParams> {
             return _entry;
           }
 
-          _ohlcs[0].open = indi_src.GetValue<float>(_shift, PRICE_OPEN);
-          _ohlcs[0].high = indi_src.GetValue<float>(_shift, PRICE_HIGH);
-          _ohlcs[0].low = indi_src.GetValue<float>(_shift, PRICE_LOW);
-          _ohlcs[0].close = indi_src.GetValue<float>(_shift, PRICE_CLOSE);
+          _ohlcs[0].open = GetDataSource().GetValue<float>(_shift, PRICE_OPEN);
+          _ohlcs[0].high = GetDataSource().GetValue<float>(_shift, PRICE_HIGH);
+          _ohlcs[0].low = GetDataSource().GetValue<float>(_shift, PRICE_LOW);
+          _ohlcs[0].close = GetDataSource().GetValue<float>(_shift, PRICE_CLOSE);
           break;
         default:
           SetUserError(ERR_INVALID_PARAMETER);

@@ -89,8 +89,8 @@ class Indi_Bands : public Indicator<BandsParams> {
   /**
    * Class constructor.
    */
-  Indi_Bands(BandsParams &_p, IndicatorBase *_indi_src = NULL, bool _managed = true, int _mode = 0)
-      : Indicator<BandsParams>(_p, _indi_src, _managed, _mode) {}
+  Indi_Bands(BandsParams &_p, IndicatorBase *_indi_src = NULL, int _mode = 0)
+      : Indicator<BandsParams>(_p, _indi_src, _mode) {}
   Indi_Bands(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BANDS, _tf) {}
 
   /**

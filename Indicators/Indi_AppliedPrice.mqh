@@ -83,7 +83,7 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
           DebugBreak();
         }
         */
-        _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(indi_src, GetAppliedPrice(), _shift);
+        _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

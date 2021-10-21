@@ -77,12 +77,12 @@ class Indicator : public IndicatorBase {
   /**
    * Class constructor.
    */
-  Indicator(const TS& _iparams, IndicatorBase* _indi_src = NULL, bool _indi_managed = true, int _indi_mode = 0)
+  Indicator(const TS& _iparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
       : IndicatorBase(_iparams.GetTf(), NULL) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     if (_indi_src != NULL) {
-      SetDataSource(_indi_src, _indi_managed, _indi_mode);
+      SetDataSource(_indi_src, _indi_mode);
     }
     Init();
   }
@@ -102,18 +102,7 @@ class Indicator : public IndicatorBase {
   /**
    * Class deconstructor.
    */
-  ~Indicator() {
-    DeinitDraw();
-
-    if (indi_src != NULL && iparams.indi_managed) {
-      // User selected custom, managed data source.
-      if (CheckPointer(indi_src) == POINTER_INVALID) {
-        DebugBreak();
-      }
-      delete indi_src;
-      indi_src = NULL;
-    }
-  }
+  ~Indicator() { DeinitDraw(); }
 
   /* Init methods */
 
@@ -125,7 +114,7 @@ class Indicator : public IndicatorBase {
       case IDATA_ICUSTOM:
         break;
       case IDATA_INDICATOR:
-        if (indi_src == NULL) {
+        if (!indi_src.IsSet()) {
           // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
           // SetDataSource(_indi_price, true, PRICE_OPEN);
         }
@@ -319,9 +308,6 @@ class Indicator : public IndicatorBase {
       }
 
       T _value = _entry.GetValue<T>(_mode);
-
-      //    Print(_value);
-
       _buffer[_buffer_size - i - 1] = _value;
       ++_num_copied;
     }
@@ -667,9 +653,9 @@ class Indicator : public IndicatorBase {
   /**
    * Sets indicator data source.
    */
-  void SetDataSource(IndicatorBase* _indi, bool _managed, int _input_mode) {
+  void SetDataSource(IndicatorBase* _indi, int _input_mode) {
     indi_src = _indi;
-    iparams.SetDataSource(-1, _input_mode, _managed);
+    iparams.SetDataSource(-1, _input_mode);
   }
 
   /**

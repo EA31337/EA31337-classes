@@ -369,7 +369,6 @@ struct IndicatorParams {
   color indi_color;                     // Indicator color.
   int indi_data_source_id;              // Id of the indicator to be used as data source.
   int indi_data_source_mode;            // Mode used as input from data source.
-  bool indi_managed;                    // Whether indicator should be owned by indicator.
   ARRAY(DataParamEntry, input_params);  // Indicator input params.
   bool is_draw;                         // Draw active.
   int draw_window;                      // Drawing window.
@@ -469,10 +468,9 @@ struct IndicatorParams {
     draw_window = _window;
   }
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
-  void SetDataSource(int _id, int _input_mode = -1, bool _managed = true) {
+  void SetDataSource(int _id, int _input_mode = -1) {
     indi_data_source_id = _id;
     indi_data_source_mode = _input_mode;
-    indi_managed = _managed;
     idstype = IDATA_INDICATOR;
   }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }

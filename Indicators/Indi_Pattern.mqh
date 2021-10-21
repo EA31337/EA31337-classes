@@ -85,7 +85,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
           // In this mode, price is fetched from given indicator. Such indicator
           // must have at least 4 buffers and define OHLC in the first 4 buffers.
           // Indi_Price is an example of such indicator.
-          if (indi_src == NULL) {
+          if (!indi_src.IsSet()) {
             GetLogger().Error(
                 "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
                 "which is a part of PatternParams structure.",
@@ -99,10 +99,10 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
           }
 
           for (i = 0; i < iparams.GetMaxModes(); ++i) {
-            _ohlcs[i].open = indi_src.GetValue<float>(_shift + i, PRICE_OPEN);
-            _ohlcs[i].high = indi_src.GetValue<float>(_shift + i, PRICE_HIGH);
-            _ohlcs[i].low = indi_src.GetValue<float>(_shift + i, PRICE_LOW);
-            _ohlcs[i].close = indi_src.GetValue<float>(_shift + i, PRICE_CLOSE);
+            _ohlcs[i].open = GetDataSource().GetValue<float>(_shift + i, PRICE_OPEN);
+            _ohlcs[i].high = GetDataSource().GetValue<float>(_shift + i, PRICE_HIGH);
+            _ohlcs[i].low = GetDataSource().GetValue<float>(_shift + i, PRICE_LOW);
+            _ohlcs[i].close = GetDataSource().GetValue<float>(_shift + i, PRICE_CLOSE);
             if (!_ohlcs[i].IsValid()) {
               // Return empty entry on invalid candles.
               return _entry;
