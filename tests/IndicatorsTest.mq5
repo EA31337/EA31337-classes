@@ -612,6 +612,12 @@ bool PrintIndicators(string _prefix = "") {
     }
 
     IndicatorBase* _indi = iter.Value().Ptr();
+
+    if (_indi.GetModeCount() == 0) {
+      // Indicator has no modes.
+      continue;
+    }
+
     string _indi_name = _indi.GetFullName();
     MqlParam _value = _indi.GetEntryValue();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
