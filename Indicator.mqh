@@ -893,6 +893,7 @@ class Indicator : public IndicatorBase {
    */
   virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
     bool _result = true;
+    _result &= _entry.timestamp > 0;
     _result &= !_entry.HasValue<double>(NULL);
     _result &= !_entry.HasValue<double>(EMPTY_VALUE);
     if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
@@ -930,7 +931,7 @@ class Indicator : public IndicatorBase {
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
-      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
+      GetEntryAlter(_entry, _shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
@@ -940,6 +941,16 @@ class Indicator : public IndicatorBase {
     }
     return _entry;
   }
+
+  /**
+   * Alters indicator's struct value.
+   *
+   * This method allows user to modify the struct entry before it's added to cache.
+   * This method is called on GetEntry() right after values are set.
+   */
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) {
+    _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
+  };
 
   /**
    * Returns the indicator's entry value for the given shift and mode.

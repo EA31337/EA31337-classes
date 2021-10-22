@@ -939,6 +939,14 @@ class IndicatorBase : public Chart {
   virtual IndicatorDataEntry GetEntry(int _shift = 0) = NULL;
 
   /**
+   * Alters indicator's struct value.
+   *
+   * This method allows user to modify the struct entry before it's added to cache.
+   * This method is called on GetEntry() right after values are set.
+   */
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) = NULL;
+
+  /**
    * Returns the indicator's entry value.
    */
   virtual DataParamEntry GetEntryValue(int _shift = 0, int _mode = 0) = NULL;

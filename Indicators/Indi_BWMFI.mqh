@@ -131,61 +131,43 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
   }
 
   /**
-   * Returns the indicator's struct value.
+   * Alters indicator's struct value.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    // Accumulating shift from indicator's params.
-    _shift += iparams.shift;
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[BWMFI_BUFFER] = GetValue(BWMFI_BUFFER, _shift);
-      double _histcolor = EMPTY_VALUE;
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+    Indicator<BWMFIParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
-      // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
-      bool _vol_up = GetVolume(_shift) > GetVolume(_shift);
-      bool _val_up = GetValue(BWMFI_BUFFER, _shift) > GetValue(BWMFI_BUFFER, _shift);
-      switch (_vol_up) {
-        case true:
-          switch (_val_up) {
-            case true:
-              // Green = Volume(+) Index (+).
-              _histcolor = MFI_HISTCOLOR_GREEN;
-              break;
-            case false:
-              // Squat (Brown) = Volume(+) Index (-).
-              _histcolor = MFI_HISTCOLOR_SQUAT;
-              break;
-          }
-          break;
-        case false:
-          switch (_val_up) {
-            case true:
-              // Fale (Pink) = Volume(-) Index (+).
-              _histcolor = MFI_HISTCOLOR_FAKE;
-              break;
-            case false:
-              // Fade (Blue) = Volume(-) Index (-).
-              _histcolor = MFI_HISTCOLOR_FADE;
-              break;
-          }
-          break;
-      }
-#else
-      _histcolor = GetValue(BWMFI_HISTCOLOR, _shift);
-#endif
-      _entry.values[BWMFI_HISTCOLOR] = _histcolor;
-      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        idata.Add(_entry, _bar_time);
-      }
+    // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
+    bool _vol_up = GetVolume(_shift) > GetVolume(_shift);
+    bool _val_up = GetValue(BWMFI_BUFFER, _shift) > GetValue(BWMFI_BUFFER, _shift);
+    double _histcolor = EMPTY_VALUE;
+    switch (_vol_up) {
+      case true:
+        switch (_val_up) {
+          case true:
+            // Green = Volume(+) Index (+).
+            _histcolor = MFI_HISTCOLOR_GREEN;
+            break;
+          case false:
+            // Squat (Brown) = Volume(+) Index (-).
+            _histcolor = MFI_HISTCOLOR_SQUAT;
+            break;
+        }
+        break;
+      case false:
+        switch (_val_up) {
+          case true:
+            // Fale (Pink) = Volume(-) Index (+).
+            _histcolor = MFI_HISTCOLOR_FAKE;
+            break;
+          case false:
+            // Fade (Blue) = Volume(-) Index (-).
+            _histcolor = MFI_HISTCOLOR_FADE;
+            break;
+        }
+        break;
     }
-    return _entry;
+    _entry.values[BWMFI_HISTCOLOR] = _histcolor;
+#endif
   }
 
   /**
