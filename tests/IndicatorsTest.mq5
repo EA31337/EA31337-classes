@@ -171,6 +171,7 @@ void OnTick() {
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true);  // Mark as tested.
+        indis.Unset(iter.Key());
       }
     }
   }
@@ -243,7 +244,8 @@ bool InitIndicators() {
   indis.Push(new Indi_BullsPower(bulls_params));
 
   // Market Facilitation Index (BWMFI).
-  indis.Push(new Indi_BWMFI());
+  BWMFIParams _bwmfi_params(1);
+  indis.Push(new Indi_BWMFI(_bwmfi_params));
 
   // Commodity Channel Index (CCI).
   CCIParams cci_params(14, PRICE_OPEN);
@@ -610,6 +612,12 @@ bool PrintIndicators(string _prefix = "") {
     }
 
     IndicatorBase* _indi = iter.Value().Ptr();
+
+    if (_indi.GetModeCount() == 0) {
+      // Indicator has no modes.
+      continue;
+    }
+
     string _indi_name = _indi.GetFullName();
     MqlParam _value = _indi.GetEntryValue();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||

@@ -120,15 +120,6 @@ class Indi_WPR : public Indicator<WPRParams> {
     return _value;
   }
 
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
-  }
-
   /* Getters */
 
   /**

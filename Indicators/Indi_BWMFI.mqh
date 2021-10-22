@@ -76,8 +76,6 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
   static double iBWMFI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                        ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
-    // Adjusting shift for MT4.
-    _shift++;
     return ::iBWMFI(_symbol, _tf, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
@@ -102,7 +100,7 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
         return EMPTY_VALUE;
       }
     }
-    if (CopyBuffer(_handle, _mode, _shift + 1, 1, _res) < 0) {
+    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
@@ -136,6 +134,8 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    // Accumulating shift from indicator's params.
+    _shift += iparams.shift;
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
     IndicatorDataEntry _entry(iparams.GetMaxModes());
@@ -147,8 +147,8 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
       double _histcolor = EMPTY_VALUE;
 #ifdef __MQL4__
       // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
-      bool _vol_up = GetVolume(_shift) > GetVolume(_shift + 1);
-      bool _val_up = GetValue(BWMFI_BUFFER, _shift) > GetValue(BWMFI_BUFFER, _shift + 1);
+      bool _vol_up = GetVolume(_shift) > GetVolume(_shift);
+      bool _val_up = GetValue(BWMFI_BUFFER, _shift) > GetValue(BWMFI_BUFFER, _shift);
       switch (_vol_up) {
         case true:
           switch (_val_up) {

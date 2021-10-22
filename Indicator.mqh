@@ -914,7 +914,7 @@ class Indicator : public IndicatorBase {
   };
 
   /**
-   * Returns the indicator's struct value.
+   * Returns the indicator's struct entry for the given shift.
    *
    * @see: IndicatorDataEntry.
    *
@@ -942,12 +942,24 @@ class Indicator : public IndicatorBase {
   }
 
   /**
-   * Returns the indicator's entry value.
+   * Returns the indicator's entry value for the given shift and mode.
+   *
+   * @see: DataParamEntry.
+   *
+   * @return
+   *   Returns DataParamEntry struct filled with a single value.
    */
-  virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_FLOAT};
-    _param.double_value = (float)GetEntry(_shift).GetValue<float>(_mode);
-    return _param;
+  virtual DataParamEntry GetEntryValue(int _shift = 0, int _mode = 0) {
+    IndicatorDataEntry _entry = GetEntry(_shift);
+    DataParamEntry _value_entry;
+    if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
+      _value_entry = _entry.GetValue<double>(_mode);
+    } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
+      _value_entry = _entry.GetValue<float>(_mode);
+    } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
+      _value_entry = _entry.GetValue<int>(_mode);
+    }
+    return _value_entry;
   }
 
   /**
