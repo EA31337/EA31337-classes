@@ -152,6 +152,7 @@ struct IndicatorDataEntry {
 
   // Constructors.
   IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { Resize(_size); }
+  IndicatorDataEntry(IndicatorDataEntry &_entry) { THIS_REF = _entry; }
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
   template <typename T>

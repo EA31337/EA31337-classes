@@ -894,14 +894,15 @@ class Indicator : public IndicatorBase {
   virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
     bool _result = true;
     _result &= _entry.timestamp > 0;
-    _result &= !_entry.HasValue<double>(NULL);
-    _result &= !_entry.HasValue<double>(EMPTY_VALUE);
     if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
       _result &= !_entry.HasValue<double>(DBL_MAX);
+      _result &= !_entry.HasValue<double>(NULL);
     } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
-      _result &= !_entry.HasValue<double>(FLT_MAX);
+      _result &= !_entry.HasValue<float>(FLT_MAX);
+      _result &= !_entry.HasValue<float>(NULL);
     } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
-      _result &= !_entry.HasValue<double>(INT_MAX);
+      _result &= !_entry.HasValue<int>(INT_MAX);
+      _result &= !_entry.HasValue<int>(NULL);
     }
     return _result;
   }
@@ -923,22 +924,28 @@ class Indicator : public IndicatorBase {
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
   virtual IndicatorDataEntry GetEntry(int _shift = -1) {
-    long _bar_time = GetBarTime(_shift);
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    long _bar_time = GetBarTime(_ishift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
+      ResetLastError();
       _entry.Resize(iparams.GetMaxModes());
-      _entry.timestamp = GetBarTime(_shift);
-      _shift = _shift >= 0 ? _shift : iparams.GetShift();
+      _entry.timestamp = GetBarTime(_ishift);
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
+        _entry.values[_mode] = GetValue(_mode, _ishift);
       }
-      GetEntryAlter(_entry, _shift);
+      GetEntryAlter(_entry, _ishift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
+        istate.is_changed = false;
+        istate.is_ready = _LastError == ERR_NO_ERROR;
       } else {
         _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
       }
+    }
+    if (_LastError != ERR_NO_ERROR) {
+      ResetLastError();
     }
     return _entry;
   }
@@ -977,7 +984,8 @@ class Indicator : public IndicatorBase {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = -1) {
+  virtual double GetValue(int _shift = -1, int _mode = 0) {
+    _shift = _shift >= 0 ? _shift : iparams.GetShift();
     istate.is_changed = false;
     istate.is_ready = false;
     return EMPTY_VALUE;
