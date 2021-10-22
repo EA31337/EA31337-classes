@@ -922,12 +922,13 @@ class Indicator : public IndicatorBase {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
+  virtual IndicatorDataEntry GetEntry(int _shift = -1) {
     long _bar_time = GetBarTime(_shift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(iparams.GetMaxModes());
       _entry.timestamp = GetBarTime(_shift);
+      _shift = _shift >= 0 ? _shift : iparams.GetShift();
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
@@ -960,8 +961,8 @@ class Indicator : public IndicatorBase {
    * @return
    *   Returns DataParamEntry struct filled with a single value.
    */
-  virtual DataParamEntry GetEntryValue(int _shift = 0, int _mode = 0) {
-    IndicatorDataEntry _entry = GetEntry(_shift);
+  virtual DataParamEntry GetEntryValue(int _shift = -1, int _mode = 0) {
+    IndicatorDataEntry _entry = GetEntry(_shift >= 0 ? _shift : iparams.GetShift());
     DataParamEntry _value_entry;
     if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
       _value_entry = _entry.GetValue<double>(_mode);
@@ -976,7 +977,7 @@ class Indicator : public IndicatorBase {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = -1) {
     istate.is_changed = false;
     istate.is_ready = false;
     return EMPTY_VALUE;
