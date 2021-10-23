@@ -138,7 +138,6 @@ class Indi_Gator : public Indicator<GatorParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period,
                               _lips_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
@@ -170,7 +169,6 @@ class Indi_Gator : public Indicator<GatorParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -190,41 +188,21 @@ class Indi_Gator : public Indicator<GatorParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
   /**
-   * Returns the indicator's struct value.
+   * Alters indicator's struct value.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[LINE_UPPER_HISTOGRAM] = GetValue(LINE_UPPER_HISTOGRAM, _shift);
-      _entry.values[LINE_LOWER_HISTOGRAM] = GetValue(LINE_LOWER_HISTOGRAM, _shift);
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+    Indicator<GatorParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
-      // @todo: Can we calculate upper and lower histogram color in MT4?
-      // @see: https://docs.mql4.com/indicators/igator
-      // @see: https://www.mql5.com/en/docs/indicators/igator
-      _entry.values[LINE_UPPER_HISTCOLOR] = (double)NULL;
-      _entry.values[LINE_LOWER_HISTCOLOR] = (double)NULL;
-#else
-      _entry.values[LINE_UPPER_HISTCOLOR] = GetValue(LINE_UPPER_HISTCOLOR, _shift);
-      _entry.values[LINE_LOWER_HISTCOLOR] = GetValue(LINE_LOWER_HISTCOLOR, _shift);
+    // @todo: Can we calculate upper and lower histogram color in MT4?
+    // @see: https://docs.mql4.com/indicators/igator
+    // @see: https://www.mql5.com/en/docs/indicators/igator
+    _entry.values[LINE_UPPER_HISTCOLOR] = (double)NULL;
+    _entry.values[LINE_LOWER_HISTCOLOR] = (double)NULL;
 #endif
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
