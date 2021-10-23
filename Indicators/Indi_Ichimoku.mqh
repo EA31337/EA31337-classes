@@ -163,33 +163,16 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
   }
 
   /**
-   * Returns the indicator's struct value.
+   * Alters indicator's struct value.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+    Indicator<IchimokuParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
-      // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
-      // so we are duplicating it.
-      _entry.values[0] = GetValue(LINE_TENKANSEN, _shift);
+    // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
+    // so we are duplicating it.
+    _entry.values[0] = GetValue(LINE_TENKANSEN, _shift);
 #endif
-      _entry.values[LINE_TENKANSEN] = GetValue(LINE_TENKANSEN, _shift);
-      _entry.values[LINE_KIJUNSEN] = GetValue(LINE_KIJUNSEN, _shift);
-      _entry.values[LINE_SENKOUSPANA] = GetValue(LINE_SENKOUSPANA, _shift);
-      _entry.values[LINE_SENKOUSPANB] = GetValue(LINE_SENKOUSPANB, _shift);
-      _entry.values[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift + 26);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
+    _entry.values[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift + 26);
   }
 
   /**

@@ -223,29 +223,14 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
   }
 
   /**
-   * Returns the indicator's struct value.
+   * Alters indicator's struct value.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
-      _entry.values[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+    Indicator<EnvelopesParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
-      // The LINE_MAIN only exists in MQL4 for Envelopes.
-      _entry.values[LINE_MAIN] = GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
+    // The LINE_MAIN only exists in MQL4 for Envelopes.
+    _entry.values[LINE_MAIN] = GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
 #endif
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
