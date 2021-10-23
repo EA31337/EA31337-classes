@@ -413,8 +413,8 @@ struct IndicatorParams {
     Init();
   };
   // Copy constructor.
-  IndicatorParams(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : tf(_tf) {
-    this = _iparams;
+  IndicatorParams(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    THIS_REF = _params;
     if (_tf != PERIOD_CURRENT) {
       tf.SetTf(_tf);
     }

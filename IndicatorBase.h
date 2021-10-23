@@ -641,7 +641,7 @@ class IndicatorBase : public Chart {
   /**
    * Sets indicator data source.
    */
-  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode) = 0;
+  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) = NULL;
 
   /**
    * Sets data source's input mode.
