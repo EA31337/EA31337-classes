@@ -28,12 +28,12 @@
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
-#include "../Indicators/Indi_MA.mqh"
-#include "../Indicators/Indi_Price.mqh"
 #include "../Refs.mqh"
 #include "../Storage/Objects.h"
 #include "../Storage/ValueStorage.h"
 #include "../String.mqh"
+#include "Indi_MA.mqh"
+#include "Price/Indi_Price.mqh"
 
 // Structs.
 struct DEMAParams : IndicatorParams {

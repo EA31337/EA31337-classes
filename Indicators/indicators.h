@@ -69,7 +69,6 @@
 #include "Indi_OsMA.mqh"
 #include "Indi_Pattern.mqh"
 #include "Indi_Pivot.mqh"
-#include "Indi_Price.mqh"
 #include "Indi_PriceChannel.mqh"
 #include "Indi_PriceFeeder.mqh"
 #include "Indi_PriceVolumeTrend.mqh"
@@ -96,6 +95,9 @@
 
 // OHLC indicators.
 #include "OHLC/Indi_OHLC.mqh"
+
+// Price indicators.
+#include "Price/Indi_Price.mqh"
 
 // Special indicators.
 #include "Special/Indi_Math.mqh"

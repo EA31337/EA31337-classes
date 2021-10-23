@@ -23,7 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../Indicators/Indi_Price.mqh"
+#include "Price/Indi_Price.mqh"
 
 /**
  * @file

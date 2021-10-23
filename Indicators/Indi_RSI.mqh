@@ -28,8 +28,8 @@
 #include "Indi_Envelopes.mqh"
 #include "Indi_MA.mqh"
 #include "Indi_Momentum.mqh"
-#include "Indi_Price.mqh"
 #include "Indi_StdDev.mqh"
+#include "Price/Indi_Price.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).

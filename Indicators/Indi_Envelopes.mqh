@@ -24,8 +24,8 @@
 #include "../Indicator.mqh"
 #include "../Storage/Singleton.h"
 #include "Indi_MA.mqh"
-#include "Indi_Price.mqh"
 #include "Indi_PriceFeeder.mqh"
+#include "Price/Indi_Price.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).

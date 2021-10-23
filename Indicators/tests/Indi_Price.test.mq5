@@ -21,7 +21,7 @@
 
 // Includes.
 #include "../../Test.mqh"
-#include "../Indi_Price.mqh"
+#include "../Price/Indi_Price.mqh"
 
 /**
  * @file

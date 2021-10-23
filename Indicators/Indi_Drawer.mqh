@@ -29,7 +29,7 @@ struct IndicatorParams;
 #include "../Indicator.mqh"
 #include "../Redis.mqh"
 #include "Indi_Drawer.struct.h"
-#include "Indi_Price.mqh"
+#include "Price/Indi_Price.mqh"
 
 /**
  * Implements the Relative Strength Index indicator.

@@ -30,8 +30,8 @@
 #include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_MA.mqh"
-#include "../Indicators/Indi_Price.mqh"
 #include "../Indicators/Indi_RSI.mqh"
+#include "../Indicators/Price/Indi_Price.mqh"
 #include "../Test.mqh"
 
 // Global variables.

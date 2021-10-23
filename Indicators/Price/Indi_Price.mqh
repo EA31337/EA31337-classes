@@ -21,9 +21,9 @@
  */
 
 // Includes.
-#include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
-#include "../Storage/Objects.h"
+#include "../../BufferStruct.mqh"
+#include "../../Indicator.mqh"
+#include "../../Storage/Objects.h"
 
 // Structs.
 struct PriceIndiParams : IndicatorParams {
