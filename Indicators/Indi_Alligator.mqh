@@ -130,7 +130,6 @@ class Indi_Alligator : public Indicator<AlligatorParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period,
                                   _lips_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
@@ -168,7 +167,6 @@ class Indi_Alligator : public Indicator<AlligatorParams> {
       return GetValue((ENUM_ALLIGATOR_LINE)1, _shift);
     }
 #endif
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -188,32 +186,7 @@ class Indi_Alligator : public Indicator<AlligatorParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = GetValue((ENUM_ALLIGATOR_LINE)_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
