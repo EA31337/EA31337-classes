@@ -29,8 +29,7 @@ struct AppliedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   AppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
-      : IndicatorParams(INDI_APPLIED_PRICE, 1, TYPE_DOUBLE) {
-    applied_price = _applied_price;
+      : applied_price(_applied_price), IndicatorParams(INDI_APPLIED_PRICE, 1, TYPE_DOUBLE) {
     SetDataSourceType(IDATA_INDICATOR);
     SetDataValueRange(IDATA_RANGE_PRICE);
     shift = _shift;
@@ -70,24 +69,33 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
           // Future validation of indi_src will check if we set mode for source indicator
           // (e.g. for applied price of Indi_Price).
           iparams.SetDataSourceMode(GetAppliedPrice());
-        } else {
-          Print("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");
-          DebugBreak();
+          _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _shift);
         }
-
-        // @fixit
-        /*
-        if (iparams.GetMaxModes() != 4) {
-          Print("Indi_AppliedPrice indicator requires that has at least 4 modes/buffers (OHLC)!");
-          DebugBreak();
-        }
-        */
-        _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
     return _value;
+  }
+
+  /**
+   * Checks if indicator entry is valid.
+   *
+   * @return
+   *   Returns true if entry is valid (has valid values), otherwise false.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    bool _is_valid = Indicator<AppliedPriceParams>::IsValidEntry(_entry);
+    switch (iparams.idstype) {
+      case IDATA_INDICATOR:
+        if (!HasDataSource()) {
+          GetLogger().Error("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");
+          _is_valid &= false;
+        }
+        break;
+    }
+    return _is_valid;
   }
 
   /* Getters */
