@@ -79,11 +79,9 @@ class Indi_DEMA : public Indicator<DEMAParams> {
    */
   static double iDEMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, unsigned int _ma_shift,
                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0, IndicatorBase *_obj = NULL) {
-    ResetLastError();
 #ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iDEMA(_symbol, _tf, _period, _ma_shift, _applied_price)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -108,7 +106,7 @@ class Indi_DEMA : public Indicator<DEMAParams> {
     }
     return _res[0];
 #else
-    Indi_Price *_indi_price = Indi_Price::GetCached(_symbol, _tf, _shift);
+    Indi_Price *_indi_price = Indi_Price::GetCached(_symbol, _applied_price, _tf, _shift);
     // Note that _applied_price and Indi_Price mode indices are compatible.
     return Indi_DEMA::iDEMAOnIndicator(_indi_price.GetCache(), _indi_price, 0, _period, _ma_shift, _shift);
 #endif
@@ -169,7 +167,6 @@ class Indi_DEMA : public Indicator<DEMAParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
 
     switch (iparams.idstype) {
@@ -191,8 +188,6 @@ class Indi_DEMA : public Indicator<DEMAParams> {
                                              GetMAShift(), _shift);
         break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 

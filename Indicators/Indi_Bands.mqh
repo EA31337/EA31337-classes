@@ -103,14 +103,11 @@ class Indi_Bands : public Indicator<BandsParams> {
   static double iBands(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
                        ENUM_APPLIED_PRICE _applied_price, ENUM_BANDS_LINE _mode = BAND_BASE, int _shift = 0,
                        IndicatorBase *_obj = NULL) {
-    ResetLastError();
-
 #ifdef __MQL4__
     return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -241,7 +238,6 @@ class Indi_Bands : public Indicator<BandsParams> {
    * (before mode and shift).
    */
   virtual double GetValue(int _mode = BAND_BASE, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -259,8 +255,6 @@ class Indi_Bands : public Indicator<BandsParams> {
                                                GetBandsShift(), (ENUM_BANDS_LINE)_mode, _shift, THIS_PTR);
         break;
     }
-    istate.is_changed = false;
-    istate.is_ready = _LastError == ERR_NO_ERROR;
     return _value;
   }
 

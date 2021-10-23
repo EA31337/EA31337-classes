@@ -23,7 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "Indi_Price.mqh"
+#include "OHLC/Indi_OHLC.mqh"
 #include "Special/Indi_Math.mqh"
 
 // Structs.
@@ -58,19 +58,18 @@ class Indi_RS : public Indicator<RSParams> {
 
   void Init() {
     if (iparams.GetDataSourceType() == IDATA_MATH) {
-      PriceIndiParams _iprice_p();
+      IndiOHLCParams _iohlc_params();
       // @todo Symbol should be already defined for a chart.
       // @todo If it's not, move initialization to GetValue()/GetEntry() method.
-      Indi_Price *_iprice = Indi_Price::GetCached(GetSymbol(), GetTf(), 0);
-
-      MathParams _imath0_p(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
-      MathParams _imath1_p(MATH_OP_SUB, PRICE_CLOSE, 1, PRICE_CLOSE, 0);
+      Indi_OHLC *_iohlc = Indi_OHLC::GetCached(GetSymbol(), GetTf(), 0);
+      MathParams _imath0_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 0, INDI_OHLC_CLOSE, 1);
+      MathParams _imath1_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 1, INDI_OHLC_CLOSE, 0);
       _imath0_p.SetTf(GetTf());
       _imath1_p.SetTf(GetTf());
       Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_p);
       Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_p);
-      _imath0.Ptr().SetDataSource(_iprice, 0);
-      _imath1.Ptr().SetDataSource(_iprice, 0);
+      _imath0.Ptr().SetDataSource(_iohlc, 0);
+      _imath1.Ptr().SetDataSource(_iohlc, 0);
       imath.Set(0, _imath0);
       imath.Set(1, _imath1);
     }
@@ -80,7 +79,6 @@ class Indi_RS : public Indicator<RSParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_MATH:
@@ -88,9 +86,8 @@ class Indi_RS : public Indicator<RSParams> {
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 

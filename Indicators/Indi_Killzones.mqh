@@ -107,14 +107,12 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
    * Returns the indicator's value.
    */
   float GetValue(unsigned int _mode, int _shift = 0) {
-    ResetLastError();
     float _value = FLT_MAX;
     int _index = (int)_mode / 2;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // Builtin mode not supported.
         SetUserError(ERR_INVALID_PARAMETER);
-        istate.is_ready = false;
         break;
       case IDATA_CHART:
         ikt.Set(::TimeGMT());
@@ -153,11 +151,8 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
-        istate.is_changed = false;
-        istate.is_ready = true;
       } else {
         _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
-        istate.is_ready = false;
       }
     }
     return _entry;

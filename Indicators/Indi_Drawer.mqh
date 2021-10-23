@@ -49,7 +49,6 @@ class Indi_Drawer : public Indicator<DrawerParams> {
 
   void Init() {
     // Drawer is always ready.
-    istate.is_ready = true;
 
     /*
        string msg_text =

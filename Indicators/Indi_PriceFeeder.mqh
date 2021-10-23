@@ -81,8 +81,6 @@ class Indi_PriceFeeder : public Indicator<PriceFeederIndiParams> {
     if (_shift >= data_size || _shift < 0) return DBL_MIN;
 
     double _value = iparams.price_data[data_size - _shift - 1];
-    istate.is_ready = true;
-    istate.is_changed = false;
     return _value;
   }
 

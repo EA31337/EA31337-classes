@@ -90,13 +90,11 @@ class Indi_MA : public Indicator<MAParams> {
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
                     ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_array, int _shift = 0,
                     IndicatorBase *_obj = NULL) {
-    ResetLastError();
 #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -628,7 +626,6 @@ class Indi_MA : public Indicator<MAParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -647,8 +644,6 @@ class Indi_MA : public Indicator<MAParams> {
                                          GetPeriod(), GetMAShift(), GetMAMethod(), _shift);
         break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 

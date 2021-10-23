@@ -99,7 +99,6 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iCustom(_symbol, _tf, "Examples\\Heiken_Ashi")) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -196,7 +195,6 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = HA_OPEN, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -230,8 +228,6 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 

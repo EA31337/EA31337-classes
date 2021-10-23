@@ -120,15 +120,17 @@ class Indi_BWZT : public Indicator<BWZTParams> {
       if (prev_calculated > 0) to_copy++;
     }
     // Get AC buffer.
-    if (IsStopped()) return (0);
     if (CopyBuffer(ExtACHandle, 0, 0, to_copy, ExtACBuffer, rates_total) <= 0) {
+#ifdef __debug__
       Print("Getting iAC is failed! Error ", GetLastError());
+#endif
       return (0);
     }
     // Get AO buffer.
-    if (IsStopped()) return (0);
     if (CopyBuffer(ExtAOHandle, 0, 0, to_copy, ExtAOBuffer, rates_total) <= 0) {
+#ifdef __debug__
       Print("Getting iAO is failed! Error ", GetLastError());
+#endif
       return (0);
     }
     // Set first bar from what calculation will start.
@@ -160,7 +162,6 @@ class Indi_BWZT : public Indicator<BWZTParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -171,9 +172,8 @@ class Indi_BWZT : public Indicator<BWZTParams> {
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 };

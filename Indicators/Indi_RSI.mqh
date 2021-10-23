@@ -110,7 +110,6 @@ class Indi_RSI : public Indicator<RSIParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iRSI(_symbol, _tf, _period, _applied_price)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -243,9 +242,10 @@ class Indi_RSI : public Indicator<RSIParams> {
 
     _obj.aux_data.Set(_bar_time_curr, new_data);
 
-    if (new_data.avg_loss == 0.0)
+    if (new_data.avg_loss == 0.0) {
       // @fixme Why 0 loss?
       return 0;
+    }
 
     double rs = new_data.avg_gain / new_data.avg_loss;
 
@@ -311,7 +311,6 @@ class Indi_RSI : public Indicator<RSIParams> {
    * (before mode and shift).
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -328,9 +327,6 @@ class Indi_RSI : public Indicator<RSIParams> {
                                            iparams.GetAppliedPrice(), _shift);
         break;
     }
-    istate.is_ready = GetLastError() == ERR_NO_ERROR;
-    istate.is_changed = false;
-    ResetLastError();
     return _value;
   }
 

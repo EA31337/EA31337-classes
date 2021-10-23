@@ -94,5 +94,8 @@
 // Bitwise indicators.
 #include "Bitwise/Indi_Candle.mqh"
 
+// OHLC indicators.
+#include "OHLC/Indi_OHLC.mqh"
+
 // Special indicators.
 #include "Special/Indi_Math.mqh"

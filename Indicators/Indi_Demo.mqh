@@ -74,8 +74,6 @@ class Indi_Demo : public Indicator<DemoIndiParams> {
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
     double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _shift, THIS_PTR);
-    istate.is_ready = true;
-    istate.is_changed = false;
     if (iparams.is_draw) {
       draw.DrawLineTo(GetName(), GetBarTime(_shift), _value);
     }

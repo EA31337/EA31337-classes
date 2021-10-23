@@ -92,7 +92,6 @@ class Indi_Math : public Indicator<MathParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_INDICATOR:
@@ -122,9 +121,8 @@ class Indi_Math : public Indicator<MathParams> {
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 

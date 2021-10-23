@@ -94,7 +94,6 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
                            int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                                        // UPPER_LINE, 1 - LOWER_LINE
                            int _shift = 0, IndicatorBase *_obj = NULL) {
-    ResetLastError();
 #ifdef __MQL4__
     return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _ap, _deviation, _mode, _shift);
 #else  // __MQL5__
@@ -108,7 +107,6 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
     }
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _ap, _deviation)) ==
           INVALID_HANDLE) {
@@ -197,7 +195,6 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -217,8 +214,6 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
