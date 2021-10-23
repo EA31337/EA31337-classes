@@ -91,6 +91,7 @@ jobs:
           - Indi_MassIndex.test
           - Indi_Momentum.test
           - Indi_OBV.test
+          - Indi_OHLC.test
           - Indi_OsMA.test
           - Indi_Pattern.test
           - Indi_Pivot.test
