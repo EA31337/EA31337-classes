@@ -106,6 +106,9 @@ class Indicator : public IndicatorBase {
 
   /* Init methods */
 
+  /**
+   * It's called on class initialization.
+   */
   bool Init() {
     ArrayResize(value_storages, iparams.GetMaxModes());
     switch (iparams.GetDataSourceType()) {

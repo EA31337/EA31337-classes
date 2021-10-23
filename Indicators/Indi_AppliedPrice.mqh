@@ -23,6 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "OHLC/Indi_OHLC.mqh"
 
 // Structs.
 struct AppliedPriceParams : IndicatorParams {
@@ -44,13 +45,23 @@ struct AppliedPriceParams : IndicatorParams {
  * Implements the "Applied Price over OHCL Indicator" indicator, e.g. over Indi_Price.
  */
 class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
+ protected:
+  void OnInit() {
+    if (!indi_src.IsSet()) {
+      Indi_OHLC *_indi_ohlc = new Indi_OHLC();
+      SetDataSource(_indi_ohlc);
+    }
+  }
+
  public:
   /**
    * Class constructor.
    */
   Indi_AppliedPrice(AppliedPriceParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<AppliedPriceParams>(_p, _indi_src){};
-  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf){};
+      : Indicator<AppliedPriceParams>(_p, _indi_src) {
+    OnInit();
+  };
+  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf) { OnInit(); };
 
   static double iAppliedPriceOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];

@@ -396,10 +396,10 @@ bool InitIndicators() {
   // Applied Price over OHCL indicator.
   AppliedPriceParams applied_price_params();
   applied_price_params.SetDraw(clrAquamarine, 0);
-  PriceIndiParams applied_price_price_params;
+  IndiOHLCParams applied_price_ohlc_params;
   Ref<Indi_AppliedPrice> indi_applied_price_on_price = new Indi_AppliedPrice(applied_price_params);
-  indi_applied_price_on_price.Ptr().SetDataSource(new Indi_Price(applied_price_price_params), PRICE_TYPICAL);
-  // indis.Push(indi_applied_price_on_price.Ptr()); // @fixme
+  indi_applied_price_on_price.Ptr().SetDataSource(new Indi_OHLC(applied_price_ohlc_params), PRICE_TYPICAL);
+  indis.Push(indi_applied_price_on_price.Ptr());
 
   // ADXW.
   ADXWParams adxw_params(14);

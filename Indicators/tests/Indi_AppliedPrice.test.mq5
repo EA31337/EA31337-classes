@@ -29,16 +29,14 @@
  * Test functionality of Indi_AppliedPrice indicator class.
  */
 
-Indi_Price *indi_source_price = new Indi_Price();
-AppliedPriceParams indi_params();
-Ref<Indi_AppliedPrice> indi = new Indi_AppliedPrice(indi_params, indi_source_price);
+Indi_AppliedPrice indi(PERIOD_CURRENT);
 
 /**
  * Implements Init event handler.
  */
 int OnInit() {
   bool _result = true;
-  assertTrueOrFail(indi.IsSet(), "Error on IsSet!");
+  assertTrueOrFail(indi.IsValid(), "Error on IsValid!");
   // assertTrueOrFail(indi.IsValidEntry(), "Error on IsValidEntry!");
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
@@ -53,7 +51,7 @@ void OnTick() {
     // Process ticks each minute.
     if (_tick_new.time % 3600 < _tick_last.time % 3600) {
       // Print indicator values every hour.
-      Print(indi.Ptr().ToString());
+      Print(indi.ToString());
     }
   }
   _tick_last = _tick_new;
