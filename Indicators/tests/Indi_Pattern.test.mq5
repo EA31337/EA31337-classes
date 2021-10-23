@@ -21,7 +21,7 @@
 
 // Includes.
 #include "../../Test.mqh"
-#include "../Indi_Pattern.mqh"
+#include "../Bitwise/Indi_Pattern.mqh"
 
 /**
  * @file

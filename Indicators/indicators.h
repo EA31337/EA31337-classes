@@ -67,7 +67,6 @@
 #include "Indi_Momentum.mqh"
 #include "Indi_OBV.mqh"
 #include "Indi_OsMA.mqh"
-#include "Indi_Pattern.mqh"
 #include "Indi_Pivot.mqh"
 #include "Indi_PriceChannel.mqh"
 #include "Indi_PriceFeeder.mqh"
@@ -92,6 +91,7 @@
 
 // Bitwise indicators.
 #include "Bitwise/Indi_Candle.mqh"
+#include "Bitwise/Indi_Pattern.mqh"
 
 // OHLC indicators.
 #include "OHLC/Indi_OHLC.mqh"

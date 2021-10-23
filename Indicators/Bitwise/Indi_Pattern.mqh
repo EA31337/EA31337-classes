@@ -21,13 +21,13 @@
  */
 
 // Includes.
-#include "../Bar.struct.h"
-#include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
-#include "../Pattern.struct.h"
-#include "../Serializer.mqh"
-#include "Price/Indi_Price.mqh"
-#include "Special/Indi_Math.mqh"
+#include "../../Bar.struct.h"
+#include "../../BufferStruct.mqh"
+#include "../../Indicator.mqh"
+#include "../../Pattern.struct.h"
+#include "../../Serializer.mqh"
+#include "../Price/Indi_Price.mqh"
+#include "../Special/Indi_Math.mqh"
 
 // Structs.
 struct IndiPatternParams : IndicatorParams {
