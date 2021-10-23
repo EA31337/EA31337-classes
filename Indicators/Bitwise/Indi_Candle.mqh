@@ -59,6 +59,7 @@ class Indi_Candle : public Indicator<CandleParams> {
    * Alters indicator's struct value.
    */
   virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
     Indicator<CandleParams>::GetEntryAlter(_entry, _shift);
   }
 

@@ -78,7 +78,7 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
 
         // @fixit
         /*
-        if (indi_src.GetParams().GetMaxModes() != 4) {
+        if (iparams.GetMaxModes() != 4) {
           Print("Indi_AppliedPrice indicator requires that has at least 4 modes/buffers (OHLC)!");
           DebugBreak();
         }

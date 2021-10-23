@@ -54,84 +54,74 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PATTERN, _tf) { iparams.tf = _tf; };
 
   /**
-   * Returns the indicator's struct value.
+   * Returns the indicator's value.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
+    int i;
+    BarOHLC _ohlcs[8];
 
-      ResetLastError();
-      BarOHLC _ohlcs[8];
-      int i;
-      int _value = WRONG_VALUE;
-
-      switch (iparams.idstype) {
-        case IDATA_BUILTIN:
-          // In this mode, price is fetched from chart.
-          for (i = 0; i < iparams.GetMaxModes(); ++i) {
-            _ohlcs[i] = Chart::GetOHLC(_shift + i);
-            if (!_ohlcs[i].IsValid()) {
-              // Return empty entry on invalid candles.
-              return _entry;
-            }
+    switch (iparams.idstype) {
+      case IDATA_BUILTIN:
+        // In this mode, price is fetched from chart.
+        for (i = 0; i < iparams.GetMaxModes(); ++i) {
+          _ohlcs[i] = Chart::GetOHLC(_shift + i);
+          if (!_ohlcs[i].IsValid()) {
+            // Return empty entry on invalid candles.
+            return WRONG_VALUE;
           }
-          break;
-        case IDATA_INDICATOR:
-          // In this mode, price is fetched from given indicator. Such indicator
-          // must have at least 4 buffers and define OHLC in the first 4 buffers.
-          // Indi_Price is an example of such indicator.
-          if (!indi_src.IsSet()) {
-            GetLogger().Error(
-                "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
-                "which is a part of PatternParams structure.",
-                "Indi_Pattern");
-            Alert(
-                "Indi_Pattern: In order use custom indicator as a source, you need to select one using "
-                "SetIndicatorData() "
-                "method, which is a part of PatternParams structure.");
-            SetUserError(ERR_INVALID_PARAMETER);
-            return _value;
-          }
-
-          for (i = 0; i < iparams.GetMaxModes(); ++i) {
-            _ohlcs[i].open = GetDataSource().GetValue<float>(_shift + i, PRICE_OPEN);
-            _ohlcs[i].high = GetDataSource().GetValue<float>(_shift + i, PRICE_HIGH);
-            _ohlcs[i].low = GetDataSource().GetValue<float>(_shift + i, PRICE_LOW);
-            _ohlcs[i].close = GetDataSource().GetValue<float>(_shift + i, PRICE_CLOSE);
-            if (!_ohlcs[i].IsValid()) {
-              // Return empty entry on invalid candles.
-              return _entry;
-            }
-          }
-          break;
-        default:
+        }
+        break;
+      case IDATA_INDICATOR:
+        // In this mode, price is fetched from given indicator. Such indicator
+        // must have at least 4 buffers and define OHLC in the first 4 buffers.
+        // Indi_Price is an example of such indicator.
+        if (!indi_src.IsSet()) {
+          GetLogger().Error(
+              "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
+              "which is a part of PatternParams structure.",
+              "Indi_Pattern");
+          Alert(
+              "Indi_Pattern: In order use custom indicator as a source, you need to select one using "
+              "SetIndicatorData() "
+              "method, which is a part of PatternParams structure.");
           SetUserError(ERR_INVALID_PARAMETER);
-      }
+          return WRONG_VALUE;
+        }
 
-      PatternEntry pattern(_ohlcs);
-
-      for (int _mode = 0; _mode < iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = pattern[_mode + 1];
-      }
-
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry) && _ohlcs[0].IsValid());
-      if (_entry.IsValid()) {
-        istate.is_ready = true;
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
+        for (i = 0; i < iparams.GetMaxModes(); ++i) {
+          _ohlcs[i].open = GetDataSource().GetValue<float>(_shift + i, PRICE_OPEN);
+          _ohlcs[i].high = GetDataSource().GetValue<float>(_shift + i, PRICE_HIGH);
+          _ohlcs[i].low = GetDataSource().GetValue<float>(_shift + i, PRICE_LOW);
+          _ohlcs[i].close = GetDataSource().GetValue<float>(_shift + i, PRICE_CLOSE);
+          if (!_ohlcs[i].IsValid()) {
+            // Return empty entry on invalid candles.
+            return WRONG_VALUE;
+          }
+        }
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        return WRONG_VALUE;
     }
-    return _entry;
+    PatternEntry pattern(_ohlcs);
+    return pattern[_mode + 1];
   }
 
   /**
-   * Checks if indicator entry values are valid.
+   * Alters indicator's struct value.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return _entry.values[1] > 0; }
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) {
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
+    Indicator<IndiPatternParams>::GetEntryAlter(_entry);
+  }
+
+  /**
+   * Checks if indicator entry is valid.
+   *
+   * @return
+   *   Returns true if entry is valid (has valid values), otherwise false.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
+    return !_entry.HasValue<double>(INT_MAX) && _entry.GetMin<int>() >= 0;
+  }
 };
