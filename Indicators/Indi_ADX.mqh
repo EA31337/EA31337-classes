@@ -33,12 +33,12 @@ double iADX(string _symbol, int _tf, int _period, int _ap, int _mode, int _shift
 #endif
 
 // Structs.
-struct ADXParams : IndicatorParams {
+struct IndiADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  ADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-            ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+  IndiADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
+                ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX, FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE) {
     SetDataSourceType(_idstype);
     SetDataValueRange(IDATA_RANGE_RANGE);
@@ -51,7 +51,7 @@ struct ADXParams : IndicatorParams {
         break;
     }
   };
-  ADXParams(ADXParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiADXParams(IndiADXParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -60,12 +60,12 @@ struct ADXParams : IndicatorParams {
 /**
  * Implements the Average Directional Movement Index indicator.
  */
-class Indi_ADX : public Indicator<ADXParams> {
+class Indi_ADX : public Indicator<IndiADXParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ADX(ADXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ADXParams>(_p, _indi_src) {}
+  Indi_ADX(IndiADXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiADXParams>(_p, _indi_src) {}
   Indi_ADX(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ADX, _tf) {}
 
   /**
@@ -135,7 +135,7 @@ class Indi_ADX : public Indicator<ADXParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<ADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
+    return Indicator<IndiADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
   }
 
   /* Getters */

@@ -31,26 +31,28 @@ double iOBV(string _symbol, int _tf, int _av, int _shift) {
 #endif
 
 // Structs.
-struct OBVParams : IndicatorParams {
+struct IndiOBVParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;    // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume;  // MT5 only.
   // Struct constructors.
-  OBVParams(int _shift = 0) : IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
+  IndiOBVParams(int _shift = 0) : IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OBV");
     applied_price = PRICE_CLOSE;
     applied_volume = VOLUME_TICK;
   }
-  OBVParams(ENUM_APPLIED_VOLUME _av, int _shift = 0) : applied_volume(_av), IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
+  IndiOBVParams(ENUM_APPLIED_VOLUME _av, int _shift = 0)
+      : applied_volume(_av), IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
     max_modes = 1;
     shift = _shift;
   };
-  OBVParams(ENUM_APPLIED_PRICE _ap, int _shift = 0) : applied_price(_ap), IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
+  IndiOBVParams(ENUM_APPLIED_PRICE _ap, int _shift = 0)
+      : applied_price(_ap), IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
     max_modes = 1;
     shift = _shift;
   };
-  OBVParams(OBVParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiOBVParams(IndiOBVParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -59,12 +61,12 @@ struct OBVParams : IndicatorParams {
 /**
  * Implements the On Balance Volume indicator.
  */
-class Indi_OBV : public Indicator<OBVParams> {
+class Indi_OBV : public Indicator<IndiOBVParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OBV(OBVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<OBVParams>(_p, _indi_src) {}
+  Indi_OBV(IndiOBVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiOBVParams>(_p, _indi_src) {}
   Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_OBV, _tf) {}
 
   /**

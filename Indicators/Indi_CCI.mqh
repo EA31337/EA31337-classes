@@ -37,17 +37,17 @@ double iCCIOnArray(double &_arr[], int _total, int _period, int _shift) {
 #endif
 
 // Structs.
-struct CCIParams : IndicatorParams {
+struct IndiCCIParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  CCIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
+  IndiCCIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
       : period(_period), applied_price(_applied_price), IndicatorParams(INDI_CCI, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CCI");
   };
-  CCIParams(CCIParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiCCIParams(IndiCCIParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -56,12 +56,12 @@ struct CCIParams : IndicatorParams {
 /**
  * Implements the Commodity Channel Index indicator.
  */
-class Indi_CCI : public Indicator<CCIParams> {
+class Indi_CCI : public Indicator<IndiCCIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CCI(CCIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CCIParams>(_p, _indi_src) {}
+  Indi_CCI(IndiCCIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCCIParams>(_p, _indi_src) {}
   Indi_CCI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_CCI, _tf) {}
 
   /**

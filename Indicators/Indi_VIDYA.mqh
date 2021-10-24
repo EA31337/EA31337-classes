@@ -26,15 +26,15 @@
 #include "../Storage/ValueStorage.price.h"
 
 // Structs.
-struct VIDYAParams : IndicatorParams {
+struct IndiVIDYAParams : IndicatorParams {
   unsigned int cmo_period;
   unsigned int ma_period;
   unsigned int vidya_shift;
   ENUM_APPLIED_PRICE applied_price;
 
   // Struct constructor.
-  VIDYAParams(unsigned int _cmo_period = 9, unsigned int _ma_period = 14, unsigned int _vidya_shift = 0,
-              ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiVIDYAParams(unsigned int _cmo_period = 9, unsigned int _ma_period = 14, unsigned int _vidya_shift = 0,
+                  ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_VIDYA, 1, TYPE_DOUBLE) {
     applied_price = _ap;
     cmo_period = _cmo_period;
@@ -44,7 +44,7 @@ struct VIDYAParams : IndicatorParams {
     shift = _shift;
     vidya_shift = _vidya_shift;
   };
-  VIDYAParams(VIDYAParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiVIDYAParams(IndiVIDYAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -53,12 +53,12 @@ struct VIDYAParams : IndicatorParams {
 /**
  * Implements the Variable Index Dynamic Average indicator.
  */
-class Indi_VIDYA : public Indicator<VIDYAParams> {
+class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_VIDYA(VIDYAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<VIDYAParams>(_p, _indi_src){};
+  Indi_VIDYA(IndiVIDYAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiVIDYAParams>(_p, _indi_src){};
   Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VIDYA, _tf){};
 
   /**

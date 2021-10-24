@@ -41,17 +41,17 @@ double iMomentum(string _symbol, int _tf, int _period, int _ap, int _shift) {
 #endif
 
 // Structs.
-struct MomentumParams : IndicatorParams {
+struct IndiMomentumParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  MomentumParams(unsigned int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  IndiMomentumParams(unsigned int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_MOMENTUM, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Momentum");
   };
-  MomentumParams(MomentumParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiMomentumParams(IndiMomentumParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -60,12 +60,13 @@ struct MomentumParams : IndicatorParams {
 /**
  * Implements the Momentum indicator.
  */
-class Indi_Momentum : public Indicator<MomentumParams> {
+class Indi_Momentum : public Indicator<IndiMomentumParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Momentum(MomentumParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MomentumParams>(_p, _indi_src) {}
+  Indi_Momentum(IndiMomentumParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiMomentumParams>(_p, _indi_src) {}
   Indi_Momentum(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MOMENTUM, _tf) {}
 
   /**

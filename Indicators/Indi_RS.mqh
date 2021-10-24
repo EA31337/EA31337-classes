@@ -27,17 +27,17 @@
 #include "Special/Indi_Math.mqh"
 
 // Structs.
-struct RSParams : IndicatorParams {
+struct IndiRSParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  RSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+  IndiRSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_RS, 2, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_MATH);
     shift = _shift;
   };
-  RSParams(RSParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiRSParams(IndiRSParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -46,14 +46,14 @@ struct RSParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_RS : public Indicator<RSParams> {
+class Indi_RS : public Indicator<IndiRSParams> {
   DictStruct<int, Ref<Indi_Math>> imath;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_RS(RSParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RSParams>(_p, _indi_src) { Init(); };
+  Indi_RS(IndiRSParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRSParams>(_p, _indi_src) { Init(); };
   Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RS, _tf) { Init(); };
 
   void Init() {
@@ -62,8 +62,8 @@ class Indi_RS : public Indicator<RSParams> {
       // @todo Symbol should be already defined for a chart.
       // @todo If it's not, move initialization to GetValue()/GetEntry() method.
       Indi_OHLC *_iohlc = Indi_OHLC::GetCached(GetSymbol(), GetTf(), 0);
-      MathParams _imath0_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 0, INDI_OHLC_CLOSE, 1);
-      MathParams _imath1_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 1, INDI_OHLC_CLOSE, 0);
+      IndiMathParams _imath0_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 0, INDI_OHLC_CLOSE, 1);
+      IndiMathParams _imath1_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 1, INDI_OHLC_CLOSE, 0);
       _imath0_p.SetTf(GetTf());
       _imath1_p.SetTf(GetTf());
       Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_p);

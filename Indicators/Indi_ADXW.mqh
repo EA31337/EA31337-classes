@@ -34,11 +34,11 @@
 #include "Price/Indi_Price.mqh"
 
 // Structs.
-struct ADXWParams : ADXParams {
+struct IndiADXWParams : IndiADXParams {
   // Struct constructor.
-  ADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-             ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : ADXParams(_period, _ap, _shift, _tf, _idstype) {
+  IndiADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
+                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+      : IndiADXParams(_period, _ap, _shift, _tf, _idstype) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
     switch (idstype) {
       case IDATA_ICUSTOM:
@@ -46,7 +46,7 @@ struct ADXWParams : ADXParams {
         break;
     }
   };
-  ADXWParams(ADXWParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiADXWParams(IndiADXWParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -55,12 +55,12 @@ struct ADXWParams : ADXParams {
 /**
  * Implements the Average Directional Movement Index indicator by Welles Wilder.
  */
-class Indi_ADXW : public Indicator<ADXWParams> {
+class Indi_ADXW : public Indicator<IndiADXWParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ADXW(ADXWParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ADXWParams>(_p, _indi_src){};
+  Indi_ADXW(IndiADXWParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiADXWParams>(_p, _indi_src){};
   Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADXW, _tf){};
 
   /**

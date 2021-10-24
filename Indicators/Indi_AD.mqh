@@ -29,14 +29,14 @@ double iAD(string _symbol, int _tf, int _shift) { return Indi_AD::iAD(_symbol, (
 #endif
 
 // Structs.
-struct ADParams : IndicatorParams {
+struct IndiADParams : IndicatorParams {
   // Struct constructor.
-  ADParams(int _shift = 0) : IndicatorParams(INDI_AD, 1, TYPE_DOUBLE) {
+  IndiADParams(int _shift = 0) : IndicatorParams(INDI_AD, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\AD");
     shift = _shift;
   };
-  ADParams(ADParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiADParams(IndiADParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -45,13 +45,13 @@ struct ADParams : IndicatorParams {
 /**
  * Implements the Accumulation/Distribution indicator.
  */
-class Indi_AD : public Indicator<ADParams> {
+class Indi_AD : public Indicator<IndiADParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AD(ADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ADParams>(_p, _indi_src){};
-  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator<ADParams>(INDI_AD, _tf) { iparams.SetTf(_tf); };
+  Indi_AD(IndiADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiADParams>(_p, _indi_src){};
+  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator<IndiADParams>(INDI_AD, _tf) { iparams.SetTf(_tf); };
 
   /**
    * Returns the indicator value.

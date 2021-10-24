@@ -33,15 +33,15 @@ double iStochastic(string _symbol, int _tf, int _kperiod, int _dperiod, int _slo
 #endif
 
 // Structs.
-struct StochParams : IndicatorParams {
+struct IndiStochParams : IndicatorParams {
   int kperiod;
   int dperiod;
   int slowing;
   ENUM_MA_METHOD ma_method;
   ENUM_STO_PRICE price_field;
   // Struct constructors.
-  StochParams(int _kperiod = 5, int _dperiod = 3, int _slowing = 3, ENUM_MA_METHOD _ma_method = MODE_SMA,
-              ENUM_STO_PRICE _pf = STO_LOWHIGH, int _shift = 0)
+  IndiStochParams(int _kperiod = 5, int _dperiod = 3, int _slowing = 3, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                  ENUM_STO_PRICE _pf = STO_LOWHIGH, int _shift = 0)
       : kperiod(_kperiod),
         dperiod(_dperiod),
         slowing(_slowing),
@@ -52,7 +52,7 @@ struct StochParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\Stochastic");
   };
-  StochParams(StochParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiStochParams(IndiStochParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -61,12 +61,12 @@ struct StochParams : IndicatorParams {
 /**
  * Implements the Stochastic Oscillator.
  */
-class Indi_Stochastic : public Indicator<StochParams> {
+class Indi_Stochastic : public Indicator<IndiStochParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Stochastic(StochParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<StochParams>(_p, _indi_src) {}
+  Indi_Stochastic(IndiStochParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiStochParams>(_p, _indi_src) {}
   Indi_Stochastic(ENUM_TIMEFRAMES _tf) : Indicator(INDI_STOCHASTIC, _tf) {}
 
   /**

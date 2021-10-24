@@ -26,14 +26,14 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct ColorBarsParams : IndicatorParams {
+struct IndiColorBarsParams : IndicatorParams {
   // Struct constructor.
-  ColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS, 5, TYPE_DOUBLE) {
+  IndiColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS, 5, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorBars");
     shift = _shift;
   };
-  ColorBarsParams(ColorBarsParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiColorBarsParams(IndiColorBarsParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -42,12 +42,13 @@ struct ColorBarsParams : IndicatorParams {
 /**
  * Implements Color Bars
  */
-class Indi_ColorBars : public Indicator<ColorBarsParams> {
+class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ColorBars(ColorBarsParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ColorBarsParams>(_p, _indi_src){};
+  Indi_ColorBars(IndiColorBarsParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiColorBarsParams>(_p, _indi_src){};
   Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_BARS, _tf){};
 
   /**

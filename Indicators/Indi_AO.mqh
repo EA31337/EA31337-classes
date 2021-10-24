@@ -29,9 +29,9 @@ double iAO(string _symbol, int _tf, int _shift) { return Indi_AO::iAO(_symbol, (
 #endif
 
 // Structs.
-struct AOParams : IndicatorParams {
+struct IndiAOParams : IndicatorParams {
   // Struct constructor.
-  AOParams(int _shift = 0) : IndicatorParams(INDI_AO, 2, TYPE_DOUBLE) {
+  IndiAOParams(int _shift = 0) : IndicatorParams(INDI_AO, 2, TYPE_DOUBLE) {
 #ifdef __MQL4__
     max_modes = 1;
 #endif
@@ -39,7 +39,7 @@ struct AOParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
   };
-  AOParams(AOParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiAOParams(IndiAOParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -48,12 +48,12 @@ struct AOParams : IndicatorParams {
 /**
  * Implements the Awesome oscillator.
  */
-class Indi_AO : public Indicator<AOParams> {
+class Indi_AO : public Indicator<IndiAOParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AO(AOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<AOParams>(_p, _indi_src){};
+  Indi_AO(IndiAOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiAOParams>(_p, _indi_src){};
   Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AO, _tf){};
 
   /**

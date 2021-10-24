@@ -43,19 +43,19 @@ double iForce(string _symbol, int _tf, int _period, int _ma_method, int _ap, int
 #endif
 
 // Structs.
-struct ForceParams : IndicatorParams {
+struct IndiForceParams : IndicatorParams {
   unsigned int period;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  ForceParams(unsigned int _period = 13, ENUM_MA_METHOD _ma_method = MODE_SMA, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE,
-              int _shift = 0)
+  IndiForceParams(unsigned int _period = 13, ENUM_MA_METHOD _ma_method = MODE_SMA, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE,
+                  int _shift = 0)
       : period(_period), ma_method(_ma_method), applied_price(_ap), IndicatorParams(INDI_FORCE, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Force_Index");
   };
-  ForceParams(ForceParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiForceParams(IndiForceParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -64,13 +64,13 @@ struct ForceParams : IndicatorParams {
 /**
  * Implements the Force Index indicator.
  */
-class Indi_Force : public Indicator<ForceParams> {
+class Indi_Force : public Indicator<IndiForceParams> {
  protected:
  public:
   /**
    * Class constructor.
    */
-  Indi_Force(ForceParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ForceParams>(_p, _indi_src) {}
+  Indi_Force(IndiForceParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiForceParams>(_p, _indi_src) {}
   Indi_Force(ENUM_TIMEFRAMES _tf) : Indicator(INDI_FORCE, _tf) {}
 
   /**

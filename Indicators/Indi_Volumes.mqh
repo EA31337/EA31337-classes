@@ -26,10 +26,10 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct VolumesParams : IndicatorParams {
+struct IndiVolumesParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  VolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+  IndiVolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_VOLUMES, 2, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -37,7 +37,7 @@ struct VolumesParams : IndicatorParams {
     SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
   };
-  VolumesParams(VolumesParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiVolumesParams(IndiVolumesParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -46,12 +46,12 @@ struct VolumesParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_Volumes : public Indicator<VolumesParams> {
+class Indi_Volumes : public Indicator<IndiVolumesParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Volumes(VolumesParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<VolumesParams>(_p, _indi_src){};
+  Indi_Volumes(IndiVolumesParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiVolumesParams>(_p, _indi_src){};
   Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VOLUMES, _tf){};
 
   /**

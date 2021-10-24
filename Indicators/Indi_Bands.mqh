@@ -58,14 +58,14 @@ enum ENUM_BANDS_LINE {
 };
 
 // Structs.
-struct BandsParams : IndicatorParams {
+struct IndiBandsParams : IndicatorParams {
   unsigned int period;
   double deviation;
   unsigned int bshift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  BandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0, ENUM_APPLIED_PRICE _ap = PRICE_OPEN,
-              int _shift = 0)
+  IndiBandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0,
+                  ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period),
         deviation(_deviation),
         bshift(_bshift),
@@ -75,7 +75,7 @@ struct BandsParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\BB");
   };
-  BandsParams(BandsParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiBandsParams(IndiBandsParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -84,13 +84,13 @@ struct BandsParams : IndicatorParams {
 /**
  * Implements the Bollinger Bands® indicator.
  */
-class Indi_Bands : public Indicator<BandsParams> {
+class Indi_Bands : public Indicator<IndiBandsParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Bands(BandsParams &_p, IndicatorBase *_indi_src = NULL, int _mode = 0)
-      : Indicator<BandsParams>(_p, _indi_src, _mode) {}
+  Indi_Bands(IndiBandsParams &_p, IndicatorBase *_indi_src = NULL, int _mode = 0)
+      : Indicator<IndiBandsParams>(_p, _indi_src, _mode) {}
   Indi_Bands(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BANDS, _tf) {}
 
   /**
@@ -271,25 +271,25 @@ class Indi_Bands : public Indicator<BandsParams> {
    */
   virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
-      BandsParams bands_params();
+      IndiBandsParams bands_params();
       return new Indi_Bands(bands_params);
     } else if (_id == INDI_CCI) {
-      CCIParams cci_params();
+      IndiCCIParams cci_params();
       return new Indi_CCI(cci_params);
     } else if (_id == INDI_ENVELOPES) {
-      EnvelopesParams env_params();
+      IndiEnvelopesParams env_params();
       return new Indi_Envelopes(env_params);
     } else if (_id == INDI_MOMENTUM) {
-      MomentumParams mom_params();
+      IndiMomentumParams mom_params();
       return new Indi_Momentum(mom_params);
     } else if (_id == INDI_MA) {
-      MAParams ma_params();
+      IndiMAParams ma_params();
       return new Indi_MA(ma_params);
     } else if (_id == INDI_RSI) {
-      RSIParams _rsi_params();
+      IndiRSIParams _rsi_params();
       return new Indi_RSI(_rsi_params);
     } else if (_id == INDI_STDDEV) {
-      StdDevParams stddev_params();
+      IndiStdDevParams stddev_params();
       return new Indi_StdDev(stddev_params);
     }
 

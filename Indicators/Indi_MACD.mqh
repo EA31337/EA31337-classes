@@ -32,14 +32,14 @@ double iMACD(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_peri
 #endif
 
 // Structs.
-struct MACDParams : IndicatorParams {
+struct IndiMACDParams : IndicatorParams {
   unsigned int ema_fast_period;
   unsigned int ema_slow_period;
   unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  MACDParams(unsigned int _efp = 12, unsigned int _esp = 26, unsigned int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE,
-             int _shift = 0)
+  IndiMACDParams(unsigned int _efp = 12, unsigned int _esp = 26, unsigned int _sp = 9,
+                 ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : ema_fast_period(_efp),
         ema_slow_period(_esp),
         signal_period(_sp),
@@ -49,7 +49,7 @@ struct MACDParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };
-  MACDParams(MACDParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiMACDParams(IndiMACDParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -58,12 +58,12 @@ struct MACDParams : IndicatorParams {
 /**
  * Implements the Moving Averages Convergence/Divergence indicator.
  */
-class Indi_MACD : public Indicator<MACDParams> {
+class Indi_MACD : public Indicator<IndiMACDParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MACD(MACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MACDParams>(_p, _indi_src) {}
+  Indi_MACD(IndiMACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMACDParams>(_p, _indi_src) {}
   Indi_MACD(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MACD, _tf) {}
 
   /**

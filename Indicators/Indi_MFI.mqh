@@ -31,17 +31,17 @@ double iMFI(string _symbol, int _tf, int _period, int _shift) {
 #endif
 
 // Structs.
-struct MFIParams : IndicatorParams {
+struct IndiMFIParams : IndicatorParams {
   unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume;  // Ignored in MT4.
   // Struct constructors.
-  MFIParams(unsigned int _ma_period = 14, ENUM_APPLIED_VOLUME _av = VOLUME_TICK, int _shift = 0)
+  IndiMFIParams(unsigned int _ma_period = 14, ENUM_APPLIED_VOLUME _av = VOLUME_TICK, int _shift = 0)
       : ma_period(_ma_period), applied_volume(_av), IndicatorParams(INDI_MFI, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MFI");
   };
-  MFIParams(MFIParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiMFIParams(IndiMFIParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,12 +50,12 @@ struct MFIParams : IndicatorParams {
 /**
  * Implements the Money Flow Index indicator.
  */
-class Indi_MFI : public Indicator<MFIParams> {
+class Indi_MFI : public Indicator<IndiMFIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MFI(MFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MFIParams>(_p, _indi_src) {}
+  Indi_MFI(IndiMFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMFIParams>(_p, _indi_src) {}
   Indi_MFI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MFI, _tf) {}
 
   /**

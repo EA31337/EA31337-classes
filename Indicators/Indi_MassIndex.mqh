@@ -27,12 +27,12 @@
 #include "Indi_MA.mqh"
 
 // Structs.
-struct MassIndexParams : IndicatorParams {
+struct IndiMassIndexParams : IndicatorParams {
   int period;
   int second_period;
   int sum_period;
   // Struct constructor.
-  MassIndexParams(int _period = 9, int _second_period = 9, int _sum_period = 25, int _shift = 0)
+  IndiMassIndexParams(int _period = 9, int _second_period = 9, int _sum_period = 25, int _shift = 0)
       : IndicatorParams(INDI_MASS_INDEX, 1, TYPE_DOUBLE) {
     period = _period;
     second_period = _second_period;
@@ -41,7 +41,7 @@ struct MassIndexParams : IndicatorParams {
     shift = _shift;
     sum_period = _sum_period;
   };
-  MassIndexParams(MassIndexParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiMassIndexParams(IndiMassIndexParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,12 +50,13 @@ struct MassIndexParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_MassIndex : public Indicator<MassIndexParams> {
+class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MassIndex(MassIndexParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MassIndexParams>(_p, _indi_src){};
+  Indi_MassIndex(IndiMassIndexParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiMassIndexParams>(_p, _indi_src){};
   Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_MASS_INDEX, _tf){};
 
   /**

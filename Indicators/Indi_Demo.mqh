@@ -31,9 +31,9 @@
  */
 
 // Structs.
-struct DemoIndiParams : IndicatorParams {
+struct IndiDemoParams : IndicatorParams {
   // Struct constructors.
-  DemoIndiParams(int _shift = 0) : IndicatorParams(INDI_DEMO, 1, TYPE_DOUBLE) {
+  IndiDemoParams(int _shift = 0) : IndicatorParams(INDI_DEMO, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetShift(_shift);
     switch (idstype) {
@@ -44,7 +44,7 @@ struct DemoIndiParams : IndicatorParams {
         break;
     }
   };
-  DemoIndiParams(DemoIndiParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiDemoParams(IndiDemoParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -53,12 +53,12 @@ struct DemoIndiParams : IndicatorParams {
 /**
  * Demo/Dummy Indicator.
  */
-class Indi_Demo : public Indicator<DemoIndiParams> {
+class Indi_Demo : public Indicator<IndiDemoParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Demo(DemoIndiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<DemoIndiParams>(_p, _indi_src){};
+  Indi_Demo(IndiDemoParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiDemoParams>(_p, _indi_src){};
   Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DEMO, _tf){};
 
   /**

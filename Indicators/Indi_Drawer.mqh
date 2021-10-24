@@ -34,15 +34,15 @@ struct IndicatorParams;
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_Drawer : public Indicator<DrawerParams> {
+class Indi_Drawer : public Indicator<IndiDrawerParams> {
   Redis redis;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Drawer(const DrawerParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<DrawerParams>(_p, _indi_src), redis(true) {
+  Indi_Drawer(const IndiDrawerParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiDrawerParams>(_p, _indi_src), redis(true) {
     Init();
   }
   Indi_Drawer(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DRAWER, _tf), redis(true) { Init(); }
@@ -96,7 +96,7 @@ class Indi_Drawer : public Indicator<DrawerParams> {
   }
 
   virtual void OnTick() {
-    Indicator<DrawerParams>::OnTick();
+    Indicator<IndiDrawerParams>::OnTick();
 
     ActionEntry action(INDI_ACTION_SET_VALUE);
     ArrayResize(action.args, 3);

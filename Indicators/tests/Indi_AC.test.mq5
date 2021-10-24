@@ -51,6 +51,7 @@ void OnTick() {
     if (_tick_new.time % 3600 < _tick_last.time % 3600) {
       // Print indicator values every hour.
       Print(indi.ToString());
+      assertTrueOrExit(indi.GetEntry().IsValid(), "Invalid entry!");
     }
   }
   _tick_last = _tick_new;

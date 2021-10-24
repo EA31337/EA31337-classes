@@ -31,15 +31,16 @@ double iWPR(string _symbol, int _tf, int _period, int _shift) {
 #endif
 
 // Structs.
-struct WPRParams : IndicatorParams {
+struct IndiWPRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  WPRParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_WPR, 1, TYPE_DOUBLE) {
+  IndiWPRParams(unsigned int _period = 14, int _shift = 0)
+      : period(_period), IndicatorParams(INDI_WPR, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\WPR");
   };
-  WPRParams(WPRParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiWPRParams(IndiWPRParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -48,12 +49,12 @@ struct WPRParams : IndicatorParams {
 /**
  * Implements the Larry Williams' Percent Range.
  */
-class Indi_WPR : public Indicator<WPRParams> {
+class Indi_WPR : public Indicator<IndiWPRParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_WPR(WPRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<WPRParams>(_p, _indi_src) {}
+  Indi_WPR(IndiWPRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiWPRParams>(_p, _indi_src) {}
   Indi_WPR(ENUM_TIMEFRAMES _tf) : Indicator(INDI_WPR, _tf) {}
 
   /**

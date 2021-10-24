@@ -26,11 +26,11 @@
 #include "../Storage/ValueStorage.price.h"
 
 // Structs.
-struct RateOfChangeParams : IndicatorParams {
+struct IndiRateOfChangeParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  RateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiRateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_RATE_OF_CHANGE, 1, TYPE_DOUBLE) {
     applied_price = _ap;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -38,7 +38,7 @@ struct RateOfChangeParams : IndicatorParams {
     period = _period;
     shift = _shift;
   };
-  RateOfChangeParams(RateOfChangeParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiRateOfChangeParams(IndiRateOfChangeParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -47,13 +47,13 @@ struct RateOfChangeParams : IndicatorParams {
 /**
  * Implements the Rate of Change indicator.
  */
-class Indi_RateOfChange : public Indicator<RateOfChangeParams> {
+class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_RateOfChange(RateOfChangeParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<RateOfChangeParams>(_p, _indi_src){};
+  Indi_RateOfChange(IndiRateOfChangeParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiRateOfChangeParams>(_p, _indi_src){};
   Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RATE_OF_CHANGE, _tf){};
 
   /**

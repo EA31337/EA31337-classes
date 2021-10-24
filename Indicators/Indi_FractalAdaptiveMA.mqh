@@ -26,13 +26,13 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct IndiFrAMAParams : IndicatorParams {
+struct IndiFrAIndiMAParams : IndicatorParams {
   unsigned int frama_shift;
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
 
   // Struct constructor.
-  IndiFrAMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiFrAIndiMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_FRAMA, 1, TYPE_DOUBLE) {
     frama_shift = _frama_shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -41,7 +41,7 @@ struct IndiFrAMAParams : IndicatorParams {
     period = _period;
     shift = _shift;
   };
-  IndiFrAMAParams(IndiFrAMAParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiFrAIndiMAParams(IndiFrAIndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,12 +50,13 @@ struct IndiFrAMAParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_FrAMA : public Indicator<IndiFrAMAParams> {
+class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_FrAMA(IndiFrAMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiFrAMAParams>(_p, _indi_src){};
+  Indi_FrAMA(IndiFrAIndiMAParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiFrAIndiMAParams>(_p, _indi_src){};
   Indi_FrAMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRAMA, _tf){};
 
   /**

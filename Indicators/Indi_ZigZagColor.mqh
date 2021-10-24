@@ -25,13 +25,14 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct ZigZagColorParams : IndicatorParams {
+struct IndiZigZagColorParams : IndicatorParams {
   unsigned int depth;
   unsigned int deviation;
   unsigned int backstep;
 
   // Struct constructor.
-  ZigZagColorParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
+  IndiZigZagColorParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3,
+                        int _shift = 0)
       : IndicatorParams(INDI_ZIGZAG_COLOR, 3, TYPE_DOUBLE) {
     backstep = _backstep;
     depth = _depth;
@@ -41,7 +42,7 @@ struct ZigZagColorParams : IndicatorParams {
     SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
   };
-  ZigZagColorParams(ZigZagColorParams& _params, ENUM_TIMEFRAMES _tf) {
+  IndiZigZagColorParams(IndiZigZagColorParams& _params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,13 +51,13 @@ struct ZigZagColorParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_ZigZagColor : public Indicator<ZigZagColorParams> {
+class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ZigZagColor(ZigZagColorParams& _p, IndicatorBase* _indi_src = NULL)
-      : Indicator<ZigZagColorParams>(_p, _indi_src){};
+  Indi_ZigZagColor(IndiZigZagColorParams& _p, IndicatorBase* _indi_src = NULL)
+      : Indicator<IndiZigZagColorParams>(_p, _indi_src){};
   Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf){};
 
   /**

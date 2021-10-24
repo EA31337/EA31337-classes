@@ -26,17 +26,17 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct PriceVolumeTrendParams : IndicatorParams {
+struct IndiPriceVolumeTrendParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  PriceVolumeTrendParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+  IndiPriceVolumeTrendParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_PRICE_VOLUME_TREND, 1, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\PVT");
     shift = _shift;
   };
-  PriceVolumeTrendParams(PriceVolumeTrendParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiPriceVolumeTrendParams(IndiPriceVolumeTrendParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -45,13 +45,13 @@ struct PriceVolumeTrendParams : IndicatorParams {
 /**
  * Implements the Price Volume Trend indicator.
  */
-class Indi_PriceVolumeTrend : public Indicator<PriceVolumeTrendParams> {
+class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_PriceVolumeTrend(PriceVolumeTrendParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<PriceVolumeTrendParams>(_p, _indi_src){};
+  Indi_PriceVolumeTrend(IndiPriceVolumeTrendParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiPriceVolumeTrendParams>(_p, _indi_src){};
   Indi_PriceVolumeTrend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE_VOLUME_TREND, _tf){};
 
   /**

@@ -27,11 +27,11 @@
 #include "Indi_MA.mqh"
 
 // Structs.
-struct DetrendedPriceParams : IndicatorParams {
+struct IndiDetrendedPriceParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  DetrendedPriceParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiDetrendedPriceParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_DETRENDED_PRICE, 1, TYPE_DOUBLE) {
     applied_price = _ap;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -39,7 +39,7 @@ struct DetrendedPriceParams : IndicatorParams {
     period = _period;
     shift = _shift;
   };
-  DetrendedPriceParams(DetrendedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiDetrendedPriceParams(IndiDetrendedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -48,13 +48,13 @@ struct DetrendedPriceParams : IndicatorParams {
 /**
  * Implements Detrended Price Oscillator.
  */
-class Indi_DetrendedPrice : public Indicator<DetrendedPriceParams> {
+class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_DetrendedPrice(DetrendedPriceParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<DetrendedPriceParams>(_p, _indi_src){};
+  Indi_DetrendedPrice(IndiDetrendedPriceParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiDetrendedPriceParams>(_p, _indi_src){};
   Indi_DetrendedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DETRENDED_PRICE, _tf){};
 
   /**

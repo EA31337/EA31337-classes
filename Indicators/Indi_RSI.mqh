@@ -42,20 +42,20 @@ double iRSIOnArray(double &_arr[], int _total, int _period, int _shift) {
 #endif
 
 // Structs.
-struct RSIParams : IndicatorParams {
+struct IndiRSIParams : IndicatorParams {
  protected:
   int period;
   ENUM_APPLIED_PRICE applied_price;
 
  public:
-  RSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  IndiRSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : applied_price(_ap), IndicatorParams(INDI_RSI, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\RSI");
     SetPeriod(_period);
   };
-  RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiRSIParams(IndiRSIParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -86,14 +86,14 @@ struct RSIGainLossData {
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_RSI : public Indicator<RSIParams> {
+class Indi_RSI : public Indicator<IndiRSIParams> {
   DictStruct<long, RSIGainLossData> aux_data;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_RSI(RSIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RSIParams>(_p, _indi_src) {}
+  Indi_RSI(IndiRSIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRSIParams>(_p, _indi_src) {}
   Indi_RSI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_RSI, _tf) {}
 
   /**
@@ -335,25 +335,25 @@ class Indi_RSI : public Indicator<RSIParams> {
    */
   virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
-      BandsParams bands_params;
+      IndiBandsParams bands_params;
       return new Indi_Bands(bands_params);
     } else if (_id == INDI_CCI) {
-      CCIParams cci_params;
+      IndiCCIParams cci_params;
       return new Indi_CCI(cci_params);
     } else if (_id == INDI_ENVELOPES) {
-      EnvelopesParams env_params;
+      IndiEnvelopesParams env_params;
       return new Indi_Envelopes(env_params);
     } else if (_id == INDI_MOMENTUM) {
-      MomentumParams mom_params;
+      IndiMomentumParams mom_params;
       return new Indi_Momentum(mom_params);
     } else if (_id == INDI_MA) {
-      MAParams ma_params;
+      IndiMAParams ma_params;
       return new Indi_MA(ma_params);
     } else if (_id == INDI_RSI) {
-      RSIParams _rsi_params;
+      IndiRSIParams _rsi_params;
       return new Indi_RSI(_rsi_params);
     } else if (_id == INDI_STDDEV) {
-      StdDevParams stddev_params;
+      IndiStdDevParams stddev_params;
       return new Indi_StdDev(stddev_params);
     }
 

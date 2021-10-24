@@ -42,15 +42,15 @@ double iEnvelopesOnArray(double &_arr[], int _total, int _ma_period, int _ma_met
 #endif
 
 // Structs.
-struct EnvelopesParams : IndicatorParams {
+struct IndiEnvelopesParams : IndicatorParams {
   int ma_period;
   int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   double deviation;
   // Struct constructors.
-  EnvelopesParams(int _ma_period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
-                  ENUM_APPLIED_PRICE _ap = PRICE_OPEN, double _deviation = 2, int _shift = 0)
+  IndiEnvelopesParams(int _ma_period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                      ENUM_APPLIED_PRICE _ap = PRICE_OPEN, double _deviation = 2, int _shift = 0)
       : ma_period(_ma_period),
         ma_shift(_ma_shift),
         ma_method(_ma_method),
@@ -65,7 +65,7 @@ struct EnvelopesParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Envelopes");
   };
-  EnvelopesParams(EnvelopesParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiEnvelopesParams(IndiEnvelopesParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -74,12 +74,13 @@ struct EnvelopesParams : IndicatorParams {
 /**
  * Implements the Envelopes indicator.
  */
-class Indi_Envelopes : public Indicator<EnvelopesParams> {
+class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Envelopes(EnvelopesParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<EnvelopesParams>(_p, _indi_src) {}
+  Indi_Envelopes(IndiEnvelopesParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiEnvelopesParams>(_p, _indi_src) {}
   Indi_Envelopes(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ENVELOPES, _tf) {}
 
   /**
@@ -221,7 +222,7 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
    * Alters indicator's struct value.
    */
   virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
-    Indicator<EnvelopesParams>::GetEntryAlter(_entry);
+    Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // The LINE_MAIN only exists in MQL4 for Envelopes.
     _entry.values[LINE_MAIN] = GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
@@ -232,7 +233,7 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<EnvelopesParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0);
+    return Indicator<IndiEnvelopesParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0);
   }
 
   /* Getters */

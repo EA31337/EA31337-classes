@@ -41,15 +41,15 @@ enum ENUM_MFI_COLOR {
 };
 
 // Structs.
-struct BWMFIParams : IndicatorParams {
+struct IndiBWIndiMFIParams : IndicatorParams {
   ENUM_APPLIED_VOLUME ap;  // @todo
   // Struct constructors.
-  BWMFIParams(int _shift = 0) : IndicatorParams(INDI_BWMFI, FINAL_BWMFI_BUFFER_ENTRY, TYPE_DOUBLE) {
+  IndiBWIndiMFIParams(int _shift = 0) : IndicatorParams(INDI_BWMFI, FINAL_BWMFI_BUFFER_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
     SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
   };
-  BWMFIParams(BWMFIParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiBWIndiMFIParams(IndiBWIndiMFIParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -58,12 +58,13 @@ struct BWMFIParams : IndicatorParams {
 /**
  * Implements the Market Facilitation Index by Bill Williams indicator.
  */
-class Indi_BWMFI : public Indicator<BWMFIParams> {
+class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BWMFI(BWMFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BWMFIParams>(_p, _indi_src) {}
+  Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiBWIndiMFIParams>(_p, _indi_src) {}
   Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWMFI, _tf) {}
 
   /**
@@ -131,7 +132,7 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
    * Alters indicator's struct value.
    */
   virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
-    Indicator<BWMFIParams>::GetEntryAlter(_entry);
+    Indicator<IndiBWIndiMFIParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
     bool _vol_up = GetVolume(_shift) > GetVolume(_shift);

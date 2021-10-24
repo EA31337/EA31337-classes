@@ -45,14 +45,14 @@ double iStdDevOnArray(double &_arr[], int _total, int _ma_period, int _ma_shift,
 #endif
 
 // Structs.
-struct StdDevParams : IndicatorParams {
+struct IndiStdDevParams : IndicatorParams {
   int ma_period;
   int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  StdDevParams(int _ma_period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
-               ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  IndiStdDevParams(int _ma_period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                   ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : ma_period(_ma_period),
         ma_shift(_ma_shift),
         ma_method(_ma_method),
@@ -62,7 +62,7 @@ struct StdDevParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\StdDev");
   };
-  StdDevParams(StdDevParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiStdDevParams(IndiStdDevParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -71,12 +71,12 @@ struct StdDevParams : IndicatorParams {
 /**
  * Implements the Standard Deviation indicator.
  */
-class Indi_StdDev : public Indicator<StdDevParams> {
+class Indi_StdDev : public Indicator<IndiStdDevParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_StdDev(StdDevParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<StdDevParams>(_p, _indi_src) {}
+  Indi_StdDev(IndiStdDevParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiStdDevParams>(_p, _indi_src) {}
   Indi_StdDev(ENUM_TIMEFRAMES _tf) : Indicator(INDI_STDDEV, _tf) {}
 
   /**
@@ -202,14 +202,14 @@ class Indi_StdDev : public Indicator<StdDevParams> {
     string _key = "Indi_PriceFeeder";
     Indi_PriceFeeder *_indi_price_feeder;
     if (!ObjectsCache<Indi_PriceFeeder>::TryGet(_key, _indi_price_feeder)) {
-      PriceFeederIndiParams _params();
+      IndiPriceFeederParams _params();
       _indi_price_feeder = ObjectsCache<Indi_PriceFeeder>::Set(_key, new Indi_PriceFeeder(_params));
     }
 
     // Filling reused price feeder.
     _indi_price_feeder.SetPrices(price);
 
-    MAParams ma_params(period, 0, ma_method, PRICE_OPEN);
+    IndiMAParams ma_params(period, 0, ma_method, PRICE_OPEN);
     Indi_MA *_indi_ma =
         Indi_MA::GetCached("Indi_StdDev:Unbuffered", (ENUM_TIMEFRAMES)-1, period, 0, ma_method, (ENUM_APPLIED_PRICE)-1);
 

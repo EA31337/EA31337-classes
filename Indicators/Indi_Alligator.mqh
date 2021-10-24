@@ -60,7 +60,7 @@ enum ENUM_ALLIGATOR_LINE {
 };
 
 // Structs.
-struct AlligatorParams : IndicatorParams {
+struct IndiAlligatorParams : IndicatorParams {
   int jaw_period;                    // Jaw line averaging period.
   int jaw_shift;                     // Jaw line shift.
   int teeth_period;                  // Teeth line averaging period.
@@ -70,8 +70,8 @@ struct AlligatorParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
   // Struct constructors.
-  AlligatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
-                  ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
+  IndiAlligatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
+                      ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
       : jaw_period(_jp),
         jaw_shift(_js),
         teeth_period(_tp),
@@ -85,7 +85,7 @@ struct AlligatorParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Alligator");
   };
-  AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiAlligatorParams(IndiAlligatorParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -94,12 +94,13 @@ struct AlligatorParams : IndicatorParams {
 /**
  * Implements the Alligator indicator.
  */
-class Indi_Alligator : public Indicator<AlligatorParams> {
+class Indi_Alligator : public Indicator<IndiAlligatorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Alligator(AlligatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<AlligatorParams>(_p, _indi_src) {}
+  Indi_Alligator(IndiAlligatorParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiAlligatorParams>(_p, _indi_src) {}
   Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADX, _tf){};
 
   /**

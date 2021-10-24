@@ -31,16 +31,16 @@ double iDeMarker(string _symbol, int _tf, int _period, int _shift) {
 #endif
 
 // Structs.
-struct DeMarkerParams : IndicatorParams {
+struct IndiDeMarkerParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  DeMarkerParams(unsigned int _period = 14, int _shift = 0)
+  IndiDeMarkerParams(unsigned int _period = 14, int _shift = 0)
       : period(_period), IndicatorParams(INDI_DEMARKER, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\DeMarker");
   };
-  DeMarkerParams(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiDeMarkerParams(IndiDeMarkerParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -49,12 +49,13 @@ struct DeMarkerParams : IndicatorParams {
 /**
  * Implements the DeMarker indicator.
  */
-class Indi_DeMarker : public Indicator<DeMarkerParams> {
+class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_DeMarker(DeMarkerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<DeMarkerParams>(_p, _indi_src) {}
+  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiDeMarkerParams>(_p, _indi_src) {}
   Indi_DeMarker(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DEMARKER, _tf) {}
 
   /**

@@ -68,7 +68,7 @@ enum ENUM_GATOR_HISTOGRAM {
 enum ENUM_GATOR_COLOR { GATOR_HISTCOLOR_GREEN = 0, GATOR_HISTCOLOR_RED = 1, FINAL_GATOR_HISTCOLOR_ENTRY };
 
 // Structs.
-struct GatorParams : IndicatorParams {
+struct IndiGatorParams : IndicatorParams {
   int jaw_period;                    // Jaw line averaging period.
   int jaw_shift;                     // Jaw line shift.
   int teeth_period;                  // Teeth line averaging period.
@@ -78,8 +78,8 @@ struct GatorParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
   // Struct constructors.
-  GatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
-              ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
+  IndiGatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
+                  ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
       : jaw_period(_jp),
         jaw_shift(_js),
         teeth_period(_tp),
@@ -93,7 +93,7 @@ struct GatorParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Gator");
   };
-  GatorParams(GatorParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiGatorParams(IndiGatorParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -102,12 +102,12 @@ struct GatorParams : IndicatorParams {
 /**
  * Implements the Gator oscillator.
  */
-class Indi_Gator : public Indicator<GatorParams> {
+class Indi_Gator : public Indicator<IndiGatorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Gator(GatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<GatorParams>(_p, _indi_src) {}
+  Indi_Gator(IndiGatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiGatorParams>(_p, _indi_src) {}
   Indi_Gator(ENUM_TIMEFRAMES _tf) : Indicator(INDI_GATOR, _tf) {}
 
   /**
@@ -195,7 +195,7 @@ class Indi_Gator : public Indicator<GatorParams> {
    * Alters indicator's struct value.
    */
   virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
-    Indicator<GatorParams>::GetEntryAlter(_entry);
+    Indicator<IndiGatorParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // @todo: Can we calculate upper and lower histogram color in MT4?
     // @see: https://docs.mql4.com/indicators/igator

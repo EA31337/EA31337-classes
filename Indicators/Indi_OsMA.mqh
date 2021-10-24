@@ -32,13 +32,13 @@ double iOsMA(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_peri
 #endif
 
 // Structs.
-struct OsMAParams : IndicatorParams {
+struct OsIndiMAParams : IndicatorParams {
   int ema_fast_period;
   int ema_slow_period;
   int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  OsMAParams(int _efp = 12, int _esp = 26, int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  OsIndiMAParams(int _efp = 12, int _esp = 26, int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : ema_fast_period(_efp),
         ema_slow_period(_esp),
         signal_period(_sp),
@@ -48,7 +48,7 @@ struct OsMAParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OsMA");
   };
-  OsMAParams(OsMAParams &_params, ENUM_TIMEFRAMES _tf) {
+  OsIndiMAParams(OsIndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -57,12 +57,12 @@ struct OsMAParams : IndicatorParams {
 /**
  * Implements the Moving Average of Oscillator indicator.
  */
-class Indi_OsMA : public Indicator<OsMAParams> {
+class Indi_OsMA : public Indicator<OsIndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OsMA(OsMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<OsMAParams>(_p, _indi_src) {}
+  Indi_OsMA(OsIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<OsIndiMAParams>(_p, _indi_src) {}
   Indi_OsMA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_OSMA, _tf) {}
 
   /**

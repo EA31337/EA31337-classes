@@ -26,16 +26,16 @@
 #include "OHLC/Indi_OHLC.mqh"
 
 // Structs.
-struct AppliedPriceParams : IndicatorParams {
+struct IndiAppliedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  AppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
+  IndiAppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
       : applied_price(_applied_price), IndicatorParams(INDI_APPLIED_PRICE, 1, TYPE_DOUBLE) {
     SetDataSourceType(IDATA_INDICATOR);
     SetDataValueRange(IDATA_RANGE_PRICE);
     shift = _shift;
   };
-  AppliedPriceParams(AppliedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiAppliedPriceParams(IndiAppliedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -44,7 +44,7 @@ struct AppliedPriceParams : IndicatorParams {
 /**
  * Implements the "Applied Price over OHCL Indicator" indicator, e.g. over Indi_Price.
  */
-class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
+class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
  protected:
   void OnInit() {
     if (!indi_src.IsSet()) {
@@ -57,8 +57,8 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
   /**
    * Class constructor.
    */
-  Indi_AppliedPrice(AppliedPriceParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<AppliedPriceParams>(_p, _indi_src) {
+  Indi_AppliedPrice(IndiAppliedPriceParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiAppliedPriceParams>(_p, _indi_src) {
     OnInit();
   };
   Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf) { OnInit(); };
@@ -97,7 +97,7 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    bool _is_valid = Indicator<AppliedPriceParams>::IsValidEntry(_entry);
+    bool _is_valid = Indicator<IndiAppliedPriceParams>::IsValidEntry(_entry);
     switch (iparams.idstype) {
       case IDATA_INDICATOR:
         if (!HasDataSource()) {

@@ -29,12 +29,12 @@
 enum ENUM_ZIGZAG_LINE { ZIGZAG_BUFFER = 0, ZIGZAG_HIGHMAP = 1, ZIGZAG_LOWMAP = 2, FINAL_ZIGZAG_LINE_ENTRY };
 
 // Structs.
-struct ZigZagParams : IndicatorParams {
+struct IndiZigZagParams : IndicatorParams {
   unsigned int depth;
   unsigned int deviation;
   unsigned int backstep;
   // Struct constructors.
-  ZigZagParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
+  IndiZigZagParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
       : depth(_depth),
         deviation(_deviation),
         backstep(_backstep),
@@ -43,7 +43,7 @@ struct ZigZagParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\ZigZag");
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
   };
-  ZigZagParams(ZigZagParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiZigZagParams(IndiZigZagParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -58,12 +58,12 @@ enum EnSearchMode {
 /**
  * Implements ZigZag indicator.
  */
-class Indi_ZigZag : public Indicator<ZigZagParams> {
+class Indi_ZigZag : public Indicator<IndiZigZagParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ZigZag(ZigZagParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ZigZagParams>(_p, _indi_src) {}
+  Indi_ZigZag(IndiZigZagParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiZigZagParams>(_p, _indi_src) {}
   Indi_ZigZag(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ZIGZAG, _tf) {}
 
   /**

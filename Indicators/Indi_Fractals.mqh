@@ -31,14 +31,14 @@ double iFractals(string _symbol, int _tf, int _mode, int _shift) {
 #endif
 
 // Structs.
-struct FractalsParams : IndicatorParams {
+struct IndiFractalsParams : IndicatorParams {
   // Struct constructors.
-  FractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS, FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE) {
+  IndiFractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS, FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_ARROW);
     SetCustomIndicatorName("Examples\\Fractals");
     shift = _shift;
   };
-  FractalsParams(FractalsParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiFractalsParams(IndiFractalsParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -47,12 +47,13 @@ struct FractalsParams : IndicatorParams {
 /**
  * Implements the Fractals indicator.
  */
-class Indi_Fractals : public Indicator<FractalsParams> {
+class Indi_Fractals : public Indicator<IndiFractalsParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Fractals(FractalsParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<FractalsParams>(_p, _indi_src) {}
+  Indi_Fractals(IndiFractalsParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiFractalsParams>(_p, _indi_src) {}
   Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRACTALS, _tf) {}
 
   /**
@@ -120,7 +121,7 @@ class Indi_Fractals : public Indicator<FractalsParams> {
    * Alters indicator's struct value.
    */
   virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
-    Indicator<FractalsParams>::GetEntryAlter(_entry);
+    Indicator<IndiFractalsParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // In MT4 line identifiers starts from 1, so populating also at 0.
     _entry.values[0] = _entry.values[LINE_UPPER];

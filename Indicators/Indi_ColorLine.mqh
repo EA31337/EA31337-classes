@@ -27,14 +27,14 @@
 #include "Indi_MA.mqh"
 
 // Structs.
-struct ColorLineParams : IndicatorParams {
+struct IndiColorLineParams : IndicatorParams {
   // Struct constructor.
-  ColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE, 2, TYPE_DOUBLE) {
+  IndiColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE, 2, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorLine");
     shift = _shift;
   };
-  ColorLineParams(ColorLineParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiColorLineParams(IndiColorLineParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -43,12 +43,13 @@ struct ColorLineParams : IndicatorParams {
 /**
  * Implements Color Bars
  */
-class Indi_ColorLine : public Indicator<ColorLineParams> {
+class Indi_ColorLine : public Indicator<IndiColorLineParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ColorLine(ColorLineParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ColorLineParams>(_p, _indi_src){};
+  Indi_ColorLine(IndiColorLineParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiColorLineParams>(_p, _indi_src){};
   Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_LINE, _tf){};
 
   /**

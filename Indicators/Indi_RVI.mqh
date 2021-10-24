@@ -31,16 +31,16 @@ double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
 #endif
 
 // Structs.
-struct RVIParams : IndicatorParams {
+struct IndiRVIParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  RVIParams(unsigned int _period = 10, int _shift = 0)
+  IndiRVIParams(unsigned int _period = 10, int _shift = 0)
       : period(_period), IndicatorParams(INDI_RVI, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\RVI");
   };
-  RVIParams(RVIParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiRVIParams(IndiRVIParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -49,12 +49,12 @@ struct RVIParams : IndicatorParams {
 /**
  * Implements the Relative Vigor Index indicator.
  */
-class Indi_RVI : public Indicator<RVIParams> {
+class Indi_RVI : public Indicator<IndiRVIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_RVI(const RVIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RVIParams>(_p, _indi_src) {}
+  Indi_RVI(const IndiRVIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRVIParams>(_p, _indi_src) {}
   Indi_RVI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_RVI, _tf) {}
 
   /**

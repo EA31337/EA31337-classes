@@ -26,14 +26,14 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct WilliamsADParams : IndicatorParams {
+struct IndiWilliamsADParams : IndicatorParams {
   // Struct constructor.
-  WilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD, 1, TYPE_DOUBLE) {
+  IndiWilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\W_AD");
     shift = _shift;
   };
-  WilliamsADParams(WilliamsADParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiWilliamsADParams(IndiWilliamsADParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -42,12 +42,13 @@ struct WilliamsADParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_WilliamsAD : public Indicator<WilliamsADParams> {
+class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_WilliamsAD(WilliamsADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<WilliamsADParams>(_p, _indi_src){};
+  Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiWilliamsADParams>(_p, _indi_src){};
   Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_WILLIAMS_AD, _tf){};
 
   /**

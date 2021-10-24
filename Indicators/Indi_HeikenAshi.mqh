@@ -48,9 +48,9 @@ enum ENUM_HA_MODE {
 };
 
 // Structs.
-struct HeikenAshiParams : IndicatorParams {
+struct IndiHeikenAshiParams : IndicatorParams {
   // Struct constructors.
-  HeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI, FINAL_HA_MODE_ENTRY, TYPE_DOUBLE) {
+  IndiHeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI, FINAL_HA_MODE_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);  // @fixit It draws candles!
 #ifdef __MQL4__
     SetCustomIndicatorName("Heiken Ashi");
@@ -59,7 +59,7 @@ struct HeikenAshiParams : IndicatorParams {
 #endif
     shift = _shift;
   };
-  HeikenAshiParams(HeikenAshiParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiHeikenAshiParams(IndiHeikenAshiParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -68,12 +68,13 @@ struct HeikenAshiParams : IndicatorParams {
 /**
  * Implements the Heiken-Ashi indicator.
  */
-class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
+class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(HeikenAshiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<HeikenAshiParams>(_p, _indi_src) {}
+  Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiHeikenAshiParams>(_p, _indi_src) {}
   Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_HEIKENASHI, _tf) {}
 
   /**

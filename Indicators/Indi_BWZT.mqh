@@ -28,17 +28,17 @@
 #include "Indi_AO.mqh"
 
 // Structs.
-struct BWZTParams : IndicatorParams {
+struct IndiBWZTParams : IndicatorParams {
   unsigned int period;
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
-  BWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, 5, TYPE_DOUBLE) {
+  IndiBWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, 5, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
     shift = _shift;
   };
-  BWZTParams(BWZTParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiBWZTParams(IndiBWZTParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -47,12 +47,12 @@ struct BWZTParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Zone Trade.
  */
-class Indi_BWZT : public Indicator<BWZTParams> {
+class Indi_BWZT : public Indicator<IndiBWZTParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BWZT(BWZTParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BWZTParams>(_p, _indi_src){};
+  Indi_BWZT(IndiBWZTParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiBWZTParams>(_p, _indi_src){};
   Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWZT, _tf){};
 
   /**

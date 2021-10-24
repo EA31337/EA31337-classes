@@ -62,12 +62,12 @@ enum ENUM_ICHIMOKU_LINE {
 };
 
 // Structs.
-struct IchimokuParams : IndicatorParams {
+struct IndiIchimokuParams : IndicatorParams {
   unsigned int tenkan_sen;
   unsigned int kijun_sen;
   unsigned int senkou_span_b;
   // Struct constructors.
-  IchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
+  IndiIchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
       : tenkan_sen(_ts),
         kijun_sen(_ks),
         senkou_span_b(_ss_b),
@@ -76,7 +76,7 @@ struct IchimokuParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Not sure if not mixed.
     SetCustomIndicatorName("Examples\\Ichimoku");
   };
-  IchimokuParams(IchimokuParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiIchimokuParams(IndiIchimokuParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -85,12 +85,13 @@ struct IchimokuParams : IndicatorParams {
 /**
  * Implements the Ichimoku Kinko Hyo indicator.
  */
-class Indi_Ichimoku : public Indicator<IchimokuParams> {
+class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IchimokuParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IchimokuParams>(_p, _indi_src) {}
+  Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiIchimokuParams>(_p, _indi_src) {}
   Indi_Ichimoku(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ICHIMOKU, _tf) {}
 
   /**
@@ -162,7 +163,7 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
    * Alters indicator's struct value.
    */
   virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
-    Indicator<IchimokuParams>::GetEntryAlter(_entry);
+    Indicator<IndiIchimokuParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
     // so we are duplicating it.
@@ -175,7 +176,7 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<IchimokuParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0);
+    return Indicator<IndiIchimokuParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0);
   }
 
   /* Getters */

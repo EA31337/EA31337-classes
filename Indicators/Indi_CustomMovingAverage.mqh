@@ -25,13 +25,13 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct CustomMovingAverageParams : IndicatorParams {
+struct IndiCustomMovingAverageParams : IndicatorParams {
   unsigned int smooth_period;
   unsigned int smooth_shift;
   ENUM_MA_METHOD smooth_method;
   // Struct constructor.
-  CustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0, ENUM_MA_METHOD _smooth_method = MODE_SMMA,
-                            int _shift = 0)
+  IndiCustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0,
+                                ENUM_MA_METHOD _smooth_method = MODE_SMMA, int _shift = 0)
       : IndicatorParams(INDI_CUSTOM_MOVING_AVG, 3, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_ICUSTOM);
@@ -45,7 +45,7 @@ struct CustomMovingAverageParams : IndicatorParams {
     smooth_period = _smooth_period;
     smooth_shift = _smooth_shift;
   };
-  CustomMovingAverageParams(CustomMovingAverageParams& _params, ENUM_TIMEFRAMES _tf) {
+  IndiCustomMovingAverageParams(IndiCustomMovingAverageParams& _params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -54,13 +54,13 @@ struct CustomMovingAverageParams : IndicatorParams {
 /**
  * Implements the Custom Moving Average indicator.
  */
-class Indi_CustomMovingAverage : public Indicator<CustomMovingAverageParams> {
+class Indi_CustomMovingAverage : public Indicator<IndiCustomMovingAverageParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CustomMovingAverage(CustomMovingAverageParams& _p, IndicatorBase* _indi_src = NULL)
-      : Indicator<CustomMovingAverageParams>(_p, _indi_src){};
+  Indi_CustomMovingAverage(IndiCustomMovingAverageParams& _p, IndicatorBase* _indi_src = NULL)
+      : Indicator<IndiCustomMovingAverageParams>(_p, _indi_src){};
   Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM_MOVING_AVG, _tf){};
 
   /**

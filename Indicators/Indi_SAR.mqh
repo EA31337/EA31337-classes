@@ -31,17 +31,17 @@ double iSAR(string _symbol, int _tf, double _step, double _max, int _shift) {
 #endif
 
 // Structs.
-struct SARParams : IndicatorParams {
+struct IndiSARParams : IndicatorParams {
   double step;
   double max;
   // Struct constructors.
-  SARParams(double _step = 0.02, double _max = 0.2, int _shift = 0)
+  IndiSARParams(double _step = 0.02, double _max = 0.2, int _shift = 0)
       : step(_step), max(_max), IndicatorParams(INDI_SAR, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit It draws single dot for each bar!
     SetCustomIndicatorName("Examples\\ParabolicSAR");
   };
-  SARParams(SARParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiSARParams(IndiSARParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,12 +50,12 @@ struct SARParams : IndicatorParams {
 /**
  * Implements the Parabolic Stop and Reverse system indicator.
  */
-class Indi_SAR : public Indicator<SARParams> {
+class Indi_SAR : public Indicator<IndiSARParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_SAR(SARParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<SARParams>(_p, _indi_src) {}
+  Indi_SAR(IndiSARParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiSARParams>(_p, _indi_src) {}
   Indi_SAR(ENUM_TIMEFRAMES _tf) : Indicator(INDI_SAR, _tf) {}
 
   /**

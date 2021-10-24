@@ -30,14 +30,14 @@ double iAC(string _symbol, int _tf, int _shift) { return Indi_AC::iAC(_symbol, (
 #endif
 
 // Structs.
-struct ACParams : IndicatorParams {
+struct IndiACParams : IndicatorParams {
   // Struct constructor.
-  ACParams(int _shift = 0) : IndicatorParams(INDI_AC, 1, TYPE_DOUBLE) {
+  IndiACParams(int _shift = 0) : IndicatorParams(INDI_AC, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
   };
-  ACParams(ACParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiACParams(IndiACParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -46,12 +46,12 @@ struct ACParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_AC : public Indicator<ACParams> {
+class Indi_AC : public Indicator<IndiACParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AC(ACParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ACParams>(_p, _indi_src){};
+  Indi_AC(IndiACParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiACParams>(_p, _indi_src){};
   Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AC, _tf){};
 
   /**

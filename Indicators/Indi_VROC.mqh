@@ -26,11 +26,11 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct VROCParams : IndicatorParams {
+struct IndiVROCParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  VROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+  IndiVROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_VROC, 1, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
     period = _period;
@@ -38,7 +38,7 @@ struct VROCParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\VROC");
     shift = _shift;
   };
-  VROCParams(VROCParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiVROCParams(IndiVROCParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -47,12 +47,12 @@ struct VROCParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_VROC : public Indicator<VROCParams> {
+class Indi_VROC : public Indicator<IndiVROCParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_VROC(VROCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<VROCParams>(_p, _indi_src){};
+  Indi_VROC(IndiVROCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiVROCParams>(_p, _indi_src){};
   Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf){};
 
   /**

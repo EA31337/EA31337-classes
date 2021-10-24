@@ -26,18 +26,18 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct ASIParams : IndicatorParams {
+struct IndiASIParams : IndicatorParams {
   unsigned int period;
   double mpc;
   // Struct constructor.
-  ASIParams(double _mpc = 300.0, int _shift = 0)
+  IndiASIParams(double _mpc = 300.0, int _shift = 0)
       : IndicatorParams(INDI_ASI, 1, TYPE_DOUBLE, PERIOD_CURRENT, IDATA_ONCALCULATE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ASI");
     mpc = _mpc;
     shift = _shift;
   };
-  ASIParams(ASIParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiASIParams(IndiASIParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -46,12 +46,12 @@ struct ASIParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_ASI : public Indicator<ASIParams> {
+class Indi_ASI : public Indicator<IndiASIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ASI(ASIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ASIParams>(_p, _indi_src){};
+  Indi_ASI(IndiASIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiASIParams>(_p, _indi_src){};
   Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ASI, _tf){};
 
   /**

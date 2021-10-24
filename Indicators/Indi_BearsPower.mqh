@@ -31,17 +31,17 @@ double iBearsPower(string _symbol, int _tf, int _period, int _ap, int _shift) {
 #endif
 
 // Structs.
-struct BearsPowerParams : IndicatorParams {
+struct IndiBearsPowerParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  BearsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiBearsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_BEARS, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Bears");
   };
-  BearsPowerParams(BearsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiBearsPowerParams(IndiBearsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,12 +50,13 @@ struct BearsPowerParams : IndicatorParams {
 /**
  * Implements the Bears Power indicator.
  */
-class Indi_BearsPower : public Indicator<BearsPowerParams> {
+class Indi_BearsPower : public Indicator<IndiBearsPowerParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BearsPower(BearsPowerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BearsPowerParams>(_p, _indi_src) {}
+  Indi_BearsPower(IndiBearsPowerParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiBearsPowerParams>(_p, _indi_src) {}
   Indi_BearsPower(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BEARS, _tf) {}
 
   /**

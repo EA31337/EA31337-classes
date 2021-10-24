@@ -28,7 +28,7 @@
 #include "Indi_MA.mqh"
 
 // Structs.
-struct UltimateOscillatorParams : IndicatorParams {
+struct IndiUltimateOscillatorParams : IndicatorParams {
   int fast_period;
   int middle_period;
   int slow_period;
@@ -37,8 +37,8 @@ struct UltimateOscillatorParams : IndicatorParams {
   int slow_k;
 
   // Struct constructor.
-  UltimateOscillatorParams(int _fast_period = 7, int _middle_period = 14, int _slow_period = 28, int _fast_k = 4,
-                           int _middle_k = 2, int _slow_k = 1, int _shift = 0)
+  IndiUltimateOscillatorParams(int _fast_period = 7, int _middle_period = 14, int _slow_period = 28, int _fast_k = 4,
+                               int _middle_k = 2, int _slow_k = 1, int _shift = 0)
       : IndicatorParams(INDI_ULTIMATE_OSCILLATOR, 1, TYPE_DOUBLE) {
     fast_k = _fast_k;
     fast_period = _fast_period;
@@ -50,7 +50,7 @@ struct UltimateOscillatorParams : IndicatorParams {
     slow_k = _slow_k;
     slow_period = _slow_period;
   };
-  UltimateOscillatorParams(UltimateOscillatorParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiUltimateOscillatorParams(IndiUltimateOscillatorParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -59,13 +59,13 @@ struct UltimateOscillatorParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_UltimateOscillator : public Indicator<UltimateOscillatorParams> {
+class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_UltimateOscillator(UltimateOscillatorParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<UltimateOscillatorParams>(_p, _indi_src){};
+  Indi_UltimateOscillator(IndiUltimateOscillatorParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiUltimateOscillatorParams>(_p, _indi_src){};
   Indi_UltimateOscillator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ULTIMATE_OSCILLATOR, _tf){};
 
   /**

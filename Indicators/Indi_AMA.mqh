@@ -28,15 +28,15 @@
 #include "Price/Indi_Price.mqh"
 
 // Structs.
-struct IndiAMAParams : IndicatorParams {
+struct IndiAIndiMAParams : IndicatorParams {
   unsigned int period;
   unsigned int fast_period;
   unsigned int slow_period;
   unsigned int ama_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  IndiAMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
-                ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
+  IndiAIndiMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
+                    ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
       : period(_period),
         fast_period(_fast_period),
         slow_period(_slow_period),
@@ -53,7 +53,7 @@ struct IndiAMAParams : IndicatorParams {
         break;
     }
   };
-  IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiAIndiMAParams(IndiAIndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -62,12 +62,12 @@ struct IndiAMAParams : IndicatorParams {
 /**
  * Implements the AMA indicator.
  */
-class Indi_AMA : public Indicator<IndiAMAParams> {
+class Indi_AMA : public Indicator<IndiAIndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiAMAParams>(_p, _indi_src){};
+  Indi_AMA(IndiAIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiAIndiMAParams>(_p, _indi_src){};
   Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AMA, _tf){};
 
   /**

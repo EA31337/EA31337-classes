@@ -36,12 +36,12 @@
 #include "Price/Indi_Price.mqh"
 
 // Structs.
-struct DEMAParams : IndicatorParams {
+struct IndiDEIndiMAParams : IndicatorParams {
   int ma_shift;
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  DEMAParams(unsigned int _period = 14, int _ma_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiDEIndiMAParams(unsigned int _period = 14, int _ma_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : period(_period), ma_shift(_ma_shift), applied_price(_ap), IndicatorParams(INDI_DEMA, 1, TYPE_DOUBLE) {
     SetCustomIndicatorName("Examples\\DEMA");
     SetDataValueRange(IDATA_RANGE_PRICE);
@@ -54,7 +54,7 @@ struct DEMAParams : IndicatorParams {
         break;
     }
   };
-  DEMAParams(DEMAParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiDEIndiMAParams(IndiDEIndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -63,12 +63,12 @@ struct DEMAParams : IndicatorParams {
 /**
  * Implements the Moving Average indicator.
  */
-class Indi_DEMA : public Indicator<DEMAParams> {
+class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_DEMA(DEMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<DEMAParams>(_p, _indi_src) {}
+  Indi_DEMA(IndiDEIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiDEIndiMAParams>(_p, _indi_src) {}
   Indi_DEMA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DEMA, _tf) {}
 
   /**
@@ -195,7 +195,8 @@ class Indi_DEMA : public Indicator<DEMAParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<DEMAParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0) && _entry.IsLt<double>(DBL_MAX);
+    return Indicator<IndiDEIndiMAParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0) &&
+           _entry.IsLt<double>(DBL_MAX);
   }
 
   /* Getters */
