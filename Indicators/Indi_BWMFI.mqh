@@ -28,6 +28,7 @@
 double iBWMFI(string _symbol, int _tf, int _shift) { return Indi_BWMFI::iBWMFI(_symbol, (ENUM_TIMEFRAMES)_tf, _shift); }
 #endif
 
+// Enumerations.
 // Indicator line identifiers used in BWMFI indicators.
 enum ENUM_BWMFI_BUFFER { BWMFI_BUFFER = 0, BWMFI_HISTCOLOR = 1, FINAL_BWMFI_BUFFER_ENTRY };
 // Defines four possible groupings of MFI and volume were termed by Williams.

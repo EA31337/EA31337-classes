@@ -27,13 +27,24 @@
 #include "Indi_AC.mqh"
 #include "Indi_AO.mqh"
 
+// Enumerations.
+// Indicator line identifiers used in BWMFI indicators.
+enum ENUM_INDI_BWZT_MODE {
+  INDI_BWZT_MODE_OPEN = 0,
+  INDI_BWZT_MODE_HIGH = 1,
+  INDI_BWZT_MODE_LOW = 2,
+  INDI_BWZT_MODE_CLOSE = 3,
+  INDI_BWZT_MODE_COLOR = 4,
+  FINAL_INDI_BWZT_MODE_ENTRY
+};
+
 // Structs.
 struct IndiBWZTParams : IndicatorParams {
   unsigned int period;
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
-  IndiBWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, 5, TYPE_DOUBLE) {
+  IndiBWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
     shift = _shift;
@@ -175,5 +186,15 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
         break;
     }
     return _value;
+  }
+
+  /**
+   * Checks if indicator entry is valid.
+   *
+   * @return
+   *   Returns true if entry is valid (has valid values), otherwise false.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue<double>(DBL_MAX) && _entry.GetMin<double>(4) > 0 && _entry[(int)INDI_BWZT_MODE_COLOR] >= 0;
   }
 };
