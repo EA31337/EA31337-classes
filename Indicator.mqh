@@ -102,9 +102,10 @@ class Indicator : public Chart {
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();
   }
-  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
+  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
       : Chart(_tf), draw(NULL), is_feeding(false), is_fed(false) {
     iparams.SetIndicatorType(_itype);
+    iparams.SetShift(_shift);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
     Init();
   }
@@ -1115,7 +1116,7 @@ class Indicator : public Chart {
    * Returns price value of the corresponding indicator values.
    */
   template <typename T>
-  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE) {
+  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL) {
     float _price = 0;
     if (iparams.GetIDataValueRange() != IDATA_RANGE_PRICE) {
       _price = (float)GetPrice(_ap, _shift);
@@ -1209,12 +1210,8 @@ class Indicator : public Chart {
    * Returns the indicator's struct value.
    */
   virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
     IndicatorDataEntry _entry(iparams.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    }
+    _entry = idata.GetByKey(GetBarTime(_shift), _entry);
     return _entry;
   };
 

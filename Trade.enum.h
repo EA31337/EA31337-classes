@@ -33,6 +33,10 @@
 // Trade actions.
 enum ENUM_TRADE_ACTION {
   TRADE_ACTION_CALC_LOT_SIZE = 1,          // Recalculate lot size
+  TRADE_ACTION_ORDER_CLOSE_LEAST_LOSS,     // Close order with least loss
+  TRADE_ACTION_ORDER_CLOSE_LEAST_PROFIT,   // Close order with least profit
+  TRADE_ACTION_ORDER_CLOSE_MOST_LOSS,      // Close order with most loss
+  TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT,    // Close order with most profit
   TRADE_ACTION_ORDER_OPEN,                 // Open order
   TRADE_ACTION_ORDERS_CLOSE_ALL,           // Close open sell orders
   TRADE_ACTION_ORDERS_CLOSE_BY_TYPE,       // Close open orders by type (args)
@@ -47,12 +51,20 @@ enum ENUM_TRADE_ACTION {
 
 // Trade conditions.
 enum ENUM_TRADE_CONDITION {
-  TRADE_COND_ACCOUNT = 1,     // Account condition (1 arg)
-  TRADE_COND_ALLOWED_NOT,     // When trade is not allowed
-  TRADE_COND_HAS_STATE,       // Trade as specific state (1 arg)
-  TRADE_COND_IS_ORDER_LIMIT,  // Trade has reached order limits
-  TRADE_COND_IS_PEAK,         // When market is at peak level
-  TRADE_COND_IS_PIVOT,        // When market is in pivot levels
+  TRADE_COND_ACCOUNT = 1,            // Account condition (1 arg)
+  TRADE_COND_ALLOWED_NOT,            // When trade is not allowed
+  TRADE_COND_HAS_STATE,              // Trade as specific state (1 arg)
+  TRADE_COND_IS_ORDER_LIMIT,         // Trade has reached order limits
+  TRADE_COND_IS_PEAK,                // Market is at peak level
+  TRADE_COND_IS_PIVOT,               // Market is in pivot levels
+  TRADE_COND_ORDERS_PROFIT_GT_01PC,  // Equity > 1%
+  TRADE_COND_ORDERS_PROFIT_LT_01PC,  // Equity < 1%
+  TRADE_COND_ORDERS_PROFIT_GT_02PC,  // Equity > 2%
+  TRADE_COND_ORDERS_PROFIT_LT_02PC,  // Equity < 2%
+  TRADE_COND_ORDERS_PROFIT_GT_05PC,  // Equity > 5%
+  TRADE_COND_ORDERS_PROFIT_LT_05PC,  // Equity < 5%
+  TRADE_COND_ORDERS_PROFIT_GT_10PC,  // Equity > 10%
+  TRADE_COND_ORDERS_PROFIT_LT_10PC,  // Equity < 10%
   // TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
   // TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
   FINAL_ENUM_TRADE_CONDITION_ENTRY = 4

@@ -208,54 +208,6 @@ class Strategy : public Object {
   }
 
   /**
-   * Process strategy's orders.
-   *
-   * @return
-   *   Returns StgProcessResult struct.
-   */
-  StgProcessResult ProcessOrders(Trade *_trade) {
-    // @todo: Move to Trade.
-    bool sl_valid, tp_valid;
-    double sl_new, tp_new;
-    Order *_order;
-    DictStruct<long, Ref<Order>> *_orders_active = _trade.GetOrdersActive();
-    for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
-      _order = iter.Value().Ptr();
-      if (_order.IsOpen() && _order.Get(ORDER_MAGIC) == sparams.Get<long>(STRAT_PARAM_ID)) {
-        OrderData _odata = _order.GetData();
-        Strategy *_strat_sl = strat_sl;
-        Strategy *_strat_tp = strat_tp;
-        _order.Update();
-        if (_strat_sl != NULL && _strat_tp != NULL) {
-          float _psl = _strat_sl.Get<float>(STRAT_PARAM_PSL);
-          float _ppl = _strat_tp.Get<float>(STRAT_PARAM_PPL);
-          int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
-          int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
-          sl_new = _strat_sl.PriceStop(_odata.type, ORDER_TYPE_SL, _psm, _psl);
-          tp_new = _strat_tp.PriceStop(_odata.type, ORDER_TYPE_TP, _ppm, _ppl);
-          sl_new = trade.NormalizeSL(sl_new, _odata.type);
-          tp_new = trade.NormalizeTP(tp_new, _odata.type);
-          sl_valid = trade.IsValidOrderSL(sl_new, _odata.type, _odata.sl, _psm > 0);
-          tp_valid = trade.IsValidOrderTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
-          if (sl_valid && tp_valid) {
-            if (!_order.OrderModify(sl_new, tp_new)) {
-              _order.GetLogger().Flush();
-            }
-          }
-          sresult.stops_invalid_sl += (unsigned short)sl_valid;
-          sresult.stops_invalid_tp += (unsigned short)tp_valid;
-        } else {
-          GetLogger().Error("Error loading SL/TP objects!", __FUNCTION_LINE__);
-        }
-      } else {
-        trade.OrderMoveToHistory(_order);
-      }
-    }
-    sresult.ProcessLastError();
-    return sresult;
-  }
-
-  /**
    * Process strategy's signals and orders.
    *
    * @param ushort _periods_started
@@ -405,6 +357,16 @@ class Strategy : public Object {
    * Get strategy's last signals.
    */
   StrategySignal GetLastSignals() { return last_signals; }
+
+  /**
+   * Gets pointer to strategy's stop-loss strategy.
+   */
+  Strategy *GetStratSl() { return strat_sl; }
+
+  /**
+   * Gets pointer to strategy's take-profit strategy.
+   */
+  Strategy *GetStratTp() { return strat_tp; }
 
   /**
    * Get strategy's name.
@@ -890,6 +852,9 @@ class Strategy : public Object {
           if (_result) {
             Order *_order = trade.GetOrderLast();
             switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
+              case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
+                // OnOrderClose();// @todo
+                break;
               case TRADE_ACTION_ORDER_OPEN:
                 // @fixme: Operation on the structure copy.
                 OnOrderOpen(_order.GetParams());
@@ -942,7 +907,7 @@ class Strategy : public Object {
   /**
    * Prints strategy's details.
    */
-  string ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
+  string const ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
 
   /* Virtual methods */
 
@@ -967,11 +932,11 @@ class Strategy : public Object {
    */
   virtual void OnOrderOpen(OrderParams &_oparams) {
     int _index = 0;
+    ENUM_TIMEFRAMES _stf = Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
+    unsigned int _stf_secs = ChartTf::TfToSeconds(_stf);
     if (sparams.order_close_time != 0) {
-      long _close_time_arg = sparams.order_close_time > 0
-                                 ? sparams.order_close_time * 60
-                                 : (int)round(-sparams.order_close_time *
-                                              ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
+      long _close_time_arg = sparams.order_close_time > 0 ? sparams.order_close_time * 60
+                                                          : (int)round(-sparams.order_close_time * _stf_secs);
       _oparams.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
       _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
       _index++;
@@ -988,6 +953,7 @@ class Strategy : public Object {
       _oparams.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
       _index++;
     }
+    _oparams.Set(ORDER_PARAM_UPDATE_FREQ, _stf_secs);
   }
 
   /**
@@ -1004,13 +970,20 @@ class Strategy : public Object {
   virtual void OnPeriod(unsigned int _periods = DATETIME_NONE) {
     if ((_periods & DATETIME_MINUTE) != 0) {
       // New minute started.
-      GetLogger().Flush();
+#ifndef __optimize__
+      if (Terminal::IsRealtime()) {
+        logger.Flush();
+      }
+#endif
     }
     if ((_periods & DATETIME_HOUR) != 0) {
       // New hour started.
     }
     if ((_periods & DATETIME_DAY) != 0) {
       // New day started.
+#ifndef __optimize__
+      GetLogger().Flush();
+#endif
     }
     if ((_periods & DATETIME_WEEK) != 0) {
       // New week started.
@@ -1087,7 +1060,9 @@ class Strategy : public Object {
         _val = _tick.time % 10 < last_tick.time % 10;
         _res = _method > 0 ? _res & _val : _res | _val;
       }
-      last_tick = _tick;
+      if (_res) {
+        last_tick = _tick;
+      }
     }
     return _res;
   }
@@ -1254,8 +1229,13 @@ class Strategy : public Object {
    *   Returns current stop loss value when _mode is ORDER_TYPE_SL
    *   and profit take when _mode is ORDER_TYPE_TP.
    */
-  virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
-    double _result = 0;
+  virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f,
+                          short _bars = 4) {
+    float _result = 0;
+    if (_method == 0) {
+      // Ignores calculation when method is 0.
+      return (float)_result;
+    }
     float _trade_dist = trade.GetTradeDistanceInValue();
     int _count = (int)fmax(fabs(_level), fabs(_method));
     int _direction = Order::OrderDirection(_cmd, _mode);
@@ -1264,9 +1244,10 @@ class Strategy : public Object {
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {
-      int _ishift = _direction > 0 ? _indi.GetHighest<double>(_count) : _indi.GetLowest<double>(_count);
-      _ishift = fmax(0, _ishift);
-      _psm.SetIndicatorPriceValue(_indi.GetValuePrice<float>(_ishift, 0, PRICE_CLOSE));
+      int _ishift = fmax(0, _direction > 0 ? _indi.GetHighest<double>(_bars) : _indi.GetLowest<double>(_bars));
+      float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
+      _value = _value + (float)Math::ChangeByPct(fabs(_value - _chart.GetCloseOffer(0)), _level) * _direction;
+      _psm.SetIndicatorPriceValue(_value);
       /*
       //IndicatorDataEntry _data[];
       if (_indi.CopyEntries(_data, 3, 0)) {

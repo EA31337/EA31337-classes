@@ -110,15 +110,14 @@ void OnTick() {
     if (_signal.CheckSignals(STRAT_SIGNAL_OPEN_BUY)) {
       assertTrueOrExit(_signal.GetOpenDirection() == 1, "Wrong order open direction!");
       MqlTradeRequest _request =
-          trade.GetTradeRequest(ORDER_TYPE_BUY, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
+          trade.GetTradeOpenRequest(ORDER_TYPE_BUY, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
       trade.RequestSend(_request);
     } else if (_signal.CheckSignals(STRAT_SIGNAL_OPEN_SELL)) {
       assertTrueOrExit(_signal.GetOpenDirection() == -1, "Wrong order open direction!");
       MqlTradeRequest _request =
-          trade.GetTradeRequest(ORDER_TYPE_SELL, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
+          trade.GetTradeOpenRequest(ORDER_TYPE_SELL, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
       trade.RequestSend(_request);
     } else if (trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-      stg_rsi.ProcessOrders(trade);
       stg_rsi.ProcessTasks();
     }
     long _last_error = GetLastError();

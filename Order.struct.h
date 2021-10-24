@@ -107,10 +107,11 @@ struct OrderParams {
   } cond_close[];
   bool dummy;                   // Whether order is dummy (fake) or not (real).
   color color_arrow;            // Color of the opening arrow on the chart.
-  unsigned short refresh_rate;  // How often to refresh order values (in secs).
+  unsigned short refresh_freq;  // How often to refresh order values (in secs).
+  unsigned short update_freq;   // How often to update order stops (in secs).
   // Special struct methods.
-  OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10){};
-  OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10){};
+  OrderParams() : dummy(false), color_arrow(clrNONE), refresh_freq(10), update_freq(60){};
+  OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_freq(10), update_freq(60){};
   // Getters.
   template <typename T>
   T Get(ENUM_ORDER_PARAM _param, int _index1 = 0, int _index2 = 0) {
@@ -125,6 +126,10 @@ struct OrderParams {
         return (T)ArraySize(cond_close);
       case ORDER_PARAM_DUMMY:
         return (T)dummy;
+      case ORDER_PARAM_REFRESH_FREQ:
+        return (T)refresh_freq;
+      case ORDER_PARAM_UPDATE_FREQ:
+        return (T)update_freq;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
@@ -151,6 +156,12 @@ struct OrderParams {
       case ORDER_PARAM_DUMMY:
         dummy = _value;
         return;
+      case ORDER_PARAM_REFRESH_FREQ:
+        refresh_freq = (unsigned short)_value;
+        return;
+      case ORDER_PARAM_UPDATE_FREQ:
+        update_freq = (unsigned short)_value;
+        return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
@@ -163,12 +174,12 @@ struct OrderParams {
     cond_close[_index].SetCondition(_cond);
     cond_close[_index].SetConditionArgs(_args);
   }
-  void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
+  void SetRefreshRate(unsigned short _value) { refresh_freq = _value; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "dummy", dummy);
     s.Pass(THIS_REF, "color_arrow", color_arrow);
-    s.Pass(THIS_REF, "refresh_rate", refresh_rate);
+    s.Pass(THIS_REF, "refresh_freq", refresh_freq);
     // s.Pass(THIS_REF, "cond_close", cond_close);
     return SerializerNodeObject;
   }
@@ -178,6 +189,7 @@ struct OrderParams {
  * The structure for order data.
  */
 struct OrderData {
+ protected:
   unsigned long magic;                   // Magic number.
   unsigned long position_id;             // Position ID.
   unsigned long position_by_id;          // Position By ID.
@@ -187,7 +199,8 @@ struct OrderData {
   datetime time_done;                    // Execution/cancellation time.
   datetime time_expiration;              // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
   datetime time_setup;                   // Setup time.
-  datetime time_last_updated;            // Last update of order values.
+  datetime time_last_refresh;            // Last refresh of order values.
+  datetime time_last_update;             // Last update of order stops.
   double commission;                     // Commission.
   double profit;                         // Profit.
   double total_profit;                   // Total profit (profit minus fees).
@@ -212,6 +225,7 @@ struct OrderData {
   string comment;                        // Comment.
   string ext_id;                         // External trading system identifier.
   string symbol;                         // Symbol of the order.
+ public:
   OrderData()
       : magic(0),
         position_id(0),
@@ -230,7 +244,8 @@ struct OrderData {
         time_done(0),
         time_done_msc(0),
         time_expiration(0),
-        time_last_updated(0),
+        time_last_refresh(0),
+        time_last_update(0),
         time_setup(0),
         time_setup_msc(0),
         sl(0),
@@ -239,16 +254,19 @@ struct OrderData {
         symbol(NULL),
         volume_curr(0),
         volume_init(0) {}
+  // Copy constructor.
+  OrderData(OrderData &_odata) { this = _odata; }
   // Getters.
   template <typename T>
   T Get(ENUM_ORDER_PROPERTY_CUSTOM _prop_name) {
+    double _tick_value = SymbolInfoStatic::GetTickValue(symbol);
     switch (_prop_name) {
+      case ORDER_PROP_COMMISSION:
+        return (T)commission;
       case ORDER_PROP_LAST_ERROR:
         return (T)last_error;
       case ORDER_PROP_PRICE_CLOSE:
         return (T)price_close;
-      case ORDER_PROP_PRICE_CURRENT:
-        return (T)price_current;
       case ORDER_PROP_PRICE_OPEN:
         return (T)price_open;
       case ORDER_PROP_PRICE_STOPLIMIT:
@@ -257,78 +275,91 @@ struct OrderData {
         return (T)profit;
       case ORDER_PROP_PROFIT_PIPS:
         return (T)(profit * pow(10, SymbolInfoStatic::GetDigits(symbol)));
+      case ORDER_PROP_PROFIT_VALUE:
+        return (T)(Get<int>(ORDER_PROP_PROFIT_PIPS) * volume_curr * SymbolInfoStatic::GetTickValue(symbol));
+      case ORDER_PROP_PROFIT_TOTAL:
+        return (T)(profit - total_fees);
       case ORDER_PROP_REASON_CLOSE:
         return (T)reason_close;
       case ORDER_PROP_TICKET:
         return (T)ticket;
       case ORDER_PROP_TIME_CLOSED:
         return (T)time_closed;
-      case ORDER_PROP_TIME_LAST_UPDATED:
-        return (T)time_last_updated;
+      case ORDER_PROP_TIME_LAST_REFRESH:
+        return (T)time_last_refresh;
+      case ORDER_PROP_TIME_LAST_UPDATE:
+        return (T)time_last_update;
       case ORDER_PROP_TIME_OPENED:
         return (T)time_done;
+      case ORDER_PROP_TOTAL_FEES:
+        return (T)total_fees;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
-  double Get(ENUM_ORDER_PROPERTY_DOUBLE _prop_name) {
+  template <typename T>
+  T Get(ENUM_ORDER_PROPERTY_DOUBLE _prop_name) {
+    // See: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
     switch (_prop_name) {
       case ORDER_VOLUME_CURRENT:
-        return volume_curr;
+        return (T)volume_curr;
       case ORDER_VOLUME_INITIAL:
-        return volume_init;
+        return (T)volume_init;
       case ORDER_PRICE_OPEN:
-        return price_open;
+        return (T)price_open;
       case ORDER_SL:
-        return sl;
+        return (T)sl;
       case ORDER_TP:
-        return tp;
+        return (T)tp;
       case ORDER_PRICE_CURRENT:
-        return price_current;
+        return (T)price_current;
       case ORDER_PRICE_STOPLIMIT:
-        return price_stoplimit;
+        return (T)price_stoplimit;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
-  long Get(ENUM_ORDER_PROPERTY_INTEGER _prop_name) {
+  template <typename T>
+  T Get(ENUM_ORDER_PROPERTY_INTEGER _prop_name) {
+    // See: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
     switch (_prop_name) {
       // case ORDER_TIME_SETUP: return time_setup; // @todo
       case ORDER_TYPE:
-        return type;
+        return (T)type;
       case ORDER_STATE:
-        return state;
+        return (T)state;
       case ORDER_TIME_EXPIRATION:
-        return time_expiration;
+        return (T)time_expiration;
       case ORDER_TIME_DONE:
-        return time_done;
+        return (T)time_done;
       case ORDER_TIME_DONE_MSC:
-        return time_done_msc;
+        return (T)time_done_msc;
       case ORDER_TIME_SETUP:
-        return time_setup;
+        return (T)time_setup;
       case ORDER_TIME_SETUP_MSC:
-        return time_setup_msc;
+        return (T)time_setup_msc;
       case ORDER_TYPE_FILLING:
-        return type_filling;
+        return (T)type_filling;
       case ORDER_TYPE_TIME:
-        return type_time;
+        return (T)type_time;
       case ORDER_MAGIC:
-        return (long)magic;
+        return (T)magic;
 #ifndef __MQL4__
       case ORDER_POSITION_ID:
-        return (long)position_id;
+        return (T)position_id;
       case ORDER_POSITION_BY_ID:
-        return (long)position_by_id;
+        return (T)position_by_id;
       case ORDER_REASON:
-        return reason;
+        return (T)reason;
       case ORDER_TICKET:
-        return (long)ticket;
+        return (T)ticket;
 #endif
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
   string Get(ENUM_ORDER_PROPERTY_STRING _prop_name) {
+    // See: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
     switch (_prop_name) {
       case ORDER_COMMENT:
         return comment;
@@ -342,6 +373,48 @@ struct OrderData {
     SetUserError(ERR_INVALID_PARAMETER);
     return "";
   }
+  /*
+   * Returns order type value.
+   *
+   * @param
+   *   _type ENUM_ORDER_TYPE Order operation type of the order.
+   *
+   * @return
+   *   Returns 1 for buy, -1 for sell orders, otherwise 0.
+   */
+  short GetTypeValue() { return GetTypeValue(type); }
+  /*
+   * Returns order type value.
+   *
+   * @param
+   *   _type ENUM_ORDER_TYPE Order operation type of the order.
+   *
+   * @return
+   *   Returns 1 for buy, -1 for sell orders, otherwise 0.
+   */
+  static short GetTypeValue(ENUM_ORDER_TYPE _type) {
+    switch (_type) {
+      case ORDER_TYPE_SELL:
+      case ORDER_TYPE_SELL_LIMIT:
+      case ORDER_TYPE_SELL_STOP:
+        // All sell orders are -1.
+        return -1;
+      case ORDER_TYPE_BUY:
+      case ORDER_TYPE_BUY_LIMIT:
+      case ORDER_TYPE_BUY_STOP:
+        // All buy orders are -1.
+        return 1;
+      default:
+        return 0;
+    }
+  }
+  /*
+  template <typename T>
+  T Get(int _prop_name) {
+    // MQL4 back-compatibility version for non-enum properties.
+    return Get<T>((ENUM_ORDER_PROPERTY_INTEGER)_prop_name);
+  }
+  */
   string GetReasonCloseText() {
     switch (reason_close) {
       case ORDER_REASON_CLOSED_ALL:
@@ -371,20 +444,23 @@ struct OrderData {
   template <typename T>
   void Set(ENUM_ORDER_PROPERTY_CUSTOM _prop_name, T _value) {
     switch (_prop_name) {
+      case ORDER_PROP_COMMISSION:
+        commission = (double)_value;
+        return;
       case ORDER_PROP_LAST_ERROR:
         last_error = (unsigned int)_value;
         return;
       case ORDER_PROP_PRICE_CLOSE:
         price_close = (double)_value;
         return;
-      case ORDER_PROP_PRICE_CURRENT:
-        price_current = (double)_value;
-        return;
       case ORDER_PROP_PRICE_OPEN:
         price_open = (double)_value;
         return;
       case ORDER_PROP_PRICE_STOPLIMIT:
         price_stoplimit = (double)_value;
+        return;
+      case ORDER_PROP_PROFIT:
+        profit = (double)_value;
         return;
       case ORDER_PROP_REASON_CLOSE:
         reason_close = (ENUM_ORDER_REASON_CLOSE)_value;
@@ -395,11 +471,17 @@ struct OrderData {
       case ORDER_PROP_TIME_CLOSED:
         time_closed = (datetime)_value;
         return;
-      case ORDER_PROP_TIME_LAST_UPDATED:
-        time_last_updated = (datetime)_value;
+      case ORDER_PROP_TIME_LAST_REFRESH:
+        time_last_refresh = (datetime)_value;
+        return;
+      case ORDER_PROP_TIME_LAST_UPDATE:
+        time_last_update = (datetime)_value;
         return;
       case ORDER_PROP_TIME_OPENED:
         time_setup = (datetime)_value;
+        return;
+      case ORDER_PROP_TOTAL_FEES:
+        total_fees = (double)_value;
         return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
@@ -423,7 +505,7 @@ struct OrderData {
         return;
       case ORDER_PRICE_CURRENT:
         price_current = _value;
-        UpdateProfit();
+        RefreshProfit();
         return;
       case ORDER_PRICE_STOPLIMIT:
         price_stoplimit = _value;
@@ -496,12 +578,19 @@ struct OrderData {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
+  /*
+  template <typename T>
+  T Set(long _prop_name) {
+    // MQL4 back-compatibility version for non-enum properties.
+    return Set<T>((ENUM_ORDER_PROPERTY_INTEGER)_prop_name);
+  }
+  */
   void ProcessLastError() { last_error = MathMax(last_error, (unsigned int)Terminal::GetLastError()); }
   void ResetError() {
     ResetLastError();
     last_error = ERR_NO_ERROR;
   }
-  void UpdateProfit() { profit = price_current - price_open; }
+  void RefreshProfit() { profit = (price_current - price_open) * GetTypeValue(); }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "magic", magic);
@@ -521,7 +610,7 @@ struct OrderData {
     s.Pass(THIS_REF, "time_done", time_done);
     s.Pass(THIS_REF, "time_done_msc", time_done_msc);
     s.Pass(THIS_REF, "time_expiration", time_expiration);
-    s.Pass(THIS_REF, "time_last_updated", time_last_updated);
+    s.Pass(THIS_REF, "time_last_update", time_last_update);
     s.Pass(THIS_REF, "time_setup", time_setup);
     s.Pass(THIS_REF, "time_setup_msc", time_setup_msc);
     s.Pass(THIS_REF, "total_fees", total_fees);

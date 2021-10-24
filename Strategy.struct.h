@@ -341,14 +341,9 @@ struct StgParams {
   }
   // Printers.
   string ToString() {
-    return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,Weight:%.2f;" + "SOM:%d,SOL:%.2f;" +
-                            "SCM:%d,SCL:%.2f;" + "PSM:%d,PSL:%.2f;" + "LS:%.2f(Factor:%.2f);MS:%.2f;",
-                        // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
-                        is_enabled ? "Yes" : "No", is_suspended ? "Yes" : "No", is_boosted ? "Yes" : "No", id, weight,
-                        signal_open_method, signal_open_level, signal_close_method, signal_close_level,
-                        price_stop_method, price_stop_level, lot_size, lot_size_factor, max_spread
-                        // @todo: data, sl, tp
-    );
+    // SerializerConverter _stub = SerializerConverter::MakeStubObject<StrategySignal>(SERIALIZER_FLAG_SKIP_HIDDEN);
+    return SerializerConverter::FromObject(THIS_REF, SERIALIZER_FIELD_FLAG_DEFAULT | SERIALIZER_FLAG_SKIP_HIDDEN)
+        .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
   }
 
   // Serializers.
@@ -557,13 +552,24 @@ struct StrategySignal {
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &_s) {
-    // _s.Pass(THIS_REF, "signals", signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+    _s.PassEnum(THIS_REF, "tf", tf);
+    _s.Pass(THIS_REF, "strenght", strength, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "weight", weight, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    if (Object::IsValid(strat)) {
+      string _sname = strat.GetName();
+      _s.Pass(THIS_REF, "strat", _sname);
+    }
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckSignals(1 << i) ? 1 : 0;
       _s.Pass(THIS_REF, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     }
     return SerializerNodeObject;
+  }
+  string ToString() {
+    // SerializerConverter _stub = SerializerConverter::MakeStubObject<StrategySignal>(SERIALIZER_FLAG_SKIP_HIDDEN);
+    return SerializerConverter::FromObject(THIS_REF, SERIALIZER_FLAG_SKIP_HIDDEN)
+        .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
   }
 };
 

@@ -230,7 +230,7 @@ struct IndicatorDataEntry {
   ARRAY(IndicatorDataEntryValue, values);
 
   // Constructors.
-  IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
+  IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { Resize(_size); }
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
   template <typename T>
@@ -291,7 +291,7 @@ struct IndicatorDataEntry {
   }
   template <typename T>
   bool IsLt(T _value) {
-    return _value < GetMax();
+    return _value < GetMax<T>();
   }
   template <typename T>
   bool IsWithinRange(T _min, T _max) {
@@ -365,6 +365,7 @@ struct IndicatorDataEntry {
   int GetDayOfYear() { return DateTimeStatic::DayOfYear(timestamp); }
   int GetMonth() { return DateTimeStatic::Month(timestamp); }
   int GetYear() { return DateTimeStatic::Year(timestamp); }
+  long GetTime() { return timestamp; };
   ENUM_DATATYPE GetDataType() {
     if (CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
       return TYPE_FLOAT;
@@ -390,6 +391,8 @@ struct IndicatorDataEntry {
     }
     return (INDICATOR_ENTRY_FLAGS)0;
   }
+  // Setters.
+  bool Resize(int _size = 0) { return _size > 0 ? ArrayResize(values, _size) > 0 : true; }
   // Value flag methods for bitwise operations.
   bool CheckFlag(INDICATOR_ENTRY_FLAGS _prop) { return CheckFlags(_prop); }
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
@@ -455,7 +458,8 @@ struct IndicatorParams {
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                   string _name = "")
-      : name(_name),
+      : custom_indi_name(""),
+        name(_name),
         shift(0),
         max_modes(1),
         max_buffers(10),
@@ -472,7 +476,8 @@ struct IndicatorParams {
     SetDataSourceType(_idstype);
   };
   IndicatorParams(string _name, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : name(_name),
+      : custom_indi_name(""),
+        name(_name),
         shift(0),
         max_modes(1),
         max_buffers(10),
@@ -597,7 +602,7 @@ struct IndicatorState {
         return (T)is_changed;
       case INDICATOR_STATE_PROP_IS_READY:
         return (T)is_ready;
-    }
+    };
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }

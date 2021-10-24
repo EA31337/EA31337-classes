@@ -146,7 +146,7 @@ class Timer : public Object {
     /**
      * Print timer times.
      */
-    virtual string ToString() {
+    virtual const string ToString() {
       return StringFormat("%s(%d)=%d-%dms,med=%dms,sum=%dms",
         GetName(),
         ArraySize(this.data),
