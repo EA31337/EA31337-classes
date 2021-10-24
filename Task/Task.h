@@ -25,9 +25,14 @@
  * Provides integration with tasks (manages conditions and actions).
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Prevents processing this includes file for the second time.
-#ifndef TASK_MQH
-#define TASK_MQH
+#ifndef TASK_H
+#define TASK_H
 
 // Includes.
 #include "../DictStruct.mqh"
@@ -270,4 +275,4 @@ class Task {
 
   /* Other methods */
 };
-#endif  // TASK_MQH
+#endif  // TASK_H

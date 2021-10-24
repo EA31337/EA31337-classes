@@ -31,27 +31,27 @@
 #endif
 
 // Prevents processing this includes file for the second time.
-#ifndef TASK_ACTION_BASE_H
-#define TASK_ACTION_BASE_H
+#ifndef TASK_CONDITION_BASE_H
+#define TASK_CONDITION_BASE_H
 
 /**
- * TaskActionBase class.
+ * TaskConditionBase class.
  */
-class TaskActionBase {
+class TaskConditionBase {
  public:
   /* Special methods */
 
   /**
    * Class constructor.
    */
-  TaskActionBase() {}
+  TaskConditionBase() {}
 
   /* Main methods */
 
   /**
-   * Runs an action.
+   * Checks a condition.
    */
-  virtual bool Run(const TaskActionEntry &_entry) = NULL;
+  virtual bool Check(const TaskConditionEntry &_entry) = NULL;
 };
 
-#endif  // TASK_ACTION_BASE_H
+#endif  // TASK_CONDITION_BASE_H

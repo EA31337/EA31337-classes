@@ -25,9 +25,14 @@
  * Provides integration with conditions.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Prevents processing this includes file for the second time.
-#ifndef TASK_CONDITION_MQH
-#define TASK_CONDITION_MQH
+#ifndef TASK_CONDITION_H
+#define TASK_CONDITION_H
 
 // Includes.
 #include "../Account.mqh"
@@ -47,56 +52,33 @@
 /**
  * TaskCondition class.
  */
+template <typename TC>
 class TaskCondition {
  public:
  protected:
-  // Class variables.
-  Ref<Log> logger;
+  // Protected class variables.
+  TaskConditionEntry entry;  // Condition entry.
+  TC obj;                    // Object to run the action on.
 
  public:
-  // Class variables.
-  DictStruct<short, TaskConditionEntry> conds;
-
   /* Special methods */
 
   /**
-   * Class constructor.
+   * Default class constructor.
    */
   TaskCondition() {}
-  TaskCondition(TaskConditionEntry &_entry) { conds.Push(_entry); }
-  TaskCondition(long _cond_id, ENUM_TASK_CONDITION_TYPE _type) {
-    TaskConditionEntry _entry(_cond_id, _type);
-    conds.Push(_entry);
-  }
-  template <typename T>
-  TaskCondition(T _cond_id, void *_obj = NULL) {
-    TaskConditionEntry _entry(_cond_id);
-    if (_obj != NULL) {
-      _entry.SetObject(_obj);
-    }
-    conds.Push(_entry);
-  }
-  template <typename T>
-  TaskCondition(T _cond_id, MqlParam &_args[], void *_obj = NULL) {
-    Init();
-    TaskConditionEntry _entry(_cond_id);
-    _entry.SetArgs(_args);
-    if (_obj != NULL) {
-      _entry.SetObject(_obj);
-    }
-    conds.Push(_entry);
-  }
 
   /**
-   * Class copy constructor.
+   * Class constructor with an entry as argument.
    */
-  TaskCondition(TaskCondition &_cond) { conds = _cond.GetConditions(); }
+  TaskCondition(TaskConditionEntry &_entry) : entry(_entry) {}
 
   /* Main methods */
 
   /**
    * Test conditions.
    */
+  /*
   bool Test() {
     bool _result = false, _prev_result = true;
     for (DictStructIterator<short, TaskConditionEntry> iter = conds.Begin(); iter.IsValid(); ++iter) {
@@ -126,142 +108,70 @@ class TaskCondition {
     }
     return _result;
   }
+  */
 
   /**
-   * Test specific condition.
+   * Checks a current condition.
    */
-  static bool Test(TaskConditionEntry &_entry) {
-    bool _result = false;
-    switch (_entry.type) {
-      case COND_TYPE_ACCOUNT:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Account *)_entry.obj).CheckCondition((ENUM_ACCOUNT_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-      case COND_TYPE_CHART:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Chart *)_entry.obj).CheckCondition((ENUM_CHART_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-      case COND_TYPE_DATETIME:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((DateTime *)_entry.obj).CheckCondition((ENUM_DATETIME_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = DateTime::CheckCondition((ENUM_DATETIME_CONDITION)_entry.cond_id, _entry.args);
-        }
-        break;
-      case COND_TYPE_EA:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((EA *)_entry.obj).CheckCondition((ENUM_EA_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#ifdef INDICATOR_MQH
-      case COND_TYPE_INDICATOR:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((IndicatorBase *)_entry.obj).CheckCondition((ENUM_INDICATOR_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          // Static method not supported.
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#endif
-      case COND_TYPE_MARKET:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Market *)_entry.obj).CheckCondition((ENUM_MARKET_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#ifdef MATH_H
-      case COND_TYPE_MATH:
-        /*
-          if (Object::IsValid(_entry.obj)) {
-            _result = ((Math *)_entry.obj).CheckCondition((ENUM_MATH_CONDITION)_entry.cond_id, _entry.args);
-          } else {
-            _result = false;
-            _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-          }
-          */
-        return false;
-        break;
-#endif  // MATH_M
-#ifdef ORDER_MQH
-      case COND_TYPE_ORDER:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Order *)_entry.obj).CheckCondition((ENUM_ORDER_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#endif
-#ifdef STRATEGY_MQH
-      case COND_TYPE_STRATEGY:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Strategy *)_entry.obj).CheckCondition((ENUM_STRATEGY_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#endif
-#ifdef TASK_MQH
-      case COND_TYPE_TASK:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Task *)_entry.obj).CheckCondition((ENUM_TASK_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#endif
-      case COND_TYPE_TRADE:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Trade *)_entry.obj).CheckCondition((ENUM_TRADE_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#ifdef TERMINAL_MQH
-      case COND_TYPE_TERMINAL:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Terminal *)_entry.obj).CheckCondition((ENUM_TERMINAL_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
-#endif
-    }
+  bool Check() {
+    bool _result = entry.IsValid() && entry.HasTriesLeft();
+    _result &= obj.Check(entry);
     if (_result) {
-      _entry.last_success = TimeCurrent();
-      _entry.tries--;
+      entry.RemoveFlags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE));
+      entry.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_TIME_LAST_CHECK), TimeCurrent());
+      entry.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_TIME_LAST_SUCCESS), TimeCurrent());
+    } else {
+      entry.AddFlags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID));
+      entry.RemoveFlags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE));
+      entry.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_TIME_LAST_CHECK), TimeCurrent());
     }
-    _entry.last_check = TimeCurrent();
+    entry.TriesDec();
     return _result;
   }
 
-  /* Other methods */
+  /**
+   * Checks a condition.
+   */
+  virtual bool Check(const TaskConditionEntry &_entry) {
+    // @todo
+    return false;
+  }
 
   /* Getters */
 
   /**
-   * Returns conditions.
+   * Gets an entry's flag.
    */
-  DictStruct<short, TaskConditionEntry> *GetConditions() { return &conds; }
+  bool Get(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_FLAGS) _flag) const { return entry.Get(_flag); }
+
+  /**
+   * Gets an entry's property value.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_PROP) _prop) const {
+    entry.Get<T>(_prop);
+  }
+
+  /**
+   * Gets a reference to the object.
+   */
+  TC *GetObject() { return GetPointer(obj); }
 
   /* Setters */
+
+  /**
+   * Sets an entry's flag.
+   */
+  void Set(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_FLAGS) _flag, bool _value = true) {
+    entry.Set(_flag, _value);
+  }
+
+  /**
+   * Sets an entry's property value.
+   */
+  template <typename T>
+  void Set(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_PROP) _prop, T _value) {
+    entry.Set(_prop, _value);
+  }
 };
-#endif  // TASK_CONDITION_MQH
+#endif  // TASK_CONDITION_H

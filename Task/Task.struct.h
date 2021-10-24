@@ -46,8 +46,9 @@ struct TaskEntry {
   void TaskEntry() { Init(); }
   void TaskEntry(TaskActionEntry &_action, TaskConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
   template <typename AE, typename CE>
-  void TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) { : action(_aid, _atype), cond(_cid, _ctype){Init()};
-  }
+  void TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) {
+    Init();
+  };
   // Main methods.
   void Init() {
     flags = TASK_ENTRY_FLAG_NONE;

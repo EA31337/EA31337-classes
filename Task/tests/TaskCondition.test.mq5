@@ -24,172 +24,69 @@
  * Test functionality of TaskCondition class.
  */
 
-// Forward declaration.
-struct DataParamEntry;
-
 // Includes.
 #include "../../DictObject.mqh"
-#include "../../Indicators/Indi_Demo.mqh"
-#include "../../Test.mqh"
 #include "../TaskCondition.h"
+#include "../TaskConditionBase.h"
 
-// Global variables.
-Chart *chart;
-DictObject<short, TaskCondition> conds;
-int bar_processed;
+enum ENUM_TASK_CONDITION_TEST {
+  TASK_CONDITION_TEST01 = 1,
+  TASK_CONDITION_TEST02 = 2,
+  TASK_CONDITION_TEST03 = 3,
+};
+
+class TaskConditionTest01 : public TaskConditionBase {
+ protected:
+  long sum;
+
+ public:
+  TaskConditionTest01() : sum(0){};
+  long GetSum() { return sum; }
+  bool Check(const TaskConditionEntry &_entry) {
+    sum += _entry.GetId();
+    PrintFormat("Checks: %s; sum=%d", __FUNCSIG__, sum);
+    return true;
+  }
+};
+
+class TaskConditionTest02 : public TaskConditionBase {
+ protected:
+  long sum;
+
+ public:
+  TaskConditionTest02() : sum(0){};
+  long GetSum() { return sum; }
+  bool Check(const TaskConditionEntry &_entry) {
+    sum += _entry.GetId();
+    PrintFormat("Checks: %s; sum=%d", __FUNCSIG__, sum);
+    return true;
+  }
+};
 
 /**
  * Implements Init event handler.
  */
 int OnInit() {
   bool _result = true;
-  bar_processed = 0;
-  chart = new Chart(PERIOD_M1);
-  _result &= TestAccountConditions();
-  _result &= TestChartConditions();
-  _result &= TestDateTimeConditions();
-  _result &= TestIndicatorConditions();
-  _result &= TestMarketConditions();
-  _result &= TestMathConditions();
-  _result &= TestOrderConditions();
-  _result &= TestTradeConditions();
+  // Test01
+  TaskConditionEntry _entry01(TASK_CONDITION_TEST01);
+  TaskCondition<TaskConditionTest01> _cond01(_entry01);
+  _cond01.Check();
+  //_cond01.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST02);
+  _cond01.Check();
+  //_cond01.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST03);
+  _cond01.Check();
+  // assertTrueOrFail(_cond01.GetObject().GetSum() == 6, "Fail!");
   _result &= GetLastError() == ERR_NO_ERROR;
-  return _result ? INIT_SUCCEEDED : INIT_FAILED;
+  return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
 /**
  * Implements Tick event handler.
  */
-void OnTick() {
-  if (chart.IsNewBar()) {
-    // ...
-    bar_processed++;
-  }
-}
+void OnTick() {}
 
 /**
  * Implements Deinit event handler.
  */
-void OnDeinit(const int reason) { delete chart; }
-
-/**
- * Test account conditions.
- */
-bool TestAccountConditions() {
-  bool _result = true;
-  Account *_acc = new Account();
-  TaskCondition *_cond = new TaskCondition(ACCOUNT_COND_BAL_IN_LOSS);
-  assertTrueOrReturnFalse(_cond.Test() == _acc.CheckCondition(ACCOUNT_COND_BAL_IN_LOSS),
-                          "Wrong condition: ACCOUNT_COND_BAL_IN_LOSS!");
-  delete _cond;
-  delete _acc;
-  return _result;
-}
-
-/**
- * Test chart conditions.
- */
-bool TestChartConditions() {
-  bool _result = true;
-  Chart *_chart = new Chart();
-  TaskCondition *_cond = new TaskCondition(CHART_COND_ASK_BAR_PEAK, _chart);
-  assertTrueOrReturnFalse(_cond.Test() == _chart.CheckCondition(CHART_COND_ASK_BAR_PEAK),
-                          "Wrong condition: CHART_COND_ASK_BAR_PEAK!");
-  delete _cond;
-  delete _chart;
-  return _result;
-}
-
-/**
- * Test date time conditions.
- */
-bool TestDateTimeConditions() {
-  bool _result = true;
-  DateTime *_dt = new DateTime();
-  TaskCondition *_cond1 = new TaskCondition(DATETIME_COND_NEW_HOUR, _dt);
-  assertTrueOrReturnFalse(_cond1.Test() == _dt.CheckCondition(DATETIME_COND_NEW_HOUR),
-                          "Wrong condition: DATETIME_COND_NEW_HOUR (dynamic)!");
-  delete _cond1;
-  TaskCondition *_cond2 = new TaskCondition(DATETIME_COND_NEW_HOUR);
-  assertTrueOrReturnFalse(_cond2.Test() == DateTime::CheckCondition(DATETIME_COND_NEW_HOUR),
-                          "Wrong condition: DATETIME_COND_NEW_HOUR (static)!");
-  delete _cond2;
-  delete _dt;
-  return _result;
-}
-
-/**
- * Test indicator conditions.
- */
-bool TestIndicatorConditions() {
-  bool _result = true;
-  Indi_Demo *_demo = new Indi_Demo();
-  /* @fixme
-  assertTrueOrReturnFalse(
-      (new TaskCondition(INDI_COND_ENTRY_IS_MAX, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_IS_MAX),
-      "Wrong condition: INDI_COND_ENTRY_IS_MAX!");
-  assertTrueOrReturnFalse(
-      (new TaskCondition(INDI_COND_ENTRY_IS_MIN, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_IS_MIN),
-      "Wrong condition: INDI_COND_ENTRY_IS_MIN!");
-  assertTrueOrReturnFalse(
-      (new TaskCondition(INDI_COND_ENTRY_GT_AVG, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_GT_AVG),
-      "Wrong condition: INDI_COND_ENTRY_GT_AVG!");
-  assertTrueOrReturnFalse(
-      (new TaskCondition(INDI_COND_ENTRY_GT_MED, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_GT_MED),
-      "Wrong condition: INDI_COND_ENTRY_GT_MED!");
-  assertTrueOrReturnFalse(
-      (new TaskCondition(INDI_COND_ENTRY_LT_AVG, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_LT_AVG),
-      "Wrong condition: INDI_COND_ENTRY_LT_AVG!");
-  assertTrueOrReturnFalse(
-      (new TaskCondition(INDI_COND_ENTRY_LT_MED, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_LT_MED),
-      "Wrong condition: INDI_COND_ENTRY_LT_MED!");
-  */
-  delete _demo;
-  return _result;
-}
-
-/**
- * Test market conditions.
- */
-bool TestMarketConditions() {
-  bool _result = true;
-  Market *_market = new Market();
-  TaskCondition *_cond = new TaskCondition(MARKET_COND_IN_PEAK_HOURS, _market);
-  assertTrueOrReturnFalse(_cond.Test() == _market.CheckCondition(MARKET_COND_IN_PEAK_HOURS),
-                          "Wrong condition: MARKET_COND_IN_PEAK_HOURS!");
-  delete _cond;
-  delete _market;
-  return _result;
-}
-
-/**
- * Test math conditions.
- */
-bool TestMathConditions() {
-  bool _result = true;
-  // @todo
-  return _result;
-}
-
-/**
- * Test order conditions.
- */
-bool TestOrderConditions() {
-  bool _result = true;
-  // @todo
-  return _result;
-}
-
-/**
- * Test trade conditions.
- */
-bool TestTradeConditions() {
-  bool _result = true;
-  Trade *_trade = new Trade();
-  TaskCondition *_cond = new TaskCondition(TRADE_COND_ALLOWED_NOT, _trade);
-  assertTrueOrReturnFalse(_cond.Test() == _trade.CheckCondition(TRADE_COND_ALLOWED_NOT),
-                          "Wrong condition: TRADE_COND_ALLOWED_NOT!");
-  delete _cond;
-  delete _trade;
-  return _result;
-}
+void OnDeinit(const int reason) {}

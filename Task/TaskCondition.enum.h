@@ -84,15 +84,6 @@ enum ENUM_MARKET_EVENT {
 };
 #endif
 
-/* Defines condition entry flags. */
-enum ENUM_TASK_CONDITION_ENTRY_FLAGS {
-  COND_ENTRY_FLAG_NONE = 0,
-  COND_ENTRY_FLAG_IS_ACTIVE = 1,
-  COND_ENTRY_FLAG_IS_EXPIRED = 2,
-  COND_ENTRY_FLAG_IS_INVALID = 4,
-  COND_ENTRY_FLAG_IS_READY = 8
-};
-
 /* Defines condition statements (operators). */
 enum ENUM_TASK_CONDITION_STATEMENT {
   COND_AND = 1,  // Use AND statement.

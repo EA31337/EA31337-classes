@@ -25,9 +25,14 @@
  * Provides integration with actions.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Prevents processing this includes file for the second time.
-#ifndef TASK_ACTION_MQH
-#define TASK_ACTION_MQH
+#ifndef TASK_ACTION_H
+#define TASK_ACTION_H
 
 // Includes.
 #include "TaskAction.enum.h"
@@ -38,40 +43,50 @@
  */
 template <typename TO>
 class TaskAction : TaskActionBase {
- public:
-  // Class variables.
+ protected:
+  // Protected class variables.
   TaskActionEntry entry;  // Action entry.
   TO obj;                 // Object to run the action on.
 
+ public:
   /* Special methods */
 
   /**
-   * Class constructor.
+   * Default class constructor.
    */
   TaskAction() {}
+
+  /**
+   * Class constructor with an entry as argument.
+   */
   TaskAction(TaskActionEntry &_entry) : entry(_entry) {}
 
   /* Main methods */
 
   /**
-   * Runs an action.
+   * Runs a current action.
    */
   bool Run() {
     bool _result = entry.IsValid() && entry.HasTriesLeft();
     _result &= obj.Run(entry);
     if (_result) {
-      entry.TriesDec();
       entry.AddFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_DONE));
       entry.RemoveFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE));
       entry.Set(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_TIME_LAST_RUN), TimeCurrent());
     } else {
-      entry.TriesDec();
-      if (!entry.HasTriesLeft()) {
-        entry.AddFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID));
-        entry.RemoveFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE));
-      }
+      entry.AddFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID));
+      entry.RemoveFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE));
     }
+    entry.TriesDec();
     return _result;
+  }
+
+  /**
+   * Runs a TaskAction action.
+   */
+  virtual bool Run(const TaskActionEntry &_entry) {
+    // @todo
+    return false;
   }
 
   /* Getters */
@@ -90,7 +105,7 @@ class TaskAction : TaskActionBase {
   }
 
   /**
-   * Gets an reference to the object.
+   * Gets s reference to the object.
    */
   TO *GetObject() { return GetPointer(obj); }
 
@@ -112,4 +127,4 @@ class TaskAction : TaskActionBase {
   }
 };
 
-#endif  // TASK_ACTION_MQH
+#endif  // TASK_ACTION_H

@@ -37,7 +37,9 @@
 /* Entry for TaskAction class. */
 struct TaskActionEntry {
  public:
-  // Defines enumerations.
+  /* Enumerations */
+
+  // Defines action entry properties.
   enum ENUM_TASK_ACTION_ENTRY_PROP {
     TASK_ACTION_ENTRY_FLAGS,
     TASK_ACTION_ENTRY_FREQUENCY,
@@ -45,7 +47,7 @@ struct TaskActionEntry {
     TASK_ACTION_ENTRY_TRIES,
     TASK_ACTION_ENTRY_TIME_LAST_RUN,
   };
-  /* Defines action entry flags. */
+  // Defines action entry flags.
   enum ENUM_TASK_ACTION_ENTRY_FLAG {
     TASK_ACTION_ENTRY_FLAG_NONE = 0 << 0,
     TASK_ACTION_ENTRY_FLAG_IS_ACTIVE = 1 << 0,
@@ -61,11 +63,21 @@ struct TaskActionEntry {
   long id;                /* TaskAction's enum ID. */
   short tries;            /* Number of retries left. */
   DataParamEntry args[];  /* TaskAction arguments. */
+ protected:
+  // Protected methods.
+  void Init() { SetFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID), id == WRONG_VALUE); }
+
  public:
   // Constructors.
-  TaskActionEntry() : flags(0), freq(0), id(WRONG_VALUE), time_last_run(0), tries(0) {}
+  TaskActionEntry() : flags(0), freq(60), id(WRONG_VALUE), time_last_run(0), tries(0) { Init(); }
   TaskActionEntry(long _id)
-      : flags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE)), id(_id), time_last_run(0), tries(0) {}
+      : flags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE)),
+        id(_id),
+        freq(60),
+        time_last_run(0),
+        tries(0) {
+    Init();
+  }
   TaskActionEntry(TaskActionEntry &_ae) { this = _ae; }
   // Flag methods.
   bool HasFlag(unsigned char _flag) const { return bool(flags & _flag); }
