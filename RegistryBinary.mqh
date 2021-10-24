@@ -21,7 +21,7 @@
  */
 
 class RegistryBinary {
-    struct data
+    struct RegistryBinaryData
     {
          int  key;
          int  val;
@@ -29,7 +29,7 @@ class RegistryBinary {
 
     int handle, size;
     string filename;
-    data array[], copyArray[];
+    RegistryBinaryData array[], copyArray[];
 
     public:
 

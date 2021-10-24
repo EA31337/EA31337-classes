@@ -23,6 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Indicators/Indi_Price.mqh"
 
 /**
  * @file
@@ -32,14 +33,29 @@
 // Structs.
 struct DemoIndiParams : IndicatorParams {
   // Struct constructors.
-  void DemoIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN) {
-    itype = INDI_DEMO;
+  void DemoIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+                      ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN) {
+    itype = itype == INDI_NONE ? INDI_DEMO : itype;
     max_modes = 1;
     SetDataSourceType(_idstype);
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
-    shift = _shift;
+    SetMaxModes(1);
+    SetShift(_shift);
     tf = _tf;
+    switch (idstype) {
+      case IDATA_ICUSTOM:
+        if (custom_indi_name == "") {
+          SetCustomIndicatorName("Examples\\Demo");
+        }
+        break;
+      case IDATA_INDICATOR:
+        if (GetDataSource() == NULL) {
+          SetDataSource(Indi_Price::GetCached(_shift, _tf), false);
+          SetDataSourceMode(0);
+        }
+        break;
+    }
   };
   void DemoIndiParams(DemoIndiParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -82,7 +98,7 @@ class Indi_Demo : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     double _value = Indi_Demo::iDemo(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift,
                                      GetPointer(this));
     istate.is_ready = true;
@@ -104,7 +120,9 @@ class Indi_Demo : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(_shift);
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue(_mode, _shift);
+      }
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
       if (_entry.IsValid()) {
         _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));

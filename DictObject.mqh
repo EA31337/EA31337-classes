@@ -146,6 +146,21 @@ class DictObject : public DictBase<K, V> {
   }
 
   /**
+   * Returns value for a given position.
+   */
+  V* GetByPos(unsigned int _position) {
+    DictSlot<K, V>* slot = GetSlotByPos(_DictSlots_ref, _position);
+
+    if (!slot) {
+      Alert("Invalid DictStruct position \"", _position, "\" (called by GetByPos()). Returning empty structure.");
+      DebugBreak();
+      return NULL;
+    }
+
+    return &slot.value;
+  }
+
+  /**
    * Checks whether dictionary contains given key => value pair.
    */
   template <>

@@ -13,3 +13,5 @@ docs/api/build
 
 # Ignores Finder metadata files on Mac
 .DS_Store
+
+docs/build

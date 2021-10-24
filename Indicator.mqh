@@ -35,6 +35,7 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Indicator.define.h"
 #include "Indicator.enum.h"
+#include "Indicator.struct.cache.h"
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
 #include "Indicator.struct.signal.h"
@@ -44,6 +45,9 @@ class Chart;
 #include "Serializer.mqh"
 #include "SerializerCsv.mqh"
 #include "SerializerJson.mqh"
+#include "Storage/ValueStorage.h"
+#include "Storage/ValueStorage.indicator.h"
+#include "Storage/ValueStorage.native.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
@@ -71,6 +75,8 @@ class Indicator : public Chart {
   bool is_fed;                                 // Whether FeedHistoryEntries already done its job.
   DictStruct<int, Ref<Indicator>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
+  ARRAY(ValueStorage<double>*, value_storages);
+  IndicatorCalculateCache<double> cache;
 
  public:
   /* Indicator enumerations */
@@ -117,6 +123,12 @@ class Indicator : public Chart {
     ReleaseHandle();
     DeinitDraw();
 
+    for (int i = 0; i < ArraySize(value_storages); ++i) {
+      if (value_storages[i] != NULL) {
+        delete value_storages[i];
+      }
+    }
+
     if (iparams.indi_data_source != NULL && iparams.indi_managed) {
       // User selected custom, managed data source.
       if (CheckPointer(iparams.indi_data_source) == POINTER_INVALID) {
@@ -129,7 +141,10 @@ class Indicator : public Chart {
 
   /* Init methods */
 
-  bool Init() { return InitDraw(); }
+  bool Init() {
+    ArrayResize(value_storages, iparams.GetMaxModes());
+    return InitDraw();
+  }
 
   /**
    * Initialize indicator data drawing on custom data.
@@ -275,6 +290,8 @@ class Indicator : public Chart {
 
   /* Buffer methods */
 
+  virtual string CacheKey() { return GetName(); }
+
   /**
    * Initializes a cached proxy between i*OnArray() methods and OnCalculate()
    * used by custom indicators.
@@ -312,6 +329,7 @@ class Indicator : public Chart {
    *
    *  WARNING: Do not use shifts when creating cache_key, as this will create many invalid buffers.
    */
+  /*
   static IndicatorCalculateCache OnCalculateProxy(string key, double& price[], int& total) {
     if (total == 0) {
       total = ArraySize(price);
@@ -343,6 +361,7 @@ class Indicator : public Chart {
 
     return cache_item;
   }
+  */
 
   /**
    * Allocates memory for buffers used for custom indicator calculations.
@@ -522,6 +541,11 @@ class Indicator : public Chart {
   IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
 
   /* Getters */
+
+  /**
+   * Returns buffers' cache.
+   */
+  IndicatorCalculateCache<double>* GetCache() { return &cache; }
 
   /**
    * Gets an indicator's chart parameter value.
@@ -803,6 +827,16 @@ class Indicator : public Chart {
   IndicatorParams GetParams() { return iparams; }
 
   /**
+   * Gets indicator's symbol.
+   */
+  string GetSymbol() { return Get<string>(CHART_PARAM_SYMBOL); }
+
+  /**
+   * Gets indicator's time-frame.
+   */
+  ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
+
+  /**
    * Gets indicator's signals.
    *
    * When indicator values are not valid, returns empty signals.
@@ -876,6 +910,14 @@ class Indicator : public Chart {
   /* Setters */
 
   /**
+   * Sets an indicator's chart parameter value.
+   */
+  template <typename T>
+  void Set(ENUM_CHART_PARAM _param, T _value) {
+    Chart::Set<T>(_param, _value);
+  }
+
+  /**
    * Sets name of the indicator.
    */
   void SetName(string _name) { iparams.SetName(_name); }
@@ -894,6 +936,11 @@ class Indicator : public Chart {
    * Sets indicator's params.
    */
   void SetParams(IndicatorParams& _iparams) { iparams = _iparams; }
+
+  /**
+   * Sets indicator's symbol.
+   */
+  void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
 
   /* Conditions */
 
@@ -1095,6 +1142,13 @@ class Indicator : public Chart {
     is_fed = true;
   }
 
+  ValueStorage<double>* GetValueStorage(int _mode = 0) {
+    if (value_storages[_mode] == NULL) {
+      value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
+    }
+    return value_storages[_mode];
+  }
+
   /**
    * Returns indicator value for a given shift and mode.
    */
@@ -1220,7 +1274,7 @@ class Indicator : public Chart {
    */
   virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_FLOAT};
-    _param.double_value = (float)GetEntry(_shift).GetValue<float>(0);
+    _param.double_value = (float)GetEntry(_shift).GetValue<float>(_mode);
     return _param;
   }
 
@@ -1229,10 +1283,76 @@ class Indicator : public Chart {
    */
   virtual string ToString(int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
-    int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
+    int _serializer_flags =
+        SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
     SerializerConverter _stub_indi =
         SerializerConverter::MakeStubObject<IndicatorDataEntry>(_serializer_flags, _entry.GetSize());
     return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
   }
 };
+
+/**
+ * BarsCalculated() method to be used on Indicator instance.
+ */
+int BarsCalculated(Indicator* _indi, int _bars_required) {
+  if (_bars_required == 0) {
+    return _bars_required;
+  }
+
+  IndicatorDataEntry _entry = _indi.GetEntry(_bars_required - 1);
+  // GetEntry() could end up with an error. It is okay.
+  ResetLastError();
+
+  int _valid_history_count = 0;
+
+  if (!_entry.IsValid()) {
+    // We don't have sufficient data. Counting how much data we have.
+
+    for (int i = 0; i < _bars_required; ++i) {
+      IndicatorDataEntry _check_entry = _indi.GetEntry(i);
+      if (!_check_entry.IsValid()) {
+        break;
+      }
+      ++_valid_history_count;
+    }
+  } else {
+    _valid_history_count = _bars_required;
+  }
+
+  return _valid_history_count;
+}
+
+/**
+ * CopyBuffer() method to be used on Indicator instance with ValueStorage buffer.
+ *
+ * Note that data will be copied so that the oldest element will be located at the start of the physical memory
+ * allocated for the array
+ */
+template <typename T>
+int CopyBuffer(Indicator* _indi, int _mode, int _start, int _count, ValueStorage<T>& _buffer, int _rates_total) {
+  int _num_copied = 0;
+  int _buffer_size = ArraySize(_buffer);
+
+  if (_buffer_size < _rates_total) {
+    _buffer_size = ArrayResize(_buffer, _rates_total);
+  }
+
+  for (int i = _start; i < _count; ++i) {
+    IndicatorDataEntry _entry = _indi.GetEntry(i);
+
+    if (!_entry.IsValid()) {
+      break;
+    }
+
+    T _value = _entry.GetValue<T>(_mode);
+
+    //    Print(_value);
+
+    _buffer[_buffer_size - i - 1] = _value;
+    ++_num_copied;
+  }
+
+  return _num_copied;
+}
+
 #endif

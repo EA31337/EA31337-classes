@@ -63,15 +63,82 @@ class Indi_Volumes : public Indicator {
   Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VOLUMES, _tf) { params.tf = _tf; };
 
   /**
+   * Built-in version of Volumes.
+   */
+  static double iVolumes(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
+                         Indicator *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_Volumes", (int)_av));
+    return iVolumesOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
+  }
+
+  /**
+   * Calculates AMVolumes on the array of values.
+   */
+  static double iVolumesOnArray(INDICATOR_CALCULATE_PARAMS_LONG, ENUM_APPLIED_VOLUME _av, int _mode, int _shift,
+                                IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(1 + 1);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_Volumes::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
+                                                     _cache.GetBuffer<double>(1), _av));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for Volumes indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtVolumesBuffer,
+                       ValueStorage<double> &ExtColorsBuffer, ENUM_APPLIED_VOLUME InpVolumeType) {
+    if (rates_total < 2) return (0);
+    // Starting work.
+    int pos = prev_calculated - 1;
+    // Correct position.
+    if (pos < 1) {
+      ExtVolumesBuffer[0] = 0;
+      pos = 1;
+    }
+    // Main cycle.
+    if (InpVolumeType == VOLUME_TICK)
+      CalculateVolume(pos, rates_total, tick_volume, ExtVolumesBuffer, ExtColorsBuffer);
+    else
+      CalculateVolume(pos, rates_total, volume, ExtVolumesBuffer, ExtColorsBuffer);
+    // OnCalculate done. Return new prev_calculated.
+    return (rates_total);
+  }
+
+  static void CalculateVolume(const int pos, const int rates_total, ValueStorage<long> &volume,
+                              ValueStorage<double> &ExtVolumesBuffer, ValueStorage<double> &ExtColorsBuffer) {
+    ExtVolumesBuffer[0] = (double)volume[0].Get();
+    ExtColorsBuffer[0] = 0.0;
+    for (int i = pos; i < rates_total && !IsStopped(); i++) {
+      double curr_volume = (double)volume[i].Get();
+      double prev_volume = (double)volume[i - 1].Get();
+      // Calculate indicator.
+      ExtVolumesBuffer[i] = curr_volume;
+      ExtColorsBuffer[i] = (curr_volume > prev_volume) ? 0.0 : 1.0;
+    }
+  }
+
+  /**
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_Volumes::iVolumes(GetSymbol(), GetTf(), /*[*/ GetAppliedVolume() /*]*/, _mode, _shift, THIS_PTR);
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(),
                          /*[*/ GetAppliedVolume() /*]*/, _mode, _shift);
         break;
       default:

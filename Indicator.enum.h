@@ -127,10 +127,11 @@ enum ENUM_INDICATOR_TYPE {
 
 /* Defines type of source data for indicator. */
 enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILTIN,    // Platform built-in
-  IDATA_ICUSTOM,    // iCustom: Custom indicator file
-  IDATA_INDICATOR,  // OnIndicator: Another indicator as a source of data
-  IDATA_MATH        // Math-based indicator
+  IDATA_BUILTIN,         // Platform built-in
+  IDATA_ICUSTOM,         // iCustom: Custom indicator file
+  IDATA_ICUSTOM_LEGACY,  // iCustom: Custom, legacy, provided by MT indicator file
+  IDATA_INDICATOR,       // OnIndicator: Another indicator as a source of data
+  IDATA_MATH             // Math-based indicator
 };
 
 /* Defines range value data type for indicator storage. */
@@ -142,6 +143,20 @@ enum ENUM_IDATA_VALUE_RANGE {
   IDATA_RANGE_PRICE,  // Values represent price.
   IDATA_RANGE_RANGE,  // E.g. 0 to 100.
   IDATA_RANGE_UNKNOWN
+};
+
+// Indicator line identifiers used in ADX and ADXW indicators.
+enum ENUM_INDI_ADX_LINE {
+#ifdef __MQL4__
+  LINE_MAIN_ADX = MODE_MAIN,    // Base indicator line.
+  LINE_PLUSDI = MODE_PLUSDI,    // +DI indicator line.
+  LINE_MINUSDI = MODE_MINUSDI,  // -DI indicator line.
+#else
+  LINE_MAIN_ADX = MAIN_LINE,    // Base indicator line.
+  LINE_PLUSDI = PLUSDI_LINE,    // +DI indicator line.
+  LINE_MINUSDI = MINUSDI_LINE,  // -DI indicator line.
+#endif
+  FINAL_INDI_ADX_LINE_ENTRY,
 };
 
 /* Define indicator index. */
@@ -158,8 +173,8 @@ enum ENUM_LO_UP_LINE {
   LINE_UPPER = MODE_UPPER,  // Upper line.
   LINE_LOWER = MODE_LOWER,  // Bottom line.
 #else
-  LINE_UPPER = UPPER_LINE,    // Upper line.
-  LINE_LOWER = LOWER_LINE,    // Bottom line.
+  LINE_UPPER = UPPER_LINE,      // Upper line.
+  LINE_LOWER = LOWER_LINE,      // Bottom line.
 #endif
   FINAL_LO_UP_LINE_ENTRY,
 };
@@ -176,8 +191,8 @@ enum ENUM_SIGNAL_LINE {
   LINE_MAIN = MODE_MAIN,      // Main line.
   LINE_SIGNAL = MODE_SIGNAL,  // Signal line.
 #else
-  LINE_MAIN = MAIN_LINE,      // Main line.
-  LINE_SIGNAL = SIGNAL_LINE,  // Signal line.
+  LINE_MAIN = MAIN_LINE,        // Main line.
+  LINE_SIGNAL = SIGNAL_LINE,    // Signal line.
 #endif
   FINAL_SIGNAL_LINE_ENTRY,
 };

@@ -29,6 +29,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.all.h"
 
 // Enums.
 enum ENUM_HA_MODE {
@@ -54,7 +55,12 @@ struct HeikenAshiParams : IndicatorParams {
     max_modes = FINAL_HA_MODE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);  // @fixit It draws candles!
+    SetDataSourceType(IDATA_BUILTIN);
+#ifdef __MQL4__
+    SetCustomIndicatorName("Heiken Ashi");
+#else
     SetCustomIndicatorName("Examples\\Heiken_Ashi");
+#endif
     shift = _shift;
     tf = _tf;
   };
@@ -81,8 +87,8 @@ class Indi_HeikenAshi : public Indicator {
   /**
    * Returns value for iHeikenAshi indicator.
    */
-  static double iHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_HA_MODE _mode, int _shift = 0,
-                            Indicator *_obj = NULL) {
+  static double iCustomLegacyHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift = 0,
+                                        Indicator *_obj = NULL) {
 #ifdef __MQL4__
     // Low and High prices could be in reverse order when using MT4's built-in indicator, so we need to retrieve both
     // and return correct one.
@@ -129,6 +135,72 @@ class Indi_HeikenAshi : public Indicator {
   }
 
   /**
+   * "Built-in" version of Heiken Ashi.
+   */
+  static double iHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
+                            Indicator *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_HeikenAshi");
+    return iHeikenAshiOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+  }
+
+  /**
+   * Calculates Heiken Ashi on the array of values.
+   */
+  static double iHeikenAshiOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+                                   IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(1 + 4);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_HeikenAshi::Calculate(
+        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
+        _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4)));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for Mass Index indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtOBuffer,
+                       ValueStorage<double> &ExtHBuffer, ValueStorage<double> &ExtLBuffer,
+                       ValueStorage<double> &ExtCBuffer, ValueStorage<double> &ExtColorBuffer) {
+    int start;
+    // Preliminary calculations.
+    if (prev_calculated == 0) {
+      ExtLBuffer[0] = low[0];
+      ExtHBuffer[0] = high[0];
+      ExtOBuffer[0] = open[0];
+      ExtCBuffer[0] = close[0];
+      start = 1;
+    } else
+      start = prev_calculated - 1;
+
+    // The main loop of calculations.
+    for (int i = start; i < rates_total && !IsStopped(); i++) {
+      double ha_open = (ExtOBuffer[i - 1] + ExtCBuffer[i - 1]) / 2;
+      double ha_close = (open[i].Get() + high[i].Get() + low[i].Get() + close[i].Get()) / 4;
+      double ha_high = MathMax(high[i].Get(), MathMax(ha_open, ha_close));
+      double ha_low = MathMin(low[i].Get(), MathMin(ha_open, ha_close));
+
+      ExtLBuffer[i] = ha_low;
+      ExtHBuffer[i] = ha_high;
+      ExtOBuffer[i] = ha_open;
+      ExtCBuffer[i] = ha_close;
+
+      // Set candle color.
+      ExtColorBuffer[i] = (ha_open < ha_close) ? 0.0 : 1.0;
+    }
+    return (rates_total);
+  }
+
+  /**
    * Returns the indicator's value.
    */
   double GetValue(ENUM_HA_MODE _mode, int _shift = 0) {
@@ -136,13 +208,15 @@ class Indi_HeikenAshi : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_HeikenAshi::iHeikenAshi(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                              _mode, _shift, GetPointer(this));
+        _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
+        break;
+      case IDATA_ICUSTOM_LEGACY:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_HeikenAshi::iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode,
+                                                          _shift, GetPointer(this));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

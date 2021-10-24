@@ -187,6 +187,19 @@ class Dict : public DictBase<K, V> {
     return -1;
   }
 
+  /**
+   * Checks whether dictionary contains given value.
+   */
+  bool Contains(const V value) {
+    for (DictIterator<K, V> i = Begin(); i.IsValid(); ++i) {
+      if (i.Value() == value) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
  protected:
   /**
    * Inserts value into given array of DictSlots.
@@ -370,11 +383,7 @@ class Dict : public DictBase<K, V> {
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
-#ifdef __MQL5__
     V _child = (V)NULL;
-#else
-    V _child;
-#endif
     while (_n1-- > 0) {
       Push(_child);
     }

@@ -33,7 +33,7 @@ struct ColorBarsParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorBars");
-    SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     tf = _tf;
   };
@@ -58,15 +58,75 @@ class Indi_ColorBars : public Indicator {
   Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_BARS, _tf) { params.tf = _tf; };
 
   /**
+   * "Built-in" version of Color Bars.
+   */
+  static double iColorBars(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorCandlesDaily");
+    return iColorBarsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+  }
+
+  /**
+   * Calculates Color Bars on the array of values.
+   */
+  static double iColorBarsOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+                                  IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(4 + 1);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_ColorBars::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
+                                                       _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
+                                                       _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4)));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for Color Bars indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtOpenBuffer,
+                       ValueStorage<double> &ExtHighBuffer, ValueStorage<double> &ExtLowBuffer,
+                       ValueStorage<double> &ExtCloseBuffer, ValueStorage<double> &ExtColorsBuffer) {
+    int i = 0;
+    bool vol_up = true;
+    // Set position for beginning.
+    if (i < prev_calculated) i = prev_calculated - 1;
+    // Start calculations.
+    while (i < rates_total && !IsStopped()) {
+      ExtOpenBuffer[i] = open[i];
+      ExtHighBuffer[i] = high[i];
+      ExtLowBuffer[i] = low[i];
+      ExtCloseBuffer[i] = close[i];
+      // Determine volume change.
+      if (i > 0) {
+        if (tick_volume[i] > tick_volume[i - 1]) vol_up = true;
+        if (tick_volume[i] < tick_volume[i - 1]) vol_up = false;
+      }
+      ExtColorsBuffer[i] = vol_up ? 0.0 : 1.0;
+      i++;
+    }
+    // Return value of prev_calculated for next call.
+    return (rates_total);
+  }
+
+  /**
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_ColorBars::iColorBars(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
+        break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
