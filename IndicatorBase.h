@@ -765,20 +765,6 @@ class IndicatorBase : public Chart {
   }
 
   /**
-   * Checks whether indicator has a valid value for a given shift.
-   */
-  virtual bool HasValidEntry(int _shift = 0) {
-    unsigned int position;
-    long bar_time = GetBarTime(_shift);
-
-    if (idata.KeyExists(bar_time, position)) {
-      return idata.GetByPos(position).IsValid();
-    }
-
-    return false;
-  }
-
-  /**
    * Adds entry to the indicator's buffer. Invalid entry won't be added.
    */
   bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
@@ -955,6 +941,15 @@ class IndicatorBase : public Chart {
    * Returns indicator value for a given shift and mode.
    */
   // virtual double GetValue(int _shift = -1, int _mode = 0) = NULL;
+
+  /**
+   * Checks whether indicator has a valid value for a given shift.
+   */
+  virtual bool HasValidEntry(int _shift = 0) {
+    unsigned int position;
+    long bar_time = GetBarTime(_shift);
+    return bar_time > 0 && idata.KeyExists(bar_time, position) ? idata.GetByPos(position).IsValid() : false;
+  }
 
   /**
    * Returns stored data in human-readable format.
