@@ -28,7 +28,7 @@
  * Test functionality of Indi_BWMFI indicator class.
  */
 
-Indi_BWMFI indi(PERIOD_CURRENT);
+Indi_BWMFI indi(PERIOD_CURRENT, 1);
 
 /**
  * Implements Init event handler.

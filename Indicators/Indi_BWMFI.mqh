@@ -66,7 +66,7 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
    */
   Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiBWIndiMFIParams>(_p, _indi_src) {}
-  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWMFI, _tf) {}
+  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BWMFI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
