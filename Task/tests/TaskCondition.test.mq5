@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../../DictObject.mqh"
+#include "../../Test.mqh"
 #include "../TaskCondition.h"
 #include "../TaskConditionBase.h"
 
@@ -71,12 +71,12 @@ int OnInit() {
   // Test01
   TaskConditionEntry _entry01(TASK_CONDITION_TEST01);
   TaskCondition<TaskConditionTest01> _cond01(_entry01);
-  _cond01.Check();
-  //_cond01.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST02);
-  _cond01.Check();
-  //_cond01.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST03);
-  _cond01.Check();
-  // assertTrueOrFail(_cond01.GetObject().GetSum() == 6, "Fail!");
+  _result &= _cond01.Check();
+  _cond01.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST02);
+  _result &= _cond01.Check();
+  _cond01.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST03);
+  _result &= _cond01.Check();
+  assertTrueOrFail(_result && _cond01.GetObject().GetSum() == 6, "Fail!");
   _result &= GetLastError() == ERR_NO_ERROR;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }

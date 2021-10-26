@@ -35,15 +35,8 @@
 #define TASK_CONDITION_H
 
 // Includes.
-#include "../Account.mqh"
-#include "../Chart.mqh"
-#include "../DateTime.mqh"
-#include "../DictStruct.mqh"
-#include "../EA.mqh"
-#include "../Indicator.mqh"
-#include "../Market.mqh"
-#include "../Object.mqh"
-#include "../Order.mqh"
+#include "TaskCondition.enum.h"
+#include "TaskCondition.struct.h"
 
 // Includes class enum and structs.
 #include "TaskCondition.enum.h"

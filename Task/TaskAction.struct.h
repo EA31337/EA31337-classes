@@ -61,7 +61,7 @@ struct TaskActionEntry {
   datetime time_last_run; /* Time of the successful run. */
   int freq;               /* How often to run (0 for no limit). */
   long id;                /* TaskAction's enum ID. */
-  short tries;            /* Number of retries left. */
+  short tries;            /* Number of retries left (-1 for unlimited). */
   DataParamEntry args[];  /* TaskAction arguments. */
  protected:
   // Protected methods.
@@ -69,13 +69,13 @@ struct TaskActionEntry {
 
  public:
   // Constructors.
-  TaskActionEntry() : flags(0), freq(60), id(WRONG_VALUE), time_last_run(0), tries(0) { Init(); }
+  TaskActionEntry() : flags(0), freq(60), id(WRONG_VALUE), time_last_run(0), tries(-1) { Init(); }
   TaskActionEntry(long _id)
       : flags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE)),
         id(_id),
         freq(60),
         time_last_run(0),
-        tries(0) {
+        tries(-1) {
     Init();
   }
   TaskActionEntry(TaskActionEntry &_ae) { this = _ae; }
@@ -92,7 +92,7 @@ struct TaskActionEntry {
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // State methods.
-  bool HasTriesLeft() const { return tries > 0; }
+  bool HasTriesLeft() const { return tries > 0 || tries == -1; }
   bool IsActive() const { return HasFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE)); }
   bool IsDone() const { return HasFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_DONE)); }
   bool IsFailed() const { return HasFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_FAILED)); }
@@ -121,7 +121,7 @@ struct TaskActionEntry {
   }
   long GetId() const { return id; }
   // Setters.
-  void TriesDec() { tries--; }
+  void TriesDec() { tries -= tries > 0 ? 1 : 0; }
   void Set(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_FLAG) _flag, bool _value = true) {
     SetFlag(_flag, _value);
   }

@@ -30,15 +30,8 @@
 #endif
 
 // Includes.
-#include "../Account.enum.h"
-#include "../Chart.enum.h"
-#include "../DateTime.enum.h"
-#include "../EA.enum.h"
-#include "../Indicator.enum.h"
-//#include "Market.enum.h"
-#include "../Order.enum.h"
-#include "../Strategy.enum.h"
-#include "../Trade.enum.h"
+#include "../Data.struct.h"
+#include "../Std.h"
 #include "Task.enum.h"
 
 struct TaskConditionEntry {
@@ -70,7 +63,7 @@ struct TaskConditionEntry {
   datetime last_success;                         // Time of the last success.
   int freq;                                      // How often to run (0 for no limit).
   long id;                                       // Condition ID.
-  short tries;                                   // Number of successful tries left.
+  short tries;                                   // Number of successful tries left (-1 for unlimited).
   ENUM_TASK_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
   ENUM_TASK_CONDITION_TYPE type;                 // Task's condition type.
   DataParamEntry args[];                         // Task's condition arguments.
@@ -80,14 +73,14 @@ struct TaskConditionEntry {
 
  public:
   // Constructors.
-  TaskConditionEntry() : flags(0), freq(60), id(WRONG_VALUE), tries(0) { Init(); }
+  TaskConditionEntry() : flags(0), freq(60), id(WRONG_VALUE), tries(-1) { Init(); }
   TaskConditionEntry(long _id)
       : flags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE)),
         freq(60),
         id(_id),
         last_check(0),
         last_success(0),
-        tries(0) {
+        tries(-1) {
     Init();
   }
   TaskConditionEntry(TaskConditionEntry &_ae) { this = _ae; }
@@ -118,7 +111,7 @@ struct TaskConditionEntry {
   }
   long GetId() const { return id; }
   // Setters.
-  void TriesDec() { tries--; }
+  void TriesDec() { tries -= tries > 0 ? 1 : 0; }
   void Set(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_FLAGS) _flag, bool _value = true) {
     SetFlag(_flag, _value);
   }
@@ -161,7 +154,7 @@ struct TaskConditionEntry {
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // State methods.
-  bool HasTriesLeft() const { return tries > 0; }
+  bool HasTriesLeft() const { return tries > 0 || tries == -1; }
   bool IsActive() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE); }
   bool IsExpired() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_EXPIRED); }
   bool IsReady() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_READY); }
