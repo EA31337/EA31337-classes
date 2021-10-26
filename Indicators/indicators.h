@@ -26,6 +26,7 @@
  */
 
 // Standard indicators.
+#include "Bitwise/indicators.h"
 #include "Indi_AC.mqh"
 #include "Indi_AD.mqh"
 #include "Indi_ADX.mqh"

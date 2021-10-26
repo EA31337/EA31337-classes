@@ -23,6 +23,8 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.all.h"
+#include "Indi_ZigZag.mqh"
 
 // Structs.
 struct IndiZigZagColorParams : IndicatorParams {
@@ -39,10 +41,9 @@ struct IndiZigZagColorParams : IndicatorParams {
     deviation = _deviation;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ZigZagColor");
-    SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
   };
-  IndiZigZagColorParams(IndiZigZagColorParams& _params, ENUM_TIMEFRAMES _tf) {
+  IndiZigZagColorParams(IndiZigZagColorParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -56,16 +57,227 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   /**
    * Class constructor.
    */
-  Indi_ZigZagColor(IndiZigZagColorParams& _p, IndicatorBase* _indi_src = NULL)
+  Indi_ZigZagColor(IndiZigZagColorParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiZigZagColorParams>(_p, _indi_src){};
   Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf){};
 
   /**
+   * Returns value for ZigZag Color indicator.
+   */
+  static double iZigZagColor(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep,
+                             ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
+        _symbol, _tf, Util::MakeKey("Indi_ZigZagColor", _depth, _deviation, _backstep));
+    return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
+                               _cache);
+  }
+
+  /**
+   * Calculates ZigZag Color on the array of values.
+   */
+  static double iZigZagColorOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _depth, int _deviation, int _backstep,
+                                    int _mode, int _shift, IndicatorCalculateCache<double> *_cache,
+                                    bool _recalculate = false) {
+    _cache.SetPriceBuffer(_open, _high, _low, _close);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(3 + 2);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_ZigZagColor::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG,
+                                                         _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
+                                                         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3),
+                                                         _cache.GetBuffer<double>(4), _depth, _deviation, _backstep));
+
+    return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * OnCalculate() method for ZigZag Color indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ZigzagPeakBuffer,
+                       ValueStorage<double> &ZigzagBottomBuffer, ValueStorage<double> &HighMapBuffer,
+                       ValueStorage<double> &LowMapBuffer, ValueStorage<double> &ColorBuffer, int InpDepth,
+                       int InpDeviation, int InpBackstep) {
+    int ExtRecalc = 3;
+
+    if (rates_total < 100) return (0);
+    //---
+    int i, start = 0;
+    int extreme_counter = 0, extreme_search = Extremum;
+    int shift, back = 0, last_high_pos = 0, last_low_pos = 0;
+    double val = 0, res = 0;
+    double cur_low = 0, cur_high = 0, last_high = 0, last_low = 0;
+    //--- initializing
+    if (prev_calculated == 0) {
+      ArrayInitialize(ZigzagPeakBuffer, 0.0);
+      ArrayInitialize(ZigzagBottomBuffer, 0.0);
+      ArrayInitialize(HighMapBuffer, 0.0);
+      ArrayInitialize(LowMapBuffer, 0.0);
+      //--- start calculation from bar number InpDepth
+      start = InpDepth - 1;
+    }
+    //--- ZigZag was already calculated before
+    if (prev_calculated > 0) {
+      i = rates_total - 1;
+      //--- searching for the third extremum from the last uncompleted bar
+      while (extreme_counter < ExtRecalc && i > rates_total - 100) {
+        res = (ZigzagPeakBuffer[i] + ZigzagBottomBuffer[i]);
+        //---
+        if (res != 0) extreme_counter++;
+        i--;
+      }
+      i++;
+      start = i;
+      //--- what type of exremum we search for
+      if (LowMapBuffer[i] != 0) {
+        cur_low = LowMapBuffer[i].Get();
+        extreme_search = Peak;
+      } else {
+        cur_high = HighMapBuffer[i].Get();
+        extreme_search = Bottom;
+      }
+      //--- clear indicator values
+      for (i = start + 1; i < rates_total && !IsStopped(); i++) {
+        ZigzagPeakBuffer[i] = 0.0;
+        ZigzagBottomBuffer[i] = 0.0;
+        LowMapBuffer[i] = 0.0;
+        HighMapBuffer[i] = 0.0;
+      }
+    }
+    //--- searching for high and low extremes
+    for (shift = start; shift < rates_total && !IsStopped(); shift++) {
+      //--- low
+      val = Indi_ZigZag::Lowest(low, InpDepth, shift);
+      if (val == last_low)
+        val = 0.0;
+      else {
+        last_low = val;
+        if ((low[shift] - val) > (InpDeviation * _Point))
+          val = 0.0;
+        else {
+          for (back = InpBackstep; back >= 1; back--) {
+            res = LowMapBuffer[shift - back].Get();
+            //---
+            if ((res != 0) && (res > val)) LowMapBuffer[shift - back] = 0.0;
+          }
+        }
+      }
+      if (low[shift] == val)
+        LowMapBuffer[shift] = val;
+      else
+        LowMapBuffer[shift] = 0.0;
+      //--- high
+      val = Indi_ZigZag::Highest(high, InpDepth, shift);
+      if (val == last_high)
+        val = 0.0;
+      else {
+        last_high = val;
+        if ((val - high[shift].Get()) > (InpDeviation * _Point))
+          val = 0.0;
+        else {
+          for (back = InpBackstep; back >= 1; back--) {
+            res = HighMapBuffer[shift - back].Get();
+            //---
+            if ((res != 0) && (res < val)) HighMapBuffer[shift - back] = 0.0;
+          }
+        }
+      }
+      if (high[shift] == val)
+        HighMapBuffer[shift] = val;
+      else
+        HighMapBuffer[shift] = 0.0;
+    }
+    //--- set last values
+    if (extreme_search == 0)  // undefined values
+    {
+      last_low = 0;
+      last_high = 0;
+    } else {
+      last_low = cur_low;
+      last_high = cur_high;
+    }
+    //--- final selection of extreme points for ZigZag
+    for (shift = start; shift < rates_total && !IsStopped(); shift++) {
+      res = 0.0;
+      switch (extreme_search) {
+        case Extremum:
+          if (last_low == 0 && last_high == 0) {
+            if (HighMapBuffer[shift] != 0) {
+              last_high = high[shift].Get();
+              last_high_pos = shift;
+              extreme_search = -1;
+              ZigzagPeakBuffer[shift] = last_high;
+              ColorBuffer[shift] = 0;
+              res = 1;
+            }
+            if (LowMapBuffer[shift] != 0) {
+              last_low = low[shift].Get();
+              last_low_pos = shift;
+              extreme_search = 1;
+              ZigzagBottomBuffer[shift] = last_low;
+              ColorBuffer[shift] = 1;
+              res = 1;
+            }
+          }
+          break;
+        case Peak:
+          if (LowMapBuffer[shift] != 0.0 && LowMapBuffer[shift] < last_low && HighMapBuffer[shift] == 0.0) {
+            ZigzagBottomBuffer[last_low_pos] = 0.0;
+            last_low_pos = shift;
+            last_low = LowMapBuffer[shift].Get();
+            ZigzagBottomBuffer[shift] = last_low;
+            ColorBuffer[shift] = 1;
+            res = 1;
+          }
+          if (HighMapBuffer[shift] != 0.0 && LowMapBuffer[shift] == 0.0) {
+            last_high = HighMapBuffer[shift].Get();
+            last_high_pos = shift;
+            ZigzagPeakBuffer[shift] = last_high;
+            ColorBuffer[shift] = 0;
+            extreme_search = Bottom;
+            res = 1;
+          }
+          break;
+        case Bottom:
+          if (HighMapBuffer[shift] != 0.0 && HighMapBuffer[shift] > last_high && LowMapBuffer[shift] == 0.0) {
+            ZigzagPeakBuffer[last_high_pos] = 0.0;
+            last_high_pos = shift;
+            last_high = HighMapBuffer[shift].Get();
+            ZigzagPeakBuffer[shift] = last_high;
+            ColorBuffer[shift] = 0;
+          }
+          if (LowMapBuffer[shift] != 0.0 && HighMapBuffer[shift] == 0.0) {
+            last_low = LowMapBuffer[shift].Get();
+            last_low_pos = shift;
+            ZigzagBottomBuffer[shift] = last_low;
+            ColorBuffer[shift] = 1;
+            extreme_search = Peak;
+          }
+          break;
+        default:
+          return (rates_total);
+      }
+    }
+
+    return (rates_total);
+  }
+
+  /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
+    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
+      case IDATA_BUILTIN:
+        _value = Indi_ZigZagColor::iZigZagColor(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(),
+                                                (ENUM_ZIGZAG_LINE)_mode, _shift, THIS_PTR);
+        break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/, _mode, _shift);
@@ -73,13 +285,15 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_changed = false;
     return _value;
   }
 
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
 
   /* Getters */
 
