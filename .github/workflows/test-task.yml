@@ -49,6 +49,7 @@ jobs:
       matrix:
         test:
           - Task.test
+          - Taskable.test
           - TaskAction.test
           - TaskCondition.test
     steps:
