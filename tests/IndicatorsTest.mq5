@@ -34,8 +34,8 @@ struct DataParamEntry;
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
-#include "../Indicators/indicators.h"
 #include "../Indicators/Bitwise/indicators.h"
+#include "../Indicators/indicators.h"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
 #include "../Test.mqh"
@@ -245,7 +245,7 @@ bool InitIndicators() {
   indis.Push(new Indi_OBV());
 
   // OsMA.
-  OsIndiMAParams osma_params(12, 26, 9, PRICE_CLOSE);
+  IndiOsMAParams osma_params(12, 26, 9, PRICE_CLOSE);
   indis.Push(new Indi_OsMA(osma_params));
 
   // Relative Strength Index (RSI).
@@ -1203,7 +1203,7 @@ bool TestOsMA() {
   // Get static value.
   double osma_value = Indi_OsMA::iOsMA(_Symbol, PERIOD_CURRENT, 12, 26, 9, PRICE_CLOSE);
   // Get dynamic values.
-  OsIndiMAParams params(12, 26, 9, PRICE_CLOSE);
+  IndiOsMAParams params(12, 26, 9, PRICE_CLOSE);
   Indi_OsMA *osma = new Indi_OsMA(params);
   Print("OsMA: ", osma.GetValue<double>());
   assertTrueOrReturn(osma.GetValue<double>() == osma_value, "OsMA value does not match!", false);
