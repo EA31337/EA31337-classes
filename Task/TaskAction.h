@@ -43,7 +43,7 @@
  * TaskAction class.
  */
 template <typename TO>
-class TaskAction : TaskActionBase {
+class TaskAction : protected TaskActionBase {
  protected:
   // Protected class variables.
   TaskActionEntry entry;  // Action entry.
@@ -65,7 +65,7 @@ class TaskAction : TaskActionBase {
   /* Main methods */
 
   /**
-   * Runs a current action.
+   * Runs a current stored action.
    */
   bool Run() {
     bool _result = entry.IsValid() && entry.HasTriesLeft();
@@ -80,14 +80,6 @@ class TaskAction : TaskActionBase {
     }
     entry.TriesDec();
     return _result;
-  }
-
-  /**
-   * Runs a TaskAction action.
-   */
-  virtual bool Run(const TaskActionEntry &_entry) {
-    // @todo
-    return false;
   }
 
   /* Getters */
@@ -125,6 +117,22 @@ class TaskAction : TaskActionBase {
   template <typename T>
   void Set(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_PROP) _prop, T _value) {
     entry.Set(_prop, _value);
+  }
+
+  /* TaskActionBase methods */
+
+  /**
+   * Runs an action.
+   */
+  bool Run(const TaskActionEntry &_entry) {
+    switch (_entry.GetId()) {
+      case 0:
+        return Run();
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+    }
+    return false;
   }
 };
 

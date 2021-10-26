@@ -43,7 +43,7 @@
  * TaskCondition class.
  */
 template <typename TC>
-class TaskCondition {
+class TaskCondition : protected TaskConditionBase {
  public:
  protected:
   // Protected class variables.
@@ -66,42 +66,7 @@ class TaskCondition {
   /* Main methods */
 
   /**
-   * Test conditions.
-   */
-  /*
-  bool Test() {
-    bool _result = false, _prev_result = true;
-    for (DictStructIterator<short, TaskConditionEntry> iter = conds.Begin(); iter.IsValid(); ++iter) {
-      bool _curr_result = false;
-      TaskConditionEntry _entry = iter.Value();
-      if (!_entry.IsValid()) {
-        // Ignore invalid entries.
-        continue;
-      }
-      if (_entry.IsActive()) {
-        switch (_entry.next_statement) {
-          case COND_AND:
-            _curr_result = _prev_result && this.Test(_entry);
-            break;
-          case COND_OR:
-            _curr_result = _prev_result || this.Test(_entry);
-            break;
-          case COND_SEQ:
-            _curr_result = this.Test(_entry);
-            if (!_curr_result) {
-              // Do not check further conditions when the current condition is false.
-              return false;
-            }
-        }
-        _result = _prev_result = _curr_result;
-      }
-    }
-    return _result;
-  }
-  */
-
-  /**
-   * Checks a current condition.
+   * Checks a current stored condition.
    */
   bool Check() {
     bool _result = entry.IsValid() && entry.HasTriesLeft();
@@ -117,14 +82,6 @@ class TaskCondition {
     }
     entry.TriesDec();
     return _result;
-  }
-
-  /**
-   * Checks a condition.
-   */
-  virtual bool Check(const TaskConditionEntry &_entry) {
-    // @todo
-    return false;
   }
 
   /* Getters */
@@ -162,6 +119,22 @@ class TaskCondition {
   template <typename T>
   void Set(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_PROP) _prop, T _value) {
     entry.Set(_prop, _value);
+  }
+
+  /* TaskConditionBase methods */
+
+  /**
+   * Checks a condition.
+   */
+  bool Check(const TaskConditionEntry &_entry) {
+    switch (_entry.GetId()) {
+      case 0:
+        return Check();
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+    }
+    return false;
   }
 };
 #endif  // TASK_CONDITION_H

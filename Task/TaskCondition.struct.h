@@ -62,7 +62,7 @@ struct TaskConditionEntry {
   datetime last_check;    // Time of the latest check.
   datetime last_success;  // Time of the last success.
   int freq;               // How often to run (0 for no limit).
-  long id;                // Condition ID.
+  int id;                 // Condition ID.
   short tries;            // Number of successful tries left (-1 for unlimited).
   // ENUM_TASK_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
   // ENUM_TASK_CONDITION_TYPE type;                 // Task's condition type.
@@ -74,7 +74,7 @@ struct TaskConditionEntry {
  public:
   // Constructors.
   TaskConditionEntry() : flags(0), freq(60), id(WRONG_VALUE), tries(-1) { Init(); }
-  TaskConditionEntry(long _id)
+  TaskConditionEntry(int _id)
       : flags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE)),
         freq(60),
         id(_id),
@@ -109,7 +109,7 @@ struct TaskConditionEntry {
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
-  long GetId() const { return id; }
+  int GetId() const { return id; }
   // Setters.
   void TriesDec() { tries -= tries > 0 ? 1 : 0; }
   void Set(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_FLAGS) _flag, bool _value = true) {
@@ -125,7 +125,7 @@ struct TaskConditionEntry {
         freq = (int)_value;
         return;
       case TASK_CONDITION_ENTRY_ID:
-        id = (long)_value;
+        id = (int)_value;
         SetFlag(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID), id == WRONG_VALUE);
         return;
       case TASK_CONDITION_ENTRY_TRIES:

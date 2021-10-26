@@ -36,7 +36,6 @@
 
 // Includes.
 #include "../DictStruct.mqh"
-#include "../Refs.mqh"
 #include "Task.enum.h"
 #include "Task.struct.h"
 #include "TaskAction.h"
@@ -80,11 +79,10 @@ class Task : protected Taskable {
    *   Returns true when tasks has been processed.
    */
   bool Process() {
-    bool _result = false;
+    bool _result = true;
     for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      bool _curr_result = false;
       TaskEntry _entry = iter.Value();
-      Process(_entry);
+      _result &= Process(_entry);
     }
     return _result;
   }
@@ -115,6 +113,8 @@ class Task : protected Taskable {
     */
     return _result;
   }
+
+  /* Task methods */
 
   /* State methods */
 
