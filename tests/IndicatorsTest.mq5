@@ -35,6 +35,7 @@ struct DataParamEntry;
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
 #include "../Indicators/indicators.h"
+#include "../Indicators/Bitwise/indicators.h"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
 #include "../Test.mqh"
