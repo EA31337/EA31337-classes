@@ -105,35 +105,33 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
                        int InpDeviation, int InpBackstep) {
     int ExtRecalc = 3;
 
-    if (rates_total < 100) return (0);
-    //---
+    if (rates_total < 100) return 0;
     int i, start = 0;
     int extreme_counter = 0, extreme_search = Extremum;
     int shift, back = 0, last_high_pos = 0, last_low_pos = 0;
     double val = 0, res = 0;
     double cur_low = 0, cur_high = 0, last_high = 0, last_low = 0;
-    //--- initializing
+    // Initialize variables.
     if (prev_calculated == 0) {
       ArrayInitialize(ZigzagPeakBuffer, 0.0);
       ArrayInitialize(ZigzagBottomBuffer, 0.0);
       ArrayInitialize(HighMapBuffer, 0.0);
       ArrayInitialize(LowMapBuffer, 0.0);
-      //--- start calculation from bar number InpDepth
+      // Start calculation from bar number InpDepth.
       start = InpDepth - 1;
     }
-    //--- ZigZag was already calculated before
     if (prev_calculated > 0) {
+      // ZigZag was already calculated before.
       i = rates_total - 1;
-      //--- searching for the third extremum from the last uncompleted bar
+      // Search for the third extremum from the last uncompleted bar.
       while (extreme_counter < ExtRecalc && i > rates_total - 100) {
         res = (ZigzagPeakBuffer[i] + ZigzagBottomBuffer[i]);
-        //---
         if (res != 0) extreme_counter++;
         i--;
       }
       i++;
       start = i;
-      //--- what type of exremum we search for
+      // Type of extremum we search for.
       if (LowMapBuffer[i] != 0) {
         cur_low = LowMapBuffer[i].Get();
         extreme_search = Peak;
@@ -141,7 +139,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
         cur_high = HighMapBuffer[i].Get();
         extreme_search = Bottom;
       }
-      //--- clear indicator values
+      // Clear indicator values.
       for (i = start + 1; i < rates_total && !IsStopped(); i++) {
         ZigzagPeakBuffer[i] = 0.0;
         ZigzagBottomBuffer[i] = 0.0;
@@ -149,9 +147,9 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
         HighMapBuffer[i] = 0.0;
       }
     }
-    //--- searching for high and low extremes
+    // Search for high and low extremes.
     for (shift = start; shift < rates_total && !IsStopped(); shift++) {
-      //--- low
+      // Low.
       val = Indi_ZigZag::Lowest(low, InpDepth, shift);
       if (val == last_low)
         val = 0.0;
@@ -171,7 +169,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
         LowMapBuffer[shift] = val;
       else
         LowMapBuffer[shift] = 0.0;
-      //--- high
+      // High.
       val = Indi_ZigZag::Highest(high, InpDepth, shift);
       if (val == last_high)
         val = 0.0;
@@ -192,16 +190,16 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
       else
         HighMapBuffer[shift] = 0.0;
     }
-    //--- set last values
-    if (extreme_search == 0)  // undefined values
-    {
+    // Set last values.
+    if (extreme_search == 0) {
+      // Undefined values.
       last_low = 0;
       last_high = 0;
     } else {
       last_low = cur_low;
       last_high = cur_high;
     }
-    //--- final selection of extreme points for ZigZag
+    // Final selection of extreme points for ZigZag.
     for (shift = start; shift < rates_total && !IsStopped(); shift++) {
       res = 0.0;
       switch (extreme_search) {
@@ -264,7 +262,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
       }
     }
 
-    return (rates_total);
+    return rates_total;
   }
 
   /**

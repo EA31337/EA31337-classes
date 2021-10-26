@@ -92,21 +92,14 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
                        ValueStorage<double> &ExtLowBuffer, ValueStorage<double> &ExtMiddBuffer, int InpChannelPeriod) {
     if (rates_total < InpChannelPeriod) return (0);
 
-    int start;
-    //--- preliminary calculations
-    if (prev_calculated == 0)
-      start = InpChannelPeriod;
-    else
-      start = prev_calculated - 1;
-    //--- the main loop of calculations
+    int start = prev_calculated == 0 ? InpChannelPeriod : prev_calculated - 1;
     for (int i = start; i < rates_total && !IsStopped(); i++) {
       ExtHighBuffer[i] = Indi_ZigZag::Highest(high, InpChannelPeriod, i);
       ExtLowBuffer[i] = Indi_ZigZag::Lowest(low, InpChannelPeriod, i);
       ExtMiddBuffer[i] = (ExtHighBuffer[i] + ExtLowBuffer[i]) / 2.0;
-      ;
     }
-    //--- OnCalculate done. Return new prev_calculated.
-    return (rates_total);
+    // Returns new prev_calculated.
+    return rates_total;
   }
 
   /**
