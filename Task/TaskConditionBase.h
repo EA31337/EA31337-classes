@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Provides a base class for a task's action.
+ * Provides a base class for a task's condition.
  */
 
 #ifndef __MQL__

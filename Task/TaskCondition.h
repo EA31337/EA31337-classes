@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Provides integration with conditions.
+ * Provides integration with task's conditions.
  */
 
 #ifndef __MQL__
@@ -37,10 +37,7 @@
 // Includes.
 #include "TaskCondition.enum.h"
 #include "TaskCondition.struct.h"
-
-// Includes class enum and structs.
-#include "TaskCondition.enum.h"
-#include "TaskCondition.struct.h"
+#include "TaskConditionBase.h"
 
 /**
  * TaskCondition class.

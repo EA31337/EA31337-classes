@@ -43,10 +43,6 @@
 #include "TaskCondition.h"
 
 class Task {
- protected:
-  // Class variables.
-  Ref<Log> logger;
-
  public:
   // Class variables.
   DictStruct<short, TaskEntry> tasks;
@@ -68,8 +64,6 @@ class Task {
    * Class deconstructor.
    */
   ~Task() {}
-
-  Log *Logger() { return logger.Ptr(); }
 
   /* Main methods */
 
@@ -239,7 +233,6 @@ class Task {
         // Is invalid.
         return IsInvalid();
       default:
-        Logger().Error(StringFormat("Invalid Task condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -263,7 +256,7 @@ class Task {
         // Process tasks.
         return Process();
       default:
-        Logger().Error(StringFormat("Invalid Task action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         return false;
     }
     return _result;

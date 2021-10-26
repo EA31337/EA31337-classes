@@ -27,7 +27,6 @@
 // Includes.
 #include "../../Test.mqh"
 #include "../TaskCondition.h"
-#include "../TaskConditionBase.h"
 
 enum ENUM_TASK_CONDITION_TEST {
   TASK_CONDITION_TEST01 = 1,

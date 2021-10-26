@@ -36,12 +36,23 @@
 #include "TaskCondition.struct.h"
 
 struct TaskEntry {
+ protected:
   TaskActionEntry action;   // TaskAction of the task.
   TaskConditionEntry cond;  // TaskCondition of the task.
   datetime expires;         // Time of expiration.
   datetime last_process;    // Time of the last process.
   datetime last_success;    // Time of the last success.
   unsigned char flags;      // TaskAction flags.
+ protected:
+  // Protected methods.
+  void Init() {
+    flags = TASK_ENTRY_FLAG_NONE;
+    SetFlag(TASK_ENTRY_FLAG_IS_ACTIVE, action.IsActive() && cond.IsActive());
+    SetFlag(TASK_ENTRY_FLAG_IS_INVALID, action.IsInvalid() || cond.IsInvalid());
+    expires = last_process = last_success = 0;
+  }
+
+ public:
   // Constructors.
   void TaskEntry() { Init(); }
   void TaskEntry(TaskActionEntry &_action, TaskConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
@@ -49,13 +60,6 @@ struct TaskEntry {
   void TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) {
     Init();
   };
-  // Main methods.
-  void Init() {
-    flags = TASK_ENTRY_FLAG_NONE;
-    SetFlag(TASK_ENTRY_FLAG_IS_ACTIVE, action.IsActive() && cond.IsActive());
-    SetFlag(TASK_ENTRY_FLAG_IS_INVALID, action.IsInvalid() || cond.IsInvalid());
-    expires = last_process = last_success = 0;
-  }
   // Flag methods.
   bool HasFlag(unsigned char _flag) { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
@@ -77,7 +81,4 @@ struct TaskEntry {
   long GetConditionId() { return cond.GetId(); }
   TaskActionEntry GetAction() { return action; }
   TaskConditionEntry GetCondition() { return cond; }
-  // Setters.
-  // void SetActionObject(void *_obj) { action.SetObject(_obj); }
-  // void SetConditionObject(void *_obj) { cond.SetObject(_obj); }
 };

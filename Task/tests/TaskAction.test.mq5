@@ -27,7 +27,6 @@
 // Includes.
 #include "../../Test.mqh"
 #include "../TaskAction.h"
-#include "../TaskActionBase.h"
 
 enum ENUM_TASK_ACTION_TEST {
   TASK_ACTION_TEST01 = 1,

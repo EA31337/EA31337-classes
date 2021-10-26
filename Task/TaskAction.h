@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Provides integration with actions.
+ * Provides integration with task's actions.
  */
 
 #ifndef __MQL__
@@ -37,6 +37,7 @@
 // Includes.
 #include "TaskAction.enum.h"
 #include "TaskAction.struct.h"
+#include "TaskActionBase.h"
 
 /**
  * TaskAction class.

@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Includes TaskAction's structs.
+ * Includes TaskAction's structures.
  */
 
 #ifndef __MQL__

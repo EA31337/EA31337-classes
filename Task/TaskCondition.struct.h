@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Includes Condition's structs.
+ * Includes TaskCondition's structures.
  */
 
 #ifndef __MQL__
@@ -58,15 +58,15 @@ struct TaskConditionEntry {
   };
 
  protected:
-  unsigned char flags;                           // Condition flags.
-  datetime last_check;                           // Time of the latest check.
-  datetime last_success;                         // Time of the last success.
-  int freq;                                      // How often to run (0 for no limit).
-  long id;                                       // Condition ID.
-  short tries;                                   // Number of successful tries left (-1 for unlimited).
-  ENUM_TASK_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
-  ENUM_TASK_CONDITION_TYPE type;                 // Task's condition type.
-  DataParamEntry args[];                         // Task's condition arguments.
+  unsigned char flags;    // Condition flags.
+  datetime last_check;    // Time of the latest check.
+  datetime last_success;  // Time of the last success.
+  int freq;               // How often to run (0 for no limit).
+  long id;                // Condition ID.
+  short tries;            // Number of successful tries left (-1 for unlimited).
+  // ENUM_TASK_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
+  // ENUM_TASK_CONDITION_TYPE type;                 // Task's condition type.
+  DataParamEntry args[];  // Task's condition arguments.
  protected:
   // Protected methods.
   void Init() { SetFlag(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID), id == WRONG_VALUE); }
@@ -160,7 +160,6 @@ struct TaskConditionEntry {
   bool IsReady() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_READY); }
   bool IsInvalid() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_INVALID); }
   bool IsValid() const { return !IsInvalid(); }
-  ENUM_TASK_CONDITION_TYPE GetType() const { return type; }
   // Setters.
   void AddArg(MqlParam &_arg) {
     // @todo: Add another value to args[].
