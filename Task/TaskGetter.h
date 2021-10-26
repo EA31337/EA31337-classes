@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Provides integration with task's conditions.
+ * Provides integration with task's actions.
  */
 
 #ifndef __MQL__
@@ -31,24 +31,23 @@
 #endif
 
 // Prevents processing this includes file for the second time.
-#ifndef TASK_CONDITION_H
-#define TASK_CONDITION_H
+#ifndef TASK_GETTER_H
+#define TASK_GETTER_H
 
 // Includes.
-#include "TaskCondition.enum.h"
-#include "TaskCondition.struct.h"
-#include "TaskConditionBase.h"
+//#include "TaskGetter.enum.h"
+#include "TaskGetter.struct.h"
+#include "TaskGetterBase.h"
 
 /**
- * TaskCondition class.
+ * TaskGetter class.
  */
-template <typename TO>
-class TaskCondition : protected TaskConditionBase {
- public:
+template <typename TO, typename TS>
+class TaskGetter : protected TaskGetterBase<TS> {
  protected:
   // Protected class variables.
-  TaskConditionEntry entry;  // Condition entry.
-  TO obj;                    // Object to run the action on.
+  TaskGetterEntry entry;  // Getter entry.
+  TO obj;                 // Object to run the action on.
 
  public:
   /* Special methods */
@@ -56,30 +55,21 @@ class TaskCondition : protected TaskConditionBase {
   /**
    * Default class constructor.
    */
-  TaskCondition() {}
+  TaskGetter() {}
 
   /**
    * Class constructor with an entry as argument.
    */
-  TaskCondition(TaskConditionEntry &_entry) : entry(_entry) {}
+  TaskGetter(TaskGetterEntry &_entry) : entry(_entry) {}
 
   /* Main methods */
 
   /**
-   * Checks a current stored condition.
+   * Runs a current stored action.
    */
-  bool Check() {
-    bool _result = entry.IsValid() && entry.HasTriesLeft();
-    _result &= obj.Check(entry);
-    if (_result) {
-      entry.RemoveFlags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE));
-      entry.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_TIME_LAST_CHECK), TimeCurrent());
-      entry.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_TIME_LAST_SUCCESS), TimeCurrent());
-    } else {
-      entry.AddFlags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID));
-      entry.RemoveFlags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE));
-      entry.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_TIME_LAST_CHECK), TimeCurrent());
-    }
+  TS Get() {
+    TS _result = obj.Get(entry);
+    entry.Set(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_TIME_LAST_GET), TimeCurrent());
     entry.TriesDec();
     return _result;
   }
@@ -89,13 +79,13 @@ class TaskCondition : protected TaskConditionBase {
   /**
    * Gets an entry's flag.
    */
-  bool Get(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_FLAGS) _flag) const { return entry.Get(_flag); }
+  bool Get(STRUCT_ENUM(TaskGetterEntry, ENUM_TASK_GETTER_ENTRY_FLAG) _flag) const { return entry.Get(_flag); }
 
   /**
    * Gets an entry's property value.
    */
   template <typename T>
-  T Get(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_PROP) _prop) const {
+  T Get(STRUCT_ENUM(TaskGetterEntry, ENUM_TASK_GETTER_ENTRY_PROP) _prop) const {
     entry.Get<T>(_prop);
   }
 
@@ -109,7 +99,7 @@ class TaskCondition : protected TaskConditionBase {
   /**
    * Sets an entry's flag.
    */
-  void Set(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_FLAGS) _flag, bool _value = true) {
+  void Set(STRUCT_ENUM(TaskGetterEntry, ENUM_TASK_GETTER_ENTRY_FLAG) _flag, bool _value = true) {
     entry.Set(_flag, _value);
   }
 
@@ -117,24 +107,27 @@ class TaskCondition : protected TaskConditionBase {
    * Sets an entry's property value.
    */
   template <typename T>
-  void Set(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_PROP) _prop, T _value) {
+  void Set(STRUCT_ENUM(TaskGetterEntry, ENUM_TASK_GETTER_ENTRY_PROP) _prop, T _value) {
     entry.Set(_prop, _value);
   }
 
-  /* TaskConditionBase methods */
+  /* TaskGetterBase methods */
 
   /**
-   * Checks a condition.
+   * Runs an action.
    */
-  bool Check(const TaskConditionEntry &_entry) {
+  TS Get(const TaskGetterEntry &_entry) {
+    TS _result;
     switch (_entry.GetId()) {
       case 0:
-        return Check();
+        _result = Get();
+        break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
-    return false;
+    return _result;
   }
 };
-#endif  // TASK_CONDITION_H
+
+#endif  // TASK_GETTER_H

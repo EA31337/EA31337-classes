@@ -52,6 +52,7 @@ jobs:
           - Taskable.test
           - TaskAction.test
           - TaskCondition.test
+          - TaskGetter.test
     steps:
       - uses: actions/download-artifact@v2
         with:
