@@ -35,6 +35,7 @@ struct DataParamEntry;
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
 #include "../Indicators/indicators.h"
+#include "../Indicators/Bitwise/indicators.h"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
 #include "../Test.mqh"
@@ -441,11 +442,9 @@ bool InitIndicators() {
   IndiOHLCParams ohlc_params();
   indis.Push(new Indi_OHLC(ohlc_params));
 
-#ifdef __MQL5__
   // Price Channel.
   IndiPriceChannelParams price_channel_params();
   indis.Push(new Indi_PriceChannel(price_channel_params));
-#endif
 
   // Price Volume Trend.
   IndiPriceVolumeTrendParams price_volume_trend_params();
@@ -487,11 +486,9 @@ bool InitIndicators() {
   IndiWilliamsADParams williams_ad_params();
   indis.Push(new Indi_WilliamsAD(williams_ad_params));
 
-#ifdef __MQL5__
   // ZigZag Color.
   IndiZigZagColorParams zigzag_color_params();
   indis.Push(new Indi_ZigZagColor(zigzag_color_params));
-#endif
 
   // Custom Moving Average.
   IndiCustomMovingAverageParams cma_params();
@@ -503,7 +500,7 @@ bool InitIndicators() {
   math_params.SetName("Bands(UP - LO)");
   Ref<Indi_Math> indi_math_1 = new Indi_Math(math_params);
   indi_math_1.Ptr().SetDataSource(indi_bands.Ptr(), 0);
-  indis.Push(_indi_test = indi_math_1.Ptr());
+  indis.Push(indi_math_1.Ptr());
 
   // Math (specialized indicator) via custom math method.
   IndiMathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
