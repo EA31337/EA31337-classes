@@ -67,7 +67,7 @@ class TaskSetter : protected TaskSetterBase<TS> {
   /**
    * Runs a current stored action.
    */
-   bool Set(const TS &_entry_value) {
+  bool Set(const TS &_entry_value) {
     bool _result = obj.Set(entry, _entry_value);
     entry.Set(STRUCT_ENUM(TaskSetterEntry, TASK_SETTER_ENTRY_TIME_LAST_GET), TimeCurrent());
     entry.TriesDec();
@@ -114,7 +114,7 @@ class TaskSetter : protected TaskSetterBase<TS> {
   /* TaskSetterBase methods */
 
   /**
-   * Sets entry value.
+   * Sets an entry value.
    */
   bool Set(const TaskSetterEntry &_entry, const TS &_entry_value) {
     bool _result = false;

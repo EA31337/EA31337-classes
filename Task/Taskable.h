@@ -38,6 +38,7 @@
 #include "TaskAction.h"
 #include "TaskCondition.h"
 #include "TaskGetter.h"
+#include "TaskSetter.h"
 
 /**
  * Taskable class.
@@ -68,6 +69,11 @@ class Taskable {
    * Runs an action.
    */
   virtual bool Run(const TaskActionEntry &_entry) = NULL;
+
+  /**
+   * Sets an entry value.
+   */
+  virtual bool Set(const TaskSetterEntry &_entry, const TS &_entry_value) = NULL;
 };
 
 #endif  // TASKABLE_H

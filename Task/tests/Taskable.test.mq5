@@ -34,6 +34,7 @@ struct TaskableIntValue {
   int value;  // Field to store a double type.
  public:
   TaskableIntValue() : value(0) {}
+  int GetValue() { return value; }
   void SetValue(int _value) { value = _value; }
 };
 
@@ -76,6 +77,16 @@ class TaskTest01 : public Taskable<TaskableIntValue> {
     PrintFormat("%s; sum=%d", __FUNCSIG__, sum);
     return sum > 0;
   }
+
+  /**
+   * Sets an entry value.
+   */
+  bool Set(const TaskSetterEntry &_entry, const TaskableIntValue &_entry_value) {
+    sum += _entry.GetId();
+    data.SetValue(sum);
+    PrintFormat("%s; sum=%d", __FUNCSIG__, data.GetValue());
+    return data.GetValue() > 0;
+  }
 };
 
 /**
@@ -96,8 +107,12 @@ int OnInit() {
   TaskGetterEntry _entry_get(2);
   TaskableIntValue _value = _test01.Get(_entry_get);
   _result &= _entry_get.Get(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_FLAG_IS_ACTIVE));
+  // Sets a dummy value.
+  TaskSetterEntry _entry_set(2);
+  _result &= _test01.Set(_entry_set, _value);
+  _result &= _entry_get.Get(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_FLAG_IS_ACTIVE));
   // Checks the results.
-  assertTrueOrFail(_result && _test01.GetSum() == 6, "Fail!");
+  assertTrueOrFail(_result && _test01.GetSum() == 8, "Fail!");
   _result &= GetLastError() == ERR_NO_ERROR;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
