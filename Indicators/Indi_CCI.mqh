@@ -29,9 +29,11 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iCCI(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
   return Indi_CCI::iCCI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
 }
 double iCCIOnArray(double &_arr[], int _total, int _period, int _shift) {
+  ResetLastError();
   return Indi_CCI::iCCIOnArray(_arr, _total, _period, _shift);
 }
 #endif
