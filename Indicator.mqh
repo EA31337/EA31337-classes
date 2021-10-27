@@ -981,18 +981,6 @@ class Indicator : public IndicatorBase {
     istate.is_ready = false;
     return EMPTY_VALUE;
   }
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  virtual string ToString(int _shift = 0) {
-    IndicatorDataEntry _entry = GetEntry(_shift);
-    int _serializer_flags =
-        SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
-    SerializerConverter _stub_indi =
-        SerializerConverter::MakeStubObject<IndicatorDataEntry>(_serializer_flags, _entry.GetSize());
-    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
-  }
 };
 
 #endif

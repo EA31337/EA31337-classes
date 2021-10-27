@@ -516,7 +516,7 @@ bool InitIndicators() {
 
   // Pattern Detector.
   IndiPatternParams pattern_params();
-  indis.Push(new Indi_Pattern(pattern_params));
+  indis.Push(_indi_test = new Indi_Pattern(pattern_params));
 
   // Pivot.
   IndiPivotParams pivot_params();
@@ -532,7 +532,7 @@ bool InitIndicators() {
   }
 
   // Push white-listed indicators here.
-  // whitelisted_indis.Push(_indi_test);
+  whitelisted_indis.Push(_indi_test);
 
   return GetLastError() == ERR_NO_ERROR;
 }
