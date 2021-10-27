@@ -289,29 +289,44 @@ struct IndicatorDataEntry {
   int GetYear() { return DateTimeStatic::Year(timestamp); }
   long GetTime() { return timestamp; };
   ENUM_DATATYPE GetDataType() {
-    if (CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
-      return TYPE_FLOAT;
-    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
-      return TYPE_INT;
-    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_LONG)) {
-      return TYPE_LONG;
+    if (CheckFlags(INDI_ENTRY_FLAG_IS_REAL)) {
+      return CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED) ? TYPE_DOUBLE : TYPE_FLOAT;
+    } else {
+      if (CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
+        return CheckFlags(INDI_ENTRY_FLAG_IS_UNSIGNED) ? TYPE_ULONG : TYPE_LONG;
+      } else {
+        return CheckFlags(INDI_ENTRY_FLAG_IS_UNSIGNED) ? TYPE_UINT : TYPE_INT;
+      }
     }
-    return TYPE_DOUBLE;
   }
-  INDICATOR_ENTRY_FLAGS GetDataTypeFlag(ENUM_DATATYPE _dt) {
+  ushort GetDataTypeFlags(ENUM_DATATYPE _dt) {
     switch (_dt) {
-      case TYPE_DOUBLE:
-        return INDI_ENTRY_FLAG_IS_DOUBLE;
-      case TYPE_FLOAT:
-        return INDI_ENTRY_FLAG_IS_FLOAT;
+      case TYPE_BOOL:
+      case TYPE_CHAR:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
       case TYPE_INT:
-        return INDI_ENTRY_FLAG_IS_INT;
+        return INDI_ENTRY_FLAG_NONE;
       case TYPE_LONG:
-        return INDI_ENTRY_FLAG_IS_LONG;
+        return INDI_ENTRY_FLAG_IS_DOUBLED;
+      case TYPE_UINT:
+        return INDI_ENTRY_FLAG_IS_UNSIGNED;
+      case TYPE_ULONG:
+        return INDI_ENTRY_FLAG_IS_UNSIGNED | INDI_ENTRY_FLAG_IS_DOUBLED;
+      case TYPE_DOUBLE:
+        return INDI_ENTRY_FLAG_IS_REAL | INDI_ENTRY_FLAG_IS_DOUBLED;
+      case TYPE_FLOAT:
+        return INDI_ENTRY_FLAG_IS_REAL;
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
       default:
+        SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
-    return (INDICATOR_ENTRY_FLAGS)0;
+    SetUserError(ERR_INVALID_PARAMETER);
+    return INDI_ENTRY_FLAG_NONE;
   }
   // Setters.
   bool Resize(int _size = 0) { return _size > 0 ? ArrayResize(values, _size) > 0 : true; }
@@ -448,7 +463,11 @@ struct IndicatorParams {
       case TYPE_STRING:
       case TYPE_UCHAR:
         return (T)param.string_value;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
+    SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }
   /* Setters */

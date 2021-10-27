@@ -32,8 +32,8 @@
 // Structs.
 struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
-  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN, 5, TYPE_INT) {
-    SetDataValueType(TYPE_INT);
+  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN, 5, TYPE_UINT) {
+    SetDataValueType(TYPE_UINT);
     SetDataValueRange(IDATA_RANGE_BITWISE);
     shift = _shift;
   };
@@ -57,7 +57,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual uint GetValue(int _mode = 0, int _shift = 0) {
     int i;
     BarOHLC _ohlcs[8];
 
@@ -123,6 +123,6 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
   virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
-    return !_entry.HasValue<double>(INT_MAX) && _entry.GetMin<int>() >= 0;
+    return !_entry.HasValue<uint>(INT_MAX) && _entry.GetMin<uint>() >= 0;
   }
 };

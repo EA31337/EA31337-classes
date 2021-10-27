@@ -94,23 +94,4 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
       }
     }
   }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0].Set(GetValue(PRICE_OPEN, _shift));
-      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-      idata.Add(_entry, _bar_time);
-    }
-    return _entry;
-  }
 };
