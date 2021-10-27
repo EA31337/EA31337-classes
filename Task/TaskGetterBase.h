@@ -50,7 +50,7 @@ class TaskGetterBase {
   /* Main methods */
 
   /**
-   * Gets a structure.
+   * Gets a copy of structure.
    */
   virtual TS Get(const TaskGetterEntry &_entry) = NULL;
 };

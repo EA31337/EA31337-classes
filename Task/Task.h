@@ -42,7 +42,7 @@
 #include "TaskCondition.h"
 #include "Taskable.h"
 
-class Task : protected Taskable {
+class Task : protected Taskable<TaskEntry> {
  public:
   // Class variables.
   DictStruct<short, TaskEntry> tasks;

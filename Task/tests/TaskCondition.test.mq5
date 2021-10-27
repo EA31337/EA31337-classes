@@ -43,7 +43,7 @@ class TaskConditionTest01 : public TaskConditionBase {
   long GetSum() { return sum; }
   bool Check(const TaskConditionEntry &_entry) {
     sum += _entry.GetId();
-    PrintFormat("Checks: %s; sum=%d", __FUNCSIG__, sum);
+    PrintFormat("%s; sum=%d", __FUNCSIG__, sum);
     return true;
   }
 };
@@ -57,7 +57,7 @@ class TaskConditionTest02 : public TaskConditionBase {
   long GetSum() { return sum; }
   bool Check(const TaskConditionEntry &_entry) {
     sum += _entry.GetId();
-    PrintFormat("Checks: %s; sum=%d", __FUNCSIG__, sum);
+    PrintFormat("%s; sum=%d", __FUNCSIG__, sum);
     return true;
   }
 };

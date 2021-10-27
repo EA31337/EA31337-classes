@@ -43,7 +43,7 @@ class TaskActionTest01 : public TaskActionBase {
   long GetSum() { return sum; }
   bool Run(const TaskActionEntry &_entry) {
     sum += _entry.GetId();
-    PrintFormat("Runs: %s; sum=%d", __FUNCSIG__, sum);
+    PrintFormat("%s; sum=%d", __FUNCSIG__, sum);
     return true;
   }
 };
@@ -57,7 +57,7 @@ class TaskActionTest02 : public TaskActionBase {
   long GetSum() { return sum; }
   bool Run(const TaskActionEntry &_entry) {
     sum += _entry.GetId();
-    PrintFormat("Runs: %s; sum=%d", __FUNCSIG__, sum);
+    PrintFormat("%s; sum=%d", __FUNCSIG__, sum);
     return true;
   }
 };

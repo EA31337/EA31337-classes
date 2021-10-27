@@ -37,10 +37,12 @@
 // Includes.
 #include "TaskAction.h"
 #include "TaskCondition.h"
+#include "TaskGetter.h"
 
 /**
  * Taskable class.
  */
+template <typename TS>
 class Taskable {
  public:
   /* Special methods */
@@ -50,12 +52,17 @@ class Taskable {
    */
   Taskable() {}
 
-  /* Main methods */
+  /* Virtual methods */
 
   /**
    * Checks a condition.
    */
   virtual bool Check(const TaskConditionEntry &_entry) = NULL;
+
+  /**
+   * Gets a copy of structure.
+   */
+  virtual TS Get(const TaskGetterEntry &_entry) = NULL;
 
   /**
    * Runs an action.
