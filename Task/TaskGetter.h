@@ -42,12 +42,11 @@
 /**
  * TaskGetter class.
  */
-template <typename TO, typename TS>
-class TaskGetter : protected TaskGetterBase<TS> {
+template <typename TS>
+class TaskGetter : public TaskGetterBase<TS> {
  protected:
   // Protected class variables.
   TaskGetterEntry entry;  // Getter entry.
-  TO obj;                 // Object to run the action on.
 
  public:
   /* Special methods */
@@ -68,7 +67,7 @@ class TaskGetter : protected TaskGetterBase<TS> {
    * Runs a current stored action.
    */
   TS Get() {
-    TS _result = obj.Get(entry);
+    TS _result = Get(entry);
     entry.Set(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_TIME_LAST_GET), TimeCurrent());
     entry.TriesDec();
     return _result;
@@ -88,11 +87,6 @@ class TaskGetter : protected TaskGetterBase<TS> {
   T Get(STRUCT_ENUM(TaskGetterEntry, ENUM_TASK_GETTER_ENTRY_PROP) _prop) const {
     entry.Get<T>(_prop);
   }
-
-  /**
-   * Gets a reference to the object.
-   */
-  TO *GetObject() { return GetPointer(obj); }
 
   /* Setters */
 

@@ -41,13 +41,14 @@ struct TaskGetterTest01Data {
   void SetValue(int _value) { value = _value; }
 };
 
-class TaskGetterTest01 : protected TaskGetterBase<TaskGetterTest01Data> {
+class TaskGetterTest01 : public TaskGetter<TaskGetterTest01Data> {
  protected:
   TaskGetterTest01Data data;
 
  public:
   TaskGetterTest01(){};
   // long GetSum() { return sum; }
+  TaskGetterTest01Data Get() { return TaskGetter<TaskGetterTest01Data>::Get(); }
   TaskGetterTest01Data Get(const TaskGetterEntry &_entry) {
     data.SetValue(_entry.GetId());
     PrintFormat("Get: %s; value=%d", __FUNCSIG__, data.GetValue());
@@ -62,15 +63,19 @@ int OnInit() {
   bool _result = true;
   int _sum = 0;
   // Test01
+  TaskGetterTest01 _test01;
   TaskGetterEntry _entry01(TASK_GETTER_TEST01);
-  TaskGetter<TaskGetterTest01, TaskGetterTest01Data> _getter01(_entry01);
-  _result &= _getter01.Get(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_FLAG_IS_ACTIVE));
-  _sum += _getter01.Get().GetValue();
-  _getter01.Set(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_ID), TASK_GETTER_TEST02);
-  _sum += _getter01.Get().GetValue();
-  _getter01.Set(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_ID), TASK_GETTER_TEST03);
-  _sum += _getter01.Get().GetValue();
-  assertTrueOrFail(_result && _sum == 6, "Fail!");
+  _result &= _entry01.Get(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_FLAG_IS_ACTIVE));
+  _test01.Set(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_ID), TASK_GETTER_TEST01);
+  _sum += _test01.Get().GetValue();
+  _sum += _test01.Get(_entry01).GetValue();
+  _test01.Set(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_ID), TASK_GETTER_TEST02);
+  _sum += _test01.Get().GetValue();
+  _sum += _test01.Get(_entry01).GetValue();
+  _test01.Set(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_ID), TASK_GETTER_TEST03);
+  _sum += _test01.Get().GetValue();
+  _sum += _test01.Get(_entry01).GetValue();
+  assertTrueOrFail(_result && _sum == 9, "Fail!");
   _result &= GetLastError() == ERR_NO_ERROR;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
