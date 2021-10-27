@@ -31,22 +31,22 @@
 #endif
 
 // Prevents processing this includes file for the second time.
-#ifndef TASK_GETTER_H
-#define TASK_GETTER_H
+#ifndef TASK_SETTER_H
+#define TASK_SETTER_H
 
 // Includes.
-//#include "TaskGetter.enum.h"
-#include "TaskGetter.struct.h"
-#include "TaskGetterBase.h"
+//#include "TaskSetter.enum.h"
+#include "TaskSetter.struct.h"
+#include "TaskSetterBase.h"
 
 /**
- * TaskGetter class.
+ * TaskSetter class.
  */
 template <typename TO, typename TS>
-class TaskGetter : protected TaskGetterBase<TS> {
+class TaskSetter : protected TaskSetterBase<TS> {
  protected:
   // Protected class variables.
-  TaskGetterEntry entry;  // Getter entry.
+  TaskSetterEntry entry;  // Setter entry.
   TO obj;                 // Object to run the action on.
 
  public:
@@ -55,37 +55,37 @@ class TaskGetter : protected TaskGetterBase<TS> {
   /**
    * Default class constructor.
    */
-  TaskGetter() {}
+  TaskSetter() {}
 
   /**
    * Class constructor with an entry as argument.
    */
-  TaskGetter(TaskGetterEntry &_entry) : entry(_entry) {}
+  TaskSetter(TaskSetterEntry &_entry) : entry(_entry) {}
 
   /* Main methods */
 
   /**
    * Runs a current stored action.
    */
-  TS Get() {
-    TS _result = obj.Get(entry);
-    entry.Set(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_TIME_LAST_GET), TimeCurrent());
+   bool Set(const TS &_entry_value) {
+    bool _result = obj.Set(entry, _entry_value);
+    entry.Set(STRUCT_ENUM(TaskSetterEntry, TASK_SETTER_ENTRY_TIME_LAST_GET), TimeCurrent());
     entry.TriesDec();
     return _result;
   }
 
-  /* Getters */
+  /* Setters */
 
   /**
    * Gets an entry's flag.
    */
-  bool Get(STRUCT_ENUM(TaskGetterEntry, ENUM_TASK_GETTER_ENTRY_FLAG) _flag) const { return entry.Get(_flag); }
+  bool Get(STRUCT_ENUM(TaskSetterEntry, ENUM_TASK_SETTER_ENTRY_FLAG) _flag) const { return entry.Get(_flag); }
 
   /**
    * Gets an entry's property value.
    */
   template <typename T>
-  T Get(STRUCT_ENUM(TaskGetterEntry, ENUM_TASK_GETTER_ENTRY_PROP) _prop) const {
+  T Get(STRUCT_ENUM(TaskSetterEntry, ENUM_TASK_SETTER_ENTRY_PROP) _prop) const {
     entry.Get<T>(_prop);
   }
 
@@ -99,7 +99,7 @@ class TaskGetter : protected TaskGetterBase<TS> {
   /**
    * Sets an entry's flag.
    */
-  void Set(STRUCT_ENUM(TaskGetterEntry, ENUM_TASK_GETTER_ENTRY_FLAG) _flag, bool _value = true) {
+  void Set(STRUCT_ENUM(TaskSetterEntry, ENUM_TASK_SETTER_ENTRY_FLAG) _flag, bool _value = true) {
     entry.Set(_flag, _value);
   }
 
@@ -107,20 +107,20 @@ class TaskGetter : protected TaskGetterBase<TS> {
    * Sets an entry's property value.
    */
   template <typename T>
-  void Set(STRUCT_ENUM(TaskGetterEntry, ENUM_TASK_GETTER_ENTRY_PROP) _prop, T _value) {
+  void Set(STRUCT_ENUM(TaskSetterEntry, ENUM_TASK_SETTER_ENTRY_PROP) _prop, T _value) {
     entry.Set(_prop, _value);
   }
 
-  /* TaskGetterBase methods */
+  /* TaskSetterBase methods */
 
   /**
-   * Gets a copy of structure.
+   * Sets entry value.
    */
-  TS Get(const TaskGetterEntry &_entry) {
-    TS _result;
+  bool Set(const TaskSetterEntry &_entry, const TS &_entry_value) {
+    bool _result = false;
     switch (_entry.GetId()) {
       case 0:
-        _result = Get();
+        _result = Set(_entry_value);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -130,4 +130,4 @@ class TaskGetter : protected TaskGetterBase<TS> {
   }
 };
 
-#endif  // TASK_GETTER_H
+#endif  // TASK_SETTER_H
