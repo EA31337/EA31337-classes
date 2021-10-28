@@ -117,6 +117,69 @@ struct ChartTf {
   /* Static methods */
 
   /**
+   * Converts number of seconds per bar to chart's timeframe.
+   *
+   * @param _secs
+   *   Number of seconds per one bar chart (OHLC).
+   *
+   * @return ENUM_TIMEFRAMES
+   *   Returns enum representing chart's timeframe value.
+   */
+  static ENUM_TIMEFRAMES SecsToTf(uint _secs = 0) {
+    switch (_secs) {
+      case 0:
+        return PERIOD_CURRENT;
+      case 60:
+        return PERIOD_M1;  // 1 minute.
+      case 60 * 2:
+        return PERIOD_M2;  // 2 minutes (non-standard).
+      case 60 * 3:
+        return PERIOD_M3;  // 3 minutes (non-standard).
+      case 60 * 4:
+        return PERIOD_M4;  // 4 minutes (non-standard).
+      case 60 * 5:
+        return PERIOD_M5;  // 5 minutes.
+      case 60 * 6:
+        return PERIOD_M6;  // 6 minutes (non-standard).
+      case 60 * 10:
+        return PERIOD_M10;  // 10 minutes (non-standard).
+      case 60 * 12:
+        return PERIOD_M12;  // 12 minutes (non-standard).
+      case 60 * 15:
+        return PERIOD_M15;  // 15 minutes.
+      case 60 * 20:
+        return PERIOD_M20;  // 20 minutes (non-standard).
+      case 60 * 30:
+        return PERIOD_M30;  // 30 minutes.
+      case 60 * 60:
+        return PERIOD_H1;  // 1 hour.
+      case 60 * 60 * 2:
+        return PERIOD_H2;  // 2 hours (non-standard).
+      case 60 * 60 * 3:
+        return PERIOD_H3;  // 3 hours (non-standard).
+      case 60 * 60 * 4:
+        return PERIOD_H4;  // 4 hours.
+      case 60 * 60 * 6:
+        return PERIOD_H6;  // 6 hours (non-standard).
+      case 60 * 60 * 8:
+        return PERIOD_H8;  // 8 hours (non-standard).
+      case 60 * 60 * 12:
+        return PERIOD_H12;  // 12 hours (non-standard).
+      case 60 * 60 * 24:
+        return PERIOD_D1;  // Daily.
+      case 60 * 60 * 24 * 7:
+        return PERIOD_W1;  // Weekly.
+      default:
+        break;
+    }
+    if (_secs >= 60 * 60 * 24 * 28 && _secs <= 60 * 60 * 24 * 31) {
+      return PERIOD_MN1;  // Monthly range.
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return PERIOD_CURRENT;
+  }
+
+  /**
    * Convert period to proper chart timeframe value.
    *
    * @param
