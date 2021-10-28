@@ -165,15 +165,17 @@ class Condition {
         }
         break;
 #ifdef INDICATOR_MQH
-      case COND_TYPE_INDICATOR:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((IndicatorBase *)_entry.obj).CheckCondition((ENUM_INDICATOR_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          // Static method not supported.
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
+        /*
+        case COND_TYPE_INDICATOR:
+          if (Object::IsValid(_entry.obj)) {
+            _result = ((IndicatorBase *)_entry.obj).CheckCondition((ENUM_INDICATOR_CONDITION)_entry.cond_id,
+        _entry.args); } else {
+            // Static method not supported.
+            _result = false;
+            _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
+          }
+          break;
+        */
 #endif
       case COND_TYPE_MARKET:
         if (Object::IsValid(_entry.obj)) {

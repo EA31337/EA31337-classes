@@ -56,8 +56,48 @@ class Chart;
 template <typename TS>
 class Indicator : public IndicatorBase {
  protected:
-  // Structs.
+  BufferStruct<IndicatorDataEntry> idata;
   TS iparams;
+
+ protected:
+  /* Protected methods */
+
+  bool Init() {
+    ArrayResize(value_storages, iparams.GetMaxModes());
+    switch (iparams.GetDataSourceType()) {
+      case IDATA_BUILTIN:
+        break;
+      case IDATA_ICUSTOM:
+        break;
+      case IDATA_INDICATOR:
+        if (indi_src == NULL) {
+          // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
+          // SetDataSource(_indi_price, true, PRICE_OPEN);
+        }
+        break;
+    }
+    return InitDraw();
+  }
+
+  /**
+   * Initialize indicator data drawing on custom data.
+   */
+  bool InitDraw() {
+    if (iparams.is_draw && !Object::IsValid(draw)) {
+      draw = new DrawIndicator(THIS_PTR);
+      draw.SetColorLine(iparams.indi_color);
+    }
+    return iparams.is_draw;
+  }
+
+  /**
+   * Deinitialize drawing.
+   */
+  void DeinitDraw() {
+    if (draw) {
+      delete draw;
+    }
+  }
 
  public:
   /* Indicator enumerations */
@@ -112,47 +152,6 @@ class Indicator : public IndicatorBase {
       }
       delete indi_src;
       indi_src = NULL;
-    }
-  }
-
-  /* Init methods */
-
-  bool Init() {
-    ArrayResize(value_storages, iparams.GetMaxModes());
-    switch (iparams.GetDataSourceType()) {
-      case IDATA_BUILTIN:
-        break;
-      case IDATA_ICUSTOM:
-        break;
-      case IDATA_INDICATOR:
-        if (indi_src == NULL) {
-          // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
-          // SetDataSource(_indi_price, true, PRICE_OPEN);
-        }
-        break;
-    }
-    return InitDraw();
-  }
-
-  /**
-   * Initialize indicator data drawing on custom data.
-   */
-  bool InitDraw() {
-    if (iparams.is_draw && !Object::IsValid(draw)) {
-      draw = new DrawIndicator(THIS_PTR);
-      draw.SetColorLine(iparams.indi_color);
-    }
-    return iparams.is_draw;
-  }
-
-  /* Deinit methods */
-
-  /**
-   * Deinitialize drawing.
-   */
-  void DeinitDraw() {
-    if (draw) {
-      delete draw;
     }
   }
 
@@ -402,16 +401,12 @@ class Indicator : public IndicatorBase {
    */
   virtual IndicatorBase* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return NULL; }
 
-  /* Operator overloading methods */
+  /* Getters */
 
   /**
-   * Access indicator entry data using [] operator.
+   * Get pointer to data of indicator.
    */
-  IndicatorDataEntry operator[](int _shift) { return GetEntry(_shift); }
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
-  IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
-
-  /* Getters */
+  BufferStruct<IndicatorDataEntry>* GetData() { return GetPointer(idata); }
 
   /**
    * Returns the highest bar's index (shift).
@@ -612,11 +607,6 @@ class Indicator : public IndicatorBase {
     IndicatorSignal _signals(_data, iparams, cparams, _mode1, _mode2);
     return _signals;
   }
-
-  /**
-   * Get pointer to data of indicator.
-   */
-  BufferStruct<IndicatorDataEntry>* GetData() { return GetPointer(idata); }
 
   /**
    * Get name of the indicator.
