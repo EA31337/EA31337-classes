@@ -61,7 +61,7 @@ class Indi_RS : public Indicator<RSParams> {
       PriceIndiParams _iprice_p();
       // @todo Symbol should be already defined for a chart.
       // @todo If it's not, move initialization to GetValue()/GetEntry() method.
-      Indi_Price *_iprice = Indi_Price::GetCached(GetSymbol(), GetTf(), 0);
+      Indi_Price *_iprice = Indi_Price::GetCached(_Symbol, GetTf(), 0);
 
       MathParams _imath0_p(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
       MathParams _imath1_p(MATH_OP_SUB, PRICE_CLOSE, 1, PRICE_CLOSE, 0);

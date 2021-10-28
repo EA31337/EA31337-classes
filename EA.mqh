@@ -450,6 +450,7 @@ class EA {
       ChartEntry _entry = Chart().GetEntry();
       data_chart.Add(_entry, _entry.bar.ohlc.time);
     }
+    /* @fixme
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
       for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
         Strategy *_strati = iter.Value().Ptr();
@@ -467,6 +468,7 @@ class EA {
         }
       }
     }
+    */
     /*
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
       for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {

@@ -173,12 +173,12 @@ class Indi_Alligator : public Indicator<AlligatorParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
+        _value = Indi_Alligator::iAlligator(_Symbol, GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
                                             GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),
                                             GetAppliedPrice(), (ENUM_ALLIGATOR_LINE)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/
                          GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(),
                          GetLipsShift(), GetMAMethod(),
                          GetAppliedPrice()

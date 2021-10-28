@@ -176,10 +176,10 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_ColorLine::iColorLine(GetSymbol(), GetTf(), _mode, _shift, THIS_PTR);
+        _value = Indi_ColorLine::iColorLine(_Symbol, GetTf(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

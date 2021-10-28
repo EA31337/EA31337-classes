@@ -109,10 +109,10 @@ class Indi_BullsPower : public Indicator<BullsPowerParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, THIS_PTR);
+        _value = iBullsPower(_Symbol, GetTf(), GetPeriod(), GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/ GetPeriod() /**/,
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /**/ GetPeriod() /**/,
                          _mode, _shift);
         break;
       default:

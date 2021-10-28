@@ -120,13 +120,12 @@ class Indi_MACD : public Indicator<MACDParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
+        _value = Indi_MACD::iMACD(_Symbol, GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
                                   GetAppliedPrice(), (ENUM_SIGNAL_LINE)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value =
-            iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(),
-                    GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(),
+                         GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

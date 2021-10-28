@@ -160,11 +160,11 @@ class Indi_ASI : public Indicator<ASIParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetMaximumPriceChanging() /*]*/, 0, _shift);
         break;
       case IDATA_ONCALCULATE: {
-        INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(GetSymbol(), GetTf(),
+        INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_Symbol, GetTf(),
                                                            Util::MakeKey("Indi_ASI", GetMaximumPriceChanging()));
         _value =
             iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, GetMaximumPriceChanging(), _mode, _shift, _cache);

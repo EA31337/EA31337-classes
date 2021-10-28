@@ -118,10 +118,10 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_BWMFI::iBWMFI(GetSymbol(), GetTf(), _shift, (ENUM_BWMFI_BUFFER)_mode, THIS_PTR);
+        _value = Indi_BWMFI::iBWMFI(_Symbol, GetTf(), _shift, (ENUM_BWMFI_BUFFER)_mode, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/,
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/,
                          _mode, _shift);
         break;
       default:

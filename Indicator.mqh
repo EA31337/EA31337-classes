@@ -78,7 +78,7 @@ class Indicator : public IndicatorBase {
    * Class constructor.
    */
   Indicator(const TS& _iparams, IndicatorBase* _indi_src = NULL, bool _indi_managed = true, int _indi_mode = 0)
-      : IndicatorBase(_iparams.GetTf(), NULL) {
+      : IndicatorBase(_indi_src) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     if (_indi_src != NULL) {
@@ -86,13 +86,7 @@ class Indicator : public IndicatorBase {
     }
     Init();
   }
-  Indicator(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorBase(_tf) {
-    iparams = _iparams;
-    SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
-    Init();
-  }
-  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
-      : IndicatorBase(_tf) {
+  Indicator(ENUM_INDICATOR_TYPE _itype, int _shift = 0, string _name = "") {
     iparams.SetIndicatorType(_itype);
     iparams.SetShift(_shift);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
@@ -159,10 +153,18 @@ class Indicator : public IndicatorBase {
   /* Getters */
 
   /**
+   * Gets an indicator's property value.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _param) const {
+    return iparams.Get<T>(_param);
+  }
+
+  /**
    * Gets an indicator property flag.
    */
-  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = -1) {
-    IndicatorDataEntry _entry = GetEntry(_shift >= 0 ? _shift : iparams.GetShift());
+  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, datetime _bar_time) {
+    IndicatorDataEntry _entry = GetEntry(_bar_time);
     return _entry.CheckFlag(_prop);
   }
 
@@ -262,6 +264,7 @@ class Indicator : public IndicatorBase {
    * Returns true of successful copy.
    * Returns false on invalid values.
    */
+  /* @todo
   bool CopyEntries(IndicatorDataEntry& _data[], int _count, int _start_shift = 0) {
     bool _is_valid = true;
     if (ArraySize(_data) < _count) {
@@ -274,6 +277,7 @@ class Indicator : public IndicatorBase {
     }
     return _is_valid;
   }
+  */
 
   /**
    * Gets indicator data from a buffer and copy into array of values.
@@ -407,7 +411,7 @@ class Indicator : public IndicatorBase {
   /**
    * Access indicator entry data using [] operator.
    */
-  IndicatorDataEntry operator[](int _shift) { return GetEntry(_shift); }
+  // IndicatorDataEntry operator[](int _shift) { return GetEntry(_shift); }
   IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
   IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
 
@@ -576,6 +580,13 @@ class Indicator : public IndicatorBase {
   virtual int GetModeCount() { return 0; }
 
   /**
+   * Gets indicator's timeframe.
+   */
+  ENUM_TIMEFRAMES GetTf() {
+    return ChartTf::SecsToTf(iparams.Get<uint>(STRUCT_ENUM(IndicatorParams, INDI_PARAMS_PROP_BPS)));
+  }
+
+  /**
    * Whether data source is selected.
    */
   virtual bool HasDataSource() { return GetDataSourceRaw() != NULL || iparams.GetDataSourceId() != -1; }
@@ -586,20 +597,11 @@ class Indicator : public IndicatorBase {
   IndicatorParams GetParams() { return iparams; }
 
   /**
-   * Gets indicator's symbol.
-   */
-  string GetSymbol() { return Get<string>(CHART_PARAM_SYMBOL); }
-
-  /**
-   * Gets indicator's time-frame.
-   */
-  ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
-
-  /**
    * Gets indicator's signals.
    *
    * When indicator values are not valid, returns empty signals.
    */
+  /* @todo
   IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) {
     bool _is_valid = true;
     IndicatorDataEntry _data[];
@@ -612,6 +614,7 @@ class Indicator : public IndicatorBase {
     IndicatorSignal _signals(_data, iparams, cparams, _mode1, _mode2);
     return _signals;
   }
+  */
 
   /**
    * Get pointer to data of indicator.
@@ -660,8 +663,8 @@ class Indicator : public IndicatorBase {
    * Sets an indicator's chart parameter value.
    */
   template <typename T>
-  void Set(ENUM_CHART_PARAM _param, T _value) {
-    Chart::Set<T>(_param, _value);
+  void Set(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _param, T _value) {
+    iparams.Set<T>(_param, _value);
   }
 
   /**
@@ -691,11 +694,6 @@ class Indicator : public IndicatorBase {
    * Sets indicator's params.
    */
   void SetParams(IndicatorParams& _iparams) { iparams = _iparams; }
-
-  /**
-   * Sets indicator's symbol.
-   */
-  void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
 
   /* Conditions */
 
@@ -734,7 +732,7 @@ class Indicator : public IndicatorBase {
         // Indicator entry value is lesser than median.
         return false;
       default:
-        GetLogger().Error(StringFormat("Invalid indicator condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         return false;
     }
   }
@@ -762,7 +760,7 @@ class Indicator : public IndicatorBase {
         idata.Clear(_arg1);
         return true;
       default:
-        GetLogger().Error(StringFormat("Invalid Indicator action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         return false;
     }
     return _result;
@@ -799,6 +797,7 @@ class Indicator : public IndicatorBase {
   /**
    * Checks whether indicator has a valid value for a given shift.
    */
+  /* @todo
   virtual bool HasValidEntry(int _shift = 0) {
     unsigned int position;
     long bar_time = GetBarTime(_shift);
@@ -809,18 +808,18 @@ class Indicator : public IndicatorBase {
 
     return false;
   }
+  */
 
   /**
    * Adds entry to the indicator's buffer. Invalid entry won't be added.
    */
-  bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
-    if (!entry.IsValid()) return false;
-
-    datetime timestamp = GetBarTime(_shift);
-    entry.timestamp = timestamp;
-    idata.Add(entry, timestamp);
-
-    return true;
+  bool AddEntry(IndicatorDataEntry& entry, datetime _timestamp = 0) {
+    if (entry.IsValid()) {
+      entry.timestamp = _timestamp;
+      idata.Add(entry, _timestamp);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -874,8 +873,8 @@ class Indicator : public IndicatorBase {
 
   ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return iparams.idvrange; }
 
+  /* @todo
   virtual void OnTick() {
-    Chart::OnTick();
 
     if (iparams.is_draw) {
       // Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
@@ -884,6 +883,7 @@ class Indicator : public IndicatorBase {
                         GetBarTime(0), GetEntry(0)[i], iparams.draw_window);
     }
   }
+  */
 
   /* Data representation methods */
 
@@ -935,14 +935,13 @@ class Indicator : public IndicatorBase {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
+  virtual IndicatorDataEntry GetEntry(datetime _bar_time = 0) {
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(iparams.GetMaxModes());
-      _entry.timestamp = GetBarTime(_shift);
+      _entry.timestamp = _bar_time;
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
+        // _entry.values[_mode] = GetValue(_mode, _shift); // @todo
       }
       _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
@@ -958,9 +957,9 @@ class Indicator : public IndicatorBase {
   /**
    * Returns the indicator's entry value.
    */
-  virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+  virtual MqlParam GetEntryValue(datetime _bar_time = 0, int _mode = 0) {
     MqlParam _param = {TYPE_FLOAT};
-    _param.double_value = (float)GetEntry(_shift).GetValue<float>(_mode);
+    _param.double_value = (float)GetEntry(_bar_time).GetValue<float>(_mode);
     return _param;
   }
 
@@ -976,8 +975,8 @@ class Indicator : public IndicatorBase {
   /**
    * Returns the indicator's value in plain format.
    */
-  virtual string ToString(int _shift = 0) {
-    IndicatorDataEntry _entry = GetEntry(_shift);
+  virtual string ToString(datetime _bar_time = 0) {
+    IndicatorDataEntry _entry = GetEntry(_bar_time);
     int _serializer_flags =
         SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
     SerializerConverter _stub_indi =

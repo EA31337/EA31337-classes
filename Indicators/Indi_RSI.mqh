@@ -316,15 +316,15 @@ class Indi_RSI : public Indicator<RSIParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), iparams.GetPeriod(), iparams.GetAppliedPrice(), _shift, THIS_PTR);
+        _value = Indi_RSI::iRSI(_Symbol, GetTf(), iparams.GetPeriod(), iparams.GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ iparams.GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.custom_indi_name, /* [ */ iparams.GetPeriod(),
                          iparams.GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_RSI::iRSIOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), iparams.GetPeriod(),
+        _value = Indi_RSI::iRSIOnIndicator(GetDataSource(), THIS_PTR, _Symbol, GetTf(), iparams.GetPeriod(),
                                            iparams.GetAppliedPrice(), _shift);
         break;
     }

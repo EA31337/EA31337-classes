@@ -633,17 +633,17 @@ class Indi_MA : public Indicator<MAParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift,
+        _value = Indi_MA::iMA(_Symbol, GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift,
                               THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
-                         GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, _shift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(), GetMAShift(),
+                         GetMAMethod(), GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetSymbol(), GetTf(),
+        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), _Symbol, GetTf(),
                                          GetPeriod(), GetMAShift(), GetMAMethod(), _shift);
         break;
     }

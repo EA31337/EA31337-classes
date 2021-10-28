@@ -78,10 +78,12 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
           // must have at least 4 buffers and define OHLC in the first 4 buffers.
           // Indi_Price is an example of such indicator.
           if (!HasDataSource()) {
+            /*
             GetLogger().Error(
                 "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
                 "which is a part of IndiPivotParams structure.",
                 "Indi_Pivot");
+            */
             Alert(
                 "Indi_Pivot: In order use custom indicator as a source, you need to select one using "
                 "SetIndicatorData() "

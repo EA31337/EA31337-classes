@@ -204,11 +204,11 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_AMA::iAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
-                                GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _shift, THIS_PTR);
+        _value = Indi_AMA::iAMA(_Symbol, GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift(),
+                                GetAppliedPrice() /*]*/, _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _shift);
 
         break;

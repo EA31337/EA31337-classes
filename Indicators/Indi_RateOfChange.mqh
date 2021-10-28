@@ -114,12 +114,12 @@ class Indi_RateOfChange : public Indicator<RateOfChangeParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_RateOfChange::iROC(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode,
-                                         _shift, THIS_PTR);
+        _value = Indi_RateOfChange::iROC(_Symbol, GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode, _shift,
+                                         THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
-                         0, _shift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0,
+                         _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

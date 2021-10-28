@@ -123,14 +123,14 @@ class Indi_OBV : public Indicator<OBVParams> {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
-        _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
+        _value = Indi_OBV::iOBV(_Symbol, GetTf(), GetAppliedPrice(), _shift);
 #else  // __MQL5__
-        _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift, THIS_PTR);
+        _value = Indi_OBV::iOBV(_Symbol, GetTf(), GetAppliedVolume(), _shift, THIS_PTR);
 #endif
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/,
-                         0, _shift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/, 0,
+                         _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

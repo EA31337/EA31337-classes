@@ -118,13 +118,13 @@ class Indi_MFI : public Indicator<MFIParams> {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
-        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
+        _value = Indi_MFI::iMFI(_Symbol, GetTf(), GetPeriod(), _shift);
 #else  // __MQL5__
-        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift, THIS_PTR);
+        _value = Indi_MFI::iMFI(_Symbol, GetTf(), GetPeriod(), GetAppliedVolume(), _shift, THIS_PTR);
 #endif
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          VOLUME_TICK /*]*/, 0, _shift);
         break;
       default:

@@ -152,11 +152,11 @@ class Indi_VIDYA : public Indicator<VIDYAParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_VIDYA::iVIDyA(GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(), GetVIDYAShift(),
+        _value = Indi_VIDYA::iVIDyA(_Symbol, GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(), GetVIDYAShift(),
                                     GetAppliedPrice() /*]*/, 0, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/
                          GetCMOPeriod(), GetMAPeriod(),
                          GetVIDYAShift()
                          /*]*/,

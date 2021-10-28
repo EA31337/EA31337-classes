@@ -125,11 +125,10 @@ class Indi_PriceVolumeTrend : public Indicator<PriceVolumeTrendParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value =
-            Indi_PriceVolumeTrend::iPVT(GetSymbol(), GetTf(), /*[*/ GetAppliedVolume() /*]*/, _mode, _shift, THIS_PTR);
+        _value = Indi_PriceVolumeTrend::iPVT(_Symbol, GetTf(), /*[*/ GetAppliedVolume() /*]*/, _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetAppliedVolume() /*]*/, 0, _shift);
         break;
       default:

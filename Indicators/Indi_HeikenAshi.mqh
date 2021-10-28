@@ -217,14 +217,14 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
             break;
         }
 #endif
-        _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift, THIS_PTR);
+        _value = Indi_HeikenAshi::iHeikenAshi(_Symbol, GetTf(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
         break;
       case IDATA_ICUSTOM_LEGACY:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_HeikenAshi::iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
+        _value = Indi_HeikenAshi::iCustomLegacyHeikenAshi(_Symbol, GetTf(), iparams.GetCustomIndicatorName(), _mode,
                                                           _shift, THIS_PTR);
         break;
       default:

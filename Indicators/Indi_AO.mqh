@@ -107,10 +107,10 @@ class Indi_AO : public Indicator<AOParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_AO::iAO(GetSymbol(), GetTf(), _shift, _mode, THIS_PTR);
+        _value = Indi_AO::iAO(_Symbol, GetTf(), _shift, _mode, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

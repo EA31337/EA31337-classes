@@ -71,7 +71,7 @@ class Indi_CustomMovingAverage : public Indicator<CustomMovingAverageParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
                          GetSmoothShift(), GetSmoothMethod() /*]*/, 0, _shift);
         break;
       default:

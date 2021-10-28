@@ -147,18 +147,18 @@ class Indi_Momentum : public Indicator<MomentumParams> {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), iparams.shift + _shift,
+        _value = Indi_Momentum::iMomentum(_Symbol, GetTf(), GetPeriod(), GetAppliedPrice(), iparams.shift + _shift,
                                           THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
-                         0, _shift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0,
+                         _shift);
         break;
       case IDATA_INDICATOR:
         ValidateSelectedDataSource();
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
+        _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), _Symbol, GetTf(), GetPeriod(),
                                                      GetDataSourceMode(), iparams.shift + _shift);
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + _shift), _value, 1);

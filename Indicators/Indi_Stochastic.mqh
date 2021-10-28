@@ -125,11 +125,11 @@ class Indi_Stochastic : public Indicator<StochParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(),
-                                              GetMAMethod(), GetPriceField(), _mode, _shift, THIS_PTR);
+        _value = Indi_Stochastic::iStochastic(_Symbol, GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(), GetMAMethod(),
+                                              GetPriceField(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetKPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetKPeriod(),
                          GetDPeriod(), GetSlowing() /*]*/, _mode, _shift);
         break;
       default:

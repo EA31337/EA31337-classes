@@ -70,13 +70,13 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Checks whether indicator has a valid value for a given shift.
    */
-  virtual bool HasValidEntry(int _shift = 0) { return GetBarTime(_shift) != 0; }
+  virtual bool HasValidEntry(datetime _bar_time = 0) { return _bar_time != 0; }
 
   /**
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = PRICE_TYPICAL, int _shift = 0) {
-    double _value = ChartStatic::iPrice((ENUM_APPLIED_PRICE)_mode, GetSymbol(), GetTf(), _shift);
+    double _value = ChartStatic::iPrice((ENUM_APPLIED_PRICE)_mode, _Symbol, GetTf(), _shift);
     istate.is_ready = true;
     istate.is_changed = false;
     return _value;
@@ -85,15 +85,13 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Returns the indicator's struct value.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
+  IndicatorDataEntry GetEntry(datetime _bar_time = 0) {
     unsigned int _position;
     IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[INDI_PRICE_MODE_OPEN] = GetValue(PRICE_OPEN, _shift);
+      _entry.timestamp = _bar_time _entry.values[INDI_PRICE_MODE_OPEN] = GetValue(PRICE_OPEN, _shift);
       _entry.values[INDI_PRICE_MODE_HIGH] = GetValue(PRICE_HIGH, _shift);
       _entry.values[INDI_PRICE_MODE_CLOSE] = GetValue(PRICE_CLOSE, _shift);
       _entry.values[INDI_PRICE_MODE_LOW] = GetValue(PRICE_LOW, _shift);
@@ -127,7 +125,7 @@ class Indi_Price : public Indicator<PriceIndiParams> {
       PriceIndiParams _indi_price_params(_shift);
       _indi_price_params.SetTf(_tf);
       _indi_price = Objects<Indi_Price>::Set(_key, new Indi_Price(_indi_price_params));
-      _indi_price.SetSymbol(_symbol);
+      //_indi_price.SetSymbol(_symbol); // @todo
     }
     return _indi_price;
   }

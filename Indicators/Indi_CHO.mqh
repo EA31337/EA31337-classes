@@ -171,11 +171,11 @@ class Indi_CHO : public Indicator<CHOParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_CHO::iChaikin(GetSymbol(), GetTf(), /*[*/ GetSlowMA(), GetFastMA(), GetSmoothMethod(),
+        _value = Indi_CHO::iChaikin(_Symbol, GetTf(), /*[*/ GetSlowMA(), GetFastMA(), GetSmoothMethod(),
                                     GetInputVolume() /*]*/, _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetFastMA(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetFastMA(),
                          GetSlowMA(), GetSmoothMethod(), GetInputVolume() /*]*/, 0, _shift);
         break;
       default:

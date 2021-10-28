@@ -354,6 +354,9 @@ struct IndicatorDataEntry {
 
 /* Structure for indicator parameters. */
 struct IndicatorParams {
+ protected:
+  void Init() {}
+
  public:                            // @todo: Change it to protected.
   string name;                      // Name of the indicator.
   int shift;                        // Shift (relative to the current bar, 0 - default).
@@ -373,14 +376,23 @@ struct IndicatorParams {
   ARRAY(DataParamEntry, input_params);  // Indicator input params.
   bool is_draw;                         // Draw active.
   int draw_window;                      // Drawing window.
+  uint bps;                             // A candle chart per number of seconds (e.g. for M1 is 60).
   string custom_indi_name;              // Name of the indicator passed to iCustom() method.
+ public:
+  /* Enumerations */
+  // Defines action entry properties.
+  enum ENUM_INDI_PARAMS_PROP {
+    INDI_PARAMS_PROP_BPS,
+  };
+
  public:
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, unsigned int _max_modes = 1,
                   ENUM_DATATYPE _dtype = TYPE_DOUBLE, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
                   ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
-      : custom_indi_name(""),
+      : bps(0),
+        custom_indi_name(""),
         dtype(_dtype),
         name(_name),
         shift(0),
@@ -398,7 +410,8 @@ struct IndicatorParams {
     Init();
   };
   IndicatorParams(string _name, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : custom_indi_name(""),
+      : bps(0),
+        custom_indi_name(""),
         name(_name),
         shift(0),
         max_modes(1),
@@ -419,8 +432,18 @@ struct IndicatorParams {
       tf.SetTf(_tf);
     }
   }
-  void Init() {}
   /* Getters */
+  template <typename T>
+  T Get(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _prop) const {
+    switch (_prop) {
+      case INDI_PARAMS_PROP_BPS:  // Bar chart per seconds.
+        return (T)bps;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return WRONG_VALUE;
+  }
   string GetCustomIndicatorName() const { return custom_indi_name; }
   int GetDataSourceId() const { return indi_data_source_id; }
   int GetDataSourceMode() const { return indi_data_source_mode; }
@@ -454,6 +477,17 @@ struct IndicatorParams {
     return (T)WRONG_VALUE;
   }
   /* Setters */
+  template <typename T>
+  void Set(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _prop, T _value) {
+    switch (_prop) {
+      case INDI_PARAMS_PROP_BPS:
+        flags = (uint)_value;
+        return;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
   void SetCustomIndicatorName(string _name) { custom_indi_name = _name; }
   void SetDataSourceMode(int _mode) { indi_data_source_mode = _mode; }
   void SetDataSourceType(ENUM_IDATA_SOURCE_TYPE _idstype) { idstype = _idstype; }

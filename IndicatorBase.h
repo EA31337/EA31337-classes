@@ -69,7 +69,7 @@ int IndicatorCounted(int _value = 0) {
 /**
  * Class to deal with indicators.
  */
-class IndicatorBase : public Chart {
+class IndicatorBase : public Object {
  protected:
   BufferStruct<IndicatorDataEntry> idata;
   DrawIndicator* draw;
@@ -102,28 +102,7 @@ class IndicatorBase : public Chart {
   /**
    * Class constructor.
    */
-  IndicatorBase() : indi_src(NULL) { is_fed = false; }
-
-  /**
-   * Class constructor.
-   */
-  IndicatorBase(ChartParams& _cparams) : indi_src(NULL), Chart(_cparams) { is_fed = false; }
-
-  /**
-   * Class constructor.
-   */
-  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : Chart(_tf, _symbol) {
-    is_fed = false;
-    indi_src = NULL;
-  }
-
-  /**
-   * Class constructor.
-   */
-  IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : Chart(_tfi, _symbol) {
-    is_fed = false;
-    indi_src = NULL;
-  }
+  IndicatorBase(IndicatorBase* _indi_src = NULL) : indi_src(_indi_src), is_fed(false) {}
 
   /**
    * Class deconstructor.
@@ -423,14 +402,6 @@ class IndicatorBase : public Chart {
   IndicatorCalculateCache<double>* GetCache() { return &cache; }
 
   /**
-   * Gets an indicator's chart parameter value.
-   */
-  template <typename T>
-  T Get(ENUM_CHART_PARAM _param) {
-    return Chart::Get<T>(_param);
-  }
-
-  /**
    * Gets an indicator's state property value.
    */
   template <typename T>
@@ -579,16 +550,6 @@ class IndicatorBase : public Chart {
   int GetDataSourceMode() { return indi_src_mode; }
 
   /**
-   * Gets indicator's symbol.
-   */
-  string GetSymbol() { return Get<string>(CHART_PARAM_SYMBOL); }
-
-  /**
-   * Gets indicator's time-frame.
-   */
-  ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
-
-  /**
    * Gets indicator's signals.
    *
    * When indicator values are not valid, returns empty signals.
@@ -631,14 +592,6 @@ class IndicatorBase : public Chart {
   /* Setters */
 
   /**
-   * Sets an indicator's chart parameter value.
-   */
-  template <typename T>
-  void Set(ENUM_CHART_PARAM _param, T _value) {
-    Chart::Set<T>(_param, _value);
-  }
-
-  /**
    * Sets indicator data source.
    */
   virtual void SetDataSource(IndicatorBase* _indi, bool _managed, int _input_mode) = 0;
@@ -659,11 +612,6 @@ class IndicatorBase : public Chart {
    * Note: Not supported in MT4.
    */
   virtual void SetHandle(int _handle) {}
-
-  /**
-   * Sets indicator's symbol.
-   */
-  void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
 
   /* Conditions */
 
@@ -702,7 +650,7 @@ class IndicatorBase : public Chart {
         // Indicator entry value is lesser than median.
         return false;
       default:
-        GetLogger().Error(StringFormat("Invalid indicator condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         return false;
     }
   }
@@ -730,7 +678,7 @@ class IndicatorBase : public Chart {
         idata.Clear(_arg1);
         return true;
       default:
-        GetLogger().Error(StringFormat("Invalid Indicator action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         return false;
     }
     return _result;
@@ -768,12 +716,14 @@ class IndicatorBase : public Chart {
    * Checks whether indicator has a valid value for a given shift.
    */
   virtual bool HasValidEntry(int _shift = 0) {
+    /* @todo
     unsigned int position;
     long bar_time = GetBarTime(_shift);
 
     if (idata.KeyExists(bar_time, position)) {
       return idata.GetByPos(position).IsValid();
     }
+    */
 
     return false;
   }
@@ -784,9 +734,11 @@ class IndicatorBase : public Chart {
   bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
     if (!entry.IsValid()) return false;
 
+    /* @todo
     datetime timestamp = GetBarTime(_shift);
     entry.timestamp = timestamp;
     idata.Add(entry, timestamp);
+    */
 
     return true;
   }
@@ -954,10 +906,7 @@ class IndicatorBase : public Chart {
   /**
    * Returns the indicator's struct value.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    IndicatorDataEntry _entry;
-    return _entry;
-  };
+  virtual IndicatorDataEntry GetEntry(datetime _bar_time = 0) = NULL;
 
   /**
    * Returns the indicator's entry value.
@@ -980,6 +929,7 @@ class IndicatorBase : public Chart {
     return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
   }
 
+  /* @todo
   int GetBarsCalculated() {
     int _bars = Bars(GetSymbol(), GetTf());
 
@@ -1004,6 +954,7 @@ class IndicatorBase : public Chart {
     // Assuming all entries are calculated (even if have invalid values).
     return _bars;
   }
+  */
 };
 
 /**
@@ -1042,4 +993,4 @@ int CopyBuffer(IndicatorBase* _indi, int _mode, int _start, int _count, ValueSto
 /**
  * BarsCalculated()-compatible method to be used on Indicator instance.
  */
-int BarsCalculated(IndicatorBase* _indi) { return _indi.GetBarsCalculated(); }
+// int BarsCalculated(IndicatorBase* _indi) { return _indi.GetBarsCalculated(); } // @todo

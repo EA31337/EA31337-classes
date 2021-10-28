@@ -108,10 +108,10 @@ class Indi_SAR : public Indicator<SARParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_SAR::iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift, THIS_PTR);
+        _value = Indi_SAR::iSAR(_Symbol, GetTf(), GetStep(), GetMax(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetStep(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetStep(),
                          GetMax() /*]*/, _mode, _shift);
         break;
       default:

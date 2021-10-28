@@ -202,15 +202,15 @@ class Indi_Envelopes : public Indicator<EnvelopesParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
+        _value = Indi_Envelopes::iEnvelopes(_Symbol, GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
                                             GetAppliedPrice(), GetDeviation(), _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/ GetMAPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /**/ GetMAPeriod(),
                          GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation() /**/, _mode, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Envelopes::iEnvelopesOnIndicator(GetCache(), GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
+        _value = Indi_Envelopes::iEnvelopesOnIndicator(GetCache(), GetDataSource(), _Symbol, GetTf(), GetMAPeriod(),
                                                        GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(),
                                                        _mode, _shift);
         break;

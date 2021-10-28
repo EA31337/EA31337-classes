@@ -123,11 +123,10 @@ class Indi_Force : public Indicator<ForceParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            Indi_Force::iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift, THIS_PTR);
+        _value = Indi_Force::iForce(_Symbol, GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetMAMethod(), GetAppliedPrice(), VOLUME_TICK /*]*/, 0, _shift);
         break;
       default:

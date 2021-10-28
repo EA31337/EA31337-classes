@@ -147,11 +147,11 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Ichimoku::iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode,
+        _value = Indi_Ichimoku::iIchimoku(_Symbol, GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode,
                                           _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetTenkanSen(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetTenkanSen(),
                          GetKijunSen(), GetSenkouSpanB() /*]*/, _mode, _shift);
         break;
       default:

@@ -106,11 +106,11 @@ class Indi_WPR : public Indicator<WPRParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_WPR::iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift, THIS_PTR);
+        _value = Indi_WPR::iWPR(_Symbol, GetTf(), GetPeriod(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
-                         0, _shift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0,
+                         _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

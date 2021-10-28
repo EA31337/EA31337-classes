@@ -157,11 +157,11 @@ class Indi_MassIndex : public Indicator<MassIndexParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_MassIndex::iMI(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetSecondPeriod(), GetSumPeriod() /*]*/,
+        _value = Indi_MassIndex::iMI(_Symbol, GetTf(), /*[*/ GetPeriod(), GetSecondPeriod(), GetSumPeriod() /*]*/,
                                      _mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetSecondPeriod(), GetSumPeriod() /*]*/, _mode, _shift);
         break;
       default:

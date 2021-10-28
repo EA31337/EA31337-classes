@@ -131,11 +131,11 @@ class Indi_TEMA : public Indicator<TEMAParams> {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_TEMA::iTEMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetTEMAShift(), GetAppliedPrice() /*]*/, 0,
+        _value = Indi_TEMA::iTEMA(_Symbol, GetTf(), /*[*/ GetPeriod(), GetTEMAShift(), GetAppliedPrice() /*]*/, 0,
                                   _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetTEMAShift() /*]*/, 0, _shift);
         break;
       default:
