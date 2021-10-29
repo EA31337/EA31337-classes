@@ -123,6 +123,6 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
   virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
-    return !_entry.HasValue<double>(INT_MAX) && _entry.GetMin<int>() >= 0;
+    return !_entry.HasValue<int>(INT_MAX);
   }
 };
