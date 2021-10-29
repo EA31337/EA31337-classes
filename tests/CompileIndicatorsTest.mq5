@@ -30,4 +30,4 @@
 /**
  * Implements Init event handler.
  */
-int OnInit() { return (_LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED); }
+int OnInit() { return 0; }

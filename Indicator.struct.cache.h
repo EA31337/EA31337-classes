@@ -32,6 +32,7 @@
 
 // Includes.
 #include "Refs.mqh"
+#include "Storage/ValueStorage.h"
 
 /**
  * Holds buffers used to cache values calculated via OnCalculate methods.
@@ -112,6 +113,11 @@ class IndicatorCalculateCache : public Dynamic {
    * Whether cache have any buffer.
    */
   bool HasBuffers() { return ArraySize(buffers) != 0; }
+
+  /**
+   * Returns number of added buffers.
+   */
+  int NumBuffers() { return ArraySize(buffers); }
 
   /**
    * Returns existing or new cache as a child of current one. Useful when indicator uses other indicators and requires

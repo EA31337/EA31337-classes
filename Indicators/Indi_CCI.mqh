@@ -41,17 +41,14 @@ struct CCIParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void CCIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
-      : period(_period), applied_price(_applied_price) {
-    itype = INDI_CCI;
-    max_modes = 1;
+  CCIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
+      : period(_period), applied_price(_applied_price), IndicatorParams(INDI_CCI, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CCI");
   };
-  void CCIParams(CCIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  CCIParams(CCIParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -59,20 +56,13 @@ struct CCIParams : IndicatorParams {
 /**
  * Implements the Commodity Channel Index indicator.
  */
-class Indi_CCI : public Indicator {
+class Indi_CCI : public Indicator<CCIParams> {
  public:
-  CCIParams params;
-
   /**
    * Class constructor.
    */
-  Indi_CCI(CCIParams &_p) : params(_p.period, _p.applied_price, _p.shift), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_CCI(CCIParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.applied_price, _p.shift), Indicator(INDI_CCI, _tf) {
-    params = _p;
-  }
+  Indi_CCI(CCIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CCIParams>(_p, _indi_src) {}
+  Indi_CCI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_CCI, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -82,7 +72,7 @@ class Indi_CCI : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/icci
    */
   static double iCCI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _applied_price,
-                     int _shift = 0, Indicator *_obj = NULL) {
+                     int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iCCI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -115,12 +105,12 @@ class Indi_CCI : public Indicator {
 #endif
   }
 
-  static double iCCIOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _mode,
-                                int _shift = 0) {
+  static double iCCIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+                                int _mode, int _shift = 0) {
     _indi.ValidateDataSourceMode(_mode);
 
     double _indi_value_buffer[];
-    IndicatorDataEntry _entry(_indi.GetParams().GetMaxModes());
+    IndicatorDataEntry _entry(_indi.GetModeCount());
 
     ArrayResize(_indi_value_buffer, _period);
 
@@ -172,59 +162,37 @@ class Indi_CCI : public Indicator {
    * extern unsigned int period;
    * extern ENUM_APPLIED_PRICE applied_price; // Required only for MQL4.
    *
-   * Also, remember to use params.SetCustomIndicatorName(name) method to choose
-   * indicator name, e.g.,: params.SetCustomIndicatorName("Examples\\CCI");
+   * Also, remember to use iparams.SetCustomIndicatorName(name) method to choose
+   * indicator name, e.g.,: iparams.SetCustomIndicatorName("Examples\\CCI");
    *
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_CCI::iCCI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                GetAppliedPrice(), _shift /* + params.shift*/, GetPointer(this));
+        _value =
+            Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift /* + iparams.shift*/, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.custom_indi_name, /* [ */ GetPeriod(), GetAppliedPrice() /* ] */, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
+                         GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
         ValidateSelectedDataSource();
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
-                                           Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetDataSourceMode(),
-                                           _shift /* + params.shift*/);
+        _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDataSourceMode(),
+                                           _shift /* + iparams.shift*/);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(0);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -241,12 +209,12 @@ class Indi_CCI : public Indicator {
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -255,7 +223,7 @@ class Indi_CCI : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -263,6 +231,6 @@ class Indi_CCI : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

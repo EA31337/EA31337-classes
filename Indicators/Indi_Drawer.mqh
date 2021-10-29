@@ -31,35 +31,21 @@ struct IndicatorParams;
 #include "Indi_Drawer.struct.h"
 #include "Indi_Price.mqh"
 
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iDrawer(string _symbol, int _tf, int _period, int _ap, int _shift) {
-  return Indi_Drawer::iDrawer(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
-}
-#endif
-
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_Drawer : public Indicator {
- public:
-  DrawerParams params;
-  DictStruct<long, DrawerGainLossData> aux_data;
+class Indi_Drawer : public Indicator<DrawerParams> {
   Redis redis;
 
+ public:
   /**
    * Class constructor.
    */
-  Indi_Drawer(const DrawerParams &_params) : params(_params), Indicator((IndicatorParams)_params), redis(true) {
-    params = _params;
+  Indi_Drawer(const DrawerParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<DrawerParams>(_p, _indi_src), redis(true) {
     Init();
   }
-  Indi_Drawer(const DrawerParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params), Indicator(INDI_DRAWER, _tf), redis(true) {
-    // @fixme
-    params.tf = _tf;
-    Init();
-  }
+  Indi_Drawer(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DRAWER, _tf), redis(true) { Init(); }
 
   void Init() {
     // Drawer is always ready.
@@ -103,7 +89,6 @@ class Indi_Drawer : public Indicator {
 
       // Assuming that passed values are correct.
       entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-
       idata.Add(entry, _args[0].integer_value);
       return true;
     }
@@ -112,7 +97,7 @@ class Indi_Drawer : public Indicator {
   }
 
   virtual void OnTick() {
-    Indicator::OnTick();
+    Indicator<DrawerParams>::OnTick();
 
     ActionEntry action(INDI_ACTION_SET_VALUE);
     ArrayResize(action.args, 3);
@@ -162,167 +147,41 @@ class Indi_Drawer : public Indicator {
    * - https://docs.mql4.com/indicators/irsi
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
-  static double iDrawer(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, Indicator *_obj = NULL) {
+  static double iDrawer(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
+                        IndicatorBase *_obj = NULL) {
     return 1.0;
   }
 
   /**
-   * Calculates non-SMMA version of Drawer on another indicator (uses iDrawerOnArray).
+   * Performs drawing on data from other indicator.
    */
-  static double iDrawerOnArrayOnIndicator(Indicator *_indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-                                          unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,
-                                          int _shift = 0, Indi_Drawer *_obj = NULL) {
-    int i;
-    double indi_values[];
-    ArrayResize(indi_values, _period);
-
-    double result;
-
-    for (i = _shift; i < (int)_shift + (int)_period; i++) {
-      indi_values[_shift + _period - (i - _shift) - 1] = _indi[i][_obj.GetParams().indi_mode];
-    }
-
-    result = iDrawerOnArray(indi_values, 0, _period - 1, 0);
-
-    return result;
+  static double iDrawerOnIndicator(IndicatorBase *_indi, Indi_Drawer *_obj, string _symbol = NULL,
+                                   ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
+    // This method is not yet implemented.
+    return 1.0;
   }
 
   /**
-   * Calculates SMMA-based (same as iDrawer method) Drawer on another indicator.
-   *
-   * @see https://school.stockcharts.com/doku.php?id=technical_indicators:relative_strength_index_rsi
-   *
-   * Reson behind iDrawer with SSMA and not just iDrawerOnArray() (from above website):
-   *
-   * "Taking the prior value plus the current value is a smoothing technique
-   * similar to that used in calculating an exponential moving average. This
-   * also means that Drawer values become more accurate as the calculation period
-   * extends. SharpCharts uses at least 250 data points prior to the starting
-   * date of any chart (assuming that much data exists) when calculating its
-   * Drawer values. To exactly replicate our Drawer numbers, a formula will need at
-   * least 250 data points."
-   */
-  static double iDrawerOnIndicator(Indicator *_indi, Indi_Drawer *_obj, string _symbol = NULL,
-                                   ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                                   ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0) {
-    long _bar_time_curr = _obj.GetBarTime(_shift);
-    long _bar_time_prev = _obj.GetBarTime(_shift + 1);
-    if (fmin(_bar_time_curr, _bar_time_prev) < 0) {
-      // Return empty value on invalid bar time.
-      return EMPTY_VALUE;
-    }
-    // Looks like MT uses specified period as start of the SMMA calculations.
-    _obj.FeedHistoryEntries(_period);
-
-    int i;
-    double indi_values[];
-    ArrayResize(indi_values, _period);
-
-    double result;
-
-    // SMMA-based version of Drawer.
-    DrawerGainLossData last_data, new_data;
-    unsigned int data_position;
-    double diff;
-    int _mode = _obj.GetParams().indi_mode;
-
-    if (!_obj.aux_data.KeyExists(_bar_time_prev, data_position)) {
-      // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
-      double sum_gain = 0;
-      double sum_loss = 0;
-
-      for (i = 1; i < (int)_period; i++) {
-        double price_new = _indi[(_shift + 1) + i - 1][_mode];
-        double price_old = _indi[(_shift + 1) + i][_mode];
-
-        if (price_new == 0.0 || price_old == 0.0) {
-          // Missing history price data, skipping calculations.
-          return 0.0;
-        }
-
-        diff = price_new - price_old;
-
-        if (diff > 0) {
-          sum_gain += diff;
-        } else {
-          sum_loss += -diff;
-        }
-      }
-
-      // Calculating SMA-based values.
-      last_data.avg_gain = sum_gain / _period;
-      last_data.avg_loss = sum_loss / _period;
-    } else {
-      // Data already exists, retrieving it by position got by KeyExists().
-      last_data = _obj.aux_data.GetByPos(data_position);
-    }
-
-    diff = _indi[_shift][_mode] - _indi[_shift + 1][_mode];
-
-    double curr_gain = 0;
-    double curr_loss = 0;
-
-    if (diff > 0)
-      curr_gain += diff;
-    else
-      curr_loss += -diff;
-
-    new_data.avg_gain = (last_data.avg_gain * (_period - 1) + curr_gain) / _period;
-    new_data.avg_loss = (last_data.avg_loss * (_period - 1) + curr_loss) / _period;
-
-    _obj.aux_data.Set(_bar_time_curr, new_data);
-
-    if (new_data.avg_loss == 0.0)
-      // @fixme Why 0 loss?
-      return 0;
-
-    double rs = new_data.avg_gain / new_data.avg_loss;
-
-    result = 100.0 - (100.0 / (1.0 + rs));
-
-    return result;
-  }
-
-  /**
-   * Calculates Drawer on the array of values.
+   * Performs drawing from data in array.
    */
   static double iDrawerOnArray(double &array[], int total, int period, int shift) { return 0; }
 
   /**
    * Returns the indicator's value.
-   *
-   * For IDATA_ICUSTOM mode, use those three externs:
-   *
-   * extern unsigned int period;
-   * extern ENUM_APPLIED_PRICE applied_price; // Required only for MQL4.
-   * extern int shift;
-   *
-   * Also, remember to use params.SetCustomIndicatorName(name) method to choose
-   * indicator name, e.g.,: params.SetCustomIndicatorName("Examples\\Drawer");
-   *
-   * Note that in MQL5 Applied Price must be passed as the last parameter
-   * (before mode and shift).
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Drawer::iDrawer(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                      GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
-        break;
-      case IDATA_ICUSTOM:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.custom_indi_name, /* [ */ GetPeriod(), GetAppliedPrice() /* ] */, 0, _shift);
+        _value = Indi_Drawer::iDrawer(GetSymbol(), GetTf(), _shift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Drawer::iDrawerOnIndicator(params.indi_data_source, GetPointer(this),
-                                                 Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                                 GetPeriod(), GetAppliedPrice(), _shift);
+        _value = Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), _shift);
         break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
     }
     istate.is_changed = false;
     return _value;
@@ -332,13 +191,13 @@ class Indi_Drawer : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
-    unsigned int i;
+    int i;
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(iparams.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (_bar_time < 0) {
       // Return empty value on invalid bar time.
-      for (i = 0; i < iparams.max_modes; ++i) {
+      for (i = 0; i < iparams.GetMaxModes(); ++i) {
         _entry.values[i] = EMPTY_VALUE;
       }
       return _entry;
@@ -349,11 +208,12 @@ class Indi_Drawer : public Indicator {
       // Missing entry (which is correct).
       _entry.timestamp = GetBarTime(_shift);
 
-      for (i = 0; i < iparams.max_modes; ++i) {
+      for (i = 0; i < iparams.GetMaxModes(); ++i) {
+        // Fetching history data is not yet implemented.
         _entry.values[i] = 0;
       }
 
-      _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID | INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
     }
     return _entry;
@@ -377,19 +237,19 @@ class Indi_Drawer : public Indicator {
   /* Getters */
 
   /**
-   * Get indicator params.
+   * Get indicator iparams.
    */
-  DrawerParams GetParams() { return params; }
+  DrawerParams GetParams() { return iparams; }
 
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -398,7 +258,7 @@ class Indi_Drawer : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -406,6 +266,6 @@ class Indi_Drawer : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

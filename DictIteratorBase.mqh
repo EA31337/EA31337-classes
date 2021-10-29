@@ -26,6 +26,7 @@
 #endif
 
 #include "DictBase.mqh"
+#include "DictSlotsRef.h"
 #include "SerializerConversions.h"
 
 template <typename K, typename V>
@@ -36,20 +37,23 @@ class DictIteratorBase {
  protected:
   DictBase<K, V>* _dict;
   int _hash;
-  unsigned int _slotIdx;
-  unsigned int _index;
+  int _slotIdx;
+  int _index;
+  bool _invalid_until_incremented;
 
  public:
   /**
    * Constructor.
    */
-  DictIteratorBase() : _dict(NULL) {}
+  DictIteratorBase() : _dict(NULL) { _invalid_until_incremented = false; }
 
   /**
    * Constructor.
    */
-  DictIteratorBase(DictBase<K, V>& dict, unsigned int slotIdx)
-      : _dict(&dict), _hash(dict.GetHash()), _slotIdx(slotIdx), _index(0) {}
+  DictIteratorBase(DictBase<K, V>& dict, int slotIdx)
+      : _dict(&dict), _hash(dict.GetHash()), _slotIdx(slotIdx), _index(0) {
+    _invalid_until_incremented = false;
+  }
 
   /**
    * Copy constructor.
@@ -58,7 +62,9 @@ class DictIteratorBase {
       : _dict(right._dict),
         _hash(right._dict ? right._dict.GetHash() : 0),
         _slotIdx(right._slotIdx),
-        _index(right._index) {}
+        _index(right._index) {
+    _invalid_until_incremented = false;
+  }
 
   /**
    * Iterator incrementation operator.
@@ -67,6 +73,7 @@ class DictIteratorBase {
     // Going to the next slot.
     ++_slotIdx;
     ++_index;
+    _invalid_until_incremented = false;
 
     DictSlot<K, V>* slot = _dict.GetSlot(_slotIdx);
 
@@ -83,15 +90,31 @@ class DictIteratorBase {
 
   bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
 
-  K Key() { return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
+  K Key() {
+    CheckValidity();
+    return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key;
+  }
 
   string KeyAsString(bool includeQuotes = false) {
     return HasKey() ? SerializerConversions::ValueToString(Key(), includeQuotes) : "";
   }
 
-  unsigned int Index() { return _index; }
+  int Index() {
+    CheckValidity();
+    return _index;
+  }
 
-  V Value() { return _dict.GetSlot(_slotIdx).value; }
+  V Value() {
+    CheckValidity();
+    return _dict.GetSlot(_slotIdx).value;
+  }
+
+  void CheckValidity() {
+    if (_invalid_until_incremented) {
+      Alert("Iterator must be incremented before using it again!");
+      DebugBreak();
+    }
+  }
 
   bool IsValid() { return _dict != NULL; }
 
@@ -108,22 +131,10 @@ class DictIteratorBase {
 
     return _index == _dict.Size() - 1;
   }
-};
 
-template <typename K, typename V>
-class DictSlot;
-
-template <typename K, typename V>
-struct DictSlotsRef {
-  DictSlot<K, V> DictSlots[];
-
-  // Incremental index for dict operating in list mode.
-  unsigned int _list_index;
-
-  unsigned int _num_used;
-
-  DictSlotsRef() {
-    _list_index = 0;
-    _num_used = 0;
+  void ShiftPosition(int shift, bool invalid_until_incremented = false) {
+    _slotIdx += shift;
+    _index += shift;
+    _invalid_until_incremented |= invalid_until_incremented;
   }
 };

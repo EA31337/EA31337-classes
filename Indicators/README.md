@@ -33,8 +33,8 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    ADX_Params params(14, PRICE_HIGH);
-    Indi_ADX *adx = new Indi_ADX(params, iparams);
+    ADX_Params iparams(14, PRICE_HIGH);
+    Indi_ADX *adx = new Indi_ADX(iparams, iparams);
     Print("ADX: ", adx.GetValue(LINE_MAIN_ADX));
     delete adx;
 
@@ -60,8 +60,8 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    ATR_Params params(14);
-    Indi_ATR *atr = new Indi_ATR(params, iparams);
+    ATR_Params iparams(14);
+    Indi_ATR *atr = new Indi_ATR(iparams, iparams);
     Print("ATR: ", atr.GetValue());
     delete atr;
 
@@ -74,8 +74,8 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    Alligator_Params params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
-    Indi_Alligator *alligator = new Indi_Alligator(params, iparams);
+    Alligator_Params iparams(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
+    Indi_Alligator *alligator = new Indi_Alligator(iparams, iparams);
     Print("Alligator: ", alligator.GetValue(LINE_JAW));
     delete alligator;
 
@@ -103,8 +103,8 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    Bands_Params params(20, 2, 0, PRICE_LOW);
-    Indi_Bands *bands = new Indi_Bands(params, iparams);
+    Bands_Params iparams(20, 2, 0, PRICE_LOW);
+    Indi_Bands *bands = new Indi_Bands(iparams, iparams);
     Print("Bands: ", bands.GetValue(BAND_BASE));
     delete bands;
 
@@ -117,12 +117,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    BearsPower_Params params(13, PRICE_CLOSE);
-    Indi_BearsPower *bp = new Indi_BearsPower(params, iparams);
+    BearsPower_Params iparams(13, PRICE_CLOSE);
+    Indi_BearsPower *bp = new Indi_BearsPower(iparams, iparams);
     Print("BearsPower: ", bp.GetValue());
     delete bp;
 
-Example changing params:
+Example changing iparams:
 
     bp.SetPeriod(bp.GetPeriod()+1);
     bp.SetAppliedPrice(PRICE_MEDIAN);
@@ -136,12 +136,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    BullsPower_Params params(13, PRICE_CLOSE);
-    Indi_BullsPower *bp = new Indi_BullsPower(params, iparams);
+    BullsPower_Params iparams(13, PRICE_CLOSE);
+    Indi_BullsPower *bp = new Indi_BullsPower(iparams, iparams);
     Print("BullsPower: ", bp.GetValue());
     delete bp;
 
-Example changing params:
+Example changing iparams:
 
     bp.SetPeriod(bp.GetPeriod()+1);
     bp.SetAppliedPrice(PRICE_MEDIAN);
@@ -155,12 +155,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    CCI_Params params(14, PRICE_CLOSE);
-    Indi_CCI *cci = new Indi_CCI(params, iparams);
+    CCI_Params iparams(14, PRICE_CLOSE);
+    Indi_CCI *cci = new Indi_CCI(iparams, iparams);
     Print("CCI: ", cci.GetValue());
     delete cci;
 
-Example changing params:
+Example changing iparams:
 
     cci.SetPeriod(cci.GetPeriod()+1);
 
@@ -173,27 +173,27 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    DeMarker_Params params;
-    params.period = 14;
-    Indi_DeMarker *dm = new Indi_DeMarker(params, iparams);
+    DeMarker_Params iparams;
+    iparams.period = 14;
+    Indi_DeMarker *dm = new Indi_DeMarker(iparams, iparams);
     Print("DeMarker: ", dm.GetValue());
     delete dm;
 
 Example using a static call:
 
-    double dm_value = Indi_DeMarker::iDeMarker(_Symbol, PERIOD_CURRENT, params.period);
+    double dm_value = Indi_DeMarker::iDeMarker(_Symbol, PERIOD_CURRENT, iparams.period);
 
 ## Envelopes
 
 Example usage:
 
     IndicatorParams iparams;
-    Envelopes_Params params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
-    Indi_Envelopes *env = new Indi_Envelopes(params, iparams);
+    Envelopes_Params iparams(13, 0, MODE_SMA, PRICE_CLOSE, 2);
+    Indi_Envelopes *env = new Indi_Envelopes(iparams, iparams);
     Print("Envelopes: ", env.GetValue(LINE_UPPER));
     delete env;
 
-Example changing params:
+Example changing iparams:
 
     env.SetMAPeriod(env.GetMAPeriod()+1);
     env.SetMAMethod(MODE_SMA);
@@ -210,12 +210,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    Force_Params params(13, MODE_SMA, PRICE_CLOSE);
-    Indi_Force *force = new Indi_Force(params, iparams);
+    Force_Params iparams(13, MODE_SMA, PRICE_CLOSE);
+    Indi_Force *force = new Indi_Force(iparams, iparams);
     Print("Force: ", force.GetValue());
     delete force;
 
-Example changing params:
+Example changing iparams:
 
     force.SetPeriod(force.GetPeriod()+1);
     force.SetMAMethod(MODE_SMA);
@@ -243,12 +243,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    Gator_Params params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
-    Indi_Gator *gator = new Indi_Gator(params, iparams);
+    Gator_Params iparams(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
+    Indi_Gator *gator = new Indi_Gator(iparams, iparams);
     Print("Gator: ", gator.GetValue(LINE_JAW));
     delete gator;
 
-Example changing params:
+Example changing iparams:
 
     gator.SetJawPeriod(gator.GetJawPeriod()+1);
     gator.SetJawShift(gator.GetJawShift()+1);
@@ -279,12 +279,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    Ichimoku_Params params(9, 26, 52);
-    Indi_Ichimoku *ichimoku = new Indi_Ichimoku(params, iparams);
+    Ichimoku_Params iparams(9, 26, 52);
+    Indi_Ichimoku *ichimoku = new Indi_Ichimoku(iparams, iparams);
     Print("Ichimoku: ", ichimoku.GetValue(LINE_TENKANSEN));
     delete ichimoku;
 
-Example changing params:
+Example changing iparams:
 
     ichimoku.SetTenkanSen(ichimoku.GetTenkanSen()+1);
     ichimoku.SetKijunSen(ichimoku.GetKijunSen()+1);
@@ -299,12 +299,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    MA_Params params(13, 10, MODE_SMA, PRICE_CLOSE);
-    Indi_MA *ma = new Indi_MA(params, iparams);
+    MA_Params iparams(13, 10, MODE_SMA, PRICE_CLOSE);
+    Indi_MA *ma = new Indi_MA(iparams, iparams);
     Print("MA: ", ma.GetValue());
     delete ma;
 
-Example changing params:
+Example changing iparams:
 
     ma.SetPeriod(ma.GetPeriod()+1);
     ma.SetMAShift(ma.GetMAShift()+1);
@@ -320,12 +320,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    MACD_Params params(12, 26, 9, PRICE_CLOSE);
-    Indi_MACD *macd = new Indi_MACD(params, iparams);
+    MACD_Params iparams(12, 26, 9, PRICE_CLOSE);
+    Indi_MACD *macd = new Indi_MACD(iparams, iparams);
     Print("MACD: ", macd.GetValue(LINE_MAIN));
     delete macd;
 
-Example changing params:
+Example changing iparams:
 
     macd.SetEmaFastPeriod(macd.GetEmaFastPeriod()+1);
     macd.SetEmaSlowPeriod(macd.GetEmaSlowPeriod()+1);
@@ -341,13 +341,13 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    MFI_Params params;
-    params.ma_period = 14;
-    params.applied_volume = VOLUME_TICK; // Used in MT5 only.
-    Indi_MFI *mfi = new Indi_MFI(params, iparams);
+    MFI_Params iparams;
+    iparams.ma_period = 14;
+    iparams.applied_volume = VOLUME_TICK; // Used in MT5 only.
+    Indi_MFI *mfi = new Indi_MFI(iparams, iparams);
     Print("MFI: ", mfi.GetValue());
 
-Example changing params:
+Example changing iparams:
 
     mfi.SetPeriod(mfi.GetPeriod()+1);
     mfi.SetAppliedVolume(VOLUME_REAL);
@@ -361,12 +361,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    Momentum_Params params(12, PRICE_CLOSE);
-    Indi_Momentum *mom = new Indi_Momentum(params, iparams);
+    Momentum_Params iparams(12, PRICE_CLOSE);
+    Indi_Momentum *mom = new Indi_Momentum(iparams, iparams);
     Print("Momentum: ", mom.GetValue());
     delete mom;
 
-Example changing params:
+Example changing iparams:
 
     mom.SetPeriod(mom.GetPeriod()+1);
     mom.SetAppliedPrice(PRICE_MEDIAN);
@@ -380,14 +380,14 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    OBV_Params params;
-    params.applied_price = PRICE_CLOSE; // Used in MT4.
-    params.applied_volume = VOLUME_TICK; // Used in MT5.
-    Indi_OBV *obv = new Indi_OBV(params, iparams);
+    OBV_Params iparams;
+    iparams.applied_price = PRICE_CLOSE; // Used in MT4.
+    iparams.applied_volume = VOLUME_TICK; // Used in MT5.
+    Indi_OBV *obv = new Indi_OBV(iparams, iparams);
     Print("OBV: ", obv.GetValue());
     delete obv;
 
-Example changing params:
+Example changing iparams:
 
     obv.SetAppliedPrice(PRICE_MEDIAN);
     obv.SetAppliedVolume(VOLUME_REAL);
@@ -401,13 +401,13 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    OsMA_Params params(12, 26, 9, PRICE_CLOSE);
-    params.applied_price = PRICE_CLOSE;
-    Indi_OsMA *osma = new Indi_OsMA(params, iparams);
+    OsMA_Params iparams(12, 26, 9, PRICE_CLOSE);
+    iparams.applied_price = PRICE_CLOSE;
+    Indi_OsMA *osma = new Indi_OsMA(iparams, iparams);
     Print("OsMA: ", osma.GetValue());
     delete osma;
 
-Example changing params:
+Example changing iparams:
 
     osma.SetEmaFastPeriod(osma.GetEmaFastPeriod()+1);
     osma.SetEmaSlowPeriod(osma.GetEmaSlowPeriod()+1);
@@ -423,12 +423,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    RSI_Params params(14, PRICE_CLOSE);
-    Indi_RSI *rsi = new Indi_RSI(params, iparams);
+    RSI_Params iparams(14, PRICE_CLOSE);
+    Indi_RSI *rsi = new Indi_RSI(iparams, iparams);
     Print("RSI: ", rsi.GetValue());
     delete rsi;
 
-Example changing params:
+Example changing iparams:
 
     rsi.SetPeriod(rsi.GetPeriod()+1);
     rsi.SetAppliedPrice(PRICE_MEDIAN);
@@ -442,12 +442,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    RVI_Params params(14);
-    Indi_RVI *rvi = new Indi_RVI(params, iparams);
+    RVI_Params iparams(14);
+    Indi_RVI *rvi = new Indi_RVI(iparams, iparams);
     Print("RVI: ", rvi.GetValue(LINE_MAIN));
     delete rvi;
 
-Example changing params:
+Example changing iparams:
 
     rvi.SetPeriod(rvi.GetPeriod()+1);
 
@@ -460,12 +460,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    SAR_Params params(0.02, 0.2);
-    Indi_SAR *sar = new Indi_SAR(params, iparams);
+    SAR_Params iparams(0.02, 0.2);
+    Indi_SAR *sar = new Indi_SAR(iparams, iparams);
     Print("SAR: ", sar.GetValue());
     delete sar;
 
-Example changing params:
+Example changing iparams:
 
     sar.SetStep(sar.GetStep()*2);
     sar.SetMax(sar.GetMax()*2);
@@ -479,12 +479,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    StdDev_Params params(13, 10, MODE_SMA, PRICE_CLOSE);
-    Indi_StdDev *sd = new Indi_StdDev(params, iparams);
+    StdDev_Params iparams(13, 10, MODE_SMA, PRICE_CLOSE);
+    Indi_StdDev *sd = new Indi_StdDev(iparams, iparams);
     Print("StdDev: ", sd.GetValue());
     delete sd;
 
-Example changing params:
+Example changing iparams:
 
     sd.SetPeriod(sd.GetPeriod()+1);
     sd.SetMAShift(sd.GetMAShift()+1);
@@ -500,12 +500,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    Stoch_Params params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
-    Indi_Stochastic *stoch = new Indi_Stochastic(params, iparams);
+    Stoch_Params iparams(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
+    Indi_Stochastic *stoch = new Indi_Stochastic(iparams, iparams);
     Print("Stochastic: ", stoch.GetValue());
     delete stoch;
 
-Example changing params:
+Example changing iparams:
 
     stoch.SetKPeriod(stoch.GetKPeriod()+1);
     stoch.SetDPeriod(stoch.GetDPeriod()+1);
@@ -522,12 +522,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    WPR_Params params(14);
-    Indi_WPR *wpr = new Indi_WPR(params, iparams);
+    WPR_Params iparams(14);
+    Indi_WPR *wpr = new Indi_WPR(iparams, iparams);
     Print("WPR: ", wpr.GetValue());
     delete wpr;
 
-Example changing params:
+Example changing iparams:
 
     wpr.SetPeriod(wpr.GetPeriod()+1);
 
@@ -540,12 +540,12 @@ Example using a static call:
 Example usage:
 
     IndicatorParams iparams;
-    ZigZag_Params params(12, 5, 3);
-    Indi_ZigZag *zz = new Indi_ZigZag(params, iparams);
+    ZigZag_Params iparams(12, 5, 3);
+    Indi_ZigZag *zz = new Indi_ZigZag(iparams, iparams);
     Print("ZigZag: ", zz.GetValue());
     delete zz;
 
-Example changing params:
+Example changing iparams:
 
     zz.SetDepth(zz.GetDepth()+1);
     zz.SetDeviation(zz.GetDeviation()+1);

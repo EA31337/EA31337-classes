@@ -1,0 +1,60 @@
+---
+name: Test Trade
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Trade/**.h'
+      - '.github/workflows/test-trade.yml'
+  push:
+    paths:
+      - 'Trade/**.h'
+      - '.github/workflows/test-trade.yml'
+
+jobs:
+
+  Compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
+        with:
+          init-platform: true
+          path: 'Trade/tests'
+          verbose: true
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload artifacts (MQL4)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex4
+          path: '**/*.ex4'
+      - name: Upload artifacts (MQL5)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex5
+          path: '**/*.ex5'
+
+  Trade-Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Trade/tests
+    needs: Compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - TradeSignalTest
+          - TradeSignalManagerTest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: ${{ matrix.test }}

@@ -56,7 +56,8 @@ struct IndicatorSignal {
 
   // Constructors.
   IndicatorSignal(int _signals = 0) : signals(_signals) {}
-  IndicatorSignal(ARRAY_REF(IndicatorDataEntry, _data), IndicatorParams &_ip, ChartParams &_cp, int _m1 = 0, int _m2 = 0)
+  IndicatorSignal(ARRAY_REF(IndicatorDataEntry, _data), IndicatorParams &_ip, ChartParams &_cp, int _m1 = 0,
+                  int _m2 = 0)
       : signals(0) {
     CalcSignals(_data, _ip, _cp, _m1, _m2);
   }

@@ -70,8 +70,8 @@ struct AlligatorParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
   // Struct constructors.
-  void AlligatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
-                       ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
+  AlligatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
+                  ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
       : jaw_period(_jp),
         jaw_shift(_js),
         teeth_period(_tp),
@@ -79,17 +79,14 @@ struct AlligatorParams : IndicatorParams {
         lips_period(_lp),
         lips_shift(_ls),
         ma_method(_mm),
-        applied_price(_ap) {
-    itype = INDI_ALLIGATOR;
-    max_modes = FINAL_ALLIGATOR_LINE_ENTRY;
+        applied_price(_ap),
+        IndicatorParams(INDI_ALLIGATOR, FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
-    SetDataSourceType(IDATA_BUILTIN);
     SetCustomIndicatorName("Examples\\Alligator");
   };
-  void AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -97,15 +94,12 @@ struct AlligatorParams : IndicatorParams {
 /**
  * Implements the Alligator indicator.
  */
-class Indi_Alligator : public Indicator {
+class Indi_Alligator : public Indicator<AlligatorParams> {
  public:
-  AlligatorParams params;
-
   /**
    * Class constructor.
    */
-  Indi_Alligator(AlligatorParams &_p) : Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_Alligator(AlligatorParams &_p, ENUM_TIMEFRAMES _tf) : Indicator(INDI_ALLIGATOR, _tf) { params = _p; }
+  Indi_Alligator(AlligatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<AlligatorParams>(_p, _indi_src) {}
   Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADX, _tf){};
 
   /**
@@ -129,7 +123,7 @@ class Indi_Alligator : public Indicator {
   static double iAlligator(string _symbol, ENUM_TIMEFRAMES _tf, int _jaw_period, int _jaw_shift, int _teeth_period,
                            int _teeth_shift, int _lips_period, int _lips_shift, ENUM_MA_METHOD _ma_method,
                            ENUM_APPLIED_PRICE _applied_price, ENUM_ALLIGATOR_LINE _mode, int _shift = 0,
-                           Indicator *_obj = NULL) {
+                           IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                         _ma_method, _applied_price, _mode, _shift);
@@ -167,7 +161,7 @@ class Indi_Alligator : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_ALLIGATOR_LINE _mode, int _shift = 0) {
+  virtual double GetValue(int _mode, int _shift = 0) {
 #ifdef __MQL4__
     if (_mode == 0) {
       // In MQL4 mode 0 should be treated as mode 1 as Alligator buffers starts from index 1.
@@ -176,17 +170,15 @@ class Indi_Alligator : public Indicator {
 #endif
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Alligator::iAlligator(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                            GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(),
-                                            GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode,
-                                            _shift, GetPointer(this));
+        _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
+                                            GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),
+                                            GetAppliedPrice(), (ENUM_ALLIGATOR_LINE)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
                          GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(),
                          GetLipsShift(), GetMAMethod(),
                          GetAppliedPrice()
@@ -207,18 +199,17 @@ class Indi_Alligator : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue((ENUM_ALLIGATOR_LINE)_mode, _shift);
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-                     !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -238,47 +229,54 @@ class Indi_Alligator : public Indicator {
     return _param;
   }
 
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0);
+  }
+
   /* Class getters */
 
   /**
    * Get jaw period value.
    */
-  int GetJawPeriod() { return params.jaw_period; }
+  int GetJawPeriod() { return iparams.jaw_period; }
 
   /**
    * Get jaw shift value.
    */
-  int GetJawShift() { return params.jaw_shift; }
+  int GetJawShift() { return iparams.jaw_shift; }
 
   /**
    * Get teeth period value.
    */
-  int GetTeethPeriod() { return params.teeth_period; }
+  int GetTeethPeriod() { return iparams.teeth_period; }
 
   /**
    * Get teeth shift value.
    */
-  int GetTeethShift() { return params.teeth_shift; }
+  int GetTeethShift() { return iparams.teeth_shift; }
 
   /**
    * Get lips period value.
    */
-  int GetLipsPeriod() { return params.lips_period; }
+  int GetLipsPeriod() { return iparams.lips_period; }
 
   /**
    * Get lips shift value.
    */
-  int GetLipsShift() { return params.lips_shift; }
+  int GetLipsShift() { return iparams.lips_shift; }
 
   /**
    * Get MA method.
    */
-  ENUM_MA_METHOD GetMAMethod() { return params.ma_method; }
+  ENUM_MA_METHOD GetMAMethod() { return iparams.ma_method; }
 
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Class setters */
 
@@ -287,7 +285,7 @@ class Indi_Alligator : public Indicator {
    */
   void SetJawPeriod(int _jaw_period) {
     istate.is_changed = true;
-    params.jaw_period = _jaw_period;
+    iparams.jaw_period = _jaw_period;
   }
 
   /**
@@ -295,7 +293,7 @@ class Indi_Alligator : public Indicator {
    */
   void SetJawShift(int _jaw_shift) {
     istate.is_changed = true;
-    params.jaw_shift = _jaw_shift;
+    iparams.jaw_shift = _jaw_shift;
   }
 
   /**
@@ -303,7 +301,7 @@ class Indi_Alligator : public Indicator {
    */
   void SetTeethPeriod(int _teeth_period) {
     istate.is_changed = true;
-    params.teeth_period = _teeth_period;
+    iparams.teeth_period = _teeth_period;
   }
 
   /**
@@ -311,7 +309,7 @@ class Indi_Alligator : public Indicator {
    */
   void SetTeethShift(int _teeth_shift) {
     istate.is_changed = true;
-    params.teeth_period = _teeth_shift;
+    iparams.teeth_period = _teeth_shift;
   }
 
   /**
@@ -319,7 +317,7 @@ class Indi_Alligator : public Indicator {
    */
   void SetLipsPeriod(int _lips_period) {
     istate.is_changed = true;
-    params.lips_period = _lips_period;
+    iparams.lips_period = _lips_period;
   }
 
   /**
@@ -327,7 +325,7 @@ class Indi_Alligator : public Indicator {
    */
   void SetLipsShift(int _lips_shift) {
     istate.is_changed = true;
-    params.lips_period = _lips_shift;
+    iparams.lips_period = _lips_shift;
   }
 
   /**
@@ -335,7 +333,7 @@ class Indi_Alligator : public Indicator {
    */
   void SetMAMethod(ENUM_MA_METHOD _ma_method) {
     istate.is_changed = true;
-    params.ma_method = _ma_method;
+    iparams.ma_method = _ma_method;
   }
 
   /**
@@ -343,6 +341,6 @@ class Indi_Alligator : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

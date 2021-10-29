@@ -38,17 +38,19 @@ struct MACDParams : IndicatorParams {
   unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void MACDParams(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap, int _shift = 0)
-      : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
-    itype = INDI_MACD;
-    max_modes = FINAL_SIGNAL_LINE_ENTRY;
+  MACDParams(unsigned int _efp = 12, unsigned int _esp = 26, unsigned int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE,
+             int _shift = 0)
+      : ema_fast_period(_efp),
+        ema_slow_period(_esp),
+        signal_period(_sp),
+        applied_price(_ap),
+        IndicatorParams(INDI_MACD, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };
-  void MACDParams(MACDParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  MACDParams(MACDParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -56,23 +58,13 @@ struct MACDParams : IndicatorParams {
 /**
  * Implements the Moving Averages Convergence/Divergence indicator.
  */
-class Indi_MACD : public Indicator {
- protected:
-  MACDParams params;
-
+class Indi_MACD : public Indicator<MACDParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MACD(MACDParams &_p)
-      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price),
-        Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_MACD(MACDParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price), Indicator(INDI_MACD, _tf) {
-    params = _p;
-  }
+  Indi_MACD(MACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MACDParams>(_p, _indi_src) {}
+  Indi_MACD(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MACD, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -85,7 +77,7 @@ class Indi_MACD : public Indicator {
       string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ema_fast_period, unsigned int _ema_slow_period,
       unsigned int _signal_period, ENUM_APPLIED_PRICE _applied_price,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,  // (MT4/MT5 _mode): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0, Indicator *_obj = NULL) {
+      int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _mode, _shift);
 #else  // __MQL5__
@@ -122,20 +114,19 @@ class Indi_MACD : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
+  virtual double GetValue(int _mode = LINE_MAIN, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value =
-            Indi_MACD::iMACD(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetEmaFastPeriod(),
-                             GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
+                                  GetAppliedPrice(), (ENUM_SIGNAL_LINE)_mode, _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(), GetEmaSlowPeriod(),
-                         GetSignalPeriod(), GetAppliedPrice() /*]*/, _mode, _shift);
+        _value =
+            iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(),
+                    GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice() /*]*/, _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -151,18 +142,17 @@ class Indi_MACD : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         _entry.values[_mode] = GetValue((ENUM_SIGNAL_LINE)_mode, _shift);
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-                     !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
@@ -178,6 +168,13 @@ class Indi_MACD : public Indicator {
     return _param;
   }
 
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0);
+  }
+
   /* Getters */
 
   /**
@@ -185,28 +182,28 @@ class Indi_MACD : public Indicator {
    *
    * Averaging period for the calculation of the moving average.
    */
-  unsigned int GetEmaFastPeriod() { return params.ema_fast_period; }
+  unsigned int GetEmaFastPeriod() { return iparams.ema_fast_period; }
 
   /**
    * Get slow EMA period value.
    *
    * Averaging period for the calculation of the moving average.
    */
-  unsigned int GetEmaSlowPeriod() { return params.ema_slow_period; }
+  unsigned int GetEmaSlowPeriod() { return iparams.ema_slow_period; }
 
   /**
    * Get signal period value.
    *
    * Averaging period for the calculation of the moving average.
    */
-  unsigned int GetSignalPeriod() { return params.signal_period; }
+  unsigned int GetSignalPeriod() { return iparams.signal_period; }
 
   /**
    * Get applied price value.
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -217,7 +214,7 @@ class Indi_MACD : public Indicator {
    */
   void SetEmaFastPeriod(unsigned int _ema_fast_period) {
     istate.is_changed = true;
-    params.ema_fast_period = _ema_fast_period;
+    iparams.ema_fast_period = _ema_fast_period;
   }
 
   /**
@@ -227,7 +224,7 @@ class Indi_MACD : public Indicator {
    */
   void SetEmaSlowPeriod(unsigned int _ema_slow_period) {
     istate.is_changed = true;
-    params.ema_slow_period = _ema_slow_period;
+    iparams.ema_slow_period = _ema_slow_period;
   }
 
   /**
@@ -237,7 +234,7 @@ class Indi_MACD : public Indicator {
    */
   void SetSignalPeriod(unsigned int _signal_period) {
     istate.is_changed = true;
-    params.signal_period = _signal_period;
+    iparams.signal_period = _signal_period;
   }
 
   /**
@@ -250,6 +247,6 @@ class Indi_MACD : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

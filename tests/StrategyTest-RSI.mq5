@@ -41,14 +41,17 @@ class Stg_RSI : public Strategy {
     RSIParams _indi_params(12, PRICE_OPEN, 0);
     StgParams _stg_params;
     TradeParams _tparams;
-    _stg_params.SetIndicator(new Indi_RSI(_indi_params));
     Strategy *_strat = new Stg_RSI(_stg_params, _tparams, _cparams, "RSI");
+    _strat.SetIndicator(new Indi_RSI(_indi_params));
     return _strat;
   }
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
     Indi_RSI *_indi = GetIndicator();
-    return (_cmd == ORDER_TYPE_BUY && _indi[_shift][0] <= 20) || (_cmd == ORDER_TYPE_SELL && _indi[_shift][0] >= 80);
+    bool _result = _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, _shift);
+    _result &=
+        (_cmd == ORDER_TYPE_BUY && _indi[_shift][0] <= 20) || (_cmd == ORDER_TYPE_SELL && _indi[_shift][0] >= 80);
+    return _result;
   }
 
   bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) {
@@ -57,10 +60,17 @@ class Stg_RSI : public Strategy {
 
   float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
     Indi_RSI *_indi = GetIndicator();
+    RSIParams _iparams = _indi.GetParams();;
     double _trail = _level * Market().GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
-    return _direction > 0 ? (float)_indi.GetPrice(PRICE_HIGH, _indi.GetHighest<double>(_indi.GetPeriod() * 2))
-                          : (float)_indi.GetPrice(PRICE_LOW, _indi.GetLowest<double>(_indi.GetPeriod() * 2));
+    return _direction > 0 ? (float)_indi.GetPrice(PRICE_HIGH, _indi.GetHighest<double>(_iparams.GetPeriod() * 2))
+                          : (float)_indi.GetPrice(PRICE_LOW, _indi.GetLowest<double>(_iparams.GetPeriod() * 2));
+  }
+
+  virtual void OnPeriod(unsigned int _periods = DATETIME_NONE) {
+    if ((_periods & DATETIME_HOUR) != 0) {
+      // New hour started.
+    }
   }
 };
 
@@ -105,26 +115,43 @@ int OnInit() {
  * Implements OnTick().
  */
 void OnTick() {
-  if (stg_rsi.TickFilter(SymbolInfoStatic::GetTick(_Symbol), 1)) {
-    StrategySignal _signal = stg_rsi.ProcessSignals();
-    if (_signal.CheckSignals(STRAT_SIGNAL_OPEN_BUY)) {
-      assertTrueOrExit(_signal.GetOpenDirection() == 1, "Wrong order open direction!");
+  static MqlTick _tick_last;
+  MqlTick _tick_new = SymbolInfoStatic::GetTick(_Symbol);
+  if (_tick_new.time % 60 < _tick_last.time % 60) {
+    if (stg_rsi.SignalOpen(ORDER_TYPE_BUY)) {
       MqlTradeRequest _request =
           trade.GetTradeOpenRequest(ORDER_TYPE_BUY, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
       trade.RequestSend(_request);
-    } else if (_signal.CheckSignals(STRAT_SIGNAL_OPEN_SELL)) {
-      assertTrueOrExit(_signal.GetOpenDirection() == -1, "Wrong order open direction!");
+    } else if (stg_rsi.SignalOpen(ORDER_TYPE_SELL)) {
       MqlTradeRequest _request =
           trade.GetTradeOpenRequest(ORDER_TYPE_SELL, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
       trade.RequestSend(_request);
-    } else if (trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+    }
+    if (trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+      if (stg_rsi.SignalClose(ORDER_TYPE_BUY)) {
+        // Close signal for buy order.
+        trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
+            ORDER_MAGIC, stg_rsi.Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_BUY, MATH_COND_EQ,
+            ORDER_REASON_CLOSED_BY_SIGNAL, stg_rsi.GetOrderCloseComment());
+      }
+      if (stg_rsi.SignalClose(ORDER_TYPE_SELL)) {
+        trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
+            ORDER_MAGIC, stg_rsi.Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_SELL, MATH_COND_EQ,
+            ORDER_REASON_CLOSED_BY_SIGNAL, stg_rsi.GetOrderCloseComment());
+      }
+    }
+    if (_tick_new.time % 3600 < _tick_last.time % 3600) {
       stg_rsi.ProcessTasks();
+      trade.UpdateStates();
+      // Print strategy values every hour.
+      Print(stg_rsi.ToString());
     }
     long _last_error = GetLastError();
     if (_last_error > 0) {
       assertTrueOrExit(_last_error == ERR_NO_ERROR, StringFormat("Error occured! Code: %d", _last_error));
     }
   }
+  _tick_last = _tick_new;
 }
 
 /**

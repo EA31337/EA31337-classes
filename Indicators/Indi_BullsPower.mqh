@@ -35,17 +35,14 @@ struct BullsPowerParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;  // (MT5): not used
   // Struct constructor.
-  void BullsPowerParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0)
-      : period(_period), applied_price(_ap) {
-    itype = INDI_BULLS;
-    max_modes = 1;
+  BullsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+      : period(_period), applied_price(_ap), IndicatorParams(INDI_BULLS, 1, TYPE_DOUBLE) {
     shift = _shift;
-    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Bulls");
   };
-  void BullsPowerParams(BullsPowerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  BullsPowerParams(BullsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -53,22 +50,13 @@ struct BullsPowerParams : IndicatorParams {
 /**
  * Implements the Bulls Power indicator.
  */
-class Indi_BullsPower : public Indicator {
- protected:
-  // Struct variables.
-  BullsPowerParams params;
-
+class Indi_BullsPower : public Indicator<BullsPowerParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BullsPower(BullsPowerParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_BullsPower(BullsPowerParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.applied_price), Indicator(INDI_BULLS, _tf) {
-    params = _p;
-  }
+  Indi_BullsPower(BullsPowerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BullsPowerParams>(_p, _indi_src) {}
+  Indi_BullsPower(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BULLS, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -79,7 +67,7 @@ class Indi_BullsPower : public Indicator {
    */
   static double iBullsPower(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                             ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
-                            int _shift = 0, Indicator *_obj = NULL) {
+                            int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBullsPower(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -115,18 +103,17 @@ class Indi_BullsPower : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iBullsPower(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                             GetAppliedPrice(), _shift, GetPointer(this));
+        _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /**/ GetPeriod() /**/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/ GetPeriod() /**/,
+                         _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -134,29 +121,6 @@ class Indi_BullsPower : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -173,14 +137,14 @@ class Indi_BullsPower : public Indicator {
   /**
    * Get period value.
    */
-  unsigned int GetPeriod() { return params.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get applied price value.
    *
    * Note: Not used in MT5.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -189,7 +153,7 @@ class Indi_BullsPower : public Indicator {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -199,6 +163,6 @@ class Indi_BullsPower : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

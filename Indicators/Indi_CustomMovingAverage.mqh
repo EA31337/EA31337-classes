@@ -30,23 +30,23 @@ struct CustomMovingAverageParams : IndicatorParams {
   unsigned int smooth_shift;
   ENUM_MA_METHOD smooth_method;
   // Struct constructor.
-  void CustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0,
-                                 ENUM_MA_METHOD _smooth_method = MODE_SMMA, int _shift = 0,
-                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_CUSTOM_MOVING_AVG;
-    max_modes = 3;
-    SetDataValueType(TYPE_DOUBLE);
+  CustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0, ENUM_MA_METHOD _smooth_method = MODE_SMMA,
+                            int _shift = 0)
+      : IndicatorParams(INDI_CUSTOM_MOVING_AVG, 3, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
-    SetCustomIndicatorName("Examples\\Custom Moving Average");
     SetDataSourceType(IDATA_ICUSTOM);
+#ifdef __MQL5__
+    SetCustomIndicatorName("Examples\\Custom Moving Average");
+#else
+    SetCustomIndicatorName("Custom Moving Averages");
+#endif
     shift = _shift;
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;
     smooth_shift = _smooth_shift;
-    tf = _tf;
   };
-  void CustomMovingAverageParams(CustomMovingAverageParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  CustomMovingAverageParams(CustomMovingAverageParams& _params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -54,32 +54,25 @@ struct CustomMovingAverageParams : IndicatorParams {
 /**
  * Implements the Custom Moving Average indicator.
  */
-class Indi_CustomMovingAverage : public Indicator {
- protected:
-  CustomMovingAverageParams params;
-
+class Indi_CustomMovingAverage : public Indicator<CustomMovingAverageParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CustomMovingAverage(CustomMovingAverageParams &_params) : Indicator((IndicatorParams)_params) {
-    params = _params;
-  };
-  Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM_MOVING_AVG, _tf) {
-    params.tf = _tf;
-  };
+  Indi_CustomMovingAverage(CustomMovingAverageParams& _p, IndicatorBase* _indi_src = NULL)
+      : Indicator<CustomMovingAverageParams>(_p, _indi_src){};
+  Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM_MOVING_AVG, _tf){};
 
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(), GetSmoothShift(),
-                         GetSmoothMethod() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
+                         GetSmoothShift(), GetSmoothMethod() /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -87,29 +80,6 @@ class Indi_CustomMovingAverage : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**
@@ -126,17 +96,17 @@ class Indi_CustomMovingAverage : public Indicator {
   /**
    * Get smooth period.
    */
-  unsigned int GetSmoothPeriod() { return params.smooth_period; }
+  unsigned int GetSmoothPeriod() { return iparams.smooth_period; }
 
   /**
    * Get smooth shift.
    */
-  unsigned int GetSmoothShift() { return params.smooth_shift; }
+  unsigned int GetSmoothShift() { return iparams.smooth_shift; }
 
   /**
    * Get smooth method.
    */
-  ENUM_MA_METHOD GetSmoothMethod() { return params.smooth_method; }
+  ENUM_MA_METHOD GetSmoothMethod() { return iparams.smooth_method; }
 
   /* Setters */
 
@@ -145,7 +115,7 @@ class Indi_CustomMovingAverage : public Indicator {
    */
   void SetSmoothPeriod(unsigned int _smooth_period) {
     istate.is_changed = true;
-    params.smooth_period = _smooth_period;
+    iparams.smooth_period = _smooth_period;
   }
 
   /**
@@ -153,7 +123,7 @@ class Indi_CustomMovingAverage : public Indicator {
    */
   void SetSmoothShift(unsigned int _smooth_shift) {
     istate.is_changed = true;
-    params.smooth_shift = _smooth_shift;
+    iparams.smooth_shift = _smooth_shift;
   }
 
   /**
@@ -161,6 +131,6 @@ class Indi_CustomMovingAverage : public Indicator {
    */
   void SetSmoothMethod(ENUM_MA_METHOD _smooth_method) {
     istate.is_changed = true;
-    params.smooth_method = _smooth_method;
+    iparams.smooth_method = _smooth_method;
   }
 };

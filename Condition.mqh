@@ -167,7 +167,7 @@ class Condition {
 #ifdef INDICATOR_MQH
       case COND_TYPE_INDICATOR:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Indicator *)_entry.obj).CheckCondition((ENUM_INDICATOR_CONDITION)_entry.cond_id, _entry.args);
+          _result = ((IndicatorBase *)_entry.obj).CheckCondition((ENUM_INDICATOR_CONDITION)_entry.cond_id, _entry.args);
         } else {
           // Static method not supported.
           _result = false;

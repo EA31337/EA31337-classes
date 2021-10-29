@@ -36,7 +36,7 @@
 #include "Object.mqh"
 
 // Forward declaration.
-class Indicator;
+class IndicatorBase;
 
 class DrawPoint {
  public:
@@ -56,7 +56,7 @@ class DrawIndicator {
  protected:
   color color_line;
   Draw* draw;
-  Indicator* indi;
+  IndicatorBase* indi;
 
  public:
   // Object variables.
@@ -67,8 +67,8 @@ class DrawIndicator {
   /**
    * Class constructor.
    */
-  DrawIndicator(Indicator* _indi) : indi(_indi) {
-    color_line = Object::IsValid(_indi) ? _indi.GetParams().indi_color : clrRed;
+  DrawIndicator(IndicatorBase* _indi) : indi(_indi) {
+    // color_line = Object::IsValid(_indi) ? _indi.GetParams().indi_color : clrRed; // @fixme
     draw = new Draw();
   }
 

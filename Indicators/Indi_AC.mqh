@@ -32,17 +32,13 @@ double iAC(string _symbol, int _tf, int _shift) { return Indi_AC::iAC(_symbol, (
 // Structs.
 struct ACParams : IndicatorParams {
   // Struct constructor.
-  void ACParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_AC;
-    max_modes = 1;
-    SetDataValueType(TYPE_DOUBLE);
+  ACParams(int _shift = 0) : IndicatorParams(INDI_AC, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
-    tf = _tf;
   };
-  void ACParams(ACParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  ACParams(ACParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -50,16 +46,13 @@ struct ACParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_AC : public Indicator {
- protected:
-  ACParams params;
-
+class Indi_AC : public Indicator<ACParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AC(ACParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AC, _tf) { params.SetTf(_tf); };
+  Indi_AC(ACParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ACParams>(_p, _indi_src){};
+  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AC, _tf){};
 
   /**
    * Returns the indicator value.
@@ -69,7 +62,7 @@ class Indi_AC : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iac
    */
   static double iAC(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    Indicator *_obj = NULL) {
+                    IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAC(_symbol, _tf, _shift);
 #else  // __MQL5__
@@ -87,7 +80,7 @@ class Indi_AC : public Indicator {
     if (Terminal::IsVisualMode()) {
       // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
       // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
+      int _bars_calc = ::BarsCalculated(_handle);
       if (GetLastError() > 0) {
         return EMPTY_VALUE;
       } else if (_bars_calc <= 2) {
@@ -105,16 +98,16 @@ class Indi_AC : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, GetPointer(this));
+        _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -122,29 +115,6 @@ class Indi_AC : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
   }
 
   /**

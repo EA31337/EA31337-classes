@@ -32,16 +32,14 @@
 // Structs.
 struct CandleParams : IndicatorParams {
   // Struct constructor.
-  void CandleParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_CANDLE;
-    max_modes = 1;
-    SetDataValueType(TYPE_INT);
+  CandleParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_CANDLE, 1, TYPE_INT) {
     SetDataValueRange(IDATA_RANGE_RANGE);
+    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     tf = _tf;
   };
-  void CandleParams(CandleParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
+  CandleParams(CandleParams &_params, ENUM_TIMEFRAMES _tf) {
+    THIS_REF = _params;
     tf = _tf;
   };
 };
@@ -49,16 +47,13 @@ struct CandleParams : IndicatorParams {
 /**
  * Implements Candle Pattern Detector.
  */
-class Indi_Candle : public Indicator {
- protected:
-  CandleParams params;
-
+class Indi_Candle : public Indicator<CandleParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Candle(CandleParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
-  Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CANDLE, _tf) { params.tf = _tf; };
+  Indi_Candle(CandleParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CandleParams>(_p, _indi_src){};
+  Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CANDLE, _tf) { iparams.tf = _tf; };
 
   /**
    * Returns the indicator's struct value.
@@ -66,7 +61,7 @@ class Indi_Candle : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(iparams.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -75,7 +70,7 @@ class Indi_Candle : public Indicator {
       ResetLastError();
       BarOHLC _ohlcs[1];
 
-      switch (params.idstype) {
+      switch (iparams.idstype) {
         case IDATA_BUILTIN:
           // In this mode, price is fetched from chart.
           _ohlcs[0] = Chart::GetOHLC(_shift);
@@ -84,7 +79,7 @@ class Indi_Candle : public Indicator {
           // In this mode, price is fetched from given indicator. Such indicator
           // must have at least 4 buffers and define OHLC in the first 4 buffers.
           // Indi_Price is an example of such indicator.
-          if (GetDataSource() == NULL) {
+          if (indi_src == NULL) {
             GetLogger().Error(
                 "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
                 "which is a part of CandleParams structure.",
@@ -98,10 +93,10 @@ class Indi_Candle : public Indicator {
             return _entry;
           }
 
-          _ohlcs[0].open = GetDataSource().GetValue<float>(_shift, PRICE_OPEN);
-          _ohlcs[0].high = GetDataSource().GetValue<float>(_shift, PRICE_HIGH);
-          _ohlcs[0].low = GetDataSource().GetValue<float>(_shift, PRICE_LOW);
-          _ohlcs[0].close = GetDataSource().GetValue<float>(_shift, PRICE_CLOSE);
+          _ohlcs[0].open = indi_src.GetValue<float>(_shift, PRICE_OPEN);
+          _ohlcs[0].high = indi_src.GetValue<float>(_shift, PRICE_HIGH);
+          _ohlcs[0].low = indi_src.GetValue<float>(_shift, PRICE_LOW);
+          _ohlcs[0].close = indi_src.GetValue<float>(_shift, PRICE_CLOSE);
           break;
         default:
           SetUserError(ERR_INVALID_PARAMETER);
@@ -116,7 +111,7 @@ class Indi_Candle : public Indicator {
       istate.is_ready = true;
 
       if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
