@@ -140,7 +140,7 @@ class Indi_Stochastic : public Indicator<IndiStochParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGe(0);
+    return _entry.IsWithinRange<double>(0, 101);
   }
 
   /* Getters */
