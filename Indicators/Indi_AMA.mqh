@@ -68,7 +68,7 @@ class Indi_AMA : public Indicator<IndiAIndiMAParams> {
    * Class constructor.
    */
   Indi_AMA(IndiAIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiAIndiMAParams>(_p, _indi_src){};
-  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AMA, _tf){};
+  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_AMA, _tf, _shift){};
 
   /**
    * Built-in version of AMA.

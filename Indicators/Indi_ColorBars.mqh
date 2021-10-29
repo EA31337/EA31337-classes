@@ -49,7 +49,7 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
    */
   Indi_ColorBars(IndiColorBarsParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiColorBarsParams>(_p, _indi_src){};
-  Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_BARS, _tf){};
+  Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_COLOR_BARS, _tf, _shift){};
 
   /**
    * "Built-in" version of Color Bars.

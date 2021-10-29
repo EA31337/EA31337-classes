@@ -61,7 +61,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
    * Class constructor.
    */
   Indi_ADXW(IndiADXWParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiADXWParams>(_p, _indi_src){};
-  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADXW, _tf){};
+  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ADXW, _tf, _shift){};
 
   /**
    * Built-in version of ADX Wilder.

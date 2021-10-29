@@ -60,7 +60,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
    * Class constructor.
    */
   Indi_CHO(IndiCHOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCHOParams>(_p, _indi_src){};
-  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN, _tf){};
+  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_CHAIKIN, _tf, _shift){};
 
   /**
    * Built-in version of Chaikin Oscillator.

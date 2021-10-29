@@ -101,7 +101,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
    */
   Indi_Killzones(IndiKillzonesParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiKillzonesParams>(_p, _indi_src) {}
-  Indi_Killzones(ENUM_TIMEFRAMES _tf) : Indicator(INDI_KILLZONES, _tf) {}
+  Indi_Killzones(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_KILLZONES, _tf, _shift) {}
 
   /**
    * Returns the indicator's value.

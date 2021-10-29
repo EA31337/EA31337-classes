@@ -53,7 +53,7 @@ class Indi_Candle : public Indicator<CandleParams> {
    * Class constructor.
    */
   Indi_Candle(CandleParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CandleParams>(_p, _indi_src){};
-  Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CANDLE, _tf) { iparams.tf = _tf; };
+  Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_CANDLE, _tf, _shift){};
 
   /**
    * Alters indicator's struct value.

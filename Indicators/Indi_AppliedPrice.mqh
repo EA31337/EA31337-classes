@@ -61,7 +61,9 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
       : Indicator<IndiAppliedPriceParams>(_p, _indi_src) {
     OnInit();
   };
-  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf) { OnInit(); };
+  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PRICE, _tf, _shift) {
+    OnInit();
+  };
 
   static double iAppliedPriceOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];
