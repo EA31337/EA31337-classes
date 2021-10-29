@@ -42,7 +42,7 @@ class TickManager : public BufferStruct<MqlTick> {
    */
   void Init() {
     AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
-    SetMaxConflicts(86400);
+    SetOverflowListener(TickManagerOverflowListener, 10);
   }
 
  public:
@@ -73,4 +73,22 @@ class TickManager : public BufferStruct<MqlTick> {
   // template <typename T>
   // void Set(STRUCT_ENUM(TickManagerParams, ENUM_TSM_PARAMS_PROP) _prop, T _value)
   // { params.Set<T>(_prop, _value); }
+
+  /* Other methods */
+
+  /**
+   * Function should return true if resize can be made, or false to overwrite current slot.
+   */
+  static bool TickManagerOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
+    switch (_reason) {
+      case DICT_OVERFLOW_REASON_FULL:
+        // We allow resize if dictionary size is less than 86400 slots.
+        return _size < 86400;
+      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
+      default:
+        // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
+        break;
+    }
+    return false;
+  }
 };
