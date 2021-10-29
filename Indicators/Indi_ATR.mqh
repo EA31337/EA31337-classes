@@ -31,15 +31,16 @@ double iATR(string _symbol, int _tf, int _period, int _shift) {
 #endif
 
 // Structs.
-struct ATRParams : IndicatorParams {
+struct IndiATRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  ATRParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_ATR, 1, TYPE_DOUBLE) {
+  IndiATRParams(unsigned int _period = 14, int _shift = 0)
+      : period(_period), IndicatorParams(INDI_ATR, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ATR");
   };
-  ATRParams(ATRParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiATRParams(IndiATRParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,13 +51,13 @@ struct ATRParams : IndicatorParams {
  *
  * Note: It doesn't give independent signals. It is used to define volatility (trend strength).
  */
-class Indi_ATR : public Indicator<ATRParams> {
+class Indi_ATR : public Indicator<IndiATRParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ATR(ATRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ATRParams>(_p, _indi_src) {}
-  Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ATR, _tf){};
+  Indi_ATR(IndiATRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiATRParams>(_p, _indi_src) {}
+  Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ATR, _tf, _shift){};
 
   /**
    * Returns the indicator value.
@@ -72,7 +73,6 @@ class Indi_ATR : public Indicator<ATRParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iATR(_symbol, _tf, _period)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -103,7 +103,6 @@ class Indi_ATR : public Indicator<ATRParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -116,18 +115,7 @@ class Indi_ATR : public Indicator<ATRParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /**
@@ -137,7 +125,7 @@ class Indi_ATR : public Indicator<ATRParams> {
     Indi_ATR *_ptr;
     string _key = Util::MakeKey(_symbol, (int)_tf, _period);
     if (!Objects<Indi_ATR>::TryGet(_key, _ptr)) {
-      ATRParams _p(_period, _tf);
+      IndiATRParams _p(_period, _tf);
       _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_p));
       _ptr.SetSymbol(_symbol);
     }

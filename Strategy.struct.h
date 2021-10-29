@@ -110,7 +110,7 @@ struct StgParams {
         sl_max(0),
         type(0),
         refresh_time(0) {}
-  StgParams(int _som, int _sofm, float _sol, int _sob, int _scm, int _scf, float _scl, int _psm, float _psl, int _tfm,
+  StgParams(int _som, int _sofm, float _sol, int _sob, int _scm, int _scfm, float _scl, int _psm, float _psl, int _tfm,
             float _ms, short _s = 0)
       : id(rand()),
         order_close_loss(0.0f),
@@ -121,7 +121,8 @@ struct StgParams {
         signal_open_level(_sol),
         signal_open_boost(_sob),
         signal_close_method(_scm),
-        signal_close_filter_method(_scf),
+        signal_close_filter_method(_scfm),
+        signal_close_filter_time(0),
         signal_close_level(_scl),
         price_profit_method(_psm),
         price_profit_level(_psl),

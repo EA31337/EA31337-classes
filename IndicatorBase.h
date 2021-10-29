@@ -80,8 +80,8 @@ class IndicatorBase : public Chart {
   DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
   ARRAY(ValueStorage<double>*, value_storages);
-  IndicatorBase* indi_src;  // // Indicator used as data source.
-  int indi_src_mode;        // Mode of source indicator
+  Ref<IndicatorBase> indi_src;  // // Indicator used as data source.
+  int indi_src_mode;            // Mode of source indicator
   IndicatorCalculateCache<double> cache;
 
  public:
@@ -404,7 +404,7 @@ class IndicatorBase : public Chart {
   /**
    * Returns currently selected data source without any validation.
    */
-  IndicatorBase* GetDataSourceRaw() { return indi_src; }
+  IndicatorBase* GetDataSourceRaw() { return indi_src.Ptr(); }
 
   /* Operator overloading methods */
 
@@ -641,7 +641,7 @@ class IndicatorBase : public Chart {
   /**
    * Sets indicator data source.
    */
-  virtual void SetDataSource(IndicatorBase* _indi, bool _managed, int _input_mode) = 0;
+  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) = NULL;
 
   /**
    * Sets data source's input mode.
@@ -762,20 +762,6 @@ class IndicatorBase : public Chart {
 #endif
     istate.handle = INVALID_HANDLE;
     istate.is_changed = true;
-  }
-
-  /**
-   * Checks whether indicator has a valid value for a given shift.
-   */
-  virtual bool HasValidEntry(int _shift = 0) {
-    unsigned int position;
-    long bar_time = GetBarTime(_shift);
-
-    if (idata.KeyExists(bar_time, position)) {
-      return idata.GetByPos(position).IsValid();
-    }
-
-    return false;
   }
 
   /**
@@ -934,6 +920,38 @@ class IndicatorBase : public Chart {
   /* Virtual methods */
 
   /**
+   * Returns the indicator's struct value.
+   */
+  virtual IndicatorDataEntry GetEntry(int _shift = -1) = NULL;
+
+  /**
+   * Alters indicator's struct value.
+   *
+   * This method allows user to modify the struct entry before it's added to cache.
+   * This method is called on GetEntry() right after values are set.
+   */
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) = NULL;
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  virtual DataParamEntry GetEntryValue(int _shift = -1, int _mode = 0) = NULL;
+
+  /**
+   * Returns indicator value for a given shift and mode.
+   */
+  // virtual double GetValue(int _shift = -1, int _mode = 0) = NULL;
+
+  /**
+   * Checks whether indicator has a valid value for a given shift.
+   */
+  virtual bool HasValidEntry(int _shift = 0) {
+    unsigned int position;
+    long bar_time = GetBarTime(_shift);
+    return bar_time > 0 && idata.KeyExists(bar_time, position) ? idata.GetByPos(position).IsValid() : false;
+  }
+
+  /**
    * Returns stored data in human-readable format.
    */
   // virtual bool ToString() = NULL; // @fixme?
@@ -952,32 +970,18 @@ class IndicatorBase : public Chart {
   };
 
   /**
-   * Returns the indicator's struct value.
-   */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    IndicatorDataEntry _entry;
-    return _entry;
-  };
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_FLOAT};
-    _param.double_value = (float)GetEntry(_shift).GetValue<float>(_mode);
-    return _param;
-  }
-
-  /**
    * Returns the indicator's value in plain format.
    */
   virtual string ToString(int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
-    int _serializer_flags =
-        SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
-    SerializerConverter _stub_indi =
-        SerializerConverter::MakeStubObject<IndicatorDataEntry>(_serializer_flags, _entry.GetSize());
-    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
+    int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT |
+                            SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE;
+
+    IndicatorDataEntry _stub_entry;
+    _stub_entry.AddFlags(_entry.GetFlags());
+    SerializerConverter _stub = SerializerConverter::MakeStubObject(_stub_entry, _serializer_flags, _entry.GetSize());
+
+    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub);
   }
 
   int GetBarsCalculated() {

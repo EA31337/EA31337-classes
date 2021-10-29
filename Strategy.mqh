@@ -1012,7 +1012,7 @@ class Strategy : public Object {
         0.0f;  // @fixme: SymbolInfoStatic::GetTradeDistanceInValue(GetChart().Get<string>(CHART_PARAM_SYMBOL));
     int _count = (int)fmax(fabs(_level), fabs(_method));
     int _direction = Order::OrderDirection(_cmd, _mode);
-    IndicatorBase *_indi = GetIndicator();
+    IndicatorBase *_indi = GetIndicators().Begin().Value().Ptr();
     Chart *_chart = (Chart *)_indi;
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());

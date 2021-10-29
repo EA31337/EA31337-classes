@@ -36,13 +36,13 @@
 // https://www.mql5.com/en/docs/constants/indicatorconstants/prices
 // https://docs.mql4.com/constants/indicatorconstants/prices
 enum ENUM_APPLIED_PRICE {
-  PRICE_CLOSE = 1,     // Close price
-  PRICE_OPEN = 2,      // Open price
-  PRICE_HIGH = 3,      // The maximum price for the period
-  PRICE_LOW = 4,       // The minimum price for the period
-  PRICE_MEDIAN = 5,    // Median price (H+L)/2
-  PRICE_TYPICAL = 6,   // Typical price, (H+L+C)/3
-  PRICE_WEIGHTED = 7,  // Weighted close price (H+L+C+C)/4
+  PRICE_CLOSE = 0,  // Close price
+  PRICE_OPEN,       // Open price
+  PRICE_HIGH,       // The maximum price for the period
+  PRICE_LOW,        // The minimum price for the period
+  PRICE_MEDIAN,     // Median price (H+L)/2
+  PRICE_TYPICAL,    // Typical price, (H+L+C)/3
+  PRICE_WEIGHTED,   // Weighted close price (H+L+C+C)/4
 };
 #endif
 

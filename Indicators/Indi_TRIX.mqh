@@ -27,12 +27,12 @@
 #include "Indi_MA.mqh"
 
 // Structs.
-struct TRIXParams : IndicatorParams {
+struct IndiTRIXParams : IndicatorParams {
   unsigned int period;
   unsigned int tema_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  TRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiTRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_TRIX, 1, TYPE_DOUBLE) {
     applied_price = _ap;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -40,7 +40,7 @@ struct TRIXParams : IndicatorParams {
     period = _period;
     shift = _shift;
   };
-  TRIXParams(TRIXParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiTRIXParams(IndiTRIXParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -49,13 +49,13 @@ struct TRIXParams : IndicatorParams {
 /**
  * Implements the Triple Exponential Average indicator.
  */
-class Indi_TRIX : public Indicator<TRIXParams> {
+class Indi_TRIX : public Indicator<IndiTRIXParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_TRIX(TRIXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<TRIXParams>(_p, _indi_src){};
-  Indi_TRIX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TRIX, _tf){};
+  Indi_TRIX(IndiTRIXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiTRIXParams>(_p, _indi_src){};
+  Indi_TRIX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_TRIX, _tf, _shift){};
 
   /**
    * Built-in version of TriX.
@@ -128,7 +128,6 @@ class Indi_TRIX : public Indicator<TRIXParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -142,18 +141,7 @@ class Indi_TRIX : public Indicator<TRIXParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   /* Getters */

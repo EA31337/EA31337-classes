@@ -58,3 +58,4 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: ${{ matrix.test }}
+    timeout-minutes: 10

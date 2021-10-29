@@ -23,19 +23,19 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
+#include "OHLC/Indi_OHLC.mqh"
 
 // Structs.
-struct AppliedPriceParams : IndicatorParams {
+struct IndiAppliedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  AppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
-      : IndicatorParams(INDI_APPLIED_PRICE, 1, TYPE_DOUBLE) {
-    applied_price = _applied_price;
+  IndiAppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
+      : applied_price(_applied_price), IndicatorParams(INDI_APPLIED_PRICE, 1, TYPE_DOUBLE) {
     SetDataSourceType(IDATA_INDICATOR);
     SetDataValueRange(IDATA_RANGE_PRICE);
     shift = _shift;
   };
-  AppliedPriceParams(AppliedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiAppliedPriceParams(IndiAppliedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -44,14 +44,26 @@ struct AppliedPriceParams : IndicatorParams {
 /**
  * Implements the "Applied Price over OHCL Indicator" indicator, e.g. over Indi_Price.
  */
-class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
+class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
+ protected:
+  void OnInit() {
+    if (!indi_src.IsSet()) {
+      Indi_OHLC *_indi_ohlc = new Indi_OHLC();
+      SetDataSource(_indi_ohlc);
+    }
+  }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_AppliedPrice(AppliedPriceParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<AppliedPriceParams>(_p, _indi_src){};
-  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf){};
+  Indi_AppliedPrice(IndiAppliedPriceParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiAppliedPriceParams>(_p, _indi_src) {
+    OnInit();
+  };
+  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PRICE, _tf, _shift) {
+    OnInit();
+  };
 
   static double iAppliedPriceOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];
@@ -63,7 +75,6 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_INDICATOR:
@@ -71,35 +82,33 @@ class Indi_AppliedPrice : public Indicator<AppliedPriceParams> {
           // Future validation of indi_src will check if we set mode for source indicator
           // (e.g. for applied price of Indi_Price).
           iparams.SetDataSourceMode(GetAppliedPrice());
-        } else {
-          Print("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");
-          DebugBreak();
+          _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _shift);
         }
-
-        // @fixit
-        /*
-        if (indi_src.GetParams().GetMaxModes() != 4) {
-          Print("Indi_AppliedPrice indicator requires that has at least 4 modes/buffers (OHLC)!");
-          DebugBreak();
-        }
-        */
-        _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(indi_src, GetAppliedPrice(), _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
   /**
-   * Returns the indicator's entry value.
+   * Checks if indicator entry is valid.
+   *
+   * @return
+   *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    bool _is_valid = Indicator<IndiAppliedPriceParams>::IsValidEntry(_entry);
+    switch (iparams.idstype) {
+      case IDATA_INDICATOR:
+        if (!HasDataSource()) {
+          GetLogger().Error("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");
+          _is_valid &= false;
+        }
+        break;
+    }
+    return _is_valid;
   }
 
   /* Getters */

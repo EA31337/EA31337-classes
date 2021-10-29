@@ -213,6 +213,10 @@ bool TestTradeSignalOpenBuyWithoutFilters() {
   // 2nd method.
   TradeSignalEntry _entry2;
   _entry2.Set(SIGNAL_OPEN_BUY_MAIN, true);
+  _entry2.Set(SIGNAL_CLOSE_BUY_MAIN, true);     // This should not affect anything.
+  _entry2.Set(SIGNAL_CLOSE_BUY_FILTER, true);   // This should not affect anything.
+  _entry2.Set(SIGNAL_CLOSE_SELL_FILTER, true);  // This should not affect anything.
+  _entry2.Set(SIGNAL_CLOSE_SELL_MAIN, true);    // This should not affect anything.
   TradeSignal _signal2(_entry2);
   _result &= !_signal2.ShouldClose(ORDER_TYPE_BUY);
   _result &= !_signal2.ShouldClose(ORDER_TYPE_SELL);
@@ -247,6 +251,10 @@ bool TestTradeSignalOpenSellWithFilters() {
   _entry2.Set(SIGNAL_OPEN_SELL_MAIN, true);
   _entry2.Set(SIGNAL_OPEN_SELL_FILTER, true);
   _entry2.Set(SIGNAL_OPEN_TIME_FILTER, true);
+  _entry2.Set(SIGNAL_CLOSE_BUY_FILTER, true);   // This should not affect anything.
+  _entry2.Set(SIGNAL_CLOSE_BUY_MAIN, true);     // This should not affect anything.
+  _entry2.Set(SIGNAL_CLOSE_SELL_FILTER, true);  // This should not affect anything.
+  _entry2.Set(SIGNAL_CLOSE_SELL_MAIN, true);    // This should not affect anything.
   TradeSignal _signal2(_entry2);
   _result &= !_signal2.ShouldClose(ORDER_TYPE_BUY);
   _result &= !_signal2.ShouldClose(ORDER_TYPE_SELL);

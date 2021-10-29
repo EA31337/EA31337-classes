@@ -46,14 +46,14 @@ double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _m
 #endif
 
 // Structs.
-struct MAParams : IndicatorParams {
+struct IndiMAParams : IndicatorParams {
   unsigned int period;
   unsigned int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_array;
   // Struct constructors.
-  MAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
-           ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  IndiMAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
+               ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period),
         ma_shift(_ma_shift),
         ma_method(_ma_method),
@@ -63,7 +63,7 @@ struct MAParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Moving Average");
   };
-  MAParams(MAParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiMAParams(IndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -72,12 +72,12 @@ struct MAParams : IndicatorParams {
 /**
  * Implements the Moving Average indicator.
  */
-class Indi_MA : public Indicator<MAParams> {
+class Indi_MA : public Indicator<IndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MA(MAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MAParams>(_p, _indi_src) {}
+  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMAParams>(_p, _indi_src) {}
   Indi_MA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MA, _tf) {}
 
   /**
@@ -90,13 +90,11 @@ class Indi_MA : public Indicator<MAParams> {
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
                     ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_array, int _shift = 0,
                     IndicatorBase *_obj = NULL) {
-    ResetLastError();
 #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -628,7 +626,6 @@ class Indi_MA : public Indicator<MAParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -647,18 +644,7 @@ class Indi_MA : public Indicator<MAParams> {
                                          GetPeriod(), GetMAShift(), GetMAMethod(), _shift);
         break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /**
@@ -669,7 +655,7 @@ class Indi_MA : public Indicator<MAParams> {
     Indi_MA *_ptr;
     string _key = Util::MakeKey(_symbol, (int)_tf, _period, _ma_shift, (int)_ma_method, (int)_ap);
     if (!Objects<Indi_MA>::TryGet(_key, _ptr)) {
-      MAParams _p(_period, _ma_shift, _ma_method, _ap);
+      IndiMAParams _p(_period, _ma_shift, _ma_method, _ap);
       _ptr = Objects<Indi_MA>::Set(_key, new Indi_MA(_p));
       _ptr.SetSymbol(_symbol);
     }

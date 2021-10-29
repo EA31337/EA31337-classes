@@ -107,7 +107,7 @@ int OnInit() {
   /* Test 2nd strategy. */
 
   // Initialize strategy.
-  DemoIndiParams iparams;
+  IndiDemoParams iparams;
   ChartParams cparams(PERIOD_M5);
   StgParams stg2_params;
   stg2_params.Enabled(false);

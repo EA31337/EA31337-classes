@@ -31,17 +31,17 @@ double iBullsPower(string _symbol, int _tf, int _period, int _ap, int _shift) {
 #endif
 
 // Structs.
-struct BullsPowerParams : IndicatorParams {
+struct IndiBullsPowerParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;  // (MT5): not used
   // Struct constructor.
-  BullsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiBullsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_BULLS, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Bulls");
   };
-  BullsPowerParams(BullsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiBullsPowerParams(IndiBullsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,12 +50,13 @@ struct BullsPowerParams : IndicatorParams {
 /**
  * Implements the Bulls Power indicator.
  */
-class Indi_BullsPower : public Indicator<BullsPowerParams> {
+class Indi_BullsPower : public Indicator<IndiBullsPowerParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BullsPower(BullsPowerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BullsPowerParams>(_p, _indi_src) {}
+  Indi_BullsPower(IndiBullsPowerParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiBullsPowerParams>(_p, _indi_src) {}
   Indi_BullsPower(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BULLS, _tf) {}
 
   /**
@@ -73,7 +74,6 @@ class Indi_BullsPower : public Indicator<BullsPowerParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iBullsPower(_symbol, _tf, _period)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -104,7 +104,6 @@ class Indi_BullsPower : public Indicator<BullsPowerParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -118,18 +117,7 @@ class Indi_BullsPower : public Indicator<BullsPowerParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).values[_mode].GetDbl();
-    return _param;
   }
 
   /* Getters */

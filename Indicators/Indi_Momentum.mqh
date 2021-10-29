@@ -41,17 +41,17 @@ double iMomentum(string _symbol, int _tf, int _period, int _ap, int _shift) {
 #endif
 
 // Structs.
-struct MomentumParams : IndicatorParams {
+struct IndiMomentumParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  MomentumParams(unsigned int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  IndiMomentumParams(unsigned int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_MOMENTUM, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Momentum");
   };
-  MomentumParams(MomentumParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiMomentumParams(IndiMomentumParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -60,12 +60,13 @@ struct MomentumParams : IndicatorParams {
 /**
  * Implements the Momentum indicator.
  */
-class Indi_Momentum : public Indicator<MomentumParams> {
+class Indi_Momentum : public Indicator<IndiMomentumParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Momentum(MomentumParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MomentumParams>(_p, _indi_src) {}
+  Indi_Momentum(IndiMomentumParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiMomentumParams>(_p, _indi_src) {}
   Indi_Momentum(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MOMENTUM, _tf) {}
 
   /**
@@ -82,7 +83,6 @@ class Indi_Momentum : public Indicator<MomentumParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iMomentum(_symbol, _tf, _period, _ap)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -141,7 +141,6 @@ class Indi_Momentum : public Indicator<MomentumParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -165,18 +164,7 @@ class Indi_Momentum : public Indicator<MomentumParams> {
         }
         break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /* Getters */

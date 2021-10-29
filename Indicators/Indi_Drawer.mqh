@@ -29,27 +29,26 @@ struct IndicatorParams;
 #include "../Indicator.mqh"
 #include "../Redis.mqh"
 #include "Indi_Drawer.struct.h"
-#include "Indi_Price.mqh"
+#include "Price/Indi_Price.mqh"
 
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_Drawer : public Indicator<DrawerParams> {
+class Indi_Drawer : public Indicator<IndiDrawerParams> {
   Redis redis;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Drawer(const DrawerParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<DrawerParams>(_p, _indi_src), redis(true) {
+  Indi_Drawer(const IndiDrawerParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiDrawerParams>(_p, _indi_src), redis(true) {
     Init();
   }
   Indi_Drawer(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DRAWER, _tf), redis(true) { Init(); }
 
   void Init() {
     // Drawer is always ready.
-    istate.is_ready = true;
 
     /*
        string msg_text =
@@ -97,7 +96,7 @@ class Indi_Drawer : public Indicator<DrawerParams> {
   }
 
   virtual void OnTick() {
-    Indicator<DrawerParams>::OnTick();
+    Indicator<IndiDrawerParams>::OnTick();
 
     ActionEntry action(INDI_ACTION_SET_VALUE);
     ArrayResize(action.args, 3);
@@ -166,11 +165,12 @@ class Indi_Drawer : public Indicator<DrawerParams> {
    */
   static double iDrawerOnArray(double &array[], int total, int period, int shift) { return 0; }
 
+  /* Getters */
+
   /**
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -182,64 +182,10 @@ class Indi_Drawer : public Indicator<DrawerParams> {
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_changed = false;
     return _value;
   }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    int i;
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (_bar_time < 0) {
-      // Return empty value on invalid bar time.
-      for (i = 0; i < iparams.GetMaxModes(); ++i) {
-        _entry.values[i] = EMPTY_VALUE;
-      }
-      return _entry;
-    }
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      // Missing entry (which is correct).
-      _entry.timestamp = GetBarTime(_shift);
-
-      for (i = 0; i < iparams.GetMaxModes(); ++i) {
-        // Fetching history data is not yet implemented.
-        _entry.values[i] = 0;
-      }
-
-      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID | INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
-    }
-    return _entry;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    IndicatorDataEntry entry = GetEntry(_shift);
-    if (_mode < ArraySize(entry.values)) {
-      entry.values[_mode].Get(_param.double_value);
-      return _param;
-    }
-
-    _param.double_value = 0;
-    return _param;
-  }
-
-  /* Getters */
-
-  /**
-   * Get indicator iparams.
-   */
-  DrawerParams GetParams() { return iparams; }
 
   /**
    * Get period value.
