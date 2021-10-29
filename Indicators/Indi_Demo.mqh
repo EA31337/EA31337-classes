@@ -72,7 +72,7 @@ class Indi_Demo : public Indicator<IndiDemoParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _shift, THIS_PTR);
     if (iparams.is_draw) {
       draw.DrawLineTo(GetName(), GetBarTime(_shift), _value);

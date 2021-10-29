@@ -66,7 +66,7 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     BarOHLC _ohlcs[1];
 

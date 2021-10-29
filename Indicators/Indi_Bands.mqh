@@ -237,7 +237,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual double GetValue(int _mode = BAND_BASE, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = BAND_BASE, int _shift = 0) {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:

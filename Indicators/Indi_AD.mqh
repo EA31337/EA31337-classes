@@ -34,6 +34,7 @@ struct IndiADParams : IndicatorParams {
   IndiADParams(int _shift = 0) : IndicatorParams(INDI_AD, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\AD");
+    SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
   };
   IndiADParams(IndiADParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -96,7 +97,7 @@ class Indi_AD : public Indicator<IndiADParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:

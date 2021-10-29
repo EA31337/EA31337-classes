@@ -215,7 +215,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:

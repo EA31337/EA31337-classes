@@ -62,7 +62,7 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     return ChartStatic::iPrice(iparams.GetAppliedPrice(), GetSymbol(), GetTf(), _shift);
   }
 

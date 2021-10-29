@@ -75,7 +75,7 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     int data_size = ArraySize(iparams.price_data);
 
     if (_shift >= data_size || _shift < 0) return DBL_MIN;

@@ -70,7 +70,7 @@ int OnInit() {
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
   // Print indicator values.
-  _result &= PrintIndicators(__FUNCTION__);
+  //_result &= PrintIndicators(__FUNCTION__);
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
   bar_processed = 0;
@@ -107,8 +107,8 @@ void OnTick() {
       IndicatorDataEntry _entry(_indi.GetEntry());
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
-        tested.Set(iter.Key(), true);  // Mark as tested.
-        indis.Unset(iter.Key());
+        // tested.Set(iter.Key(), true);  // Mark as tested.
+        // indis.Unset(iter.Key());
       }
     }
   }
@@ -250,7 +250,7 @@ bool InitIndicators() {
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_params(14, PRICE_OPEN);
-  indis.Push(new Indi_RSI(rsi_params));
+  indis.Push(_indi_test = new Indi_RSI(rsi_params));
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_over_blt_stddev_params();
@@ -516,7 +516,7 @@ bool InitIndicators() {
 
   // Pattern Detector.
   IndiPatternParams pattern_params();
-  indis.Push(_indi_test = new Indi_Pattern(pattern_params));
+  indis.Push(new Indi_Pattern(pattern_params));
 
   // Pivot.
   IndiPivotParams pivot_params();

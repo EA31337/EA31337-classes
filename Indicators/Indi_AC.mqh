@@ -33,6 +33,7 @@ double iAC(string _symbol, int _tf, int _shift) { return Indi_AC::iAC(_symbol, (
 struct IndiACParams : IndicatorParams {
   // Struct constructor.
   IndiACParams(int _shift = 0) : IndicatorParams(INDI_AC, 1, TYPE_DOUBLE) {
+    SetDataSourceType(IDATA_ICUSTOM);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
@@ -97,8 +98,8 @@ class Indi_AC : public Indicator<IndiACParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
-    double _value = EMPTY_VALUE;
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
+    IndicatorDataEntryValue _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;

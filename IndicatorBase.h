@@ -45,7 +45,6 @@ class Chart;
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
 #include "Indicator.struct.signal.h"
-#include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
 #include "Serializer.mqh"
@@ -835,17 +834,14 @@ class IndicatorBase : public Chart {
     return value_storages[_mode];
   }
 
-  /**
-   * Returns indicator value for a given shift and mode.
-   */
   template <typename T>
-  T GetValue(int _shift = 0, int _mode = -1) {
-    T _result;
-    int _index = _mode != -1 ? _mode : GetDataSourceMode();
-    GetEntry(_shift).values[_index].Get(_result);
-    ResetLastError();
-    return _result;
+  T GetValue(int _shift = 0, int _mode = 0) {
+    T _out;
+    GetMixedValue(_shift, _mode).Get(_out);
+    return _out;
   }
+
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) = NULL;
 
   /**
    * Returns price corresponding to indicator value for a given shift and mode.
