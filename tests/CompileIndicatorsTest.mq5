@@ -26,6 +26,10 @@
 
 // Includes.
 #include "../Indicators/indicators.h"
+#include "../Indicators/Bitwise/indicators.h"
+#include "../Indicators/OHLC/indicators.h"
+#include "../Indicators/Price/indicators.h"
+#include "../Indicators/Special/indicators.h"
 
 /**
  * Implements Init event handler.

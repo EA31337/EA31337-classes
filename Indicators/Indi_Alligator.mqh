@@ -60,7 +60,7 @@ enum ENUM_ALLIGATOR_LINE {
 };
 
 // Structs.
-struct AlligatorParams : IndicatorParams {
+struct IndiAlligatorParams : IndicatorParams {
   int jaw_period;                    // Jaw line averaging period.
   int jaw_shift;                     // Jaw line shift.
   int teeth_period;                  // Teeth line averaging period.
@@ -70,8 +70,8 @@ struct AlligatorParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
   // Struct constructors.
-  AlligatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
-                  ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
+  IndiAlligatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
+                      ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
       : jaw_period(_jp),
         jaw_shift(_js),
         teeth_period(_tp),
@@ -85,7 +85,7 @@ struct AlligatorParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Alligator");
   };
-  AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiAlligatorParams(IndiAlligatorParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -94,13 +94,14 @@ struct AlligatorParams : IndicatorParams {
 /**
  * Implements the Alligator indicator.
  */
-class Indi_Alligator : public Indicator<AlligatorParams> {
+class Indi_Alligator : public Indicator<IndiAlligatorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Alligator(AlligatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<AlligatorParams>(_p, _indi_src) {}
-  Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ADX, _tf){};
+  Indi_Alligator(IndiAlligatorParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiAlligatorParams>(_p, _indi_src) {}
+  Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ADX, _tf, _shift){};
 
   /**
    * Returns the indicator value.
@@ -130,7 +131,6 @@ class Indi_Alligator : public Indicator<AlligatorParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period,
                                   _lips_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
@@ -168,7 +168,6 @@ class Indi_Alligator : public Indicator<AlligatorParams> {
       return GetValue((ENUM_ALLIGATOR_LINE)1, _shift);
     }
 #endif
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -188,45 +187,7 @@ class Indi_Alligator : public Indicator<AlligatorParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = GetValue((ENUM_ALLIGATOR_LINE)_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-#ifdef __MQL4__
-    // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
-    _mode = _mode > 0 ? _mode - 1 : _mode;
-#endif
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /**

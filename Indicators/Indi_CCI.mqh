@@ -23,31 +23,33 @@
 // Includes.
 #include "../Indicator.mqh"
 #include "Indi_MA.mqh"
-#include "Indi_Price.mqh"
 #include "Indi_PriceFeeder.mqh"
+#include "Price/Indi_Price.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iCCI(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
   return Indi_CCI::iCCI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
 }
 double iCCIOnArray(double &_arr[], int _total, int _period, int _shift) {
+  ResetLastError();
   return Indi_CCI::iCCIOnArray(_arr, _total, _period, _shift);
 }
 #endif
 
 // Structs.
-struct CCIParams : IndicatorParams {
+struct IndiCCIParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  CCIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
+  IndiCCIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
       : period(_period), applied_price(_applied_price), IndicatorParams(INDI_CCI, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CCI");
   };
-  CCIParams(CCIParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiCCIParams(IndiCCIParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -56,12 +58,12 @@ struct CCIParams : IndicatorParams {
 /**
  * Implements the Commodity Channel Index indicator.
  */
-class Indi_CCI : public Indicator<CCIParams> {
+class Indi_CCI : public Indicator<IndiCCIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CCI(CCIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CCIParams>(_p, _indi_src) {}
+  Indi_CCI(IndiCCIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCCIParams>(_p, _indi_src) {}
   Indi_CCI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_CCI, _tf) {}
 
   /**
@@ -76,32 +78,7 @@ class Indi_CCI : public Indicator<CCIParams> {
 #ifdef __MQL4__
     return ::iCCI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
-    double _res[];
-    ResetLastError();
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iCCI(_symbol, _tf, _period, _applied_price)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
-    }
-    return _res[0];
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iCCI(_symbol, _tf, _period, _applied_price), 0, _shift);
 #endif
   }
 
@@ -169,7 +146,6 @@ class Indi_CCI : public Indicator<CCIParams> {
    * (before mode and shift).
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -190,18 +166,7 @@ class Indi_CCI : public Indicator<CCIParams> {
                                            _shift /* + iparams.shift*/);
         break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /* Getters */

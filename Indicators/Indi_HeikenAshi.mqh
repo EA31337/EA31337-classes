@@ -48,9 +48,9 @@ enum ENUM_HA_MODE {
 };
 
 // Structs.
-struct HeikenAshiParams : IndicatorParams {
+struct IndiHeikenAshiParams : IndicatorParams {
   // Struct constructors.
-  HeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI, FINAL_HA_MODE_ENTRY, TYPE_DOUBLE) {
+  IndiHeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI, FINAL_HA_MODE_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);  // @fixit It draws candles!
 #ifdef __MQL4__
     SetCustomIndicatorName("Heiken Ashi");
@@ -59,7 +59,7 @@ struct HeikenAshiParams : IndicatorParams {
 #endif
     shift = _shift;
   };
-  HeikenAshiParams(HeikenAshiParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiHeikenAshiParams(IndiHeikenAshiParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -68,13 +68,14 @@ struct HeikenAshiParams : IndicatorParams {
 /**
  * Implements the Heiken-Ashi indicator.
  */
-class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
+class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(HeikenAshiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<HeikenAshiParams>(_p, _indi_src) {}
-  Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_HEIKENASHI, _tf) {}
+  Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiHeikenAshiParams>(_p, _indi_src) {}
+  Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_HEIKENASHI, _tf, _shift) {}
 
   /**
    * Returns value for iHeikenAshi indicator.
@@ -99,7 +100,6 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iCustom(_symbol, _tf, "Examples\\Heiken_Ashi")) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -196,7 +196,6 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = HA_OPEN, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -230,41 +229,7 @@ class Indi_HeikenAshi : public Indicator<HeikenAshiParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = GetValue((ENUM_HA_MODE)_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /**

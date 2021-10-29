@@ -25,26 +25,26 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct PriceFeederIndiParams : IndicatorParams {
+struct IndiPriceFeederParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   double price_data[];
 
   /**
    * Struct constructor.
    */
-  PriceFeederIndiParams(int _shift = 0) : IndicatorParams(INDI_PRICE_FEEDER, 1, TYPE_DOUBLE) { shift = _shift; }
+  IndiPriceFeederParams(int _shift = 0) : IndicatorParams(INDI_PRICE_FEEDER, 1, TYPE_DOUBLE) { shift = _shift; }
 
   /**
    * Struct constructor.
    *
    * @todo Use more modes (full OHCL).
    */
-  PriceFeederIndiParams(const double& _price_data[], int _total = 0)
+  IndiPriceFeederParams(const double& _price_data[], int _total = 0)
       : IndicatorParams(INDI_PRICE_FEEDER, 1, TYPE_DOUBLE) {
     tf = PERIOD_CURRENT;
     ArrayCopy(price_data, _price_data, 0, 0, _total == 0 ? WHOLE_ARRAY : _total);
   };
-  PriceFeederIndiParams(PriceFeederIndiParams& _params, ENUM_TIMEFRAMES _tf) {
+  IndiPriceFeederParams(IndiPriceFeederParams& _params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -53,19 +53,19 @@ struct PriceFeederIndiParams : IndicatorParams {
 /**
  * Price Indicator.
  */
-class Indi_PriceFeeder : public Indicator<PriceFeederIndiParams> {
+class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_PriceFeeder(PriceFeederIndiParams& _p, IndicatorBase* _indi_src = NULL)
-      : Indicator<PriceFeederIndiParams>(_p, _indi_src){};
+  Indi_PriceFeeder(IndiPriceFeederParams& _p, IndicatorBase* _indi_src = NULL)
+      : Indicator<IndiPriceFeederParams>(_p, _indi_src){};
   Indi_PriceFeeder(const double& _price_data[], int _total = 0) : Indicator(INDI_PRICE_FEEDER) {
     ArrayCopy(iparams.price_data, _price_data);
   };
   Indi_PriceFeeder(ENUM_TIMEFRAMES _tf) : Indicator(INDI_PRICE_FEEDER, _tf) {}
 
-  void SetPrices(const double& _price_data[], int _total = 0) { iparams = PriceFeederIndiParams(_price_data, _total); }
+  void SetPrices(const double& _price_data[], int _total = 0) { iparams = IndiPriceFeederParams(_price_data, _total); }
 
   /**
    * Checks whether indicator has a valid value for a given shift.
@@ -81,13 +81,11 @@ class Indi_PriceFeeder : public Indicator<PriceFeederIndiParams> {
     if (_shift >= data_size || _shift < 0) return DBL_MIN;
 
     double _value = iparams.price_data[data_size - _shift - 1];
-    istate.is_ready = true;
-    istate.is_changed = false;
     return _value;
   }
 
   void OnTick() {
-    Indicator<PriceFeederIndiParams>::OnTick();
+    Indicator<IndiPriceFeederParams>::OnTick();
 
     if (iparams.is_draw) {
       IndicatorDataEntry _entry = GetEntry(0);
@@ -114,15 +112,5 @@ class Indi_PriceFeeder : public Indicator<PriceFeederIndiParams> {
       idata.Add(_entry, _bar_time);
     }
     return _entry;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    // @todo Use more modes (full OHCL).
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 };
