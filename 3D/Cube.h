@@ -28,9 +28,11 @@
 #include "Face.h"
 #include "Mesh.h"
 
-// Resources.
+#ifdef __MQL5__
+// Resource variables.
 #resource "Shaders/cube_ps.hlsl" as string ShaderCubeSourcePS;
 #resource "Shaders/cube_vs.hlsl" as string ShaderCubeSourceVS;
+#endif
 
 /**
  * Cube mesh.
@@ -70,6 +72,7 @@ class Cube : public Mesh<T> {
     AddFace(f6);
   }
 
+#ifdef __MQL5__
   /**
    * Initializes graphics device-related things.
    */
@@ -77,4 +80,5 @@ class Cube : public Mesh<T> {
     SetShaderVS(_device.VertexShader(ShaderCubeSourceVS, T::Layout));
     SetShaderPS(_device.PixelShader(ShaderCubeSourcePS));
   }
+#endif
 };

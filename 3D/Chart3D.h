@@ -37,9 +37,11 @@
 #include "Device.h"
 #include "Interface.h"
 
-// Resources.
+#ifdef __MQL5__
+// Resource variables.
 #resource "Shaders/chart3d_vs.hlsl" as string Chart3DShaderSourceVS;
 #resource "Shaders/chart3d_ps.hlsl" as string Chart3DShaderSourcePS;
+#endif
 
 typedef BarOHLC (*Chart3DPriceFetcher)(ENUM_TIMEFRAMES, int);
 
@@ -94,7 +96,9 @@ class Chart3D : public Dynamic {
     offset.x = offset.y = 0.0f;
     offset.z = 25.0f;
     initialized = false;
+#ifdef __MQL5__
     Interface::AddListener(chart3d_interface_listener, &this);
+#endif
   }
 
   void OnInterfaceEvent(InterfaceEvent& _event) {

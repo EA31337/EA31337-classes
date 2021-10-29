@@ -3143,6 +3143,7 @@ void DXSHRotate(float &out[], int order, const DXMatrix &_matrix, const float &i
     return;
   }
 
+#ifdef __MQL5__
   if ((float)fabs(_matrix.m[2][2]) != 1.0f) {
     sinb = (float)sqrt(1.0f - _matrix.m[2][2] * _matrix.m[2][2]);
     alpha = (float)atan2(_matrix.m[2][1] / sinb, _matrix.m[2][0] / sinb);
@@ -3153,6 +3154,13 @@ void DXSHRotate(float &out[], int order, const DXMatrix &_matrix, const float &i
     beta = 0.0f;
     gamma = 0.0f;
   }
+#else
+    alpha = 0.0f;
+    beta = 0.0f;
+    gamma = 0.0f;
+    sinb = 0.0f;
+#endif
+
   //---
   DXSHRotateZ(temp, order, gamma, in);
   rotate_X(temp1, order, 1.0f, temp);

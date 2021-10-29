@@ -47,7 +47,12 @@ struct InterfaceEvent {
   } data;
 };
 
-
+#ifdef __MQL5__
+/**
+ * "OnChart" event handler function (MQL5 only).
+ *
+ * Invoked when the ChartEvent event occurs.
+ */
 void OnChartEvent(const int id, const long& lparam, const double& dparam, const string& sparam) {
   datetime _dt;
   double _mp;
@@ -65,6 +70,7 @@ void OnChartEvent(const int id, const long& lparam, const double& dparam, const 
     Interface::FireEvent(_event);
   }
 }
+#endif
 
 typedef void (*InterfaceListener)(InterfaceEvent&, void*);
 
@@ -85,6 +91,7 @@ class Interface
   static int mouse_pos_y;
   static bool initialized;
 
+#ifdef __MQL5__
   static void AddListener(InterfaceListener _listener, void* _target) {
     if (!initialized) {
       ChartSetInteger(0, CHART_EVENT_MOUSE_MOVE, true);
@@ -120,10 +127,13 @@ class Interface
   static int GetMouseY() {
     return mouse_pos_y;
   }
+#endif
 };
 
+#ifdef __MQL5__
 Interface::Installation Interface::installations[];
 bool Interface::mouse_was_down = false;
 int Interface::mouse_pos_x = 0;
 int Interface::mouse_pos_y = 0;
 bool Interface::initialized = false;
+#endif

@@ -117,6 +117,7 @@ class MTDXShader : public Shader {
     ResetLastError();
   }
 
+#ifdef __MQL5__
   /**
    * Converts vertex layout's item into required DX's color format.
    */
@@ -139,6 +140,7 @@ class MTDXShader : public Shader {
     Alert("Wrong vertex layout!");
     return (ENUM_DX_FORMAT)0;
   }
+#endif
 
   /**
    * Sets custom input buffer for shader.
