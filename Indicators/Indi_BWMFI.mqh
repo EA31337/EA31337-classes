@@ -189,11 +189,13 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
   }
 
   /**
-   * Returns the indicator's entry value.
+   * Checks if indicator entry is valid.
+   *
+   * @return
+   *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return _entry[(int)BWMFI_BUFFER] > 0 && _entry[(int)BWMFI_HISTCOLOR] >= 0 && !_entry.HasValue<double>(DBL_MAX) &&
+           !_entry.HasValue<double>(EMPTY_VALUE);
   }
 };

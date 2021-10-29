@@ -195,7 +195,7 @@ struct EAParams {
     ver = _ver;
     author = _author;
   }
-  //void SetTaskEntry(TaskEntry &_task_entry) { task_init = _task_entry; }
+  // void SetTaskEntry(TaskEntry &_task_entry) { task_init = _task_entry; }
   // Printers.
   string ToString(string _dlm = ",") { return StringFormat("%s v%s by %s (%s)", name, ver, author, desc); }
 };
@@ -222,12 +222,78 @@ struct EAProcessResult {
 
 /* Defines EA state variables. */
 struct EAState {
+ public:                  // @todo: Move to protected.
+  DateTime last_updated;  // Last updated.
+ protected:
   unsigned int flags;        // TaskAction flags.
   unsigned int new_periods;  // Started periods.
-  DateTime last_updated;     // Last updated.
+ public:
+  /* Struct's enumerations */
+
+  /* Defines EA state flags. */
+  enum ENUM_EA_STATE_FLAGS {
+    EA_STATE_FLAG_NONE = 0 << 0,           // None flags.
+    EA_STATE_FLAG_ACTIVE = 1 << 0,         // Is active (can trade).
+    EA_STATE_FLAG_CONNECTED = 1 << 1,      // Indicates connectedness to a trade server.
+    EA_STATE_FLAG_ENABLED = 1 << 2,        // Is enabled.
+    EA_STATE_FLAG_LIBS_ALLOWED = 1 << 3,   // Indicates the permission to use external libraries (such as DLL).
+    EA_STATE_FLAG_ON_INIT = 1 << 4,        // Indicates EA is during initializing procedure (constructor).
+    EA_STATE_FLAG_ON_QUIT = 1 << 5,        // Indicates EA is during exiting procedure (deconstructor).
+    EA_STATE_FLAG_OPTIMIZATION = 1 << 6,   // Indicates EA runs in optimization mode.
+    EA_STATE_FLAG_TESTING = 1 << 7,        // Indicates EA runs in testing mode.
+    EA_STATE_FLAG_TRADE_ALLOWED = 1 << 8,  // Indicates the permission to trade on the chart.
+    EA_STATE_FLAG_VISUAL_MODE = 1 << 9,    // Indicates EA runs in visual testing mode.
+  };
+
+  // Enumeration for strategy signal properties.
+  enum ENUM_EA_STATE_PROP {
+    EA_STATE_PROP_FLAGS = 1,
+    EA_STATE_PROP_LAST_UPDATED,
+    EA_STATE_PROP_NEW_PERIODS,
+    EA_STATE_PROP_TIMESTAMP,
+  };
+
+  /* Constructors */
+
   // Constructor.
   EAState() { EAState::AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
   // Struct methods.
+  /* Getters */
+  template <typename T>
+  T Get(STRUCT_ENUM(EAState, ENUM_EA_STATE_PROP) _prop) {
+    switch (_prop) {
+      case EA_STATE_PROP_FLAGS:
+        return (T)flags;
+      /* @fixme
+      case EA_STATE_PROP_LAST_UPDATED:
+        return (T)last_updated;
+      */
+      case EA_STATE_PROP_NEW_PERIODS:
+        return (T)new_periods;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return (T)WRONG_VALUE;
+  }
+  bool Get(STRUCT_ENUM(EAState, ENUM_EA_STATE_FLAGS) _prop) { return CheckFlag(_prop); }
+  /* Setters */
+  template <typename T>
+  void Set(STRUCT_ENUM(EAState, ENUM_EA_STATE_PROP) _prop, T _value) {
+    switch (_prop) {
+      case EA_STATE_PROP_FLAGS:
+        flags = (unsigned int)_value;
+        return;
+      /* @fixme
+      case EA_STATE_PROP_LAST_UPDATED:
+        last_updated = (unsigned int)_value;
+        return;
+      */
+      case EA_STATE_PROP_NEW_PERIODS:
+        new_periods = (unsigned int)_value;
+        return;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
+  void Set(STRUCT_ENUM(EAState, ENUM_EA_STATE_FLAGS) _prop, bool _value) { SetFlag(_prop, _value); }
   // Flag methods.
   bool CheckFlag(unsigned int _flag) { return bool(flags & _flag); }
   void AddFlags(unsigned int _flags) { flags |= _flags; }

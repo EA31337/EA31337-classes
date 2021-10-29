@@ -1215,7 +1215,7 @@ class Strategy : public Object {
     int _count = (int)fmax(fabs(_level), fabs(_method));
     int _direction = Order::OrderDirection(_cmd, _mode);
     Chart *_chart = trade.GetChart();
-    IndicatorBase *_indi = GetIndicator();
+    IndicatorBase *_indi = GetIndicators().Begin().Value().Ptr();
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {

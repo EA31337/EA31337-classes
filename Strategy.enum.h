@@ -32,18 +32,18 @@
 
 /* Enumeration for strategy bitwise open methods. */
 enum ENUM_OPEN_METHOD {
-  OPEN_METHOD1 = 1,      // Method #1.
-  OPEN_METHOD2 = 2,      // Method #2.
-  OPEN_METHOD3 = 4,      // Method #3.
-  OPEN_METHOD4 = 8,      // Method #4.
-  OPEN_METHOD5 = 16,     // Method #5.
-  OPEN_METHOD6 = 32,     // Method #6.
-  OPEN_METHOD7 = 64,     // Method #7.
-  OPEN_METHOD8 = 128,    // Method #8.
-  OPEN_METHOD9 = 256,    // Method #9.
-  OPEN_METHOD10 = 512,   // Method #10.
-  OPEN_METHOD11 = 1024,  // Method #11.
-  OPEN_METHOD12 = 2048   // Method #12.
+  OPEN_METHOD1 = 1 << 0,    // Method #1.
+  OPEN_METHOD2 = 1 << 1,    // Method #2.
+  OPEN_METHOD3 = 1 << 2,    // Method #3.
+  OPEN_METHOD4 = 1 << 3,    // Method #4.
+  OPEN_METHOD5 = 1 << 4,    // Method #5.
+  OPEN_METHOD6 = 1 << 5,    // Method #6.
+  OPEN_METHOD7 = 1 << 6,    // Method #7.
+  OPEN_METHOD8 = 1 << 7,    // Method #8.
+  OPEN_METHOD9 = 1 << 8,    // Method #9.
+  OPEN_METHOD10 = 1 << 9,   // Method #10.
+  OPEN_METHOD11 = 1 << 10,  // Method #11.
+  OPEN_METHOD12 = 1 << 11,  // Method #12.
 };
 
 /* Enumeration for strategy actions. */
