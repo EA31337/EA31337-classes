@@ -35,11 +35,7 @@
 #include "Shader.h"
 #include "VertexBuffer.h"
 
-enum GFX_DRAW_TEXT_FLAGS {
-  GFX_DRAW_TEXT_FLAG_NONE,
-  GFX_DRAW_TEXT_FLAG_2D_COORD_X,
-  GFX_DRAW_TEXT_FLAG_2D_COORD_Y
-};
+enum GFX_DRAW_TEXT_FLAGS { GFX_DRAW_TEXT_FLAG_NONE, GFX_DRAW_TEXT_FLAG_2D_COORD_X, GFX_DRAW_TEXT_FLAG_2D_COORD_Y };
 
 enum ENUM_CLEAR_BUFFER_TYPE { CLEAR_BUFFER_TYPE_COLOR, CLEAR_BUFFER_TYPE_DEPTH };
 
@@ -201,7 +197,6 @@ class Device : public Dynamic {
     IndexBuffer* _indices;
     _mesh.GetBuffers(&this, _vertices, _indices);
 
-
     SetMaterial(_mesh.GetMaterial());
 
     PushTransform(_mesh.GetTSR());
@@ -264,7 +259,8 @@ class Device : public Dynamic {
   /**
    * Enqueues text to be drawn directly into the pixel buffer. Queue will be processed in the Device::End() method.
    */
-  void DrawText(float _x, float _y, string _text, unsigned int _color = 0xFFFFFFFF, unsigned int _align = 0, unsigned int _flags = 0) {
+  void DrawText(float _x, float _y, string _text, unsigned int _color = 0xFFFFFFFF, unsigned int _align = 0,
+                unsigned int _flags = 0) {
     DViewport _viewport;
     _viewport.x = 0;
     _viewport.y = 0;

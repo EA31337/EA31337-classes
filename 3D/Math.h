@@ -3155,10 +3155,10 @@ void DXSHRotate(float &out[], int order, const DXMatrix &_matrix, const float &i
     gamma = 0.0f;
   }
 #else
-    alpha = 0.0f;
-    beta = 0.0f;
-    gamma = 0.0f;
-    sinb = 0.0f;
+  alpha = 0.0f;
+  beta = 0.0f;
+  gamma = 0.0f;
+  sinb = 0.0f;
 #endif
 
   //---

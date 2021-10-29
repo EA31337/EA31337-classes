@@ -66,7 +66,7 @@ class Chart3DCandles : public Chart3DType {
       cube1.Ptr().GetTSR().translation.y = chart3d.GetPriceScale(_ohlc.GetMinOC()) + _height / 2;
       cube1.Ptr().GetTSR().scale.y = _height;
 
-      //Print(cube1.Ptr().GetTSR().translation.y);
+      // Print(cube1.Ptr().GetTSR().translation.y);
 
       cube1.Ptr().GetMaterial().SetColor(higher ? 0x22FF11 : 0xFF1122);
       _device.Render(cube1.Ptr());
@@ -93,7 +93,8 @@ class Chart3DCandles : public Chart3DType {
       cube3.Ptr().GetTSR().translation.y = _y;
       cube3.Ptr().GetTSR().scale.x = 200.0f;
 
-      _device.DrawText(5, _y, StringFormat("%." + IntegerToString(_digits) + "f", _s), 0x90FFFFFF, TA_LEFT | TA_VCENTER, GFX_DRAW_TEXT_FLAG_2D_COORD_X);
+      _device.DrawText(5, _y, StringFormat("%." + IntegerToString(_digits) + "f", _s), 0x90FFFFFF, TA_LEFT | TA_VCENTER,
+                       GFX_DRAW_TEXT_FLAG_2D_COORD_X);
 
       cube3.Ptr().GetMaterial().SetColor(0x333333);
       _device.Render(cube3.Ptr());

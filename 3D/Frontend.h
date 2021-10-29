@@ -40,8 +40,7 @@ struct DrawTextQueueItem {
  */
 class Frontend : public Dynamic {
  protected:
-
- DrawTextQueueItem draw_text_queue[];
+  DrawTextQueueItem draw_text_queue[];
 
  public:
   /**
@@ -105,8 +104,7 @@ class Frontend : public Dynamic {
     ArrayResize(draw_text_queue, 0);
   }
 
-protected:
-
+ protected:
   /**
    * Draws text directly into the pixel buffer. Should be executed after all 3d drawing.
    */

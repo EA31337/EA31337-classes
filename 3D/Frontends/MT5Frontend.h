@@ -161,13 +161,13 @@ class MT5Frontend : public Frontend {
    */
   virtual void DrawTextNow(int _x, int _y, string _text, unsigned int _color = 0xFFFFFFFF, unsigned int _align = 0) {
     TextSetFont("Arial", -80, FW_EXTRABOLD, 0);
-    #ifdef __debug__
+#ifdef __debug__
     Print("TextSetFont: LastError = ", GetLastError());
-    #endif
+#endif
 
     TextOut(_text, _x, _y, _align, image, Width(), Height(), _color, COLOR_FORMAT_ARGB_NORMALIZE);
-    #ifdef __debug__
+#ifdef __debug__
     Print("TextOut: LastError = ", GetLastError());
-    #endif
+#endif
   }
 };

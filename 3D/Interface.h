@@ -59,7 +59,6 @@ void OnChartEvent(const int id, const long& lparam, const double& dparam, const 
   int _window = 0;
   InterfaceEvent _event;
 
-
   if (id == CHART_EVENT_MOUSE_MOVE) {
     Interface::mouse_pos_x = (int)lparam;
     Interface::mouse_pos_y = (int)dparam;
@@ -74,12 +73,9 @@ void OnChartEvent(const int id, const long& lparam, const double& dparam, const 
 
 typedef void (*InterfaceListener)(InterfaceEvent&, void*);
 
-class Interface
-{
+class Interface {
  public:
-
-  struct Installation
-  {
+  struct Installation {
     InterfaceListener listener;
     void* target;
   };
@@ -120,13 +116,9 @@ class Interface
     }
   }
 
-  static int GetMouseX() {
-    return mouse_pos_x;
-  }
+  static int GetMouseX() { return mouse_pos_x; }
 
-  static int GetMouseY() {
-    return mouse_pos_y;
-  }
+  static int GetMouseY() { return mouse_pos_y; }
 #endif
 };
 
