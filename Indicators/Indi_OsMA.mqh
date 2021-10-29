@@ -32,13 +32,13 @@ double iOsMA(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_peri
 #endif
 
 // Structs.
-struct OsMAParams : IndicatorParams {
+struct IndiOsMAParams : IndicatorParams {
   int ema_fast_period;
   int ema_slow_period;
   int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  OsMAParams(int _efp = 12, int _esp = 26, int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiOsMAParams(int _efp = 12, int _esp = 26, int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : ema_fast_period(_efp),
         ema_slow_period(_esp),
         signal_period(_sp),
@@ -48,7 +48,7 @@ struct OsMAParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OsMA");
   };
-  OsMAParams(OsMAParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiOsMAParams(IndiOsMAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -57,12 +57,12 @@ struct OsMAParams : IndicatorParams {
 /**
  * Implements the Moving Average of Oscillator indicator.
  */
-class Indi_OsMA : public Indicator<OsMAParams> {
+class Indi_OsMA : public Indicator<IndiOsMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OsMA(OsMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<OsMAParams>(_p, _indi_src) {}
+  Indi_OsMA(IndiOsMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiOsMAParams>(_p, _indi_src) {}
   Indi_OsMA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_OSMA, _tf) {}
 
   /**
@@ -80,7 +80,6 @@ class Indi_OsMA : public Indicator<OsMAParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price)) ==
           INVALID_HANDLE) {
@@ -112,7 +111,6 @@ class Indi_OsMA : public Indicator<OsMAParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -127,18 +125,7 @@ class Indi_OsMA : public Indicator<OsMAParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /* Getters */

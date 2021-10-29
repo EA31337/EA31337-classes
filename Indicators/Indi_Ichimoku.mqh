@@ -62,12 +62,12 @@ enum ENUM_ICHIMOKU_LINE {
 };
 
 // Structs.
-struct IchimokuParams : IndicatorParams {
+struct IndiIchimokuParams : IndicatorParams {
   unsigned int tenkan_sen;
   unsigned int kijun_sen;
   unsigned int senkou_span_b;
   // Struct constructors.
-  IchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
+  IndiIchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
       : tenkan_sen(_ts),
         kijun_sen(_ks),
         senkou_span_b(_ss_b),
@@ -76,7 +76,7 @@ struct IchimokuParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Not sure if not mixed.
     SetCustomIndicatorName("Examples\\Ichimoku");
   };
-  IchimokuParams(IchimokuParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiIchimokuParams(IndiIchimokuParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -85,12 +85,13 @@ struct IchimokuParams : IndicatorParams {
 /**
  * Implements the Ichimoku Kinko Hyo indicator.
  */
-class Indi_Ichimoku : public Indicator<IchimokuParams> {
+class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IchimokuParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IchimokuParams>(_p, _indi_src) {}
+  Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiIchimokuParams>(_p, _indi_src) {}
   Indi_Ichimoku(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ICHIMOKU, _tf) {}
 
   /**
@@ -111,7 +112,6 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -142,7 +142,6 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -157,55 +156,27 @@ class Indi_Ichimoku : public Indicator<IchimokuParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
   /**
-   * Returns the indicator's struct value.
+   * Alters indicator's struct value.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+    Indicator<IndiIchimokuParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
-      // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
-      // so we are duplicating it.
-      _entry.values[0] = GetValue(LINE_TENKANSEN, _shift);
+    // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
+    // so we are duplicating it.
+    _entry.values[0] = GetValue(LINE_TENKANSEN, _shift);
 #endif
-      _entry.values[LINE_TENKANSEN] = GetValue(LINE_TENKANSEN, _shift);
-      _entry.values[LINE_KIJUNSEN] = GetValue(LINE_KIJUNSEN, _shift);
-      _entry.values[LINE_SENKOUSPANA] = GetValue(LINE_SENKOUSPANA, _shift);
-      _entry.values[LINE_SENKOUSPANB] = GetValue(LINE_SENKOUSPANB, _shift);
-      _entry.values[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift + 26);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
+    _entry.values[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift + 26);
   }
 
   /**
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<IchimokuParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0);
+    return Indicator<IndiIchimokuParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0);
   }
 
   /* Getters */

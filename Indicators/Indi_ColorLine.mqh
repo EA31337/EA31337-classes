@@ -27,14 +27,14 @@
 #include "Indi_MA.mqh"
 
 // Structs.
-struct ColorLineParams : IndicatorParams {
+struct IndiColorLineParams : IndicatorParams {
   // Struct constructor.
-  ColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE, 2, TYPE_DOUBLE) {
+  IndiColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE, 2, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorLine");
     shift = _shift;
   };
-  ColorLineParams(ColorLineParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiColorLineParams(IndiColorLineParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -43,13 +43,14 @@ struct ColorLineParams : IndicatorParams {
 /**
  * Implements Color Bars
  */
-class Indi_ColorLine : public Indicator<ColorLineParams> {
+class Indi_ColorLine : public Indicator<IndiColorLineParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ColorLine(ColorLineParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ColorLineParams>(_p, _indi_src){};
-  Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_LINE, _tf){};
+  Indi_ColorLine(IndiColorLineParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiColorLineParams>(_p, _indi_src){};
+  Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_COLOR_LINE, _tf, _shift){};
 
   /**
    * "Built-in" version of Color Line.
@@ -172,7 +173,6 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -184,17 +184,6 @@ class Indi_ColorLine : public Indicator<ColorLineParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 };

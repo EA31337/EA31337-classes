@@ -68,7 +68,7 @@ enum ENUM_GATOR_HISTOGRAM {
 enum ENUM_GATOR_COLOR { GATOR_HISTCOLOR_GREEN = 0, GATOR_HISTCOLOR_RED = 1, FINAL_GATOR_HISTCOLOR_ENTRY };
 
 // Structs.
-struct GatorParams : IndicatorParams {
+struct IndiGatorParams : IndicatorParams {
   int jaw_period;                    // Jaw line averaging period.
   int jaw_shift;                     // Jaw line shift.
   int teeth_period;                  // Teeth line averaging period.
@@ -78,8 +78,8 @@ struct GatorParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
   // Struct constructors.
-  GatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
-              ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
+  IndiGatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
+                  ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
       : jaw_period(_jp),
         jaw_shift(_js),
         teeth_period(_tp),
@@ -93,7 +93,7 @@ struct GatorParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Gator");
   };
-  GatorParams(GatorParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiGatorParams(IndiGatorParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -102,12 +102,12 @@ struct GatorParams : IndicatorParams {
 /**
  * Implements the Gator oscillator.
  */
-class Indi_Gator : public Indicator<GatorParams> {
+class Indi_Gator : public Indicator<IndiGatorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Gator(GatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<GatorParams>(_p, _indi_src) {}
+  Indi_Gator(IndiGatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiGatorParams>(_p, _indi_src) {}
   Indi_Gator(ENUM_TIMEFRAMES _tf) : Indicator(INDI_GATOR, _tf) {}
 
   /**
@@ -138,7 +138,6 @@ class Indi_Gator : public Indicator<GatorParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period,
                               _lips_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
@@ -170,7 +169,6 @@ class Indi_Gator : public Indicator<GatorParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -190,50 +188,21 @@ class Indi_Gator : public Indicator<GatorParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
   /**
-   * Returns the indicator's struct value.
+   * Alters indicator's struct value.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[LINE_UPPER_HISTOGRAM] = GetValue(LINE_UPPER_HISTOGRAM, _shift);
-      _entry.values[LINE_LOWER_HISTOGRAM] = GetValue(LINE_LOWER_HISTOGRAM, _shift);
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+    Indicator<IndiGatorParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
-      // @todo: Can we calculate upper and lower histogram color in MT4?
-      // @see: https://docs.mql4.com/indicators/igator
-      // @see: https://www.mql5.com/en/docs/indicators/igator
-      _entry.values[LINE_UPPER_HISTCOLOR] = (double)NULL;
-      _entry.values[LINE_LOWER_HISTCOLOR] = (double)NULL;
-#else
-      _entry.values[LINE_UPPER_HISTCOLOR] = GetValue(LINE_UPPER_HISTCOLOR, _shift);
-      _entry.values[LINE_LOWER_HISTCOLOR] = GetValue(LINE_LOWER_HISTCOLOR, _shift);
+    // @todo: Can we calculate upper and lower histogram color in MT4?
+    // @see: https://docs.mql4.com/indicators/igator
+    // @see: https://www.mql5.com/en/docs/indicators/igator
+    _entry.values[LINE_UPPER_HISTCOLOR] = (double)NULL;
+    _entry.values[LINE_LOWER_HISTCOLOR] = (double)NULL;
 #endif
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /**

@@ -38,7 +38,7 @@ class Stg_RSI : public Strategy {
 
   static Stg_RSI *Init(ENUM_TIMEFRAMES _tf = NULL) {
     ChartParams _cparams(_tf);
-    RSIParams _indi_params(12, PRICE_OPEN, 0);
+    IndiRSIParams _indi_params(12, PRICE_OPEN, 0);
     StgParams _stg_params;
     TradeParams _tparams;
     Strategy *_strat = new Stg_RSI(_stg_params, _tparams, _cparams, "RSI");
@@ -60,7 +60,7 @@ class Stg_RSI : public Strategy {
 
   float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
     Indi_RSI *_indi = GetIndicator();
-    RSIParams _iparams = _indi.GetParams();;
+    IndiRSIParams _iparams = _indi.GetParams();;
     double _trail = _level * Market().GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
     return _direction > 0 ? (float)_indi.GetPrice(PRICE_HIGH, _indi.GetHighest<double>(_iparams.GetPeriod() * 2))

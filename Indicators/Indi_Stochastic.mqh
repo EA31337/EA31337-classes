@@ -33,15 +33,15 @@ double iStochastic(string _symbol, int _tf, int _kperiod, int _dperiod, int _slo
 #endif
 
 // Structs.
-struct StochParams : IndicatorParams {
+struct IndiStochParams : IndicatorParams {
   int kperiod;
   int dperiod;
   int slowing;
   ENUM_MA_METHOD ma_method;
   ENUM_STO_PRICE price_field;
   // Struct constructors.
-  StochParams(int _kperiod = 5, int _dperiod = 3, int _slowing = 3, ENUM_MA_METHOD _ma_method = MODE_SMA,
-              ENUM_STO_PRICE _pf = STO_LOWHIGH, int _shift = 0)
+  IndiStochParams(int _kperiod = 5, int _dperiod = 3, int _slowing = 3, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                  ENUM_STO_PRICE _pf = STO_LOWHIGH, int _shift = 0)
       : kperiod(_kperiod),
         dperiod(_dperiod),
         slowing(_slowing),
@@ -52,7 +52,7 @@ struct StochParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\Stochastic");
   };
-  StochParams(StochParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiStochParams(IndiStochParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -61,12 +61,12 @@ struct StochParams : IndicatorParams {
 /**
  * Implements the Stochastic Oscillator.
  */
-class Indi_Stochastic : public Indicator<StochParams> {
+class Indi_Stochastic : public Indicator<IndiStochParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Stochastic(StochParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<StochParams>(_p, _indi_src) {}
+  Indi_Stochastic(IndiStochParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiStochParams>(_p, _indi_src) {}
   Indi_Stochastic(ENUM_TIMEFRAMES _tf) : Indicator(INDI_STOCHASTIC, _tf) {}
 
   /**
@@ -88,7 +88,6 @@ class Indi_Stochastic : public Indicator<StochParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field)) ==
           INVALID_HANDLE) {
@@ -120,7 +119,6 @@ class Indi_Stochastic : public Indicator<StochParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = LINE_MAIN, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -135,8 +133,6 @@ class Indi_Stochastic : public Indicator<StochParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
@@ -144,7 +140,7 @@ class Indi_Stochastic : public Indicator<StochParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGe(0);
+    return _entry.IsWithinRange<double>(0, 101);
   }
 
   /* Getters */

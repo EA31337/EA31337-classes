@@ -23,21 +23,21 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "Indi_Price.mqh"
+#include "OHLC/Indi_OHLC.mqh"
 #include "Special/Indi_Math.mqh"
 
 // Structs.
-struct RSParams : IndicatorParams {
+struct IndiRSParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  RSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+  IndiRSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_RS, 2, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_MATH);
     shift = _shift;
   };
-  RSParams(RSParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiRSParams(IndiRSParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -46,31 +46,30 @@ struct RSParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_RS : public Indicator<RSParams> {
+class Indi_RS : public Indicator<IndiRSParams> {
   DictStruct<int, Ref<Indi_Math>> imath;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_RS(RSParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RSParams>(_p, _indi_src) { Init(); };
-  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RS, _tf) { Init(); };
+  Indi_RS(IndiRSParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRSParams>(_p, _indi_src) { Init(); };
+  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RS, _tf, _shift) { Init(); };
 
   void Init() {
     if (iparams.GetDataSourceType() == IDATA_MATH) {
-      PriceIndiParams _iprice_p();
+      IndiOHLCParams _iohlc_params();
       // @todo Symbol should be already defined for a chart.
       // @todo If it's not, move initialization to GetValue()/GetEntry() method.
-      Indi_Price *_iprice = Indi_Price::GetCached(_Symbol, GetTf(), 0);
-
-      MathParams _imath0_p(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
-      MathParams _imath1_p(MATH_OP_SUB, PRICE_CLOSE, 1, PRICE_CLOSE, 0);
+      Indi_OHLC *_iohlc = Indi_OHLC::GetCached(_Symbol, GetTf(), 0);
+      IndiMathParams _imath0_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 0, INDI_OHLC_CLOSE, 1);
+      IndiMathParams _imath1_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 1, INDI_OHLC_CLOSE, 0);
       _imath0_p.SetTf(GetTf());
       _imath1_p.SetTf(GetTf());
       Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_p);
       Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_p);
-      _imath0.Ptr().SetDataSource(_iprice, false, 0);
-      _imath1.Ptr().SetDataSource(_iprice, false, 0);
+      _imath0.Ptr().SetDataSource(_iohlc, 0);
+      _imath1.Ptr().SetDataSource(_iohlc, 0);
       imath.Set(0, _imath0);
       imath.Set(1, _imath1);
     }
@@ -80,7 +79,6 @@ class Indi_RS : public Indicator<RSParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_MATH:
@@ -88,19 +86,9 @@ class Indi_RS : public Indicator<RSParams> {
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   /**

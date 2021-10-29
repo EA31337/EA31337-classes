@@ -27,12 +27,12 @@
 #include "Indi_MA.mqh"
 
 // Structs.
-struct TEMAParams : IndicatorParams {
+struct IndiTEMAParams : IndicatorParams {
   unsigned int period;
   unsigned int tema_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  TEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiTEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_TEMA, 1, TYPE_DOUBLE) {
     applied_price = _ap;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -41,7 +41,7 @@ struct TEMAParams : IndicatorParams {
     shift = _shift;
     tema_shift = _tema_shift;
   };
-  TEMAParams(TEMAParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiTEMAParams(IndiTEMAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,13 +50,13 @@ struct TEMAParams : IndicatorParams {
 /**
  * Implements the Triple Exponential Moving Average indicator.
  */
-class Indi_TEMA : public Indicator<TEMAParams> {
+class Indi_TEMA : public Indicator<IndiTEMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_TEMA(TEMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<TEMAParams>(_p, _indi_src){};
-  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TEMA, _tf){};
+  Indi_TEMA(IndiTEMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiTEMAParams>(_p, _indi_src){};
+  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_TEMA, _tf, _shift){};
 
   /**
    * Built-in version of TEMA.
@@ -127,7 +127,6 @@ class Indi_TEMA : public Indicator<TEMAParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -140,40 +139,9 @@ class Indi_TEMA : public Indicator<TEMAParams> {
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(_shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   /**

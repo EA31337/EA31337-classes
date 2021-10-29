@@ -26,14 +26,14 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct WilliamsADParams : IndicatorParams {
+struct IndiWilliamsADParams : IndicatorParams {
   // Struct constructor.
-  WilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD, 1, TYPE_DOUBLE) {
+  IndiWilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\W_AD");
     shift = _shift;
   };
-  WilliamsADParams(WilliamsADParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiWilliamsADParams(IndiWilliamsADParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -42,13 +42,14 @@ struct WilliamsADParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_WilliamsAD : public Indicator<WilliamsADParams> {
+class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_WilliamsAD(WilliamsADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<WilliamsADParams>(_p, _indi_src){};
-  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_WILLIAMS_AD, _tf){};
+  Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiWilliamsADParams>(_p, _indi_src){};
+  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_WILLIAMS_AD, _tf, _shift){};
 
   /**
    * Built-in version of Williams' AD.
@@ -124,7 +125,6 @@ class Indi_WilliamsAD : public Indicator<WilliamsADParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -136,17 +136,6 @@ class Indi_WilliamsAD : public Indicator<WilliamsADParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 };

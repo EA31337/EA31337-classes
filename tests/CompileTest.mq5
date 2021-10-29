@@ -103,15 +103,12 @@
 #include "../Terminal.mqh"
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"
-#include "../Tests.mqh"
+//#include "../Tests.mqh"
 #include "../Ticker.mqh"
 #include "../Timer.mqh"
 #include "../Trade.mqh"
 #include "../Util.h"
 #include "../Web.mqh"
-
-// Includes indicator files.
-#include "../Indicators/indicators.h"
 
 /**
  * Implements Init event handler.

@@ -27,18 +27,29 @@
 #include "Indi_AC.mqh"
 #include "Indi_AO.mqh"
 
+// Enumerations.
+// Indicator line identifiers used in BWMFI indicators.
+enum ENUM_INDI_BWZT_MODE {
+  INDI_BWZT_MODE_OPEN = 0,
+  INDI_BWZT_MODE_HIGH = 1,
+  INDI_BWZT_MODE_LOW = 2,
+  INDI_BWZT_MODE_CLOSE = 3,
+  INDI_BWZT_MODE_COLOR = 4,
+  FINAL_INDI_BWZT_MODE_ENTRY
+};
+
 // Structs.
-struct BWZTParams : IndicatorParams {
+struct IndiBWZTParams : IndicatorParams {
   unsigned int period;
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
-  BWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, 5, TYPE_DOUBLE) {
+  IndiBWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
     shift = _shift;
   };
-  BWZTParams(BWZTParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiBWZTParams(IndiBWZTParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -47,13 +58,13 @@ struct BWZTParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Zone Trade.
  */
-class Indi_BWZT : public Indicator<BWZTParams> {
+class Indi_BWZT : public Indicator<IndiBWZTParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BWZT(BWZTParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BWZTParams>(_p, _indi_src){};
-  Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWZT, _tf){};
+  Indi_BWZT(IndiBWZTParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiBWZTParams>(_p, _indi_src){};
+  Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BWZT, _tf, _shift){};
 
   /**
    * Built-in version of BWZT.
@@ -120,15 +131,17 @@ class Indi_BWZT : public Indicator<BWZTParams> {
       if (prev_calculated > 0) to_copy++;
     }
     // Get AC buffer.
-    if (IsStopped()) return (0);
     if (CopyBuffer(ExtACHandle, 0, 0, to_copy, ExtACBuffer, rates_total) <= 0) {
+#ifdef __debug__
       Print("Getting iAC is failed! Error ", GetLastError());
+#endif
       return (0);
     }
     // Get AO buffer.
-    if (IsStopped()) return (0);
     if (CopyBuffer(ExtAOHandle, 0, 0, to_copy, ExtAOBuffer, rates_total) <= 0) {
+#ifdef __debug__
       Print("Getting iAO is failed! Error ", GetLastError());
+#endif
       return (0);
     }
     // Set first bar from what calculation will start.
@@ -160,7 +173,6 @@ class Indi_BWZT : public Indicator<BWZTParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -171,18 +183,18 @@ class Indi_BWZT : public Indicator<BWZTParams> {
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
   /**
-   * Returns the indicator's entry value.
+   * Checks if indicator entry is valid.
+   *
+   * @return
+   *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return !_entry.HasValue<double>(DBL_MAX) && _entry.GetMin<double>(4) > 0 && _entry[(int)INDI_BWZT_MODE_COLOR] >= 0;
   }
 };

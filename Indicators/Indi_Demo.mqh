@@ -23,7 +23,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../Indicators/Indi_Price.mqh"
+#include "Price/Indi_Price.mqh"
 
 /**
  * @file
@@ -31,9 +31,9 @@
  */
 
 // Structs.
-struct DemoIndiParams : IndicatorParams {
+struct IndiDemoParams : IndicatorParams {
   // Struct constructors.
-  DemoIndiParams(int _shift = 0) : IndicatorParams(INDI_DEMO, 1, TYPE_DOUBLE) {
+  IndiDemoParams(int _shift = 0) : IndicatorParams(INDI_DEMO, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetShift(_shift);
     switch (idstype) {
@@ -44,7 +44,7 @@ struct DemoIndiParams : IndicatorParams {
         break;
     }
   };
-  DemoIndiParams(DemoIndiParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiDemoParams(IndiDemoParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -53,13 +53,13 @@ struct DemoIndiParams : IndicatorParams {
 /**
  * Demo/Dummy Indicator.
  */
-class Indi_Demo : public Indicator<DemoIndiParams> {
+class Indi_Demo : public Indicator<IndiDemoParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Demo(DemoIndiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<DemoIndiParams>(_p, _indi_src){};
-  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DEMO, _tf){};
+  Indi_Demo(IndiDemoParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiDemoParams>(_p, _indi_src){};
+  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DEMO, _tf, _shift){};
 
   /**
    * Returns the indicator value.
@@ -74,20 +74,9 @@ class Indi_Demo : public Indicator<DemoIndiParams> {
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
     double _value = Indi_Demo::iDemo(_Symbol, GetTf(), _shift, THIS_PTR);
-    istate.is_ready = true;
-    istate.is_changed = false;
     if (iparams.is_draw) {
       draw.DrawLineTo(GetName(), GetBarTime(_shift), _value);
     }
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 };

@@ -77,12 +77,11 @@ class Indicator : public IndicatorBase {
   /**
    * Class constructor.
    */
-  Indicator(const TS& _iparams, IndicatorBase* _indi_src = NULL, bool _indi_managed = true, int _indi_mode = 0)
-      : IndicatorBase(_indi_src) {
+  Indicator(const TS& _iparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0) : IndicatorBase(_indi_src) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     if (_indi_src != NULL) {
-      SetDataSource(_indi_src, _indi_managed, _indi_mode);
+      SetDataSource(_indi_src, _indi_mode);
     }
     Init();
   }
@@ -96,21 +95,13 @@ class Indicator : public IndicatorBase {
   /**
    * Class deconstructor.
    */
-  ~Indicator() {
-    DeinitDraw();
-
-    if (indi_src != NULL && iparams.indi_managed) {
-      // User selected custom, managed data source.
-      if (CheckPointer(indi_src) == POINTER_INVALID) {
-        DebugBreak();
-      }
-      delete indi_src;
-      indi_src = NULL;
-    }
-  }
+  ~Indicator() { DeinitDraw(); }
 
   /* Init methods */
 
+  /**
+   * It's called on class initialization.
+   */
   bool Init() {
     ArrayResize(value_storages, iparams.GetMaxModes());
     switch (iparams.GetDataSourceType()) {
@@ -119,7 +110,7 @@ class Indicator : public IndicatorBase {
       case IDATA_ICUSTOM:
         break;
       case IDATA_INDICATOR:
-        if (indi_src == NULL) {
+        if (!indi_src.IsSet()) {
           // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
           // SetDataSource(_indi_price, true, PRICE_OPEN);
         }
@@ -323,9 +314,6 @@ class Indicator : public IndicatorBase {
       }
 
       T _value = _entry.GetValue<T>(_mode);
-
-      //    Print(_value);
-
       _buffer[_buffer_size - i - 1] = _value;
       ++_num_copied;
     }
@@ -670,9 +658,9 @@ class Indicator : public IndicatorBase {
   /**
    * Sets indicator data source.
    */
-  void SetDataSource(IndicatorBase* _indi, bool _managed, int _input_mode) {
+  void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) {
     indi_src = _indi;
-    iparams.SetDataSource(-1, _input_mode, _managed);
+    iparams.SetDataSource(-1, _input_mode);
   }
 
   /**
@@ -795,22 +783,6 @@ class Indicator : public IndicatorBase {
   }
 
   /**
-   * Checks whether indicator has a valid value for a given shift.
-   */
-  /* @todo
-  virtual bool HasValidEntry(int _shift = 0) {
-    unsigned int position;
-    long bar_time = GetBarTime(_shift);
-
-    if (idata.KeyExists(bar_time, position)) {
-      return idata.GetByPos(position).IsValid();
-    }
-
-    return false;
-  }
-  */
-
-  /**
    * Adds entry to the indicator's buffer. Invalid entry won't be added.
    */
   bool AddEntry(IndicatorDataEntry& entry, datetime _timestamp = 0) {
@@ -907,14 +879,17 @@ class Indicator : public IndicatorBase {
    */
   virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
     bool _result = true;
-    _result &= !_entry.HasValue<double>(NULL);
-    _result &= !_entry.HasValue<double>(EMPTY_VALUE);
+    _result &= _entry.timestamp > 0;
+    _result &= _entry.GetSize() > 0;
     if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
       _result &= !_entry.HasValue<double>(DBL_MAX);
+      _result &= !_entry.HasValue<double>(NULL);
     } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
-      _result &= !_entry.HasValue<double>(FLT_MAX);
+      _result &= !_entry.HasValue<float>(FLT_MAX);
+      _result &= !_entry.HasValue<float>(NULL);
     } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
-      _result &= !_entry.HasValue<double>(INT_MAX);
+      _result &= !_entry.HasValue<int>(INT_MAX);
+      _result &= !_entry.HasValue<int>(NULL);
     }
     return _result;
   }
@@ -928,7 +903,7 @@ class Indicator : public IndicatorBase {
   };
 
   /**
-   * Returns the indicator's struct value.
+   * Returns the indicator's struct entry for the given shift.
    *
    * @see: IndicatorDataEntry.
    *
@@ -937,51 +912,68 @@ class Indicator : public IndicatorBase {
    */
   virtual IndicatorDataEntry GetEntry(datetime _bar_time = 0) {
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
-    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
+    if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(iparams.GetMaxModes());
       _entry.timestamp = _bar_time;
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        // _entry.values[_mode] = GetValue(_mode, _shift); // @todo
+        // _entry.values[_mode] = GetValue(_mode, _ishift); // @todo
       }
-      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
+      GetEntryAlter(_entry, _bar_time);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
+        istate.is_changed = false;
+        istate.is_ready = true;
       } else {
         _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
       }
+    }
+    if (_LastError != ERR_NO_ERROR) {
+      istate.is_ready = false;
+      ResetLastError();
     }
     return _entry;
   }
 
   /**
-   * Returns the indicator's entry value.
+   * Alters indicator's struct value.
+   *
+   * This method allows user to modify the struct entry before it's added to cache.
+   * This method is called on GetEntry() right after values are set.
    */
-  virtual MqlParam GetEntryValue(datetime _bar_time = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_FLOAT};
-    _param.double_value = (float)GetEntry(_bar_time).GetValue<float>(_mode);
-    return _param;
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, datetime _bar_time = 0) {
+    _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
+  };
+
+  /**
+   * Returns the indicator's entry value for the given shift and mode.
+   *
+   * @see: DataParamEntry.
+   *
+   * @return
+   *   Returns DataParamEntry struct filled with a single value.
+   */
+  virtual DataParamEntry GetEntryValue(datetime _bar_time = 0, int _mode = 0) {
+    IndicatorDataEntry _entry = GetEntry(_bar_time);
+    DataParamEntry _value_entry;
+    if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
+      _value_entry = _entry.GetValue<double>(_mode);
+    } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
+      _value_entry = _entry.GetValue<float>(_mode);
+    } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
+      _value_entry = _entry.GetValue<int>(_mode);
+    }
+    return _value_entry;
   }
 
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual double GetValue(int _shift = -1, int _mode = 0) {
+    _shift = _shift >= 0 ? _shift : iparams.GetShift();
     istate.is_changed = false;
     istate.is_ready = false;
     return EMPTY_VALUE;
-  }
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  virtual string ToString(datetime _bar_time = 0) {
-    IndicatorDataEntry _entry = GetEntry(_bar_time);
-    int _serializer_flags =
-        SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
-    SerializerConverter _stub_indi =
-        SerializerConverter::MakeStubObject<IndicatorDataEntry>(_serializer_flags, _entry.GetSize());
-    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
   }
 };
 

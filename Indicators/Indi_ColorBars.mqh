@@ -26,14 +26,14 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct ColorBarsParams : IndicatorParams {
+struct IndiColorBarsParams : IndicatorParams {
   // Struct constructor.
-  ColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS, 5, TYPE_DOUBLE) {
+  IndiColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS, 5, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorBars");
     shift = _shift;
   };
-  ColorBarsParams(ColorBarsParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiColorBarsParams(IndiColorBarsParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -42,13 +42,14 @@ struct ColorBarsParams : IndicatorParams {
 /**
  * Implements Color Bars
  */
-class Indi_ColorBars : public Indicator<ColorBarsParams> {
+class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ColorBars(ColorBarsParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ColorBarsParams>(_p, _indi_src){};
-  Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_BARS, _tf){};
+  Indi_ColorBars(IndiColorBarsParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiColorBarsParams>(_p, _indi_src){};
+  Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_COLOR_BARS, _tf, _shift){};
 
   /**
    * "Built-in" version of Color Bars.
@@ -113,7 +114,6 @@ class Indi_ColorBars : public Indicator<ColorBarsParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -124,18 +124,8 @@ class Indi_ColorBars : public Indicator<ColorBarsParams> {
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 };

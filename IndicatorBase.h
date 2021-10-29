@@ -80,8 +80,8 @@ class IndicatorBase : public Object {
   DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
   ARRAY(ValueStorage<double>*, value_storages);
-  IndicatorBase* indi_src;  // // Indicator used as data source.
-  int indi_src_mode;        // Mode of source indicator
+  Ref<IndicatorBase> indi_src;  // // Indicator used as data source.
+  int indi_src_mode;            // Mode of source indicator
   IndicatorCalculateCache<double> cache;
 
  public:
@@ -383,7 +383,7 @@ class IndicatorBase : public Object {
   /**
    * Returns currently selected data source without any validation.
    */
-  IndicatorBase* GetDataSourceRaw() { return indi_src; }
+  IndicatorBase* GetDataSourceRaw() { return indi_src.Ptr(); }
 
   /* Operator overloading methods */
 
@@ -594,7 +594,7 @@ class IndicatorBase : public Object {
   /**
    * Sets indicator data source.
    */
-  virtual void SetDataSource(IndicatorBase* _indi, bool _managed, int _input_mode) = 0;
+  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) = NULL;
 
   /**
    * Sets data source's input mode.
@@ -713,22 +713,6 @@ class IndicatorBase : public Object {
   }
 
   /**
-   * Checks whether indicator has a valid value for a given shift.
-   */
-  virtual bool HasValidEntry(int _shift = 0) {
-    /* @todo
-    unsigned int position;
-    long bar_time = GetBarTime(_shift);
-
-    if (idata.KeyExists(bar_time, position)) {
-      return idata.GetByPos(position).IsValid();
-    }
-    */
-
-    return false;
-  }
-
-  /**
    * Adds entry to the indicator's buffer. Invalid entry won't be added.
    */
   bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
@@ -821,11 +805,12 @@ class IndicatorBase : public Object {
    * @return
    * Returns price value of the corresponding indicator values.
    */
+  /* @fixme
   template <typename T>
-  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL) {
+  float GetValuePrice(datetime _bar_time = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL) {
     float _price = 0;
     if (GetIDataValueRange() != IDATA_RANGE_PRICE) {
-      _price = (float)GetPrice(_ap, _shift);
+      // _price = (float)GetPrice(_ap, _bar_time); // @fixme
     } else if (GetIDataValueRange() == IDATA_RANGE_PRICE) {
       // When indicator values are the actual prices.
       T _values[4];
@@ -833,13 +818,13 @@ class IndicatorBase : public Object {
         // When values aren't valid, return 0.
         return _price;
       }
-      datetime _bar_time = GetBarTime(_shift);
       float _value = 0;
       BarOHLC _ohlc(_values, _bar_time);
       _price = _ohlc.GetAppliedPrice(_ap);
     }
     return _price;
   }
+  */
 
   /**
    * Returns values for a given shift.
@@ -886,6 +871,37 @@ class IndicatorBase : public Object {
   /* Virtual methods */
 
   /**
+   * Returns the indicator's struct value.
+   */
+  virtual IndicatorDataEntry GetEntry(datetime _bar_time = 0) = NULL;
+
+  /**
+   * Alters indicator's struct value.
+   *
+   * This method allows user to modify the struct entry before it's added to cache.
+   * This method is called on GetEntry() right after values are set.
+   */
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, datetime _bar_time = 0) = NULL;
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  virtual DataParamEntry GetEntryValue(datetime _bar_time = 0, int _mode = 0) = NULL;
+
+  /**
+   * Returns indicator value for a given shift and mode.
+   */
+  // virtual double GetValue(int _shift = -1, int _mode = 0) = NULL;
+
+  /**
+   * Checks whether indicator has a valid value for a given shift.
+   */
+  virtual bool HasValidEntry(datetime _bar_time = 0) {
+    unsigned int position;
+    return _bar_time > 0 && idata.KeyExists(_bar_time, position) ? idata.GetByPos(position).IsValid() : false;
+  }
+
+  /**
    * Returns stored data in human-readable format.
    */
   // virtual bool ToString() = NULL; // @fixme?
@@ -904,29 +920,18 @@ class IndicatorBase : public Object {
   };
 
   /**
-   * Returns the indicator's struct value.
-   */
-  virtual IndicatorDataEntry GetEntry(datetime _bar_time = 0) = NULL;
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_FLOAT};
-    _param.double_value = (float)GetEntry(_shift).GetValue<float>(_mode);
-    return _param;
-  }
-
-  /**
    * Returns the indicator's value in plain format.
    */
   virtual string ToString(int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
-    int _serializer_flags =
-        SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
-    SerializerConverter _stub_indi =
-        SerializerConverter::MakeStubObject<IndicatorDataEntry>(_serializer_flags, _entry.GetSize());
-    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
+    int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT |
+                            SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE;
+
+    IndicatorDataEntry _stub_entry;
+    _stub_entry.AddFlags(_entry.GetFlags());
+    SerializerConverter _stub = SerializerConverter::MakeStubObject(_stub_entry, _serializer_flags, _entry.GetSize());
+
+    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub);
   }
 
   /* @todo

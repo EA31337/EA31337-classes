@@ -26,11 +26,11 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct VROCParams : IndicatorParams {
+struct IndiVROCParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  VROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
+  IndiVROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_VROC, 1, TYPE_DOUBLE) {
     applied_volume = _applied_volume;
     period = _period;
@@ -38,7 +38,7 @@ struct VROCParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\VROC");
     shift = _shift;
   };
-  VROCParams(VROCParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiVROCParams(IndiVROCParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -47,13 +47,13 @@ struct VROCParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_VROC : public Indicator<VROCParams> {
+class Indi_VROC : public Indicator<IndiVROCParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_VROC(VROCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<VROCParams>(_p, _indi_src){};
-  Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf){};
+  Indi_VROC(IndiVROCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiVROCParams>(_p, _indi_src){};
+  Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_VROC, _tf, _shift){};
 
   /**
    * Built-in version of VROC.
@@ -131,7 +131,6 @@ class Indi_VROC : public Indicator<VROCParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -145,18 +144,7 @@ class Indi_VROC : public Indicator<VROCParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   /* Getters */

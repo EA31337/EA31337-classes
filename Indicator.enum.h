@@ -92,6 +92,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_MOMENTUM,             // Momentum
   INDI_MOMENTUM_ON_PRICE,    // Momentum (on Price)
   INDI_OBV,                  // On Balance Volume
+  INDI_OHLC,                 // OHLC (Open-High-Low-Close)
   INDI_OSMA,                 // OsMA
   INDI_PATTERN,              // Pattern Detector
   INDI_PIVOT,                // Pivot Detector

@@ -30,7 +30,7 @@ enum ENUM_MATH_OP_MODE { MATH_OP_MODE_BUILTIN, MATH_OP_MODE_CUSTOM_FUNCTION };
 typedef double (*MathCustomOpFunction)(double a, double b);
 
 // Structs.
-struct MathParams : IndicatorParams {
+struct IndiMathParams : IndicatorParams {
   ENUM_MATH_OP_MODE op_mode;
   ENUM_MATH_OP op_builtin;
   MathCustomOpFunction op_fn;
@@ -40,8 +40,9 @@ struct MathParams : IndicatorParams {
   unsigned int shift_2;
 
   // Struct constructor.
-  MathParams(ENUM_MATH_OP _op = MATH_OP_SUB, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
-             unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+  IndiMathParams(ENUM_MATH_OP _op = MATH_OP_SUB, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
+                 unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
+                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
     mode_1 = _mode_1;
     mode_2 = _mode_2;
@@ -56,8 +57,9 @@ struct MathParams : IndicatorParams {
   };
 
   // Struct constructor.
-  MathParams(MathCustomOpFunction _op, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1, unsigned int _shift_1 = 0,
-             unsigned int _shift_2 = 0, int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+  IndiMathParams(MathCustomOpFunction _op, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
+                 unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
+                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
     max_modes = 1;
     mode_1 = _mode_1;
@@ -71,7 +73,7 @@ struct MathParams : IndicatorParams {
     shift_2 = _shift_2;
     tf = _tf;
   };
-  MathParams(MathParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiMathParams(IndiMathParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -80,41 +82,40 @@ struct MathParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_Math : public Indicator<MathParams> {
+class Indi_Math : public Indicator<IndiMathParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Math(MathParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MathParams>(_p, _indi_src){};
-  Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_SPECIAL_MATH, _tf){};
+  Indi_Math(IndiMathParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMathParams>(_p, _indi_src){};
+  Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_SPECIAL_MATH, _tf, _shift){};
 
   /**
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_INDICATOR:
-        if (indi_src == NULL) {
+        if (!indi_src.IsSet()) {
           GetLogger().Error(
               "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
-              "which is a part of MathParams structure.",
+              "which is a part of IndiMathParams structure.",
               "Indi_Math");
           Alert(
               "Indi_Math: In order use custom indicator as a source, you need to select one using SetIndicatorData() "
-              "method, which is a part of MathParams structure.");
+              "method, which is a part of IndiMathParams structure.");
           SetUserError(ERR_INVALID_PARAMETER);
           return _value;
         }
         switch (iparams.op_mode) {
           case MATH_OP_MODE_BUILTIN:
-            _value = Indi_Math::iMathOnIndicator(indi_src, _Symbol, GetTf(),
+            _value = Indi_Math::iMathOnIndicator(GetDataSource(), _Symbol, GetTf(),
                                                  /*[*/ GetOpBuiltIn(), GetMode1(), GetMode2(), GetShift1(),
                                                  GetShift2() /*]*/, 0, _shift, &this);
             break;
           case MATH_OP_MODE_CUSTOM_FUNCTION:
-            _value = Indi_Math::iMathOnIndicator(indi_src, _Symbol, GetTf(),
+            _value = Indi_Math::iMathOnIndicator(GetDataSource(), _Symbol, GetTf(),
                                                  /*[*/ GetOpFunction(), GetMode1(), GetMode2(), GetShift1(),
                                                  GetShift2() /*]*/, 0, _shift, &this);
             break;
@@ -122,19 +123,9 @@ class Indi_Math : public Indicator<MathParams> {
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   static double iMathOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_MATH_OP op,

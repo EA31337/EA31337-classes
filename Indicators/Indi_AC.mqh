@@ -30,14 +30,14 @@ double iAC(string _symbol, int _tf, int _shift) { return Indi_AC::iAC(_symbol, (
 #endif
 
 // Structs.
-struct ACParams : IndicatorParams {
+struct IndiACParams : IndicatorParams {
   // Struct constructor.
-  ACParams(int _shift = 0) : IndicatorParams(INDI_AC, 1, TYPE_DOUBLE) {
+  IndiACParams(int _shift = 0) : IndicatorParams(INDI_AC, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
   };
-  ACParams(ACParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiACParams(IndiACParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -46,13 +46,13 @@ struct ACParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_AC : public Indicator<ACParams> {
+class Indi_AC : public Indicator<IndiACParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AC(ACParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ACParams>(_p, _indi_src){};
-  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AC, _tf){};
+  Indi_AC(IndiACParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiACParams>(_p, _indi_src){};
+  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_AC, _tf, _shift){};
 
   /**
    * Returns the indicator value.
@@ -68,7 +68,6 @@ class Indi_AC : public Indicator<ACParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iAC(_symbol, _tf)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -99,7 +98,6 @@ class Indi_AC : public Indicator<ACParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -112,8 +110,6 @@ class Indi_AC : public Indicator<ACParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
@@ -127,14 +123,5 @@ class Indi_AC : public Indicator<ACParams> {
       _ptr = Objects<Indi_AC>::Set(_key, new Indi_AC(_tf));
     }
     return _ptr;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 };

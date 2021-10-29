@@ -31,13 +31,13 @@
 enum ENUM_CHV_SMOOTH_METHOD { CHV_SMOOTH_METHOD_SMA = 0, CHV_SMOOTH_METHOD_EMA = 1 };
 
 // Structs.
-struct CHVParams : IndicatorParams {
+struct IndiCHVParams : IndicatorParams {
   unsigned int smooth_period;
   unsigned int chv_period;
   ENUM_CHV_SMOOTH_METHOD smooth_method;
   // Struct constructor.
-  CHVParams(int _smooth_period = 10, int _chv_period = 10,
-            ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0)
+  IndiCHVParams(int _smooth_period = 10, int _chv_period = 10,
+                ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0)
       : IndicatorParams(INDI_CHAIKIN_V, 1, TYPE_DOUBLE) {
     chv_period = _chv_period;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -46,7 +46,7 @@ struct CHVParams : IndicatorParams {
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;
   };
-  CHVParams(CHVParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiCHVParams(IndiCHVParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -55,13 +55,13 @@ struct CHVParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_CHV : public Indicator<CHVParams> {
+class Indi_CHV : public Indicator<IndiCHVParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CHV(CHVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CHVParams>(_p, _indi_src){};
-  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN_V, _tf){};
+  Indi_CHV(IndiCHVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCHVParams>(_p, _indi_src){};
+  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_CHAIKIN_V, _tf, _shift){};
 
   /**
    * Built-in version of Chaikin Volatility.
@@ -163,7 +163,6 @@ class Indi_CHV : public Indicator<CHVParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -177,18 +176,7 @@ class Indi_CHV : public Indicator<CHVParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   /* Getters */

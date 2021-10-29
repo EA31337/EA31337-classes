@@ -29,14 +29,14 @@ double iAD(string _symbol, int _tf, int _shift) { return Indi_AD::iAD(_symbol, (
 #endif
 
 // Structs.
-struct ADParams : IndicatorParams {
+struct IndiADParams : IndicatorParams {
   // Struct constructor.
-  ADParams(int _shift = 0) : IndicatorParams(INDI_AD, 1, TYPE_DOUBLE) {
+  IndiADParams(int _shift = 0) : IndicatorParams(INDI_AD, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\AD");
     shift = _shift;
   };
-  ADParams(ADParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiADParams(IndiADParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -45,13 +45,15 @@ struct ADParams : IndicatorParams {
 /**
  * Implements the Accumulation/Distribution indicator.
  */
-class Indi_AD : public Indicator<ADParams> {
+class Indi_AD : public Indicator<IndiADParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AD(ADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ADParams>(_p, _indi_src){};
-  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator<ADParams>(INDI_AD, _tf) { iparams.SetTf(_tf); };
+  Indi_AD(IndiADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiADParams>(_p, _indi_src){};
+  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator<IndiADParams>(INDI_AD, _tf, _shift) {
+    iparams.SetTf(_tf);
+  };
 
   /**
    * Returns the indicator value.
@@ -67,7 +69,6 @@ class Indi_AD : public Indicator<ADParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iAD(_symbol, _tf, VOLUME_TICK)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -98,7 +99,6 @@ class Indi_AD : public Indicator<ADParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -111,17 +111,6 @@ class Indi_AD : public Indicator<ADParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 };

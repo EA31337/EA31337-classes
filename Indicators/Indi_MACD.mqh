@@ -32,14 +32,14 @@ double iMACD(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_peri
 #endif
 
 // Structs.
-struct MACDParams : IndicatorParams {
+struct IndiMACDParams : IndicatorParams {
   unsigned int ema_fast_period;
   unsigned int ema_slow_period;
   unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  MACDParams(unsigned int _efp = 12, unsigned int _esp = 26, unsigned int _sp = 9, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE,
-             int _shift = 0)
+  IndiMACDParams(unsigned int _efp = 12, unsigned int _esp = 26, unsigned int _sp = 9,
+                 ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : ema_fast_period(_efp),
         ema_slow_period(_esp),
         signal_period(_sp),
@@ -49,7 +49,7 @@ struct MACDParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };
-  MACDParams(MACDParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiMACDParams(IndiMACDParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -58,12 +58,12 @@ struct MACDParams : IndicatorParams {
 /**
  * Implements the Moving Averages Convergence/Divergence indicator.
  */
-class Indi_MACD : public Indicator<MACDParams> {
+class Indi_MACD : public Indicator<IndiMACDParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MACD(MACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<MACDParams>(_p, _indi_src) {}
+  Indi_MACD(IndiMACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMACDParams>(_p, _indi_src) {}
   Indi_MACD(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MACD, _tf) {}
 
   /**
@@ -83,7 +83,6 @@ class Indi_MACD : public Indicator<MACDParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price)) ==
           INVALID_HANDLE) {
@@ -115,7 +114,6 @@ class Indi_MACD : public Indicator<MACDParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = LINE_MAIN, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -130,49 +128,13 @@ class Indi_MACD : public Indicator<MACDParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = GetValue((ENUM_SIGNAL_LINE)_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0);
-  }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return !_entry.HasValue<double>(DBL_MAX); }
 
   /* Getters */
 

@@ -28,6 +28,7 @@
 double iBWMFI(string _symbol, int _tf, int _shift) { return Indi_BWMFI::iBWMFI(_symbol, (ENUM_TIMEFRAMES)_tf, _shift); }
 #endif
 
+// Enumerations.
 // Indicator line identifiers used in BWMFI indicators.
 enum ENUM_BWMFI_BUFFER { BWMFI_BUFFER = 0, BWMFI_HISTCOLOR = 1, FINAL_BWMFI_BUFFER_ENTRY };
 // Defines four possible groupings of MFI and volume were termed by Williams.
@@ -41,15 +42,15 @@ enum ENUM_MFI_COLOR {
 };
 
 // Structs.
-struct BWMFIParams : IndicatorParams {
+struct IndiBWIndiMFIParams : IndicatorParams {
   ENUM_APPLIED_VOLUME ap;  // @todo
   // Struct constructors.
-  BWMFIParams(int _shift = 0) : IndicatorParams(INDI_BWMFI, FINAL_BWMFI_BUFFER_ENTRY, TYPE_DOUBLE) {
+  IndiBWIndiMFIParams(int _shift = 0) : IndicatorParams(INDI_BWMFI, FINAL_BWMFI_BUFFER_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
     SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
   };
-  BWMFIParams(BWMFIParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiBWIndiMFIParams(IndiBWIndiMFIParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -58,13 +59,14 @@ struct BWMFIParams : IndicatorParams {
 /**
  * Implements the Market Facilitation Index by Bill Williams indicator.
  */
-class Indi_BWMFI : public Indicator<BWMFIParams> {
+class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BWMFI(BWMFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BWMFIParams>(_p, _indi_src) {}
-  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWMFI, _tf) {}
+  Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiBWIndiMFIParams>(_p, _indi_src) {}
+  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BWMFI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -76,13 +78,10 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
   static double iBWMFI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                        ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
-    // Adjusting shift for MT4.
-    _shift++;
     return ::iBWMFI(_symbol, _tf, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iBWMFI(_symbol, _tf, VOLUME_TICK)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -102,7 +101,7 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
         return EMPTY_VALUE;
       }
     }
-    if (CopyBuffer(_handle, _mode, _shift + 1, 1, _res) < 0) {
+    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
@@ -113,7 +112,6 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = BWMFI_BUFFER, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -126,66 +124,49 @@ class Indi_BWMFI : public Indicator<BWMFIParams> {
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
   /**
-   * Returns the indicator's struct value.
+   * Alters indicator's struct value.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[BWMFI_BUFFER] = GetValue(BWMFI_BUFFER, _shift);
-      double _histcolor = EMPTY_VALUE;
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+    Indicator<IndiBWIndiMFIParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
-      // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
-      bool _vol_up = GetVolume(_shift) > GetVolume(_shift + 1);
-      bool _val_up = GetValue(BWMFI_BUFFER, _shift) > GetValue(BWMFI_BUFFER, _shift + 1);
-      switch (_vol_up) {
-        case true:
-          switch (_val_up) {
-            case true:
-              // Green = Volume(+) Index (+).
-              _histcolor = MFI_HISTCOLOR_GREEN;
-              break;
-            case false:
-              // Squat (Brown) = Volume(+) Index (-).
-              _histcolor = MFI_HISTCOLOR_SQUAT;
-              break;
-          }
-          break;
-        case false:
-          switch (_val_up) {
-            case true:
-              // Fale (Pink) = Volume(-) Index (+).
-              _histcolor = MFI_HISTCOLOR_FAKE;
-              break;
-            case false:
-              // Fade (Blue) = Volume(-) Index (-).
-              _histcolor = MFI_HISTCOLOR_FADE;
-              break;
-          }
-          break;
-      }
-#else
-      _histcolor = GetValue(BWMFI_HISTCOLOR, _shift);
-#endif
-      _entry.values[BWMFI_HISTCOLOR] = _histcolor;
-      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        idata.Add(_entry, _bar_time);
-      }
+    // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
+    bool _vol_up = GetVolume(_shift) > GetVolume(_shift);
+    bool _val_up = GetValue(BWMFI_BUFFER, _shift) > GetValue(BWMFI_BUFFER, _shift);
+    double _histcolor = EMPTY_VALUE;
+    switch (_vol_up) {
+      case true:
+        switch (_val_up) {
+          case true:
+            // Green = Volume(+) Index (+).
+            _histcolor = MFI_HISTCOLOR_GREEN;
+            break;
+          case false:
+            // Squat (Brown) = Volume(+) Index (-).
+            _histcolor = MFI_HISTCOLOR_SQUAT;
+            break;
+        }
+        break;
+      case false:
+        switch (_val_up) {
+          case true:
+            // Fale (Pink) = Volume(-) Index (+).
+            _histcolor = MFI_HISTCOLOR_FAKE;
+            break;
+          case false:
+            // Fade (Blue) = Volume(-) Index (-).
+            _histcolor = MFI_HISTCOLOR_FADE;
+            break;
+        }
+        break;
     }
-    return _entry;
+    _entry.values[BWMFI_HISTCOLOR] = _histcolor;
+#endif
   }
 
   /**
