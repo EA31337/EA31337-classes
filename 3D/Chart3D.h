@@ -26,11 +26,11 @@
  */
 
 #include "../Bar.struct.h"
+#include "../Indicators/Indi_MA.mqh"
+#include "../Instances.h"
 #include "../Refs.mqh"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
-#include "../Indicators/Indi_MA.mqh"
-#include "../Instances.h"
 #include "Chart3DCandles.h"
 #include "Chart3DType.h"
 #include "Cube.h"
@@ -111,9 +111,7 @@ class Chart3D : public Dynamic {
 
   Shader* GetShaderPS() { return shader_ps.Ptr(); }
 
-  Chart3DType* GetCurrentRenderer() {
-    return current_renderer;
-  }
+  Chart3DType* GetCurrentRenderer() { return current_renderer; }
 
   Chart3DType* GetRenderer(Device* _device) {
     if (!initialized) {
@@ -148,7 +146,11 @@ class Chart3D : public Dynamic {
   /**
    * Returns given bar's OHLC.
    */
-  BarOHLC GetPrice(ENUM_TIMEFRAMES _tf, int _shift) { return price_fetcher(_tf, _shift); }
+  BarOHLC GetPrice(ENUM_TIMEFRAMES _tf, int _shift) {
+    BarOHLC _ohlc;
+    return _ohlc;
+    // return price_fetcher(_tf, _shift); // @fixme: 'price_fetcher' - internal error #%d
+  }
 
   /**
    * Return first shift that are visible on the screen. Values is away from 0.
@@ -164,14 +166,20 @@ class Chart3D : public Dynamic {
    * Returns lowest price of bars on the screen.
    */
   float GetMinBarsPrice() {
-    return (float)ChartStatic::iLow(Symbol(), PERIOD_CURRENT, ChartStatic::iLowest(Symbol(), PERIOD_CURRENT, MODE_LOW, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(), GetBarsVisibleShiftEnd()));
+    return (float)ChartStatic::iLow(
+        Symbol(), PERIOD_CURRENT,
+        ChartStatic::iLowest(Symbol(), PERIOD_CURRENT, MODE_LOW, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(),
+                             GetBarsVisibleShiftEnd()));
   }
 
   /**
    * Returns highest price of bars on the screen.
    */
   float GetMaxBarsPrice() {
-    return (float)ChartStatic::iHigh(Symbol(), PERIOD_CURRENT, ChartStatic::iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(), GetBarsVisibleShiftEnd()));
+    return (float)ChartStatic::iHigh(
+        Symbol(), PERIOD_CURRENT,
+        ChartStatic::iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH,
+                              GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(), GetBarsVisibleShiftEnd()));
   }
 
   /**
@@ -201,7 +209,8 @@ class Chart3D : public Dynamic {
   void Render(Device* _device) {
     Chart3DType* _type_renderer = GetRenderer(_device);
 
-    BarOHLC _ohlc = price_fetcher(PERIOD_CURRENT, 0);
+    BarOHLC _ohlc;
+    // BarOHLC _ohlc = price_fetcher(PERIOD_CURRENT, 0);  // @fixme: 'price_fetcher' - internal error #%d
 
 #ifdef __debug__
     Print(SerializerConverter::FromObject(_ohlc).ToString<SerializerJson>());
