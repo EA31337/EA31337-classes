@@ -67,7 +67,7 @@ class Indi_Stochastic : public Indicator<IndiStochParams> {
    * Class constructor.
    */
   Indi_Stochastic(IndiStochParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiStochParams>(_p, _indi_src) {}
-  Indi_Stochastic(ENUM_TIMEFRAMES _tf) : Indicator(INDI_STOCHASTIC, _tf) {}
+  Indi_Stochastic(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_STOCHASTIC, _tf, _shift) {}
 
   /**
    * Calculates the Stochastic Oscillator and returns its value.
@@ -139,9 +139,7 @@ class Indi_Stochastic : public Indicator<IndiStochParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return _entry.IsWithinRange<double>(0, 101);
-  }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.IsWithinRange<double>(0, 101); }
 
   /* Getters */
 

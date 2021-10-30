@@ -750,6 +750,7 @@ class EA {
     _strat.Ptr().Set<long>(STRAT_PARAM_ID, _magic_no);
     _strat.Ptr().Set<ENUM_TIMEFRAMES>(STRAT_PARAM_TF, _tf);
     _strat.Ptr().Set<int>(STRAT_PARAM_TYPE, _type);
+    _strat.Ptr().OnInit();
     if (!strats.KeyExists(_magic_no)) {
       _result &= strats.Set(_magic_no, _strat);
     } else {

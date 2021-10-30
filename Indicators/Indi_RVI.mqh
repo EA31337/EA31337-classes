@@ -55,7 +55,7 @@ class Indi_RVI : public Indicator<IndiRVIParams> {
    * Class constructor.
    */
   Indi_RVI(const IndiRVIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRVIParams>(_p, _indi_src) {}
-  Indi_RVI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_RVI, _tf) {}
+  Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RVI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

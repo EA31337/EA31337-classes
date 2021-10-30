@@ -92,7 +92,7 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
    */
   Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiIchimokuParams>(_p, _indi_src) {}
-  Indi_Ichimoku(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ICHIMOKU, _tf) {}
+  Indi_Ichimoku(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ICHIMOKU, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
