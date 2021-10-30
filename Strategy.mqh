@@ -506,11 +506,9 @@ class Strategy : public Object {
   /**
    * Sets reference to indicator.
    */
-  void SetIndicator(IndicatorBase *_indi, int _id = 0, bool _managed = true) {
-    if (_managed) {
-      Ref<IndicatorBase> _ref = _indi;
-      indicators.Set(_id, _ref);
-    }
+  void SetIndicator(IndicatorBase *_indi, int _id = 0) {
+    Ref<IndicatorBase> _ref = _indi;
+    indicators.Set(_id, _ref);
   }
 
   /* Static setters */
