@@ -108,7 +108,7 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
    * Class constructor.
    */
   Indi_Gator(IndiGatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiGatorParams>(_p, _indi_src) {}
-  Indi_Gator(ENUM_TIMEFRAMES _tf) : Indicator(INDI_GATOR, _tf) {}
+  Indi_Gator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_GATOR, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

@@ -55,7 +55,7 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
    * Class constructor.
    */
   Indi_WPR(IndiWPRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiWPRParams>(_p, _indi_src) {}
-  Indi_WPR(ENUM_TIMEFRAMES _tf) : Indicator(INDI_WPR, _tf) {}
+  Indi_WPR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_WPR, _tf, _shift) {}
 
   /**
    * Calculates the Larry Williams' Percent Range and returns its value.

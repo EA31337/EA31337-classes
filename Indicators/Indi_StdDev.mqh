@@ -77,7 +77,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
    * Class constructor.
    */
   Indi_StdDev(IndiStdDevParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiStdDevParams>(_p, _indi_src) {}
-  Indi_StdDev(ENUM_TIMEFRAMES _tf) : Indicator(INDI_STDDEV, _tf) {}
+  Indi_StdDev(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_STDDEV, _tf, _shift) {}
 
   /**
    * Calculates the Standard Deviation indicator and returns its value.
