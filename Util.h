@@ -38,6 +38,57 @@
 class Util {
  public:
   /**
+   * Resizes native array and reserves space for further items by some fixed step.
+   */
+  template <typename T>
+  static void ArrayResize(T& _array[], int _new_size, int _resize_pool = 32) {
+    ::ArrayResize(_array, _new_size, (_new_size / _resize_pool + 1) * _resize_pool);
+  }
+
+  /**
+   * Pushes item into the native array and reserves space for further items by some fixed step.
+   */
+  template <typename T, typename V>
+  static int ArrayPush(T& _array[], V& _value, int _resize_pool = 32) {
+    Util::ArrayResize(_array, ArraySize(_array) + 1, _resize_pool);
+    _array[ArraySize(_array) - 1] = _value;
+    return ArraySize(_array) - 1;
+  }
+
+  /**
+   * Resizes native array and reserves space for further items by some fixed step.
+   */
+  template <typename T>
+  static T ArrayPop(T& _array[]) {
+    T _result = _array[ArraySize(_array) - 1];
+    ::ArrayResize(_array, ArraySize(_array) - 1);
+    return _result;
+  }
+
+  template <typename T>
+  static T Print(T& _array[]) {
+    string _result;
+    for (int i = 0; i < ArraySize(_array); ++i) {
+      _result += IntegerToString(i) + ": " + (string)_array[i];
+    }
+    return _result;
+  }
+
+  /**
+   * Checks whether array has given value.
+   */
+  template <typename T, typename V>
+  static bool ArrayContains(T& _array[], const V& _value) {
+    for (int i = 0; i < ArraySize(_array); ++i) {
+      if (_array[i] == _value) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Creates string-based key using given variables.
    */
   template <typename A>

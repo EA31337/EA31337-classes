@@ -101,6 +101,7 @@ jobs:
     strategy:
       matrix:
         test:
+          #  - 3DTest
           - CollectionTest
           - ConfigTest
           - ConvertTest

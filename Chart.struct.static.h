@@ -186,15 +186,15 @@ struct ChartStatic {
       case MODE_VOLUME:
         ArraySetAsSeries(arr_l, true);
         CopyTickVolume(_symbol, _tf, _start, _count, arr_l);
-        return (ArrayMinimum(arr_l, 0, _count) + _start);
+        return ArrayMinimum(arr_l, 0, _count) + _start;
       case MODE_TIME:
         ArraySetAsSeries(arr_dt, true);
         CopyTime(_symbol, _tf, _start, _count, arr_dt);
-        return (ArrayMinimum(arr_dt, 0, _count) + _start);
+        return ArrayMinimum(arr_dt, 0, _count) + _start;
       default:
         break;
     }
-    return (ArrayMinimum(arr_d, 0, _count) + _start);
+    return ArrayMinimum(arr_d, 0, _count) + _start;
 #endif
   }
 
