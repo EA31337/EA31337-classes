@@ -113,19 +113,16 @@ class EA {
   /* Getters */
 
   /**
+   * Gets EA state flag value.
+   */
+  bool Get(STRUCT_ENUM(EAState, ENUM_EA_STATE_FLAGS) _prop) { return estate.Get(_prop); }
+
+  /**
    * Gets EA parameter value.
    */
   template <typename T>
   T Get(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_PROP) _param) {
     return eparams.Get<T>(_param);
-  }
-
-  /**
-   * Gets EA state flag value.
-   */
-  template <typename T>
-  T Get(STRUCT_ENUM(EAState, ENUM_EA_STATE_FLAGS) _prop) {
-    return estate.Get<T>(_prop);
   }
 
   /**
@@ -203,6 +200,11 @@ class EA {
   void Set(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_PROP) _param, T _value) {
     eparams.Set<T>(_param, _value);
   }
+
+  /**
+   * Sets EA state flag value.
+   */
+  void Set(STRUCT_ENUM(EAState, ENUM_EA_STATE_FLAGS) _prop, bool _value) { estate.Set(_prop, _value); }
 
   /**
    * Sets an strategy parameter value for all strategies.
