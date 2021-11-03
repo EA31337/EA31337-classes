@@ -26,6 +26,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iBullsPower(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
   return Indi_BullsPower::iBullsPower(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
 }
 #endif

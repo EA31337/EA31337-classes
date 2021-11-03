@@ -26,6 +26,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iSAR(string _symbol, int _tf, double _step, double _max, int _shift) {
+  ResetLastError();
   return Indi_SAR::iSAR(_symbol, (ENUM_TIMEFRAMES)_tf, _step, _max, _shift);
 }
 #endif

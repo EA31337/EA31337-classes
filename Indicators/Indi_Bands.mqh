@@ -34,11 +34,13 @@
 // Defines global functions (for MQL4 backward compability).
 double iBands(string _symbol, int _tf, int _period, double _deviation, int _bands_shift, int _ap, int _mode,
               int _shift) {
+  ResetLastError();
   return Indi_Bands::iBands(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _deviation, _bands_shift, (ENUM_APPLIED_PRICE)_ap,
                             (ENUM_BANDS_LINE)_mode, _shift);
 }
 double iBandsOnArray(double &_arr[], int _total, int _period, double _deviation, int _bands_shift, int _mode,
                      int _shift) {
+  ResetLastError();
   return Indi_Bands::iBandsOnArray(_arr, _total, _period, _deviation, _bands_shift, _mode, _shift);
 }
 #endif

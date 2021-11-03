@@ -26,6 +26,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iOBV(string _symbol, int _tf, int _av, int _shift) {
+  ResetLastError();
   return Indi_OBV::iOBV(_symbol, (ENUM_TIMEFRAMES)_tf, (ENUM_APPLIED_VOLUME)_av, _shift);
 }
 #endif

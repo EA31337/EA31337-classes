@@ -26,6 +26,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iFractals(string _symbol, int _tf, int _mode, int _shift) {
+  ResetLastError();
   return Indi_Fractals::iFractals(_symbol, (ENUM_TIMEFRAMES)_tf, (ENUM_LO_UP_LINE)_mode, _shift);
 }
 #endif

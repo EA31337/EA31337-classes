@@ -26,6 +26,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
+  ResetLastError();
   return Indi_RVI::iRVI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_SIGNAL_LINE)_mode, _shift);
 }
 #endif

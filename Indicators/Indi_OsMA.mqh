@@ -26,6 +26,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iOsMA(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_period, int _ap, int _shift) {
+  ResetLastError();
   return Indi_OsMA::iOsMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ema_fp, _ema_sp, _signal_period, (ENUM_APPLIED_PRICE)_ap,
                           _shift);
 }

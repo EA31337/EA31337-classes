@@ -26,7 +26,10 @@
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
-double iAC(string _symbol, int _tf, int _shift) { return Indi_AC::iAC(_symbol, (ENUM_TIMEFRAMES)_tf, _shift); }
+double iAC(string _symbol, int _tf, int _shift) {
+  ResetLastError();
+  return Indi_AC::iAC(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
+}
 #endif
 
 // Structs.
