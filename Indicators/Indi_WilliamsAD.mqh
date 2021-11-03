@@ -49,7 +49,7 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
    */
   Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiWilliamsADParams>(_p, _indi_src){};
-  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_WILLIAMS_AD, _tf){};
+  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_WILLIAMS_AD, _tf, _shift){};
 
   /**
    * Built-in version of Williams' AD.

@@ -63,7 +63,7 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
   Indi_PriceFeeder(const double& _price_data[], int _total = 0) : Indicator(INDI_PRICE_FEEDER) {
     ArrayCopy(iparams.price_data, _price_data);
   };
-  Indi_PriceFeeder(ENUM_TIMEFRAMES _tf) : Indicator(INDI_PRICE_FEEDER, _tf) {}
+  Indi_PriceFeeder(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PRICE_FEEDER, _tf, _shift) {}
 
   void SetPrices(const double& _price_data[], int _total = 0) { iparams = IndiPriceFeederParams(_price_data, _total); }
 

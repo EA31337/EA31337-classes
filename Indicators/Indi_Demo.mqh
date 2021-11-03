@@ -59,7 +59,7 @@ class Indi_Demo : public Indicator<IndiDemoParams> {
    * Class constructor.
    */
   Indi_Demo(IndiDemoParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiDemoParams>(_p, _indi_src){};
-  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_DEMO, _tf){};
+  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DEMO, _tf, _shift){};
 
   /**
    * Returns the indicator value.

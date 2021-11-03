@@ -91,7 +91,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
    */
   Indi_Bands(IndiBandsParams &_p, IndicatorBase *_indi_src = NULL, int _mode = 0)
       : Indicator<IndiBandsParams>(_p, _indi_src, _mode) {}
-  Indi_Bands(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BANDS, _tf) {}
+  Indi_Bands(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BANDS, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

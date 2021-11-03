@@ -61,7 +61,7 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
    * Class constructor.
    */
   Indi_CHV(IndiCHVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCHVParams>(_p, _indi_src){};
-  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN_V, _tf){};
+  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_CHAIKIN_V, _tf, _shift){};
 
   /**
    * Built-in version of Chaikin Volatility.

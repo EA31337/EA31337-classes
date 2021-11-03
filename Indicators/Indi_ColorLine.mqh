@@ -50,7 +50,7 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
    */
   Indi_ColorLine(IndiColorLineParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiColorLineParams>(_p, _indi_src){};
-  Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_LINE, _tf){};
+  Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_COLOR_LINE, _tf, _shift){};
 
   /**
    * "Built-in" version of Color Line.

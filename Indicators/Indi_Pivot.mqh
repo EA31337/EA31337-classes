@@ -50,7 +50,9 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    * Class constructor.
    */
   Indi_Pivot(IndiPivotParams& _p, IndicatorBase* _indi_src = NULL) : Indicator<IndiPivotParams>(_p, _indi_src){};
-  Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PIVOT, _tf) { iparams.tf = _tf; };
+  Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PIVOT, _tf, _shift) {
+    iparams.tf = _tf;
+  };
 
   /**
    * Returns the indicator's struct entry for the given shift.

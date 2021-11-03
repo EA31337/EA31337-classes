@@ -71,7 +71,7 @@ class Indi_Force : public Indicator<IndiForceParams> {
    * Class constructor.
    */
   Indi_Force(IndiForceParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiForceParams>(_p, _indi_src) {}
-  Indi_Force(ENUM_TIMEFRAMES _tf) : Indicator(INDI_FORCE, _tf) {}
+  Indi_Force(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_FORCE, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

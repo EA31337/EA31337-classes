@@ -52,7 +52,7 @@ class Indi_Price : public Indicator<PriceIndiParams> {
    * Class constructor.
    */
   Indi_Price(PriceIndiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<PriceIndiParams>(_p, _indi_src){};
-  Indi_Price(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf){};
+  Indi_Price(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PRICE, _tf, _shift){};
 
   /**
    * Checks whether indicator has a valid value for a given shift.

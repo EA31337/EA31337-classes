@@ -70,7 +70,7 @@ int OnInit() {
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
   // Print indicator values.
-  //_result &= PrintIndicators(__FUNCTION__);
+  _result &= PrintIndicators(__FUNCTION__);
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
   bar_processed = 0;
@@ -97,20 +97,23 @@ void OnTick() {
         }
       } else {
         if (!whitelisted_indis.Contains(iter.Value())) {
-          continue;
+          // continue; // @fixme
         }
       }
 
       IndicatorBase* _indi = iter.Value().Ptr();
-
       _indi.OnTick();
       IndicatorDataEntry _entry(_indi.GetEntry());
-      if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
+      if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
+        if (_entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
         // tested.Set(iter.Key(), true);  // Mark as tested.
         // indis.Unset(iter.Key());
+        } else if (bar_processed > 20) {
+          DebugBreak();
       }
     }
+  }
   }
 }
 
@@ -407,7 +410,7 @@ bool InitIndicators() {
   indis.Push(new Indi_ADXW(adxw_params));
 
   // AMA.
-  IndiAIndiMAParams ama_params();
+  IndiAMAParams ama_params();
   indis.Push(new Indi_AMA(ama_params));
 
   // Chaikin Oscillator.

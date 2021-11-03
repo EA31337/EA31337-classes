@@ -57,7 +57,7 @@ class Indi_ATR : public Indicator<IndiATRParams> {
    * Class constructor.
    */
   Indi_ATR(IndiATRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiATRParams>(_p, _indi_src) {}
-  Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ATR, _tf){};
+  Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ATR, _tf, _shift){};
 
   /**
    * Returns the indicator value.

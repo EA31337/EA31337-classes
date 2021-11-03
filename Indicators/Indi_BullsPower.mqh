@@ -57,7 +57,7 @@ class Indi_BullsPower : public Indicator<IndiBullsPowerParams> {
    */
   Indi_BullsPower(IndiBullsPowerParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiBullsPowerParams>(_p, _indi_src) {}
-  Indi_BullsPower(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BULLS, _tf) {}
+  Indi_BullsPower(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BULLS, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

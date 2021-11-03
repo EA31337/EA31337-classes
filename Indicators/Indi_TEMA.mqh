@@ -56,7 +56,7 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
    * Class constructor.
    */
   Indi_TEMA(IndiTEMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiTEMAParams>(_p, _indi_src){};
-  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_TEMA, _tf){};
+  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_TEMA, _tf, _shift){};
 
   /**
    * Built-in version of TEMA.

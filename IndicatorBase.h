@@ -257,6 +257,18 @@ class IndicatorBase : public Chart {
 #endif
   }
 
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K, typename L, typename M>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, J _j, K _k, L _l, M _m, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k COMMA
+                    _l COMMA _m);
+#endif
+  }
+
   /* Buffer methods */
 
   virtual string CacheKey() { return GetName(); }

@@ -64,7 +64,7 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
    * Class constructor.
    */
   Indi_CCI(IndiCCIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCCIParams>(_p, _indi_src) {}
-  Indi_CCI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_CCI, _tf) {}
+  Indi_CCI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_CCI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

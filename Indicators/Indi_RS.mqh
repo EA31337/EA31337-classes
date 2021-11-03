@@ -54,7 +54,7 @@ class Indi_RS : public Indicator<IndiRSParams> {
    * Class constructor.
    */
   Indi_RS(IndiRSParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRSParams>(_p, _indi_src) { Init(); };
-  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RS, _tf) { Init(); };
+  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RS, _tf, _shift) { Init(); };
 
   void Init() {
     if (iparams.GetDataSourceType() == IDATA_MATH) {

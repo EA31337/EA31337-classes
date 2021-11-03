@@ -57,7 +57,7 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
    */
   Indi_MassIndex(IndiMassIndexParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiMassIndexParams>(_p, _indi_src){};
-  Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_MASS_INDEX, _tf){};
+  Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MASS_INDEX, _tf, _shift){};
 
   /**
    * Built-in version of Mass Index.

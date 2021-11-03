@@ -69,7 +69,7 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
    * Class constructor.
    */
   Indi_DEMA(IndiDEIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiDEIndiMAParams>(_p, _indi_src) {}
-  Indi_DEMA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DEMA, _tf) {}
+  Indi_DEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DEMA, _tf, _shift) {}
 
   /**
    * Updates the indicator value.

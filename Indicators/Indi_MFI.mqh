@@ -56,7 +56,7 @@ class Indi_MFI : public Indicator<IndiMFIParams> {
    * Class constructor.
    */
   Indi_MFI(IndiMFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMFIParams>(_p, _indi_src) {}
-  Indi_MFI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MFI, _tf) {}
+  Indi_MFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MFI, _tf, _shift) {}
 
   /**
    * Calculates the Money Flow Index indicator and returns its value.

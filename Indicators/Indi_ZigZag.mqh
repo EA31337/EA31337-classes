@@ -64,7 +64,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
    * Class constructor.
    */
   Indi_ZigZag(IndiZigZagParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiZigZagParams>(_p, _indi_src) {}
-  Indi_ZigZag(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ZIGZAG, _tf) {}
+  Indi_ZigZag(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ZIGZAG, _tf, _shift) {}
 
   /**
    * Returns value for ZigZag indicator.

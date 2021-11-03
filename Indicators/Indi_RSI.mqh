@@ -95,7 +95,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * Class constructor.
    */
   Indi_RSI(IndiRSIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRSIParams>(_p, _indi_src) {}
-  Indi_RSI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_RSI, _tf) {}
+  Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RSI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

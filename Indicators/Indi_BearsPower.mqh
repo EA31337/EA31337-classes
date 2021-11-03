@@ -57,7 +57,7 @@ class Indi_BearsPower : public Indicator<IndiBearsPowerParams> {
    */
   Indi_BearsPower(IndiBearsPowerParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiBearsPowerParams>(_p, _indi_src) {}
-  Indi_BearsPower(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BEARS, _tf) {}
+  Indi_BearsPower(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BEARS, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
