@@ -59,7 +59,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
    */
   Indi_ZigZagColor(IndiZigZagColorParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiZigZagColorParams>(_p, _indi_src){};
-  Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_VROC, _tf){};
+  Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_VROC, _tf, _shift){};
 
   /**
    * Returns value for ZigZag Color indicator.

@@ -28,7 +28,7 @@
  * Test functionality of Indi_Pattern indicator class.
  */
 
-Indi_Pattern indi(PERIOD_CURRENT);
+Indi_Pattern indi(PERIOD_CURRENT, 1);
 
 /**
  * Implements Init event handler.

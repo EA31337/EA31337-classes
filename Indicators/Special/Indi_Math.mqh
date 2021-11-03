@@ -88,7 +88,7 @@ class Indi_Math : public Indicator<IndiMathParams> {
    * Class constructor.
    */
   Indi_Math(IndiMathParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMathParams>(_p, _indi_src){};
-  Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_SPECIAL_MATH, _tf){};
+  Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_SPECIAL_MATH, _tf, _shift){};
 
   /**
    * Returns the indicator's value.

@@ -55,7 +55,7 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
    * Class constructor.
    */
   Indi_OHLC(IndiOHLCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiOHLCParams>(_p, _indi_src){};
-  Indi_OHLC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE, _tf){};
+  Indi_OHLC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PRICE, _tf, _shift){};
 
   /**
    * Returns the indicator's value.

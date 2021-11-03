@@ -61,7 +61,8 @@ class Indi_CustomMovingAverage : public Indicator<IndiCustomMovingAverageParams>
    */
   Indi_CustomMovingAverage(IndiCustomMovingAverageParams& _p, IndicatorBase* _indi_src = NULL)
       : Indicator<IndiCustomMovingAverageParams>(_p, _indi_src){};
-  Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM_MOVING_AVG, _tf){};
+  Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : Indicator(INDI_CUSTOM_MOVING_AVG, _tf, _shift){};
 
   /**
    * Returns the indicator's value.

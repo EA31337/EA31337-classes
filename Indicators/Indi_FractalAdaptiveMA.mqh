@@ -57,7 +57,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
    */
   Indi_FrAMA(IndiFrAIndiMAParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiFrAIndiMAParams>(_p, _indi_src){};
-  Indi_FrAMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRAMA, _tf){};
+  Indi_FrAMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_FRAMA, _tf, _shift){};
 
   /**
    * Built-in version of FrAMA.

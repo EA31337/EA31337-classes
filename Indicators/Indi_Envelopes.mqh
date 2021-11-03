@@ -81,7 +81,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
    */
   Indi_Envelopes(IndiEnvelopesParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiEnvelopesParams>(_p, _indi_src) {}
-  Indi_Envelopes(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ENVELOPES, _tf) {}
+  Indi_Envelopes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ENVELOPES, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

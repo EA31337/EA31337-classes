@@ -67,7 +67,7 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
    */
   Indi_Momentum(IndiMomentumParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiMomentumParams>(_p, _indi_src) {}
-  Indi_Momentum(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MOMENTUM, _tf) {}
+  Indi_Momentum(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MOMENTUM, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

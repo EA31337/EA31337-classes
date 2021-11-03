@@ -78,7 +78,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Class constructor.
    */
   Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMAParams>(_p, _indi_src) {}
-  Indi_MA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MA, _tf) {}
+  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MA, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

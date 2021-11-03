@@ -56,7 +56,7 @@ class Indi_SAR : public Indicator<IndiSARParams> {
    * Class constructor.
    */
   Indi_SAR(IndiSARParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiSARParams>(_p, _indi_src) {}
-  Indi_SAR(ENUM_TIMEFRAMES _tf) : Indicator(INDI_SAR, _tf) {}
+  Indi_SAR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_SAR, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

@@ -52,7 +52,8 @@ class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
    */
   Indi_PriceVolumeTrend(IndiPriceVolumeTrendParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiPriceVolumeTrendParams>(_p, _indi_src){};
-  Indi_PriceVolumeTrend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PRICE_VOLUME_TREND, _tf){};
+  Indi_PriceVolumeTrend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : Indicator(INDI_PRICE_VOLUME_TREND, _tf, _shift){};
 
   /**
    * Built-in version of Price Volume Trend.

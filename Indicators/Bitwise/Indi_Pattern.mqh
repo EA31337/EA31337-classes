@@ -52,7 +52,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
    * Class constructor.
    */
   Indi_Pattern(IndiPatternParams& _p, IndicatorBase* _indi_src = NULL) : Indicator<IndiPatternParams>(_p, _indi_src){};
-  Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PATTERN, _tf) { iparams.tf = _tf; };
+  Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PATTERN, _tf, _shift){};
 
   /**
    * Returns the indicator's value.
@@ -122,7 +122,5 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
    * @return
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
-    return !_entry.HasValue<uint>(INT_MAX) && _entry.GetMin<uint>() >= 0;
-  }
+  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return !_entry.HasValue<int>(INT_MAX); }
 };

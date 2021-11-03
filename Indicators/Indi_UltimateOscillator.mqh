@@ -66,7 +66,8 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
    */
   Indi_UltimateOscillator(IndiUltimateOscillatorParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiUltimateOscillatorParams>(_p, _indi_src){};
-  Indi_UltimateOscillator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ULTIMATE_OSCILLATOR, _tf){};
+  Indi_UltimateOscillator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : Indicator(INDI_ULTIMATE_OSCILLATOR, _tf, _shift){};
 
   /**
    * Built-in version of Ultimate Oscillator.
