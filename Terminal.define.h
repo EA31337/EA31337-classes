@@ -87,6 +87,7 @@
 #else
 #define MQL_VER 5
 #endif
+#define MQL_EXT ".ex" + (string)MQL_VER
 
 #ifdef __MQL4__
 // The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
