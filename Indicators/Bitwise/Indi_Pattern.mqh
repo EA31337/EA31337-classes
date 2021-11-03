@@ -57,7 +57,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual uint GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     int i;
     BarOHLC _ohlcs[8];
 

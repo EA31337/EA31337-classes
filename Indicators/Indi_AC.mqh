@@ -97,8 +97,8 @@ class Indi_AC : public Indicator<IndiACParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
-    double _value = EMPTY_VALUE;
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
+    IndicatorDataEntryValue _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;

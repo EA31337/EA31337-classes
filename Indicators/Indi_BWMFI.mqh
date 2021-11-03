@@ -111,7 +111,7 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = BWMFI_BUFFER, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = BWMFI_BUFFER, int _shift = 0) {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -137,7 +137,7 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
 #ifdef __MQL4__
     // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
     bool _vol_up = GetVolume(_shift) > GetVolume(_shift);
-    bool _val_up = GetValue(BWMFI_BUFFER, _shift) > GetValue(BWMFI_BUFFER, _shift);
+    bool _val_up = GetValue<double>(BWMFI_BUFFER, _shift) > GetValue<double>(BWMFI_BUFFER, _shift);
     double _histcolor = EMPTY_VALUE;
     switch (_vol_up) {
       case true:

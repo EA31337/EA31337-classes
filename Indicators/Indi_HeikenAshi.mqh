@@ -195,7 +195,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = HA_OPEN, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = HA_OPEN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:

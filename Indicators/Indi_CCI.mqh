@@ -145,7 +145,7 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:

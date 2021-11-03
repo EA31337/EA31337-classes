@@ -106,7 +106,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   /**
    * Returns the indicator's value.
    */
-  float GetValue(unsigned int _mode, int _shift = 0) {
+  IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     float _value = FLT_MAX;
     int _index = (int)_mode / 2;
     switch (iparams.idstype) {

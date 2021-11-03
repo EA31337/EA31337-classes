@@ -195,7 +195,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -225,7 +225,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
     Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // The LINE_MAIN only exists in MQL4 for Envelopes.
-    _entry.values[LINE_MAIN] = GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
+    _entry.values[LINE_MAIN] = GetValue<double>((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
 #endif
   }
 

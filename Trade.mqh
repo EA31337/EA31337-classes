@@ -1900,6 +1900,27 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           RefreshActiveOrders(true);
         }
         break;
+      case TRADE_ACTION_ORDERS_CLOSE_SIDE_IN_LOSS:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
+          ENUM_ORDER_TYPE _order_types1[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ENUM_ORDER_TYPE _order_type_profitable =
+              _oquery_ref.Ptr()
+                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+                      _order_types1, ORDER_PROP_PROFIT, ORDER_TYPE);
+          _result &=
+              OrdersCloseViaCmd(Order::NegateOrderType(_order_type_profitable), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+        }
+        break;
+      case TRADE_ACTION_ORDERS_CLOSE_SIDE_IN_PROFIT:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
+          ENUM_ORDER_TYPE _order_types2[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ENUM_ORDER_TYPE _order_type_profitable2 =
+              _oquery_ref.Ptr()
+                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+                      _order_types2, ORDER_PROP_PROFIT, ORDER_TYPE);
+          _result &= OrdersCloseViaCmd(_order_type_profitable2, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+        }
+        break;
       case TRADE_ACTION_ORDERS_LIMIT_SET:
         // Sets the new limits.
         tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value,
