@@ -101,17 +101,24 @@ class IndicatorBase : public Chart {
   /**
    * Class constructor.
    */
-  IndicatorBase() : indi_src(NULL) { is_fed = false; }
+  IndicatorBase() : indi_src(NULL) {
+    calc_start_bar = 0;
+    is_fed = false;
+  }
 
   /**
    * Class constructor.
    */
-  IndicatorBase(ChartParams& _cparams) : indi_src(NULL), Chart(_cparams) { is_fed = false; }
+  IndicatorBase(ChartParams& _cparams) : indi_src(NULL), Chart(_cparams) {
+    calc_start_bar = 0;
+    is_fed = false;
+  }
 
   /**
    * Class constructor.
    */
   IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : Chart(_tf, _symbol) {
+    calc_start_bar = 0;
     is_fed = false;
     indi_src = NULL;
   }
@@ -120,6 +127,7 @@ class IndicatorBase : public Chart {
    * Class constructor.
    */
   IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : Chart(_tfi, _symbol) {
+    calc_start_bar = 0;
     is_fed = false;
     indi_src = NULL;
   }
@@ -988,7 +996,6 @@ class IndicatorBase : public Chart {
     IndicatorDataEntry _stub_entry;
     _stub_entry.AddFlags(_entry.GetFlags());
     SerializerConverter _stub = SerializerConverter::MakeStubObject(_stub_entry, _serializer_flags, _entry.GetSize());
-
     return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub);
   }
 
@@ -996,21 +1003,22 @@ class IndicatorBase : public Chart {
     int _bars = Bars(GetSymbol(), GetTf());
 
     if (!is_fed) {
-      calc_start_bar = 0;
-
       // Calculating start_bar.
-      for (int i = 0; i < _bars; ++i) {
-        // Iterating from the oldest.
-        IndicatorDataEntry _entry = GetEntry(_bars - i - 1);
+      for (; calc_start_bar < _bars; ++calc_start_bar) {
+        // Iterating from the oldest or previously iterated.
+        IndicatorDataEntry _entry = GetEntry(_bars - calc_start_bar - 1);
 
         if (_entry.IsValid()) {
           // From this point we assume that future entries will be all valid.
-          calc_start_bar = i;
           is_fed = true;
-
           return _bars - calc_start_bar;
         }
       }
+    }
+
+    if (!is_fed) {
+      Print("Can't find valid bars for ", GetFullName());
+      return 0;
     }
 
     // Assuming all entries are calculated (even if have invalid values).

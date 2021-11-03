@@ -225,7 +225,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
     Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // The LINE_MAIN only exists in MQL4 for Envelopes.
-    _entry.values[LINE_MAIN] = GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
+    _entry.values[LINE_MAIN] = GetValue<double>((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
 #endif
   }
 

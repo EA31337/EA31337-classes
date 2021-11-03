@@ -34,7 +34,6 @@ struct IndiADParams : IndicatorParams {
   IndiADParams(int _shift = 0) : IndicatorParams(INDI_AD, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\AD");
-    SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
   };
   IndiADParams(IndiADParams &_params, ENUM_TIMEFRAMES _tf) {

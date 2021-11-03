@@ -33,7 +33,6 @@ double iAC(string _symbol, int _tf, int _shift) { return Indi_AC::iAC(_symbol, (
 struct IndiACParams : IndicatorParams {
   // Struct constructor.
   IndiACParams(int _shift = 0) : IndicatorParams(INDI_AC, 1, TYPE_DOUBLE) {
-    SetDataSourceType(IDATA_ICUSTOM);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;

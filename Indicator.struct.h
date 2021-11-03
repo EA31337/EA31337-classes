@@ -63,7 +63,7 @@ struct IndicatorDataEntryValue {
 
   // Sets type of the value.
   void SetDataType(ENUM_DATATYPE _type) {
-    // CLearing type.
+    // Clearing type.
     flags &= 0x0F;
 
     // Setting type.
@@ -142,7 +142,9 @@ struct IndicatorDataEntryValue {
   void Get(double &_out) { _out = value.vdbl; }
   void Get(float &_out) { _out = value.vflt; }
   void Get(int &_out) { _out = value.vint; }
+  void Get(unsigned int &_out) { _out = (unsigned int)value.vint; }
   void Get(long &_out) { _out = value.vlong; }
+  void Get(unsigned long &_out) { _out = (unsigned long)value.vint; }
   // Setters.
   template <typename T>
   void Set(T _value) {
@@ -377,7 +379,12 @@ struct IndicatorDataEntry {
   // State checkers.
   bool IsValid() { return CheckFlags(INDI_ENTRY_FLAG_IS_VALID); }
   // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) { ArrayResize(values, _n1); }
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    ArrayResize(values, _n1);
+    for (int i = 0; i < _n1; ++i) {
+      values[i] = (int)1;
+    }
+  }
   SerializerNodeType Serialize(Serializer &_s);
   template <typename T>
   string ToCSV() {

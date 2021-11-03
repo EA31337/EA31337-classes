@@ -966,7 +966,6 @@ class Indicator : public IndicatorBase {
             SetUserError(ERR_INVALID_PARAMETER);
             break;
         }
-        _entry.values[_mode] = GetValue<double>(_mode, _ishift);
       }
       GetEntryAlter(_entry, _ishift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));

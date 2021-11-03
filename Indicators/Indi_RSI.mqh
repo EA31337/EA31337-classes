@@ -289,7 +289,6 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    */
   virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
-    int _bars_calc;
     double _res[];
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
