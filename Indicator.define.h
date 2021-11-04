@@ -123,6 +123,6 @@ class DrawIndicator;
     }                                                                                                      \
   }                                                                                                        \
   if (CopyBuffer(_handle, MODE, SHIFT, 1, _res) < 0) {                                                     \
-    return EMPTY_VALUE;                                                                                    \
+    return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;                                                    \
   }                                                                                                        \
   return _res[0];

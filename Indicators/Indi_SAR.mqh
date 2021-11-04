@@ -93,7 +93,7 @@ class Indi_SAR : public Indicator<IndiSARParams> {
       }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
