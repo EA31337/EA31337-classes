@@ -54,6 +54,7 @@ class Chart;
 #include "Storage/ValueStorage.h"
 #include "Storage/ValueStorage.indicator.h"
 #include "Storage/ValueStorage.native.h"
+#include "Util.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
@@ -63,6 +64,22 @@ int IndicatorCounted(int _value = 0) {
   // https://docs.mql4.com/customind/indicatorcounted
   prev_calculated = _value > 0 ? _value : prev_calculated;
   return prev_calculated;
+}
+#endif
+
+#ifdef __MQL5__
+// Defines global functions (for MQL5 forward compatibility).
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+          typename J>
+double iCustom5(string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i,
+                J _j, int _mode, int _shift) {
+  int _handle;
+  string _key = Util::MakeKey(_symbol, (string)_tf, _name, _a, _b, _c, _d);
+  DataParamEntry _handle_param;
+  // if (!Objects<DataParamEntry>::TryGet(_key, _handle_param)) { Objects<DataParamEntry>::Set(_key, _handle_param); }
+  _handle = (int)_handle_param.integer_value;
+  // Print(_key);
+  ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
 }
 #endif
 
