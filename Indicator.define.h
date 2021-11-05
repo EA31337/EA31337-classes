@@ -33,13 +33,15 @@
 // Defines macros.
 #define COMMA ,
 #define DUMMY
-#define ICUSTOM_DEF(PARAMS)                                                    \
+
+#define ICUSTOM_DEF(SET_HANDLE, PARAMS)                                        \
   double _res[];                                                               \
   if (_handle == NULL || _handle == INVALID_HANDLE) {                          \
     if ((_handle = ::iCustom(_symbol, _tf, _name PARAMS)) == INVALID_HANDLE) { \
       SetUserError(ERR_USER_INVALID_HANDLE);                                   \
       return EMPTY_VALUE;                                                      \
     }                                                                          \
+    SET_HANDLE;                                                                \
   }                                                                            \
   int _bars_calc = ::BarsCalculated(_handle);                                  \
   if (GetLastError() > 0) {                                                    \
