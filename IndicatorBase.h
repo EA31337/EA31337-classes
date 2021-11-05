@@ -73,13 +73,11 @@ template <typename A, typename B, typename C, typename D, typename E, typename F
           typename J>
 double iCustom5(string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i,
                 J _j, int _mode, int _shift) {
-  int _handle;
+  static Dict<string, int> _handlers;
   string _key = Util::MakeKey(_symbol, (string)_tf, _name, _a, _b, _c, _d);
-  DataParamEntry _handle_param;
-  // if (!Objects<DataParamEntry>::TryGet(_key, _handle_param)) { Objects<DataParamEntry>::Set(_key, _handle_param); }
-  _handle = (int)_handle_param.integer_value;
-  // Print(_key);
-  ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
+  int _handle = _handlers.GetByKey(_key);
+  ICUSTOM_DEF(_handlers.Set(_key, _handle),
+              COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
 }
 #endif
 
@@ -161,7 +159,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(DUMMY);
+    ICUSTOM_DEF(;, DUMMY);
 #endif
   }
 
@@ -170,7 +168,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a);
+    ICUSTOM_DEF(;, COMMA _a);
 #endif
   }
 
@@ -179,7 +177,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b);
 #endif
   }
 
@@ -189,7 +187,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c);
 #endif
   }
 
@@ -199,7 +197,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d);
 #endif
   }
 
@@ -209,7 +207,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
 #endif
   }
 
@@ -219,7 +217,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f);
 #endif
   }
 
@@ -229,7 +227,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g);
 #endif
   }
 
@@ -239,7 +237,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h);
 #endif
   }
 
@@ -249,7 +247,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i);
 #endif
   }
 
@@ -260,7 +258,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
 #endif
   }
 
@@ -271,7 +269,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k);
 #endif
   }
 
@@ -282,8 +280,8 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k COMMA
-                    _l COMMA _m);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k
+                       COMMA _l COMMA _m);
 #endif
   }
 
