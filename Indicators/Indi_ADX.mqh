@@ -27,6 +27,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iADX(string _symbol, int _tf, int _period, int _ap, int _mode, int _shift) {
+  ResetLastError();
   return Indi_ADX::iADX(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, (ENUM_INDI_ADX_LINE)_mode,
                         _shift);
 }
@@ -105,7 +106,7 @@ class Indi_ADX : public Indicator<IndiADXParams> {
       }
     }
     if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif

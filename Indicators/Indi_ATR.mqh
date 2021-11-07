@@ -26,6 +26,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iATR(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
   return Indi_ATR::iATR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
 }
 #endif
@@ -93,7 +94,7 @@ class Indi_ATR : public Indicator<IndiATRParams> {
       }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
