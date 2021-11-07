@@ -92,9 +92,6 @@ class EA {
     Trade _trade(_tparams, _cparams);
     trade.Set(_Symbol, _trade);
     logger.Link(_trade.GetLogger());
-    // trade.GetByKey(_Symbol).GetLogger().Error("Test");
-    // logger.Flush();
-    // Loads existing trades by magic number.
   }
 
   /**
@@ -225,31 +222,6 @@ class EA {
       _trade.Set<T>(_param, _value);
     }
   }
-
-  /**
-   * Sets an strategy parameter value for all strategies.
-   */
-  /* @fixme
-  template <typename T>
-  void Set(ENUM_TRADE_PARAM _param, T _value, ENUM_TIMEFRAMES _tf) {
-    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
-      Strategy *_strat = iter.Value().Ptr();
-      _strat.Set<T>(_param, _value);
-    }
-  }
-  */
-
-  /**
-   * Sets an strategy parameter value for the given timeframe.
-   */
-  /* @fixme
-  template <typename T>
-  void Set(ENUM_TRADE_PARAM _param, T _value) {
-    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
-      Set(_param, _value);
-    }
-  }
-  */
 
   /* Processing methods */
 
@@ -1058,11 +1030,6 @@ class EA {
    * Gets DictStruct reference to strategies.
    */
   DictStruct<long, Ref<Strategy>> *GetStrategies() { return GetPointer(strats); }
-
-  /**
-   * Gets EA params.
-   */
-  EAParams GetParams() { return eparams; }
 
   /**
    * Gets EA state.
