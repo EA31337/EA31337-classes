@@ -1171,6 +1171,8 @@ class EA {
       _s.Pass(THIS_REF, "strat:params:" + _sname, _sparams);
       _s.Pass(THIS_REF, "strat:results:" + _sname, _sresults);
     }
+    _s.PassObject(THIS_REF, "trade", trade);
+    _s.PassObject(THIS_REF, "tsm", tsm);
     return SerializerNodeObject;
   }
 };
