@@ -29,7 +29,7 @@
 #include "Array.mqh"
 #include "Order.enum.h"
 #include "SymbolInfo.enum.h"
-#include "SymbolInfo.static.h"
+#include "SymbolInfo.struct.static.h"
 
 /**
  * Class to provide conversion methods.
