@@ -58,7 +58,6 @@ class EA {
   Account *account;
   DictStruct<long, Ref<Strategy>> strats;
   Log logger;
-  Ref<Market> market;
   Terminal terminal;
 
   // Data variables.
@@ -79,8 +78,7 @@ class EA {
   /**
    * Class constructor.
    */
-  EA(EAParams &_params)
-      : account(new Account), market(new Market(_params.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SYMBOL)))) {
+  EA(EAParams &_params) : account(new Account) {
     eparams = _params;
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     UpdateStateFlags();
@@ -387,7 +385,6 @@ class EA {
   virtual EAProcessResult ProcessTick() {
     if (estate.IsEnabled()) {
       MqlTick _tick = SymbolInfoStatic::GetTick(_Symbol);
-      GetMarket().SetTick(_tick);
       eresults.Reset();
       if (estate.IsActive()) {
         ProcessPeriods();
@@ -1048,11 +1045,6 @@ class EA {
   }
 
   /**
-   * Returns pointer to Terminal object.
-   */
-  Market *GetMarket() { return market.Ptr(); }
-
-  /**
    * Returns pointer to Market object.
    */
   Terminal *GetTerminal() { return GetPointer(terminal); }
@@ -1090,19 +1082,9 @@ class EA {
   Log *GetLogger() { return GetPointer(logger); }
 
   /**
-   * Gets pointer to market details.
-   */
-  Market *Market() { return market.Ptr(); }
-
-  /**
    * Gets reference to strategies.
    */
   DictStruct<long, Ref<Strategy>> *Strategies() { return &strats; }
-
-  /**
-   * Gets pointer to symbol details.
-   */
-  SymbolInfo *SymbolInfo() { return (SymbolInfo *)GetMarket(); }
 
   /* Setters */
 
@@ -1178,12 +1160,6 @@ class EA {
    */
   SerializerNodeType Serialize(Serializer &_s) {
     _s.Pass(THIS_REF, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
-
-    // In MQL it will be: Market* _market = GetMarket();
-    // In C++ it will be: Market& _market = GetMarket();
-    // It is needed as PassObject() expects reference to object instead of its pointer.
-    MAKE_REF_FROM_PTR(Market, _market, GetMarket());
-    _s.PassObject(THIS_REF, "market", _market, SERIALIZER_FIELD_FLAG_DYNAMIC);
 
     for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategies().Begin(); _iter.IsValid(); ++_iter) {
       Strategy *_strat = _iter.Value().Ptr();
