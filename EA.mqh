@@ -294,6 +294,8 @@ class EA {
           _strat.OnOrderClose(ORDER_TYPE_SELL);
         }
       }
+      _trade_allowed &= _trade.IsTradeAllowed();
+      _trade_allowed &= !_strat.IsSuspended();
       if (_trade_allowed) {
         float _sig_open = _signal.GetSignalOpen();
         unsigned int _sig_f = eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER));
@@ -329,13 +331,13 @@ class EA {
           _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
         } else {
           _last_error = GetLastError();
-          switch (_last_error) {
-            case ERR_NOT_ENOUGH_MEMORY:
-              logger.Error(StringFormat("Not enough money to open trades! Code: %d", _last_error), __FUNCTION_LINE__,
-                           _strat.GetName());
-              logger.Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__, _strat.GetName());
-              _strat.Suspended(true);
-              break;
+          if (_last_error > 0) {
+            logger.Warning(StringFormat("Error: %d", _last_error), __FUNCTION_LINE__, _strat.GetName());
+            ResetLastError();
+          }
+          if (_trade.Get<bool>(TRADE_STATE_MONEY_NOT_ENOUGH)) {
+            logger.Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__, _strat.GetName());
+            _strat.Suspended(true);
           }
         }
       }
@@ -403,9 +405,9 @@ class EA {
               eresults.stg_processed_periods++;
             }
             if (_strat.TickFilter(_tick)) {
-              _can_trade &= _can_trade && !_strat.IsSuspended();
-              _can_trade &= _can_trade && !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE,
-                                                                 TRADE_STATE_TRADE_CANNOT);
+              _can_trade &= !_strat.IsSuspended();
+              _can_trade &=
+                  !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
               TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
               if (_sentry.Get<uint>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
                 TradeSignal _signal(_sentry);
