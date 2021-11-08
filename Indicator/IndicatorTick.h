@@ -148,10 +148,9 @@ class IndicatorTick : public IndicatorBase {
    * @return
    *   Returns DataParamEntry struct filled with a single value.
    */
-  virtual DataParamEntry GetEntryValue(int _shift = -1, int _mode = 0) {
-    IndicatorDataEntry _entry = GetEntry(_shift >= 0 ? _shift : itparams.GetShift());
-    DataParamEntry _value_entry;
-    return _value_entry;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+    int _ishift = _shift >= 0 ? _shift : itparams.GetShift();
+    return GetEntry(_ishift)[_mode];
   }
 
   /**
