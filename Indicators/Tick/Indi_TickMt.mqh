@@ -56,7 +56,7 @@ class Indi_TickMt : public Indicator<IndiTickMtParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     MqlTick _tick = SymbolInfoStatic::GetTick(_Symbol);
     switch (_mode) {
       case 0:
