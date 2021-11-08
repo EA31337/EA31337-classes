@@ -142,17 +142,18 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Ichimoku::iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode,
-                                          _shift, THIS_PTR);
+                                          _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetTenkanSen(),
-                         GetKijunSen(), GetSenkouSpanB() /*]*/, _mode, _shift);
+                         GetKijunSen(), GetSenkouSpanB() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -168,9 +169,9 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
 #ifdef __MQL4__
     // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
     // so we are duplicating it.
-    _entry.values[0] = GetValue(LINE_TENKANSEN, _shift);
+    _entry.values[0] = GetEntryValue(LINE_TENKANSEN, _shift);
 #endif
-    _entry.values[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift + 26);
+    _entry.values[LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _shift + 26);
   }
 
   /**

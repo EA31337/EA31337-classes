@@ -199,16 +199,17 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_AMA::iAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
-                                GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _shift, THIS_PTR);
+                                GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
-                         GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _shift);
+                         GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _ishift);
 
         break;
       case IDATA_INDICATOR:

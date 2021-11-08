@@ -60,6 +60,7 @@
 #include "Indi_Gator.mqh"
 #include "Indi_HeikenAshi.mqh"
 #include "Indi_Ichimoku.mqh"
+#include "Indi_Killzones.mqh"
 #include "Indi_MA.mqh"
 #include "Indi_MACD.mqh"
 #include "Indi_MFI.mqh"

@@ -78,17 +78,17 @@ class Indi_RS : public Indicator<IndiRSParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
-    double _value = EMPTY_VALUE;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_MATH:
-        _value = imath[_mode].Ptr().GetValue();
+        return imath[_mode].Ptr().GetEntryValue();
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
-    return _value;
+    return EMPTY_VALUE;
   }
 
   /**
