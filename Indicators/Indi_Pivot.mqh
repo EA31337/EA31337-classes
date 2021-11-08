@@ -72,9 +72,13 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
       _entry.timestamp = GetBarTime(_ishift);
       if (_ohlc.IsValid()) {
         _entry.Resize(iparams.GetMaxModes());
-        _ohlc.GetPivots(GetMethod(), _entry.values[0].vflt, _entry.values[1].vflt, _entry.values[2].vflt,
-                        _entry.values[3].vflt, _entry.values[4].vflt, _entry.values[5].vflt, _entry.values[6].vflt,
-                        _entry.values[7].vflt, _entry.values[8].vflt);
+        _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vflt, _entry.values[1].value.vflt,
+                        _entry.values[2].value.vflt, _entry.values[3].value.vflt, _entry.values[4].value.vflt,
+                        _entry.values[5].value.vflt, _entry.values[6].value.vflt, _entry.values[7].value.vflt,
+                        _entry.values[8].value.vflt);
+        for (int i = 0; i <= 8; ++i) {
+          _entry.values[i].SetDataType(TYPE_FLOAT);
+        }
       }
       GetEntryAlter(_entry, _ishift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
@@ -96,7 +100,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) { return GetEntry(_shift)[_mode]; }
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) { return GetEntry(_shift)[_mode]; }
 
   /**
    * Checks if indicator entry values are valid.

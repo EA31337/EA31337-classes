@@ -142,7 +142,7 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -168,9 +168,9 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
 #ifdef __MQL4__
     // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
     // so we are duplicating it.
-    _entry.values[0] = GetValue(LINE_TENKANSEN, _shift);
+    _entry.values[0] = GetMixedValue(LINE_TENKANSEN, _shift);
 #endif
-    _entry.values[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift + 26);
+    _entry.values[LINE_CHIKOUSPAN] = GetMixedValue(LINE_CHIKOUSPAN, _shift + 26);
   }
 
   /**

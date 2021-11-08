@@ -47,6 +47,14 @@ class SerializerConverter {
 
   SerializerNode* Node() { return root_node; }
 
+  string ToDebugString(int _json_flags = 0) {
+    if (root_node == NULL) {
+      return "<NULL>";
+    }
+
+    return root_node.ToString(_json_flags);
+  }
+
   template <typename X>
   static SerializerConverter FromObject(X& _value, int serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL) {
     Serializer _serializer(NULL, Serialize, serializer_flags);

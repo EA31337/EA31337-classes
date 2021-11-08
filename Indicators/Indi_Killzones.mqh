@@ -106,7 +106,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   /**
    * Returns the indicator's value.
    */
-  float GetValue(unsigned int _mode, int _shift = 0) {
+  IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     float _value = FLT_MAX;
     int _index = (int)_mode / 2;
     switch (iparams.idstype) {
@@ -133,30 +133,6 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
    * Checks if value is valid.
    */
   bool IsValidValue(float _value, unsigned int _mode = 0, int _shift = 0) { return _value > 0.0f; }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
-    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
-      _entry.Resize(iparams.GetMaxModes());
-      _entry.timestamp = GetBarTime(_shift);
-      for (unsigned int _mode = 0; _mode < (uint)iparams.GetMaxModes(); _mode++) {
-        float _value = GetValue(_mode, _shift);
-        _entry.values[_mode] = IsValidValue(_value, _mode, _shift) ? _value : 0.0f;
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      } else {
-        _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
-      }
-    }
-    return _entry;
-  }
 
   /**
    * Checks if indicator entry values are valid.

@@ -109,8 +109,6 @@ void OnTick() {
           PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
           tested.Set(iter.Key(), true);  // Mark as tested.
           indis.Unset(iter.Key());
-        } else if (bar_processed > 20) {
-          DebugBreak();
         }
       }
     }
@@ -519,7 +517,7 @@ bool InitIndicators() {
 
   // Pattern Detector.
   IndiPatternParams pattern_params();
-  indis.Push(_indi_test = new Indi_Pattern(pattern_params));
+  indis.Push(new Indi_Pattern(pattern_params));
 
   // Pivot.
   IndiPivotParams pivot_params();
