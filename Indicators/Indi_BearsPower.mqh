@@ -26,22 +26,23 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iBearsPower(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
   return Indi_BearsPower::iBearsPower(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
 }
 #endif
 
 // Structs.
-struct BearsPowerParams : IndicatorParams {
+struct IndiBearsPowerParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  BearsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiBearsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_BEARS, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Bears");
   };
-  BearsPowerParams(BearsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiBearsPowerParams(IndiBearsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,13 +51,14 @@ struct BearsPowerParams : IndicatorParams {
 /**
  * Implements the Bears Power indicator.
  */
-class Indi_BearsPower : public Indicator<BearsPowerParams> {
+class Indi_BearsPower : public Indicator<IndiBearsPowerParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BearsPower(BearsPowerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<BearsPowerParams>(_p, _indi_src) {}
-  Indi_BearsPower(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BEARS, _tf) {}
+  Indi_BearsPower(IndiBearsPowerParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiBearsPowerParams>(_p, _indi_src) {}
+  Indi_BearsPower(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BEARS, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -73,7 +75,6 @@ class Indi_BearsPower : public Indicator<BearsPowerParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iBearsPower(_symbol, _tf, _period)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -94,7 +95,7 @@ class Indi_BearsPower : public Indicator<BearsPowerParams> {
       }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
@@ -104,7 +105,6 @@ class Indi_BearsPower : public Indicator<BearsPowerParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -118,18 +118,7 @@ class Indi_BearsPower : public Indicator<BearsPowerParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).values[_mode].GetDbl();
-    return _param;
   }
 
   /* Getters */

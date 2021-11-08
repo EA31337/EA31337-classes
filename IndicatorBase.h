@@ -54,6 +54,7 @@ class Chart;
 #include "Storage/ValueStorage.h"
 #include "Storage/ValueStorage.indicator.h"
 #include "Storage/ValueStorage.native.h"
+#include "Util.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
@@ -63,6 +64,21 @@ int IndicatorCounted(int _value = 0) {
   // https://docs.mql4.com/customind/indicatorcounted
   prev_calculated = _value > 0 ? _value : prev_calculated;
   return prev_calculated;
+}
+#endif
+
+#ifdef __MQL5__
+// Defines global functions (for MQL5 forward compatibility).
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+          typename J>
+double iCustom5(string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i,
+                J _j, int _mode, int _shift) {
+  ResetLastError();
+  static Dict<string, int> _handlers;
+  string _key = Util::MakeKey(_symbol, (string)_tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j);
+  int _handle = _handlers.GetByKey(_key);
+  ICUSTOM_DEF(_handlers.Set(_key, _handle),
+              COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
 }
 #endif
 
@@ -79,8 +95,8 @@ class IndicatorBase : public Chart {
   DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
   ARRAY(ValueStorage<double>*, value_storages);
-  IndicatorBase* indi_src;  // // Indicator used as data source.
-  int indi_src_mode;        // Mode of source indicator
+  Ref<IndicatorBase> indi_src;  // // Indicator used as data source.
+  int indi_src_mode;            // Mode of source indicator
   IndicatorCalculateCache<double> cache;
 
  public:
@@ -147,7 +163,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(DUMMY);
+    ICUSTOM_DEF(;, DUMMY);
 #endif
   }
 
@@ -156,7 +172,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a);
+    ICUSTOM_DEF(;, COMMA _a);
 #endif
   }
 
@@ -165,7 +181,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b);
 #endif
   }
 
@@ -175,7 +191,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c);
 #endif
   }
 
@@ -185,7 +201,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d);
 #endif
   }
 
@@ -195,7 +211,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
 #endif
   }
 
@@ -205,7 +221,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f);
 #endif
   }
 
@@ -215,7 +231,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g);
 #endif
   }
 
@@ -225,7 +241,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h);
 #endif
   }
 
@@ -235,7 +251,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i);
 #endif
   }
 
@@ -246,7 +262,7 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
 #endif
   }
 
@@ -257,7 +273,19 @@ class IndicatorBase : public Chart {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _mode, _shift);
 #else  // __MQL5__
-    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k);
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K, typename L, typename M>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, J _j, K _k, L _l, M _m, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k
+                       COMMA _l COMMA _m);
 #endif
   }
 
@@ -407,7 +435,7 @@ class IndicatorBase : public Chart {
   /**
    * Returns currently selected data source without any validation.
    */
-  IndicatorBase* GetDataSourceRaw() { return indi_src; }
+  IndicatorBase* GetDataSourceRaw() { return indi_src.Ptr(); }
 
   /* Getters */
 
@@ -630,7 +658,7 @@ class IndicatorBase : public Chart {
   /**
    * Sets indicator data source.
    */
-  virtual void SetDataSource(IndicatorBase* _indi, bool _managed, int _input_mode) = 0;
+  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) = NULL;
 
   /**
    * Sets data source's input mode.
@@ -765,6 +793,38 @@ class IndicatorBase : public Chart {
   /* Virtual methods */
 
   /**
+   * Returns the indicator's struct value.
+   */
+  virtual IndicatorDataEntry GetEntry(int _shift = -1) = NULL;
+
+  /**
+   * Alters indicator's struct value.
+   *
+   * This method allows user to modify the struct entry before it's added to cache.
+   * This method is called on GetEntry() right after values are set.
+   */
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) = NULL;
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  virtual DataParamEntry GetEntryValue(int _shift = -1, int _mode = 0) = NULL;
+
+  /**
+   * Returns indicator value for a given shift and mode.
+   */
+  // virtual double GetValue(int _shift = -1, int _mode = 0) = NULL;
+
+  /**
+   * Checks whether indicator has a valid value for a given shift.
+   */
+  virtual bool HasValidEntry(int _shift = 0) {
+    unsigned int position;
+    long bar_time = GetBarTime(_shift);
+    return bar_time > 0 && idata.KeyExists(bar_time, position) ? idata.GetByPos(position).IsValid() : false;
+  }
+
+  /**
    * Returns stored data in human-readable format.
    */
   // virtual bool ToString() = NULL; // @fixme?
@@ -783,32 +843,18 @@ class IndicatorBase : public Chart {
   };
 
   /**
-   * Returns the indicator's struct value.
-   */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    IndicatorDataEntry _entry;
-    return _entry;
-  };
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_FLOAT};
-    _param.double_value = (float)GetEntry(_shift).GetValue<float>(_mode);
-    return _param;
-  }
-
-  /**
    * Returns the indicator's value in plain format.
    */
   virtual string ToString(int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
-    int _serializer_flags =
-        SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
-    SerializerConverter _stub_indi =
-        SerializerConverter::MakeStubObject<IndicatorDataEntry>(_serializer_flags, _entry.GetSize());
-    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
+    int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT |
+                            SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE;
+
+    IndicatorDataEntry _stub_entry;
+    _stub_entry.AddFlags(_entry.GetFlags());
+    SerializerConverter _stub = SerializerConverter::MakeStubObject(_stub_entry, _serializer_flags, _entry.GetSize());
+
+    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub);
   }
 
   int GetBarsCalculated() {

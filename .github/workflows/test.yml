@@ -90,6 +90,7 @@ jobs:
           BtMonths: 1
           BtYears: 2020
           TestExpert: ${{ matrix.test }}
+    timeout-minutes: 10
 
   Scripts-MQL4:
     defaults:
@@ -124,6 +125,7 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: ${{ matrix.test }}
+    timeout-minutes: 10
 
   Scripts-MQL4-Ignore:
     defaults:
@@ -148,6 +150,7 @@ jobs:
         with:
           Script: ${{ matrix.test }}
           RunOnFail: "exit 0"
+    timeout-minutes: 10
 
   Trade-Tests-MQL4:
     defaults:
@@ -168,3 +171,4 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: ${{ matrix.test }}
+    timeout-minutes: 10

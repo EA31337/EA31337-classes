@@ -30,8 +30,8 @@
 #include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_MA.mqh"
-#include "../Indicators/Indi_Price.mqh"
 #include "../Indicators/Indi_RSI.mqh"
+#include "../Indicators/Price/Indi_Price.mqh"
 #include "../Test.mqh"
 
 // Global variables.
@@ -93,22 +93,22 @@ bool InitIndicators() {
   /* Standard indicators */
 
   // Bollinger Bands.
-  BandsParams bands_params(20, 2, 0, PRICE_MEDIAN);
+  IndiBandsParams bands_params(20, 2, 0, PRICE_MEDIAN);
   indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
 
   // Moving Average.
-  MAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
+  IndiMAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
   IndicatorBase *indi_ma = new Indi_MA(ma_params);
   indis.Set(INDI_MA, indi_ma);
 
   // Relative Strength Index (RSI).
-  RSIParams rsi_params(14, PRICE_OPEN);
+  IndiRSIParams rsi_params(14, PRICE_OPEN);
   indis.Set(INDI_RSI, new Indi_RSI(rsi_params));
 
   /* Special indicators */
 
   // Demo/Dummy Indicator.
-  DemoIndiParams demo_params;
+  IndiDemoParams demo_params;
   IndicatorBase *indi_demo = new Indi_Demo(demo_params);
   indis.Set(INDI_DEMO, indi_demo);
 
@@ -121,7 +121,7 @@ bool InitIndicators() {
   // Bollinger Bands over Price indicator.
   PriceIndiParams price_params_4_bands();
   IndicatorBase *indi_price_4_bands = new Indi_Price(price_params_4_bands);
-  BandsParams bands_on_price_params();
+  IndiBandsParams bands_on_price_params();
   bands_on_price_params.SetDraw(clrCadetBlue);
   // bands_on_price_params.SetDataSource(indi_price_4_bands, true, INDI_PRICE_MODE_OPEN);
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params, indi_price_4_bands, true));
@@ -129,7 +129,7 @@ bool InitIndicators() {
   // Moving Average (MA) over Price indicator.
   PriceIndiParams price_params_4_ma();
   IndicatorBase *indi_price_4_ma = new Indi_Price(price_params_4_ma);
-  MAParams ma_on_price_params();
+  IndiMAParams ma_on_price_params();
   ma_on_price_params.SetDraw(clrYellowGreen);
   // ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
@@ -139,7 +139,7 @@ bool InitIndicators() {
   // Relative Strength Index (RSI) over Price indicator.
   PriceIndiParams price_params_4_rsi();
   IndicatorBase *indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
-  RSIParams rsi_on_price_params();
+  IndiRSIParams rsi_on_price_params();
   // rsi_on_price_params.SetDataSource(indi_price_4_rsi, true, INDI_PRICE_MODE_OPEN);
   rsi_on_price_params.SetDraw(clrBisque, 1);
   indis.Set(INDI_RSI_ON_PRICE, indi_price_4_rsi);

@@ -28,14 +28,14 @@
 #include "Indi_MA.mqh"
 
 // Structs.
-struct CHOParams : IndicatorParams {
+struct IndiCHOParams : IndicatorParams {
   unsigned int fast_ma;
   unsigned int slow_ma;
   ENUM_MA_METHOD smooth_method;
   ENUM_APPLIED_VOLUME input_volume;
   // Struct constructor.
-  CHOParams(int _fast_ma = 3, int _slow_ma = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
-            ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0)
+  IndiCHOParams(int _fast_ma = 3, int _slow_ma = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
+                ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_CHAIKIN, 1, TYPE_DOUBLE) {
     fast_ma = _fast_ma;
     input_volume = _input_volume;
@@ -45,7 +45,7 @@ struct CHOParams : IndicatorParams {
     slow_ma = _slow_ma;
     smooth_method = _smooth_method;
   };
-  CHOParams(CHOParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiCHOParams(IndiCHOParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -54,13 +54,13 @@ struct CHOParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_CHO : public Indicator<CHOParams> {
+class Indi_CHO : public Indicator<IndiCHOParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CHO(CHOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CHOParams>(_p, _indi_src){};
-  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CHAIKIN, _tf){};
+  Indi_CHO(IndiCHOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCHOParams>(_p, _indi_src){};
+  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_CHAIKIN, _tf, _shift){};
 
   /**
    * Built-in version of Chaikin Oscillator.
@@ -167,7 +167,6 @@ class Indi_CHO : public Indicator<CHOParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -181,18 +180,7 @@ class Indi_CHO : public Indicator<CHOParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   /* Getters */

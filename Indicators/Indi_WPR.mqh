@@ -26,20 +26,22 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iWPR(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
   return Indi_WPR::iWPR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
 }
 #endif
 
 // Structs.
-struct WPRParams : IndicatorParams {
+struct IndiWPRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  WPRParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_WPR, 1, TYPE_DOUBLE) {
+  IndiWPRParams(unsigned int _period = 14, int _shift = 0)
+      : period(_period), IndicatorParams(INDI_WPR, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\WPR");
   };
-  WPRParams(WPRParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiWPRParams(IndiWPRParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -48,13 +50,13 @@ struct WPRParams : IndicatorParams {
 /**
  * Implements the Larry Williams' Percent Range.
  */
-class Indi_WPR : public Indicator<WPRParams> {
+class Indi_WPR : public Indicator<IndiWPRParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_WPR(WPRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<WPRParams>(_p, _indi_src) {}
-  Indi_WPR(ENUM_TIMEFRAMES _tf) : Indicator(INDI_WPR, _tf) {}
+  Indi_WPR(IndiWPRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiWPRParams>(_p, _indi_src) {}
+  Indi_WPR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_WPR, _tf, _shift) {}
 
   /**
    * Calculates the Larry Williams' Percent Range and returns its value.
@@ -70,7 +72,6 @@ class Indi_WPR : public Indicator<WPRParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iWPR(_symbol, _tf, _period)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -91,7 +92,7 @@ class Indi_WPR : public Indicator<WPRParams> {
       }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
@@ -101,7 +102,6 @@ class Indi_WPR : public Indicator<WPRParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -115,18 +115,7 @@ class Indi_WPR : public Indicator<WPRParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /* Getters */
