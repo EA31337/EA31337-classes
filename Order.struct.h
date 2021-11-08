@@ -34,7 +34,7 @@
 #include "Data.struct.h"
 #include "Order.enum.h"
 #include "Serializer.mqh"
-#include "SymbolInfo.static.h"
+#include "SymbolInfo.struct.static.h"
 #include "Terminal.mqh"
 
 #ifndef __MQL5__

@@ -179,6 +179,13 @@ class SerializerConverter {
     stub.SerializeStub(_n1, _n2, _n3, _n4, _n5);
     return SerializerConverter::FromObject(stub, _serializer_flags);
   }
+
+  template <typename X>
+  static SerializerConverter MakeStubObject(X& stub, int _serializer_flags = 0, int _n1 = 1, int _n2 = 1, int _n3 = 1,
+                                            int _n4 = 1, int _n5 = 1) {
+    stub.SerializeStub(_n1, _n2, _n3, _n4, _n5);
+    return SerializerConverter::FromObject(stub, _serializer_flags);
+  }
 };
 
 #endif

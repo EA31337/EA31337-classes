@@ -123,11 +123,12 @@ class SerializerConversions {
     for (unsigned short i = 0; i < StringLen(value); ++i) {
 #ifndef __MQL4__
       _char1 = StringGetCharacter(value, i);
-      _char2 = StringGetCharacter(value, i + 1);
+      _char2 = (i + 1 < StringLen(value)) ? StringGetCharacter(value, i + 1) : 0;
 #else
       _char1 = StringGetChar(value, i);
-      _char2 = StringGetChar(value, i + 1);
+      _char2 = (i + 1 < StringLen(value)) ? StringGetChar(value, i + 1) : 0;
 #endif
+
       if (_char1 == '\\') {
         switch (_char2) {
           case '"':

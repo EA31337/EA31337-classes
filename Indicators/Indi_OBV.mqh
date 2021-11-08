@@ -26,31 +26,34 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iOBV(string _symbol, int _tf, int _av, int _shift) {
+  ResetLastError();
   return Indi_OBV::iOBV(_symbol, (ENUM_TIMEFRAMES)_tf, (ENUM_APPLIED_VOLUME)_av, _shift);
 }
 #endif
 
 // Structs.
-struct OBVParams : IndicatorParams {
+struct IndiOBVParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;    // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume;  // MT5 only.
   // Struct constructors.
-  OBVParams(int _shift = 0) : IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
+  IndiOBVParams(int _shift = 0) : IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OBV");
     applied_price = PRICE_CLOSE;
     applied_volume = VOLUME_TICK;
   }
-  OBVParams(ENUM_APPLIED_VOLUME _av, int _shift = 0) : applied_volume(_av), IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
+  IndiOBVParams(ENUM_APPLIED_VOLUME _av, int _shift = 0)
+      : applied_volume(_av), IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
     max_modes = 1;
     shift = _shift;
   };
-  OBVParams(ENUM_APPLIED_PRICE _ap, int _shift = 0) : applied_price(_ap), IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
+  IndiOBVParams(ENUM_APPLIED_PRICE _ap, int _shift = 0)
+      : applied_price(_ap), IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
     max_modes = 1;
     shift = _shift;
   };
-  OBVParams(OBVParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiOBVParams(IndiOBVParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -59,13 +62,13 @@ struct OBVParams : IndicatorParams {
 /**
  * Implements the On Balance Volume indicator.
  */
-class Indi_OBV : public Indicator<OBVParams> {
+class Indi_OBV : public Indicator<IndiOBVParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OBV(OBVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<OBVParams>(_p, _indi_src) {}
-  Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_OBV, _tf) {}
+  Indi_OBV(IndiOBVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiOBVParams>(_p, _indi_src) {}
+  Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_OBV, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -86,7 +89,6 @@ class Indi_OBV : public Indicator<OBVParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iOBV(_symbol, _tf, _applied)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -107,7 +109,7 @@ class Indi_OBV : public Indicator<OBVParams> {
       }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
@@ -117,7 +119,6 @@ class Indi_OBV : public Indicator<OBVParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -135,18 +136,7 @@ class Indi_OBV : public Indicator<OBVParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /* Getters */

@@ -152,6 +152,7 @@ struct IndicatorDataEntry {
 
   // Constructors.
   IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { Resize(_size); }
+  IndicatorDataEntry(IndicatorDataEntry &_entry) { THIS_REF = _entry; }
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
   template <typename T>
@@ -328,14 +329,12 @@ struct IndicatorDataEntry {
     }
   }
   void SetFlags(unsigned short _flags) { flags = _flags; }
+  unsigned short GetFlags() { return flags; }
   // Converters.
   // State checkers.
   bool IsValid() { return CheckFlags(INDI_ENTRY_FLAG_IS_VALID); }
   // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
-    ArrayResize(values, _n1);
-    AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
-  }
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) { ArrayResize(values, _n1); }
   SerializerNodeType Serialize(Serializer &_s);
   template <typename T>
   string ToCSV() {
@@ -369,7 +368,6 @@ struct IndicatorParams {
   color indi_color;                     // Indicator color.
   int indi_data_source_id;              // Id of the indicator to be used as data source.
   int indi_data_source_mode;            // Mode used as input from data source.
-  bool indi_managed;                    // Whether indicator should be owned by indicator.
   ARRAY(DataParamEntry, input_params);  // Indicator input params.
   bool is_draw;                         // Draw active.
   int draw_window;                      // Drawing window.
@@ -413,8 +411,8 @@ struct IndicatorParams {
     Init();
   };
   // Copy constructor.
-  IndicatorParams(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : tf(_tf) {
-    this = _iparams;
+  IndicatorParams(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    THIS_REF = _params;
     if (_tf != PERIOD_CURRENT) {
       tf.SetTf(_tf);
     }
@@ -469,10 +467,9 @@ struct IndicatorParams {
     draw_window = _window;
   }
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
-  void SetDataSource(int _id, int _input_mode = -1, bool _managed = true) {
+  void SetDataSource(int _id, int _input_mode = -1) {
     indi_data_source_id = _id;
     indi_data_source_mode = _input_mode;
-    indi_managed = _managed;
     idstype = IDATA_INDICATOR;
   }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }

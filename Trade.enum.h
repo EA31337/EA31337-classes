@@ -32,17 +32,19 @@
 
 // Trade actions.
 enum ENUM_TRADE_ACTION {
-  TRADE_ACTION_CALC_LOT_SIZE = 1,          // Recalculate lot size
-  TRADE_ACTION_ORDER_CLOSE_LEAST_LOSS,     // Close order with least loss
-  TRADE_ACTION_ORDER_CLOSE_LEAST_PROFIT,   // Close order with least profit
-  TRADE_ACTION_ORDER_CLOSE_MOST_LOSS,      // Close order with most loss
-  TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT,    // Close order with most profit
-  TRADE_ACTION_ORDER_OPEN,                 // Open order
-  TRADE_ACTION_ORDERS_CLOSE_ALL,           // Close open sell orders
-  TRADE_ACTION_ORDERS_CLOSE_BY_TYPE,       // Close open orders by type (args)
-  TRADE_ACTION_ORDERS_CLOSE_IN_PROFIT,     // Close open orders in profit
-  TRADE_ACTION_ORDERS_CLOSE_IN_TREND,      // Close open orders in trend
-  TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT,  // Close open orders NOT in trend
+  TRADE_ACTION_CALC_LOT_SIZE = 1,            // Recalculate lot size
+  TRADE_ACTION_ORDER_CLOSE_LEAST_LOSS,       // Close order with least loss
+  TRADE_ACTION_ORDER_CLOSE_LEAST_PROFIT,     // Close order with least profit
+  TRADE_ACTION_ORDER_CLOSE_MOST_LOSS,        // Close order with most loss
+  TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT,      // Close order with most profit
+  TRADE_ACTION_ORDER_OPEN,                   // Open order
+  TRADE_ACTION_ORDERS_CLOSE_ALL,             // Close open sell orders
+  TRADE_ACTION_ORDERS_CLOSE_BY_TYPE,         // Close open orders by type (args)
+  TRADE_ACTION_ORDERS_CLOSE_IN_PROFIT,       // Close open orders in profit
+  TRADE_ACTION_ORDERS_CLOSE_IN_TREND,        // Close open orders in trend
+  TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT,    // Close open orders NOT in trend
+  TRADE_ACTION_ORDERS_CLOSE_SIDE_IN_LOSS,    // Close orders in loss side
+  TRADE_ACTION_ORDERS_CLOSE_SIDE_IN_PROFIT,  // Close orders in profit side
   // TRADE_ACTION_ORDERS_REMOVE_ALL_PENDING,
   TRADE_ACTION_ORDERS_LIMIT_SET,  // Set orders per period limit
   TRADE_ACTION_STATE_ADD,         // Add trade specific state (1 arg)

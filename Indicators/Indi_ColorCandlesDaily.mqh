@@ -26,14 +26,14 @@
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
-struct ColorCandlesDailyParams : IndicatorParams {
+struct IndiColorCandlesDailyParams : IndicatorParams {
   // Struct constructor.
-  ColorCandlesDailyParams(int _shift = 0) : IndicatorParams(INDI_COLOR_CANDLES_DAILY, 5, TYPE_DOUBLE) {
+  IndiColorCandlesDailyParams(int _shift = 0) : IndicatorParams(INDI_COLOR_CANDLES_DAILY, 5, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorCandlesDaily");
     shift = _shift;
   };
-  ColorCandlesDailyParams(ColorCandlesDailyParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiColorCandlesDailyParams(IndiColorCandlesDailyParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -42,14 +42,15 @@ struct ColorCandlesDailyParams : IndicatorParams {
 /**
  * Implements Color Bars
  */
-class Indi_ColorCandlesDaily : public Indicator<ColorCandlesDailyParams> {
+class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ColorCandlesDaily(ColorCandlesDailyParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<ColorCandlesDailyParams>(_p, _indi_src){};
-  Indi_ColorCandlesDaily(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_COLOR_CANDLES_DAILY, _tf){};
+  Indi_ColorCandlesDaily(IndiColorCandlesDailyParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiColorCandlesDailyParams>(_p, _indi_src){};
+  Indi_ColorCandlesDaily(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : Indicator(INDI_COLOR_CANDLES_DAILY, _tf, _shift){};
 
   /**
    * "Built-in" version of Color Candles Daily.
@@ -110,7 +111,6 @@ class Indi_ColorCandlesDaily : public Indicator<ColorCandlesDailyParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -122,17 +122,6 @@ class Indi_ColorCandlesDaily : public Indicator<ColorCandlesDailyParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 };

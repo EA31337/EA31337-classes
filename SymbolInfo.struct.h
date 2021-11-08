@@ -33,7 +33,7 @@
 // Includes.
 #include "ISerializable.h"
 #include "MqlTick.h"
-#include "SymbolInfo.static.h"
+#include "SymbolInfo.struct.static.h"
 
 // Defines struct to store symbol data.
 struct SymbolInfoEntry

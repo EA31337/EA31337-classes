@@ -32,10 +32,10 @@
 
 /* Pivot Point calculation method. */
 enum ENUM_PP_TYPE {
-  PP_CAMARILLA = 1,   // A set of eight levels which resemble support and resistance values
+  PP_CAMARILLA = 1,   // Camarilla: A set of eight levels which resemble support and resistance values
   PP_CLASSIC = 2,     // Classic pivot point
   PP_FIBONACCI = 3,   // Fibonacci pivot point
-  PP_FLOOR = 4,       // Most basic and popular type of pivots used in Forex trading technical analysis
+  PP_FLOOR = 4,       // Floor: Most basic and popular type of pivots used in Forex trading technical analysis
   PP_TOM_DEMARK = 5,  // Tom DeMark's pivot point (predicted lows and highs of the period)
   PP_WOODIE = 6,      // Woodie's pivot point are giving more weight to the Close price of the previous period
 };

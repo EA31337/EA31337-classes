@@ -109,6 +109,106 @@ class Util {
   }
 
   /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H>
+  static string MakeKey(const A _a, const B _b, const C _c, const D _d, const E _e, const F _f, const G _g,
+                        const H _h) {
+    return SeparatedMaybe(SerializerConversions::ValueToString(_a)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_b)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_c)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_d)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_e)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_f)) + SerializerConversions::ValueToString(_g) +
+           SerializerConversions::ValueToString(_h);
+  }
+
+  /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I>
+  static string MakeKey(const A _a, const B _b, const C _c, const D _d, const E _e, const F _f, const G _g, const H _h,
+                        const I _i) {
+    return SeparatedMaybe(SerializerConversions::ValueToString(_a)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_b)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_c)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_d)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_e)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_f)) + SerializerConversions::ValueToString(_g) +
+           SerializerConversions::ValueToString(_h) + SerializerConversions::ValueToString(_i);
+  }
+
+  /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J>
+  static string MakeKey(const A _a, const B _b, const C _c, const D _d, const E _e, const F _f, const G _g, const H _h,
+                        const I _i, const J _j) {
+    return SeparatedMaybe(SerializerConversions::ValueToString(_a)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_b)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_c)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_d)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_e)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_f)) + SerializerConversions::ValueToString(_g) +
+           SerializerConversions::ValueToString(_h) + SerializerConversions::ValueToString(_i) +
+           SerializerConversions::ValueToString(_j);
+  }
+
+  /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K>
+  static string MakeKey(const A _a, const B _b, const C _c, const D _d, const E _e, const F _f, const G _g, const H _h,
+                        const I _i, const J _j, const K _k) {
+    return SeparatedMaybe(SerializerConversions::ValueToString(_a)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_b)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_c)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_d)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_e)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_f)) + SerializerConversions::ValueToString(_g) +
+           SerializerConversions::ValueToString(_h) + SerializerConversions::ValueToString(_i) +
+           SerializerConversions::ValueToString(_j) + SerializerConversions::ValueToString(_k);
+  }
+
+  /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K, typename L>
+  static string MakeKey(const A _a, const B _b, const C _c, const D _d, const E _e, const F _f, const G _g, const H _h,
+                        const I _i, const J _j, const K _k, const L _l) {
+    return SeparatedMaybe(SerializerConversions::ValueToString(_a)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_b)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_c)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_d)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_e)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_f)) + SerializerConversions::ValueToString(_g) +
+           SerializerConversions::ValueToString(_h) + SerializerConversions::ValueToString(_i) +
+           SerializerConversions::ValueToString(_j) + SerializerConversions::ValueToString(_k) +
+           SerializerConversions::ValueToString(_l);
+  }
+
+  /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K, typename L, typename M>
+  static string MakeKey(const A _a, const B _b, const C _c, const D _d, const E _e, const F _f, const G _g, const H _h,
+                        const I _i, const J _j, const K _k, const L _l, const M _m) {
+    return SeparatedMaybe(SerializerConversions::ValueToString(_a)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_b)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_c)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_d)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_e)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_f)) + SerializerConversions::ValueToString(_g) +
+           SerializerConversions::ValueToString(_h) + SerializerConversions::ValueToString(_i) +
+           SerializerConversions::ValueToString(_j) + SerializerConversions::ValueToString(_k) +
+           SerializerConversions::ValueToString(_l) + SerializerConversions::ValueToString(_m);
+  }
+
+  /**
    * Creates string with separator if string was not empty.
    */
   static string SeparatedMaybe(string _value, string _separator = "/") {

@@ -28,7 +28,7 @@
 #include "../IndicatorData.mqh"
 
 // User inputs.
-#ifdef __input__ input #endif string __MA_Parameters__ = "-- Settings for the Moving Average indicator --"; // >>> MA <<<
+#ifdef __input__ input #endif string __MA_Parameters__ = "-- Settings for the Moving Average indicator --";  // >>> MA <<<
 #ifdef __input__ input #endif int MA_Period_Fast = 14;                  // Period Fast
 #ifdef __input__ input #endif int MA_Period_Medium = 20;                // Period Medium
 #ifdef __input__ input #endif int MA_Period_Slow = 48;                  // Period Slow
@@ -79,7 +79,8 @@ class I_MA : public IndicatorData {
   }
   double iMA(uint _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price,
              int _shift = 0) {
-    double _value = iMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
+    double _value = iMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _ma_period, _ma_shift,
+                        _ma_method, _applied_price, _shift);
     return _value;
   }
 
@@ -150,8 +151,8 @@ class I_MA : public IndicatorData {
     bool _res = true;
     double _ma_value;
     for (ENUM_MA_MODE mode = 0; mode <= MODE_MA_SLOW; mode++) {
-      _ma_value =
-          iMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(mode), GetShift(mode), GetMethod(mode), GetAppliedPrice(mode), shift);
+      _ma_value = iMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(mode),
+                      GetShift(mode), GetMethod(mode), GetAppliedPrice(mode), shift);
       _res &= Add(_ma_value, mode, shift);
     }
     return _res;

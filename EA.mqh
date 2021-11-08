@@ -58,7 +58,6 @@ class EA {
   Account *account;
   DictStruct<long, Ref<Strategy>> strats;
   Log logger;
-  Ref<Market> market;
   Terminal terminal;
 
   // Data variables.
@@ -79,8 +78,7 @@ class EA {
   /**
    * Class constructor.
    */
-  EA(EAParams &_params)
-      : account(new Account), market(new Market(_params.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SYMBOL)))) {
+  EA(EAParams &_params) : account(new Account) {
     eparams = _params;
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     UpdateStateFlags();
@@ -94,9 +92,6 @@ class EA {
     Trade _trade(_tparams, _cparams);
     trade.Set(_Symbol, _trade);
     logger.Link(_trade.GetLogger());
-    // trade.GetByKey(_Symbol).GetLogger().Error("Test");
-    // logger.Flush();
-    // Loads existing trades by magic number.
   }
 
   /**
@@ -113,19 +108,16 @@ class EA {
   /* Getters */
 
   /**
+   * Gets EA state flag value.
+   */
+  bool Get(STRUCT_ENUM(EAState, ENUM_EA_STATE_FLAGS) _prop) { return estate.Get(_prop); }
+
+  /**
    * Gets EA parameter value.
    */
   template <typename T>
   T Get(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_PROP) _param) {
     return eparams.Get<T>(_param);
-  }
-
-  /**
-   * Gets EA state flag value.
-   */
-  template <typename T>
-  T Get(STRUCT_ENUM(EAState, ENUM_EA_STATE_FLAGS) _prop) {
-    return estate.Get<T>(_prop);
   }
 
   /**
@@ -205,6 +197,11 @@ class EA {
   }
 
   /**
+   * Sets EA state flag value.
+   */
+  void Set(STRUCT_ENUM(EAState, ENUM_EA_STATE_FLAGS) _prop, bool _value) { estate.Set(_prop, _value); }
+
+  /**
    * Sets an strategy parameter value for all strategies.
    */
   template <typename T>
@@ -225,31 +222,6 @@ class EA {
       _trade.Set<T>(_param, _value);
     }
   }
-
-  /**
-   * Sets an strategy parameter value for all strategies.
-   */
-  /* @fixme
-  template <typename T>
-  void Set(ENUM_TRADE_PARAM _param, T _value, ENUM_TIMEFRAMES _tf) {
-    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
-      Strategy *_strat = iter.Value().Ptr();
-      _strat.Set<T>(_param, _value);
-    }
-  }
-  */
-
-  /**
-   * Sets an strategy parameter value for the given timeframe.
-   */
-  /* @fixme
-  template <typename T>
-  void Set(ENUM_TRADE_PARAM _param, T _value) {
-    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
-      Set(_param, _value);
-    }
-  }
-  */
 
   /* Processing methods */
 
@@ -292,6 +264,8 @@ class EA {
           _strat.OnOrderClose(ORDER_TYPE_SELL);
         }
       }
+      _trade_allowed &= _trade.IsTradeAllowed();
+      _trade_allowed &= !_strat.IsSuspended();
       if (_trade_allowed) {
         float _sig_open = _signal.GetSignalOpen();
         unsigned int _sig_f = eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER));
@@ -327,13 +301,13 @@ class EA {
           _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
         } else {
           _last_error = GetLastError();
-          switch (_last_error) {
-            case ERR_NOT_ENOUGH_MEMORY:
-              logger.Error(StringFormat("Not enough money to open trades! Code: %d", _last_error), __FUNCTION_LINE__,
-                           _strat.GetName());
-              logger.Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__, _strat.GetName());
-              _strat.Suspended(true);
-              break;
+          if (_last_error > 0) {
+            logger.Warning(StringFormat("Error: %d", _last_error), __FUNCTION_LINE__, _strat.GetName());
+            ResetLastError();
+          }
+          if (_trade.Get<bool>(TRADE_STATE_MONEY_NOT_ENOUGH)) {
+            logger.Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__, _strat.GetName());
+            _strat.Suspended(true);
           }
         }
       }
@@ -383,7 +357,6 @@ class EA {
   virtual EAProcessResult ProcessTick() {
     if (estate.IsEnabled()) {
       MqlTick _tick = SymbolInfoStatic::GetTick(_Symbol);
-      GetMarket().SetTick(_tick);
       eresults.Reset();
       if (estate.IsActive()) {
         ProcessPeriods();
@@ -401,9 +374,9 @@ class EA {
               eresults.stg_processed_periods++;
             }
             if (_strat.TickFilter(_tick)) {
-              _can_trade &= _can_trade && !_strat.IsSuspended();
-              _can_trade &= _can_trade && !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE,
-                                                                 TRADE_STATE_TRADE_CANNOT);
+              _can_trade &= !_strat.IsSuspended();
+              _can_trade &=
+                  !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
               TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
               if (_sentry.Get<uint>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
                 TradeSignal _signal(_sentry);
@@ -752,6 +725,7 @@ class EA {
     _strat.Ptr().Set<long>(STRAT_PARAM_ID, _magic_no);
     _strat.Ptr().Set<ENUM_TIMEFRAMES>(STRAT_PARAM_TF, _tf);
     _strat.Ptr().Set<int>(STRAT_PARAM_TYPE, _type);
+    _strat.Ptr().OnInit();
     if (!strats.KeyExists(_magic_no)) {
       _result &= strats.Set(_magic_no, _strat);
     } else {
@@ -1045,11 +1019,6 @@ class EA {
   }
 
   /**
-   * Returns pointer to Terminal object.
-   */
-  Market *GetMarket() { return market.Ptr(); }
-
-  /**
    * Returns pointer to Market object.
    */
   Terminal *GetTerminal() { return GetPointer(terminal); }
@@ -1063,11 +1032,6 @@ class EA {
    * Gets DictStruct reference to strategies.
    */
   DictStruct<long, Ref<Strategy>> *GetStrategies() { return GetPointer(strats); }
-
-  /**
-   * Gets EA params.
-   */
-  EAParams GetParams() { return eparams; }
 
   /**
    * Gets EA state.
@@ -1087,19 +1051,9 @@ class EA {
   Log *GetLogger() { return GetPointer(logger); }
 
   /**
-   * Gets pointer to market details.
-   */
-  Market *Market() { return market.Ptr(); }
-
-  /**
    * Gets reference to strategies.
    */
   DictStruct<long, Ref<Strategy>> *Strategies() { return &strats; }
-
-  /**
-   * Gets pointer to symbol details.
-   */
-  SymbolInfo *SymbolInfo() { return (SymbolInfo *)GetMarket(); }
 
   /* Setters */
 
@@ -1176,12 +1130,6 @@ class EA {
   SerializerNodeType Serialize(Serializer &_s) {
     _s.Pass(THIS_REF, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
 
-    // In MQL it will be: Market* _market = GetMarket();
-    // In C++ it will be: Market& _market = GetMarket();
-    // It is needed as PassObject() expects reference to object instead of its pointer.
-    MAKE_REF_FROM_PTR(Market, _market, GetMarket());
-    _s.PassObject(THIS_REF, "market", _market, SERIALIZER_FIELD_FLAG_DYNAMIC);
-
     for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategies().Begin(); _iter.IsValid(); ++_iter) {
       Strategy *_strat = _iter.Value().Ptr();
       // @fixme: GH-422
@@ -1192,6 +1140,8 @@ class EA {
       _s.Pass(THIS_REF, "strat:params:" + _sname, _sparams);
       _s.Pass(THIS_REF, "strat:results:" + _sname, _sresults);
     }
+    _s.PassObject(THIS_REF, "trade", trade);
+    _s.PassObject(THIS_REF, "tsm", tsm);
     return SerializerNodeObject;
   }
 };

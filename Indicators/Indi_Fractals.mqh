@@ -26,19 +26,20 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iFractals(string _symbol, int _tf, int _mode, int _shift) {
+  ResetLastError();
   return Indi_Fractals::iFractals(_symbol, (ENUM_TIMEFRAMES)_tf, (ENUM_LO_UP_LINE)_mode, _shift);
 }
 #endif
 
 // Structs.
-struct FractalsParams : IndicatorParams {
+struct IndiFractalsParams : IndicatorParams {
   // Struct constructors.
-  FractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS, FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE) {
+  IndiFractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS, FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_ARROW);
     SetCustomIndicatorName("Examples\\Fractals");
     shift = _shift;
   };
-  FractalsParams(FractalsParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiFractalsParams(IndiFractalsParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -47,13 +48,14 @@ struct FractalsParams : IndicatorParams {
 /**
  * Implements the Fractals indicator.
  */
-class Indi_Fractals : public Indicator<FractalsParams> {
+class Indi_Fractals : public Indicator<IndiFractalsParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Fractals(FractalsParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<FractalsParams>(_p, _indi_src) {}
-  Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRACTALS, _tf) {}
+  Indi_Fractals(IndiFractalsParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiFractalsParams>(_p, _indi_src) {}
+  Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_FRACTALS, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -71,7 +73,6 @@ class Indi_Fractals : public Indicator<FractalsParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iFractals(_symbol, _tf)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -92,7 +93,7 @@ class Indi_Fractals : public Indicator<FractalsParams> {
       }
     }
     if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
@@ -102,7 +103,6 @@ class Indi_Fractals : public Indicator<FractalsParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -115,44 +115,18 @@ class Indi_Fractals : public Indicator<FractalsParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
   /**
-   * Returns the indicator's struct value.
+   * Alters indicator's struct value.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
-      _entry.values[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+    Indicator<IndiFractalsParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
-      // In MT4 line identifiers starts from 1, so populating also at 0.
-      _entry.values[0] = _entry.values[LINE_UPPER];
+    // In MT4 line identifiers starts from 1, so populating also at 0.
+    _entry.values[0] = _entry.values[LINE_UPPER];
 #endif
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      }
-    }
-    return _entry;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   /**
