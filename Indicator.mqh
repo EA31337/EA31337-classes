@@ -1002,8 +1002,9 @@ class Indicator : public IndicatorBase {
    * @return
    *   Returns DataParamEntry struct filled with a single value.
    */
-  virtual DataParamEntry GetEntryValue(int _shift = -1, int _mode = 0) {
-    IndicatorDataEntry _entry = GetEntry(_shift >= 0 ? _shift : iparams.GetShift());
+  /*
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+    IndicatorDataEntry _entry = GetEntry(fmax(_shift, _shift >= 0 ? _shift : iparams.GetShift()));
     DataParamEntry _value_entry;
     switch (iparams.GetDataValueType()) {
       case TYPE_BOOL:
@@ -1034,6 +1035,7 @@ class Indicator : public IndicatorBase {
     }
     return _value_entry;
   }
+  */
 
   /**
    * Returns the indicator's value.

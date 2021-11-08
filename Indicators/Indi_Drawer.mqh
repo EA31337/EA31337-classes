@@ -172,15 +172,16 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Drawer::iDrawer(GetSymbol(), GetTf(), _shift, THIS_PTR);
+        _value = Indi_Drawer::iDrawer(GetSymbol(), GetTf(), _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), _shift);
+        _value = Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

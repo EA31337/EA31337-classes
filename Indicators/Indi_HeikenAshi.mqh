@@ -195,8 +195,9 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetMixedValue(int _mode = HA_OPEN, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = HA_OPEN, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
 #ifdef __MQL4__
@@ -216,15 +217,15 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
             break;
         }
 #endif
-        _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift, THIS_PTR);
+        _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM_LEGACY:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_HeikenAshi::iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
-                                                          _shift, THIS_PTR);
+                                                          _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

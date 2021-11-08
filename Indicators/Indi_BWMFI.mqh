@@ -114,16 +114,17 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetMixedValue(int _mode = BWMFI_BUFFER, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BWMFI_BUFFER, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_BWMFI::iBWMFI(GetSymbol(), GetTf(), _shift, (ENUM_BWMFI_BUFFER)_mode, THIS_PTR);
+        _value = Indi_BWMFI::iBWMFI(GetSymbol(), GetTf(), _ishift, (ENUM_BWMFI_BUFFER)_mode, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/,
-                         _mode, _shift);
+                         _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

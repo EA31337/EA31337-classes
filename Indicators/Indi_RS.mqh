@@ -78,10 +78,11 @@ class Indi_RS : public Indicator<IndiRSParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_MATH:
-        return imath[_mode].Ptr().GetMixedValue();
+        return imath[_mode].Ptr().GetEntryValue();
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -66,14 +66,15 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     BarOHLC _ohlcs[1];
 
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
-        _ohlcs[0] = Chart::GetOHLC(_shift);
+        _ohlcs[0] = Chart::GetOHLC(_ishift);
         break;
       case IDATA_INDICATOR:
         // In this mode, price is fetched from given indicator. Such indicator
@@ -92,10 +93,10 @@ class Indi_Candle : public Indicator<CandleParams> {
           break;
         }
 
-        _ohlcs[0].open = GetDataSource().GetValue<float>(_shift, PRICE_OPEN);
-        _ohlcs[0].high = GetDataSource().GetValue<float>(_shift, PRICE_HIGH);
-        _ohlcs[0].low = GetDataSource().GetValue<float>(_shift, PRICE_LOW);
-        _ohlcs[0].close = GetDataSource().GetValue<float>(_shift, PRICE_CLOSE);
+        _ohlcs[0].open = GetDataSource().GetValue<float>(_ishift, PRICE_OPEN);
+        _ohlcs[0].high = GetDataSource().GetValue<float>(_ishift, PRICE_HIGH);
+        _ohlcs[0].low = GetDataSource().GetValue<float>(_ishift, PRICE_LOW);
+        _ohlcs[0].close = GetDataSource().GetValue<float>(_ishift, PRICE_CLOSE);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
