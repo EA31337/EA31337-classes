@@ -221,13 +221,6 @@ class DictStruct : public DictBase<K, V> {
    * Inserts value into given array of DictSlots.
    */
   bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value, bool allow_resize) {
-    // Will resize dict if there were performance problems before.
-    if (allow_resize && !dictSlotsRef.IsPerformant()) {
-      if (!GrowUp()) {
-        return false;
-      }
-    }
-
     if (_mode == DictModeUnknown)
       _mode = DictModeDict;
     else if (_mode != DictModeDict) {
@@ -237,6 +230,20 @@ class DictStruct : public DictBase<K, V> {
 
     unsigned int position;
     DictSlot<K, V>* keySlot = GetSlotByKey(dictSlotsRef, key, position);
+
+    if (keySlot == NULL && !IsGrowUpAllowed()) {
+      // Resize is prohibited.
+      return false;
+    }
+
+    // Will resize dict if there were performance problems before.
+    if (allow_resize && IsGrowUpAllowed() && !dictSlotsRef.IsPerformant()) {
+      if (!GrowUp()) {
+        return false;
+      }
+      // We now have new positions of slots, so we have to take the corrent slot again.
+      keySlot = GetSlotByKey(dictSlotsRef, key, position);
+    }
 
     if (keySlot == NULL && dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlotsRef.DictSlots available.

@@ -47,7 +47,7 @@ void OnTick() {
   ::SymbolInfoTick(_Symbol, tick);
   tm.Add(tick, tick.time);
   if (tick.time % 3600 == 0) {
-    PrintFormat("Ticks: %d; Memory %d/%d", tm.Size(), ::TerminalInfoInteger(TERMINAL_MEMORY_USED),
-                ::TerminalInfoInteger(TERMINAL_MEMORY_TOTAL));
+    PrintFormat("Ticks: %d (reserved %d); Memory %d/%d", tm.Size(), tm.ReservedSize(),
+                ::TerminalInfoInteger(TERMINAL_MEMORY_USED), ::TerminalInfoInteger(TERMINAL_MEMORY_TOTAL));
   }
 }
