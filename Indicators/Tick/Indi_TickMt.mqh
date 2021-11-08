@@ -21,63 +21,57 @@
  */
 
 // Includes.
-#include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
-#include "Price/Indi_Price.mqh"
-
-/**
- * @file
- * Demo indicator for testing purposes.
- */
+#include "../../BufferStruct.mqh"
+#include "../../Indicator.mqh"
+#include "../../Storage/Objects.h"
 
 // Structs.
-struct IndiDemoParams : IndicatorParams {
-  // Struct constructors.
-  IndiDemoParams(int _shift = 0) : IndicatorParams(INDI_DEMO, 1, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
+struct IndiTickMtParams : IndicatorParams {
+  string symbol;
+  // Struct constructor.
+  IndiTickMtParams(string _symbol = NULL, int _shift = 0) : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {
     SetShift(_shift);
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        if (custom_indi_name == "") {
-          SetCustomIndicatorName("Examples\\Demo");
-        }
-        break;
-    }
   };
-  IndiDemoParams(IndiDemoParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiTickMtParams(IndiTickMtParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
+  // Getters.
+  string GetSymbol() { return symbol; }
+  // Setters.
+  void SetSymbol(string _symbol) { symbol = _symbol; }
 };
 
 /**
- * Demo/Dummy Indicator.
+ * Price Indicator.
  */
-class Indi_Demo : public Indicator<IndiDemoParams> {
+class Indi_TickMt : public Indicator<IndiTickMtParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Demo(IndiDemoParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiDemoParams>(_p, _indi_src){};
-  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DEMO, _tf, _shift){};
-
-  /**
-   * Returns the indicator value.
-   */
-  static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                      IndicatorBase *_obj = NULL) {
-    return 0.1 + (0.1 * _obj.GetBarIndex());
-  }
+  Indi_TickMt(IndiTickMtParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiTickMtParams>(_p, _indi_src){};
+  Indi_TickMt(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_TICK, _tf, _shift){};
 
   /**
    * Returns the indicator's value.
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _ishift, THIS_PTR);
-    if (iparams.is_draw) {
-      draw.DrawLineTo(GetName(), GetBarTime(_ishift), _value);
+    MqlTick _tick = SymbolInfoStatic::GetTick(_Symbol);
+    switch (_mode) {
+      case 0:
+        return _tick.ask;
+      case 1:
+        return _tick.bid;
+      case 2:
+#ifdef __MQL4__
+        return _tick.volume;
+#else
+        return _tick.volume_real;
+#endif
     }
-    return _value;
+    SetUserError(ERR_INVALID_PARAMETER);
+    return DBL_MAX;
   }
 };

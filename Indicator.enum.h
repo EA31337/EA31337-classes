@@ -96,7 +96,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_OSMA,                 // OsMA
   INDI_PATTERN,              // Pattern Detector
   INDI_PIVOT,                // Pivot Detector
-  INDI_PRICE,                // Price Indicator
+  INDI_PRICE,                // Price
   INDI_PRICE_CHANNEL,        // Price Channel
   INDI_PRICE_FEEDER,         // Indicator which returns prices from custom array
   INDI_PRICE_VOLUME_TREND,   // Price and Volume Trend
@@ -114,7 +114,8 @@ enum ENUM_INDICATOR_TYPE {
   INDI_STOCHASTIC,           // Stochastic Oscillator
   INDI_SVE_BB,               // SVE Bollinger Bands
   INDI_TEMA,                 // Triple Exponential Moving Average
-  INDI_TMA_TRUE,             /// Triangular Moving Average True
+  INDI_TICK,                 // Tick
+  INDI_TMA_TRUE,             // Triangular Moving Average True
   INDI_TRIX,                 // Triple Exponential Moving Averages Oscillator
   INDI_ULTIMATE_OSCILLATOR,  // Ultimate Oscillator
   INDI_VIDYA,                // Variable Index Dynamic Average
@@ -218,12 +219,11 @@ enum ENUM_APPLIED_VOLUME { VOLUME_TICK = 0, VOLUME_REAL = 1 };
 enum INDICATOR_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_NONE = 0 << 0,
   INDI_ENTRY_FLAG_IS_BITWISE = 1 << 0,
-  INDI_ENTRY_FLAG_IS_DOUBLE = 1 << 1,
+  INDI_ENTRY_FLAG_IS_DOUBLED = 1 << 1,  // Type is doubled in size (e.g. double or long).
   INDI_ENTRY_FLAG_IS_EXPIRED = 1 << 2,
-  INDI_ENTRY_FLAG_IS_FLOAT = 1 << 3,
-  INDI_ENTRY_FLAG_IS_INT = 1 << 4,
-  INDI_ENTRY_FLAG_IS_LONG = 1 << 5,
-  INDI_ENTRY_FLAG_IS_PRICE = 1 << 6,
-  INDI_ENTRY_FLAG_IS_VALID = 1 << 7,
-  INDI_ENTRY_FLAG_INSUFFICIENT_DATA = 1 << 8,  // Entry has missing value for that shift and probably won't ever have.
+  INDI_ENTRY_FLAG_IS_REAL = 1 << 3,  // Type is real (float or double).
+  INDI_ENTRY_FLAG_IS_PRICE = 1 << 4,
+  INDI_ENTRY_FLAG_IS_UNSIGNED = 1 << 5,  // Type is unsigned (uint or ulong).
+  INDI_ENTRY_FLAG_IS_VALID = 1 << 6,
+  INDI_ENTRY_FLAG_INSUFFICIENT_DATA = 1 << 7,  // Entry has missing value for that shift and probably won't ever have.
 };

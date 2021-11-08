@@ -162,20 +162,21 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = -1) {
+    double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
 #ifdef __MQL4__
     if (_mode == 0) {
       // In MQL4 mode 0 should be treated as mode 1 as Alligator buffers starts from index 1.
-      return GetValue((ENUM_ALLIGATOR_LINE)1, _shift);
+      return GetEntryValue((ENUM_ALLIGATOR_LINE)1, _ishift);
     }
 #endif
-    double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
                                             GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),
-                                            GetAppliedPrice(), (ENUM_ALLIGATOR_LINE)_mode, _shift, THIS_PTR);
+                                            GetAppliedPrice(), (ENUM_ALLIGATOR_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
@@ -183,7 +184,7 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
                          GetLipsShift(), GetMAMethod(),
                          GetAppliedPrice()
                          /*]*/,
-                         _mode, _shift);
+                         _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

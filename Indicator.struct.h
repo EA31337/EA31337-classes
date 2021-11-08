@@ -45,109 +45,149 @@ struct ChartParams;
 #include "SerializerNode.enum.h"
 #include "Storage/ValueStorage.indicator.h"
 
+// Type-less value for IndicatorDataEntryValue structure.
+union IndicatorDataEntryTypelessValue {
+  double vdbl;
+  float vflt;
+  int vint;
+  long vlong;
+};
+
+// Type-aware value for IndicatorDataEntry class.
+struct IndicatorDataEntryValue {
+  unsigned char flags;
+  IndicatorDataEntryTypelessValue value;
+
+  // Returns type of the value.
+  ENUM_DATATYPE GetDataType() { return (ENUM_DATATYPE)((flags & 0xF0) >> 4); }
+
+  // Sets type of the value.
+  void SetDataType(ENUM_DATATYPE _type) {
+    // Clearing type.
+    flags &= 0x0F;
+
+    // Setting type.
+    flags |= (unsigned char)_type << 4;
+  }
+
+  // Union operators.
+  template <typename T>
+  T operator*(const T _value) {
+    return Get<T>() * _value;
+  }
+  template <typename T>
+  T operator+(const T _value) {
+    return Get<T>() + _value;
+  }
+  template <typename T>
+  T operator-(const T _value) {
+    return Get<T>() - _value;
+  }
+  template <typename T>
+  T operator/(const T _value) {
+    return Get<T>() / _value;
+  }
+  template <typename T>
+  bool operator!=(const T _value) {
+    return Get<T>() != _value;
+  }
+  template <typename T>
+  bool operator<(const T _value) {
+    return Get<T>() < _value;
+  }
+  template <typename T>
+  bool operator<=(const T _value) {
+    return Get<T>() <= _value;
+  }
+  template <typename T>
+  bool operator==(const T _value) {
+    return Get<T>() == _value;
+  }
+  template <typename T>
+  bool operator>(const T _value) {
+    return Get<T>() > _value;
+  }
+  template <typename T>
+  bool operator>=(const T _value) {
+    return Get<T>() >= _value;
+  }
+  template <typename T>
+  void operator=(const T _value) {
+    Set(_value);
+  }
+  // Checkers.
+  template <typename T>
+  bool IsGt(T _value) {
+    return Get<T>() > _value;
+  }
+  template <typename T>
+  bool IsLt(T _value) {
+    return Get<T>() < _value;
+  }
+  // Getters.
+  double GetDbl() { return value.vdbl; }
+  float GetFloat() { return value.vflt; }
+  int GetInt() { return value.vint; }
+  long GetLong() { return value.vlong; }
+  template <typename T>
+  void Get(T &_out) {
+    _out = Get<T>();
+  }
+  template <typename T>
+  T Get() {
+    T _v;
+    Get(_v);
+    return _v;
+  }
+  void Get(double &_out) { _out = value.vdbl; }
+  void Get(float &_out) { _out = value.vflt; }
+  void Get(int &_out) { _out = value.vint; }
+  void Get(unsigned int &_out) { _out = (unsigned int)value.vint; }
+  void Get(long &_out) { _out = value.vlong; }
+  void Get(unsigned long &_out) { _out = (unsigned long)value.vint; }
+  // Setters.
+  template <typename T>
+  void Set(T _value) {
+    Set(_value);
+  }
+  void Set(double _value) {
+    value.vdbl = _value;
+    SetDataType(TYPE_DOUBLE);
+  }
+  void Set(float _value) {
+    value.vflt = _value;
+    SetDataType(TYPE_FLOAT);
+  }
+  void Set(int _value) {
+    value.vint = _value;
+    SetDataType(TYPE_INT);
+  }
+  void Set(unsigned int _value) {
+    value.vint = (int)_value;
+    SetDataType(TYPE_UINT);
+  }
+  void Set(long _value) {
+    value.vlong = _value;
+    SetDataType(TYPE_LONG);
+  }
+  void Set(unsigned long _value) {
+    value.vlong = (long)_value;
+    SetDataType(TYPE_ULONG);
+  }
+  // Serializers.
+  // SERIALIZER_EMPTY_STUB
+  SerializerNodeType Serialize(Serializer &_s);
+  // To string
+  template <typename T>
+  string ToString() {
+    return (string)Get<T>();
+  }
+};
+
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {
   long timestamp;        // Timestamp of the entry's bar.
   unsigned short flags;  // Indicator entry flags.
-  union IndicatorDataEntryValue {
-    double vdbl;
-    float vflt;
-    int vint;
-    long vlong;
-    // Union operators.
-    template <typename T>
-    T operator*(const T _value) {
-      return Get<T>() * _value;
-    }
-    template <typename T>
-    T operator+(const T _value) {
-      return Get<T>() + _value;
-    }
-    template <typename T>
-    T operator-(const T _value) {
-      return Get<T>() - _value;
-    }
-    template <typename T>
-    T operator/(const T _value) {
-      return Get<T>() / _value;
-    }
-    template <typename T>
-    bool operator!=(const T _value) {
-      return Get<T>() != _value;
-    }
-    template <typename T>
-    bool operator<(const T _value) {
-      return Get<T>() < _value;
-    }
-    template <typename T>
-    bool operator<=(const T _value) {
-      return Get<T>() <= _value;
-    }
-    template <typename T>
-    bool operator==(const T _value) {
-      return Get<T>() == _value;
-    }
-    template <typename T>
-    bool operator>(const T _value) {
-      return Get<T>() > _value;
-    }
-    template <typename T>
-    bool operator>=(const T _value) {
-      return Get<T>() >= _value;
-    }
-    template <typename T>
-    void operator=(const T _value) {
-      Set(_value);
-    }
-    // Checkers.
-    template <typename T>
-    bool IsGt(T _value) {
-      return Get<T>() > _value;
-    }
-    template <typename T>
-    bool IsLt(T _value) {
-      return Get<T>() < _value;
-    }
-    // Getters.
-    double GetDbl() { return vdbl; }
-    float GetFloat() { return vflt; }
-    int GetInt() { return vint; }
-    long GetLong() { return vlong; }
-    template <typename T>
-    void Get(T &_out) {
-      _out = Get<T>();
-    }
-    template <typename T>
-    T Get() {
-      T _v;
-      Get(_v);
-      return _v;
-    }
-    void Get(double &_out) { _out = vdbl; }
-    void Get(float &_out) { _out = vflt; }
-    void Get(int &_out) { _out = vint; }
-    void Get(long &_out) { _out = vlong; }
-    // Setters.
-    template <typename T>
-    void Set(T _value) {
-      Set(_value);
-    }
-    void Set(double _value) { vdbl = _value; }
-    void Set(float _value) { vflt = _value; }
-    void Set(int _value) { vint = _value; }
-    void Set(unsigned int _value) { vint = (int)_value; }
-    void Set(long _value) { vlong = _value; }
-    void Set(unsigned long _value) { vlong = (long)_value; }
-    // Serializers.
-    // SERIALIZER_EMPTY_STUB
-    SerializerNodeType Serialize(Serializer &_s);
-    // To string
-    template <typename T>
-    string ToString() {
-      return (string)Get<T>();
-    }
-  };
-
   ARRAY(IndicatorDataEntryValue, values);
 
   // Constructors.
@@ -288,30 +328,35 @@ struct IndicatorDataEntry {
   int GetMonth() { return DateTimeStatic::Month(timestamp); }
   int GetYear() { return DateTimeStatic::Year(timestamp); }
   long GetTime() { return timestamp; };
-  ENUM_DATATYPE GetDataType() {
-    if (CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
-      return TYPE_FLOAT;
-    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
-      return TYPE_INT;
-    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_LONG)) {
-      return TYPE_LONG;
-    }
-    return TYPE_DOUBLE;
-  }
-  INDICATOR_ENTRY_FLAGS GetDataTypeFlag(ENUM_DATATYPE _dt) {
+  ENUM_DATATYPE GetDataType(int _mode) { return values[_mode].GetDataType(); }
+  ushort GetDataTypeFlags(ENUM_DATATYPE _dt) {
     switch (_dt) {
-      case TYPE_DOUBLE:
-        return INDI_ENTRY_FLAG_IS_DOUBLE;
-      case TYPE_FLOAT:
-        return INDI_ENTRY_FLAG_IS_FLOAT;
+      case TYPE_BOOL:
+      case TYPE_CHAR:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
       case TYPE_INT:
-        return INDI_ENTRY_FLAG_IS_INT;
+        return INDI_ENTRY_FLAG_NONE;
       case TYPE_LONG:
-        return INDI_ENTRY_FLAG_IS_LONG;
+        return INDI_ENTRY_FLAG_IS_DOUBLED;
+      case TYPE_UINT:
+        return INDI_ENTRY_FLAG_IS_UNSIGNED;
+      case TYPE_ULONG:
+        return INDI_ENTRY_FLAG_IS_UNSIGNED | INDI_ENTRY_FLAG_IS_DOUBLED;
+      case TYPE_DOUBLE:
+        return INDI_ENTRY_FLAG_IS_REAL | INDI_ENTRY_FLAG_IS_DOUBLED;
+      case TYPE_FLOAT:
+        return INDI_ENTRY_FLAG_IS_REAL;
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
       default:
+        SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
-    return (INDICATOR_ENTRY_FLAGS)0;
+    SetUserError(ERR_INVALID_PARAMETER);
+    return INDI_ENTRY_FLAG_NONE;
   }
   // Setters.
   bool Resize(int _size = 0) { return _size > 0 ? ArrayResize(values, _size) > 0 : true; }
@@ -334,7 +379,12 @@ struct IndicatorDataEntry {
   // State checkers.
   bool IsValid() { return CheckFlags(INDI_ENTRY_FLAG_IS_VALID); }
   // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) { ArrayResize(values, _n1); }
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    ArrayResize(values, _n1);
+    for (int i = 0; i < _n1; ++i) {
+      values[i] = (int)1;
+    }
+  }
   SerializerNodeType Serialize(Serializer &_s);
   template <typename T>
   string ToCSV() {
@@ -448,7 +498,11 @@ struct IndicatorParams {
       case TYPE_STRING:
       case TYPE_UCHAR:
         return (T)param.string_value;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
+    SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }
   /* Setters */
