@@ -32,8 +32,8 @@
 // Structs.
 struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
-  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN, 5, TYPE_INT) {
-    SetDataValueType(TYPE_INT);
+  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN, 5, TYPE_UINT) {
+    SetDataValueType(TYPE_UINT);
     SetDataValueRange(IDATA_RANGE_BITWISE);
     shift = _shift;
   };
@@ -57,15 +57,16 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int i;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     BarOHLC _ohlcs[8];
 
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
         for (i = 0; i < iparams.GetMaxModes(); ++i) {
-          _ohlcs[i] = Chart::GetOHLC(_shift + i);
+          _ohlcs[i] = Chart::GetOHLC(_ishift + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
             return WRONG_VALUE;
@@ -90,10 +91,10 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
         }
 
         for (i = 0; i < iparams.GetMaxModes(); ++i) {
-          _ohlcs[i].open = GetDataSource().GetValue<float>(_shift + i, PRICE_OPEN);
-          _ohlcs[i].high = GetDataSource().GetValue<float>(_shift + i, PRICE_HIGH);
-          _ohlcs[i].low = GetDataSource().GetValue<float>(_shift + i, PRICE_LOW);
-          _ohlcs[i].close = GetDataSource().GetValue<float>(_shift + i, PRICE_CLOSE);
+          _ohlcs[i].open = GetDataSource().GetValue<float>(_ishift + i, PRICE_OPEN);
+          _ohlcs[i].high = GetDataSource().GetValue<float>(_ishift + i, PRICE_HIGH);
+          _ohlcs[i].low = GetDataSource().GetValue<float>(_ishift + i, PRICE_LOW);
+          _ohlcs[i].close = GetDataSource().GetValue<float>(_ishift + i, PRICE_CLOSE);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
             return WRONG_VALUE;

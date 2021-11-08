@@ -106,9 +106,10 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   /**
    * Returns the indicator's value.
    */
-  float GetValue(unsigned int _mode, int _shift = 0) {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     float _value = FLT_MAX;
     int _index = (int)_mode / 2;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // Builtin mode not supported.
@@ -118,7 +119,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
         ikt.Set(::TimeGMT());
         if (ikt.CheckHours(_index)) {
           // Pass values to check for new highs or lows.
-          ikt.Update(_mode % 2 == 0 ? (float)GetHigh(_shift) : (float)GetLow(_shift), _index);
+          ikt.Update(_mode % 2 == 0 ? (float)GetHigh(_ishift) : (float)GetLow(_ishift), _index);
         }
         // Set a final value.
         _value = _mode % 2 == 0 ? ikt.GetHigh(_index) : ikt.GetLow(_index);
@@ -133,30 +134,6 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
    * Checks if value is valid.
    */
   bool IsValidValue(float _value, unsigned int _mode = 0, int _shift = 0) { return _value > 0.0f; }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
-    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
-      _entry.Resize(iparams.GetMaxModes());
-      _entry.timestamp = GetBarTime(_shift);
-      for (unsigned int _mode = 0; _mode < (uint)iparams.GetMaxModes(); _mode++) {
-        float _value = GetValue(_mode, _shift);
-        _entry.values[_mode] = IsValidValue(_value, _mode, _shift) ? _value : 0.0f;
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-        idata.Add(_entry, _bar_time);
-      } else {
-        _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
-      }
-    }
-    return _entry;
-  }
 
   /**
    * Checks if indicator entry values are valid.

@@ -75,12 +75,13 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int data_size = ArraySize(iparams.price_data);
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
 
-    if (_shift >= data_size || _shift < 0) return DBL_MIN;
+    if (_ishift >= data_size || _ishift < 0) return DBL_MIN;
 
-    double _value = iparams.price_data[data_size - _shift - 1];
+    double _value = iparams.price_data[data_size - _ishift - 1];
     return _value;
   }
 
@@ -93,24 +94,5 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
         draw.DrawLineTo(GetName() + "_" + IntegerToString(i), GetBarTime(0), _entry.values[i].GetDbl());
       }
     }
-  }
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(iparams.GetMaxModes());
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0].Set(GetValue(PRICE_OPEN, _shift));
-      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-      _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
-      idata.Add(_entry, _bar_time);
-    }
-    return _entry;
   }
 };
