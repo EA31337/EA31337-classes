@@ -705,11 +705,9 @@ class IndicatorBase : public Chart {
   template <typename T>
   T GetValue(int _shift = 0, int _mode = 0) {
     T _out;
-    GetMixedValue(_shift, _mode).Get(_out);
+    GetEntryValue(_shift, _mode).Get(_out);
     return _out;
   }
-
-  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) = NULL;
 
   /**
    * Returns values for a given shift.
@@ -773,7 +771,7 @@ class IndicatorBase : public Chart {
   /**
    * Returns the indicator's entry value.
    */
-  virtual DataParamEntry GetEntryValue(int _shift = -1, int _mode = 0) = NULL;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) = NULL;
 
   /**
    * Returns indicator value for a given shift and mode.

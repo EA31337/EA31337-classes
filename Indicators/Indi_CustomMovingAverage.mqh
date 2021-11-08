@@ -67,12 +67,13 @@ class Indi_CustomMovingAverage : public Indicator<IndiCustomMovingAverageParams>
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
-                         GetSmoothShift(), GetSmoothMethod() /*]*/, 0, _shift);
+                         GetSmoothShift(), GetSmoothMethod() /*]*/, 0, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

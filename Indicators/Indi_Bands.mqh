@@ -239,22 +239,23 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual IndicatorDataEntryValue GetMixedValue(int _mode = BAND_BASE, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BAND_BASE, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
-                                    GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _shift, THIS_PTR);
+                                    GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
-                         GetBandsShift(), GetDeviation(), GetAppliedPrice() /* ] */, _mode, _shift);
+                         GetBandsShift(), GetDeviation(), GetAppliedPrice() /* ] */, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
         _value = Indi_Bands::iBandsOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
-                                               GetBandsShift(), (ENUM_BANDS_LINE)_mode, _shift, THIS_PTR);
+                                               GetBandsShift(), (ENUM_BANDS_LINE)_mode, _ishift, THIS_PTR);
         break;
     }
     return _value;

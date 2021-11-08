@@ -106,9 +106,10 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   /**
    * Returns the indicator's value.
    */
-  IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     float _value = FLT_MAX;
     int _index = (int)_mode / 2;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // Builtin mode not supported.
@@ -118,7 +119,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
         ikt.Set(::TimeGMT());
         if (ikt.CheckHours(_index)) {
           // Pass values to check for new highs or lows.
-          ikt.Update(_mode % 2 == 0 ? (float)GetHigh(_shift) : (float)GetLow(_shift), _index);
+          ikt.Update(_mode % 2 == 0 ? (float)GetHigh(_ishift) : (float)GetLow(_ishift), _index);
         }
         // Set a final value.
         _value = _mode % 2 == 0 ? ikt.GetHigh(_index) : ikt.GetLow(_index);

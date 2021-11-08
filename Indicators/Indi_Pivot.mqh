@@ -100,7 +100,10 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) { return GetEntry(_shift)[_mode]; }
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    return GetEntry(_ishift)[_mode];
+  }
 
   /**
    * Checks if indicator entry values are valid.

@@ -75,12 +75,13 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int data_size = ArraySize(iparams.price_data);
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
 
-    if (_shift >= data_size || _shift < 0) return DBL_MIN;
+    if (_ishift >= data_size || _ishift < 0) return DBL_MIN;
 
-    double _value = iparams.price_data[data_size - _shift - 1];
+    double _value = iparams.price_data[data_size - _ishift - 1];
     return _value;
   }
 

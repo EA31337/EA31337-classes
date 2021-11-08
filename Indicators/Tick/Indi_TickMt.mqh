@@ -57,7 +57,7 @@ class Indi_TickMt : public IndicatorTick<IndiTickMtParams> {
   /**
    * Returns the indicator's value.
    */
-  IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     if (_shift == 0) {
       // Fetch a current prices of a specified symbol.
       tick = SymbolInfoStatic::GetTick(itparams.GetSymbol());

@@ -557,7 +557,7 @@ bool PrintIndicators(string _prefix = "") {
     }
 
     string _indi_name = _indi.GetFullName();
-    MqlParam _value = _indi.GetEntryValue();
+    IndicatorDataEntryValue _value = _indi.GetEntryValue();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
         GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
       ResetLastError();
