@@ -93,8 +93,7 @@ class Strategy : public Object {
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
-  Dict<int, IndicatorBase *> indicators_unmanaged;         // Indicators list (unmanaged).
-  DictStruct<int, Ref<IndicatorBase>> indicators_managed;  // Indicators list (managed).
+  DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list.
   DictStruct<short, TaskEntry> tasks;
   Log logger;  // Log instance.
   StgProcessResult sresult;
@@ -140,11 +139,7 @@ class Strategy : public Object {
   /**
    * Class deconstructor.
    */
-  ~Strategy() {
-    for (DictIterator<int, IndicatorBase *> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
-      delete iter.Value();
-    }
-  }
+  ~Strategy() {}
 
   /* Processing methods */
 
@@ -240,10 +235,8 @@ class Strategy : public Object {
    * Returns handler to the strategy's indicator class.
    */
   IndicatorBase *GetIndicator(int _id = 0) {
-    if (indicators_managed.KeyExists(_id)) {
-      return indicators_managed[_id].Ptr();
-    } else if (indicators_unmanaged.KeyExists(_id)) {
-      return indicators_unmanaged[_id];
+    if (indicators.KeyExists(_id)) {
+      return indicators[_id].Ptr();
     }
 
     Alert("Missing indicator id ", _id);
@@ -253,7 +246,7 @@ class Strategy : public Object {
   /**
    * Returns strategy's indicators.
    */
-  DictStruct<int, Ref<IndicatorBase>> GetIndicators() { return indicators_managed; }
+  DictStruct<int, Ref<IndicatorBase>> GetIndicators() { return indicators; }
 
   /* Struct getters */
 
@@ -498,13 +491,9 @@ class Strategy : public Object {
   /**
    * Sets reference to indicator.
    */
-  void SetIndicator(IndicatorBase *_indi, int _id = 0, bool _managed = true) {
-    if (_managed) {
-      Ref<IndicatorBase> _ref = _indi;
-      indicators_managed.Set(_id, _ref);
-    } else {
-      indicators_unmanaged.Set(_id, _indi);
-    }
+  void SetIndicator(IndicatorBase *_indi, int _id = 0) {
+    Ref<IndicatorBase> _ref = _indi;
+    indicators.Set(_id, _ref);
   }
 
   /* Static setters */

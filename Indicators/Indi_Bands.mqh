@@ -34,11 +34,13 @@
 // Defines global functions (for MQL4 backward compability).
 double iBands(string _symbol, int _tf, int _period, double _deviation, int _bands_shift, int _ap, int _mode,
               int _shift) {
+  ResetLastError();
   return Indi_Bands::iBands(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _deviation, _bands_shift, (ENUM_APPLIED_PRICE)_ap,
                             (ENUM_BANDS_LINE)_mode, _shift);
 }
 double iBandsOnArray(double &_arr[], int _total, int _period, double _deviation, int _bands_shift, int _mode,
                      int _shift) {
+  ResetLastError();
   return Indi_Bands::iBandsOnArray(_arr, _total, _period, _deviation, _bands_shift, _mode, _shift);
 }
 #endif
@@ -91,7 +93,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
    */
   Indi_Bands(IndiBandsParams &_p, IndicatorBase *_indi_src = NULL, int _mode = 0)
       : Indicator<IndiBandsParams>(_p, _indi_src, _mode) {}
-  Indi_Bands(ENUM_TIMEFRAMES _tf) : Indicator(INDI_BANDS, _tf) {}
+  Indi_Bands(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BANDS, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -128,7 +130,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
       }
     }
     if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif

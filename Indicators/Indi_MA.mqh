@@ -36,11 +36,13 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
+  ResetLastError();
   return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
                       (ENUM_APPLIED_PRICE)_ap, _shift);
 }
 double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift,
                   IndicatorCalculateCache<double> *_cache = NULL) {
+  ResetLastError();
   return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift, _cache);
 }
 #endif
@@ -78,7 +80,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Class constructor.
    */
   Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMAParams>(_p, _indi_src) {}
-  Indi_MA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MA, _tf) {}
+  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MA, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -115,7 +117,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
       }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif

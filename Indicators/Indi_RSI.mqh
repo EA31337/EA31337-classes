@@ -34,9 +34,11 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iRSI(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
   return Indi_RSI::iRSI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
 }
 double iRSIOnArray(double &_arr[], int _total, int _period, int _shift) {
+  ResetLastError();
   return Indi_RSI::iRSIOnArray(_arr, _total, _period, _shift);
 }
 #endif
@@ -94,7 +96,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * Class constructor.
    */
   Indi_RSI(IndiRSIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRSIParams>(_p, _indi_src) {}
-  Indi_RSI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_RSI, _tf) {}
+  Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RSI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

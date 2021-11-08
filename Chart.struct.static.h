@@ -80,7 +80,7 @@ struct ChartStatic {
 #else                                       // __MQL5__
     ARRAY(double, _arr);
     ArraySetAsSeries(_arr, true);
-    return (_shift >= 0 && CopyClose(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    return (_shift >= 0 && CopyClose(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif
   }
 
@@ -95,7 +95,7 @@ struct ChartStatic {
 #else                                      // __MQL5__
     ARRAY(double, _arr);
     ArraySetAsSeries(_arr, true);
-    return (_shift >= 0 && CopyHigh(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    return (_shift >= 0 && CopyHigh(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif
   }
 
@@ -152,7 +152,7 @@ struct ChartStatic {
 #else                                     // __MQL5__
     ARRAY(double, _arr);
     ArraySetAsSeries(_arr, true);
-    return (_shift >= 0 && CopyLow(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    return (_shift >= 0 && CopyLow(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif
   }
 
@@ -209,7 +209,7 @@ struct ChartStatic {
 #else                                      // __MQL5__
     ARRAY(double, _arr);
     ArraySetAsSeries(_arr, true);
-    return (_shift >= 0 && CopyOpen(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    return (_shift >= 0 && CopyOpen(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif
   }
 
@@ -268,7 +268,7 @@ struct ChartStatic {
     ARRAY(datetime, _arr);
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     // @todo: Improves performance by caching values.
-    return (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    return (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif
   }
 
@@ -289,7 +289,7 @@ struct ChartStatic {
 #else  // __MQL5__
     ARRAY(long, _arr);
     ArraySetAsSeries(_arr, true);
-    return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif
   }
 

@@ -45,7 +45,9 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
       : Indicator<IndiDrawerParams>(_p, _indi_src), redis(true) {
     Init();
   }
-  Indi_Drawer(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DRAWER, _tf), redis(true) { Init(); }
+  Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DRAWER, _tf, _shift), redis(true) {
+    Init();
+  }
 
   void Init() {
     // Drawer is always ready.

@@ -642,7 +642,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                      StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         // Pass-through.
-      case ERR_NO_ERROR:
+      case ERR_NO_ERROR:  // 0
         orders_active.Set(_order.Get<ulong>(ORDER_PROP_TICKET), _ref_order);
         order_last = _order;
         tstates.AddState(TRADE_STATE_ORDERS_ACTIVE);
@@ -650,9 +650,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         // Trigger: OnOrder();
         _result = true;
         break;
-      case TRADE_RETCODE_INVALID:
-        logger.Error("Cannot process order!", __FUNCTION_LINE__,
-                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+      case TRADE_RETCODE_INVALID:  // 10013
+        logger.Error("Cannot process order!", __FUNCTION_LINE__, StringFormat("Code: %d", _last_error));
+        _result = false;
+        break;
+      case TRADE_RETCODE_NO_MONEY:  // 10019
+        logger.Error("Not enough money to complete the request!", __FUNCTION_LINE__,
+                     StringFormat("Code: %d", _last_error));
+        tstates.AddState(TRADE_STATE_MONEY_NOT_ENOUGH);
+        _result = false;
         break;
       default:
         logger.Error("Cannot add order!", __FUNCTION_LINE__,
@@ -661,7 +667,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         _result = false;
         break;
     }
-    UpdateStates(true);
+    UpdateStates(_result);
     return _result;
   }
 
@@ -1308,11 +1314,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true on no errors.
    *
    */
-  bool UpdateStates(bool _force = false) {
+  void UpdateStates(bool _force = false) {
     static datetime _last_check = 0;
-    static unsigned int _states_prev = tstates.GetStates();
-    ResetLastError();
     if (_force || _last_check + 60 < TimeCurrent()) {
+      static unsigned int _states_prev = tstates.GetStates();
       // Infrequent checks (each minute).
       /* Limit checks */
       tstates.SetState(TRADE_STATE_PERIOD_LIMIT_REACHED, tparams.IsLimitGe(tstats));
@@ -1361,7 +1366,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         _states_prev = tstates.GetStates();
       }
     }
-    return GetLastError() == ERR_NO_ERROR;
   }
 
   /* Normalization methods */
@@ -2003,6 +2007,27 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result &= OrdersCloseViaCmd((ENUM_ORDER_TYPE)_args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
+        }
+        break;
+      case TRADE_ACTION_ORDERS_CLOSE_SIDE_IN_LOSS:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
+          ENUM_ORDER_TYPE _order_types1[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ENUM_ORDER_TYPE _order_type_profitable =
+              _oquery_ref.Ptr()
+                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+                      _order_types1, ORDER_PROP_PROFIT, ORDER_TYPE);
+          _result &=
+              OrdersCloseViaCmd(Order::NegateOrderType(_order_type_profitable), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+        }
+        break;
+      case TRADE_ACTION_ORDERS_CLOSE_SIDE_IN_PROFIT:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
+          ENUM_ORDER_TYPE _order_types2[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ENUM_ORDER_TYPE _order_type_profitable2 =
+              _oquery_ref.Ptr()
+                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+                      _order_types2, ORDER_PROP_PROFIT, ORDER_TYPE);
+          _result &= OrdersCloseViaCmd(_order_type_profitable2, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
         }
         break;
       case TRADE_ACTION_ORDERS_LIMIT_SET:

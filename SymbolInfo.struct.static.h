@@ -30,9 +30,9 @@
 #include "Std.h"
 
 /**
- * Class to provide symbol information.
+ * Struct to provide symbol information.
  */
-class SymbolInfoStatic {
+struct SymbolInfoStatic {
  public:
   /**
    * Get the current symbol pair from the current chart.

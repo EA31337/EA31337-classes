@@ -26,6 +26,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iIchimoku(string _symbol, int _tf, int _ts, int _ks, int _ssb, int _mode, int _shift) {
+  ResetLastError();
   return Indi_Ichimoku::iIchimoku(_symbol, (ENUM_TIMEFRAMES)_tf, _ts, _ks, _ssb, _mode, _shift);
 }
 #endif
@@ -92,7 +93,7 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
    */
   Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiIchimokuParams>(_p, _indi_src) {}
-  Indi_Ichimoku(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ICHIMOKU, _tf) {}
+  Indi_Ichimoku(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ICHIMOKU, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -132,7 +133,7 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
       }
     }
     if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif

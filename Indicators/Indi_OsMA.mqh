@@ -26,6 +26,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iOsMA(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_period, int _ap, int _shift) {
+  ResetLastError();
   return Indi_OsMA::iOsMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ema_fp, _ema_sp, _signal_period, (ENUM_APPLIED_PRICE)_ap,
                           _shift);
 }
@@ -63,7 +64,7 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
    * Class constructor.
    */
   Indi_OsMA(IndiOsMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiOsMAParams>(_p, _indi_src) {}
-  Indi_OsMA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_OSMA, _tf) {}
+  Indi_OsMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_OSMA, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -101,7 +102,7 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
       }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif

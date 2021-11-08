@@ -69,7 +69,7 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
    * Class constructor.
    */
   Indi_DEMA(IndiDEIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiDEIndiMAParams>(_p, _indi_src) {}
-  Indi_DEMA(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DEMA, _tf) {}
+  Indi_DEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DEMA, _tf, _shift) {}
 
   /**
    * Updates the indicator value.
@@ -102,7 +102,7 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
       }
     }
     if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #else
