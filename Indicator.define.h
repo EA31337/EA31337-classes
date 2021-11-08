@@ -33,13 +33,15 @@
 // Defines macros.
 #define COMMA ,
 #define DUMMY
-#define ICUSTOM_DEF(PARAMS)                                                    \
+
+#define ICUSTOM_DEF(SET_HANDLE, PARAMS)                                        \
   double _res[];                                                               \
   if (_handle == NULL || _handle == INVALID_HANDLE) {                          \
     if ((_handle = ::iCustom(_symbol, _tf, _name PARAMS)) == INVALID_HANDLE) { \
       SetUserError(ERR_USER_INVALID_HANDLE);                                   \
       return EMPTY_VALUE;                                                      \
     }                                                                          \
+    SET_HANDLE;                                                                \
   }                                                                            \
   int _bars_calc = ::BarsCalculated(_handle);                                  \
   if (GetLastError() > 0) {                                                    \
@@ -49,7 +51,7 @@
     return EMPTY_VALUE;                                                        \
   }                                                                            \
   if (::CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {                     \
-    return EMPTY_VALUE;                                                        \
+    return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;                        \
   }                                                                            \
   return _res[0];
 
@@ -123,6 +125,6 @@ class DrawIndicator;
     }                                                                                                      \
   }                                                                                                        \
   if (CopyBuffer(_handle, MODE, SHIFT, 1, _res) < 0) {                                                     \
-    return EMPTY_VALUE;                                                                                    \
+    return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;                                                    \
   }                                                                                                        \
   return _res[0];

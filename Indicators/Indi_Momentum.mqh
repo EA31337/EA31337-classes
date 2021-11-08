@@ -36,6 +36,7 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iMomentum(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
   return Indi_Momentum::iMomentum(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
 }
 #endif
@@ -67,7 +68,7 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
    */
   Indi_Momentum(IndiMomentumParams &_p, IndicatorBase *_indi_src = NULL)
       : Indicator<IndiMomentumParams>(_p, _indi_src) {}
-  Indi_Momentum(ENUM_TIMEFRAMES _tf) : Indicator(INDI_MOMENTUM, _tf) {}
+  Indi_Momentum(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MOMENTUM, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -103,7 +104,7 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
       }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif

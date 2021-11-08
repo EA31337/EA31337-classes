@@ -27,6 +27,7 @@
 // Defines global functions (for MQL4 backward compability).
 double iAlligator(string _symbol, int _tf, int _jp, int _js, int _tp, int _ts, int _lp, int _ls, int _ma_method,
                   int _ap, int _mode, int _shift) {
+  ResetLastError();
   return Indi_Alligator::iAlligator(_symbol, (ENUM_TIMEFRAMES)_tf, _jp, _js, _tp, _ts, _lp, _ls,
                                     (ENUM_MA_METHOD)_ma_method, (ENUM_APPLIED_PRICE)_ap, (ENUM_ALLIGATOR_LINE)_mode,
                                     _shift);
@@ -152,7 +153,7 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
       }
     }
     if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif

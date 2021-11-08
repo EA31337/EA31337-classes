@@ -410,7 +410,7 @@ bool InitIndicators() {
   indis.Push(new Indi_ADXW(adxw_params));
 
   // AMA.
-  IndiAIndiMAParams ama_params();
+  IndiAMAParams ama_params();
   indis.Push(new Indi_AMA(ama_params));
 
   // Chaikin Oscillator.
