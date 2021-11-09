@@ -59,6 +59,29 @@ class Indicator : public IndicatorBase {
   // Structs.
   TS iparams;
 
+ protected:
+  /* Protected methods */
+
+  /**
+   * It's called on class initialization.
+   */
+  bool Init() {
+    ArrayResize(value_storages, iparams.GetMaxModes());
+    switch (iparams.GetDataSourceType()) {
+      case IDATA_BUILTIN:
+        break;
+      case IDATA_ICUSTOM:
+        break;
+      case IDATA_INDICATOR:
+        if (!indi_src.IsSet()) {
+          // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
+          // SetDataSource(_indi_price, true, PRICE_OPEN);
+        }
+        break;
+    }
+    return InitDraw();
+  }
+
  public:
   /* Indicator enumerations */
 
@@ -103,28 +126,6 @@ class Indicator : public IndicatorBase {
    * Class deconstructor.
    */
   ~Indicator() { DeinitDraw(); }
-
-  /* Init methods */
-
-  /**
-   * It's called on class initialization.
-   */
-  bool Init() {
-    ArrayResize(value_storages, iparams.GetMaxModes());
-    switch (iparams.GetDataSourceType()) {
-      case IDATA_BUILTIN:
-        break;
-      case IDATA_ICUSTOM:
-        break;
-      case IDATA_INDICATOR:
-        if (!indi_src.IsSet()) {
-          // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
-          // SetDataSource(_indi_price, true, PRICE_OPEN);
-        }
-        break;
-    }
-    return InitDraw();
-  }
 
   /**
    * Initialize indicator data drawing on custom data.
@@ -993,7 +994,6 @@ class Indicator : public IndicatorBase {
   virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) {
     _entry.AddFlags(_entry.GetDataTypeFlags(iparams.GetDataValueType()));
   };
-
 };
 
 #endif
