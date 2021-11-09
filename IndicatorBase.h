@@ -695,8 +695,6 @@ class IndicatorBase : public Chart {
     istate.is_changed = true;
   }
 
-  virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = 0;
-
   ValueStorage<double>* GetValueStorage(int _mode = 0) {
     if (value_storages[_mode] == NULL) {
       value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
@@ -712,34 +710,6 @@ class IndicatorBase : public Chart {
   }
 
   virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) = NULL;
-
-  /**
-   * Returns price corresponding to indicator value for a given shift and mode.
-   *
-   * Can be useful for calculating trailing stops based on the indicator.
-   *
-   * @return
-   * Returns price value of the corresponding indicator values.
-   */
-  template <typename T>
-  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL) {
-    float _price = 0;
-    if (GetIDataValueRange() != IDATA_RANGE_PRICE) {
-      _price = (float)GetPrice(_ap, _shift);
-    } else if (GetIDataValueRange() == IDATA_RANGE_PRICE) {
-      // When indicator values are the actual prices.
-      T _values[4];
-      if (!CopyValues(_values, 4, _shift, _mode)) {
-        // When values aren't valid, return 0.
-        return _price;
-      }
-      datetime _bar_time = GetBarTime(_shift);
-      float _value = 0;
-      BarOHLC _ohlc(_values, _bar_time);
-      _price = _ohlc.GetAppliedPrice(_ap);
-    }
-    return _price;
-  }
 
   /**
    * Returns values for a given shift.
@@ -797,6 +767,8 @@ class IndicatorBase : public Chart {
    * This method is called on GetEntry() right after values are set.
    */
   virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) = NULL;
+
+  // virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = NULL;
 
   /**
    * Returns the indicator's entry value.

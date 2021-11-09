@@ -21,9 +21,7 @@
  */
 
 // Includes.
-#include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
-#include "../../Storage/Objects.h"
+#include "../../Indicator/IndicatorTick.h"
 
 // Structs.
 struct IndiTickMtParams : IndicatorParams {
@@ -45,32 +43,49 @@ struct IndiTickMtParams : IndicatorParams {
 /**
  * Price Indicator.
  */
-class Indi_TickMt : public Indicator<IndiTickMtParams> {
+class Indi_TickMt : public IndicatorTick<IndiTickMtParams> {
+ protected:
+  MqlTick tick;
+
  public:
   /**
    * Class constructor.
    */
-  Indi_TickMt(IndiTickMtParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiTickMtParams>(_p, _indi_src){};
-  Indi_TickMt(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_TICK, _tf, _shift){};
+  Indi_TickMt(IndiTickMtParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTick<IndiTickMtParams>(_p, _indi_src){};
+  Indi_TickMt(string _symbol, int _shift = 0) : IndicatorTick(INDI_TICK, _symbol, _shift){};
 
   /**
    * Returns the indicator's value.
    */
   IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
-    MqlTick _tick = SymbolInfoStatic::GetTick(_Symbol);
-    switch (_mode) {
-      case 0:
-        return _tick.ask;
-      case 1:
-        return _tick.bid;
-      case 2:
+    if (_shift == 0) {
+      // Fetch a current prices of a specified symbol.
+      tick = SymbolInfoStatic::GetTick(itparams.GetSymbol());
+      switch (_mode) {
+        case 0:
+          return tick.ask;
+        case 1:
+          return tick.bid;
+        case 2:
 #ifdef __MQL4__
-        return _tick.volume;
+          return tick.volume;
 #else
-        return _tick.volume_real;
+          return tick.volume_real;
 #endif
+      }
+      SetUserError(ERR_INVALID_PARAMETER);
     }
-    SetUserError(ERR_INVALID_PARAMETER);
     return DBL_MAX;
   }
+
+  /**
+   * Alters indicator's struct value.
+   *
+   * This method allows user to modify the struct entry before it's added to cache.
+   * This method is called on GetEntry() right after values are set.
+   */
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+    IndicatorTick<IndiTickMtParams>::GetEntryAlter(_entry, _shift);
+    _entry.timestamp = _entry.timestamp > 0 ? _entry.timestamp : tick.time;
+  };
 };
