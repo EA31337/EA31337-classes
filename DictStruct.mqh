@@ -207,7 +207,24 @@ class DictStruct : public DictBase<K, V> {
 #ifdef __MQL__
   template <>
 #endif
-  bool Contains(const K key, V& value) {
+  /**
+   * Checks whether dictionary contains given value.
+   */
+  bool Contains(const V& value) {
+    for (DictStructIterator<K, V> i = Begin(); i.IsValid(); ++i) {
+      if (i.Value() == value) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Checks whether dictionary contains given key and value.
+   */
+  template <>
+  bool Contains(const K key, const V& value) {
     unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, key, position);
 

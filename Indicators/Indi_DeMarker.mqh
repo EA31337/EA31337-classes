@@ -26,21 +26,22 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iDeMarker(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
   return Indi_DeMarker::iDeMarker(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
 }
 #endif
 
 // Structs.
-struct DeMarkerParams : IndicatorParams {
+struct IndiDeMarkerParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  DeMarkerParams(unsigned int _period = 14, int _shift = 0)
+  IndiDeMarkerParams(unsigned int _period = 14, int _shift = 0)
       : period(_period), IndicatorParams(INDI_DEMARKER, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\DeMarker");
   };
-  DeMarkerParams(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiDeMarkerParams(IndiDeMarkerParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -49,13 +50,14 @@ struct DeMarkerParams : IndicatorParams {
 /**
  * Implements the DeMarker indicator.
  */
-class Indi_DeMarker : public Indicator<DeMarkerParams> {
+class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_DeMarker(DeMarkerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<DeMarkerParams>(_p, _indi_src) {}
-  Indi_DeMarker(ENUM_TIMEFRAMES _tf) : Indicator(INDI_DEMARKER, _tf) {}
+  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiDeMarkerParams>(_p, _indi_src) {}
+  Indi_DeMarker(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DEMARKER, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -71,7 +73,6 @@ class Indi_DeMarker : public Indicator<DeMarkerParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iDeMarker(_symbol, _tf, _period)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -92,7 +93,7 @@ class Indi_DeMarker : public Indicator<DeMarkerParams> {
       }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
@@ -102,7 +103,6 @@ class Indi_DeMarker : public Indicator<DeMarkerParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -116,18 +116,7 @@ class Indi_DeMarker : public Indicator<DeMarkerParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /* Getters */

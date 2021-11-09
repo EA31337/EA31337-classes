@@ -91,11 +91,12 @@ jobs:
           - Indi_MassIndex.test
           - Indi_Momentum.test
           - Indi_OBV.test
+          - Indi_OHLC.test
           - Indi_OsMA.test
           - Indi_Pattern.test
           - Indi_Pivot.test
           - Indi_Price.test
-          # - Indi_PriceChannel.test
+          - Indi_PriceChannel.test
           - Indi_PriceFeeder.test
           - Indi_PriceVolumeTrend.test
           - Indi_RS.test
@@ -113,8 +114,8 @@ jobs:
           - Indi_Volumes.test
           - Indi_WPR.test
           - Indi_WilliamsAD.test
-          # - Indi_ZigZag.test
-          # - Indi_ZigZagColor.test
+          - Indi_ZigZag.test
+          - Indi_ZigZagColor.test
     steps:
       - uses: actions/download-artifact@v2
         with:
@@ -126,3 +127,4 @@ jobs:
           BtMonths: 1
           BtYears: 2020
           TestExpert: ${{ matrix.test }}
+    timeout-minutes: 10

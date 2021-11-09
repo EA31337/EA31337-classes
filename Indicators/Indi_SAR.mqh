@@ -26,22 +26,23 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iSAR(string _symbol, int _tf, double _step, double _max, int _shift) {
+  ResetLastError();
   return Indi_SAR::iSAR(_symbol, (ENUM_TIMEFRAMES)_tf, _step, _max, _shift);
 }
 #endif
 
 // Structs.
-struct SARParams : IndicatorParams {
+struct IndiSARParams : IndicatorParams {
   double step;
   double max;
   // Struct constructors.
-  SARParams(double _step = 0.02, double _max = 0.2, int _shift = 0)
+  IndiSARParams(double _step = 0.02, double _max = 0.2, int _shift = 0)
       : step(_step), max(_max), IndicatorParams(INDI_SAR, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit It draws single dot for each bar!
     SetCustomIndicatorName("Examples\\ParabolicSAR");
   };
-  SARParams(SARParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiSARParams(IndiSARParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -50,13 +51,13 @@ struct SARParams : IndicatorParams {
 /**
  * Implements the Parabolic Stop and Reverse system indicator.
  */
-class Indi_SAR : public Indicator<SARParams> {
+class Indi_SAR : public Indicator<IndiSARParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_SAR(SARParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<SARParams>(_p, _indi_src) {}
-  Indi_SAR(ENUM_TIMEFRAMES _tf) : Indicator(INDI_SAR, _tf) {}
+  Indi_SAR(IndiSARParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiSARParams>(_p, _indi_src) {}
+  Indi_SAR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_SAR, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -72,7 +73,6 @@ class Indi_SAR : public Indicator<SARParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iSAR(_symbol, _tf, _step, _max)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -93,7 +93,7 @@ class Indi_SAR : public Indicator<SARParams> {
       }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
@@ -103,7 +103,6 @@ class Indi_SAR : public Indicator<SARParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -117,18 +116,7 @@ class Indi_SAR : public Indicator<SARParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /* Getters */

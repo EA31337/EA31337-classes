@@ -22,23 +22,24 @@
 
 // Includes.
 #include "../Indicator.mqh"
-#include "Indi_Price.mqh"
+#include "Price/Indi_Price.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iADX(string _symbol, int _tf, int _period, int _ap, int _mode, int _shift) {
+  ResetLastError();
   return Indi_ADX::iADX(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, (ENUM_INDI_ADX_LINE)_mode,
                         _shift);
 }
 #endif
 
 // Structs.
-struct ADXParams : IndicatorParams {
+struct IndiADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  ADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-            ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+  IndiADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
+                ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX, FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE) {
     SetDataSourceType(_idstype);
     SetDataValueRange(IDATA_RANGE_RANGE);
@@ -51,7 +52,7 @@ struct ADXParams : IndicatorParams {
         break;
     }
   };
-  ADXParams(ADXParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiADXParams(IndiADXParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -60,13 +61,13 @@ struct ADXParams : IndicatorParams {
 /**
  * Implements the Average Directional Movement Index indicator.
  */
-class Indi_ADX : public Indicator<ADXParams> {
+class Indi_ADX : public Indicator<IndiADXParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ADX(ADXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<ADXParams>(_p, _indi_src) {}
-  Indi_ADX(ENUM_TIMEFRAMES _tf) : Indicator(INDI_ADX, _tf) {}
+  Indi_ADX(IndiADXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiADXParams>(_p, _indi_src) {}
+  Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ADX, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -85,7 +86,6 @@ class Indi_ADX : public Indicator<ADXParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iADX(_symbol, _tf, _period)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -106,7 +106,7 @@ class Indi_ADX : public Indicator<ADXParams> {
       }
     }
     if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
@@ -116,7 +116,6 @@ class Indi_ADX : public Indicator<ADXParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -130,25 +129,14 @@ class Indi_ADX : public Indicator<ADXParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   /**
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<ADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
+    return Indicator<IndiADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
   }
 
   /* Getters */

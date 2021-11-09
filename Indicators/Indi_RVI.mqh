@@ -26,21 +26,22 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
+  ResetLastError();
   return Indi_RVI::iRVI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_SIGNAL_LINE)_mode, _shift);
 }
 #endif
 
 // Structs.
-struct RVIParams : IndicatorParams {
+struct IndiRVIParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  RVIParams(unsigned int _period = 10, int _shift = 0)
+  IndiRVIParams(unsigned int _period = 10, int _shift = 0)
       : period(_period), IndicatorParams(INDI_RVI, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\RVI");
   };
-  RVIParams(RVIParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiRVIParams(IndiRVIParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -49,13 +50,13 @@ struct RVIParams : IndicatorParams {
 /**
  * Implements the Relative Vigor Index indicator.
  */
-class Indi_RVI : public Indicator<RVIParams> {
+class Indi_RVI : public Indicator<IndiRVIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_RVI(const RVIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<RVIParams>(_p, _indi_src) {}
-  Indi_RVI(ENUM_TIMEFRAMES _tf) : Indicator(INDI_RVI, _tf) {}
+  Indi_RVI(const IndiRVIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRVIParams>(_p, _indi_src) {}
+  Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RVI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -73,7 +74,6 @@ class Indi_RVI : public Indicator<RVIParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iRVI(_symbol, _tf, _period)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -94,7 +94,7 @@ class Indi_RVI : public Indicator<RVIParams> {
       }
     }
     if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
@@ -104,7 +104,6 @@ class Indi_RVI : public Indicator<RVIParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = LINE_MAIN, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -118,18 +117,7 @@ class Indi_RVI : public Indicator<RVIParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
   }
 
   /**

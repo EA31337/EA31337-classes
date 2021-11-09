@@ -21,14 +21,14 @@
 
 // Includes.
 #include "../../Test.mqh"
-#include "../Indi_Pattern.mqh"
+#include "../Bitwise/Indi_Pattern.mqh"
 
 /**
  * @file
  * Test functionality of Indi_Pattern indicator class.
  */
 
-Indi_Pattern indi(PERIOD_CURRENT);
+Indi_Pattern indi(PERIOD_CURRENT, 1);
 
 /**
  * Implements Init event handler.
@@ -51,6 +51,9 @@ void OnTick() {
     if (_tick_new.time % 3600 < _tick_last.time % 3600) {
       // Print indicator values every hour.
       Print(indi.ToString());
+      if (indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
+        assertTrueOrExit(indi.GetEntry().IsValid(), "Invalid entry!");
+      }
     }
   }
   _tick_last = _tick_new;

@@ -56,6 +56,8 @@ Projects implementing this framework:
   Multi-strategy trading robot.
 - [EA31337-strategies](https://github.com/EA31337/EA31337-strategies):
   EA strategies.
+- [EA31337-indicators-other](https://github.com/EA31337/EA31337-indicators-other):
+  3rd party indicators
 
 ## Conversion
 
@@ -64,6 +66,8 @@ Projects implementing this framework:
 This framework can be used to convert your MQL4 code to be compatible with both MQL4 and MQL5.
 
 Find below the table of conversion (replace code on left with the right one):
+
+<details>
 
 | MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
 |:---------------------|:---------------------------|:----------------------|
@@ -124,21 +128,27 @@ Find below the table of conversion (replace code on left with the right one):
 | `OrderType()`        | `OrderStatic::Type()` | `Order.struct.h` |
 | `OrdersTotal()`      | `TradeStatic::TotalActive()` | `Trade.mqh` |
 
+</details>
+
 Here are the special [predefined variables](https://docs.mql4.com/predefined) conversion:
 
+<details>
+
 | MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
-|:---------------------|:-----------------------------|:-----------------|
-| `Ask`                | `SymbolInfo::GetAsk()`       | `SymbolInfo.mqh` |
-| `Bars`               | `Chart::iBars()`             | `Chart.mqh`      |
-| `Bid`                | `SymbolInfo::GetBid()`       | `SymbolInfo.mqh` |
-| `Close[]`            | `Chart::iClose()`            | `Chart.mqh`      |
-| `Digits`             | `SymbolInfo::GetDigits()`    | `SymbolInfo.mqh` |
-| `High[]`             | `Chart::iHigh()`             | `Chart.mqh`      |
-| `Low[]`              | `Chart::iLow()`              | `Chart.mqh`      |
-| `Open[]`             | `Chart::iOpen()`             | `Chart.mqh`      |
-| `Point`              | `SymbolInfo::GetPointSize()` | `SymbolInfo.mqh` |
-| `Time[]`             | `Chart::iTime()`             | `Chart.mqh`      |
-| `Volume[]`           | `Chart::iVolume()`           | `Chart.mqh`      |
+|:---------------------|:-----------------------------|:--------------------|
+| `Ask`                | `SymbolInfo::GetAsk()`       | `SymbolInfo.struct.static.h` |
+| `Bars`               | `ChartStatic::iBars()`       | `Chart.struct.static.h` |
+| `Bid`                | `SymbolInfo::GetBid()`       | `SymbolInfo.struct.static.h` |
+| `Close[]`            | `ChartStatic::iClose()`      | `Chart.struct.static.h` |
+| `Digits`             | `SymbolInfo::GetDigits()`    | `SymbolInfo.struct.static.h` |
+| `High[]`             | `ChartStatic::iHigh()`       | `Chart.struct.static.h` |
+| `Low[]`              | `ChartStatic::iLow()`        | `Chart.struct.static.h` |
+| `Open[]`             | `ChartStatic::iOpen()`       | `Chart.struct.static.h` |
+| `Point`              | `SymbolInfo::GetPointSize()` | `SymbolInfo.struct.static.h` |
+| `Time[]`             | `ChartStatic::iTime()`       | `Chart.struct.static.h` |
+| `Volume[]`           | `ChartStatic::iVolume()`     | `Chart.struct.static.h` |
+
+</details>
 
 ## Classes
 

@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Include file to include all major indicators at once.
+ * Include file to include all common indicators at once.
  */
 
 // Standard indicators.
@@ -67,9 +67,7 @@
 #include "Indi_Momentum.mqh"
 #include "Indi_OBV.mqh"
 #include "Indi_OsMA.mqh"
-#include "Indi_Pattern.mqh"
 #include "Indi_Pivot.mqh"
-#include "Indi_Price.mqh"
 #include "Indi_PriceChannel.mqh"
 #include "Indi_PriceFeeder.mqh"
 #include "Indi_PriceVolumeTrend.mqh"
@@ -90,9 +88,3 @@
 #include "Indi_WilliamsAD.mqh"
 #include "Indi_ZigZag.mqh"
 #include "Indi_ZigZagColor.mqh"
-
-// Bitwise indicators.
-#include "Bitwise/Indi_Candle.mqh"
-
-// Special indicators.
-#include "Special/Indi_Math.mqh"

@@ -26,11 +26,11 @@
 #include "../Storage/ValueStorage.price.h"
 
 // Structs.
-struct RateOfChangeParams : IndicatorParams {
+struct IndiRateOfChangeParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  RateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiRateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_RATE_OF_CHANGE, 1, TYPE_DOUBLE) {
     applied_price = _ap;
     SetDataValueRange(IDATA_RANGE_MIXED);
@@ -38,7 +38,7 @@ struct RateOfChangeParams : IndicatorParams {
     period = _period;
     shift = _shift;
   };
-  RateOfChangeParams(RateOfChangeParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiRateOfChangeParams(IndiRateOfChangeParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -47,14 +47,15 @@ struct RateOfChangeParams : IndicatorParams {
 /**
  * Implements the Rate of Change indicator.
  */
-class Indi_RateOfChange : public Indicator<RateOfChangeParams> {
+class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_RateOfChange(RateOfChangeParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<RateOfChangeParams>(_p, _indi_src){};
-  Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_RATE_OF_CHANGE, _tf){};
+  Indi_RateOfChange(IndiRateOfChangeParams &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<IndiRateOfChangeParams>(_p, _indi_src){};
+  Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : Indicator(INDI_RATE_OF_CHANGE, _tf, _shift){};
 
   /**
    * Built-in version of Rate of Change.
@@ -110,7 +111,6 @@ class Indi_RateOfChange : public Indicator<RateOfChangeParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -124,18 +124,7 @@ class Indi_RateOfChange : public Indicator<RateOfChangeParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   /* Getters */

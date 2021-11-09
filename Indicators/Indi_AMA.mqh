@@ -23,9 +23,9 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../Indicators/Indi_Price.mqh"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.price.h"
+#include "Price/Indi_Price.mqh"
 
 // Structs.
 struct IndiAMAParams : IndicatorParams {
@@ -68,7 +68,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    * Class constructor.
    */
   Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiAMAParams>(_p, _indi_src){};
-  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AMA, _tf){};
+  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_AMA, _tf, _shift){};
 
   /**
    * Built-in version of AMA.
@@ -200,7 +200,6 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -219,18 +218,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
-  }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
-    return _param;
   }
 
   /* Getters */

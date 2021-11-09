@@ -29,7 +29,7 @@
 
 // Includes.
 #include "../Indicators/Indi_MA.mqh"
-#include "../Indicators/Indi_Price.mqh"
+#include "../Indicators/Price/Indi_Price.mqh"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
 #include "../Storage/ValueStorage.h"

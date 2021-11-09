@@ -25,13 +25,16 @@
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
-double iAO(string _symbol, int _tf, int _shift) { return Indi_AO::iAO(_symbol, (ENUM_TIMEFRAMES)_tf, _shift); }
+double iAO(string _symbol, int _tf, int _shift) {
+  ResetLastError();
+  return Indi_AO::iAO(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
+}
 #endif
 
 // Structs.
-struct AOParams : IndicatorParams {
+struct IndiAOParams : IndicatorParams {
   // Struct constructor.
-  AOParams(int _shift = 0) : IndicatorParams(INDI_AO, 2, TYPE_DOUBLE) {
+  IndiAOParams(int _shift = 0) : IndicatorParams(INDI_AO, 2, TYPE_DOUBLE) {
 #ifdef __MQL4__
     max_modes = 1;
 #endif
@@ -39,7 +42,7 @@ struct AOParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
   };
-  AOParams(AOParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiAOParams(IndiAOParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -48,13 +51,13 @@ struct AOParams : IndicatorParams {
 /**
  * Implements the Awesome oscillator.
  */
-class Indi_AO : public Indicator<AOParams> {
+class Indi_AO : public Indicator<IndiAOParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AO(AOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<AOParams>(_p, _indi_src){};
-  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_AO, _tf){};
+  Indi_AO(IndiAOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiAOParams>(_p, _indi_src){};
+  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_AO, _tf, _shift){};
 
   /**
    * Returns the indicator value.
@@ -71,7 +74,6 @@ class Indi_AO : public Indicator<AOParams> {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
-    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iAO(_symbol, _tf)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -92,7 +94,7 @@ class Indi_AO : public Indicator<AOParams> {
       }
     }
     if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
+      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
     }
     return _res[0];
 #endif
@@ -102,7 +104,6 @@ class Indi_AO : public Indicator<AOParams> {
    * Returns the indicator's value.
    */
   virtual double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
@@ -115,8 +116,6 @@ class Indi_AO : public Indicator<AOParams> {
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
@@ -136,13 +135,4 @@ class Indi_AO : public Indicator<AOParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    GetEntry(_shift).values[_mode].Get(_param.double_value);
-    return _param;
-  }
 };
