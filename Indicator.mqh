@@ -50,12 +50,39 @@ class Chart;
 #include "Storage/ValueStorage.indicator.h"
 #include "Storage/ValueStorage.native.h"
 
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compatibility).
+bool IndicatorBuffers(int _count) { return Indicator<IndicatorParams>::SetIndicatorBuffers(_count); }
+int IndicatorCounted(int _value = 0) {
+  static int prev_calculated = 0;
+  // https://docs.mql4.com/customind/indicatorcounted
+  prev_calculated = _value > 0 ? _value : prev_calculated;
+  return prev_calculated;
+}
+#endif
+
+#ifdef __MQL5__
+// Defines global functions (for MQL5 forward compatibility).
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+          typename J>
+double iCustom5(string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i,
+                J _j, int _mode, int _shift) {
+  ResetLastError();
+  static Dict<string, int> _handlers;
+  string _key = Util::MakeKey(_symbol, (string)_tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j);
+  int _handle = _handlers.GetByKey(_key);
+  ICUSTOM_DEF(_handlers.Set(_key, _handle),
+              COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
+}
+#endif
+
 /**
  * Class to deal with indicators.
  */
 template <typename TS>
 class Indicator : public IndicatorBase {
  protected:
+  DrawIndicator* draw;
   BufferStruct<IndicatorDataEntry> idata;
   TS iparams;
 
@@ -386,6 +413,127 @@ class Indicator : public IndicatorBase {
    * Provides built-in indicators whose can be used as data source.
    */
   virtual IndicatorBase* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return NULL; }
+
+  /* State methods */
+
+  /**
+   * Checks for crossover.
+   *
+   * @return
+   *   Returns true when values are crossing over, otherwise false.
+   */
+  bool IsCrossover(int _shift1 = 0, int _shift2 = 1, int _mode1 = 0, int _mode2 = 0) {
+    double _curr_value1 = GetEntry(_shift1)[_mode1];
+    double _prev_value1 = GetEntry(_shift2)[_mode1];
+    double _curr_value2 = GetEntry(_shift1)[_mode2];
+    double _prev_value2 = GetEntry(_shift2)[_mode2];
+    return ((_curr_value1 > _prev_value1 && _curr_value2 < _prev_value2) ||
+            (_prev_value1 > _curr_value1 && _prev_value2 < _curr_value2));
+  }
+
+  /**
+   * Checks if values are decreasing.
+   *
+   * @param int _rows
+   *   Numbers of rows to check.
+   * @param int _mode
+   *   Indicator index mode to check.
+   * @param int _shift
+   *   Shift which is the final value to take into the account.
+   *
+   * @return
+   *   Returns true when values are increasing.
+   */
+  bool IsDecreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
+    bool _result = true;
+    for (int i = _shift + _rows - 1; i >= _shift && _result; i--) {
+      IndicatorDataEntry _entry_curr = GetEntry(i);
+      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
+      _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] < _entry_prev[_mode];
+      if (!_result) {
+        break;
+      }
+    }
+    return _result;
+  }
+
+  /**
+   * Checks if value decreased by the given percentage value.
+   *
+   * @param int _pct
+   *   Percentage value to use for comparison.
+   * @param int _mode
+   *   Indicator index mode to use.
+   * @param int _shift
+   *   Indicator value shift to use.
+   * @param int _count
+   *   Count of bars to compare change backward.
+   * @param int _hundreds
+   *   When true, use percentage in hundreds, otherwise 1 is 100%.
+   *
+   * @return
+   *   Returns true when value increased.
+   */
+  bool IsDecByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
+    bool _result = true;
+    IndicatorDataEntry _v0 = GetEntry(_shift);
+    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
+    _result &= _v0.IsValid() && _v1.IsValid();
+    _result &= _result && Math::ChangeInPct(_v1[_mode], _v0[_mode], _hundreds) < _pct;
+    return _result;
+  }
+
+  /**
+   * Checks if values are increasing.
+   *
+   * @param int _rows
+   *   Numbers of rows to check.
+   * @param int _mode
+   *   Indicator index mode to check.
+   * @param int _shift
+   *   Shift which is the final value to take into the account.
+   *
+   * @return
+   *   Returns true when values are increasing.
+   */
+  bool IsIncreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
+    bool _result = true;
+    for (int i = _shift + _rows - 1; i >= _shift && _result; i--) {
+      IndicatorDataEntry _entry_curr = GetEntry(i);
+      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
+      _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] > _entry_prev[_mode];
+      if (!_result) {
+        break;
+      }
+    }
+    return _result;
+  }
+
+  /**
+   * Checks if value increased by the given percentage value.
+   *
+   * @param int _pct
+   *   Percentage value to use for comparison.
+   * @param int _mode
+   *   Indicator index mode to use.
+   * @param int _shift
+   *   Indicator value shift to use.
+   * @param int _count
+   *   Count of bars to compare change backward.
+   * @param int _hundreds
+   *   When true, use percentage in hundreds, otherwise 1 is 100%.
+   *
+   * @return
+   *   Returns true when value increased.
+   */
+  bool IsIncByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
+    bool _result = true;
+    IndicatorDataEntry _v0 = GetEntry(_shift);
+    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
+    _result &= _v0.IsValid() && _v1.IsValid();
+    _result &= _result && Math::ChangeInPct(_v1[_mode], _v0[_mode], _hundreds) > _pct;
+    return _result;
+  }
 
   /* Getters */
 
@@ -950,9 +1098,9 @@ class Indicator : public IndicatorBase {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = -1) {
+  virtual IndicatorDataEntry GetEntry(int _index = -1) {
     ResetLastError();
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _ishift = _index >= 0 ? _index : iparams.GetShift();
     long _bar_time = GetBarTime(_ishift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
@@ -1023,7 +1171,7 @@ class Indicator : public IndicatorBase {
    *   Returns DataParamEntry struct filled with a single value.
    */
   /*
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, long _shift = -1) {
     IndicatorDataEntry _entry = GetEntry(fmax(_shift, _shift >= 0 ? _shift : iparams.GetShift()));
     DataParamEntry _value_entry;
     switch (iparams.GetDataValueType()) {
@@ -1068,6 +1216,138 @@ class Indicator : public IndicatorBase {
     return EMPTY_VALUE;
   }
   */
+
+  /* Defines MQL backward compatible methods */
+
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, DUMMY);
+#endif
+  }
+
+  template <typename A>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a);
+#endif
+  }
+
+  template <typename A, typename B>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b);
+#endif
+  }
+
+  template <typename A, typename B, typename C>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, int _mode,
+                 int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, int _mode,
+                 int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e,
+                 int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, J _j, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, J _j, K _k, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K, typename L, typename M>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, J _j, K _k, L _l, M _m, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k
+                       COMMA _l COMMA _m);
+#endif
+  }
 };
 
 #endif

@@ -136,7 +136,7 @@ class IndicatorTick : public IndicatorBase {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _timestamp = -1) {
     _entry.AddFlags(_entry.GetDataTypeFlags(itparams.GetDataValueType()));
   };
 
