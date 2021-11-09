@@ -251,7 +251,7 @@ bool InitIndicators() {
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_params(14, PRICE_OPEN);
-  indis.Push(_indi_test = new Indi_RSI(rsi_params));
+  indis.Push(new Indi_RSI(rsi_params));
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_over_blt_stddev_params();
@@ -533,7 +533,7 @@ bool InitIndicators() {
   }
 
   // Push white-listed indicators here.
-  // whitelisted_indis.Push(_indi_test);
+  whitelisted_indis.Push(_indi_test);
 
   return GetLastError() == ERR_NO_ERROR;
 }

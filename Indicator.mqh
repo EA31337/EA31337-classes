@@ -1158,64 +1158,9 @@ class Indicator : public IndicatorBase {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _index = -1) {
     _entry.AddFlags(_entry.GetDataTypeFlags(iparams.GetDataValueType()));
   };
-
-  /**
-   * Returns the indicator's entry value for the given shift and mode.
-   *
-   * @see: DataParamEntry.
-   *
-   * @return
-   *   Returns DataParamEntry struct filled with a single value.
-   */
-  /*
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, long _shift = -1) {
-    IndicatorDataEntry _entry = GetEntry(fmax(_shift, _shift >= 0 ? _shift : iparams.GetShift()));
-    DataParamEntry _value_entry;
-    switch (iparams.GetDataValueType()) {
-      case TYPE_BOOL:
-      case TYPE_CHAR:
-      case TYPE_INT:
-        _value_entry = _entry.GetValue<int>(_mode);
-        break;
-      case TYPE_LONG:
-        _value_entry = _entry.GetValue<long>(_mode);
-        break;
-      case TYPE_UINT:
-        _value_entry = _entry.GetValue<uint>(_mode);
-        break;
-      case TYPE_ULONG:
-        _value_entry = _entry.GetValue<ulong>(_mode);
-        break;
-      case TYPE_DOUBLE:
-        _value_entry = _entry.GetValue<double>(_mode);
-        break;
-      case TYPE_FLOAT:
-        _value_entry = _entry.GetValue<float>(_mode);
-        break;
-      case TYPE_STRING:
-      case TYPE_UCHAR:
-      default:
-        SetUserError(ERR_INVALID_PARAMETER);
-        break;
-    }
-    return _value_entry;
-  }
-  */
-
-  /**
-   * Returns the indicator's value.
-   */
-  /*
-  virtual double GetValue(int _shift = -1, int _mode = 0) {
-    _shift = _shift >= 0 ? _shift : iparams.GetShift();
-    istate.is_changed = false;
-    istate.is_ready = false;
-    return EMPTY_VALUE;
-  }
-  */
 
   /* Defines MQL backward compatible methods */
 
@@ -1348,6 +1293,7 @@ class Indicator : public IndicatorBase {
                        COMMA _l COMMA _m);
 #endif
   }
+
 };
 
 #endif

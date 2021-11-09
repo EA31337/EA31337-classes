@@ -185,6 +185,10 @@ struct Ref {
         ptr_object.ptr_ref_counter = NULL;
         ptr_object = NULL;
 
+#ifdef __debug__
+        Print("Refs: Deleting object ", ptr_to_delete);
+#endif
+
         delete ptr_to_delete;
       }
 
