@@ -153,20 +153,24 @@ class IndicatorTick : public IndicatorBase {
     return GetEntry(_ishift)[_mode];
   }
 
+  /* Setters */
+
   /**
-   * Function should return true if resize can be made, or false to overwrite current slot.
+   * Sets a tick struct with price values.
+   *
+   * @see: MqlTick.
    */
-  static bool IndicatorTickOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
-    switch (_reason) {
-      case DICT_OVERFLOW_REASON_FULL:
-        // We allow resize if dictionary size is less than 86400 slots.
-        return _size < 86400;
-      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
-      default:
-        // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
-        break;
-    }
-    return false;
+  void SetTick(MqlTick& _tick, int _timestamp = 0) {
+    IndicatorDataEntry _entry(itparams.GetMaxModes());
+    _entry.timestamp = _timestamp;
+    _entry.values[0] = _tick.bid;
+    _entry.values[1] = _tick.ask;
+#ifdef __MQL4__
+    _entry.values[2] = _tick.volume;
+#else
+    _entry.values[2] = _tick.volume_real;
+#endif
+    itdata.Add(_entry, _timestamp);
   }
 
   /**
@@ -234,6 +238,24 @@ class IndicatorTick : public IndicatorBase {
       }
     }
     return _result;
+  }
+
+  /* Callback methods */
+
+  /**
+   * Function should return true if resize can be made, or false to overwrite current slot.
+   */
+  static bool IndicatorTickOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
+    switch (_reason) {
+      case DICT_OVERFLOW_REASON_FULL:
+        // We allow resize if dictionary size is less than 86400 slots.
+        return _size < 86400;
+      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
+      default:
+        // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
+        break;
+    }
+    return false;
   }
 };
 
