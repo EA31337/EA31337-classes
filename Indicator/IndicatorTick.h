@@ -79,12 +79,12 @@ class IndicatorTick : public IndicatorBase {
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.timestamp = _timestamp;
       _entry.Resize(4);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        //_entry.values[_mode] = GetValue(_mode, _shift); / @todo
-      }
+      //_entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
+      // for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
+      //_entry.values[_mode] = GetValue(_mode, _shift); / @todo
+      //}
       if (_entry.IsValid()) {
-        idata.Add(_entry, _bar_time);
+        // idata.Add(_entry, _bar_time);
       } else {
         _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
       }
