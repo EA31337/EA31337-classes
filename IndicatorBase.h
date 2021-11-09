@@ -818,11 +818,13 @@ class IndicatorBase : public Chart {
   /**
    * Checks whether indicator has a valid value for a given shift.
    */
+  /*
   virtual bool HasValidEntry(int _shift = 0) {
     unsigned int position;
     long bar_time = GetBarTime(_shift);
     return bar_time > 0 && idata.KeyExists(bar_time, position) ? idata.GetByPos(position).IsValid() : false;
   }
+  */
 
   /**
    * Returns stored data in human-readable format.

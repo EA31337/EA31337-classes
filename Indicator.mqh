@@ -70,7 +70,7 @@ class Indicator : public IndicatorBase {
       case IDATA_ICUSTOM:
         break;
       case IDATA_INDICATOR:
-        if (indi_src == NULL) {
+        if (indi_src.IsSet() == NULL) {
           // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
           // SetDataSource(_indi_price, true, PRICE_OPEN);
         }
@@ -789,6 +789,7 @@ class Indicator : public IndicatorBase {
    * Returns shift at which the last known valid entry exists for a given
    * period (or from the start, when period is not specified).
    */
+  /*
   bool GetLastValidEntryShift(int& out_shift, int period = 0) {
     out_shift = 0;
 
@@ -800,12 +801,13 @@ class Indicator : public IndicatorBase {
     }
 
     return out_shift > 0;
-  }
+  }*/
 
   /**
    * Returns shift at which the oldest known valid entry exists for a given
    * period (or from the start, when period is not specified).
    */
+  /*
   bool GetOldestValidEntryShift(int& out_shift, int& out_num_valid, int shift = 0, int period = 0) {
     bool found = false;
     // Counting from previous up to previous - period.
@@ -822,17 +824,20 @@ class Indicator : public IndicatorBase {
     out_num_valid = out_shift - shift;
     return found;
   }
+  */
 
   /**
    * Checks whether indicator has valid at least given number of last entries
    * (counting from given shift or 0).
    */
+  /*
   bool HasAtLeastValidLastEntries(int period, int shift = 0) {
     for (int i = 0; i < period; ++i)
       if (!HasValidEntry(shift + i)) return false;
 
     return true;
   }
+  */
 
   ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return iparams.idvrange; }
 
