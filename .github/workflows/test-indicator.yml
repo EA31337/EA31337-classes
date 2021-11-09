@@ -50,6 +50,7 @@ jobs:
     strategy:
       matrix:
         test:
+          - IndicatorCandle.test
           - IndicatorTick.test
     steps:
       - uses: actions/download-artifact@v2
