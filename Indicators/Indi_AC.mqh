@@ -39,6 +39,11 @@ struct IndiACParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
+    switch (idstype) {
+      case IDATA_ICUSTOM:
+        SetMaxModes(2);
+        break;
+    }
   };
   IndiACParams(IndiACParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
