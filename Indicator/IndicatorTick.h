@@ -160,7 +160,7 @@ class IndicatorTick : public IndicatorBase {
    *
    * @see: MqlTick.
    */
-  void SetTick(MqlTick& _tick, int _timestamp = 0) {
+  void SetTick(MqlTick& _tick, long _timestamp = 0) {
     IndicatorDataEntry _entry(itparams.GetMaxModes());
     _entry.timestamp = _timestamp;
     _entry.values[0] = _tick.bid;

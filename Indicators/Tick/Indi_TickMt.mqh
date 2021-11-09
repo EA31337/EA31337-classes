@@ -29,6 +29,7 @@ struct IndiTickMtParams : IndicatorParams {
   // Struct constructor.
   IndiTickMtParams(string _symbol = NULL, int _shift = 0) : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {
     SetShift(_shift);
+    SetSymbol(_symbol);
   };
   IndiTickMtParams(IndiTickMtParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;

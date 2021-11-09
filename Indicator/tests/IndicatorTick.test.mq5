@@ -28,37 +28,35 @@
 #include "../../Test.mqh"
 #include "../IndicatorTick.h"
 
+// Structs.
+struct IndicatorTickDummyParams : IndicatorParams {
+  IndicatorTickDummyParams() : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {}
+};
+
+/**
+ * Price Indicator.
+ */
+class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams> {
+ public:
+  IndicatorTickDummy(string _symbol, int _shift = 0, string _name = "")
+      : IndicatorTick(INDI_TICK, _symbol, _shift, _name) {
+    SetSymbol(_symbol);
+  }
+};
+
 /**
  * Implements OnInit().
  */
 int OnInit() {
-  /* @fixme
-  // Initialize.
-  IndicatorParams iparams(INDI_NONE, TYPE_INT, 10);
-  Indicator *in = new Indicator(iparams, NULL);
-  // Check empty values.
-  assertTrueOrFail(in.GetBufferSize() == 10, "Wrong buffer size!");
-  assertTrueOrFail(in.GetEmpty().double_value == 0.0, "Wrong empty double value!");
-  assertTrueOrFail(in.GetEmpty().integer_value == 0, "Wrong empty integer value!");
-  // Check dynamic allocation.
-  MqlParam entry;
-  entry.integer_value = 1;
-  for (uint i = 0; i < in.GetBufferSize() * 2; i++) {
-    in.AddValue(entry);
-    Print("Index ", i, ": Curr: ", in.GetValue(0).integer_value, "; Prev: ", in.GetValue(1).integer_value);
-    assertTrueOrFail(in.GetValue(0).integer_value == entry.integer_value,
-      StringFormat("Wrong latest value (%d <> %d)!",
-        in.GetValue(0).integer_value,
-        entry.integer_value));
-    assertTrueOrFail(in.GetValue(1).integer_value == entry.integer_value - 1,
-      StringFormat("Wrong previous value (%d <> %d)!",
-        in.GetValue(1).integer_value,
-        entry.integer_value - 1));
-    entry.integer_value++;
+  IndicatorTickDummy _indi_tick(_Symbol);
+  long _time = 1;
+  for (double _price = 0.1; _price <= 2.0; _price += 0.1) {
+    MqlTick _tick;
+    _tick.time = (datetime)_time++;
+    _tick.ask = _price;
+    _tick.bid = _price;
+    _indi_tick.SetTick(_tick, _tick.time);
   }
-  Print(in.ToString());
-  // Clean up.
-  delete in;
-  */
+  // Print(_indi_tick.ToString());
   return (INIT_SUCCEEDED);
 }
