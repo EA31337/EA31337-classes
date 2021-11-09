@@ -54,6 +54,7 @@ struct IndiRSIParams : IndicatorParams {
       : applied_price(_ap), IndicatorParams(INDI_RSI, 1, TYPE_DOUBLE) {
     shift = _shift;
     SetDataValueRange(IDATA_RANGE_RANGE);
+    //    SetDataSourceType(IDATA_ICUSTOM);
     SetCustomIndicatorName("Examples\\RSI");
     SetPeriod(_period);
   };
@@ -288,8 +289,9 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetMixedValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
+    double _res[];
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
@@ -299,6 +301,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ iparams.GetPeriod(),
                          iparams.GetAppliedPrice() /* ] */, 0, _shift);
+        Print(_value);
         break;
       case IDATA_INDICATOR:
         _value = Indi_RSI::iRSIOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), iparams.GetPeriod(),

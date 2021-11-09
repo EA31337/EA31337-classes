@@ -109,8 +109,6 @@ void OnTick() {
           PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
           tested.Set(iter.Key(), true);  // Mark as tested.
           indis.Unset(iter.Key());
-        } else if (bar_processed > 20) {
-          DebugBreak();
         }
       }
     }
@@ -253,7 +251,7 @@ bool InitIndicators() {
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_params(14, PRICE_OPEN);
-  indis.Push(new Indi_RSI(rsi_params));
+  indis.Push(_indi_test = new Indi_RSI(rsi_params));
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_over_blt_stddev_params();
@@ -519,7 +517,7 @@ bool InitIndicators() {
 
   // Pattern Detector.
   IndiPatternParams pattern_params();
-  indis.Push(_indi_test = new Indi_Pattern(pattern_params));
+  indis.Push(new Indi_Pattern(pattern_params));
 
   // Pivot.
   IndiPivotParams pivot_params();
@@ -535,7 +533,7 @@ bool InitIndicators() {
   }
 
   // Push white-listed indicators here.
-  whitelisted_indis.Push(_indi_test);
+  // whitelisted_indis.Push(_indi_test);
 
   return GetLastError() == ERR_NO_ERROR;
 }

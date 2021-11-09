@@ -876,15 +876,32 @@ class Indicator : public IndicatorBase {
     bool _result = true;
     _result &= _entry.timestamp > 0;
     _result &= _entry.GetSize() > 0;
-    if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
-      _result &= !_entry.HasValue<double>(DBL_MAX);
-      _result &= !_entry.HasValue<double>(NULL);
-    } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
-      _result &= !_entry.HasValue<float>(FLT_MAX);
-      _result &= !_entry.HasValue<float>(NULL);
-    } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
-      _result &= !_entry.HasValue<int>(INT_MAX);
-      _result &= !_entry.HasValue<int>(NULL);
+    if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_REAL)) {
+      if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
+        _result &= !_entry.HasValue<double>(DBL_MAX);
+        _result &= !_entry.HasValue<double>(NULL);
+      } else {
+        _result &= !_entry.HasValue<float>(FLT_MAX);
+        _result &= !_entry.HasValue<float>(NULL);
+      }
+    } else {
+      if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_UNSIGNED)) {
+        if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
+          _result &= !_entry.HasValue<ulong>(ULONG_MAX);
+          _result &= !_entry.HasValue<ulong>(NULL);
+        } else {
+          _result &= !_entry.HasValue<uint>(UINT_MAX);
+          _result &= !_entry.HasValue<uint>(NULL);
+        }
+      } else {
+        if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
+          _result &= !_entry.HasValue<long>(LONG_MAX);
+          _result &= !_entry.HasValue<long>(NULL);
+        } else {
+          _result &= !_entry.HasValue<int>(INT_MAX);
+          _result &= !_entry.HasValue<int>(NULL);
+        }
+      }
     }
     return _result;
   }
@@ -914,7 +931,33 @@ class Indicator : public IndicatorBase {
       _entry.Resize(iparams.GetMaxModes());
       _entry.timestamp = GetBarTime(_ishift);
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _ishift);
+        switch (iparams.GetDataValueType()) {
+          case TYPE_BOOL:
+          case TYPE_CHAR:
+          case TYPE_INT:
+            _entry.values[_mode] = GetValue<int>(_mode, _ishift);
+            break;
+          case TYPE_LONG:
+            _entry.values[_mode] = GetValue<long>(_mode, _ishift);
+            break;
+          case TYPE_UINT:
+            _entry.values[_mode] = GetValue<uint>(_mode, _ishift);
+            break;
+          case TYPE_ULONG:
+            _entry.values[_mode] = GetValue<ulong>(_mode, _ishift);
+            break;
+          case TYPE_DOUBLE:
+            _entry.values[_mode] = GetValue<double>(_mode, _ishift);
+            break;
+          case TYPE_FLOAT:
+            _entry.values[_mode] = GetValue<float>(_mode, _ishift);
+            break;
+          case TYPE_STRING:
+          case TYPE_UCHAR:
+          default:
+            SetUserError(ERR_INVALID_PARAMETER);
+            break;
+        }
       }
       GetEntryAlter(_entry, _ishift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
@@ -940,7 +983,7 @@ class Indicator : public IndicatorBase {
    * This method is called on GetEntry() right after values are set.
    */
   virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) {
-    _entry.AddFlags(_entry.GetDataTypeFlag(iparams.GetDataValueType()));
+    _entry.AddFlags(_entry.GetDataTypeFlags(iparams.GetDataValueType()));
   };
 
   /**
@@ -954,12 +997,32 @@ class Indicator : public IndicatorBase {
   virtual DataParamEntry GetEntryValue(int _shift = -1, int _mode = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift >= 0 ? _shift : iparams.GetShift());
     DataParamEntry _value_entry;
-    if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
-      _value_entry = _entry.GetValue<double>(_mode);
-    } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
-      _value_entry = _entry.GetValue<float>(_mode);
-    } else if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
-      _value_entry = _entry.GetValue<int>(_mode);
+    switch (iparams.GetDataValueType()) {
+      case TYPE_BOOL:
+      case TYPE_CHAR:
+      case TYPE_INT:
+        _value_entry = _entry.GetValue<int>(_mode);
+        break;
+      case TYPE_LONG:
+        _value_entry = _entry.GetValue<long>(_mode);
+        break;
+      case TYPE_UINT:
+        _value_entry = _entry.GetValue<uint>(_mode);
+        break;
+      case TYPE_ULONG:
+        _value_entry = _entry.GetValue<ulong>(_mode);
+        break;
+      case TYPE_DOUBLE:
+        _value_entry = _entry.GetValue<double>(_mode);
+        break;
+      case TYPE_FLOAT:
+        _value_entry = _entry.GetValue<float>(_mode);
+        break;
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
     return _value_entry;
   }
@@ -967,12 +1030,14 @@ class Indicator : public IndicatorBase {
   /**
    * Returns the indicator's value.
    */
+  /*
   virtual double GetValue(int _shift = -1, int _mode = 0) {
     _shift = _shift >= 0 ? _shift : iparams.GetShift();
     istate.is_changed = false;
     istate.is_ready = false;
     return EMPTY_VALUE;
   }
+  */
 };
 
 #endif
