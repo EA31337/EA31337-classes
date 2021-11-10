@@ -21,8 +21,13 @@
  */
 
 // Ignore processing of this file if already included.
-#ifndef INDICATOR_TICK_MQH
-#define INDICATOR_TICK_MQH
+#ifndef INDICATOR_TICK_H
+#define INDICATOR_TICK_H
+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../IndicatorBase.h"

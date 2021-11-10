@@ -21,8 +21,13 @@
  */
 
 // Ignore processing of this file if already included.
-#ifndef INDICATOR_CANDLE_MQH
-#define INDICATOR_CANDLE_MQH
+#ifndef INDICATOR_CANDLE_H
+#define INDICATOR_CANDLE_H
+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../IndicatorBase.h"
@@ -45,8 +50,8 @@ class IndicatorCandle : public IndicatorBase {
    * Called on constructor.
    */
   void Init() {
-    itdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
-    itdata.SetOverflowListener(IndicatorCandleOverflowListener, 10);
+    icdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
+    icdata.SetOverflowListener(IndicatorCandleOverflowListener, 10);
   }
 
  public:
@@ -55,16 +60,15 @@ class IndicatorCandle : public IndicatorBase {
   /**
    * Class constructor.
    */
-  IndicatorCandle(const TS& _icdata, IndicatorBase* _indi_src = NULL, int _indi_mode = 0) {
-    icdata = _icdata;
+  IndicatorCandle(const TS& _icparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0) : icparams(_icparams) {
     if (_indi_src != NULL) {
       SetDataSource(_indi_src, _indi_mode);
     }
     Init();
   }
-  IndicatorCandle(ENUM_INDICATOR_TYPE _itype, string _symbol, int _shift = 0, string _name = "") {
-    itparams.SetIndicatorType(_itype);
-    itparams.SetShift(_shift);
+  IndicatorCandle(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "") {
+    icparams.SetIndicatorType(_itype);
+    icparams.SetShift(_shift);
     Init();
   }
 
@@ -80,12 +84,12 @@ class IndicatorCandle : public IndicatorBase {
    */
   IndicatorDataEntry GetEntry(int _timestamp = 0) {
     ResetLastError();
-    IndicatorDataEntry _entry = itdata.GetByKey(_timestamp);
+    IndicatorDataEntry _entry = icdata.GetByKey(_timestamp);
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
-      _entry.Resize(itparams.GetMaxModes());
+      _entry.Resize(icparams.GetMaxModes());
       _entry.timestamp = _timestamp;
-      for (int _mode = 0; _mode < (int)itparams.GetMaxModes(); _mode++) {
-        switch (itparams.GetDataValueType()) {
+      for (int _mode = 0; _mode < (int)icparams.GetMaxModes(); _mode++) {
+        switch (icparams.GetDataValueType()) {
           case TYPE_BOOL:
           case TYPE_CHAR:
           case TYPE_INT:
@@ -116,7 +120,7 @@ class IndicatorCandle : public IndicatorBase {
       GetEntryAlter(_entry, _timestamp);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
-        itdata.Add(_entry, _timestamp);
+        icdata.Add(_entry, _timestamp);
         istate.is_changed = false;
         istate.is_ready = true;
       } else {
@@ -137,7 +141,7 @@ class IndicatorCandle : public IndicatorBase {
    * This method is called on GetEntry() right after values are set.
    */
   virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _timestamp = -1) {
-    _entry.AddFlags(_entry.GetDataTypeFlags(itparams.GetDataValueType()));
+    _entry.AddFlags(_entry.GetDataTypeFlags(icparams.GetDataValueType()));
   };
 
   /**
@@ -156,7 +160,7 @@ class IndicatorCandle : public IndicatorBase {
   /**
    * Function should return true if resize can be made, or false to overwrite current slot.
    */
-  static bool IndicatorCandleOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) const {
+  static bool IndicatorCandleOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
     switch (_reason) {
       case DICT_OVERFLOW_REASON_FULL:
         // We allow resize if dictionary size is less than 86400 slots.
@@ -174,7 +178,7 @@ class IndicatorCandle : public IndicatorBase {
    */
   void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) {
     indi_src = _indi;
-    itparams.SetDataSource(-1, _input_mode);
+    icparams.SetDataSource(-1, _input_mode);
   }
 
   /* Virtual methods */

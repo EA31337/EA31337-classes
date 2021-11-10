@@ -51,6 +51,7 @@ jobs:
       matrix:
         test:
           - IndicatorCandle.test
+          - IndicatorTf.test
           - IndicatorTick.test
     steps:
       - uses: actions/download-artifact@v2
