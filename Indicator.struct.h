@@ -185,10 +185,11 @@ struct IndicatorDataEntryValue {
 };
 
 /* Structure for indicator data entry. */
+template <typename TV>
 struct IndicatorDataEntry {
   long timestamp;        // Timestamp of the entry's bar.
   unsigned short flags;  // Indicator entry flags.
-  ARRAY(IndicatorDataEntryValue, values);
+  ARRAY(TV, values);
 
   // Constructors.
   IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { Resize(_size); }

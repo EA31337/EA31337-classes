@@ -225,7 +225,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry<IndicatorDataEntryValue> &_entry, int _shift = -1) {
     Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // The LINE_MAIN only exists in MQL4 for Envelopes.
@@ -236,7 +236,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     return Indicator<IndiEnvelopesParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0);
   }
 

@@ -195,7 +195,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
    * @return
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     return !_entry.HasValue<double>(DBL_MAX) && _entry.GetMin<double>(4) > 0 && _entry[(int)INDI_BWZT_MODE_COLOR] >= 0;
   }
 };

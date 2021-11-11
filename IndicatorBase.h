@@ -123,8 +123,8 @@ class IndicatorBase : public Chart {
    * Access indicator entry data using [] operator.
    */
   // IndicatorDataEntry operator[](datetime _dt) { return GetEntry(_dt); }
-  IndicatorDataEntry operator[](int _index) { return GetEntry(_index); }
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) { return GetEntry(_index); }
+  // IndicatorDataEntry operator[](int _index) { return GetEntry(_index); }
+  // IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) { return GetEntry(_index); }
 
   /* Buffer methods */
 
@@ -208,6 +208,7 @@ class IndicatorBase : public Chart {
    * Returns true of successful copy.
    * Returns false on invalid values.
    */
+  /*
   bool CopyEntries(IndicatorDataEntry& _data[], int _count, int _start_shift = 0) {
     bool _is_valid = true;
     if (ArraySize(_data) < _count) {
@@ -220,6 +221,7 @@ class IndicatorBase : public Chart {
     }
     return _is_valid;
   }
+  */
 
   /**
    * Gets indicator data from a buffer and copy into array of values.
@@ -456,7 +458,7 @@ class IndicatorBase : public Chart {
   /**
    * Returns the indicator's struct value.
    */
-  virtual IndicatorDataEntry GetEntry(int _index = -1) = NULL;
+  // virtual IndicatorDataEntry GetEntry(int _index = -1) = NULL;
 
   /**
    * Alters indicator's struct value.
@@ -464,7 +466,7 @@ class IndicatorBase : public Chart {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _index = -1) = NULL;
+  // virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _index = -1) = NULL;
 
   // virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = NULL;
 
@@ -510,17 +512,19 @@ class IndicatorBase : public Chart {
   /**
    * Returns the indicator's value in plain format.
    */
-  virtual string ToString(int _index = 0) {
-    IndicatorDataEntry _entry = GetEntry(_index);
-    int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT |
-                            SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE;
+  /*
+ virtual string ToString(int _index = 0) {
+   IndicatorDataEntry _entry = GetEntry(_index);
+   int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT |
+                           SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE;
 
-    IndicatorDataEntry _stub_entry;
-    _stub_entry.AddFlags(_entry.GetFlags());
-    SerializerConverter _stub = SerializerConverter::MakeStubObject(_stub_entry, _serializer_flags, _entry.GetSize());
-    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub);
-  }
-
+   IndicatorDataEntry _stub_entry;
+   _stub_entry.AddFlags(_entry.GetFlags());
+   SerializerConverter _stub = SerializerConverter::MakeStubObject(_stub_entry, _serializer_flags, _entry.GetSize());
+   return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub);
+ }
+ */
+  /*
   int GetBarsCalculated() {
     int _bars = Bars(GetSymbol(), GetTf());
 
@@ -546,6 +550,7 @@ class IndicatorBase : public Chart {
     // Assuming all entries are calculated (even if have invalid values).
     return _bars;
   }
+  */
 
   /* Methods to get rid of */
 
@@ -596,4 +601,4 @@ int CopyBuffer(IndicatorBase* _indi, int _mode, int _start, int _count, ValueSto
 /**
  * BarsCalculated()-compatible method to be used on Indicator instance.
  */
-int BarsCalculated(IndicatorBase* _indi) { return _indi.GetBarsCalculated(); }
+// int BarsCalculated(IndicatorBase* _indi) { return _indi.GetBarsCalculated(); }

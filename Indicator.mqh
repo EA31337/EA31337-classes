@@ -83,7 +83,7 @@ template <typename TS>
 class Indicator : public IndicatorBase {
  protected:
   DrawIndicator* draw;
-  BufferStruct<IndicatorDataEntry> idata;
+  BufferStruct<IndicatorDataEntry<IndicatorDataEntryValue>> idata;
   TS iparams;
 
  protected:
@@ -177,7 +177,7 @@ class Indicator : public IndicatorBase {
    * Gets an indicator property flag.
    */
   bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = -1) {
-    IndicatorDataEntry _entry = GetEntry(_shift >= 0 ? _shift : iparams.GetShift());
+    IndicatorDataEntry<IndicatorDataEntryValue> _entry = GetEntry(_shift >= 0 ? _shift : iparams.GetShift());
     return _entry.CheckFlag(_prop);
   }
 
@@ -277,13 +277,13 @@ class Indicator : public IndicatorBase {
    * Returns true of successful copy.
    * Returns false on invalid values.
    */
-  bool CopyEntries(IndicatorDataEntry& _data[], int _count, int _start_shift = 0) {
+  bool CopyEntries(IndicatorDataEntry<IndicatorDataEntryValue>& _data[], int _count, int _start_shift = 0) {
     bool _is_valid = true;
     if (ArraySize(_data) < _count) {
       _is_valid &= ArrayResize(_data, _count) > 0;
     }
     for (int i = 0; i < _count; i++) {
-      IndicatorDataEntry _entry = GetEntry(_start_shift + i);
+      IndicatorDataEntry<IndicatorDataEntryValue> _entry = GetEntry(_start_shift + i);
       _is_valid &= _entry.IsValid();
       _data[i] = _entry;
     }
@@ -305,7 +305,7 @@ class Indicator : public IndicatorBase {
       _count = _count > 0 ? _count : ArraySize(_data);
     }
     for (int i = 0; i < _count; i++) {
-      IndicatorDataEntry _entry = GetEntry(_start_shift + i);
+      IndicatorDataEntry<IndicatorDataEntryValue> _entry = GetEntry(_start_shift + i);
       _is_valid &= _entry.IsValid();
       _data[i] = (T)_entry[_mode];
     }
@@ -327,7 +327,7 @@ class Indicator : public IndicatorBase {
     }
 
     for (int i = _start; i < _count; ++i) {
-      IndicatorDataEntry _entry = _indi.GetEntry(i);
+      IndicatorDataEntry<IndicatorDataEntryValue> _entry = _indi.GetEntry(i);
 
       if (!_entry.IsValid()) {
         break;
@@ -447,8 +447,8 @@ class Indicator : public IndicatorBase {
   bool IsDecreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
     bool _result = true;
     for (int i = _shift + _rows - 1; i >= _shift && _result; i--) {
-      IndicatorDataEntry _entry_curr = GetEntry(i);
-      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
+      IndicatorDataEntry<IndicatorDataEntryValue> _entry_curr = GetEntry(i);
+      IndicatorDataEntry<IndicatorDataEntryValue> _entry_prev = GetEntry(i + 1);
       _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] < _entry_prev[_mode];
       if (!_result) {
         break;
@@ -476,8 +476,8 @@ class Indicator : public IndicatorBase {
    */
   bool IsDecByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
     bool _result = true;
-    IndicatorDataEntry _v0 = GetEntry(_shift);
-    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
+    IndicatorDataEntry<IndicatorDataEntryValue> _v0 = GetEntry(_shift);
+    IndicatorDataEntry<IndicatorDataEntryValue> _v1 = GetEntry(_shift + _count);
     _result &= _v0.IsValid() && _v1.IsValid();
     _result &= _result && Math::ChangeInPct(_v1[_mode], _v0[_mode], _hundreds) < _pct;
     return _result;
@@ -499,8 +499,8 @@ class Indicator : public IndicatorBase {
   bool IsIncreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
     bool _result = true;
     for (int i = _shift + _rows - 1; i >= _shift && _result; i--) {
-      IndicatorDataEntry _entry_curr = GetEntry(i);
-      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
+      IndicatorDataEntry<IndicatorDataEntryValue> _entry_curr = GetEntry(i);
+      IndicatorDataEntry<IndicatorDataEntryValue> _entry_prev = GetEntry(i + 1);
       _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] > _entry_prev[_mode];
       if (!_result) {
         break;
@@ -528,8 +528,8 @@ class Indicator : public IndicatorBase {
    */
   bool IsIncByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
     bool _result = true;
-    IndicatorDataEntry _v0 = GetEntry(_shift);
-    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
+    IndicatorDataEntry<IndicatorDataEntryValue> _v0 = GetEntry(_shift);
+    IndicatorDataEntry<IndicatorDataEntryValue> _v1 = GetEntry(_shift + _count);
     _result &= _v0.IsValid() && _v1.IsValid();
     _result &= _result && Math::ChangeInPct(_v1[_mode], _v0[_mode], _hundreds) > _pct;
     return _result;
@@ -540,7 +540,7 @@ class Indicator : public IndicatorBase {
   /**
    * Get pointer to data of indicator.
    */
-  BufferStruct<IndicatorDataEntry>* GetData() { return GetPointer(idata); }
+  BufferStruct<IndicatorDataEntry<IndicatorDataEntryValue>>* GetData() { return GetPointer(idata); }
 
   /**
    * Returns the highest bar's index (shift).
@@ -757,18 +757,20 @@ class Indicator : public IndicatorBase {
    *
    * When indicator values are not valid, returns empty signals.
    */
-  IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) {
-    bool _is_valid = true;
-    IndicatorDataEntry _data[];
-    if (!CopyEntries(_data, _count, _shift)) {
-      // Some copied data is invalid, so returns empty signals.
-      IndicatorSignal _signals(0);
-      return _signals;
-    }
-    // Returns signals.
-    IndicatorSignal _signals(_data, iparams, cparams, _mode1, _mode2);
-    return _signals;
-  }
+  /*
+ IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) {
+   bool _is_valid = true;
+   IndicatorDataEntry<IndicatorDataEntryValue> _data[];
+   if (!CopyEntries(_data, _count, _shift)) {
+     // Some copied data is invalid, so returns empty signals.
+     IndicatorSignal _signals(0);
+     return _signals;
+   }
+   // Returns signals.
+   IndicatorSignal _signals(_data, iparams, cparams, _mode1, _mode2);
+   return _signals;
+ }
+ */
 
   /**
    * Get name of the indicator.
@@ -951,7 +953,7 @@ class Indicator : public IndicatorBase {
   /**
    * Adds entry to the indicator's buffer. Invalid entry won't be added.
    */
-  bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
+  bool AddEntry(IndicatorDataEntry<IndicatorDataEntryValue>& entry, int _shift = 0) {
     if (!entry.IsValid()) return false;
 
     datetime timestamp = GetBarTime(_shift);
@@ -1048,7 +1050,7 @@ class Indicator : public IndicatorBase {
    * @return
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue>& _entry) {
     bool _result = true;
     _result &= _entry.timestamp > 0;
     _result &= _entry.GetSize() > 0;
@@ -1096,13 +1098,13 @@ class Indicator : public IndicatorBase {
    * @see: IndicatorDataEntry.
    *
    * @return
-   *   Returns IndicatorDataEntry struct filled with indicator values.
+   *   Returns IndicatorDataEntry<IndicatorDataEntryValue> struct filled with indicator values.
    */
-  virtual IndicatorDataEntry GetEntry(int _index = -1) {
+  virtual IndicatorDataEntry<IndicatorDataEntryValue> GetEntry(int _index = -1) {
     ResetLastError();
     int _ishift = _index >= 0 ? _index : iparams.GetShift();
     long _bar_time = GetBarTime(_ishift);
-    IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
+    IndicatorDataEntry<IndicatorDataEntryValue> _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(iparams.GetMaxModes());
       _entry.timestamp = GetBarTime(_ishift);
@@ -1158,7 +1160,7 @@ class Indicator : public IndicatorBase {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _index = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry<IndicatorDataEntryValue>& _entry, int _index = -1) {
     _entry.AddFlags(_entry.GetDataTypeFlags(iparams.GetDataValueType()));
   };
 
@@ -1293,7 +1295,6 @@ class Indicator : public IndicatorBase {
                        COMMA _l COMMA _m);
 #endif
   }
-
 };
 
 #endif

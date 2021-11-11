@@ -87,7 +87,7 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
     _indi.ValidateDataSourceMode(_mode);
 
     double _indi_value_buffer[];
-    IndicatorDataEntry _entry(_indi.GetModeCount());
+    IndicatorDataEntry<IndicatorDataEntryValue> _entry(_indi.GetModeCount());
 
     ArrayResize(_indi_value_buffer, _period);
 

@@ -99,7 +99,7 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
    * @return
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     bool _is_valid = Indicator<IndiAppliedPriceParams>::IsValidEntry(_entry);
     switch (iparams.idstype) {
       case IDATA_INDICATOR:

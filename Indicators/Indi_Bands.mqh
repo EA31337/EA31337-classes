@@ -264,7 +264,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     return !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt<double>(0) &&
            _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl();
   }

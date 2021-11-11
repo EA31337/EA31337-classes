@@ -138,7 +138,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     return _entry.IsGe<float>(0) && !_entry.HasValue<float>(FLT_MAX);
   }
 

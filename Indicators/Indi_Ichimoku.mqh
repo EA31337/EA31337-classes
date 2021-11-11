@@ -164,7 +164,7 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry<IndicatorDataEntryValue> &_entry, int _shift = -1) {
     Indicator<IndiIchimokuParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
@@ -177,7 +177,7 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     return Indicator<IndiIchimokuParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0);
   }
 

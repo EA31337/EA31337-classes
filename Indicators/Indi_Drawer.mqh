@@ -71,7 +71,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
   virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry &_args[]) {
     int num_args = ArraySize(_args), i;
 
-    IndicatorDataEntry entry(num_args - 1);
+    IndicatorDataEntry<IndicatorDataEntryValue> entry(num_args - 1);
     // @fixit Not sure if we should enforce double.
     // entry.AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
 

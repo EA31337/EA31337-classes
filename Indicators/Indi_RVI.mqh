@@ -124,7 +124,7 @@ class Indi_RVI : public Indicator<IndiRVIParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE);
   }
 

@@ -122,7 +122,7 @@ class Indi_Fractals : public Indicator<IndiFractalsParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry<IndicatorDataEntryValue> &_entry, int _shift = -1) {
     Indicator<IndiFractalsParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // In MT4 line identifiers starts from 1, so populating also at 0.
@@ -133,7 +133,7 @@ class Indi_Fractals : public Indicator<IndiFractalsParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     double _wrong_value = (double)NULL;
 #ifdef __MQL4__
     // In MT4, the empty value for iFractals is 0, not EMPTY_VALUE=DBL_MAX as in MT5.

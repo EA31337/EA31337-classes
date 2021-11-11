@@ -136,7 +136,7 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry<IndicatorDataEntryValue> &_entry, int _shift = -1) {
     Indicator<IndiBWIndiMFIParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
@@ -179,7 +179,7 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
    * @return
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     return _entry[(int)BWMFI_BUFFER] > 0 && _entry[(int)BWMFI_HISTCOLOR] >= 0 && !_entry.HasValue<double>(DBL_MAX) &&
            !_entry.HasValue<double>(EMPTY_VALUE);
   }

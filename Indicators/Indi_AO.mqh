@@ -135,5 +135,7 @@ class Indi_AO : public Indicator<IndiAOParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
+    return _entry.values[0].Get<double>() != EMPTY_VALUE;
+  }
 };

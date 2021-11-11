@@ -32,7 +32,6 @@
 
 // Forward declaration.
 struct ChartParams;
-struct IndicatorDataEntry;
 struct IndicatorParams;
 
 // Includes.
@@ -56,13 +55,16 @@ struct IndicatorSignal {
 
   // Constructors.
   IndicatorSignal(int _signals = 0) : signals(_signals) {}
+  /*
   IndicatorSignal(ARRAY_REF(IndicatorDataEntry, _data), IndicatorParams &_ip, ChartParams &_cp, int _m1 = 0,
                   int _m2 = 0)
       : signals(0) {
     CalcSignals(_data, _ip, _cp, _m1, _m2);
   }
+  */
   // Main methods.
   // Calculate signal values.
+  /*
   void CalcSignals(ARRAY_REF(IndicatorDataEntry, _data), IndicatorParams &_ip, ChartParams &_cp, int _m1 = 0,
                    int _m2 = 0) {
     int _size = ArraySize(_data);
@@ -117,6 +119,7 @@ struct IndicatorSignal {
     }
     SetSignal(INDICATOR_SIGNAL_VOLATILE, _is_vola);
   }
+  */
   // Signal methods for bitwise operations.
   /* Getters */
   bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }

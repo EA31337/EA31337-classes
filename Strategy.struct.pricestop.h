@@ -32,7 +32,6 @@
 
 // Forward declaration.
 struct ChartParams;
-struct IndicatorDataEntry;
 struct IndicatorParams;
 
 // Includes.

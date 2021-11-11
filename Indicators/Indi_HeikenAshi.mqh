@@ -236,7 +236,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0) &&
            _entry.values[HA_LOW].GetDbl() < _entry.values[HA_HIGH].GetDbl();
   }

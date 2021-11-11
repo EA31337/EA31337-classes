@@ -58,7 +58,7 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
+  virtual void GetEntryAlter(IndicatorDataEntry<IndicatorDataEntryValue> &_entry, int _shift = 0) {
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
     Indicator<CandleParams>::GetEntryAlter(_entry, _shift);
   }
@@ -114,7 +114,7 @@ class Indi_Candle : public Indicator<CandleParams> {
    * @return
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
     return !_entry.HasValue<double>(INT_MAX) && _entry.GetMin<int>() >= 0;
   }
 };

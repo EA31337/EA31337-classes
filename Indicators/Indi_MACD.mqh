@@ -137,7 +137,9 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return !_entry.HasValue<double>(DBL_MAX); }
+  virtual bool IsValidEntry(IndicatorDataEntry<IndicatorDataEntryValue> &_entry) {
+    return !_entry.HasValue<double>(DBL_MAX);
+  }
 
   /* Getters */
 

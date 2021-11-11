@@ -31,6 +31,7 @@
 class Serializer;
 
 /* Method to serialize IndicatorDataEntry structure. */
+template <typename T>
 SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
   int _asize = ArraySize(values);
   _s.Pass(THIS_REF, "datetime", timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC);

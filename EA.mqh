@@ -66,7 +66,7 @@ class EA {
   Dict<string, double> ddata;  // Custom user data.
   Dict<string, int> idata;     // Custom user data.
   DictObject<string, Trade> trade;
-  DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
+  DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry<IndicatorDataEntryValue>>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
   DictStruct<int, TaskEntry> tasks;
   EAParams eparams;
@@ -432,7 +432,7 @@ class EA {
           IndicatorDataEntry _ientry = _indi.GetEntry();
           if (!data_indi.KeyExists(_itf)) {
             // Create new timeframe buffer if does not exist.
-            BufferStruct<IndicatorDataEntry> *_ide = new BufferStruct<IndicatorDataEntry>;
+            BufferStruct<IndicatorDataEntry<IndicatorDataEntryValue>> *_ide = new BufferStruct<IndicatorDataEntry>;
             data_indi.Set(_itf, _ide);
           }
           // Save entry into data_indi.
