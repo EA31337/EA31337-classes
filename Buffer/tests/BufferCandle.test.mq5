@@ -32,7 +32,7 @@
  * Implements OnInit().
  */
 int OnInit() {
-  BufferCandle buffer1;          // 128
+  BufferCandle<double> buffer1;          // 128
   CandleOHLC<double> _ohlc_d;    // 32
   CandleOHLC<float> _ohlc_f;     // 16
   CandleTOHLC<double> _tohlc_d;  // 32

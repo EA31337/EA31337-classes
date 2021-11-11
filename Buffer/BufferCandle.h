@@ -31,7 +31,8 @@
 /**
  * Class to store struct data.
  */
-class BufferCandle : public BufferStruct<CandleOHLC<double>> {
+template <typename TV>
+class BufferCandle : public BufferStruct<CandleOHLC<TV>> {
  protected:
   uint cache_limit;
 

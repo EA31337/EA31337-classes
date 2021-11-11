@@ -30,15 +30,16 @@
 #endif
 
 // Includes.
+#include "../Buffer/BufferCandle.h"
 #include "../IndicatorBase.h"
 
 /**
  * Class to deal with candle indicators.
  */
-template <typename TS>
+template <typename TS, typename TV>
 class IndicatorCandle : public IndicatorBase {
  protected:
-  BufferStruct<IndicatorDataEntry> icdata;
+  BufferCandle<TV> icdata;
   TS icparams;
 
  protected:
@@ -84,6 +85,8 @@ class IndicatorCandle : public IndicatorBase {
    */
   IndicatorDataEntry GetEntry(int _timestamp = 0) {
     ResetLastError();
+    CandleOHLC<TV> _entry = icdata.GetByKey(_timestamp);
+    /*
     IndicatorDataEntry _entry = icdata.GetByKey(_timestamp);
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(icparams.GetMaxModes());
@@ -132,6 +135,9 @@ class IndicatorCandle : public IndicatorBase {
       ResetLastError();
     }
     return _entry;
+    */
+    IndicatorDataEntry _foo;
+    return _foo;
   }
 
   /**

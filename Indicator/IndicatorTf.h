@@ -36,7 +36,7 @@
 /**
  * Class to deal with candle indicators.
  */
-class IndicatorTf : public IndicatorCandle<IndicatorTfParams> {
+class IndicatorTf : public IndicatorCandle<IndicatorTfParams, double> {
  protected:
   /* Protected methods */
 
@@ -63,7 +63,7 @@ class IndicatorTf : public IndicatorCandle<IndicatorTfParams> {
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(IndicatorTfParams &_params) : IndicatorCandle<IndicatorTfParams>(_params) { Init(); }
+  IndicatorTf(IndicatorTfParams &_params) : IndicatorCandle<IndicatorTfParams, double>(_params) { Init(); }
 };
 
 #endif
