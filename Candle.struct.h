@@ -63,21 +63,20 @@ struct CandleOHLC
   }
   // Struct methods.
   // Getters
-  bool GetPivots(ENUM_PP_TYPE _type, float &_pp, float &_r1, float &_r2, float &_r3, float &_r4, float &_s1, float &_s2,
-                 float &_s3, float &_s4) {
-    float _range = GetRange();
+  bool GetPivots(ENUM_PP_TYPE _type, T &_pp, T &_r1, T &_r2, T &_r3, T &_r4, T &_s1, T &_s2, T &_s3, T &_s4) {
+    T _range = GetRange();
     switch (_type) {
       case PP_CAMARILLA:
         // A set of eight very probable levels which resemble support and resistance values for a current trend.
         _pp = GetPivot();
-        _r1 = (float)(close + _range * 1.1 / 12);
-        _r2 = (float)(close + _range * 1.1 / 6);
-        _r3 = (float)(close + _range * 1.1 / 4);
-        _r4 = (float)(close + _range * 1.1 / 2);
-        _s1 = (float)(close - _range * 1.1 / 12);
-        _s2 = (float)(close - _range * 1.1 / 6);
-        _s3 = (float)(close - _range * 1.1 / 4);
-        _s4 = (float)(close - _range * 1.1 / 2);
+        _r1 = (T)(close + _range * 1.1 / 12);
+        _r2 = (T)(close + _range * 1.1 / 6);
+        _r3 = (T)(close + _range * 1.1 / 4);
+        _r4 = (T)(close + _range * 1.1 / 2);
+        _s1 = (T)(close - _range * 1.1 / 12);
+        _s2 = (T)(close - _range * 1.1 / 6);
+        _s3 = (T)(close - _range * 1.1 / 4);
+        _s4 = (T)(close - _range * 1.1 / 2);
         break;
       case PP_CLASSIC:
         _pp = GetPivot();
@@ -143,46 +142,42 @@ struct CandleOHLC
     }
     return _r4 > _r3 && _r3 > _r2 && _r2 > _r1 && _r1 > _pp && _pp > _s1 && _s1 > _s2 && _s2 > _s3 && _s3 > _s4;
   }
-  float GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const {
-    return CandleOHLC::GetAppliedPrice(_ap, open, high, low, close);
-  }
-  float GetBody() const { return close - open; }
-  float GetBodyAbs() const { return fabs(close - open); }
-  float GetBodyInPct(int _hundreds = 100) const { return GetRange() > 0 ? _hundreds / GetRange() * GetBodyAbs() : 0; }
-  float GetChangeInPct(int _hundreds = 100) const { return (close - open) / open * _hundreds; }
-  float GetClose() const { return close; }
-  float GetHigh() const { return high; }
-  float GetLow() const { return low; }
-  float GetMaxOC() const { return fmax(open, close); }
-  float GetMedian() const { return (high + low) / 2; }
-  float GetMinOC() const { return fmin(open, close); }
-  float GetOpen() const { return open; }
-  float GetPivot() const { return GetTypical(); }
-  float GetPivotDeMark() const {
+  T GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const { return CandleOHLC::GetAppliedPrice(_ap, open, high, low, close); }
+  T GetBody() const { return close - open; }
+  T GetBodyAbs() const { return fabs(close - open); }
+  T GetBodyInPct(int _hundreds = 100) const { return GetRange() > 0 ? _hundreds / GetRange() * GetBodyAbs() : 0; }
+  T GetChangeInPct(int _hundreds = 100) const { return (close - open) / open * _hundreds; }
+  T GetClose() const { return close; }
+  T GetHigh() const { return high; }
+  T GetLow() const { return low; }
+  T GetMaxOC() const { return fmax(open, close); }
+  T GetMedian() const { return (high + low) / 2; }
+  T GetMinOC() const { return fmin(open, close); }
+  T GetOpen() const { return open; }
+  T GetPivot() const { return GetTypical(); }
+  T GetPivotDeMark() const {
     // If Close < Open Then X = H + 2 * L + C
     // If Close > Open Then X = 2 * H + L + C
     // If Close = Open Then X = H + L + 2 * C
-    float _pp = open > close ? (high + (2 * low) + close) / 4 : ((2 * high) + low + close) / 4;
+    T _pp = open > close ? (high + (2 * low) + close) / 4 : ((2 * high) + low + close) / 4;
     return open == close ? (high + low + (2 * close)) / 4 : _pp;
   }
-  float GetPivotWithOpen() const { return (open + high + low + close) / 4; }
-  float GetPivotWithOpen(float _open) const { return (_open + high + low + close) / 4; }
-  float GetRange() const { return high - low; }
-  float GetRangeChangeInPct(int _hundreds = 100) const {
-    return _hundreds - (_hundreds / open * fabs(open - GetRange()));
-  }
-  float GetRangeInPips(float _ppp) const { return GetRange() / _ppp; }
-  float GetTypical() const { return (high + low + close) / 3; }
-  float GetWeighted() const { return (high + low + close + close) / 4; }
-  float GetWickMin() const { return fmin(GetWickLower(), GetWickUpper()); }
-  float GetWickLower() const { return GetMinOC() - low; }
-  float GetWickLowerInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickLower() : 0; }
-  float GetWickMax() const { return fmax(GetWickLower(), GetWickUpper()); }
-  float GetWickSum() const { return GetWickLower() + GetWickUpper(); }
-  float GetWickUpper() const { return high - GetMaxOC(); }
-  float GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
+  T GetPivotWithOpen() const { return (open + high + low + close) / 4; }
+  T GetPivotWithOpen(float _open) const { return (_open + high + low + close) / 4; }
+  T GetRange() const { return high - low; }
+  T GetRangeChangeInPct(int _hundreds = 100) const { return _hundreds - (_hundreds / open * fabs(open - GetRange())); }
+  T GetRangeInPips(float _ppp) const { return GetRange() / _ppp; }
+  T GetTypical() const { return (high + low + close) / 3; }
+  T GetWeighted() const { return (high + low + close + close) / 4; }
+  T GetWickMin() const { return fmin(GetWickLower(), GetWickUpper()); }
+  T GetWickLower() const { return GetMinOC() - low; }
+  T GetWickLowerInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickLower() : 0; }
+  T GetWickMax() const { return fmax(GetWickLower(), GetWickUpper()); }
+  T GetWickSum() const { return GetWickLower() + GetWickUpper(); }
+  T GetWickUpper() const { return high - GetMaxOC(); }
+  T GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
   short GetType() const { return IsBull() ? 1 : (IsBear() ? -1 : 0); }
-  void GetValues(ARRAY_REF(float, _out)) {
+  void GetValues(ARRAY_REF(T, _out)) {
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
     _out[_index++] = open;
