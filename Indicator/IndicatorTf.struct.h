@@ -30,10 +30,18 @@
 #pragma once
 #endif
 
+// Includes.
+#include "../Indicator.struct.h"
+
 /* Structure for IndicatorTf class parameters. */
 struct IndicatorTfParams : IndicatorParams {
+  uint spc;  // Seconds per candle.
   // Struct constructor.
-  IndicatorTfParams() {}
+  IndicatorTfParams(uint _spc = 60) : spc(_spc) {}
+  // Getters.
+  uint GetSecsPerCandle() { return spc; }
+  // Setters.
+  void SetSecsPerCandle(uint _spc) { spc = _spc; }
   // Copy constructor.
   IndicatorTfParams(const IndicatorTfParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     THIS_REF = _params;

@@ -30,6 +30,7 @@
 #endif
 
 // Includes.
+#include "../Chart.struct.tf.h"
 #include "IndicatorCandle.h"
 #include "IndicatorTf.struct.h"
 
@@ -51,14 +52,28 @@ class IndicatorTf : public IndicatorCandle<IndicatorTfParams, double> {
   /* Special methods */
 
   /**
-   * Class constructor.
+   * Class constructor with timeframe enum.
    */
-  IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) { Init(); }
+  IndicatorTf(uint _spc) {
+    icparams.SetSecsPerCandle(_spc);
+    Init();
+  }
 
   /**
-   * Class constructor.
+   * Class constructor with timeframe enum.
    */
-  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) { Init(); }
+  IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    icparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
+    Init();
+  }
+
+  /**
+   * Class constructor with timeframe index.
+   */
+  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
+    icparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
+    Init();
+  }
 
   /**
    * Class constructor with parameters.

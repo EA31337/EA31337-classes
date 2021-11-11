@@ -56,6 +56,22 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
     Init();
   }
 
+  /* Grouping methods */
+
+  /**
+   * Group ticks by seconds.
+   */
+  DictStruct<uint, DictStruct<uint, TickAB<TV>>> GroupBySecs(uint _spc) {
+    // DictStruct<uint, DictStruct<TickAB<TV>>> _result;
+    // @todo: for each iter
+    // for (DictStructIterator<uint, DictStruct<TickAB<TV>>> iter(Begin()); iter.IsValid(); ++iter) {
+    // Load timestamp from key, TickAB from value
+    // foreach some timestamp mod % _spc - calculate shift
+    // _result.Push(_shift, TickAB<TV>)
+    // Convert to OHLC in upper method
+    return NULL;
+  }
+
   /* Callback methods */
 
   /**
