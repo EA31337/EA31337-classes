@@ -38,7 +38,7 @@ struct TickAB {
   T bid;  // Current Bid price.
   // Struct constructors.
   TickAB(T _ask = 0, T _bid = 0) : ask(_ask), bid(_bid) {}
-  TickAB(MqlTick &_tick) : ask(_tick.ask), bid(_tick.bid) {}
+  TickAB(MqlTick &_tick) : ask((T)_tick.ask), bid((T)_tick.bid) {}
 };
 
 /**
@@ -49,7 +49,7 @@ struct TickTAB : TickAB<T> {
   datetime time;  // Time of the last prices update.
   // Struct constructors.
   TickTAB(datetime _time = 0, T _ask = 0, T _bid = 0) : time(_time), TickAB(_ask, _bid) {}
-  TickAB(MqlTick &_tick) : time(_tick.time), TickAB(_tick.ask, _tick.bid) {}
+  TickTAB(MqlTick &_tick) : time(_tick.time), TickAB(_tick) {}
 };
 
 #ifndef __MQL__

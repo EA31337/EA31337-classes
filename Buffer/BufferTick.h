@@ -21,18 +21,18 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef BUFFER_CANDLE_H
-#define BUFFER_CANDLE_H
+#ifndef BUFFER_TICK_H
+#define BUFFER_TICK_H
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Candle.struct.h"
+#include "../Tick.struct.h"
 
 /**
  * Class to store struct data.
  */
 template <typename TV>
-class BufferCandle : public BufferStruct<CandleOHLC<TV>> {
+class BufferTick : public BufferStruct<TickAB<TV>> {
  protected:
  protected:
   /* Protected methods */
@@ -42,7 +42,7 @@ class BufferCandle : public BufferStruct<CandleOHLC<TV>> {
    *
    * Called on constructor.
    */
-  void Init() { SetOverflowListener(BufferCandleOverflowListener, 10); }
+  void Init() { SetOverflowListener(BufferTickOverflowListener, 10); }
 
  public:
   /* Constructors */
@@ -50,8 +50,8 @@ class BufferCandle : public BufferStruct<CandleOHLC<TV>> {
   /**
    * Constructor.
    */
-  BufferCandle() { Init(); }
-  BufferCandle(BufferCandle& _right) {
+  BufferTick() { Init(); }
+  BufferTick(BufferTick& _right) {
     THIS_REF = _right;
     Init();
   }
@@ -61,7 +61,7 @@ class BufferCandle : public BufferStruct<CandleOHLC<TV>> {
   /**
    * Function should return true if resize can be made, or false to overwrite current slot.
    */
-  static bool BufferCandleOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
+  static bool BufferTickOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
     static int cache_limit = 86400;
     switch (_reason) {
       case DICT_OVERFLOW_REASON_FULL:
@@ -76,4 +76,4 @@ class BufferCandle : public BufferStruct<CandleOHLC<TV>> {
   }
 };
 
-#endif  // BUFFER_CANDLE_H
+#endif  // BUFFER_TICK_H

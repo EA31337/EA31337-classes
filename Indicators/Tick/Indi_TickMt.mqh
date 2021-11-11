@@ -44,7 +44,7 @@ struct IndiTickMtParams : IndicatorParams {
 /**
  * Price Indicator.
  */
-class Indi_TickMt : public IndicatorTick<IndiTickMtParams> {
+class Indi_TickMt : public IndicatorTick<IndiTickMtParams, double> {
  protected:
   MqlTick tick;
 
@@ -52,7 +52,8 @@ class Indi_TickMt : public IndicatorTick<IndiTickMtParams> {
   /**
    * Class constructor.
    */
-  Indi_TickMt(IndiTickMtParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTick<IndiTickMtParams>(_p, _indi_src){};
+  Indi_TickMt(IndiTickMtParams &_p, IndicatorBase *_indi_src = NULL)
+      : IndicatorTick<IndiTickMtParams, double>(_p, _indi_src){};
   Indi_TickMt(string _symbol, int _shift = 0) : IndicatorTick(INDI_TICK, _symbol, _shift){};
 
   /**
@@ -86,7 +87,7 @@ class Indi_TickMt : public IndicatorTick<IndiTickMtParams> {
    * This method is called on GetEntry() right after values are set.
    */
   virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
-    IndicatorTick<IndiTickMtParams>::GetEntryAlter(_entry, _shift);
+    IndicatorTick<IndiTickMtParams, double>::GetEntryAlter(_entry, _shift);
     _entry.timestamp = _entry.timestamp > 0 ? _entry.timestamp : tick.time;
   };
 };

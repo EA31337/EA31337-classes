@@ -30,15 +30,16 @@
 #endif
 
 // Includes.
+#include "../Buffer/BufferTick.h"
 #include "../IndicatorBase.h"
 
 /**
  * Class to deal with tick indicators.
  */
-template <typename TS>
+template <typename TS, typename TV>
 class IndicatorTick : public IndicatorBase {
  protected:
-  BufferStruct<IndicatorDataEntry> itdata;
+  BufferTick<TV> itdata;
   TS itparams;
 
  protected:
@@ -85,6 +86,8 @@ class IndicatorTick : public IndicatorBase {
    */
   IndicatorDataEntry GetEntry(int _timestamp = 0) {
     ResetLastError();
+    TickAB<TV> _entry = itdata.GetByKey(_timestamp);
+    /*
     IndicatorDataEntry _entry = itdata.GetByKey(_timestamp);
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(itparams.GetMaxModes());
@@ -133,6 +136,9 @@ class IndicatorTick : public IndicatorBase {
       ResetLastError();
     }
     return _entry;
+    */
+    IndicatorDataEntry _foo;
+    return _foo;
   }
 
   /**
@@ -165,17 +171,9 @@ class IndicatorTick : public IndicatorBase {
    *
    * @see: MqlTick.
    */
-  void SetTick(MqlTick& _tick, long _timestamp = 0) {
-    IndicatorDataEntry _entry(itparams.GetMaxModes());
-    _entry.timestamp = _timestamp;
-    _entry.values[0] = _tick.bid;
-    _entry.values[1] = _tick.ask;
-#ifdef __MQL4__
-    _entry.values[2] = _tick.volume;
-#else
-    _entry.values[2] = _tick.volume_real;
-#endif
-    itdata.Add(_entry, _timestamp);
+  void SetTick(MqlTick& _mql_tick, long _timestamp = 0) {
+    TickAB<TV> _tick(_mql_tick);
+    itdata.Add(_tick, _timestamp);
   }
 
   /**

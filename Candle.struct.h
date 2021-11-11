@@ -49,6 +49,7 @@ struct CandleOHLC
 #endif
 {
   T open, high, low, close;
+  // Struct constructors.
   CandleOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0) : open(_open), high(_high), low(_low), close(_close) {}
   CandleOHLC(ARRAY_REF(T, _prices)) {
     int _size = ArraySize(_prices);

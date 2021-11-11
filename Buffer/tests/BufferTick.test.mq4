@@ -21,42 +21,8 @@
 
 /**
  * @file
- * Test functionality of IndicatorTick class.
+ * Test functionality of BufferTick class.
  */
 
 // Includes.
-#include "../../Test.mqh"
-#include "../IndicatorTick.h"
-
-// Structs.
-struct IndicatorTickDummyParams : IndicatorParams {
-  IndicatorTickDummyParams() : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {}
-};
-
-/**
- * Price Indicator.
- */
-class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double> {
- public:
-  IndicatorTickDummy(string _symbol, int _shift = 0, string _name = "")
-      : IndicatorTick(INDI_TICK, _symbol, _shift, _name) {
-    SetSymbol(_symbol);
-  }
-};
-
-/**
- * Implements OnInit().
- */
-int OnInit() {
-  IndicatorTickDummy _indi_tick(_Symbol);
-  long _time = 1;
-  for (double _price = 0.1; _price <= 2.0; _price += 0.1) {
-    MqlTick _tick;
-    _tick.time = (datetime)_time++;
-    _tick.ask = _price;
-    _tick.bid = _price;
-    _indi_tick.SetTick(_tick, _tick.time);
-  }
-  // Print(_indi_tick.ToString());
-  return (INIT_SUCCEEDED);
-}
+#include "BufferTick.test.mq5"
