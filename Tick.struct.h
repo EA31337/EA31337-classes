@@ -29,6 +29,29 @@
 #pragma once
 #endif
 
+/**
+ * Structure for storing ask and bid prices of the symbol.
+ */
+template <typename T>
+struct TickAB {
+  T ask;  // Current Ask price.
+  T bid;  // Current Bid price.
+  // Struct constructors.
+  TickAB(T _ask = 0, T _bid = 0) : ask(_ask), bid(_bid) {}
+  TickAB(MqlTick &_tick) : ask(_tick.ask), bid(_tick.bid) {}
+};
+
+/**
+ * Structure for storing ask and bid prices of the symbol.
+ */
+template <typename T>
+struct TickTAB : TickAB<T> {
+  datetime time;  // Time of the last prices update.
+  // Struct constructors.
+  TickTAB(datetime _time = 0, T _ask = 0, T _bid = 0) : time(_time), TickAB(_ask, _bid) {}
+  TickAB(MqlTick &_tick) : time(_tick.time), TickAB(_tick.ask, _tick.bid) {}
+};
+
 #ifndef __MQL__
 /**
  * Structure for storing the latest prices of the symbol.
