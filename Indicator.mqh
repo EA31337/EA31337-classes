@@ -1098,7 +1098,7 @@ class Indicator : public IndicatorBase {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  virtual IndicatorDataEntry GetEntry(int _index = -1) {
+  IndicatorDataEntry GetEntry(int _index = -1) override {
     ResetLastError();
     int _ishift = _index >= 0 ? _index : iparams.GetShift();
     long _bar_time = GetBarTime(_ishift);
@@ -1293,7 +1293,6 @@ class Indicator : public IndicatorBase {
                        COMMA _l COMMA _m);
 #endif
   }
-
 };
 
 #endif

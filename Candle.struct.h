@@ -41,7 +41,7 @@ class Serializer;
 #include "SerializerNode.enum.h"
 #include "Std.h"
 
-/* Structore for storing OHLC values. */
+/* Structure for storing OHLC values. */
 template <typename T>
 struct CandleOHLC
 #ifndef __MQL__

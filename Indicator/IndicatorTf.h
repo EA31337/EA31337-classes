@@ -37,7 +37,8 @@
 /**
  * Class to deal with candle indicators.
  */
-class IndicatorTf : public IndicatorCandle<IndicatorTfParams, double> {
+template <typename TFP>
+class IndicatorTf : public IndicatorCandle<TFP, double> {
  protected:
   /* Protected methods */
 
@@ -78,7 +79,7 @@ class IndicatorTf : public IndicatorCandle<IndicatorTfParams, double> {
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(IndicatorTfParams &_params) : IndicatorCandle<IndicatorTfParams, double>(_params) { Init(); }
+  IndicatorTf(TFP &_params) : IndicatorCandle<TFP, double>(_params) { Init(); }
 };
 
 #endif

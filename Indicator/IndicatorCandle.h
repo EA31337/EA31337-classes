@@ -61,7 +61,8 @@ class IndicatorCandle : public IndicatorBase {
   /**
    * Class constructor.
    */
-  IndicatorCandle(const TS& _icparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0) : icparams(_icparams) {
+  IndicatorCandle(const TS& _icparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0) {
+    icparams = _icparams;
     if (_indi_src != NULL) {
       SetDataSource(_indi_src, _indi_mode);
     }
@@ -83,9 +84,26 @@ class IndicatorCandle : public IndicatorBase {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _timestamp = 0) {
+  IndicatorDataEntry GetEntry(int _index = -1) override {
     ResetLastError();
+    int _ishift = _index >= 0 ? _index : icparams.GetShift();
+    long _bar_time = GetBarTime(_ishift);
+
+    // Trying to fetch entry from cache.
+    IndicatorDataEntry _entry = icdata.GetByKey(_bar_time);
+
+    if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
+      // There is no valid entry in the cache.
+      _entry.Resize(iparams.GetMaxModes());
+      _entry.timestamp = _bar_time;
+    }
+
     CandleOHLC<TV> _entry = icdata.GetByKey(_timestamp);
+
+    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
+      // There is no candle for given timestamp.
+    }
+
     /*
     IndicatorDataEntry _entry = icdata.GetByKey(_timestamp);
     if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {

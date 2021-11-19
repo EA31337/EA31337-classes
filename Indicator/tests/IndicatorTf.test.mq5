@@ -22,16 +22,37 @@
 /**
  * @file
  * Test functionality of IndicatorTf class.
+ *
+ * Idea is to check if ticks from IndicatorTick will be properly grouped by given timespan/timeframe.
  */
 
 // Includes.
 #include "../../Test.mqh"
 #include "../IndicatorTf.h"
 
+// Structs.
+struct IndicatorTfDummyParams : IndicatorTfParams {
+  IndicatorTfDummyParams(uint _spc = 60) : IndicatorTfParams(_spc) {}
+};
+
+/**
+ * Price Indicator.
+ */
+class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
+ public:
+  IndicatorTfDummy(uint _spc) : IndicatorTf(_spc) {}
+  IndicatorTfDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorTf(_tf) {}
+  IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi = 0) : IndicatorTf(_tfi) {}
+};
+
 /**
  * Implements OnInit().
  */
 int OnInit() {
   // @todo
+
+  // 1-second candles.
+  Ref<IndicatorTfDummy> indi_tf = new IndicatorTfDummy(1);
+
   return (INIT_SUCCEEDED);
 }
