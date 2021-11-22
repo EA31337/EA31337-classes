@@ -820,8 +820,13 @@ class Indicator : public IndicatorBase {
    * Sets indicator data source.
    */
   void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) {
+    if (indi_src.IsSet() && indi_src.Ptr() != _indi) {
+      indi_src.Ptr().RemoveListener(THIS_PTR);
+    }
     indi_src = _indi;
+    indi_src.Ptr().AddListener(THIS_PTR);
     iparams.SetDataSource(-1, _input_mode);
+    indi_src.Ptr().OnBecomeDataSourceFor(THIS_PTR);
   }
 
   /**

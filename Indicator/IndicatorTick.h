@@ -77,6 +77,24 @@ class IndicatorTick : public IndicatorBase {
   /* Virtual method implementations */
 
   /**
+   * Sends historic entries to listening indicators. May be overriden.
+   */
+  void EmitHistory() override {
+    for (DictStructIterator<long, TickAB<TV>> iter(itdata.Begin()); iter.IsValid(); ++iter) {
+      IndicatorDataEntry _entry = TickToEntry(iter.Value());
+      EmitEntry(_entry);
+    }
+  }
+
+  /**
+   * @todo
+   */
+  IndicatorDataEntry TickToEntry(TickAB<TV>& _tick) {
+    IndicatorDataEntry _entry;
+    return _entry;
+  }
+
+  /**
    * Returns the indicator's data entry.
    *
    * @see: IndicatorDataEntry.

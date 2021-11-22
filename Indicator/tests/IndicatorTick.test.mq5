@@ -34,7 +34,28 @@ struct IndicatorTickDummyParams : IndicatorParams {
 };
 
 /**
- * Price Indicator.
+ * Tick indicator is an indicator that provides per-tick information.
+ * When asked to return data via GetEntry() it could fetch data from pre-made
+ * tick history or generate tick on-the-fly from remote source and save it in
+ * the history.
+ *
+ * Note that indicators could provide data also for future shifts, so shift=-10
+ * is perfectly valid for them when doing GetEntry()/GetValue().
+ *
+ * Tick indicator may become a data source for Candle indicator. In this
+ * scenario, when trying to fetch candle for a given shift, tick indicator is
+ * asked for ticks in a given timespan. E.g., Candle indicator may work in a 5s
+ * timespans, so when fetching candle with shift now+1, Tick indicator will be
+ * asked for ticks between now+5s and now+10s.
+ *rmf
+ * In order to fetch consecutive candles, you have to call
+ * IndicatorCandle::NextMaybe() to check whether new candle is ready to be
+ * processed. If yes, then new candle will be at index 0.
+ *
+ * if (indi_candle.NextMaybe()) {
+ *   double _open  = indi_candle.Open(0);  // Shift 0 = current candle.
+ *   double _close = indi_candle.Close(0); // Shift 0 = current candle.
+ * }
  */
 class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double> {
  public:

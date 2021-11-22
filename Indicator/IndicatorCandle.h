@@ -79,6 +79,17 @@ class IndicatorCandle : public IndicatorBase {
   /**
    * Returns the indicator's data entry.
    *
+   * We will fetch consecutive entries from the source indicator and check its
+   * timestamps. We need to gather entries matching calculated timespan.
+   *
+   * For example: We want 5s candle at shift=1. That mean we have to ask source
+   * indicator for entries between
+   * candle.timestamp + (1 * 5s) and candle.timestamp + (2 * 5s).
+   *
+   * The question is: How to calculate shift for source indicator's GetEntry()?
+   *
+   *
+   *
    * @see: IndicatorDataEntry.
    *
    * @return
@@ -86,76 +97,18 @@ class IndicatorCandle : public IndicatorBase {
    */
   IndicatorDataEntry GetEntry(int _index = -1) override {
     ResetLastError();
-    int _ishift = _index >= 0 ? _index : icparams.GetShift();
+    unsigned int _ishift = _index >= 0 ? _index : icparams.GetShift();
     long _bar_time = GetBarTime(_ishift);
 
-    // Trying to fetch entry from cache.
-    IndicatorDataEntry _entry = icdata.GetByKey(_bar_time);
+    CandleOHLC<TV> _entry = icdata.GetByKey(_bar_time);
 
-    if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
-      // There is no valid entry in the cache.
-      _entry.Resize(iparams.GetMaxModes());
-      _entry.timestamp = _bar_time;
+    if (!_entry.IsValid()) {
+      // There is no candle and won't ever be for given timestamp.
     }
 
-    CandleOHLC<TV> _entry = icdata.GetByKey(_timestamp);
+    IndicatorDataEntry _data_entry;
 
-    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
-      // There is no candle for given timestamp.
-    }
-
-    /*
-    IndicatorDataEntry _entry = icdata.GetByKey(_timestamp);
-    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
-      _entry.Resize(icparams.GetMaxModes());
-      _entry.timestamp = _timestamp;
-      for (int _mode = 0; _mode < (int)icparams.GetMaxModes(); _mode++) {
-        switch (icparams.GetDataValueType()) {
-          case TYPE_BOOL:
-          case TYPE_CHAR:
-          case TYPE_INT:
-            _entry.values[_mode] = GetValue<int>(_mode, _timestamp);
-            break;
-          case TYPE_LONG:
-            _entry.values[_mode] = GetValue<long>(_mode, _timestamp);
-            break;
-          case TYPE_UINT:
-            _entry.values[_mode] = GetValue<uint>(_mode, _timestamp);
-            break;
-          case TYPE_ULONG:
-            _entry.values[_mode] = GetValue<ulong>(_mode, _timestamp);
-            break;
-          case TYPE_DOUBLE:
-            _entry.values[_mode] = GetValue<double>(_mode, _timestamp);
-            break;
-          case TYPE_FLOAT:
-            _entry.values[_mode] = GetValue<float>(_mode, _timestamp);
-            break;
-          case TYPE_STRING:
-          case TYPE_UCHAR:
-          default:
-            SetUserError(ERR_INVALID_PARAMETER);
-            break;
-        }
-      }
-      GetEntryAlter(_entry, _timestamp);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        icdata.Add(_entry, _timestamp);
-        istate.is_changed = false;
-        istate.is_ready = true;
-      } else {
-        _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
-      }
-    }
-    if (_LastError != ERR_NO_ERROR) {
-      istate.is_ready = false;
-      ResetLastError();
-    }
-    return _entry;
-    */
-    IndicatorDataEntry _foo;
-    return _foo;
+    return _data_entry;
   }
 
   /**
@@ -198,11 +151,34 @@ class IndicatorCandle : public IndicatorBase {
   }
 
   /**
+   * Sends historic entries to listening indicators. May be overriden.
+   */
+  void EmitHistory() override {
+    for (DictStructIterator<long, CandleOHLC<TV>> iter(icdata.Begin()); iter.IsValid(); ++iter) {
+      IndicatorDataEntry _entry = CandleToEntry(iter.Value());
+      EmitEntry(_entry);
+    }
+  }
+
+  /**
+   * @todo
+   */
+  IndicatorDataEntry CandleToEntry(CandleOHLC<TV>& _candle) {
+    IndicatorDataEntry _entry;
+    return _entry;
+  }
+
+  /**
    * Sets indicator data source.
    */
   void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) {
+    if (indi_src.IsSet() && indi_src.Ptr() != _indi) {
+      indi_src.Ptr().RemoveListener(THIS_PTR);
+    }
     indi_src = _indi;
+    indi_src.Ptr().AddListener(THIS_PTR);
     icparams.SetDataSource(-1, _input_mode);
+    indi_src.Ptr().OnBecomeDataSourceFor(THIS_PTR);
   }
 
   /* Virtual methods */

@@ -29,6 +29,32 @@
 // Includes.
 #include "../../Test.mqh"
 #include "../IndicatorTf.h"
+#include "../IndicatorTick.h"
+
+// Structs.
+struct IndicatorTickDummyParams : IndicatorParams {
+  IndicatorTickDummyParams() : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {}
+};
+
+class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double> {
+ public:
+  IndicatorTickDummy(string _symbol, int _shift = 0, string _name = "")
+      : IndicatorTick(INDI_TICK, _symbol, _shift, _name) {
+    SetSymbol(_symbol);
+  }
+
+  string GetName() override { return "IndicatorTickDummy"; }
+
+  void OnBecomeDataSourceFor(IndicatorBase* _base_indi) override {
+    // Feeding base indicator with historic entries of this indicator.
+    Print(GetName(), " became a data source for ", _base_indi.GetName());
+
+    IndicatorDataEntry _entry;
+    EmitEntry(_entry);
+    EmitEntry(_entry);
+    EmitEntry(_entry);
+  };
+};
 
 // Structs.
 struct IndicatorTfDummyParams : IndicatorTfParams {
@@ -43,6 +69,10 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
   IndicatorTfDummy(uint _spc) : IndicatorTf(_spc) {}
   IndicatorTfDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorTf(_tf) {}
   IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi = 0) : IndicatorTf(_tfi) {}
+
+  string GetName() override { return "IndicatorTfDummy(" + IntegerToString(icparams.spc) + ")"; }
+
+  void OnDataSourceEntry(IndicatorDataEntry& entry) override { Print(GetName(), " got new entry!"); };
 };
 
 /**
@@ -51,8 +81,11 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
 int OnInit() {
   // @todo
 
+  Ref<IndicatorTickDummy> indi_tick = new IndicatorTickDummy(_Symbol);
+
   // 1-second candles.
   Ref<IndicatorTfDummy> indi_tf = new IndicatorTfDummy(1);
+  indi_tf.Ptr().SetDataSource(indi_tick.Ptr());
 
   return (INIT_SUCCEEDED);
 }

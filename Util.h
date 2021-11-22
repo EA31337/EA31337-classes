@@ -65,6 +65,20 @@ class Util {
     return _result;
   }
 
+  /**
+   * Removes value from the array.
+   */
+  template <typename T>
+  static bool ArrayRemoveFirst(T& _array[], T& value) {
+    for (int i = 0; i < ArraySize(_array); ++i) {
+      if (_array[i] == value) {
+        ArrayRemove(_array, i);
+        return true;
+      }
+    }
+    return false;
+  }
+
   template <typename T>
   static T Print(T& _array[]) {
     string _result;
