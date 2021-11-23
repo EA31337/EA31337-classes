@@ -81,7 +81,7 @@ class IndicatorTick : public IndicatorBase {
    */
   void EmitHistory() override {
     for (DictStructIterator<long, TickAB<TV>> iter(itdata.Begin()); iter.IsValid(); ++iter) {
-      IndicatorDataEntry _entry = TickToEntry(iter.Value());
+      IndicatorDataEntry _entry = TickToEntry(iter.Key(), iter.Value());
       EmitEntry(_entry);
     }
   }
@@ -89,8 +89,12 @@ class IndicatorTick : public IndicatorBase {
   /**
    * @todo
    */
-  IndicatorDataEntry TickToEntry(TickAB<TV>& _tick) {
-    IndicatorDataEntry _entry;
+  IndicatorDataEntry TickToEntry(long _timestamp, TickAB<TV>& _tick) {
+    IndicatorDataEntry _entry(2);
+    _entry.timestamp = _timestamp;
+    _entry.values[0] = _tick.ask;
+    _entry.values[1] = _tick.bid;
+    _entry.SetFlags(INDI_ENTRY_FLAG_IS_VALID);
     return _entry;
   }
 

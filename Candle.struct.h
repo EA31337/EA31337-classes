@@ -49,6 +49,7 @@ struct CandleOHLC
 #endif
 {
   T open, high, low, close;
+
   // Struct constructors.
   CandleOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0) : open(_open), high(_high), low(_low), close(_close) {}
   CandleOHLC(ARRAY_REF(T, _prices)) {
@@ -214,6 +215,37 @@ struct CandleOHLC
   SerializerNodeType Serialize(Serializer &s);
   // Converters.
   string ToCSV() { return StringFormat("%g,%g,%g,%g", open, high, low, close); }
+};
+
+/* Structure for storing OHLC values with open and close timestamp. */
+template <typename T>
+struct CandleOCTOHLC : CandleOHLC<T> {
+  long open_timestamp, close_timestamp;
+
+  // Struct constructors.
+  CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, long _open_timestamp = -1,
+                long _close_timestamp = -1)
+      : CandleOHLC(_open, _high, _low, _close), open_timestamp(_open_timestamp), close_timestamp(_close_timestamp) {}
+
+  // Updates OHLC values taking into consideration tick's timestamp.
+  void Update(long _timestamp, T _price) {
+    if (_timestamp < open_timestamp) {
+      open_timestamp = _timestamp;
+      open = _price;
+    }
+    if (_timestamp > close_timestamp) {
+      close_timestamp = _timestamp;
+      close = _price;
+    }
+    high = MathMax(high, _price);
+    low = MathMin(low, _price);
+  }
+
+  // Returns timestamp of open price.
+  long GetOpenTimestamp() { return open_timestamp; }
+
+  // Returns timestamp of close price.
+  long GetCloseTimestamp() { return close_timestamp; }
 };
 
 /* Structore for storing OHLC values with timestamp. */

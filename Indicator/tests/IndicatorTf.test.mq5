@@ -31,11 +31,12 @@
 #include "../IndicatorTf.h"
 #include "../IndicatorTick.h"
 
-// Structs.
+// Parasms for dummy tick-based indicator.
 struct IndicatorTickDummyParams : IndicatorParams {
   IndicatorTickDummyParams() : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {}
 };
 
+// Dummy tick-based indicator.
 class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double> {
  public:
   IndicatorTickDummy(string _symbol, int _shift = 0, string _name = "")
@@ -49,20 +50,24 @@ class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double
     // Feeding base indicator with historic entries of this indicator.
     Print(GetName(), " became a data source for ", _base_indi.GetName());
 
-    IndicatorDataEntry _entry;
-    EmitEntry(_entry);
-    EmitEntry(_entry);
-    EmitEntry(_entry);
+    EmitEntry(TickToEntry(1000, TickAB<double>(1.0f, 1.01f)));
+    EmitEntry(TickToEntry(1500, TickAB<double>(1.5f, 1.51f)));
+    EmitEntry(TickToEntry(2000, TickAB<double>(2.0f, 2.01f)));
+    EmitEntry(TickToEntry(3000, TickAB<double>(3.0f, 3.01f)));
+    EmitEntry(TickToEntry(4000, TickAB<double>(4.0f, 4.01f)));
+    EmitEntry(TickToEntry(4100, TickAB<double>(4.1f, 4.11f)));
+    EmitEntry(TickToEntry(4200, TickAB<double>(4.2f, 4.21f)));
+    EmitEntry(TickToEntry(4800, TickAB<double>(4.8f, 4.81f)));
   };
 };
 
-// Structs.
+// Params for dummy candle-based indicator.
 struct IndicatorTfDummyParams : IndicatorTfParams {
   IndicatorTfDummyParams(uint _spc = 60) : IndicatorTfParams(_spc) {}
 };
 
 /**
- * Price Indicator.
+ * Dummy candle-based indicator.
  */
 class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
  public:
@@ -72,20 +77,31 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
 
   string GetName() override { return "IndicatorTfDummy(" + IntegerToString(icparams.spc) + ")"; }
 
-  void OnDataSourceEntry(IndicatorDataEntry& entry) override { Print(GetName(), " got new entry!"); };
+  void OnDataSourceEntry(IndicatorDataEntry& entry) override {
+    // When overriding OnDataSourceEntry() we have to remember to call parent
+    // method, because IndicatorCandle also need to invoke it in order to
+    // create/update matching candle.
+    IndicatorTf<IndicatorTfDummyParams>::OnDataSourceEntry(entry);
+
+    Print(GetName(), " got new tick at ", entry.timestamp, ": ", entry.ToString<double>());
+  }
 };
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
-  // @todo
-
   Ref<IndicatorTickDummy> indi_tick = new IndicatorTickDummy(_Symbol);
 
   // 1-second candles.
   Ref<IndicatorTfDummy> indi_tf = new IndicatorTfDummy(1);
+
+  // Candles will take data from tick indicator.
   indi_tf.Ptr().SetDataSource(indi_tick.Ptr());
+
+  // Printing all grouped candles.
+  Print(indi_tf.Ptr().GetName(), "'s candles:");
+  Print(indi_tf.Ptr().CandlesToString());
 
   return (INIT_SUCCEEDED);
 }

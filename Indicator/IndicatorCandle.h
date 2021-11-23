@@ -154,8 +154,8 @@ class IndicatorCandle : public IndicatorBase {
    * Sends historic entries to listening indicators. May be overriden.
    */
   void EmitHistory() override {
-    for (DictStructIterator<long, CandleOHLC<TV>> iter(icdata.Begin()); iter.IsValid(); ++iter) {
-      IndicatorDataEntry _entry = CandleToEntry(iter.Value());
+    for (DictStructIterator<long, CandleOCTOHLC<TV>> iter(icdata.Begin()); iter.IsValid(); ++iter) {
+      IndicatorDataEntry _entry = CandleToEntry(iter.Key(), iter.Value());
       EmitEntry(_entry);
     }
   }
@@ -163,10 +163,45 @@ class IndicatorCandle : public IndicatorBase {
   /**
    * @todo
    */
-  IndicatorDataEntry CandleToEntry(CandleOHLC<TV>& _candle) {
-    IndicatorDataEntry _entry;
+  IndicatorDataEntry CandleToEntry(long _timestamp, CandleOCTOHLC<TV>& _candle) {
+    IndicatorDataEntry _entry(4);
+    _entry.timestamp = _timestamp;
+    _entry.values[0] = _candle.open;
+    _entry.values[1] = _candle.high;
+    _entry.values[2] = _candle.low;
+    _entry.values[3] = _candle.close;
+    _entry.SetFlags(INDI_ENTRY_FLAG_IS_VALID);
     return _entry;
   }
+
+  /**
+   * Adds tick's price to the matching candle and updates its OHLC values.
+   */
+  void UpdateCandle(long _tick_timestamp, double _price) {
+    long _candle_timestamp = CalcCandleTimestamp(_tick_timestamp);
+
+    CandleOCTOHLC<double> _candle;
+    if (icdata.KeyExists(_candle_timestamp)) {
+      _candle = icdata.GetByKey(_candle_timestamp);
+      _candle.Update(_tick_timestamp, _price);
+    } else {
+      _candle = CandleOCTOHLC<double>(_price, _price, _price, _price, _tick_timestamp, _tick_timestamp);
+    }
+
+    icdata.Set(_candle_timestamp, _candle);
+  }
+
+  /**
+   * Calculates candle's timestamp from tick's timestamp.
+   */
+  long CalcCandleTimestamp(long _tick_timestamp) {
+    return _tick_timestamp - _tick_timestamp % (icparams.GetSecsPerCandle() * 1000);
+  }
+
+  /**
+   * Called when data source emits new entry (historic or future one).
+   */
+  virtual void OnDataSourceEntry(IndicatorDataEntry& entry) { UpdateCandle(entry.timestamp, entry[0]); };
 
   /**
    * Sets indicator data source.
@@ -179,6 +214,15 @@ class IndicatorCandle : public IndicatorBase {
     indi_src.Ptr().AddListener(THIS_PTR);
     icparams.SetDataSource(-1, _input_mode);
     indi_src.Ptr().OnBecomeDataSourceFor(THIS_PTR);
+  }
+
+  string CandlesToString() {
+    string _result;
+    for (DictStructIterator<long, CandleOCTOHLC<TV>> iter(icdata.Begin()); iter.IsValid(); ++iter) {
+      IndicatorDataEntry _entry = CandleToEntry(iter.Key(), iter.Value());
+      _result += IntegerToString(iter.Key()) + ": " + _entry.ToString<double>() + "\n";
+    }
+    return _result;
   }
 
   /* Virtual methods */
