@@ -28,12 +28,50 @@
 
 // Includes.
 #include "../../Test.mqh"
+#include "../../Util.h"
 #include "../IndicatorTf.h"
 #include "../IndicatorTick.h"
 
-// Parasms for dummy tick-based indicator.
+// Params for real tick-based indicator.
+struct IndicatorTickRealParams : IndicatorParams {
+  IndicatorTickRealParams() : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {}
+};
+
+// Real tick-based indicator.
+class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> {
+ public:
+  IndicatorTickReal(string _symbol, int _shift = 0, string _name = "")
+      : IndicatorTick(INDI_TICK, _symbol, _shift, _name) {
+    SetSymbol(_symbol);
+  }
+
+  string GetName() override { return "IndicatorTickDummy"; }
+
+  void OnBecomeDataSourceFor(IndicatorBase* _base_indi) override {
+    // Feeding base indicator with historic entries of this indicator.
+    Print(GetName(), " became a data source for ", _base_indi.GetName());
+
+    int _ticks_to_emit = 100;
+
+    // For testing purposes we are emitting 100 last ticks.
+    for (int i = 0; i < MathMin(Bars(GetSymbol(), GetTf()), _ticks_to_emit); ++i) {
+      long _timestamp = ChartStatic::iTime(GetSymbol(), GetTf(), _ticks_to_emit - i - 1);
+      double _bid = ChartStatic::iClose(GetSymbol(), GetTf(), _ticks_to_emit - i - 1);
+      EmitEntry(TickToEntry(_timestamp, TickAB<double>(0.0f, _bid)));
+    }
+  };
+
+  void OnTick() override {
+    long _timestamp = ChartStatic::iTime(GetSymbol(), GetTf());
+    double _bid = ChartStatic::iClose(GetSymbol(), GetTf());
+    // MT doesn't provide historical ask prices, so we're filling tick with bid price only.
+    EmitEntry(TickToEntry(_timestamp, TickAB<double>(_bid, _bid)));
+  }
+};
+
+// Params for dummy tick-based indicator.
 struct IndicatorTickDummyParams : IndicatorParams {
-  IndicatorTickDummyParams() : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {}
+  IndicatorTickDummyParams() : IndicatorParams(INDI_TICK, 2, TYPE_DOUBLE) {}
 };
 
 // Dummy tick-based indicator.
@@ -88,20 +126,61 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
 };
 
 /**
+ * Helper class to store all indicators and call OnTick() on them.
+ */
+class _Indicators {
+  Ref<IndicatorBase> _indis[];
+
+ public:
+  void Add(IndicatorBase* _indi) {
+    Ref<IndicatorBase> _ref = _indi;
+    ArrayPushObject(_indis, _ref);
+  }
+
+  void Remove(IndicatorBase* _indi) {
+    Ref<IndicatorBase> _ref = _indi;
+    Util::ArrayRemoveFirst(_indis, _ref);
+  }
+
+  void Tick() {
+    for (int i = 0; i < ArraySize(_indis); ++i) {
+      _indis[i].Ptr().OnTick();
+    }
+  }
+
+} indicators;
+
+Ref<IndicatorTickReal> indi_tick;
+Ref<IndicatorTfDummy> indi_tf;
+
+/**
  * Implements OnInit().
  */
 int OnInit() {
-  Ref<IndicatorTickDummy> indi_tick = new IndicatorTickDummy(_Symbol);
+  indicators.Add(indi_tick = new IndicatorTickReal(_Symbol));
 
   // 1-second candles.
-  Ref<IndicatorTfDummy> indi_tf = new IndicatorTfDummy(1);
+  indicators.Add(indi_tf = new IndicatorTfDummy(1));
 
-  // Candles will take data from tick indicator.
+  // Candles will be initialized from tick's history.
   indi_tf.Ptr().SetDataSource(indi_tick.Ptr());
 
-  // Printing all grouped candles.
-  Print(indi_tf.Ptr().GetName(), "'s candles:");
+  // Checking if there are candles for last 100 ticks.
+  Print(indi_tf.Ptr().GetName(), "'s historic candles (from 100 ticks):");
   Print(indi_tf.Ptr().CandlesToString());
-
   return (INIT_SUCCEEDED);
+}
+
+/**
+ * Implements OnTick().
+ */
+void OnTick() { indicators.Tick(); }
+
+/**
+ * Implements OnDeinit().
+ */
+void OnDeinit(const int reason) {
+  // Printing all grouped candles.
+  Print(indi_tf.Ptr().GetName(), "'s all candles:");
+  Print(indi_tf.Ptr().CandlesToString());
 }

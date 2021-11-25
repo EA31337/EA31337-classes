@@ -201,7 +201,10 @@ class IndicatorCandle : public IndicatorBase {
   /**
    * Called when data source emits new entry (historic or future one).
    */
-  virtual void OnDataSourceEntry(IndicatorDataEntry& entry) { UpdateCandle(entry.timestamp, entry[0]); };
+  virtual void OnDataSourceEntry(IndicatorDataEntry& entry) {
+    // Updating candle from bid price.
+    UpdateCandle(entry.timestamp, entry[1]);
+  };
 
   /**
    * Sets indicator data source.
