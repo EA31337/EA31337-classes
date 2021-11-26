@@ -166,12 +166,11 @@ class IndicatorCandle : public IndicatorBase {
   void UpdateCandle(long _tick_timestamp, double _price) {
     long _candle_timestamp = CalcCandleTimestamp(_tick_timestamp);
 
-    CandleOCTOHLC<double> _candle;
+    CandleOCTOHLC<double> _candle(_price, _price, _price, _price, _tick_timestamp, _tick_timestamp);
     if (icdata.KeyExists(_candle_timestamp)) {
+      // Candle already exists.
       _candle = icdata.GetByKey(_candle_timestamp);
       _candle.Update(_tick_timestamp, _price);
-    } else {
-      _candle = CandleOCTOHLC<double>(_price, _price, _price, _price, _tick_timestamp, _tick_timestamp);
     }
 
     icdata.Set(_candle_timestamp, _candle);

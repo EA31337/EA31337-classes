@@ -69,10 +69,26 @@ class Util {
    * Removes value from the array.
    */
   template <typename T>
+  static bool ArrayRemove(T& _array[], int index) {
+    if (index < 0 || index >= ArraySize(_array)) {
+      // Index out of array bounds.
+      return false;
+    }
+    for (int i = index; i < ArraySize(_array); ++i) {
+      _array[i] = _array[i + 1];
+    }
+    Util::ArrayResize(_array, ArraySize(_array) - 1);
+    return true;
+  }
+
+  /**
+   * Removes value from the array.
+   */
+  template <typename T>
   static bool ArrayRemoveFirst(T& _array[], T& value) {
     for (int i = 0; i < ArraySize(_array); ++i) {
       if (_array[i] == value) {
-        ArrayRemove(_array, i);
+        Util::ArrayRemove(_array, i);
         return true;
       }
     }

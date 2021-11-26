@@ -54,7 +54,8 @@ class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> 
     for (int i = 0; i < MathMin(Bars(GetSymbol(), GetTf()), _ticks_to_emit); ++i) {
       long _timestamp = ChartStatic::iTime(GetSymbol(), GetTf(), _ticks_to_emit - i - 1);
       double _bid = ChartStatic::iClose(GetSymbol(), GetTf(), _ticks_to_emit - i - 1);
-      EmitEntry(TickToEntry(_timestamp, TickAB<double>(0.0f, _bid)));
+      TickAB<double> _tick(0.0f, _bid);
+      EmitEntry(TickToEntry(_timestamp, _tick));
     }
   };
 
@@ -62,6 +63,7 @@ class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> 
     long _timestamp = ChartStatic::iTime(GetSymbol(), GetTf());
     double _bid = ChartStatic::iClose(GetSymbol(), GetTf());
     // MT doesn't provide historical ask prices, so we're filling tick with bid price only.
-    EmitEntry(TickToEntry(_timestamp, TickAB<double>(_bid, _bid)));
+    TickAB<double> _tick(_bid, _bid);
+    EmitEntry(TickToEntry(_timestamp, _tick));
   }
 };
