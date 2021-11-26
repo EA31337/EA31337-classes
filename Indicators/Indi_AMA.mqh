@@ -89,6 +89,19 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   }
 
   /**
+   * On-indicator version of AMA.
+   */
+  static double iAMAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period,
+                                int _fast_ema_period, int _slow_ema_period, int _ama_shift, ENUM_APPLIED_PRICE _ap,
+                                int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
+        _indi, _symbol, _tf, _ap,
+        Util::MakeKey("INDI_AMA", _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
+    return iAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ama_period, _fast_ema_period, _slow_ema_period,
+                       _ama_shift, _mode, _shift, _cache);
+  }
+
+  /**
    * Calculates AMA on the array of values.
    */
   static double iAMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ama_period, int _fast_ema_period,
@@ -213,8 +226,9 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
 
         break;
       case IDATA_INDICATOR:
-        // @todo
-        SetUserError(ERR_INVALID_PARAMETER);
+        _value = Indi_AMA::iAMAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(),
+                                           GetSlowPeriod(), GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift,
+                                           THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

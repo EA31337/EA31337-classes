@@ -413,6 +413,10 @@ class IndicatorBase : public Chart {
   }
 
   ValueStorage<double>* GetValueStorage(int _mode = 0) {
+    if (_mode >= ArraySize(value_storages)) {
+      ArrayResize(value_storages, _mode + 1);
+    }
+
     if (value_storages[_mode] == NULL) {
       value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
     }

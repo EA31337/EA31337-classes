@@ -79,17 +79,6 @@ class IndicatorCandle : public IndicatorBase {
   /**
    * Returns the indicator's data entry.
    *
-   * We will fetch consecutive entries from the source indicator and check its
-   * timestamps. We need to gather entries matching calculated timespan.
-   *
-   * For example: We want 5s candle at shift=1. That mean we have to ask source
-   * indicator for entries between
-   * candle.timestamp + (1 * 5s) and candle.timestamp + (2 * 5s).
-   *
-   * The question is: How to calculate shift for source indicator's GetEntry()?
-   *
-   *
-   *
    * @see: IndicatorDataEntry.
    *
    * @return
@@ -98,17 +87,14 @@ class IndicatorCandle : public IndicatorBase {
   IndicatorDataEntry GetEntry(int _index = -1) override {
     ResetLastError();
     unsigned int _ishift = _index >= 0 ? _index : icparams.GetShift();
-    long _bar_time = GetBarTime(_ishift);
+    long _candle_time = CalcCandleTimestamp(GetBarTime(_ishift));
+    CandleOCTOHLC<TV> _candle = icdata.GetByKey(_candle_time);
 
-    CandleOHLC<TV> _entry = icdata.GetByKey(_bar_time);
-
-    if (!_entry.IsValid()) {
-      // There is no candle and won't ever be for given timestamp.
+    if (!_candle.IsValid()) {
+      Print(GetName(), ": Missing candle at shift ", _index, " (", _candle_time, ")");
     }
 
-    IndicatorDataEntry _data_entry;
-
-    return _data_entry;
+    return CandleToEntry(_candle_time, _candle);
   }
 
   /**
@@ -161,7 +147,7 @@ class IndicatorCandle : public IndicatorBase {
   }
 
   /**
-   * @todo
+   * Converts candle into indicator's data entry.
    */
   IndicatorDataEntry CandleToEntry(long _timestamp, CandleOCTOHLC<TV>& _candle) {
     IndicatorDataEntry _entry(4);
@@ -170,7 +156,7 @@ class IndicatorCandle : public IndicatorBase {
     _entry.values[1] = _candle.high;
     _entry.values[2] = _candle.low;
     _entry.values[3] = _candle.close;
-    _entry.SetFlags(INDI_ENTRY_FLAG_IS_VALID);
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _candle.IsValid());
     return _entry;
   }
 
