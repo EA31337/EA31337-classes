@@ -66,7 +66,7 @@ class Indicators {
     string _result;
     for (int i = 0; i < ArraySize(_indis); ++i) {
       IndicatorDataEntry _entry = _indis[i].Ptr().GetEntry(_shift);
-      _result += _indis[i].Ptr().GetName() + " = " + _entry.ToString<double>() + "\n";
+      _result += _indis[i].Ptr().GetFullName() + " = " + _entry.ToString<double>() + "\n";
     }
     return _result;
   }

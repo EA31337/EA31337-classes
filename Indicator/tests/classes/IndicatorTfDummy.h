@@ -51,6 +51,7 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
     // create/update matching candle.
     IndicatorTf<IndicatorTfDummyParams>::OnDataSourceEntry(entry);
 
-    Print(GetName(), " got new tick at ", entry.timestamp, ": ", entry.ToString<double>());
+    Print(GetFullName(), " got new tick at ", entry.timestamp,
+          " (" + TimeToString(entry.timestamp) + "): ", entry.ToString<double>());
   }
 };

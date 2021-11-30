@@ -105,6 +105,21 @@ class Util {
   }
 
   /**
+   * Splits prints by newlines on MT4.
+   */
+  static void Print(string _value) {
+#ifdef __MQL4__
+    string _segments[];
+    StringSplit(_value, '\n', _segments);
+    for (int i = 0; i < ArraySize(_segments); ++i) {
+      ::Print(_segments[i]);
+    }
+#else
+    ::Print(_value);
+#endif
+  }
+
+  /**
    * Checks whether array has given value.
    */
   template <typename T, typename V>

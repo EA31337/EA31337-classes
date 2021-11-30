@@ -39,7 +39,10 @@
 Indicators indicators;
 Ref<IndicatorTickReal> indi_tick;
 Ref<IndicatorTfDummy> indi_tf;
+Ref<IndicatorTfDummy> indi_tf_orig_sim;
 Ref<Indi_AMA> indi_ama;
+Ref<Indi_AMA> indi_ama_orig;
+Ref<Indi_AMA> indi_ama_orig_sim;
 
 /**
  * Implements OnInit().
@@ -50,14 +53,27 @@ int OnInit() {
   // 1-second candles.
   indicators.Add(indi_tf = new IndicatorTfDummy(1));
 
+  // 1:1 candles from platform using current timeframe.
+  indicators.Add(indi_tf_orig_sim = new IndicatorTfDummy(ChartTf::TfToSeconds(PERIOD_CURRENT)));
+
   // 1-second candles.
   indicators.Add(indi_ama = new Indi_AMA());
 
+  // AMA on platform candles.
+  indicators.Add(indi_ama_orig_sim = new Indi_AMA());
+
+  // Original built-in or OnCalculate()-based AMA indicator on platform OHLCs.
+  indicators.Add(indi_ama_orig = new Indi_AMA());
+
   // Candles will be initialized from tick's history.
   indi_tf.Ptr().SetDataSource(indi_tick.Ptr());
+  indi_tf_orig_sim.Ptr().SetDataSource(indi_tick.Ptr());
 
   // AMA will work on the candle indicator.
   indi_ama.Ptr().SetDataSource(indi_tf.Ptr());
+
+  // AMA will work on the simulation of real candles.
+  indi_ama_orig_sim.Ptr().SetDataSource(indi_tf_orig_sim.Ptr());
 
   // Checking if there are candles for last 100 ticks.
   Print(indi_tf.Ptr().GetName(), "'s historic candles (from 100 ticks):");
@@ -70,7 +86,12 @@ int OnInit() {
  */
 void OnTick() {
   indicators.Tick();
-  Print("Tick: \n" + indicators.ToString(0));
+  string o = DoubleToStr(iOpen(_Symbol, PERIOD_CURRENT, 0), 5);
+  string h = DoubleToStr(iHigh(_Symbol, PERIOD_CURRENT, 0), 5);
+  string l = DoubleToStr(iLow(_Symbol, PERIOD_CURRENT, 0), 5);
+  string c = DoubleToStr(iClose(_Symbol, PERIOD_CURRENT, 0), 5);
+
+  Util::Print("Tick: real = " + o + ", " + h + ", " + l + ", " + c + "\n" + indicators.ToString(0));
 }
 
 /**

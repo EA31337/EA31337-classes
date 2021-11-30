@@ -254,6 +254,51 @@ class IndicatorCandle : public IndicatorBase {
     }
     return _result;
   }
+
+  /**
+   * Get full name of the indicator (with "over ..." part).
+   */
+  string GetFullName() override {
+    return GetName() + "[" + IntegerToString(icparams.GetMaxModes()) + "]" +
+           (HasDataSource() ? (" (over " + GetDataSource().GetFullName() + ")") : "");
+  }
+
+  /**
+   * Whether data source is selected.
+   */
+  bool HasDataSource() override { return GetDataSourceRaw() != NULL || icparams.GetDataSourceId() != -1; }
+
+  /**
+   * Returns currently selected data source doing validation.
+   */
+  IndicatorBase* GetDataSource() override {
+    IndicatorBase* _result = NULL;
+
+    if (GetDataSourceRaw() != NULL) {
+      _result = GetDataSourceRaw();
+    } else if (icparams.GetDataSourceId() != -1) {
+      int _source_id = icparams.GetDataSourceId();
+
+      if (indicators.KeyExists(_source_id)) {
+        _result = indicators[_source_id].Ptr();
+      } else {
+        Ref<IndicatorBase> _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
+
+        if (!_source.IsSet()) {
+          Alert(GetName(), " has no built-in source indicator ", _source_id);
+          DebugBreak();
+        } else {
+          indicators.Set(_source_id, _source);
+
+          _result = _source.Ptr();
+        }
+      }
+    }
+
+    ValidateDataSource(&this, _result);
+
+    return _result;
+  }
 };
 
 #endif
