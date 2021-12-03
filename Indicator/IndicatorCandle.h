@@ -53,6 +53,7 @@ class IndicatorCandle : public IndicatorBase {
   void Init() {
     icdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     icdata.SetOverflowListener(IndicatorCandleOverflowListener, 10);
+    icparams.SetMaxModes(4);
   }
 
  public:
@@ -91,7 +92,9 @@ class IndicatorCandle : public IndicatorBase {
     CandleOCTOHLC<TV> _candle = icdata.GetByKey(_candle_time);
 
     if (!_candle.IsValid()) {
-      Print(GetName(), ": Missing candle at shift ", _index, " (", _candle_time, ")");
+      Print(GetFullName(), ": Missing candle at shift ", _index, " (", TimeToString(_candle_time), ")");
+    } else {
+      Print(GetFullName(), ": Retrieving candle at shift ", _index, " (", TimeToString(_candle_time), ")");
     }
 
     return CandleToEntry(_candle_time, _candle);
@@ -166,6 +169,9 @@ class IndicatorCandle : public IndicatorBase {
   void UpdateCandle(long _tick_timestamp, double _price) {
     long _candle_timestamp = CalcCandleTimestamp(_tick_timestamp);
 
+    Print("Updating candle for ", GetFullName(), " at candle ", TimeToString(_candle_timestamp), " from tick at ",
+          TimeToString(_tick_timestamp));
+
     CandleOCTOHLC<double> _candle(_price, _price, _price, _price, _tick_timestamp, _tick_timestamp);
     if (icdata.KeyExists(_candle_timestamp)) {
       // Candle already exists.
@@ -180,7 +186,7 @@ class IndicatorCandle : public IndicatorBase {
    * Calculates candle's timestamp from tick's timestamp.
    */
   long CalcCandleTimestamp(long _tick_timestamp) {
-    return _tick_timestamp - _tick_timestamp % (icparams.GetSecsPerCandle() * 1000);
+    return _tick_timestamp - _tick_timestamp % (icparams.GetSecsPerCandle());
   }
 
   /**

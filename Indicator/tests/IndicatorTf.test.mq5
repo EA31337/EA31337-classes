@@ -51,33 +51,36 @@ int OnInit() {
   indicators.Add(indi_tick = new IndicatorTickReal(_Symbol));
 
   // 1-second candles.
-  indicators.Add(indi_tf = new IndicatorTfDummy(1));
+  // indicators.Add(indi_tf = new IndicatorTfDummy(1));
 
   // 1:1 candles from platform using current timeframe.
   indicators.Add(indi_tf_orig_sim = new IndicatorTfDummy(ChartTf::TfToSeconds(PERIOD_CURRENT)));
 
   // 1-second candles.
-  indicators.Add(indi_ama = new Indi_AMA());
+  // indicators.Add(indi_ama = new Indi_AMA());
+
+  IndiAMAParams _ama_params;
+  _ama_params.applied_price = PRICE_OPEN;
 
   // AMA on platform candles.
-  indicators.Add(indi_ama_orig_sim = new Indi_AMA());
+  indicators.Add(indi_ama_orig_sim = new Indi_AMA(_ama_params));
 
   // Original built-in or OnCalculate()-based AMA indicator on platform OHLCs.
-  indicators.Add(indi_ama_orig = new Indi_AMA());
+  indicators.Add(indi_ama_orig = new Indi_AMA(_ama_params));
 
   // Candles will be initialized from tick's history.
-  indi_tf.Ptr().SetDataSource(indi_tick.Ptr());
+  // indi_tf.Ptr().SetDataSource(indi_tick.Ptr());
   indi_tf_orig_sim.Ptr().SetDataSource(indi_tick.Ptr());
 
   // AMA will work on the candle indicator.
-  indi_ama.Ptr().SetDataSource(indi_tf.Ptr());
+  // indi_ama.Ptr().SetDataSource(indi_tf.Ptr());
 
   // AMA will work on the simulation of real candles.
   indi_ama_orig_sim.Ptr().SetDataSource(indi_tf_orig_sim.Ptr());
 
   // Checking if there are candles for last 100 ticks.
-  Print(indi_tf.Ptr().GetName(), "'s historic candles (from 100 ticks):");
-  Print(indi_tf.Ptr().CandlesToString());
+  // Print(indi_tf.Ptr().GetName(), "'s historic candles (from 100 ticks):");
+  // Print(indi_tf.Ptr().CandlesToString());
   return (INIT_SUCCEEDED);
 }
 
@@ -85,13 +88,18 @@ int OnInit() {
  * Implements OnTick().
  */
 void OnTick() {
-  indicators.Tick();
   string o = DoubleToStr(iOpen(_Symbol, PERIOD_CURRENT, 0), 5);
   string h = DoubleToStr(iHigh(_Symbol, PERIOD_CURRENT, 0), 5);
   string l = DoubleToStr(iLow(_Symbol, PERIOD_CURRENT, 0), 5);
   string c = DoubleToStr(iClose(_Symbol, PERIOD_CURRENT, 0), 5);
+  string time = TimeToString(iTime(_Symbol, PERIOD_CURRENT, 0));
 
-  Util::Print("Tick: real = " + o + ", " + h + ", " + l + ", " + c + "\n" + indicators.ToString(0));
+  Util::Print("Tick: " + IntegerToString((long)iTime(_Symbol, PERIOD_CURRENT, 0)) + " (" + time + "), real = " + o +
+              ", " + h + ", " + l + ", " + c);
+
+  indicators.Tick();
+
+  Util::Print(indicators.ToString(0));
 }
 
 /**
@@ -99,6 +107,6 @@ void OnTick() {
  */
 void OnDeinit(const int reason) {
   // Printing all grouped candles.
-  Print(indi_tf.Ptr().GetName(), "'s all candles:");
-  Print(indi_tf.Ptr().CandlesToString());
+  // Print(indi_tf.Ptr().GetName(), "'s all candles:");
+  // Print(indi_tf.Ptr().CandlesToString());
 }

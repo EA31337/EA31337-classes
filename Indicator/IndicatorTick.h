@@ -53,6 +53,8 @@ class IndicatorTick : public IndicatorBase {
   void Init() {
     itdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     itdata.SetOverflowListener(IndicatorTickOverflowListener, 10);
+    // Ask and Bid price.
+    itparams.SetMaxModes(2);
   }
 
  public:
@@ -106,61 +108,23 @@ class IndicatorTick : public IndicatorBase {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _timestamp = 0) {
+  IndicatorDataEntry GetEntry(int _timestamp = 0) override {
     ResetLastError();
-    TickAB<TV> _entry = itdata.GetByKey(_timestamp);
-    /*
-    IndicatorDataEntry _entry = itdata.GetByKey(_timestamp);
-    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
-      _entry.Resize(itparams.GetMaxModes());
-      _entry.timestamp = _timestamp;
-      for (int _mode = 0; _mode < (int)itparams.GetMaxModes(); _mode++) {
-        switch (itparams.GetDataValueType()) {
-          case TYPE_BOOL:
-          case TYPE_CHAR:
-          case TYPE_INT:
-            _entry.values[_mode] = GetValue<int>(_mode, _timestamp);
-            break;
-          case TYPE_LONG:
-            _entry.values[_mode] = GetValue<long>(_mode, _timestamp);
-            break;
-          case TYPE_UINT:
-            _entry.values[_mode] = GetValue<uint>(_mode, _timestamp);
-            break;
-          case TYPE_ULONG:
-            _entry.values[_mode] = GetValue<ulong>(_mode, _timestamp);
-            break;
-          case TYPE_DOUBLE:
-            _entry.values[_mode] = GetValue<double>(_mode, _timestamp);
-            break;
-          case TYPE_FLOAT:
-            _entry.values[_mode] = GetValue<float>(_mode, _timestamp);
-            break;
-          case TYPE_STRING:
-          case TYPE_UCHAR:
-          default:
-            SetUserError(ERR_INVALID_PARAMETER);
-            break;
-        }
-      }
-      GetEntryAlter(_entry, _timestamp);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        itdata.Add(_entry, _timestamp);
-        istate.is_changed = false;
-        istate.is_ready = true;
-      } else {
-        _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
-      }
+    if (itdata.KeyExists(_timestamp)) {
+      TickAB<TV> _tick = itdata.GetByKey(_timestamp);
+      return TickToEntry(_timestamp, _tick);
     }
-    if (_LastError != ERR_NO_ERROR) {
-      istate.is_ready = false;
-      ResetLastError();
+
+    // No tick at given timestamp. Returning invalid entry.
+    IndicatorDataEntry _entry(itparams.GetMaxModes());
+    GetEntryAlter(_entry, _timestamp);
+
+    for (int i = 0; i < itparams.GetMaxModes(); ++i) {
+      _entry.values[i] = (double)0;
     }
+
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, false);
     return _entry;
-    */
-    IndicatorDataEntry _foo;
-    return _foo;
   }
 
   /**
