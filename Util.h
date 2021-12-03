@@ -74,7 +74,7 @@ class Util {
       // Index out of array bounds.
       return false;
     }
-    for (int i = index; i < ArraySize(_array); ++i) {
+    for (int i = index; i < ArraySize(_array) - 1; ++i) {
       _array[i] = _array[i + 1];
     }
     Util::ArrayResize(_array, ArraySize(_array) - 1);
