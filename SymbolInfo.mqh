@@ -73,6 +73,11 @@ class SymbolInfo : public Object {
     }
   }
 
+  /**
+   * Class copy constructor.
+   */
+  SymbolInfo(const SymbolInfo &_si) : s_entry(_si.s_entry), sprops(_si.sprops) {}
+
   ~SymbolInfo() {}
 
   /**
