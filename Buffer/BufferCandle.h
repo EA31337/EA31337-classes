@@ -32,7 +32,7 @@
  * Class to store struct data.
  */
 template <typename TV>
-class BufferCandle : public BufferStruct<CandleOHLC<TV>> {
+class BufferCandle : public BufferStruct<CandleOCTOHLC<TV>> {
  protected:
  protected:
   /* Protected methods */

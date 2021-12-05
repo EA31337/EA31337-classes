@@ -53,6 +53,7 @@ class IndicatorCandle : public IndicatorBase {
   void Init() {
     icdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     icdata.SetOverflowListener(IndicatorCandleOverflowListener, 10);
+    icparams.SetMaxModes(4);
   }
 
  public:
@@ -61,7 +62,8 @@ class IndicatorCandle : public IndicatorBase {
   /**
    * Class constructor.
    */
-  IndicatorCandle(const TS& _icparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0) : icparams(_icparams) {
+  IndicatorCandle(const TS& _icparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0) {
+    icparams = _icparams;
     if (_indi_src != NULL) {
       SetDataSource(_indi_src, _indi_mode);
     }
@@ -83,61 +85,19 @@ class IndicatorCandle : public IndicatorBase {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _timestamp = 0) {
+  IndicatorDataEntry GetEntry(int _index = -1) override {
     ResetLastError();
-    CandleOHLC<TV> _entry = icdata.GetByKey(_timestamp);
-    /*
-    IndicatorDataEntry _entry = icdata.GetByKey(_timestamp);
-    if (!_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
-      _entry.Resize(icparams.GetMaxModes());
-      _entry.timestamp = _timestamp;
-      for (int _mode = 0; _mode < (int)icparams.GetMaxModes(); _mode++) {
-        switch (icparams.GetDataValueType()) {
-          case TYPE_BOOL:
-          case TYPE_CHAR:
-          case TYPE_INT:
-            _entry.values[_mode] = GetValue<int>(_mode, _timestamp);
-            break;
-          case TYPE_LONG:
-            _entry.values[_mode] = GetValue<long>(_mode, _timestamp);
-            break;
-          case TYPE_UINT:
-            _entry.values[_mode] = GetValue<uint>(_mode, _timestamp);
-            break;
-          case TYPE_ULONG:
-            _entry.values[_mode] = GetValue<ulong>(_mode, _timestamp);
-            break;
-          case TYPE_DOUBLE:
-            _entry.values[_mode] = GetValue<double>(_mode, _timestamp);
-            break;
-          case TYPE_FLOAT:
-            _entry.values[_mode] = GetValue<float>(_mode, _timestamp);
-            break;
-          case TYPE_STRING:
-          case TYPE_UCHAR:
-          default:
-            SetUserError(ERR_INVALID_PARAMETER);
-            break;
-        }
-      }
-      GetEntryAlter(_entry, _timestamp);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
-      if (_entry.IsValid()) {
-        icdata.Add(_entry, _timestamp);
-        istate.is_changed = false;
-        istate.is_ready = true;
-      } else {
-        _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
-      }
+    unsigned int _ishift = _index >= 0 ? _index : icparams.GetShift();
+    long _candle_time = CalcCandleTimestamp(GetBarTime(_ishift));
+    CandleOCTOHLC<TV> _candle = icdata.GetByKey(_candle_time);
+
+    if (!_candle.IsValid()) {
+      Print(GetFullName(), ": Missing candle at shift ", _index, " (", TimeToString(_candle_time), ")");
+    } else {
+      Print(GetFullName(), ": Retrieving candle at shift ", _index, " (", TimeToString(_candle_time), ")");
     }
-    if (_LastError != ERR_NO_ERROR) {
-      istate.is_ready = false;
-      ResetLastError();
-    }
-    return _entry;
-    */
-    IndicatorDataEntry _foo;
-    return _foo;
+
+    return CandleToEntry(_candle_time, _candle);
   }
 
   /**
@@ -180,11 +140,83 @@ class IndicatorCandle : public IndicatorBase {
   }
 
   /**
+   * Sends historic entries to listening indicators. May be overriden.
+   */
+  void EmitHistory() override {
+    for (DictStructIterator<long, CandleOCTOHLC<TV>> iter(icdata.Begin()); iter.IsValid(); ++iter) {
+      IndicatorDataEntry _entry = CandleToEntry(iter.Key(), iter.Value());
+      EmitEntry(_entry);
+    }
+  }
+
+  /**
+   * Converts candle into indicator's data entry.
+   */
+  IndicatorDataEntry CandleToEntry(long _timestamp, CandleOCTOHLC<TV>& _candle) {
+    IndicatorDataEntry _entry(4);
+    _entry.timestamp = _timestamp;
+    _entry.values[0] = _candle.open;
+    _entry.values[1] = _candle.high;
+    _entry.values[2] = _candle.low;
+    _entry.values[3] = _candle.close;
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _candle.IsValid());
+    return _entry;
+  }
+
+  /**
+   * Adds tick's price to the matching candle and updates its OHLC values.
+   */
+  void UpdateCandle(long _tick_timestamp, double _price) {
+    long _candle_timestamp = CalcCandleTimestamp(_tick_timestamp);
+
+    Print("Updating candle for ", GetFullName(), " at candle ", TimeToString(_candle_timestamp), " from tick at ",
+          TimeToString(_tick_timestamp));
+
+    CandleOCTOHLC<double> _candle(_price, _price, _price, _price, _tick_timestamp, _tick_timestamp);
+    if (icdata.KeyExists(_candle_timestamp)) {
+      // Candle already exists.
+      _candle = icdata.GetByKey(_candle_timestamp);
+      _candle.Update(_tick_timestamp, _price);
+    }
+
+    icdata.Set(_candle_timestamp, _candle);
+  }
+
+  /**
+   * Calculates candle's timestamp from tick's timestamp.
+   */
+  long CalcCandleTimestamp(long _tick_timestamp) {
+    return _tick_timestamp - _tick_timestamp % (icparams.GetSecsPerCandle());
+  }
+
+  /**
+   * Called when data source emits new entry (historic or future one).
+   */
+  virtual void OnDataSourceEntry(IndicatorDataEntry& entry) {
+    // Updating candle from bid price.
+    UpdateCandle(entry.timestamp, entry[1]);
+  };
+
+  /**
    * Sets indicator data source.
    */
   void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) {
+    if (indi_src.IsSet() && indi_src.Ptr() != _indi) {
+      indi_src.Ptr().RemoveListener(THIS_PTR);
+    }
     indi_src = _indi;
+    indi_src.Ptr().AddListener(THIS_PTR);
     icparams.SetDataSource(-1, _input_mode);
+    indi_src.Ptr().OnBecomeDataSourceFor(THIS_PTR);
+  }
+
+  string CandlesToString() {
+    string _result;
+    for (DictStructIterator<long, CandleOCTOHLC<TV>> iter(icdata.Begin()); iter.IsValid(); ++iter) {
+      IndicatorDataEntry _entry = CandleToEntry(iter.Key(), iter.Value());
+      _result += IntegerToString(iter.Key()) + ": " + _entry.ToString<double>() + "\n";
+    }
+    return _result;
   }
 
   /* Virtual methods */
@@ -226,6 +258,51 @@ class IndicatorCandle : public IndicatorBase {
         }
       }
     }
+    return _result;
+  }
+
+  /**
+   * Get full name of the indicator (with "over ..." part).
+   */
+  string GetFullName() override {
+    return GetName() + "[" + IntegerToString(icparams.GetMaxModes()) + "]" +
+           (HasDataSource() ? (" (over " + GetDataSource().GetFullName() + ")") : "");
+  }
+
+  /**
+   * Whether data source is selected.
+   */
+  bool HasDataSource() override { return GetDataSourceRaw() != NULL || icparams.GetDataSourceId() != -1; }
+
+  /**
+   * Returns currently selected data source doing validation.
+   */
+  IndicatorBase* GetDataSource() override {
+    IndicatorBase* _result = NULL;
+
+    if (GetDataSourceRaw() != NULL) {
+      _result = GetDataSourceRaw();
+    } else if (icparams.GetDataSourceId() != -1) {
+      int _source_id = icparams.GetDataSourceId();
+
+      if (indicators.KeyExists(_source_id)) {
+        _result = indicators[_source_id].Ptr();
+      } else {
+        Ref<IndicatorBase> _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
+
+        if (!_source.IsSet()) {
+          Alert(GetName(), " has no built-in source indicator ", _source_id);
+          DebugBreak();
+        } else {
+          indicators.Set(_source_id, _source);
+
+          _result = _source.Ptr();
+        }
+      }
+    }
+
+    ValidateDataSource(&this, _result);
+
     return _result;
   }
 };

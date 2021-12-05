@@ -70,6 +70,7 @@ class IndicatorBase : public Chart {
   Ref<IndicatorBase> indi_src;  // // Indicator used as data source.
   int indi_src_mode;            // Mode of source indicator
   IndicatorCalculateCache<double> cache;
+  ARRAY(WeakRef<IndicatorBase>, listeners);  // List of indicators that listens for events from this one.
 
  public:
   /* Indicator enumerations */
@@ -352,6 +353,22 @@ class IndicatorBase : public Chart {
   }
 
   /**
+   * Adds event listener.
+   */
+  void AddListener(IndicatorBase* _indi) {
+    WeakRef<IndicatorBase> _ref = _indi;
+    ArrayPushObject(listeners, _ref);
+  }
+
+  /**
+   * Removes event listener.
+   */
+  void RemoveListener(IndicatorBase* _indi) {
+    WeakRef<IndicatorBase> _ref = _indi;
+    Util::ArrayRemoveFirst(listeners, _ref);
+  }
+
+  /**
    * Sets indicator data source.
    */
   virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) = NULL;
@@ -396,6 +413,10 @@ class IndicatorBase : public Chart {
   }
 
   ValueStorage<double>* GetValueStorage(int _mode = 0) {
+    if (_mode >= ArraySize(value_storages)) {
+      ArrayResize(value_storages, _mode + 1);
+    }
+
     if (value_storages[_mode] == NULL) {
       value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
     }
@@ -472,6 +493,32 @@ class IndicatorBase : public Chart {
    * Returns the indicator's entry value.
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _index = -1) = NULL;
+
+  /**
+   * Sends entry to listening indicators.
+   */
+  void EmitEntry(IndicatorDataEntry& entry) {
+    for (int i = 0; i < ArraySize(listeners); ++i) {
+      if (listeners[i].ObjectExists()) {
+        listeners[i].Ptr().OnDataSourceEntry(entry);
+      }
+    }
+  }
+
+  /**
+   * Sends historic entries to listening indicators. May be overriden.
+   */
+  virtual void EmitHistory() {}
+
+  /**
+   * Called when data source emits new entry (historic or future one).
+   */
+  virtual void OnDataSourceEntry(IndicatorDataEntry& entry){};
+
+  /**
+   * Called when indicator became a data source for other indicator.
+   */
+  virtual void OnBecomeDataSourceFor(IndicatorBase* _base_indi){};
 
   /**
    * Returns indicator value for a given shift and mode.

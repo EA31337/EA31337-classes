@@ -114,6 +114,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_STOCHASTIC,           // Stochastic Oscillator
   INDI_SVE_BB,               // SVE Bollinger Bands
   INDI_TEMA,                 // Triple Exponential Moving Average
+  INDI_TF,                   // Timeframe
   INDI_TICK,                 // Tick
   INDI_TMA_TRUE,             // Triangular Moving Average True
   INDI_TRIX,                 // Triple Exponential Moving Averages Oscillator
