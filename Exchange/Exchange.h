@@ -30,12 +30,14 @@
 #include "../Account.mqh"
 #include "../DictObject.mqh"
 #include "../SymbolInfo.mqh"
+#include "../Trade.mqh"
 #include "Exchange.struct.h"
 
 class Exchange {
  protected:
   DictObject<string, Account> accounts;
   DictObject<string, SymbolInfo> symbols;
+  DictObject<string, Trade> trades;
   ExchangeParams eparams;
 
  public:
@@ -53,5 +55,6 @@ class Exchange {
    * Class deconstructor.
    */
   ~Exchange() {}
+
 };
 #endif  // EXCHANGE_H
