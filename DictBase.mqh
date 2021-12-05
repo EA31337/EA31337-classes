@@ -258,6 +258,18 @@ class DictBase {
   }
 
   /**
+   * Checks whether overflow listener allows dict to grow up.
+   */
+  bool IsGrowUpAllowed() {
+    if (overflow_listener == NULL) {
+      return true;
+    }
+
+    // Checking if overflow listener allows resize from current to higher number of slots.
+    return overflow_listener(DICT_OVERFLOW_REASON_FULL, Size(), 0);
+  }
+
+  /**
    * Moves last slot to given one to fill the hole after removing the value.
    */
   void FillHoleUnsorted(int _hole_slot_idx) {
@@ -279,6 +291,11 @@ class DictBase {
    * Returns number of used DictSlots.
    */
   const unsigned int Size() { return _DictSlots_ref._num_used; }
+
+  /**
+   * Returns number of all (reserved) DictSlots.
+   */
+  const unsigned int ReservedSize() { return ArraySize(_DictSlots_ref.DictSlots); }
 
   /**
    * Checks whether given key exists in the dictionary.
