@@ -28,6 +28,12 @@
 #include "../../Test.mqh"
 #include "../Exchange.h"
 
+// Test classes.
+class ExchangeDummy : public Exchange {};
+
+// Global variables.
+ExchangeDummy ex_dummy;
+
 /**
  * Implements OnInit().
  */

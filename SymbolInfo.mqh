@@ -57,7 +57,6 @@ class SymbolInfo : public Object {
   double volume_precision;
 
  public:
-
   /**
    * Class constructor given a symbol string.
    */

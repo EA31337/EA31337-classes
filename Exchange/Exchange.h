@@ -56,5 +56,28 @@ class Exchange {
    */
   ~Exchange() {}
 
+  /* Adders */
+
+  /**
+   * Adds account to the list.
+   */
+  void AccountAdd(Account &_account, string _name) { accounts.Set(_name, _account); }
+
+  /**
+   * Adds symbol to the list.
+   */
+  void SymbolAdd(SymbolInfo &_sinfo, string _name) { symbols.Set(_name, _sinfo); }
+
+  /* Removers */
+
+  /**
+   * Removes account from the list.
+   */
+  void AccountRemove(string _name) { accounts.Unset(_name); }
+
+  /**
+   * Removes symbol from the list.
+   */
+  void SymbolRemove(string _name) { symbols.Unset(_name); }
 };
 #endif  // EXCHANGE_H
