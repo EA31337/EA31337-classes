@@ -89,6 +89,7 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           BtYears: 2020
+          MtVersion: 4.0.0.1349
           TestExpert: ${{ matrix.test }}
     timeout-minutes: 10
 
