@@ -57,8 +57,9 @@ class SymbolInfo : public Object {
   double volume_precision;
 
  public:
+
   /**
-   * Implements class constructor with a parameter.
+   * Class constructor given a symbol string.
    */
   SymbolInfo(string _symbol = NULL) : symbol(_symbol), pip_size(GetPipSize()), symbol_digits(GetDigits()) {
     Select();
@@ -72,6 +73,11 @@ class SymbolInfo : public Object {
       symbol = _Symbol;
     }
   }
+
+  /**
+   * Class constructor with symbol properties.
+   */
+  SymbolInfo(const SymbolInfoProp &_sip) : sprops(_sip) {}
 
   /**
    * Class copy constructor.
