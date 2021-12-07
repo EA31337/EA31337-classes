@@ -43,7 +43,7 @@ struct IndiPriceChannelParams : IndicatorParams {
 };
 
 /**
- * Implements the Bill Williams' Accelerator/Decelerator oscillator.
+ * Implements Price Channel indicator.
  */
 class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
  public:
@@ -84,6 +84,16 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
                                                           _cache.GetBuffer<double>(2), _period));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of Price Channel.
+   */
+  static double iPriceChannelOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                         int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_PriceChannel_ON_" + _indi.GetFullName(), _period));
+    return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
 
   /**

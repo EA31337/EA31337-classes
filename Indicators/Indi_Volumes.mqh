@@ -44,7 +44,7 @@ struct IndiVolumesParams : IndicatorParams {
 };
 
 /**
- * Implements the Bill Williams' Accelerator/Decelerator oscillator.
+ * Implements the Volumes indicator.
  */
 class Indi_Volumes : public Indicator<IndiVolumesParams> {
  public:
@@ -82,6 +82,16 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
                                                      _cache.GetBuffer<double>(1), _av));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of Volumes indicator.
+   */
+  static double iVolumesOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av,
+                                    int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_Volumes_ON_" + _indi.GetFullName(), (int)_av));
+    return iVolumesOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
   }
 
   /**

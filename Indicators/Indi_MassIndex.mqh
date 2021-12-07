@@ -93,6 +93,19 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
   }
 
   /**
+   * On-indicator version of Mass Index.
+   */
+  static double iMIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                               int _second_period, int _sum_period, int _mode = 0, int _shift = 0,
+                               IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf,
+        Util::MakeKey("Indi_MassIndex_ON_" + _indi.GetFullName(), _period, _second_period, _sum_period));
+    return iMIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _second_period, _sum_period, _mode, _shift,
+                      _cache);
+  }
+
+  /**
    * OnCalculate() method for Mass Index indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtMIBuffer,

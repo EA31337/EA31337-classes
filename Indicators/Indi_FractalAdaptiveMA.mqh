@@ -76,8 +76,8 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
   /**
    * Calculates FrAMA on the array of values.
    */
-  static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _ma_period, int _ma_shift, int _mode, int _shift,
-                              ENUM_APPLIED_PRICE _ap, IndicatorCalculateCache<double> *_cache,
+  static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
+                              int _mode, int _shift, IndicatorCalculateCache<double> *_cache,
                               bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -93,6 +93,17 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
                                                    _ma_period, _ma_shift, _ap));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of FrAMA.
+   */
+  static double iFrAMAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+                                  int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
+                                  IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ma_period, _ma_shift, (int)_ap));
+    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode, _shift, _cache);
   }
 
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &FrAmaBuffer, int InpPeriodFrAMA,

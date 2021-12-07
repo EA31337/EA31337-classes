@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTf.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_AC.mqh"
 #include "Indi_AO.mqh"
@@ -40,11 +40,15 @@ enum ENUM_INDI_BWZT_MODE {
 
 // Structs.
 struct IndiBWZTParams : IndicatorParams {
+  Indi_AC *indi_ac;
+  Indi_AC *indi_ao;
   unsigned int period;
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
   IndiBWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE) {
+    indi_ac = NULL;
+    indi_ao = NULL;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
     shift = _shift;
@@ -100,6 +104,34 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
         _cache.GetBuffer<double>(5), _cache.GetBuffer<double>(6), 38, _indi_ac, _indi_ao));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of BWZT.
+   */
+  static double iBWZTOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode,
+                                 int _shift, IndicatorBase *_obj) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+                                                          Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
+
+    Indi_AC *_indi_ac = _obj.GetDataSource(INDI_AC);
+    Indi_AO *_indi_ao = _obj.GetDataSource(INDI_AO);
+
+    return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ac, _indi_ao);
+  }
+
+  /**
+   * Provides built-in indicators whose can be used as data source.
+   */
+  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
+    switch (_id) {
+      case INDI_AC:
+        return iparams.indi_ac;
+      case INDI_AO:
+        return iparams.indi_ac;
+    }
+
+    return NULL;
   }
 
   /**

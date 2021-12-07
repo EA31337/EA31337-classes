@@ -97,6 +97,19 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   }
 
   /**
+   * On-indicator version of ZigZag indicator.
+   */
+  static double iZigZagColorOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _depth,
+                                        int _deviation, int _backstep, int _mode = 0, int _shift = 0,
+                                        IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf,
+        Util::MakeKey("Indi_ZigZagColor_ON_" + _indi.GetFullName(), _depth, _deviation, _backstep));
+    return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
+                               _cache);
+  }
+
+  /**
    * OnCalculate() method for ZigZag Color indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ZigzagPeakBuffer,

@@ -100,6 +100,19 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
   }
 
   /**
+   * On-indicator version of Chaikin Volatility.
+   */
+  static double iCHVOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _smooth_period,
+                                int _chv_period, ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode = 0, int _shift = 0,
+                                IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf,
+        Util::MakeKey("Indi_CHV_ON_" + _indi.GetFullName(), _smooth_period, _chv_period, _smooth_method));
+    return iCHVOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _smooth_period, _chv_period, _smooth_method, _mode,
+                       _shift, _cache);
+  }
+
+  /**
    * OnInit() method for Chaikin Volatility indicator.
    */
   static void CalculateInit(int InpSmoothPeriod, int InpCHVPeriod, ENUM_CHV_SMOOTH_METHOD InpSmoothType,

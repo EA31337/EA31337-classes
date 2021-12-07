@@ -65,7 +65,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
   }
 
   /**
-   * Calculates AMVROC on the array of values.
+   * Calculates VROC on the array of values.
    */
   static double iVROCOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, ENUM_APPLIED_VOLUME _av, int _mode,
                              int _shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
@@ -83,6 +83,16 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
         Indi_VROC::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _period, _av));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of VROC indicator.
+   */
+  static double iVROCOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                 ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_VROC_ON_" + _indi.GetFullName(), _period, (int)_av));
+    return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode, _shift, _cache);
   }
 
   /**

@@ -114,6 +114,26 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
   }
 
   /**
+   * On-indicator version of Ultimate Oscillator.
+   */
+  static double iUOOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period,
+                               int _middle_period, int _slow_period, int _fast_k, int _middle_k, int _slow_k,
+                               int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf,
+        Util::MakeKey("Indi_UltimateOscillator_ON_" + _indi.GetFullName(), _fast_period, _middle_period, _slow_period,
+                      _fast_k, _middle_k, _slow_k));
+
+    // @fixit This won't work! Find a way to differentiate ATRs.
+    Indi_ATR *_indi_atr_fast = (Indi_ATR *)_indi.GetDataSource(INDI_ATR);
+    Indi_ATR *_indi_atr_middle = (Indi_ATR *)_indi.GetDataSource(INDI_ATR);
+    Indi_ATR *_indi_atr_slow = (Indi_ATR *)_indi.GetDataSource(INDI_ATR);
+
+    return iUOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_period, _middle_period, _slow_period, _fast_k,
+                      _middle_k, _slow_k, _mode, _shift, _cache, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow);
+  }
+
+  /**
    * OnCalculate() method for Ultimate Oscillator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtUOBuffer,

@@ -73,7 +73,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
                                       _mode, _shift);
 #else
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
-        _symbol, _tf, Util::MakeKey("INDI_CHO", _fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
+        _symbol, _tf, Util::MakeKey("Indi_CHO", _fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
                            _mode, _shift, _cache);
 #endif
@@ -100,6 +100,20 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _fast_ma_period, _slow_ma_period, _ma_method, _av));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of Chaikin Oscillator.
+   */
+  static double iChaikinOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period,
+                                    int _slow_ma_period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av,
+                                    int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf,
+        Util::MakeKey("Indi_CHO_ON_" + _indi.GetFullName(), _fast_ma_period, _slow_ma_period, (int)_ma_method,
+                      (int)_av));
+    return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
+                           _mode, _shift, _cache);
   }
 
   /**

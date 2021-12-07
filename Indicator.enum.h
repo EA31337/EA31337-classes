@@ -228,3 +228,15 @@ enum INDICATOR_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_IS_VALID = 1 << 6,
   INDI_ENTRY_FLAG_INSUFFICIENT_DATA = 1 << 7,  // Entry has missing value for that shift and probably won't ever have.
 };
+
+// Storage type for IndicatorBase::GetSpecificValueStorage().
+enum ENUM_INDI_VS_TYPE {
+  INDI_VS_TYPE_TIME,
+  INDI_VS_TYPE_TICK_VOLUME,
+  INDI_VS_TYPE_VOLUME,
+  INDI_VS_TYPE_SPREAD,
+  INDI_VS_TYPE_PRICE_OPEN,
+  INDI_VS_TYPE_PRICE_HIGH,
+  INDI_VS_TYPE_PRICE_LOW,
+  INDI_VS_TYPE_PRICE_CLOSE
+};

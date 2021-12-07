@@ -89,6 +89,16 @@ class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
   }
 
   /**
+   * On-indicator version of Rate of Change.
+   */
+  static double iROCOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
+        _indi, _symbol, _tf, _ap, Util::MakeKey("Indi_RateOfChange_ON_" + _indi.GetFullName(), _period, (int)_ap));
+    return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);
+  }
+
+  /**
    * OnCalculate() method for Rate of Change indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &ExtRocBuffer, int ExtRocPeriod) {

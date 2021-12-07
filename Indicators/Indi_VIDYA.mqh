@@ -99,6 +99,19 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
   }
 
   /**
+   * On-indicator version of VIDya indicator.
+   */
+  static double iVIDyAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period,
+                                  int _ema_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
+                                  IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
+        _indi, _symbol, _tf, _ap,
+        Util::MakeKey("Indi_VIDYA_ON_" + _indi.GetFullName(), _cmo_period, _ema_period, _ma_shift, (int)_ap));
+    return iVIDyAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _cmo_period, _ema_period, _ma_shift, _mode, _shift,
+                         _cache);
+  }
+
+  /**
    * OnCalculate() method for VIDyA indicator.
    *
    * Note that InpShift is used for drawing only and thus is unused.

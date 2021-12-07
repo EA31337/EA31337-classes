@@ -85,6 +85,16 @@ class Indi_ASI : public Indicator<IndiASIParams> {
   }
 
   /**
+   * On-indicator version of ASI.
+   */
+  static double iASIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0,
+                                int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+                                                          Util::MakeKey("Indi_ASI_ON_" + _indi.GetFullName(), _mpc));
+    return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
+  }
+
+  /**
    * OnInit() method for ASI indicator.
    */
   static void CalculateInit(double InpT, double &ExtTpoints, double &ExtT) {

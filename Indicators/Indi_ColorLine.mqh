@@ -28,8 +28,10 @@
 
 // Structs.
 struct IndiColorLineParams : IndicatorParams {
+  IndicatorBase *indi_ma;
   // Struct constructor.
   IndiColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE, 2, TYPE_DOUBLE) {
+    indi_ma = NULL;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorLine");
     shift = _shift;
@@ -84,6 +86,30 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
                                                        _cache.GetBuffer<double>(1), _indi_ma));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of Color Line.
+   */
+  static double iColorLineOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                      int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+                                                          Util::MakeKey("Indi_ColorLine_ON_" + _indi.GetFullName()));
+
+    Indi_MA *_indi_ma = _obj.GetDataSource(INDI_MA);
+
+    return iColorLineOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ma);
+  }
+
+  /**
+   * Provides built-in indicators whose can be used as data source.
+   */
+  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
+    switch (_id) {
+      case INDI_MA:
+        return iparams.indi_ma;
+    }
+    return NULL;
   }
 
   /**

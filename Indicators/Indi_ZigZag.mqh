@@ -136,6 +136,18 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   }
 
   /**
+   * On-indicator version of ZigZag indicator.
+   */
+  static double iZigZagOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _depth,
+                                   int _deviation, int _backstep, int _mode = 0, int _shift = 0,
+                                   IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_ZigZag_ON_" + _indi.GetFullName(), _depth, _deviation, _backstep));
+    return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
+                          _cache);
+  }
+
+  /**
    * OnCalculate() method for ZigZag indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ZigZagBuffer,

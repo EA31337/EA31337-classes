@@ -83,6 +83,16 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   }
 
   /**
+   * On-indicator version of Color Candles Daily.
+   */
+  static double iCCDOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_ColorCandlesDaily_ON_" + _indi.GetFullName()));
+    return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+  }
+
+  /**
    * OnCalculate() method for Color Candles Daily indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtOpenBuffer,

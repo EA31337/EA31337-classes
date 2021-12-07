@@ -94,6 +94,16 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
   }
 
   /**
+   * On-indicator version of TriX.
+   */
+  static double iTriXOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+                                 ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
+        _indi, _symbol, _tf, _ap, Util::MakeKey("Indi_TriX_ON_" + _indi.GetFullName(), _ma_period, (int)_ap));
+    return iTriXOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _mode, _shift, _cache);
+  }
+
+  /**
    * OnCalculate() method for TriX indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &TRIX_Buffer,

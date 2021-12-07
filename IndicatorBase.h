@@ -275,6 +275,27 @@ class IndicatorBase : public Chart {
    */
   IndicatorBase* GetDataSourceRaw() { return indi_src.Ptr(); }
 
+  /**
+   * Returns given data source type. Used by i*OnIndicator methods if indicator's Calculate() uses other indicators.
+   */
+  IndicatorBase* GetDataSource(ENUM_INDICATOR_TYPE _type) {
+    IndicatorBase* _result = NULL;
+    if (indicators.KeyExists((int)_type)) {
+      _result = indicators[(int)_type].Ptr();
+    } else {
+      Ref<IndicatorBase> _indi = FetchDataSource(_type);
+      if (!_indi.IsSet()) {
+        Alert(GetFullName(), " does not define required indicator type ", EnumToString(_type), " for symbol ",
+              GetSymbol(), ", and timeframe ", GetTf(), "!");
+        DebugBreak();
+      } else {
+        indicators.Set((int)_type, _indi);
+        _result = _indi.Ptr();
+      }
+    }
+    return _result;
+  }
+
   /* Getters */
 
   /**
@@ -421,6 +442,15 @@ class IndicatorBase : public Chart {
       value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
     }
     return value_storages[_mode];
+  }
+
+  /**
+   * Returns value storage of given kind.
+   */
+  virtual IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
+    Print("Error: ", GetFullName(), " indicator has no storage type ", EnumToString(_type), "!");
+    DebugBreak();
+    return NULL;
   }
 
   template <typename T>
