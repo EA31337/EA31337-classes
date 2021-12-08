@@ -627,23 +627,24 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_MA::iMA(_Symbol, GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift,
+        _value = Indi_MA::iMA(_Symbol, GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _ishift,
                               THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(), GetMAShift(),
-                         GetMAMethod(), GetAppliedPrice() /* ] */, 0, _shift);
+                         GetMAMethod(), GetAppliedPrice() /* ] */, 0, _ishift);
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
         _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), _Symbol, GetTf(),
-                                         GetPeriod(), GetMAShift(), GetMAMethod(), _shift);
+                                         GetPeriod(), GetMAShift(), GetMAMethod(), _ishift);
         break;
     }
     return _value;

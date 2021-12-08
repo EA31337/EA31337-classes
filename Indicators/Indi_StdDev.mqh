@@ -226,21 +226,23 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_StdDev::iStdDev(_Symbol, GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
-                                      _shift, THIS_PTR);
+                                      _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetMAPeriod(),
-                         GetMAShift(), GetMAMethod() /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         iparams.GetCustomIndicatorName(), /*[*/ GetMAPeriod(), GetMAShift(), GetMAMethod() /*]*/, 0,
+                         _ishift);
         break;
       case IDATA_INDICATOR:
         _value = Indi_StdDev::iStdDevOnIndicator(GetDataSource(), _Symbol, GetTf(), GetMAPeriod(), GetMAShift(),
-                                                 GetAppliedPrice(), _shift, THIS_PTR);
+                                                 GetAppliedPrice(), _ishift, THIS_PTR);
         break;
     }
     return _value;

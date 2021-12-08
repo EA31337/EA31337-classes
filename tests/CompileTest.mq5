@@ -24,6 +24,17 @@
  * Test compilation of all class files.
  */
 
+// 3D includes (MQL5 only).
+#ifdef __MQL5__
+#include "../3D/Chart3D.h"
+#include "../3D/Cube.h"
+#include "../3D/Devices/MTDX/MTDXDevice.h"
+#include "../3D/Devices/MTDX/MTDXIndexBuffer.h"
+#include "../3D/Devices/MTDX/MTDXShader.h"
+#include "../3D/Devices/MTDX/MTDXVertexBuffer.h"
+#include "../3D/Frontends/MT5Frontend.h"
+#endif
+
 // Includes.
 #include "../Account.mqh"
 #include "../Action.mqh"

@@ -73,7 +73,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
 
     IndicatorDataEntry entry(num_args - 1);
     // @fixit Not sure if we should enforce double.
-    entry.AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
+    // entry.AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
 
     if (_action == INDI_ACTION_SET_VALUE) {
       iparams.SetMaxModes(num_args - 1);
@@ -172,15 +172,16 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Drawer::iDrawer(_Symbol, GetTf(), _shift, THIS_PTR);
+        _value = Indi_Drawer::iDrawer(_Symbol, GetTf(), _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, _Symbol, GetTf(), _shift);
+        _value = Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, _Symbol, GetTf(), _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

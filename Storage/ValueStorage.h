@@ -87,6 +87,10 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
   ValueStorage<double> *_price = PriceValueStorage::GetInstance(SYMBOL, TF, APPLIED_PRICE); \
   INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
 
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(INDI, SYMBOL, TF, APPLIED_PRICE, KEY) \
+  ValueStorage<double> *_price = INDI.GetValueStorage(APPLIED_PRICE);                                \
+  INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
+
 #define INDICATOR_CALCULATE_POPULATED_PARAMS_LONG \
   _time, _price_open, _price_high, _price_low, _price_close, _tick_volume, _volume, _spread
 

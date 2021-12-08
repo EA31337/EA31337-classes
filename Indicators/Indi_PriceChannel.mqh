@@ -106,22 +106,20 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_PriceChannel::iPriceChannel(_Symbol, GetTf(), GetPeriod(), _mode, _shift, THIS_PTR);
+        _value = Indi_PriceChannel::iPriceChannel(_Symbol, GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0,
-                         _shift);
+                         _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 

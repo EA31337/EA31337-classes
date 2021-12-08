@@ -38,6 +38,102 @@
 class Util {
  public:
   /**
+   * Resizes native array and reserves space for further items by some fixed step.
+   */
+  template <typename T>
+  static void ArrayResize(T& _array[], int _new_size, int _resize_pool = 32) {
+    ::ArrayResize(_array, _new_size, (_new_size / _resize_pool + 1) * _resize_pool);
+  }
+
+  /**
+   * Pushes item into the native array and reserves space for further items by some fixed step.
+   */
+  template <typename T, typename V>
+  static int ArrayPush(T& _array[], V& _value, int _resize_pool = 32) {
+    Util::ArrayResize(_array, ArraySize(_array) + 1, _resize_pool);
+    _array[ArraySize(_array) - 1] = _value;
+    return ArraySize(_array) - 1;
+  }
+
+  /**
+   * Resizes native array and reserves space for further items by some fixed step.
+   */
+  template <typename T>
+  static T ArrayPop(T& _array[]) {
+    T _result = _array[ArraySize(_array) - 1];
+    ::ArrayResize(_array, ArraySize(_array) - 1);
+    return _result;
+  }
+
+  /**
+   * Removes value from the array.
+   */
+  template <typename T>
+  static bool ArrayRemove(T& _array[], int index) {
+    if (index < 0 || index >= ArraySize(_array)) {
+      // Index out of array bounds.
+      return false;
+    }
+    for (int i = index; i < ArraySize(_array) - 1; ++i) {
+      _array[i] = _array[i + 1];
+    }
+    Util::ArrayResize(_array, ArraySize(_array) - 1);
+    return true;
+  }
+
+  /**
+   * Removes value from the array.
+   */
+  template <typename T>
+  static bool ArrayRemoveFirst(T& _array[], T& value) {
+    for (int i = 0; i < ArraySize(_array); ++i) {
+      if (_array[i] == value) {
+        Util::ArrayRemove(_array, i);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  template <typename T>
+  static T Print(T& _array[]) {
+    string _result;
+    for (int i = 0; i < ArraySize(_array); ++i) {
+      _result += IntegerToString(i) + ": " + (string)_array[i];
+    }
+    return _result;
+  }
+
+  /**
+   * Splits prints by newlines on MT4.
+   */
+  static void Print(string _value) {
+#ifdef __MQL4__
+    string _segments[];
+    StringSplit(_value, '\n', _segments);
+    for (int i = 0; i < ArraySize(_segments); ++i) {
+      ::Print(_segments[i]);
+    }
+#else
+    ::Print(_value);
+#endif
+  }
+
+  /**
+   * Checks whether array has given value.
+   */
+  template <typename T, typename V>
+  static bool ArrayContains(T& _array[], const V& _value) {
+    for (int i = 0; i < ArraySize(_array); ++i) {
+      if (_array[i] == _value) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Creates string-based key using given variables.
    */
   template <typename A>

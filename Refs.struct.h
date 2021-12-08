@@ -146,7 +146,7 @@ struct Ref {
       }
       // Dropping strong reference.
       if (!--ptr_object.ptr_ref_counter.num_strong_refs) {
-#ifdef __debug__
+#ifdef __debug_ref__
         Print(ptr_object.ptr_ref_counter.Debug());
 #endif
 
@@ -185,6 +185,10 @@ struct Ref {
         ptr_object.ptr_ref_counter = NULL;
         ptr_object = NULL;
 
+#ifdef __debug__
+        Print("Refs: Deleting object ", ptr_to_delete);
+#endif
+
         delete ptr_to_delete;
       }
 
@@ -211,7 +215,7 @@ struct Ref {
         return Ptr();
       }
       ++ptr_object.ptr_ref_counter.num_strong_refs;
-#ifdef __debug__
+#ifdef __debug_ref__
       Print(ptr_object.ptr_ref_counter.Debug());
 #endif
     }
@@ -300,7 +304,7 @@ struct WeakRef {
 
     ptr_ref_counter = _ptr.ptr_ref_counter;
 
-#ifdef __debug__
+#ifdef __debug_ref__
     Print(ptr_ref_counter.Debug());
 #endif
 
@@ -338,7 +342,7 @@ struct WeakRef {
       // Dropping weak reference.
       if (!--ptr_ref_counter.num_weak_refs) {
         // No more weak references.
-#ifdef __debug__
+#ifdef __debug_ref__
         Print(ptr_ref_counter.Debug());
 #endif
 
@@ -350,7 +354,7 @@ struct WeakRef {
             // Avoiding double deletion in Dynamic's destructor.
             ptr_ref_counter.ptr_object.ptr_ref_counter = NULL;
 
-#ifdef __debug__
+#ifdef __debug_ref__
             Print("Refs: Deleting object ", ptr_ref_counter.ptr_object);
 #endif
 

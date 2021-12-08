@@ -134,16 +134,17 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_FrAMA::iFrAMA(_Symbol, GetTf(), /*[*/ GetPeriod(), GetFRAMAShift(), GetAppliedPrice() /*]*/,
-                                    _mode, _shift, THIS_PTR);
+                                    _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
-                         GetFRAMAShift() /*]*/, 0, _shift);
+                         GetFRAMAShift() /*]*/, 0, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

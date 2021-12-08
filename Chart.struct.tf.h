@@ -32,6 +32,7 @@
 
 // Includes.
 #include "Chart.enum.h"
+#include "Serializer.mqh"
 
 /* Defines struct for chart timeframe. */
 struct ChartTf {
@@ -345,8 +346,6 @@ struct ChartTf {
   // Serializers.
   SerializerNodeType Serialize(Serializer& s);
 };
-
-#include "Serializer.mqh"
 
 /* Method to serialize ChartTf structure. */
 SerializerNodeType ChartTf::Serialize(Serializer& s) {

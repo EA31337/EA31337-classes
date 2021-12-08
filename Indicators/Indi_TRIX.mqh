@@ -127,16 +127,17 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value =
-            Indi_TRIX::iTriX(_Symbol, GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode, _shift, THIS_PTR);
+            Indi_TRIX::iTriX(_Symbol, GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0,
-                         _shift);
+                         _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

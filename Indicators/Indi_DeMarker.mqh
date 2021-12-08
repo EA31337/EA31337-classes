@@ -102,16 +102,17 @@ class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = _value = Indi_DeMarker::iDeMarker(_Symbol, GetTf(), GetPeriod(), _shift, THIS_PTR);
+        _value = _value = Indi_DeMarker::iDeMarker(_Symbol, GetTf(), GetPeriod(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0,
-                         _shift);
+                         _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

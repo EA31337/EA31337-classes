@@ -1,0 +1,67 @@
+---
+name: Test Indicator
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Indicator**'
+      - 'Indicator/**'
+      - '.github/workflows/test-indicator.yml'
+  push:
+    paths:
+      - 'Indicator**'
+      - 'Indicator/**'
+      - '.github/workflows/test-indicator.yml'
+
+jobs:
+
+  Compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
+        with:
+          init-platform: true
+          path: 'Indicator/tests'
+          verbose: true
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload artifacts (MQL4)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex4
+          path: '**/*.ex4'
+      - name: Upload artifacts (MQL5)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex5
+          path: '**/*.ex5'
+
+  Indicator-Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Indicator/tests
+    needs: Compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - IndicatorCandle.test
+          - IndicatorTf.test
+          - IndicatorTick.test
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 4-8
+          BtMonths: 1
+          BtYears: 2020
+          TestExpert: ${{ matrix.test }}
+    timeout-minutes: 10

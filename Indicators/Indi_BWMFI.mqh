@@ -114,16 +114,17 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = BWMFI_BUFFER, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BWMFI_BUFFER, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_BWMFI::iBWMFI(_Symbol, GetTf(), _shift, (ENUM_BWMFI_BUFFER)_mode, THIS_PTR);
+        _value = Indi_BWMFI::iBWMFI(_Symbol, GetTf(), _ishift, (ENUM_BWMFI_BUFFER)_mode, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/,
-                         _mode, _shift);
+                         _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -140,7 +141,7 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
 #ifdef __MQL4__
     // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
     bool _vol_up = GetVolume(_shift) > GetVolume(_shift);
-    bool _val_up = GetValue(BWMFI_BUFFER, _shift) > GetValue(BWMFI_BUFFER, _shift);
+    bool _val_up = GetValue<double>(BWMFI_BUFFER, _shift) > GetValue<double>(BWMFI_BUFFER, _shift);
     double _histcolor = EMPTY_VALUE;
     switch (_vol_up) {
       case true:

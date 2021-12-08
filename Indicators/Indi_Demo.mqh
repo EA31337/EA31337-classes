@@ -72,10 +72,11 @@ class Indi_Demo : public Indicator<IndiDemoParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
-    double _value = Indi_Demo::iDemo(_Symbol, GetTf(), _shift, THIS_PTR);
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    double _value = Indi_Demo::iDemo(_Symbol, GetTf(), _ishift, THIS_PTR);
     if (iparams.is_draw) {
-      draw.DrawLineTo(GetName(), GetBarTime(_shift), _value);
+      draw.DrawLineTo(GetName(), GetBarTime(_ishift), _value);
     }
     return _value;
   }

@@ -174,6 +174,20 @@ class Dict : public DictBase<K, V> {
   }
 
   /**
+   * Returns index of dictionary's value or -1 if value doesn't exist.
+   */
+  template <>
+  int IndexOf(V& value) {
+    for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i) {
+      if (i.Value() == value) {
+        return (int)i.Index();
+      }
+    }
+
+    return -1;
+  }
+
+  /**
    * Checks whether dictionary contains given value.
    */
   bool Contains(const V value) {
