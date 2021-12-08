@@ -111,11 +111,11 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_PriceChannel::iPriceChannel(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
+        _value = Indi_PriceChannel::iPriceChannel(_Symbol, GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
-                         0, _ishift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0,
+                         _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

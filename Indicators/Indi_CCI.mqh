@@ -152,18 +152,18 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _ishift /* + iparams.shift*/,
-                                THIS_PTR);
+        _value =
+            Indi_CCI::iCCI(_Symbol, GetTf(), GetPeriod(), GetAppliedPrice(), _ishift /* + iparams.shift*/, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
                          GetAppliedPrice() /* ] */, 0, _ishift);
         break;
       case IDATA_INDICATOR:
         ValidateSelectedDataSource();
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDataSourceMode(),
+        _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), _Symbol, GetTf(), GetPeriod(), GetDataSourceMode(),
                                            _ishift /* + iparams.shift*/);
         break;
     }

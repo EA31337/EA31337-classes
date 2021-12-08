@@ -178,10 +178,10 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Drawer::iDrawer(GetSymbol(), GetTf(), _ishift, THIS_PTR);
+        _value = Indi_Drawer::iDrawer(_Symbol, GetTf(), _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), _ishift);
+        _value = Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, _Symbol, GetTf(), _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -139,11 +139,11 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_FrAMA::iFrAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFRAMAShift(), GetAppliedPrice() /*]*/,
+        _value = Indi_FrAMA::iFrAMA(_Symbol, GetTf(), /*[*/ GetPeriod(), GetFRAMAShift(), GetAppliedPrice() /*]*/,
                                     _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetFRAMAShift() /*]*/, 0, _ishift);
         break;
       default:

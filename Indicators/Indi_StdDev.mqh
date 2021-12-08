@@ -232,8 +232,8 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),
-                                      GetAppliedPrice(), _ishift, THIS_PTR);
+        _value = Indi_StdDev::iStdDev(_Symbol, GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
+                                      _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
@@ -241,7 +241,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
                          _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_StdDev::iStdDevOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
+        _value = Indi_StdDev::iStdDevOnIndicator(GetDataSource(), _Symbol, GetTf(), GetMAPeriod(), GetMAShift(),
                                                  GetAppliedPrice(), _ishift, THIS_PTR);
         break;
     }

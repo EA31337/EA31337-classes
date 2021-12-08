@@ -61,7 +61,7 @@ class Indi_RS : public Indicator<IndiRSParams> {
       IndiOHLCParams _iohlc_params();
       // @todo Symbol should be already defined for a chart.
       // @todo If it's not, move initialization to GetValue()/GetEntry() method.
-      Indi_OHLC *_iohlc = Indi_OHLC::GetCached(GetSymbol(), GetTf(), 0);
+      Indi_OHLC *_iohlc = Indi_OHLC::GetCached(_Symbol, GetTf(), 0);
       IndiMathParams _imath0_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 0, INDI_OHLC_CLOSE, 1);
       IndiMathParams _imath1_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 1, INDI_OHLC_CLOSE, 0);
       _imath0_p.SetTf(GetTf());

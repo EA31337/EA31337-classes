@@ -273,11 +273,11 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_ZigZagColor::iZigZagColor(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(),
+        _value = Indi_ZigZagColor::iZigZagColor(_Symbol, GetTf(), GetDepth(), GetDeviation(), GetBackstep(),
                                                 (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/, _mode, _ishift);
         break;
       default:

@@ -77,7 +77,7 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
         _ap = PRICE_LOW;
         break;
     }
-    return ChartStatic::iPrice(_ap, GetSymbol(), GetTf(), _ishift);
+    return ChartStatic::iPrice(_ap, _Symbol, GetTf(), _ishift);
   }
 
   /**

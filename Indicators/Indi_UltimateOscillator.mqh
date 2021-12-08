@@ -214,12 +214,12 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_UltimateOscillator::iUO(GetSymbol(), GetTf(), /*[*/ GetFastPeriod(), GetMiddlePeriod(),
-                                              GetSlowPeriod(), GetFastK(), GetMiddleK(), GetSlowK() /*]*/, _mode,
-                                              _ishift, THIS_PTR);
+        _value =
+            Indi_UltimateOscillator::iUO(_Symbol, GetTf(), /*[*/ GetFastPeriod(), GetMiddlePeriod(), GetSlowPeriod(),
+                                         GetFastK(), GetMiddleK(), GetSlowK() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/
                          GetFastPeriod(), GetMiddlePeriod(), GetSlowPeriod(), GetFastK(), GetMiddleK(),
                          GetSlowK()
                          /*]*/,

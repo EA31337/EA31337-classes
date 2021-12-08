@@ -158,11 +158,11 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_MassIndex::iMI(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetSecondPeriod(), GetSumPeriod() /*]*/,
+        _value = Indi_MassIndex::iMI(_Symbol, GetTf(), /*[*/ GetPeriod(), GetSecondPeriod(), GetSumPeriod() /*]*/,
                                      _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetSecondPeriod(), GetSumPeriod() /*]*/, _mode, _ishift);
         break;
       default:

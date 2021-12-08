@@ -109,10 +109,10 @@ class Indi_ATR : public Indicator<IndiATRParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_ATR::iATR(GetSymbol(), GetTf(), GetPeriod(), _ishift, THIS_PTR);
+        _value = Indi_ATR::iATR(_Symbol, GetTf(), GetPeriod(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

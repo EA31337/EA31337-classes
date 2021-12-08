@@ -177,10 +177,10 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_BWZT::iBWZT(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_BWZT::iBWZT(_Symbol, GetTf(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

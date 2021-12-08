@@ -218,16 +218,16 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_AMA::iAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
-                                GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_AMA::iAMA(_Symbol, GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift(),
+                                GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _ishift);
 
         break;
       case IDATA_INDICATOR:
-        _value = Indi_AMA::iAMAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(),
+        _value = Indi_AMA::iAMAOnIndicator(GetDataSource(), _Symbol, GetTf(), /*[*/ GetPeriod(), GetFastPeriod(),
                                            GetSlowPeriod(), GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift,
                                            THIS_PTR);
         break;

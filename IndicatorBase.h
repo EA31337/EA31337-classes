@@ -58,7 +58,7 @@ class Chart;
 /**
  * Class to deal with indicators.
  */
-class IndicatorBase : public Chart {
+class IndicatorBase : public Object {
  protected:
   IndicatorState istate;
   void* mydata;
@@ -281,14 +281,6 @@ class IndicatorBase : public Chart {
    * Returns buffers' cache.
    */
   IndicatorCalculateCache<double>* GetCache() { return &cache; }
-
-  /**
-   * Gets an indicator's chart parameter value.
-   */
-  template <typename T>
-  T Get(ENUM_CHART_PARAM _param) {
-    return Chart::Get<T>(_param);
-  }
 
   /**
    * Gets an indicator's state property value.
@@ -568,6 +560,7 @@ class IndicatorBase : public Chart {
     return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub);
   }
 
+  /* @todo
   int GetBarsCalculated() {
     int _bars = Bars(GetSymbol(), GetTf());
 
@@ -593,6 +586,7 @@ class IndicatorBase : public Chart {
     // Assuming all entries are calculated (even if have invalid values).
     return _bars;
   }
+  */
 
   /* Methods to get rid of */
 
@@ -643,4 +637,4 @@ int CopyBuffer(IndicatorBase* _indi, int _mode, int _start, int _count, ValueSto
 /**
  * BarsCalculated()-compatible method to be used on Indicator instance.
  */
-int BarsCalculated(IndicatorBase* _indi) { return _indi.GetBarsCalculated(); }
+// int BarsCalculated(IndicatorBase* _indi) { return _indi.GetBarsCalculated(); } // @todo

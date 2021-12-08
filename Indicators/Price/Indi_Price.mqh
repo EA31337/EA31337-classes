@@ -57,14 +57,14 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Checks whether indicator has a valid value for a given shift.
    */
-  virtual bool HasValidEntry(int _shift = 0) { return GetBarTime(_shift) != 0; }
+  virtual bool HasValidEntry(datetime _bar_time = 0) { return _bar_time != 0; }
 
   /**
    * Returns the indicator's value.
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    return ChartStatic::iPrice(iparams.GetAppliedPrice(), GetSymbol(), GetTf(), _ishift);
+    return ChartStatic::iPrice(iparams.GetAppliedPrice(), _Symbol, GetTf(), _ishift);
   }
 
   /**

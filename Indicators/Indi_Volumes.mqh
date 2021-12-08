@@ -129,10 +129,10 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_Volumes::iVolumes(GetSymbol(), GetTf(), /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_Volumes::iVolumes(_Symbol, GetTf(), /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift);
         break;
       default:

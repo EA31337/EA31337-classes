@@ -175,12 +175,12 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
         // We're getting DEMA from Price indicator.
 
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_DEMA::iDEMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetAppliedPrice(), _ishift, _mode,
+        _value = Indi_DEMA::iDEMA(_Symbol, GetTf(), GetPeriod(), GetMAShift(), GetAppliedPrice(), _ishift, _mode,
                                   GetPointer(this));
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /*[*/ GetPeriod(), GetMAShift(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.custom_indi_name, /*[*/ GetPeriod(), GetMAShift(),
                          GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
