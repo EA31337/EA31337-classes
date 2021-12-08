@@ -55,7 +55,8 @@ struct SymbolInfoEntry
     volume = _tick.volume;
     spread = (unsigned int)round((ask - bid) * pow(10, SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS)));
   }
-  SymbolInfoEntry(const SymbolInfoEntry& _sie) {}
+  // Copy constructor.
+  SymbolInfoEntry(const SymbolInfoEntry& _sie) { this = _sie; }
   // Getters
   string ToCSV() { return StringFormat("%g,%g,%g,%g,%d", bid, ask, last, spread, volume); }
 // Serializers.
