@@ -149,7 +149,7 @@ class EA {
    * @return
    *   Returns TradeSignalEntry struct.
    */
-  TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, bool _trade_allowed = true, int _shift = -1) {
+  TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, bool _trade_allowed = true, int _shift = 0) {
     // float _bf = 1.0;
     float _scl = _strat.Get<float>(STRAT_PARAM_SCL);
     float _sol = _strat.Get<float>(STRAT_PARAM_SOL);

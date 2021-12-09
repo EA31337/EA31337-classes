@@ -165,7 +165,7 @@ class Indi_ASI : public Indicator<IndiASIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -178,8 +178,11 @@ class Indi_ASI : public Indicator<IndiASIParams> {
                                                            Util::MakeKey("Indi_ASI", GetMaximumPriceChanging()));
         _value =
             iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, GetMaximumPriceChanging(), _mode, _ishift, _cache);
+      } break;
+      case IDATA_INDICATOR:
+        _value = Indi_ASI::iASIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetMaximumPriceChanging() /*]*/,
+                                           _mode, _ishift, THIS_PTR);
         break;
-      }
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }

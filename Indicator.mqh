@@ -176,7 +176,7 @@ class Indicator : public IndicatorBase {
   /**
    * Gets an indicator property flag.
    */
-  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = -1) {
+  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift >= 0 ? _shift : iparams.GetShift());
     return _entry.CheckFlag(_prop);
   }
@@ -1166,138 +1166,6 @@ class Indicator : public IndicatorBase {
   virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _index = -1) {
     _entry.AddFlags(_entry.GetDataTypeFlags(iparams.GetDataValueType()));
   };
-
-  /* Defines MQL backward compatible methods */
-
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, DUMMY);
-#endif
-  }
-
-  template <typename A>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a);
-#endif
-  }
-
-  template <typename A, typename B>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b);
-#endif
-  }
-
-  template <typename A, typename B, typename C>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, int _mode,
-                 int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, int _mode,
-                 int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e,
-                 int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, H _h, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, H _h, I _i, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
-            typename J>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, H _h, I _i, J _j, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
-            typename J, typename K>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, H _h, I _i, J _j, K _k, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k);
-#endif
-  }
-
-  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
-            typename J, typename K, typename L, typename M>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
-                 G _g, H _h, I _i, J _j, K _k, L _l, M _m, int _mode, int _shift) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _mode, _shift);
-#else  // __MQL5__
-    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k
-                       COMMA _l COMMA _m);
-#endif
-  }
 };
 
 #endif

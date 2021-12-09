@@ -74,6 +74,9 @@ class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> 
       }
     }
 
+    // Clearing possible error 4004.
+    ResetLastError();
+
     for (int i = 0; i < _num_copied; ++i) {
       TickAB<double> _tick(_ticks[i].ask, _ticks[i].bid);
       // We can't call EmitEntry() here, as tick would go to multiple sources at the same time!

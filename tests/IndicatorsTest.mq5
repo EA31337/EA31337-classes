@@ -83,6 +83,11 @@ int OnInit() {
 void OnTick() {
   chart.OnTick();
 
+  // All indicators should execute its OnTick() method for every platform tick.
+  for (DictStructIterator<long, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    iter.Value().Ptr().OnTick();
+  }
+
   if (chart.IsNewBar()) {
     bar_processed++;
     if (indis.Size() == 0) {

@@ -60,7 +60,7 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     ENUM_APPLIED_PRICE _ap = PRICE_OPEN;
     switch (_mode) {

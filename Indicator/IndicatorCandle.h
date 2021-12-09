@@ -85,7 +85,7 @@ class IndicatorCandle : public IndicatorBase {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _index = -1) override {
+  IndicatorDataEntry GetEntry(int _index) override {
     ResetLastError();
     unsigned int _ishift = _index >= 0 ? _index : icparams.GetShift();
     long _candle_time = CalcCandleTimestamp(GetBarTime(_ishift));
@@ -118,7 +118,7 @@ class IndicatorCandle : public IndicatorBase {
    * @return
    *   Returns DataParamEntry struct filled with a single value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : icparams.GetShift();
     return GetEntry(_ishift)[_mode];
   }
@@ -205,9 +205,11 @@ class IndicatorCandle : public IndicatorBase {
       indi_src.Ptr().RemoveListener(THIS_PTR);
     }
     indi_src = _indi;
-    indi_src.Ptr().AddListener(THIS_PTR);
-    icparams.SetDataSource(-1, _input_mode);
-    indi_src.Ptr().OnBecomeDataSourceFor(THIS_PTR);
+    if (_indi != NULL) {
+      indi_src.Ptr().AddListener(THIS_PTR);
+      icparams.SetDataSource(-1, _input_mode);
+      indi_src.Ptr().OnBecomeDataSourceFor(THIS_PTR);
+    }
   }
 
   string CandlesToString() {

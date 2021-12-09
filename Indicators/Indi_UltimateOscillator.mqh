@@ -29,6 +29,9 @@
 
 // Structs.
 struct IndiUltimateOscillatorParams : IndicatorParams {
+  Ref<IndicatorBase> indi_atr_fast;
+  Ref<IndicatorBase> indi_atr_middle;
+  Ref<IndicatorBase> indi_atr_slow;
   int fast_period;
   int middle_period;
   int slow_period;
@@ -125,12 +128,27 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
                       _fast_k, _middle_k, _slow_k));
 
     // @fixit This won't work! Find a way to differentiate ATRs.
-    Indi_ATR *_indi_atr_fast = (Indi_ATR *)_indi.GetDataSource(INDI_ATR);
-    Indi_ATR *_indi_atr_middle = (Indi_ATR *)_indi.GetDataSource(INDI_ATR);
-    Indi_ATR *_indi_atr_slow = (Indi_ATR *)_indi.GetDataSource(INDI_ATR);
+    Indi_ATR *_indi_atr_fast = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_FAST);
+    Indi_ATR *_indi_atr_middle = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_MIDDLE);
+    Indi_ATR *_indi_atr_slow = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_SLOW);
 
     return iUOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_period, _middle_period, _slow_period, _fast_k,
                       _middle_k, _slow_k, _mode, _shift, _cache, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow);
+  }
+
+  /**
+   * Provides built-in indicators whose can be used as data source.
+   */
+  IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
+    switch (_id) {
+      case INDI_ULTIMATE_OSCILLATOR_ATR_FAST:
+        return iparams.indi_atr_fast.Ptr();
+      case INDI_ULTIMATE_OSCILLATOR_ATR_MIDDLE:
+        return iparams.indi_atr_middle.Ptr();
+      case INDI_ULTIMATE_OSCILLATOR_ATR_SLOW:
+        return iparams.indi_atr_slow.Ptr();
+    }
+    return NULL;
   }
 
   /**
@@ -229,7 +247,7 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -244,6 +262,11 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
                          GetSlowK()
                          /*]*/,
                          0, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_UltimateOscillator::iUOOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetFastPeriod(),
+                                                         GetMiddlePeriod(), GetSlowPeriod(), GetFastK(), GetMiddleK(),
+                                                         GetSlowK() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

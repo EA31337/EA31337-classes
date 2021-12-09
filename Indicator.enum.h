@@ -42,90 +42,93 @@ enum ENUM_INDICATOR_ACTION {
 
 /* Define type of indicators. */
 enum ENUM_INDICATOR_TYPE {
-  INDI_NONE = 0,             // (None)
-  INDI_AC,                   // Accelerator Oscillator
-  INDI_AD,                   // Accumulation/Distribution
-  INDI_ADX,                  // Average Directional Index
-  INDI_ADXW,                 // ADX by Welles Wilder
-  INDI_ALLIGATOR,            // Alligator
-  INDI_AMA,                  // Adaptive Moving Average
-  INDI_APPLIED_PRICE,        // Applied Price over OHLC Indicator
-  INDI_AO,                   // Awesome Oscillator
-  INDI_ASI,                  // Accumulation Swing Index
-  INDI_ATR,                  // Average True Range
-  INDI_BANDS,                // Bollinger Bands
-  INDI_BANDS_ON_PRICE,       // Bollinger Bands (on Price)
-  INDI_BEARS,                // Bears Power
-  INDI_BULLS,                // Bulls Power
-  INDI_BWMFI,                // Market Facilitation Index
-  INDI_BWZT,                 // Bill Williams' Zone Trade
-  INDI_CANDLE,               // Candle Pattern Detector
-  INDI_CCI,                  // Commodity Channel Index
-  INDI_CCI_ON_PRICE,         // Commodity Channel Index (CCI) (on Price)
-  INDI_CHAIKIN,              // Chaikin Oscillator
-  INDI_CHAIKIN_V,            // Chaikin Volatility
-  INDI_COLOR_BARS,           // Color Bars
-  INDI_COLOR_CANDLES_DAILY,  // Color Candles Daily
-  INDI_COLOR_LINE,           // Color Line
-  INDI_CUSTOM,               // Custom indicator
-  INDI_CUSTOM_MOVING_AVG,    // Custom Moving Average
-  INDI_DEMA,                 // Double Exponential Moving Average
-  INDI_DEMARKER,             // DeMarker
-  INDI_DEMO,                 // Demo/Dummy Indicator
-  INDI_DETRENDED_PRICE,      // Detrended Price Oscillator
-  INDI_DRAWER,               // Drawer (Socket-based) Indicator
-  INDI_ENVELOPES,            // Envelopes
-  INDI_ENVELOPES_ON_PRICE,   // Evelopes (on Price)
-  INDI_FORCE,                // Force Index
-  INDI_FRACTALS,             // Fractals
-  INDI_FRAMA,                // Fractal Adaptive Moving Average
-  INDI_GATOR,                // Gator Oscillator
-  INDI_HEIKENASHI,           // Heiken Ashi
-  INDI_ICHIMOKU,             // Ichimoku Kinko Hyo
-  INDI_KILLZONES,            // Killzones
-  INDI_MA,                   // Moving Average
-  INDI_MACD,                 // MACD
-  INDI_MA_ON_PRICE,          // Moving Average (on Price).
-  INDI_MARKET_FI,            // Market Facilitation Index
-  INDI_MASS_INDEX,           // Mass Index
-  INDI_MFI,                  // Money Flow Index
-  INDI_MOMENTUM,             // Momentum
-  INDI_MOMENTUM_ON_PRICE,    // Momentum (on Price)
-  INDI_OBV,                  // On Balance Volume
-  INDI_OHLC,                 // OHLC (Open-High-Low-Close)
-  INDI_OSMA,                 // OsMA
-  INDI_PATTERN,              // Pattern Detector
-  INDI_PIVOT,                // Pivot Detector
-  INDI_PRICE,                // Price
-  INDI_PRICE_CHANNEL,        // Price Channel
-  INDI_PRICE_FEEDER,         // Indicator which returns prices from custom array
-  INDI_PRICE_VOLUME_TREND,   // Price and Volume Trend
-  INDI_RATE_OF_CHANGE,       // Rate of Change
-  INDI_RS,                   // Indi_Math-based RSI indicator.
-  INDI_RSI,                  // Relative Strength Index
-  INDI_RSI_ON_PRICE,         // Relative Strength Index (RSI) (on Price)
-  INDI_RVI,                  // Relative Vigor Index
-  INDI_SAR,                  // Parabolic SAR
-  INDI_SPECIAL_MATH,         // Math operations over given indicator.
-  INDI_STDDEV,               // Standard Deviation
-  INDI_STDDEV_ON_MA_SMA,     // Standard Deviation on Moving Average in SMA mode
-  INDI_STDDEV_ON_PRICE,      // Standard Deviation (on Price)
-  INDI_STDDEV_SMA_ON_PRICE,  // Standard Deviation in SMA mode (on Price)
-  INDI_STOCHASTIC,           // Stochastic Oscillator
-  INDI_SVE_BB,               // SVE Bollinger Bands
-  INDI_TEMA,                 // Triple Exponential Moving Average
-  INDI_TF,                   // Timeframe
-  INDI_TICK,                 // Tick
-  INDI_TMA_TRUE,             // Triangular Moving Average True
-  INDI_TRIX,                 // Triple Exponential Moving Averages Oscillator
-  INDI_ULTIMATE_OSCILLATOR,  // Ultimate Oscillator
-  INDI_VIDYA,                // Variable Index Dynamic Average
-  INDI_VOLUMES,              // Volumes
-  INDI_VROC,                 // Volume Rate of Change
-  INDI_WILLIAMS_AD,          // Larry Williams' Accumulation/Distribution
-  INDI_WPR,                  // Williams' Percent Range
-  INDI_ZIGZAG,               // ZigZag
-  INDI_ZIGZAG_COLOR,         // ZigZag Color
+  INDI_NONE = 0,                        // (None)
+  INDI_AC,                              // Accelerator Oscillator
+  INDI_AD,                              // Accumulation/Distribution
+  INDI_ADX,                             // Average Directional Index
+  INDI_ADXW,                            // ADX by Welles Wilder
+  INDI_ALLIGATOR,                       // Alligator
+  INDI_AMA,                             // Adaptive Moving Average
+  INDI_APPLIED_PRICE,                   // Applied Price over OHLC Indicator
+  INDI_AO,                              // Awesome Oscillator
+  INDI_ASI,                             // Accumulation Swing Index
+  INDI_ATR,                             // Average True Range
+  INDI_BANDS,                           // Bollinger Bands
+  INDI_BANDS_ON_PRICE,                  // Bollinger Bands (on Price)
+  INDI_BEARS,                           // Bears Power
+  INDI_BULLS,                           // Bulls Power
+  INDI_BWMFI,                           // Market Facilitation Index
+  INDI_BWZT,                            // Bill Williams' Zone Trade
+  INDI_CANDLE,                          // Candle Pattern Detector
+  INDI_CCI,                             // Commodity Channel Index
+  INDI_CCI_ON_PRICE,                    // Commodity Channel Index (CCI) (on Price)
+  INDI_CHAIKIN,                         // Chaikin Oscillator
+  INDI_CHAIKIN_V,                       // Chaikin Volatility
+  INDI_COLOR_BARS,                      // Color Bars
+  INDI_COLOR_CANDLES_DAILY,             // Color Candles Daily
+  INDI_COLOR_LINE,                      // Color Line
+  INDI_CUSTOM,                          // Custom indicator
+  INDI_CUSTOM_MOVING_AVG,               // Custom Moving Average
+  INDI_DEMA,                            // Double Exponential Moving Average
+  INDI_DEMARKER,                        // DeMarker
+  INDI_DEMO,                            // Demo/Dummy Indicator
+  INDI_DETRENDED_PRICE,                 // Detrended Price Oscillator
+  INDI_DRAWER,                          // Drawer (Socket-based) Indicator
+  INDI_ENVELOPES,                       // Envelopes
+  INDI_ENVELOPES_ON_PRICE,              // Evelopes (on Price)
+  INDI_FORCE,                           // Force Index
+  INDI_FRACTALS,                        // Fractals
+  INDI_FRAMA,                           // Fractal Adaptive Moving Average
+  INDI_GATOR,                           // Gator Oscillator
+  INDI_HEIKENASHI,                      // Heiken Ashi
+  INDI_ICHIMOKU,                        // Ichimoku Kinko Hyo
+  INDI_KILLZONES,                       // Killzones
+  INDI_MA,                              // Moving Average
+  INDI_MACD,                            // MACD
+  INDI_MA_ON_PRICE,                     // Moving Average (on Price).
+  INDI_MARKET_FI,                       // Market Facilitation Index
+  INDI_MASS_INDEX,                      // Mass Index
+  INDI_MFI,                             // Money Flow Index
+  INDI_MOMENTUM,                        // Momentum
+  INDI_MOMENTUM_ON_PRICE,               // Momentum (on Price)
+  INDI_OBV,                             // On Balance Volume
+  INDI_OHLC,                            // OHLC (Open-High-Low-Close)
+  INDI_OSMA,                            // OsMA
+  INDI_PATTERN,                         // Pattern Detector
+  INDI_PIVOT,                           // Pivot Detector
+  INDI_PRICE,                           // Price
+  INDI_PRICE_CHANNEL,                   // Price Channel
+  INDI_PRICE_FEEDER,                    // Indicator which returns prices from custom array
+  INDI_PRICE_VOLUME_TREND,              // Price and Volume Trend
+  INDI_RATE_OF_CHANGE,                  // Rate of Change
+  INDI_RS,                              // Indi_Math-based RSI indicator.
+  INDI_RSI,                             // Relative Strength Index
+  INDI_RSI_ON_PRICE,                    // Relative Strength Index (RSI) (on Price)
+  INDI_RVI,                             // Relative Vigor Index
+  INDI_SAR,                             // Parabolic SAR
+  INDI_SPECIAL_MATH,                    // Math operations over given indicator.
+  INDI_STDDEV,                          // Standard Deviation
+  INDI_STDDEV_ON_MA_SMA,                // Standard Deviation on Moving Average in SMA mode
+  INDI_STDDEV_ON_PRICE,                 // Standard Deviation (on Price)
+  INDI_STDDEV_SMA_ON_PRICE,             // Standard Deviation in SMA mode (on Price)
+  INDI_STOCHASTIC,                      // Stochastic Oscillator
+  INDI_SVE_BB,                          // SVE Bollinger Bands
+  INDI_TEMA,                            // Triple Exponential Moving Average
+  INDI_TF,                              // Timeframe
+  INDI_TICK,                            // Tick
+  INDI_TMA_TRUE,                        // Triangular Moving Average True
+  INDI_TRIX,                            // Triple Exponential Moving Averages Oscillator
+  INDI_ULTIMATE_OSCILLATOR,             // Ultimate Oscillator
+  INDI_ULTIMATE_OSCILLATOR_ATR_FAST,    // Ultimate Oscillator's ATR, Fast
+  INDI_ULTIMATE_OSCILLATOR_ATR_MIDDLE,  // Ultimate Oscillator's ATR, Middle
+  INDI_ULTIMATE_OSCILLATOR_ATR_SLOW,    // Ultimate Oscillator's ATR, Slow
+  INDI_VIDYA,                           // Variable Index Dynamic Average
+  INDI_VOLUMES,                         // Volumes
+  INDI_VROC,                            // Volume Rate of Change
+  INDI_WILLIAMS_AD,                     // Larry Williams' Accumulation/Distribution
+  INDI_WPR,                             // Williams' Percent Range
+  INDI_ZIGZAG,                          // ZigZag
+  INDI_ZIGZAG_COLOR,                    // ZigZag Color
   FINAL_INDICATOR_TYPE_ENTRY
 };
 

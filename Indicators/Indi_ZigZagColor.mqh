@@ -281,17 +281,22 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_ZigZagColor::iZigZagColor(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(),
-                                                (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
+        _value = Indi_ZigZagColor::iZigZagColor(GetSymbol(), GetTf(), /*[*/ GetDepth(), GetDeviation(),
+                                                GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/, _mode, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value =
+            Indi_ZigZagColor::iZigZagColorOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetDepth(),
+                                                      GetDeviation(), GetBackstep() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

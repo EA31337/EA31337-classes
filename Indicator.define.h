@@ -43,12 +43,14 @@
     }                                                                          \
     SET_HANDLE;                                                                \
   }                                                                            \
-  int _bars_calc = ::BarsCalculated(_handle);                                  \
-  if (GetLastError() > 0) {                                                    \
-    return EMPTY_VALUE;                                                        \
-  } else if (_bars_calc <= 2) {                                                \
-    SetUserError(ERR_USER_INVALID_BUFF_NUM);                                   \
-    return EMPTY_VALUE;                                                        \
+  if (Terminal::IsVisualMode()) {                                              \
+    int _bars_calc = ::BarsCalculated(_handle);                                \
+    if (GetLastError() > 0) {                                                  \
+      return EMPTY_VALUE;                                                      \
+    } else if (_bars_calc <= 2) {                                              \
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);                                 \
+      return EMPTY_VALUE;                                                      \
+    }                                                                          \
   }                                                                            \
   if (::CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {                     \
     return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;                        \

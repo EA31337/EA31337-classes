@@ -40,8 +40,8 @@ enum ENUM_INDI_BWZT_MODE {
 
 // Structs.
 struct IndiBWZTParams : IndicatorParams {
-  Indi_AC *indi_ac;
-  Indi_AC *indi_ao;
+  Ref<IndicatorBase> indi_ac;
+  Ref<IndicatorBase> indi_ao;
   unsigned int period;
   unsigned int second_period;
   unsigned int sum_period;
@@ -109,8 +109,8 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * On-indicator version of BWZT.
    */
-  static double iBWZTOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode,
-                                 int _shift, IndicatorBase *_obj) {
+  static double iBWZTOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
+                                 IndicatorBase *_obj) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
                                                           Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
 
@@ -126,9 +126,9 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
     switch (_id) {
       case INDI_AC:
-        return iparams.indi_ac;
+        return iparams.indi_ac.Ptr();
       case INDI_AO:
-        return iparams.indi_ac;
+        return iparams.indi_ac.Ptr();
     }
 
     return NULL;
@@ -204,7 +204,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -213,6 +213,9 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_BWZT::iBWZTOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

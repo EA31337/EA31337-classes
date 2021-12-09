@@ -106,7 +106,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   /**
    * Returns the indicator's value.
    */
-  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     float _value = FLT_MAX;
     int _index = (int)_mode / 2;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
