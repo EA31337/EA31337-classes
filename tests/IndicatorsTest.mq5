@@ -78,14 +78,14 @@ int OnInit() {
 }
 
 /**
- * Implements Tick event handler.
+ * Implements Tick event handler .
  */
 void OnTick() {
   chart.OnTick();
 
   // All indicators should execute its OnTick() method for every platform tick.
   for (DictStructIterator<long, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    iter.Value().Ptr().OnTick();
+    iter.Value().Ptr().Tick();
   }
 
   if (chart.IsNewBar()) {
@@ -109,6 +109,13 @@ void OnTick() {
       IndicatorBase* _indi = iter.Value().Ptr();
       _indi.OnTick();
       IndicatorDataEntry _entry(_indi.GetEntry());
+
+      if (_indi.GetType() == INDI_AMA) {
+        PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
+      } else {
+        continue;
+      }
+
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
         if (_entry.IsValid()) {
           PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());

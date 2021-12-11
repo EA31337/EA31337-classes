@@ -92,9 +92,13 @@ class IndicatorCandle : public IndicatorBase {
     CandleOCTOHLC<TV> _candle = icdata.GetByKey(_candle_time);
 
     if (!_candle.IsValid()) {
+#ifdef __debug__
       Print(GetFullName(), ": Missing candle at shift ", _index, " (", TimeToString(_candle_time), ")");
+#endif
     } else {
+#ifdef __debug__verbose_
       Print(GetFullName(), ": Retrieving candle at shift ", _index, " (", TimeToString(_candle_time), ")");
+#endif
     }
 
     return CandleToEntry(_candle_time, _candle);
@@ -169,8 +173,10 @@ class IndicatorCandle : public IndicatorBase {
   void UpdateCandle(long _tick_timestamp, double _price) {
     long _candle_timestamp = CalcCandleTimestamp(_tick_timestamp);
 
+#ifdef __debug_verbose__
     Print("Updating candle for ", GetFullName(), " at candle ", TimeToString(_candle_timestamp), " from tick at ",
           TimeToString(_tick_timestamp));
+#endif
 
     CandleOCTOHLC<double> _candle(_price, _price, _price, _price, _tick_timestamp, _tick_timestamp);
     if (icdata.KeyExists(_candle_timestamp)) {
@@ -307,6 +313,11 @@ class IndicatorCandle : public IndicatorBase {
 
     return _result;
   }
+
+  /**
+   * Get indicator type.
+   */
+  ENUM_INDICATOR_TYPE GetType() override { return icparams.itype; }
 };
 
 #endif

@@ -56,7 +56,8 @@ struct IndiAMAParams : IndicatorTfParams {
   IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
-  };
+  }
+  5;
 };
 
 /**

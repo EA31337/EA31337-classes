@@ -71,6 +71,7 @@ class IndicatorBase : public Chart {
   int indi_src_mode;            // Mode of source indicator
   IndicatorCalculateCache<double> cache;
   ARRAY(WeakRef<IndicatorBase>, listeners);  // List of indicators that listens for events from this one.
+  long last_tick_time;                       // Time of the last Tick() call.
 
  public:
   /* Indicator enumerations */
@@ -94,6 +95,7 @@ class IndicatorBase : public Chart {
     calc_start_bar = 0;
     is_fed = false;
     indi_src = NULL;
+    last_tick_time = 0;
   }
 
   /**
@@ -103,6 +105,7 @@ class IndicatorBase : public Chart {
     calc_start_bar = 0;
     is_fed = false;
     indi_src = NULL;
+    last_tick_time = 0;
   }
 
   /**
@@ -351,7 +354,7 @@ class IndicatorBase : public Chart {
   /**
    * Get name of the indicator.
    */
-  virtual string GetName() { return "<Unknown>"; }
+  virtual string GetName() { return EnumToString(GetType()); }
 
   /**
    * Get full name of the indicator (with "over ..." part).
@@ -496,6 +499,30 @@ class IndicatorBase : public Chart {
     bool _result = GetLastError() != 4401;
     ResetLastError();
     return _result;
+  }
+
+  void Tick() {
+    long _current_time = TimeCurrent();
+
+    if (last_tick_time == _current_time) {
+      // We've already ticked.
+      return;
+    }
+
+    last_tick_time = _current_time;
+
+    // Overridable OnTick() method.
+    OnTick();
+
+    if (HasDataSource()) {
+      // Ticking data source if not yet ticked.s
+      GetDataSource().Tick();
+    }
+
+    // Also ticking all used indicators if they've not yet ticked.
+    for (DictStructIterator<int, Ref<IndicatorBase>> iter = indicators.Begin(); iter.IsValid(); ++iter) {
+      iter.Value().Ptr().Tick();
+    }
   }
 
   virtual void OnTick() {}
