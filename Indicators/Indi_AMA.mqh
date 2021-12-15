@@ -22,14 +22,13 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTf.h"
-#include "../Indicator/tests/classes/IndicatorTickReal.h"
+#include "../Indicator/IndicatorCandleSource.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.price.h"
 #include "Price/Indi_Price.mqh"
 
 // Structs.
-struct IndiAMAParams : IndicatorTfParams {
+struct IndiAMAParams : IndicatorParams {
   unsigned int period;
   unsigned int fast_period;
   unsigned int slow_period;
@@ -44,6 +43,8 @@ struct IndiAMAParams : IndicatorTfParams {
         ama_shift(_ama_shift),
         applied_price(_ap) {
     SetDataValueRange(IDATA_RANGE_PRICE);
+    // Defaulting to on-indicator mode (will use real ticks from platform via IndicatorTickReal).
+    SetDataSourceMode(IDATA_INDICATOR);
     SetShift(_shift);
     switch (idstype) {
       case IDATA_ICUSTOM:
@@ -57,32 +58,26 @@ struct IndiAMAParams : IndicatorTfParams {
     THIS_REF = _params;
     tf = _tf;
   }
-  5;
 };
 
 /**
  * Implements the AMA indicator.
  */
-class Indi_AMA : public IndicatorTf<IndiAMAParams> {
+class Indi_AMA : public IndicatorCandleSource<IndiAMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTf<IndiAMAParams>(_p) {
-    icparams.SetIndicatorType(INDI_AMA);
+  Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL, int _indi_mode = 0)
+      : IndicatorCandleSource<IndiAMAParams>(_p, _indi_src, _indi_mode) {
+    iparams.SetIndicatorType(INDI_AMA);
     if (_indi_src != NULL) {
-      SetDataSource(_indi_src);
-      icparams.SetDataSourceType(IDATA_INDICATOR);
+      iparams.SetDataSourceType(IDATA_INDICATOR);
     } else {
-      // Defaulting to platform ticks.
-      SetDataSource(new IndicatorTickReal(GetSymbol(), GetTf(), "AMA on IndicatorTickReal"));
-      icparams.SetDataSourceType(IDATA_INDICATOR);
     }
   };
-  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTf<IndiAMAParams>(_tf) {
-    icparams.SetIndicatorType(INDI_AMA);
-    icparams.SetShift(_shift);
-  };
+  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorCandleSource<IndiAMAParams>(INDI_AMA, _tf, _shift){};
 
   /**
    * Built-in version of AMA.
@@ -229,14 +224,14 @@ class Indi_AMA : public IndicatorTf<IndiAMAParams> {
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : icparams.GetShift();
-    switch (icparams.idstype) {
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_AMA::iAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
                                 GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), icparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _ishift);
 
         break;
@@ -251,32 +246,37 @@ class Indi_AMA : public IndicatorTf<IndiAMAParams> {
     return _value;
   }
 
+  /**
+   * Called when data source emits new entry (historic or future one).
+   */
+  void OnDataSourceEntry(IndicatorDataEntry &entry) override { Print("New entry for AMA!"); };
+
   /* Getters */
 
   /**
    * Get AMA shift.
    */
-  unsigned int GetAMAShift() { return icparams.ama_shift; }
+  unsigned int GetAMAShift() { return iparams.ama_shift; }
 
   /**
    * Get period.
    */
-  unsigned int GetPeriod() { return icparams.period; }
+  unsigned int GetPeriod() { return iparams.period; }
 
   /**
    * Get fast period.
    */
-  unsigned int GetFastPeriod() { return icparams.fast_period; }
+  unsigned int GetFastPeriod() { return iparams.fast_period; }
 
   /**
    * Get slow period.
    */
-  unsigned int GetSlowPeriod() { return icparams.slow_period; }
+  unsigned int GetSlowPeriod() { return iparams.slow_period; }
 
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return icparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
 
   /* Setters */
 
@@ -285,7 +285,7 @@ class Indi_AMA : public IndicatorTf<IndiAMAParams> {
    */
   void SetAMAShift(unsigned int _ama_shift) {
     istate.is_changed = true;
-    icparams.ama_shift = _ama_shift;
+    iparams.ama_shift = _ama_shift;
   }
 
   /**
@@ -293,7 +293,7 @@ class Indi_AMA : public IndicatorTf<IndiAMAParams> {
    */
   void SetPeriod(unsigned int _period) {
     istate.is_changed = true;
-    icparams.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -301,7 +301,7 @@ class Indi_AMA : public IndicatorTf<IndiAMAParams> {
    */
   void SetFastPeriod(unsigned int _fast_period) {
     istate.is_changed = true;
-    icparams.fast_period = _fast_period;
+    iparams.fast_period = _fast_period;
   }
 
   /**
@@ -309,7 +309,7 @@ class Indi_AMA : public IndicatorTf<IndiAMAParams> {
    */
   void SetSlowPeriod(unsigned int _slow_period) {
     istate.is_changed = true;
-    icparams.slow_period = _slow_period;
+    iparams.slow_period = _slow_period;
   }
 
   /**
@@ -317,6 +317,6 @@ class Indi_AMA : public IndicatorTf<IndiAMAParams> {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    icparams.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 };

@@ -25,7 +25,8 @@
  */
 
 // Defines.
-//#define __debug__  // Enables debug.
+// #define __debug__  // Enables debug.
+// #define __debug_verbose__
 
 // Forward declaration.
 struct DataParamEntry;
@@ -78,7 +79,7 @@ int OnInit() {
 }
 
 /**
- * Implements Tick event handler .
+ * Implements Tick event handler.
  */
 void OnTick() {
   chart.OnTick();

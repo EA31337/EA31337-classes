@@ -299,6 +299,12 @@ class IndicatorBase : public Chart {
     return _result;
   }
 
+  /**
+   * Called if data source is requested, but wasn't yet set. May be used to initialize indicators that must operate on
+   * some data source.
+   */
+  virtual IndicatorBase* OnDataSourceRequest() { return NULL; }
+
   /* Getters */
 
   /**
@@ -332,7 +338,7 @@ class IndicatorBase : public Chart {
   /**
    * Whether data source is selected.
    */
-  virtual bool HasDataSource() { return false; }
+  virtual bool HasDataSource(bool _try_initialize = false) { return false; }
 
   /**
    * Returns currently selected data source doing validation.
@@ -456,6 +462,11 @@ class IndicatorBase : public Chart {
     return NULL;
   }
 
+  /**
+   * Checks whether indicator support given value storage type.
+   */
+  virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) { return false; }
+
   template <typename T>
   T GetValue(int _index = 0, int _mode = 0) {
     T _out;
@@ -514,8 +525,9 @@ class IndicatorBase : public Chart {
     // Overridable OnTick() method.
     OnTick();
 
-    if (HasDataSource()) {
-      // Ticking data source if not yet ticked.s
+    // Checking and potentially initializing new data source.
+    if (HasDataSource(true) != NULL) {
+      // Ticking data source if not yet ticked.
       GetDataSource().Tick();
     }
 

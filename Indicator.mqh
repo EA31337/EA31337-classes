@@ -720,6 +720,15 @@ class Indicator : public IndicatorBase {
           _result = _source.Ptr();
         }
       }
+    } else {
+      // Requesting potential data source.
+      IndicatorBase* _ds = OnDataSourceRequest();
+
+      if (_ds != NULL) {
+        // Initializing with new data source.
+        SetDataSource(_ds);
+        iparams.SetDataSourceType(IDATA_INDICATOR);
+      }
     }
 
     ValidateDataSource(&this, _result);
@@ -735,7 +744,17 @@ class Indicator : public IndicatorBase {
   /**
    * Whether data source is selected.
    */
-  virtual bool HasDataSource() { return GetDataSourceRaw() != NULL || iparams.GetDataSourceId() != -1; }
+  virtual bool HasDataSource(bool _try_initialize = false) {
+    if (iparams.GetDataSourceId() != -1) {
+      return true;
+    }
+
+    if (GetDataSourceRaw() == NULL && _try_initialize) {
+      SetDataSource(OnDataSourceRequest());
+    }
+
+    return GetDataSourceRaw() != NULL;
+  }
 
   /**
    * Gets indicator's params.
@@ -776,14 +795,6 @@ class Indicator : public IndicatorBase {
   string GetName() { return iparams.name; }
 
   /**
-   * Get full name of the indicator (with "over ..." part).
-   */
-  string GetFullName() {
-    return iparams.name + "[" + IntegerToString(iparams.GetMaxModes()) + "]" +
-           (HasDataSource() ? (" (over " + GetDataSource().GetFullName() + ")") : "");
-  }
-
-  /**
    * Get more descriptive name of the indicator.
    */
   string GetDescriptiveName() {
@@ -814,19 +825,6 @@ class Indicator : public IndicatorBase {
   template <typename T>
   void Set(ENUM_CHART_PARAM _param, T _value) {
     Chart::Set<T>(_param, _value);
-  }
-
-  /**
-   * Sets indicator data source.
-   */
-  void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) {
-    if (indi_src.IsSet() && indi_src.Ptr() != _indi) {
-      indi_src.Ptr().RemoveListener(THIS_PTR);
-    }
-    indi_src = _indi;
-    indi_src.Ptr().AddListener(THIS_PTR);
-    iparams.SetDataSource(-1, _input_mode);
-    indi_src.Ptr().OnBecomeDataSourceFor(THIS_PTR);
   }
 
   /**
@@ -966,63 +964,7 @@ class Indicator : public IndicatorBase {
     return true;
   }
 
-  /**
-   * Returns shift at which the last known valid entry exists for a given
-   * period (or from the start, when period is not specified).
-   */
-  /*
-  bool GetLastValidEntryShift(int& out_shift, int period = 0) {
-    out_shift = 0;
-
-    while (true) {
-      if ((period != 0 && out_shift >= period) || !HasValidEntry(out_shift + 1))
-        return out_shift > 0;  // Current shift is always invalid.
-
-      ++out_shift;
-    }
-
-    return out_shift > 0;
-  }*/
-
-  /**
-   * Returns shift at which the oldest known valid entry exists for a given
-   * period (or from the start, when period is not specified).
-   */
-  /*
-  bool GetOldestValidEntryShift(int& out_shift, int& out_num_valid, int shift = 0, int period = 0) {
-    bool found = false;
-    // Counting from previous up to previous - period.
-    for (out_shift = shift + 1; out_shift < shift + period + 1; ++out_shift) {
-      if (!HasValidEntry(out_shift)) {
-        --out_shift;
-        out_num_valid = out_shift - shift;
-        return found;
-      } else
-        found = true;
-    }
-
-    --out_shift;
-    out_num_valid = out_shift - shift;
-    return found;
-  }
-  */
-
-  /**
-   * Checks whether indicator has valid at least given number of last entries
-   * (counting from given shift or 0).
-   */
-  /*
-  bool HasAtLeastValidLastEntries(int period, int shift = 0) {
-    for (int i = 0; i < period; ++i)
-      if (!HasValidEntry(shift + i)) return false;
-
-    return true;
-  }
-  */
-
-  // ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return iparams.idvrange; }
-
-  virtual void OnTick() {
+  void OnTick() override {
     Chart::OnTick();
 
     if (iparams.is_draw) {
@@ -1030,6 +972,21 @@ class Indicator : public IndicatorBase {
       for (int i = 0; i < (int)iparams.GetMaxModes(); ++i)
         draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.GetDataSourceMode()),
                         GetBarTime(0), GetEntry(0)[i], iparams.draw_window);
+    }
+  }
+
+  /**
+   * Sets indicator data source.
+   */
+  void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) override {
+    if (indi_src.IsSet() && indi_src.Ptr() != _indi) {
+      indi_src.Ptr().RemoveListener(THIS_PTR);
+    }
+    indi_src = _indi;
+    if (_indi != NULL) {
+      indi_src.Ptr().AddListener(THIS_PTR);
+      iparams.SetDataSource(-1, _input_mode);
+      indi_src.Ptr().OnBecomeDataSourceFor(THIS_PTR);
     }
   }
 
@@ -1086,6 +1043,19 @@ class Indicator : public IndicatorBase {
     }
     return _result;
   }
+
+  /**
+   * Get full name of the indicator (with "over ..." part).
+   */
+  string GetFullName() override {
+    return GetName() + "[" + IntegerToString(iparams.GetMaxModes()) + "]" +
+           (HasDataSource() ? (" (over " + GetDataSource().GetFullName() + ")") : "");
+  }
+
+  /**
+   * Get indicator type.
+   */
+  ENUM_INDICATOR_TYPE GetType() override { return iparams.itype; }
 
   /**
    * Update indicator.
@@ -1163,9 +1133,22 @@ class Indicator : public IndicatorBase {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _index = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _timestamp = -1) {
     _entry.AddFlags(_entry.GetDataTypeFlags(iparams.GetDataValueType()));
   };
+
+  /**
+   * Returns the indicator's entry value for the given shift and mode.
+   *
+   * @see: DataParamEntry.
+   *
+   * @return
+   *   Returns DataParamEntry struct filled with a single value.
+   */
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    return GetEntry(_ishift)[_mode];
+  }
 };
 
 #endif
