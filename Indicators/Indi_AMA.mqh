@@ -36,7 +36,7 @@ struct IndiAMAParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   IndiAMAParams(int _period = 10, int _fast_period = 2, int _slow_period = 30, int _ama_shift = 0,
-                ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
+                ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period),
         fast_period(_fast_period),
         slow_period(_slow_period),
@@ -71,10 +71,6 @@ class Indi_AMA : public IndicatorCandleSource<IndiAMAParams> {
   Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL, int _indi_mode = 0)
       : IndicatorCandleSource<IndiAMAParams>(_p, _indi_src, _indi_mode) {
     iparams.SetIndicatorType(INDI_AMA);
-    if (_indi_src != NULL) {
-      iparams.SetDataSourceType(IDATA_INDICATOR);
-    } else {
-    }
   };
   Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorCandleSource<IndiAMAParams>(INDI_AMA, _tf, _shift){};
@@ -125,7 +121,7 @@ class Indi_AMA : public IndicatorCandleSource<IndiAMAParams> {
   static double iAMAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period,
                                 int _fast_ema_period, int _slow_ema_period, int _ama_shift, ENUM_APPLIED_PRICE _ap,
                                 int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(
         _indi, _symbol, _tf, _ap,
         Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift,
                       (int)_ap));

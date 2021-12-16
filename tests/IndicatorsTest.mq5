@@ -112,9 +112,9 @@ void OnTick() {
       IndicatorDataEntry _entry(_indi.GetEntry());
 
       if (_indi.GetType() == INDI_AMA) {
-        PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
+        // PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
       } else {
-        continue;
+        // continue;
       }
 
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
@@ -422,7 +422,14 @@ bool InitIndicators() {
 
   // AMA.
   IndiAMAParams ama_params();
+  ama_params.SetDataSourceType(IDATA_INDICATOR);
   indis.Push(new Indi_AMA(ama_params));
+
+  // Original AMA.
+  IndiAMAParams ama_params_orig();
+  ama_params_orig.SetName("Original AMA to compare");
+  ama_params_orig.SetDataSourceType(IDATA_BUILTIN);
+  indis.Push(new Indi_AMA(ama_params_orig));
 
   // Chaikin Oscillator.
   IndiCHOParams cho_params();

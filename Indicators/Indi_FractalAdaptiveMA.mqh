@@ -69,7 +69,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
 #else
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf,
                                                        Util::MakeKey("Indi_FrAMA", _ma_period, _ma_shift, (int)_ap));
-    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _mode, _shift, _ap, _cache);
+    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode, _shift, _cache);
 #endif
   }
 

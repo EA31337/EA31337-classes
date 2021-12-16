@@ -462,6 +462,28 @@ class IndicatorBase : public Chart {
     return NULL;
   }
 
+  virtual IValueStorage* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
+    switch (_ap) {
+      case PRICE_OPEN:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
+      case PRICE_HIGH:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
+      case PRICE_LOW:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
+      case PRICE_CLOSE:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
+      case PRICE_MEDIAN:
+      case PRICE_TYPICAL:
+      case PRICE_WEIGHTED:
+      default:
+        Print("Error: Invalid applied price " + EnumToString(_ap) +
+              ", only PRICE_(OPEN|HIGH|LOW|CLOSE) are currently supported by "
+              "IndicatorBase::GetSpecificAppliedPriceValueStorage()!");
+        DebugBreak();
+        return NULL;
+    }
+  }
+
   /**
    * Checks whether indicator support given value storage type.
    */

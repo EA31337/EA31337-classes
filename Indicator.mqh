@@ -147,22 +147,20 @@ class Indicator : public IndicatorBase {
   Indicator(const TS& _iparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
       : IndicatorBase(_iparams.GetTf(), NULL) {
     iparams = _iparams;
-    SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     if (_indi_src != NULL) {
       SetDataSource(_indi_src, _indi_mode);
+      iparams.SetDataSourceType(IDATA_INDICATOR);
     }
     Init();
   }
   Indicator(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorBase(_tf) {
     iparams = _iparams;
-    SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();
   }
   Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
       : IndicatorBase(_tf) {
     iparams.SetIndicatorType(_itype);
     iparams.SetShift(_shift);
-    SetName(_name != "" ? _name : EnumToString(iparams.itype));
     Init();
   }
 
@@ -183,7 +181,7 @@ class Indicator : public IndicatorBase {
 
   /* Buffer methods */
 
-  virtual string CacheKey() { return GetName(); }
+  virtual string CacheKey() { return GetFullName(); }
 
   /**
    * Initializes a cached proxy between i*OnArray() methods and OnCalculate()
@@ -720,7 +718,9 @@ class Indicator : public IndicatorBase {
           _result = _source.Ptr();
         }
       }
-    } else {
+    } else if (iparams.GetDataSourceType() == IDATA_INDICATOR) {
+      // User sets data source's mode to On-Indicator, but not set data source via SetDataSource()!
+
       // Requesting potential data source.
       IndicatorBase* _ds = OnDataSourceRequest();
 
@@ -749,7 +749,7 @@ class Indicator : public IndicatorBase {
       return true;
     }
 
-    if (GetDataSourceRaw() == NULL && _try_initialize) {
+    if (iparams.GetDataSourceType() == IDATA_INDICATOR && GetDataSourceRaw() == NULL && _try_initialize) {
       SetDataSource(OnDataSourceRequest());
     }
 
@@ -792,7 +792,9 @@ class Indicator : public IndicatorBase {
   /**
    * Get name of the indicator.
    */
-  string GetName() { return iparams.name; }
+  string GetName() override {
+    return "(" + EnumToString(GetType()) + ")" + (iparams.name != "" ? (" " + iparams.name) : "");
+  }
 
   /**
    * Get more descriptive name of the indicator.

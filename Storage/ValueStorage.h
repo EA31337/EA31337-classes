@@ -91,6 +91,10 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
   ValueStorage<double> *_price = INDI.GetValueStorage(APPLIED_PRICE);                                \
   INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
 
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(INDI, SYMBOL, TF, APPLIED_PRICE, KEY) \
+  ValueStorage<double> *_price = INDI.GetSpecificAppliedPriceValueStorage(APPLIED_PRICE);                     \
+  INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
+
 #define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(INDI, SYMBOL, TF, KEY)                                   \
   ValueStorage<datetime> *_time = (ValueStorage<datetime> *)INDI.GetSpecificValueStorage(INDI_VS_TYPE_TIME);           \
   ValueStorage<long> *_tick_volume = (ValueStorage<long> *)INDI.GetSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME);     \
