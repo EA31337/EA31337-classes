@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -45,15 +45,15 @@ struct IndiPriceVolumeTrendParams : IndicatorParams {
 /**
  * Implements the Price Volume Trend indicator.
  */
-class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
+class Indi_PriceVolumeTrend : public IndicatorTickOrCandleSource<IndiPriceVolumeTrendParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_PriceVolumeTrend(IndiPriceVolumeTrendParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiPriceVolumeTrendParams>(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_PriceVolumeTrend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_PRICE_VOLUME_TREND, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_PRICE_VOLUME_TREND, _tf, _shift){};
 
   /**
    * Built-in version of Price Volume Trend.

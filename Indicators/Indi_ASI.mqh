@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -46,13 +46,13 @@ struct IndiASIParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_ASI : public Indicator<IndiASIParams> {
+class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ASI(IndiASIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiASIParams>(_p, _indi_src){};
-  Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ASI, _tf, _shift){};
+  Indi_ASI(IndiASIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ASI, _tf, _shift){};
 
   /**
    * Built-in version of ASI.

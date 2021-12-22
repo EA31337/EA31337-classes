@@ -215,7 +215,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Checks whether indicator support given value storage type.
    */
-  virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
+  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
     switch (_type) {
       case INDI_VS_TYPE_PRICE_OPEN:
       case INDI_VS_TYPE_PRICE_HIGH:

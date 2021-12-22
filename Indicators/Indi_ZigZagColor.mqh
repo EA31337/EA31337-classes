@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_ZigZag.mqh"
 
@@ -52,14 +52,15 @@ struct IndiZigZagColorParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
+class Indi_ZigZagColor : public IndicatorTickOrCandleSource<IndiZigZagColorParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_ZigZagColor(IndiZigZagColorParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiZigZagColorParams>(_p, _indi_src){};
-  Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_VROC, _tf, _shift){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_VROC, _tf, _shift){};
 
   /**
    * Returns value for ZigZag Color indicator.

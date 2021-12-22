@@ -26,7 +26,7 @@ struct IndicatorParams;
 // Includes.
 #include "../Action.mqh"
 #include "../DictStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Redis.mqh"
 #include "Indi_Drawer.struct.h"
 #include "Price/Indi_Price.mqh"
@@ -34,7 +34,7 @@ struct IndicatorParams;
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_Drawer : public Indicator<IndiDrawerParams> {
+class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
   Redis redis;
 
  public:
@@ -42,10 +42,11 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
    * Class constructor.
    */
   Indi_Drawer(const IndiDrawerParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiDrawerParams>(_p, _indi_src), redis(true) {
+      : IndicatorTickOrCandleSource(_p, _indi_src), redis(true) {
     Init();
   }
-  Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DRAWER, _tf, _shift), redis(true) {
+  Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_DRAWER, _tf, _shift), redis(true) {
     Init();
   }
 

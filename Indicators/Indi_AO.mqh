@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -51,13 +51,13 @@ struct IndiAOParams : IndicatorParams {
 /**
  * Implements the Awesome oscillator.
  */
-class Indi_AO : public Indicator<IndiAOParams> {
+class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AO(IndiAOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiAOParams>(_p, _indi_src){};
-  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_AO, _tf, _shift){};
+  Indi_AO(IndiAOParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AO, _tf, _shift){};
 
   /**
    * Returns the indicator value.

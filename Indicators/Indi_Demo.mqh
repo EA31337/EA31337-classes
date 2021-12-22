@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "Price/Indi_Price.mqh"
 
 /**
@@ -53,13 +53,14 @@ struct IndiDemoParams : IndicatorParams {
 /**
  * Demo/Dummy Indicator.
  */
-class Indi_Demo : public Indicator<IndiDemoParams> {
+class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Demo(IndiDemoParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiDemoParams>(_p, _indi_src){};
-  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DEMO, _tf, _shift){};
+  Indi_Demo(IndiDemoParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_DEMO, _tf, _shift){};
 
   /**
    * Returns the indicator value.

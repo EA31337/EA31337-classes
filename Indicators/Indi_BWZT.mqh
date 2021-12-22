@@ -62,13 +62,14 @@ struct IndiBWZTParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Zone Trade.
  */
-class Indi_BWZT : public Indicator<IndiBWZTParams> {
+class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BWZT(IndiBWZTParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiBWZTParams>(_p, _indi_src){};
-  Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BWZT, _tf, _shift){};
+  Indi_BWZT(IndiBWZTParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_BWZT, _tf, _shift){};
 
   /**
    * Built-in version of BWZT.

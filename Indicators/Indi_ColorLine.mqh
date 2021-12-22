@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_MA.mqh"
 
@@ -45,14 +45,15 @@ struct IndiColorLineParams : IndicatorParams {
 /**
  * Implements Color Bars
  */
-class Indi_ColorLine : public Indicator<IndiColorLineParams> {
+class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_ColorLine(IndiColorLineParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiColorLineParams>(_p, _indi_src){};
-  Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_COLOR_LINE, _tf, _shift){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_COLOR_LINE, _tf, _shift){};
 
   /**
    * "Built-in" version of Color Line.

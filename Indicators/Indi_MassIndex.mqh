@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_MA.mqh"
 
@@ -50,14 +50,15 @@ struct IndiMassIndexParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
+class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_MassIndex(IndiMassIndexParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiMassIndexParams>(_p, _indi_src){};
-  Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MASS_INDEX, _tf, _shift){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_MASS_INDEX, _tf, _shift){};
 
   /**
    * Built-in version of Mass Index.

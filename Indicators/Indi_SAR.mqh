@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -51,13 +51,13 @@ struct IndiSARParams : IndicatorParams {
 /**
  * Implements the Parabolic Stop and Reverse system indicator.
  */
-class Indi_SAR : public Indicator<IndiSARParams> {
+class Indi_SAR : public IndicatorTickOrCandleSource<IndiSARParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_SAR(IndiSARParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiSARParams>(_p, _indi_src) {}
-  Indi_SAR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_SAR, _tf, _shift) {}
+  Indi_SAR(IndiSARParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_SAR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_SAR, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

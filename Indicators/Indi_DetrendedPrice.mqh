@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.price.h"
 #include "Indi_MA.mqh"
 
@@ -48,15 +48,15 @@ struct IndiDetrendedPriceParams : IndicatorParams {
 /**
  * Implements Detrended Price Oscillator.
  */
-class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
+class Indi_DetrendedPrice : public IndicatorTickOrCandleSource<IndiDetrendedPriceParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_DetrendedPrice(IndiDetrendedPriceParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiDetrendedPriceParams>(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_DetrendedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_DETRENDED_PRICE, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_DETRENDED_PRICE, _tf, _shift){};
 
   /**
    * Built-in version of AMA.

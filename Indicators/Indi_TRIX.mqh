@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.price.h"
 #include "Indi_MA.mqh"
 
@@ -49,13 +49,14 @@ struct IndiTRIXParams : IndicatorParams {
 /**
  * Implements the Triple Exponential Average indicator.
  */
-class Indi_TRIX : public Indicator<IndiTRIXParams> {
+class Indi_TRIX : public IndicatorTickOrCandleSource<IndiTRIXParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_TRIX(IndiTRIXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiTRIXParams>(_p, _indi_src){};
-  Indi_TRIX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_TRIX, _tf, _shift){};
+  Indi_TRIX(IndiTRIXParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_TRIX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_TRIX, _tf, _shift){};
 
   /**
    * Built-in version of TriX.

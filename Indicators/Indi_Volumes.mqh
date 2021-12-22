@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -46,13 +46,14 @@ struct IndiVolumesParams : IndicatorParams {
 /**
  * Implements the Volumes indicator.
  */
-class Indi_Volumes : public Indicator<IndiVolumesParams> {
+class Indi_Volumes : public IndicatorTickOrCandleSource<IndiVolumesParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Volumes(IndiVolumesParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiVolumesParams>(_p, _indi_src){};
-  Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_VOLUMES, _tf, _shift){};
+  Indi_Volumes(IndiVolumesParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_VOLUMES, _tf, _shift){};
 
   /**
    * Built-in version of Volumes.

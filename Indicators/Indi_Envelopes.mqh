@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/Singleton.h"
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
@@ -76,14 +76,15 @@ struct IndiEnvelopesParams : IndicatorParams {
 /**
  * Implements the Envelopes indicator.
  */
-class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
+class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_Envelopes(IndiEnvelopesParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiEnvelopesParams>(_p, _indi_src) {}
-  Indi_Envelopes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ENVELOPES, _tf, _shift) {}
+      : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Envelopes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_ENVELOPES, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

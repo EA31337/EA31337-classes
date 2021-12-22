@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -48,14 +48,14 @@ struct IndiFractalsParams : IndicatorParams {
 /**
  * Implements the Fractals indicator.
  */
-class Indi_Fractals : public Indicator<IndiFractalsParams> {
+class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndiFractalsParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiFractalsParams>(_p, _indi_src) {}
-  Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_FRACTALS, _tf, _shift) {}
+  Indi_Fractals(IndiFractalsParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_FRACTALS, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

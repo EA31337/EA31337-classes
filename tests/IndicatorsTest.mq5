@@ -334,7 +334,7 @@ bool InitIndicators() {
   stddev_params_on_ma_sma.SetDraw(true, 1);
 
   Ref<Indi_StdDev> indi_stddev_on_ma_sma = new Indi_StdDev(stddev_params_on_ma_sma);
-  indi_stddev_on_ma_sma.Ptr().SetDataSource(indi_ma_sma_for_stddev.Ptr(), 0);
+  indi_stddev_on_ma_sma.Ptr().SetDataSource(indi_ma_sma_for_stddev.Ptr());
   indis.Push(indi_stddev_on_ma_sma.Ptr());
 
   // Standard Deviation (StdDev) in SMA mode over Price.

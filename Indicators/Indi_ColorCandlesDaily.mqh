@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -42,15 +42,15 @@ struct IndiColorCandlesDailyParams : IndicatorParams {
 /**
  * Implements Color Bars
  */
-class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
+class Indi_ColorCandlesDaily : public IndicatorTickOrCandleSource<IndiColorCandlesDailyParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_ColorCandlesDaily(IndiColorCandlesDailyParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiColorCandlesDailyParams>(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_ColorCandlesDaily(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_COLOR_CANDLES_DAILY, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_COLOR_CANDLES_DAILY, _tf, _shift){};
 
   /**
    * "Built-in" version of Color Candles Daily.

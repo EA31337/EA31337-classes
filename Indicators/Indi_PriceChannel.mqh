@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "Indi_ZigZag.mqh"
 
 // Structs.
@@ -45,15 +45,15 @@ struct IndiPriceChannelParams : IndicatorParams {
 /**
  * Implements Price Channel indicator.
  */
-class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
+class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_PriceChannel(IndiPriceChannelParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiPriceChannelParams>(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_PriceChannel(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_PRICE_CHANNEL, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_PRICE_CHANNEL, _tf, _shift){};
 
   /**
    * Returns value for Price Channel indicator.

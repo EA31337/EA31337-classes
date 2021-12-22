@@ -23,7 +23,7 @@
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/IndicatorTickOrCandleSource.h"
 #include "../../Pattern.struct.h"
 #include "../../Serializer.mqh"
 #include "../Price/Indi_Price.mqh"
@@ -46,13 +46,14 @@ struct IndiPatternParams : IndicatorParams {
 /**
  * Implements Pattern Detector.
  */
-class Indi_Pattern : public Indicator<IndiPatternParams> {
+class Indi_Pattern : public IndicatorTickOrCandleSource<IndiPatternParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Pattern(IndiPatternParams& _p, IndicatorBase* _indi_src = NULL) : Indicator<IndiPatternParams>(_p, _indi_src){};
-  Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PATTERN, _tf, _shift){};
+  Indi_Pattern(IndiPatternParams& _p, IndicatorBase* _indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_PATTERN, _tf, _shift){};
 
   /**
    * Returns the indicator's value.

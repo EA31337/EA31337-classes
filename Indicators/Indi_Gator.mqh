@@ -28,7 +28,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -103,13 +103,14 @@ struct IndiGatorParams : IndicatorParams {
 /**
  * Implements the Gator oscillator.
  */
-class Indi_Gator : public Indicator<IndiGatorParams> {
+class Indi_Gator : public IndicatorTickOrCandleSource<IndiGatorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Gator(IndiGatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiGatorParams>(_p, _indi_src) {}
-  Indi_Gator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_GATOR, _tf, _shift) {}
+  Indi_Gator(IndiGatorParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Gator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_GATOR, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

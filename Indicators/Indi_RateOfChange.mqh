@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.price.h"
 
 // Structs.
@@ -47,15 +47,15 @@ struct IndiRateOfChangeParams : IndicatorParams {
 /**
  * Implements the Rate of Change indicator.
  */
-class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
+class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangeParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_RateOfChange(IndiRateOfChangeParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiRateOfChangeParams>(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_RATE_OF_CHANGE, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_RATE_OF_CHANGE, _tf, _shift){};
 
   /**
    * Built-in version of Rate of Change.

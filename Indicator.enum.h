@@ -40,7 +40,7 @@ enum ENUM_INDICATOR_ACTION {
   FINAL_INDICATOR_ACTION_ENTRY
 };
 
-/* Define type of indicators. */
+/* Define type of */
 enum ENUM_INDICATOR_TYPE {
   INDI_NONE = 0,                        // (None)
   INDI_AC,                              // Accelerator Oscillator
@@ -101,12 +101,12 @@ enum ENUM_INDICATOR_TYPE {
   INDI_PRICE_FEEDER,                    // Indicator which returns prices from custom array
   INDI_PRICE_VOLUME_TREND,              // Price and Volume Trend
   INDI_RATE_OF_CHANGE,                  // Rate of Change
-  INDI_RS,                              // Indi_Math-based RSI indicator.
+  INDI_RS,                              // Indi_Math-based RSI
   INDI_RSI,                             // Relative Strength Index
   INDI_RSI_ON_PRICE,                    // Relative Strength Index (RSI) (on Price)
   INDI_RVI,                             // Relative Vigor Index
   INDI_SAR,                             // Parabolic SAR
-  INDI_SPECIAL_MATH,                    // Math operations over given indicator.
+  INDI_SPECIAL_MATH,                    // Math operations over given
   INDI_STDDEV,                          // Standard Deviation
   INDI_STDDEV_ON_MA_SMA,                // Standard Deviation on Moving Average in SMA mode
   INDI_STDDEV_ON_PRICE,                 // Standard Deviation (on Price)
@@ -132,7 +132,7 @@ enum ENUM_INDICATOR_TYPE {
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
-/* Defines type of source data for indicator. */
+/* Defines type of source data for */
 enum ENUM_IDATA_SOURCE_TYPE {
   IDATA_BUILTIN = 0,     // Platform built-in
   IDATA_CHART,           // Chart calculation
@@ -154,7 +154,7 @@ enum ENUM_IDATA_VALUE_RANGE {
   IDATA_RANGE_UNKNOWN
 };
 
-// Indicator line identifiers used in ADX and ADXW indicators.
+// Indicator line identifiers used in ADX and ADXW
 enum ENUM_INDI_ADX_LINE {
 #ifdef __MQL4__
   LINE_MAIN_ADX = MODE_MAIN,    // Base indicator line.
@@ -176,7 +176,7 @@ enum ENUM_INDICATOR_INDEX {
   FINAL_ENUM_INDICATOR_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
 };
 
-/* Indicator line identifiers used in Envelopes and Fractals indicators. */
+/* Indicator line identifiers used in Envelopes and Fractals */
 enum ENUM_LO_UP_LINE {
 #ifdef __MQL4__
   LINE_UPPER = MODE_UPPER,  // Upper line.
@@ -189,7 +189,7 @@ enum ENUM_LO_UP_LINE {
 };
 
 /**
- * Indicator line identifiers used in MACD, RVI and Stochastic indicators.
+ * Indicator line identifiers used in MACD, RVI and Stochastic
  *
  * @see:
  * - https://docs.mql4.com/constants/indicatorconstants/lines
@@ -234,12 +234,17 @@ enum INDICATOR_ENTRY_FLAGS {
 
 // Storage type for IndicatorBase::GetSpecificValueStorage().
 enum ENUM_INDI_VS_TYPE {
-  INDI_VS_TYPE_TIME,
-  INDI_VS_TYPE_TICK_VOLUME,
-  INDI_VS_TYPE_VOLUME,
-  INDI_VS_TYPE_SPREAD,
-  INDI_VS_TYPE_PRICE_OPEN,
-  INDI_VS_TYPE_PRICE_HIGH,
-  INDI_VS_TYPE_PRICE_LOW,
-  INDI_VS_TYPE_PRICE_CLOSE
+  INDI_VS_TYPE_TIME,            // Candle.
+  INDI_VS_TYPE_TICK_VOLUME,     // Candle.
+  INDI_VS_TYPE_VOLUME,          // Candle.
+  INDI_VS_TYPE_SPREAD,          // Candle.
+  INDI_VS_TYPE_PRICE_OPEN,      // Candle.
+  INDI_VS_TYPE_PRICE_HIGH,      // Candle.
+  INDI_VS_TYPE_PRICE_LOW,       // Candle.
+  INDI_VS_TYPE_PRICE_CLOSE,     // Candle.
+  INDI_VS_TYPE_PRICE_MEDIAN,    // Candle.
+  INDI_VS_TYPE_PRICE_TYPICAL,   // Candle.
+  INDI_VS_TYPE_PRICE_WEIGHTED,  // Candle.
+  INDI_VS_TYPE_PRICE_BID,       // Tick.
+  INDI_VS_TYPE_PRICE_ASK,       // Tick.
 };

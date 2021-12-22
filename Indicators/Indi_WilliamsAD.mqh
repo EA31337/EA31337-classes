@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -42,14 +42,15 @@ struct IndiWilliamsADParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
+class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiWilliamsADParams>(_p, _indi_src){};
-  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_WILLIAMS_AD, _tf, _shift){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_WILLIAMS_AD, _tf, _shift){};
 
   /**
    * Built-in version of Williams' AD.

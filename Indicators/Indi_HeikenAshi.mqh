@@ -28,7 +28,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Enums.
@@ -68,14 +68,15 @@ struct IndiHeikenAshiParams : IndicatorParams {
 /**
  * Implements the Heiken-Ashi indicator.
  */
-class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
+class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiHeikenAshiParams>(_p, _indi_src) {}
-  Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_HEIKENASHI, _tf, _shift) {}
+      : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_HEIKENASHI, _tf, _shift) {}
 
   /**
    * Returns value for iHeikenAshi indicator.

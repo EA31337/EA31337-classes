@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.price.h"
 #include "../Storage/ValueStorage.spread.h"
@@ -55,13 +55,14 @@ struct IndiADXWParams : IndiADXParams {
 /**
  * Implements the Average Directional Movement Index indicator by Welles Wilder.
  */
-class Indi_ADXW : public Indicator<IndiADXWParams> {
+class Indi_ADXW : public IndicatorTickOrCandleSource<IndiADXWParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ADXW(IndiADXWParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiADXWParams>(_p, _indi_src){};
-  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ADXW, _tf, _shift){};
+  Indi_ADXW(IndiADXWParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_ADXW, _tf, _shift){};
 
   /**
    * Built-in version of ADX Wilder.

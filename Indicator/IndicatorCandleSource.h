@@ -54,7 +54,7 @@ class IndicatorCandleSource : public Indicator<TS> {
   /**
    * Sets indicator data source.
    */
-  void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) override {
+  void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) override {
     if (_indi == NULL) {
       // Just deselecting data source.
       Indicator<TS>::SetDataSource(_indi, _input_mode);
@@ -78,6 +78,15 @@ class IndicatorCandleSource : public Indicator<TS> {
     }
 
     Indicator<TS>::SetDataSource(_indi, _input_mode);
+  }
+
+  /**
+   * Called when user tries to set given data source. Could be used to check if indicator implements all required value
+   * storages.
+   */
+  bool OnValidateDataSource(IndicatorBase* _ds, string& _reason) override {
+    // @todo Make use of this method.
+    return true;
   }
 
   /**

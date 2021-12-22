@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.price.h"
 #include "Indi_MA.mqh"
 
@@ -50,13 +50,14 @@ struct IndiTEMAParams : IndicatorParams {
 /**
  * Implements the Triple Exponential Moving Average indicator.
  */
-class Indi_TEMA : public Indicator<IndiTEMAParams> {
+class Indi_TEMA : public IndicatorTickOrCandleSource<IndiTEMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_TEMA(IndiTEMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiTEMAParams>(_p, _indi_src){};
-  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_TEMA, _tf, _shift){};
+  Indi_TEMA(IndiTEMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_TEMA, _tf, _shift){};
 
   /**
    * Built-in version of TEMA.

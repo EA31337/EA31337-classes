@@ -980,7 +980,7 @@ class Indicator : public IndicatorBase {
   /**
    * Sets indicator data source.
    */
-  void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) override {
+  void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) override {
     if (indi_src.IsSet() && indi_src.Ptr() != _indi) {
       indi_src.Ptr().RemoveListener(THIS_PTR);
     }

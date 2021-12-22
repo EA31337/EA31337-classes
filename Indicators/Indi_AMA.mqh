@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorCandleSource.h"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.price.h"
 #include "Price/Indi_Price.mqh"
@@ -63,17 +63,16 @@ struct IndiAMAParams : IndicatorParams {
 /**
  * Implements the AMA indicator.
  */
-class Indi_AMA : public IndicatorCandleSource<IndiAMAParams> {
+class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL, int _indi_mode = 0)
-      : IndicatorCandleSource<IndiAMAParams>(_p, _indi_src, _indi_mode) {
+      : IndicatorTickOrCandleSource(_p, _indi_src, _indi_mode) {
     iparams.SetIndicatorType(INDI_AMA);
   };
-  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorCandleSource<IndiAMAParams>(INDI_AMA, _tf, _shift){};
+  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AMA, _tf, _shift){};
 
   /**
    * Built-in version of AMA.

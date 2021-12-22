@@ -401,7 +401,7 @@ class IndicatorBase : public Chart {
   /**
    * Sets indicator data source.
    */
-  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) = NULL;
+  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) = NULL;
 
   /**
    * Sets data source's input mode.
@@ -610,6 +610,15 @@ class IndicatorBase : public Chart {
    * Called when indicator became a data source for other indicator.
    */
   virtual void OnBecomeDataSourceFor(IndicatorBase* _base_indi){};
+
+  /**
+   * Called when user tries to set given data source. Could be used to check if indicator implements all required value
+   * storages.
+   */
+  virtual bool OnValidateDataSource(IndicatorBase* _ds, string& _reason) {
+    _reason = "Indicator " + GetName() + " does not implement OnValidateDataSource()";
+    return false;
+  }
 
   /**
    * Returns indicator value for a given shift and mode.

@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -47,13 +47,14 @@ struct IndiVROCParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_VROC : public Indicator<IndiVROCParams> {
+class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_VROC(IndiVROCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiVROCParams>(_p, _indi_src){};
-  Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_VROC, _tf, _shift){};
+  Indi_VROC(IndiVROCParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_VROC, _tf, _shift){};
 
   /**
    * Built-in version of VROC.

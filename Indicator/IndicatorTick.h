@@ -165,7 +165,7 @@ class IndicatorTick : public IndicatorBase {
   /**
    * Sets indicator data source.
    */
-  void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) {
+  void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) {
     indi_src = _indi;
     itparams.SetDataSource(-1, _input_mode);
   }

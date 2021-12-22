@@ -47,12 +47,12 @@ class IndicatorTickSource : public Indicator<TS> {
   /**
    * Class deconstructor.
    */
-  ~IndicatorCandleSource() {}
+  ~IndicatorTickSource() {}
 
   /**
    * Sets indicator data source.
    */
-  void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) override {
+  void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) override {
     if (_indi == NULL) {
       // Just deselecting data source.
       Indicator<TS>::SetDataSource(_indi, _input_mode);
@@ -62,14 +62,59 @@ class IndicatorTickSource : public Indicator<TS> {
     // We can only use data sources which supports all possible modes from IndicatorTick.
     bool _result = true;
 
-    _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_APPLIED);
+    if (_input_mode == -1) {
+      // Source mode which acts as an applied price wasn't selected, so we have to ensure that source is a Tick
+      // indicator. Valid only if implements bid or ask price.
+      _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID) ||
+                 _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+    } else {
+      // Applied price selected. We will select source indicator only if it provides price buffer for given applied
+      // price.
+      switch (_input_mode) {
+        case PRICE_OPEN:
+          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
+          break;
+        case PRICE_HIGH:
+          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
+          break;
+        case PRICE_LOW:
+          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
+          break;
+        case PRICE_CLOSE:
+          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
+          break;
+        case PRICE_MEDIAN:
+          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_MEDIAN);
+          break;
+        case PRICE_TYPICAL:
+          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_TYPICAL);
+          break;
+        case PRICE_WEIGHTED:
+          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_WEIGHTED);
+          break;
+        default:
+          Alert("Invalid input mode ", _input_mode, " for indicator ", _indi.GetFullName(),
+                ". Must be one one PRICE_(OPEN|HIGH|LOW|CLOSE|MEDIAN|TYPICAL|WEIGHTED)!");
+          DebugBreak();
+      }
+    }
 
     if (!_result) {
-      Alert("Passed indicator ", _indi.GetFullName(), " does not define all required specific data storages!");
+      Alert("Passed indicator ", _indi.GetFullName(),
+            " does not provide required data storage(s)! Mode selected: ", _input_mode);
       DebugBreak();
     }
 
     Indicator<TS>::SetDataSource(_indi, _input_mode);
+  }
+
+  /**
+   * Called when user tries to set given data source. Could be used to check if indicator implements all required value
+   * storages.
+   */
+  bool OnValidateDataSource(IndicatorBase* _ds, string& _reason) override {
+    // @todo Make use of this method.
+    return true;
   }
 
   /**

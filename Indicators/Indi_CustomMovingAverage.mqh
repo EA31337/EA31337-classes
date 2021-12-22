@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 // Structs.
 struct IndiCustomMovingAverageParams : IndicatorParams {
@@ -54,15 +54,15 @@ struct IndiCustomMovingAverageParams : IndicatorParams {
 /**
  * Implements the Custom Moving Average indicator.
  */
-class Indi_CustomMovingAverage : public Indicator<IndiCustomMovingAverageParams> {
+class Indi_CustomMovingAverage : public IndicatorTickOrCandleSource<IndiCustomMovingAverageParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_CustomMovingAverage(IndiCustomMovingAverageParams& _p, IndicatorBase* _indi_src = NULL)
-      : Indicator<IndiCustomMovingAverageParams>(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_CUSTOM_MOVING_AVG, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_CUSTOM_MOVING_AVG, _tf, _shift){};
 
   /**
    * Returns the indicator's value.
