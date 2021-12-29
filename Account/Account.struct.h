@@ -35,7 +35,7 @@
 class Serializer;
 
 // Includes.
-#include "Serializer.mqh"
+#include "../Serializer.mqh"
 
 // Struct for account entries.
 struct AccountEntry {
