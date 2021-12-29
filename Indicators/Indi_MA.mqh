@@ -576,7 +576,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Calculates Moving Average. The same as in "Example Moving Average" indicator.
    */
   static int Calculate(const int rates_total, const int prev_calculated, const int begin, ValueStorage<double> &price,
-                       ValueStorage<double> &ExtLineBuffer, int InpMAMethod, int _ma_period) {
+                       ValueStorage<double> &ExtLineBuffer, int _ma_method, int _ma_period) {
     // Check for bars count.
     if (rates_total < _ma_period - 1 + begin) {
       // Not enough bars for calculation.
@@ -588,7 +588,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
     }
 
     // Calculation.
-    switch (InpMAMethod) {
+    switch (_ma_method) {
       case MODE_EMA:
         CalculateEMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, _ma_period);
         break;
