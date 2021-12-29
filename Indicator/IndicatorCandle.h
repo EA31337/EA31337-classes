@@ -33,6 +33,7 @@
 #include "../Buffer/BufferCandle.h"
 #include "../Indicator.mqh"
 
+// Indicator modes.
 enum ENUM_INDI_CANDLE_MODE {
   INDI_CANDLE_MODE_PRICE_OPEN,
   INDI_CANDLE_MODE_PRICE_HIGH,

@@ -60,13 +60,4 @@ class IndicatorTickOrCandleSource : public Indicator<TS> {
     // @todo Make use of this method.
     return true;
   }
-
-  /**
-   * Called if data source is requested, but wasn't yet set. May be used to initialize indicators that must operate on
-   * some data source.
-   */
-  IndicatorBase* OnDataSourceRequest() override {
-    // Defaulting to platform ticks.
-    return new IndicatorTickReal(GetSymbol(), GetTf(), "AMA on IndicatorTickReal");
-  }
 };

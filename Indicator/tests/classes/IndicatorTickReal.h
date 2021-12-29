@@ -41,10 +41,8 @@ struct IndicatorTickRealParams : IndicatorParams {
 // Real tick-based indicator.
 class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> {
  public:
-  IndicatorTickReal(string _symbol, int _shift = 0, string _name = "")
-      : IndicatorTick(INDI_TICK, _symbol, _shift, _name) {
-    SetSymbol(_symbol);
-  }
+  IndicatorTickReal(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
+      : IndicatorTick(INDI_TICK, _tf, _shift, _name) {}
 
   string GetName() override { return "IndicatorTickReal"; }
 

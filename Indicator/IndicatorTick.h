@@ -33,11 +33,18 @@
 #include "../Buffer/BufferTick.h"
 #include "../IndicatorBase.h"
 
+// Indicator modes.
+enum ENUM_INDI_TICK_MODE {
+  INDI_TICK_MODE_PRICE_ASK,
+  INDI_TICK_MODE_PRICE_BID,
+  FINAL_INDI_TICK_MODE_ENTRY,
+};
+
 /**
  * Class to deal with tick indicators.
  */
 template <typename TS, typename TV>
-class IndicatorTick : public IndicatorBase {
+class IndicatorTick : public Indicator<TS> {
  protected:
   BufferTick<TV> itdata;
   TS itparams;
@@ -63,20 +70,49 @@ class IndicatorTick : public IndicatorBase {
   /**
    * Class constructor.
    */
-  IndicatorTick(const TS& _itparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0) {
+  IndicatorTick(const TS& _itparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
+      : Indicator(_itparams, _indi_src, _indi_mode) {
     itparams = _itparams;
     if (_indi_src != NULL) {
       SetDataSource(_indi_src, _indi_mode);
     }
     Init();
   }
-  IndicatorTick(ENUM_INDICATOR_TYPE _itype, string _symbol, int _shift = 0, string _name = "") {
-    itparams.SetIndicatorType(_itype);
-    itparams.SetShift(_shift);
+  IndicatorTick(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
+                string _name = "")
+      : Indicator(_itype, _tf, _shift, _name) {
     Init();
   }
 
   /* Virtual method implementations */
+
+  /**
+   * Returns value storage of given kind.
+   */
+  IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+    switch (_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+        return GetValueStorage(INDI_TICK_MODE_PRICE_ASK);
+      case INDI_VS_TYPE_PRICE_BID:
+        return GetValueStorage(INDI_TICK_MODE_PRICE_BID);
+      default:
+        // Trying in parent class.
+        return Indicator<TS>::GetSpecificValueStorage(_type);
+    }
+  }
+
+  /**
+   * Checks whether indicator support given value storage type.
+   */
+  virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
+    switch (_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+      case INDI_VS_TYPE_PRICE_BID:
+        return true;
+    }
+
+    return Indicator<TS>::HasSpecificValueStorage(_type);
+  }
 
   /**
    * Sends historic entries to listening indicators. May be overriden.

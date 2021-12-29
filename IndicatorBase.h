@@ -303,7 +303,37 @@ class IndicatorBase : public Chart {
    * Called if data source is requested, but wasn't yet set. May be used to initialize indicators that must operate on
    * some data source.
    */
-  virtual IndicatorBase* OnDataSourceRequest() { return NULL; }
+  virtual IndicatorBase* OnDataSourceRequest() {
+    Print("In order to use IDATA_INDICATOR mode for indicator ", GetFullName(),
+          " without explicitly selecting an indicator, ", GetFullName(),
+          " must override OnDataSourceRequest() method and return new instance of data source to be used by default.");
+    DebugBreak();
+    return NULL;
+  }
+
+  /**
+   * Creates default, tick based indicator for given applied price.
+   */
+  IndicatorBase* DataSourceRequestReturnDefault(int _applied_price) {
+    // Returning real candle indicator. Thus way we can use SetAppliedPrice() and select Ask or Bid price.
+    switch (_applied_price) {
+      case PRICE_ASK:
+      case PRICE_BID:
+        return new IndicatorTickReal(GetTf());
+      case PRICE_OPEN:
+      case PRICE_HIGH:
+      case PRICE_LOW:
+      case PRICE_CLOSE:
+      case PRICE_MEDIAN:
+      case PRICE_TYPICAL:
+      case PRICE_WEIGHTED:
+        return new IndicatorTfDummy(GetTf());
+    }
+
+    Print("Passed wrong value for applied price for ", GetFullName(), " indicator!");
+    DebugBreak();
+    return NULL;
+  }
 
   /* Getters */
 
@@ -464,6 +494,10 @@ class IndicatorBase : public Chart {
 
   virtual IValueStorage* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
     switch (_ap) {
+      case PRICE_ASK:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+      case PRICE_BID:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
       case PRICE_OPEN:
         return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
       case PRICE_HIGH:
@@ -481,6 +515,32 @@ class IndicatorBase : public Chart {
               "IndicatorBase::GetSpecificAppliedPriceValueStorage()!");
         DebugBreak();
         return NULL;
+    }
+  }
+
+  virtual bool HasSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
+    switch (_ap) {
+      case PRICE_ASK:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+      case PRICE_BID:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
+      case PRICE_OPEN:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
+      case PRICE_HIGH:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
+      case PRICE_LOW:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
+      case PRICE_CLOSE:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
+      case PRICE_MEDIAN:
+      case PRICE_TYPICAL:
+      case PRICE_WEIGHTED:
+      default:
+        Print("Error: Invalid applied price " + EnumToString(_ap) +
+              ", only PRICE_(OPEN|HIGH|LOW|CLOSE) are currently supported by "
+              "IndicatorBase::HasSpecificAppliedPriceValueStorage()!");
+        DebugBreak();
+        return false;
     }
   }
 

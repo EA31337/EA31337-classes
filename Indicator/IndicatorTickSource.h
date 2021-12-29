@@ -123,6 +123,6 @@ class IndicatorTickSource : public Indicator<TS> {
    */
   IndicatorBase* OnDataSourceRequest() override {
     // Defaulting to platform ticks.
-    return new IndicatorTickReal(GetSymbol(), GetTf(), "AMA on IndicatorTickReal");
+    return new IndicatorTickReal(GetTf(), 0, "AMA on IndicatorTickReal");
   }
 };
