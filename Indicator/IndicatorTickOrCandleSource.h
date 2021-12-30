@@ -60,4 +60,11 @@ class IndicatorTickOrCandleSource : public Indicator<TS> {
     // @todo Make use of this method.
     return true;
   }
+
+  /**
+   * Called when data source emits new entry (historic or future one).
+   */
+  void OnDataSourceEntry(IndicatorDataEntry& entry) override{
+      // We do nothing.
+  };
 };

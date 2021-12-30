@@ -26,7 +26,38 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
+#include "../Storage/IValueStorage.h"
 #include "../Tick.struct.h"
+
+template <typename TV>
+class BufferTickValueStorage : ValueStorage<TV> {
+  // Poiner to buffer to take tick from.
+  BufferTick<TV> *buffer_tick;
+
+  // PRICE_ASK or PRICE_BID.
+  int applied_price;
+
+ public:
+  /**
+   * Constructor.
+   */
+  BufferTickValueStorage(BufferTick<TV> *_buffer_tick, int _applied_price)
+      : buffer_tick(_buffer_tick), applied_price(_applied_price) {}
+
+  /**
+   * Fetches value from a given shift. Takes into consideration as-series flag.
+   */
+  TV Fetch(int _shift) override {
+    Print("BufferTickValueStorage: Fetching " + (applied_price == PRICE_ASK ? "Ask" : "Bid") + " price from shift ",
+          _shift);
+    return 0;
+  }
+
+  /**
+   * Returns number of values available to fetch (size of the values buffer).
+   */
+  int Size() const override { return (int)buffer_tick.Size(); }
+};
 
 /**
  * Class to store struct data.
@@ -34,6 +65,12 @@
 template <typename TV>
 class BufferTick : public BufferStruct<TickAB<TV>> {
  protected:
+  // Ask prices ValueStorage proxy.
+  BufferTickValueStorage<TV> *_vs_ask;
+
+  // Bid prices ValueStorage proxy.
+  BufferTickValueStorage<TV> *_vs_bid;
+
  protected:
   /* Protected methods */
 
@@ -42,7 +79,11 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
    *
    * Called on constructor.
    */
-  void Init() { SetOverflowListener(BufferTickOverflowListener, 10); }
+  void Init() {
+    _vs_ask = NULL;
+    _vs_bid = NULL;
+    SetOverflowListener(BufferTickOverflowListener, 10);
+  }
 
  public:
   /* Constructors */
@@ -51,9 +92,41 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
    * Constructor.
    */
   BufferTick() { Init(); }
-  BufferTick(BufferTick& _right) {
+  BufferTick(BufferTick &_right) {
     THIS_REF = _right;
     Init();
+  }
+
+  /**
+   * Destructor.
+   */
+  ~BufferTick() {
+    if (_vs_ask != NULL) {
+      delete _vs_ask;
+    }
+    if (_vs_bid != NULL) {
+      delete _vs_bid;
+    }
+  }
+
+  /**
+   * Returns Ask prices ValueStorage proxy.
+   */
+  BufferTickValueStorage<TV> *GetAskValueStorage() {
+    if (_vs_ask == NULL) {
+      _vs_ask = new BufferTickValueStorage<TV>(THIS_PTR, PRICE_ASK);
+    }
+    return _vs_ask;
+  }
+
+  /**
+   * Returns Bid prices ValueStorage proxy.
+   */
+  BufferTickValueStorage<TV> *GetBidValueStorage() {
+    if (_vs_bid == NULL) {
+      _vs_bid = new BufferTickValueStorage<TV>(THIS_PTR, PRICE_BID);
+    }
+    return _vs_bid;
   }
 
   /* Grouping methods */

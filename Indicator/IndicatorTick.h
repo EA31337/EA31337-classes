@@ -84,17 +84,15 @@ class IndicatorTick : public Indicator<TS> {
     Init();
   }
 
-  /* Virtual method implementations */
-
   /**
    * Returns value storage of given kind.
    */
   IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
     switch (_type) {
       case INDI_VS_TYPE_PRICE_ASK:
-        return GetValueStorage(INDI_TICK_MODE_PRICE_ASK);
+        return (IValueStorage*)itdata.GetAskValueStorage();
       case INDI_VS_TYPE_PRICE_BID:
-        return GetValueStorage(INDI_TICK_MODE_PRICE_BID);
+        return (IValueStorage*)itdata.GetBidValueStorage();
       default:
         // Trying in parent class.
         return Indicator<TS>::GetSpecificValueStorage(_type);

@@ -604,9 +604,6 @@ class IndicatorBase : public Chart {
 
     last_tick_time = _current_time;
 
-    // Overridable OnTick() method.
-    OnTick();
-
     // Checking and potentially initializing new data source.
     if (HasDataSource(true) != NULL) {
       // Ticking data source if not yet ticked.
@@ -617,6 +614,9 @@ class IndicatorBase : public Chart {
     for (DictStructIterator<int, Ref<IndicatorBase>> iter = indicators.Begin(); iter.IsValid(); ++iter) {
       iter.Value().Ptr().Tick();
     }
+
+    // Overridable OnTick() method.
+    OnTick();
   }
 
   virtual void OnTick() {}
