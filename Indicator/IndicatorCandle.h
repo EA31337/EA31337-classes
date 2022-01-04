@@ -62,6 +62,8 @@ class IndicatorCandle : public Indicator<TS> {
    * Called on constructor.
    */
   void Init() {
+    // Along with indexing by shift, we can also index via timestamp!
+    flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
     icdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     icdata.SetOverflowListener(IndicatorCandleOverflowListener, 10);
     iparams.SetMaxModes(4);

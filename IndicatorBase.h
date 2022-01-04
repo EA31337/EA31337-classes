@@ -72,6 +72,7 @@ class IndicatorBase : public Chart {
   IndicatorCalculateCache<double> cache;
   ARRAY(WeakRef<IndicatorBase>, listeners);  // List of indicators that listens for events from this one.
   long last_tick_time;                       // Time of the last Tick() call.
+  int flags; // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
 
  public:
   /* Indicator enumerations */
@@ -92,6 +93,8 @@ class IndicatorBase : public Chart {
    * Class constructor.
    */
   IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : indi_src(NULL), Chart(_tf, _symbol) {
+    // By default, indicator is indexable only by shift and data source must be also indexable by shift.
+    flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
     is_fed = false;
     indi_src = NULL;
@@ -102,6 +105,8 @@ class IndicatorBase : public Chart {
    * Class constructor.
    */
   IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : Chart(_tfi, _symbol) {
+    // By default, indicator is indexable only by shift and data source must be also indexable by shift.
+    flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
     is_fed = false;
     indi_src = NULL;
@@ -124,11 +129,34 @@ class IndicatorBase : public Chart {
   /* Operator overloading methods */
 
   /**
-   * Access indicator entry data using [] operator.
+   * Access indicator entry data using [] operator via shift.
    */
-  // IndicatorDataEntry operator[](datetime _dt) { return GetEntry(_dt); }
-  IndicatorDataEntry operator[](int _index) { return GetEntry(_index); }
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) { return GetEntry(_index); }
+  IndicatorDataEntry operator[](int _index) {
+    if (!bool(flags | INDI_FLAG_INDEXABLE_BY_SHIFT)) {
+      Print(GetFullName(), " is not indexable by shift!");
+      DebugBreak();
+      IndicatorDataEntry _default;
+      return _default;
+    }
+    return GetEntry(_index);
+  }
+  
+  /**
+   * Access indicator entry data using [] operator via datetime.
+   */
+  IndicatorDataEntry operator[](datetime _dt) {
+    if (!bool(flags | INDI_FLAG_INDEXABLE_BY_TIMESTAMP)) {
+      Print(GetFullName(), " is not indexable by timestamp!");
+      DebugBreak();
+      IndicatorDataEntry _default;
+      return _default;
+    }
+    return GetEntry(_dt);
+  }
+
+  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) {
+    return GetEntry((int)_index);
+  }
 
   /* Buffer methods */
 
@@ -629,6 +657,16 @@ class IndicatorBase : public Chart {
    * Returns the indicator's struct value.
    */
   virtual IndicatorDataEntry GetEntry(int _index = 0) = NULL;
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  virtual IndicatorDataEntry GetEntry(datetime _dt) {
+    Print(GetFullName(), " must implement IndicatorDataEntry IndicatorBase::GetEntry(datetime _dt) in order to use GetEntry(datetime _dt) or _indi[datetime] subscript operator!");
+    DebugBreak();
+    IndicatorDataEntry _default;
+    return _default;
+  }
 
   /**
    * Alters indicator's struct value.

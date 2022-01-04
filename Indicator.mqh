@@ -981,6 +981,19 @@ class Indicator : public IndicatorBase {
    * Sets indicator data source.
    */
   void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) override {
+    if (indi_src.IsSet()) {
+      if (bool(flags | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT) && !bool(_indi.flags | INDI_FLAG_INDEXABLE_BY_SHIFT)) {
+        Print(GetFullName(), ": Cannot set data source to ", _indi.GetFullName(), ", because source indicator isn't indexable by shift!");
+        DebugBreak();
+        return;
+      }
+      if (bool(flags | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_TIMESTAMP) && !bool(_indi.flags | INDI_FLAG_INDEXABLE_BY_TIMESTAMP)) {
+        Print(GetFullName(), ": Cannot set data source to ", _indi.GetFullName(), ", because source indicator isn't indexable by timestamp!");
+        DebugBreak();
+        return;
+      }
+    }
+  
     if (indi_src.IsSet() && indi_src.Ptr() != _indi) {
       indi_src.Ptr().RemoveListener(THIS_PTR);
     }

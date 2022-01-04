@@ -58,6 +58,11 @@ class IndicatorTick : public Indicator<TS> {
    * Called on constructor.
    */
   void Init() {
+    // We can't index by shift.
+    flags &= ~INDI_FLAG_INDEXABLE_BY_SHIFT;
+    // We can only index via timestamp.
+    flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
+    
     itdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     itdata.SetOverflowListener(IndicatorTickOverflowListener, 10);
     // Ask and Bid price.
