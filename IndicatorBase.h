@@ -72,7 +72,7 @@ class IndicatorBase : public Chart {
   IndicatorCalculateCache<double> cache;
   ARRAY(WeakRef<IndicatorBase>, listeners);  // List of indicators that listens for events from this one.
   long last_tick_time;                       // Time of the last Tick() call.
-  int flags; // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
+  int flags;                                 // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
 
  public:
   /* Indicator enumerations */
@@ -140,7 +140,7 @@ class IndicatorBase : public Chart {
     }
     return GetEntry(_index);
   }
-  
+
   /**
    * Access indicator entry data using [] operator via datetime.
    */
@@ -154,9 +154,7 @@ class IndicatorBase : public Chart {
     return GetEntry(_dt);
   }
 
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) {
-    return GetEntry((int)_index);
-  }
+  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) { return GetEntry((int)_index); }
 
   /* Buffer methods */
 
@@ -342,28 +340,17 @@ class IndicatorBase : public Chart {
   /**
    * Creates default, tick based indicator for given applied price.
    */
-  IndicatorBase* DataSourceRequestReturnDefault(int _applied_price) {
-    // Returning real candle indicator. Thus way we can use SetAppliedPrice() and select Ask or Bid price.
-    switch (_applied_price) {
-      case PRICE_ASK:
-      case PRICE_BID:
-        return new IndicatorTickReal(GetTf());
-      case PRICE_OPEN:
-      case PRICE_HIGH:
-      case PRICE_LOW:
-      case PRICE_CLOSE:
-      case PRICE_MEDIAN:
-      case PRICE_TYPICAL:
-      case PRICE_WEIGHTED:
-        return new IndicatorTfDummy(GetTf());
-    }
-
-    Print("Passed wrong value for applied price for ", GetFullName(), " indicator!");
+  virtual IndicatorBase* DataSourceRequestReturnDefault(int _applied_price) {
     DebugBreak();
     return NULL;
   }
 
   /* Getters */
+
+  /**
+   * Returns indicator's flags.
+   */
+  int GetFlags() { return flags; }
 
   /**
    * Returns buffers' cache.
@@ -662,7 +649,9 @@ class IndicatorBase : public Chart {
    * Returns the indicator's struct value.
    */
   virtual IndicatorDataEntry GetEntry(datetime _dt) {
-    Print(GetFullName(), " must implement IndicatorDataEntry IndicatorBase::GetEntry(datetime _dt) in order to use GetEntry(datetime _dt) or _indi[datetime] subscript operator!");
+    Print(GetFullName(),
+          " must implement IndicatorDataEntry IndicatorBase::GetEntry(datetime _dt) in order to use GetEntry(datetime "
+          "_dt) or _indi[datetime] subscript operator!");
     DebugBreak();
     IndicatorDataEntry _default;
     return _default;

@@ -48,7 +48,7 @@ Ref<Indi_AMA> indi_ama_orig_sim;
  * Implements OnInit().
  */
 int OnInit() {
-  indicators.Add(indi_tick = new IndicatorTickReal(_Symbol));
+  indicators.Add(indi_tick = new IndicatorTickReal(PERIOD_CURRENT));
 
   // 1-second candles.
   // indicators.Add(indi_tf = new IndicatorTfDummy(1));

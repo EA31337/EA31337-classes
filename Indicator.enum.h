@@ -251,8 +251,8 @@ enum ENUM_INDI_VS_TYPE {
 
 // Indicator flags.
 enum ENUM_INDI_FLAGS {
-  INDI_FLAG_INDEXABLE_BY_SHIFT, // Indicator supports indexation by shift.
-  INDI_FLAG_INDEXABLE_BY_TIMESTAMP,  // Indicator supports indexation by shift.
-  INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT, // Source indicator must be indexable by shift.
+  INDI_FLAG_INDEXABLE_BY_SHIFT,                // Indicator supports indexation by shift.
+  INDI_FLAG_INDEXABLE_BY_TIMESTAMP,            // Indicator supports indexation by shift.
+  INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT,     // Source indicator must be indexable by shift.
   INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_TIMESTAMP  // Source indicator must be indexable by timestamp.
 };

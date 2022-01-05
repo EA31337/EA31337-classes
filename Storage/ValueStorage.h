@@ -91,16 +91,17 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
   ValueStorage<double> *_price = INDI.GetValueStorage(APPLIED_PRICE);                                \
   INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
 
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(INDI, SYMBOL, TF, APPLIED_PRICE, KEY) \
-  ValueStorage<double> *_price;                                                                               \
-  if (_indi.HasSpecificAppliedPriceValueStorage(APPLIED_PRICE)) {                                             \
-    _price = INDI.GetSpecificAppliedPriceValueStorage(APPLIED_PRICE);                                         \
-  } else {                                                                                                    \
-    Print("Source indicator ", INDI.GetFullName(),                                                            \
-          " cannot be used as it doesn't provide a single buffer to be used by target indicator!");           \
-    DebugBreak();                                                                                             \
-  }                                                                                                           \
-                                                                                                              \
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(INDI, SYMBOL, TF, APPLIED_PRICE, KEY)         \
+  ValueStorage<double> *_price;                                                                                       \
+  if (_indi.HasSpecificAppliedPriceValueStorage(APPLIED_PRICE)) {                                                     \
+    _price = INDI.GetSpecificAppliedPriceValueStorage(APPLIED_PRICE);                                                 \
+  } else {                                                                                                            \
+    Print("Source indicator ", INDI.GetFullName(),                                                                    \
+          " cannot be used as it doesn't provide a single buffer to be used by target indicator! You may try to set " \
+          "applied price/data source mode and try again.");                                                           \
+    DebugBreak();                                                                                                     \
+  }                                                                                                                   \
+                                                                                                                      \
   INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
 
 #define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(INDI, SYMBOL, TF, KEY)                                   \

@@ -422,10 +422,11 @@ bool InitIndicators() {
 
   // AMA.
   IndiAMAParams ama_params();
+  // Will use Candle indicator by default. However, in that case we need to specifiy applied price (excluding ASK and
+  // BID).
   ama_params.SetDataSourceType(IDATA_INDICATOR);
   Indi_AMA* _indi_ama = new Indi_AMA(ama_params);
-  // AMA will automatically sets its data source to Tick or Candle indicator by value of APPLIED_PRICE.
-  _indi_ama.SetAppliedPrice(PRICE_ASK);
+  _indi_ama.SetAppliedPrice(PRICE_OPEN);
   indis.Push(_indi_ama);
 
   // Original AMA.

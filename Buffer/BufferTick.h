@@ -26,6 +26,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
+#include "../Chart.enum.h"
 #include "../Storage/IValueStorage.h"
 #include "../Tick.struct.h"
 

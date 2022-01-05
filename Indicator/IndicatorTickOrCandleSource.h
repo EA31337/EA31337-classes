@@ -27,6 +27,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "tests/classes/IndicatorTfDummy.h"
 #include "tests/classes/IndicatorTickReal.h"
 
 /**
@@ -67,4 +68,32 @@ class IndicatorTickOrCandleSource : public Indicator<TS> {
   void OnDataSourceEntry(IndicatorDataEntry& entry) override{
       // We do nothing.
   };
+
+  /**
+   * Creates default, tick based indicator for given applied price.
+   */
+  IndicatorBase* DataSourceRequestReturnDefault(int _applied_price) override {
+    // Returning real candle indicator. Thus way we can use SetAppliedPrice() and select Ask or Bid price.
+    IndicatorBase* _indi;
+
+    switch (_applied_price) {
+      case PRICE_ASK:
+      case PRICE_BID:
+      case PRICE_OPEN:
+      case PRICE_HIGH:
+      case PRICE_LOW:
+      case PRICE_CLOSE:
+      case PRICE_MEDIAN:
+      case PRICE_TYPICAL:
+      case PRICE_WEIGHTED:
+        // @todo ASK/BID should return Tick indicator. Other APs should return Candle-over-Tick indicator.
+        _indi = new IndicatorTfDummy(GetTf());
+        _indi.SetDataSource(new IndicatorTickReal(GetTf()));
+        return _indi;
+    }
+
+    Print("Passed wrong value for applied price for ", GetFullName(), " indicator!");
+    DebugBreak();
+    return NULL;
+  }
 };
