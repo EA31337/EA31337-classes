@@ -1155,7 +1155,6 @@ class Indicator : public IndicatorBase {
   virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _timestamp = -1) {
     _entry.AddFlags(_entry.GetDataTypeFlags(iparams.GetDataValueType()));
   };
-
   /**
    * Returns the indicator's entry value for the given shift and mode.
    *
