@@ -567,7 +567,7 @@ class IndicatorBase : public Chart {
   template <typename T>
   T GetValue(int _index = 0, int _mode = 0) {
     T _out;
-    GetEntryValue(_index, _mode).Get(_out);
+    GetEntryValue(_mode, _index).Get(_out);
     return _out;
   }
 
@@ -670,7 +670,7 @@ class IndicatorBase : public Chart {
   /**
    * Returns the indicator's entry value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _index = -1) = NULL;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) = NULL;
 
   /**
    * Sends entry to listening indicators.

@@ -1163,7 +1163,7 @@ class Indicator : public IndicatorBase {
    * @return
    *   Returns DataParamEntry struct filled with a single value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) override {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     return GetEntry(_ishift)[_mode];
   }
