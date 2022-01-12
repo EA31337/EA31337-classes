@@ -390,6 +390,12 @@ class Serializer {
 
       SerializerNodeParam* key = name != "" ? SerializerNodeParam::FromString(name) : NULL;
       SerializerNodeParam* val = SerializerNodeParam::FromValue(value);
+
+      if (val == NULL) {
+        Print("Error: Value to SerializerNodeParam conversion failed!");
+        DebugBreak();
+      }
+
       PTR_ATTRIB(val, SetFloatingPointPrecision(GetFloatingPointPrecision()));
       child = new SerializerNode(SerializerNodeObjectProperty, _node, key, val, flags);
 
@@ -422,6 +428,9 @@ class Serializer {
               // There shouldn't be a conversion to int!
               Convert::StringToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _string), value);
               break;
+            default:
+              Print("Error: Wrong param type ", EnumToString(paramType), "!");
+              DebugBreak();
           }
 
           return NULL;
