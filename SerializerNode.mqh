@@ -81,8 +81,7 @@ class SerializerNode {
   /**
    * Checks whether node has specified key.
    */
-  bool HasKey() { return _key != NULL && PTR_ATTRIB(_key, _string) != "";
-  }
+  bool HasKey() { return _key != NULL && PTR_ATTRIB(_key, _string) != ""; }
 
   /**
    * Checks whether node is an array.
@@ -137,6 +136,9 @@ class SerializerNode {
         case SerializerNodeParamString:
           _result += StringLen(PTR_ATTRIB(_value, _string)) + 1;
           break;
+        default:
+          Print("Error: Wrong value type ", EnumToString(GetType()), "!");
+          DebugBreak();
       }
     }
 
@@ -211,7 +213,8 @@ class SerializerNode {
     }
 
     for (unsigned int i = 0; i < _numChildren; ++i) {
-      if (PTR_ATTRIB(_children[i], GetType()) == SerializerNodeArray || PTR_ATTRIB(_children[i], GetType()) == SerializerNodeObject) {
+      if (PTR_ATTRIB(_children[i], GetType()) == SerializerNodeArray ||
+          PTR_ATTRIB(_children[i], GetType()) == SerializerNodeObject) {
         _sum += PTR_ATTRIB(_children[i], MaximumNumContainersInDeepEnd());
       }
     }
