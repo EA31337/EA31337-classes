@@ -880,6 +880,7 @@ class EA {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_EA_CONDITION _cond, DataParamEntry &_args[]) {
+    bool _result = false;
     switch (_cond) {
       case EA_COND_IS_ACTIVE:
         return estate.IsActive();
@@ -906,8 +907,9 @@ class EA {
         return estate.IsOnQuit();
       default:
         logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
+        break;
     }
+    return _result;
   }
   bool CheckCondition(ENUM_EA_CONDITION _cond) {
     ARRAY(DataParamEntry, _args);
@@ -923,7 +925,7 @@ class EA {
    *   Returns true when the action has been executed successfully.
    */
   bool ExecuteAction(ENUM_EA_ACTION _action, DataParamEntry &_args[]) {
-    bool _result = true;
+    bool _result = false;
     long arg_size = ArraySize(_args);
     switch (_action) {
       case EA_ACTION_DISABLE:
