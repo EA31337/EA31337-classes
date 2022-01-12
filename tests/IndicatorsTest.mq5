@@ -112,9 +112,10 @@ void OnTick() {
       IndicatorDataEntry _entry(_indi.GetEntry());
 
       if (_indi.GetType() == INDI_AMA) {
-        // PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
+        PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
+        continue;
       } else {
-        // continue;
+        continue;
       }
 
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
