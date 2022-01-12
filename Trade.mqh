@@ -1729,7 +1729,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, DataParamEntry &_args[]) {
-    bool _result = true;
+    bool _result = false;
     long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
     long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
     Ref<OrderQuery> _oquery_ref;
@@ -1798,7 +1798,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
         logger.Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        _result = false;
         break;
     }
     return _result;
@@ -1827,7 +1826,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true when the condition is met.
    */
   bool ExecuteAction(ENUM_TRADE_ACTION _action, DataParamEntry &_args[]) {
-    bool _result = true;
+    bool _result = false;
     Ref<OrderQuery> _oquery_ref;
     if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
       _oquery_ref = OrderQuery::GetInstance(orders_active);
@@ -1852,21 +1851,21 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       case TRADE_ACTION_ORDER_CLOSE_MOST_LOSS:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          _result &= _oquery_ref.Ptr()
-                         .FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
-                                                                             STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT))
-                         .Ptr()
-                         .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
+          _result = _oquery_ref.Ptr()
+                        .FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
+                                                                            STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_LT))
+                        .Ptr()
+                        .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
           RefreshActiveOrders(true, true);
         }
         break;
       case TRADE_ACTION_ORDER_CLOSE_MOST_PROFIT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          _result &= _oquery_ref.Ptr()
-                         .FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
-                                                                             STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT))
-                         .Ptr()
-                         .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
+          _result = _oquery_ref.Ptr()
+                        .FindByPropViaOp<ENUM_ORDER_PROPERTY_CUSTOM, float>(ORDER_PROP_PROFIT,
+                                                                            STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP_GT))
+                        .Ptr()
+                        .OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
           RefreshActiveOrders(true, true);
         }
         break;
@@ -1874,33 +1873,33 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         return RequestSend(GetTradeOpenRequest((ENUM_ORDER_TYPE)_args[0].integer_value));
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          _result = OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_PROFIT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= OrdersCloseViaProp<ENUM_ORDER_PROPERTY_CUSTOM, int>(
-                         ORDER_PROP_PROFIT_PIPS, (int)chart.Ptr().GetSpreadInPips(), MATH_COND_GT,
-                         ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          _result = OrdersCloseViaProp<ENUM_ORDER_PROPERTY_CUSTOM, int>(
+                        ORDER_PROP_PROFIT_PIPS, (int)chart.Ptr().GetSpreadInPips(), MATH_COND_GT,
+                        ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          _result = OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          _result = OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result &= OrdersCloseViaCmd((ENUM_ORDER_TYPE)_args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          _result = OrdersCloseViaCmd((ENUM_ORDER_TYPE)_args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
         break;
@@ -1911,7 +1910,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
               _oquery_ref.Ptr()
                   .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
                       _order_types1, ORDER_PROP_PROFIT, ORDER_TYPE);
-          _result &=
+          _result =
               OrdersCloseViaCmd(Order::NegateOrderType(_order_type_profitable), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
         }
         break;
@@ -1922,7 +1921,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
               _oquery_ref.Ptr()
                   .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
                       _order_types2, ORDER_PROP_PROFIT, ORDER_TYPE);
-          _result &= OrdersCloseViaCmd(_order_type_profitable2, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          _result = OrdersCloseViaCmd(_order_type_profitable2, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
         }
         break;
       case TRADE_ACTION_ORDERS_LIMIT_SET:
