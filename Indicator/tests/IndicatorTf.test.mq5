@@ -107,6 +107,6 @@ void OnTick() {
  */
 void OnDeinit(const int reason) {
   // Printing all grouped candles.
-  // Print(indi_tf.Ptr().GetName(), "'s all candles:");
-  // Print(indi_tf.Ptr().CandlesToString());
+  Print(indi_tf_orig_sim.Ptr().GetName(), "'s all candles:");
+  Print(indi_tf_orig_sim.Ptr().CandlesToString());
 }
