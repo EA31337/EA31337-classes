@@ -77,8 +77,8 @@ struct TaskEntry {
   // bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
   bool IsValid() { return action.IsValid() && cond.IsValid(); }
   // Getters.
-  long GetActionId() { return action.GetId(); }
-  long GetConditionId() { return cond.GetId(); }
+  int GetActionId() { return action.GetId(); }
+  int GetConditionId() { return cond.GetId(); }
   TaskActionEntry GetAction() { return action; }
   TaskConditionEntry GetCondition() { return cond; }
 };
