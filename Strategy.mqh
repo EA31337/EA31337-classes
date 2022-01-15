@@ -37,6 +37,7 @@ class Trade;
 #include "Strategy.struct.h"
 #include "String.mqh"
 #include "Task/Task.h"
+#include "Task/Taskable.h"
 #include "Trade.mqh"
 
 // Defines.
@@ -85,7 +86,7 @@ class Trade;
 /**
  * Implements strategy class.
  */
-class Strategy : public Object {
+class Strategy : public Taskable<DataParamEntry> {
  public:
   StgParams sparams;
 
@@ -122,7 +123,7 @@ class Strategy : public Object {
    * Class constructor.
    */
   Strategy(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
-      : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
+      : sparams(_sparams), trade(_tparams, _cparams) {
     // Initialize variables.
     name = _name;
     MqlTick _tick = {0};
@@ -1253,6 +1254,57 @@ class Strategy : public Object {
     }
     return _result;
   };
+
+  /* Tasks */
+
+  /**
+   * Checks a condition.
+   */
+  virtual bool Check(const TaskConditionEntry &_entry) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Gets a copy of structure.
+   */
+  virtual DataParamEntry Get(const TaskGetterEntry &_entry) {
+    DataParamEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  virtual bool Run(const TaskActionEntry &_entry) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Sets an entry value.
+   */
+  virtual bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      // _entry_value.GetValue()
+      default:
+        break;
+    }
+    return _result;
+  }
 
   /* Serializers */
 
