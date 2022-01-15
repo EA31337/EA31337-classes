@@ -35,6 +35,7 @@
 #define TASKABLE_H
 
 // Includes.
+#include "../Object.mqh"
 #include "TaskAction.h"
 #include "TaskCondition.h"
 #include "TaskGetter.h"
@@ -44,14 +45,14 @@
  * Taskable class.
  */
 template <typename TS>
-class Taskable {
+class Taskable : public Object {
  public:
   /* Special methods */
 
   /**
-   * Class constructor.
+   * Class constructor with default arguments.
    */
-  Taskable() {}
+  Taskable() : Object(GetPointer(this), __LINE__) {}
 
   /* Virtual methods */
 
