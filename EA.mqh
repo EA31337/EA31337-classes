@@ -52,7 +52,7 @@
 #include "Trade/TradeSignal.h"
 #include "Trade/TradeSignalManager.h"
 
-class EA {
+class EA : public Taskable<DataParamEntry> {
  protected:
   // Class variables.
   Account *account;
@@ -663,9 +663,9 @@ class EA {
    */
   bool TaskAdd(TaskEntry &_entry) {
     bool _result = false;
-    /* @fixme
     if (_entry.IsValid()) {
-      switch (_entry.GetConditionType()) {
+      /* @fixme
+      switch (_entry.GetConditionId()) {
         case COND_TYPE_ACCOUNT:
           _entry.SetConditionObject(account);
           break;
@@ -676,7 +676,7 @@ class EA {
           _entry.SetConditionObject(trade.GetByKey(_Symbol));
           break;
       }
-      switch (_entry.GetActionType()) {
+      switch (_entry.GetActionId()) {
         case ACTION_TYPE_EA:
           _entry.SetActionObject(THIS_PTR);
           break;
@@ -684,9 +684,9 @@ class EA {
           _entry.SetActionObject(trade.GetByKey(_Symbol));
           break;
       }
+      */
       _result |= tasks.Push(_entry);
     }
-    */
     return _result;
   }
 
@@ -979,6 +979,57 @@ class EA {
     ArrayPushObject(_args, _param1);
     ArrayPushObject(_args, _param2);
     return EA::ExecuteAction(_action, _args);
+  }
+
+  /* Tasks */
+
+  /**
+   * Checks a condition.
+   */
+  virtual bool Check(const TaskConditionEntry &_entry) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Gets a copy of structure.
+   */
+  virtual DataParamEntry Get(const TaskGetterEntry &_entry) {
+    DataParamEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  virtual bool Run(const TaskActionEntry &_entry) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Sets an entry value.
+   */
+  virtual bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      // _entry_value.GetValue()
+      default:
+        break;
+    }
+    return _result;
   }
 
   /* Getters */
