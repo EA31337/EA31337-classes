@@ -69,6 +69,20 @@ class SerializerConverter {
     return _converter;
   }
 
+  template <typename X>
+  static SerializerConverter FromObject(X* _value, int serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL) {
+    Serializer _serializer(NULL, Serialize, serializer_flags);
+    _serializer.FreeRootNodeOwnership();
+    _serializer.PassObject(_value, "", _value, SERIALIZER_FIELD_FLAG_VISIBLE);
+    SerializerConverter _converter(_serializer.GetRoot(), serializer_flags);
+#ifdef __debug__
+    Print("FromObject(): serializer flags: ", serializer_flags);
+    Print("FromObject(): result: ",
+          _serializer.GetRoot() != NULL ? _serializer.GetRoot().ToString(SERIALIZER_JSON_NO_WHITESPACES) : "NULL");
+#endif
+    return _converter;
+  }
+
   /**
    * Overrides floating-point precision for all fields.
    */
