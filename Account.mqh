@@ -64,6 +64,11 @@ class Account {
   Account() : init_balance(CalcInitDeposit()), start_balance(GetBalance()), start_credit(GetCredit()) {}
 
   /**
+   * Class copy constructor.
+   */
+  Account(const Account &_account) {}
+
+  /**
    * Class deconstructor.
    */
   ~Account() {}
