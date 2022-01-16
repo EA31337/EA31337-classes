@@ -72,8 +72,6 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
     int num_args = ArraySize(_args), i;
 
     IndicatorDataEntry entry(num_args - 1);
-    // @fixit Not sure if we should enforce double.
-    entry.AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
 
     if (_action == INDI_ACTION_SET_VALUE) {
       iparams.SetMaxModes(num_args - 1);
