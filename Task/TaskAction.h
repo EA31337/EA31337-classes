@@ -43,7 +43,7 @@
  * TaskAction class.
  */
 template <typename TO>
-class TaskAction : protected TaskActionBase {
+class TaskAction : public TaskActionBase {
  protected:
   // Protected class variables.
   TaskActionEntry entry;  // Action entry.

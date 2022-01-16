@@ -43,7 +43,7 @@
  * TaskCondition class.
  */
 template <typename TO>
-class TaskCondition : protected TaskConditionBase {
+class TaskCondition : public TaskConditionBase {
  public:
  protected:
   // Protected class variables.
