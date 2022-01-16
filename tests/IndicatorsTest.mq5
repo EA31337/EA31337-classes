@@ -388,12 +388,12 @@ bool InitIndicators() {
   indi_rsi_on_price.Ptr().SetDataSource(indi_price_4_rsi.Ptr());
   indis.Push(indi_rsi_on_price.Ptr());
 
-  // Drawer (socket-based) indicator.
+  // Drawer (socket-based) indicator over RSI over Price.
   IndiDrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
-  // drawer_params.SetIndicatorData(indi_price_4_rsi);
-  // drawer_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
   drawer_params.SetDraw(clrBisque, 0);
-  indis.Push(_indi_drawer = new Indi_Drawer(drawer_params));
+  Ref<Indi_Drawer> indi_drawer_on_rsi = new Indi_Drawer(drawer_params);
+  indi_drawer_on_rsi.Ptr().SetDataSource(indi_rsi_on_price.Ptr(), PRICE_OPEN);
+  indis.Push(indi_drawer_on_rsi.Ptr());
 
   // Applied Price over OHCL indicator.
   IndiAppliedPriceParams applied_price_params();
