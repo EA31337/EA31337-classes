@@ -31,12 +31,50 @@ struct DataParamEntry;
 #include "../../Test.mqh"
 #include "../Task.h"
 
+// Define test classes.
+class ConditionType1 : public TaskConditionBase {
+ public:
+  bool Check(const TaskConditionEntry &_entry) { return true; }
+};
+class ConditionType2 : public TaskConditionBase {
+ public:
+  bool Check(const TaskConditionEntry &_entry) { return true; }
+};
+class ActionType1 : public TaskActionBase {
+ public:
+  bool Run(const TaskActionEntry &_entry) { return true; }
+};
+class ActionType2 : public TaskActionBase {
+ public:
+  bool Run(const TaskActionEntry &_entry) { return true; }
+};
+class TaskType1 : public Taskable<MqlParam> {
+  bool Check(const TaskConditionEntry &_entry) { return true; }
+  MqlParam Get(const TaskGetterEntry &_entry) {
+    MqlParam _result;
+    return _result;
+  }
+  bool Run(const TaskActionEntry &_entry) { return true; }
+  bool Set(const TaskSetterEntry &_entry, const MqlParam &_entry_value) { return true; }
+};
+
+// Test 1.
+bool TestTask01() {
+  bool _result = true;
+  Task _task1;
+  TaskAction<ActionType1> _taction1;
+  TaskAction<ActionType2> _taction2;
+  TaskCondition<ConditionType1> _tcond1;
+  TaskCondition<ConditionType2> _tcond2;
+  return _result;
+}
+
 /**
  * Implements Init event handler.
  */
 int OnInit() {
   bool _result = true;
-  // @todo
+  _result &= TestTask01();
   _result &= GetLastError() == ERR_NO_ERROR;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
