@@ -46,7 +46,7 @@ class TaskSetterTest01 : protected TaskSetterBase<TaskSetterTest01Data> {
   TaskSetterTest01Data data;
 
  public:
-  TaskSetterTest01() : data(0) {};
+  TaskSetterTest01() : data(0){};
   int GetValue() const { return data.GetValue(); }
   bool Set(const TaskSetterEntry &_entry, const TaskSetterTest01Data &_entry_value) {
     data.SetValue(data.GetValue() + _entry_value.GetValue());

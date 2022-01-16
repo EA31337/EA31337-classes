@@ -49,11 +49,12 @@ jobs:
       matrix:
         test:
           - Task.test
-          - Taskable.test
           - TaskAction.test
           - TaskCondition.test
           - TaskGetter.test
           - TaskSetter.test
+          - Taskable.car.test
+          - Taskable.test
     steps:
       - uses: actions/download-artifact@v2
         with:
