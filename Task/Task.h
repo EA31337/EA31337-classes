@@ -116,6 +116,57 @@ class Task : protected Taskable<TaskEntry> {
 
   /* Task methods */
 
+  /**
+   * Checks a condition.
+   */
+  virtual bool Check(const TaskConditionEntry &_entry) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Gets a copy of structure.
+   */
+  virtual TaskEntry Get(const TaskGetterEntry &_entry) {
+    TaskEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  virtual bool Run(const TaskActionEntry &_entry) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Sets an entry value.
+   */
+  virtual bool Set(const TaskSetterEntry &_entry, const TaskEntry &_entry_value) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        break;
+    }
+    return _result;
+  }
+
   /* State methods */
 
   /**
