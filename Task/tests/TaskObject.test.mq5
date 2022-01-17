@@ -61,13 +61,17 @@ class TaskType1 : public Taskable<MqlParam> {
 // Test 1.
 bool TestTaskObject01() {
   bool _result = true;
-  TaskActionEntry _aentry;
-  TaskConditionEntry _centry;
-  // TaskAction<ActionType1> _taction1;
-  // TaskAction<ActionType2> _taction2;
-  // TaskCondition<ConditionType1> _tcond1;
-  // TaskCondition<ConditionType2> _tcond2;
-  TaskObject<ActionType1, ConditionType1> _task1(_aentry, _centry);
+  ActionType1 _actionobj1;
+  ActionType2 _actionobj2;
+  ConditionType1 _condobj1;
+  ConditionType2 _condobj2;
+  TaskActionEntry _aentry(1);
+  TaskConditionEntry _centry(1);
+  TaskEntry _tentry(_aentry, _centry);
+  TaskObject<ActionType1, ConditionType1> _taskobj01(_tentry, &_actionobj1, &_condobj1);
+  TaskObject<ActionType2, ConditionType1> _taskobj02(_tentry, &_actionobj2, &_condobj1);
+  TaskObject<ActionType1, ConditionType2> _taskobj03(_tentry, &_actionobj1, &_condobj2);
+  TaskObject<ActionType2, ConditionType2> _taskobj04(_tentry, &_actionobj2, &_condobj2);
   return _result;
 }
 

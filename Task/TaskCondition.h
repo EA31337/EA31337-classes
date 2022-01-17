@@ -48,7 +48,7 @@ class TaskCondition : public TaskConditionBase {
  protected:
   // Protected class variables.
   TaskConditionEntry entry;  // Condition entry.
-  TO obj;                    // Object to run the action on.
+  TO *obj;                   // Object to run the action on.
 
  public:
   /* Special methods */
@@ -61,7 +61,7 @@ class TaskCondition : public TaskConditionBase {
   /**
    * Class constructor with an entry as argument.
    */
-  TaskCondition(TaskConditionEntry &_entry) : entry(_entry) {}
+  TaskCondition(TaskConditionEntry &_entry, TO *_obj = NULL) : entry(_entry), obj(_obj) {}
 
   /* Main methods */
 

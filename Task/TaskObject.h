@@ -40,8 +40,8 @@
 template <typename TA, typename TC>
 class TaskObject : public Task {
  protected:
-  TaskAction<TA> action;
-  TaskCondition<TC> condition;
+  TA *obja;
+  TC *objc;
 
  public:
   /* Special methods */
@@ -54,7 +54,7 @@ class TaskObject : public Task {
   /**
    * Class constructor with task entry as argument.
    */
-  TaskObject(TaskEntry &_tentry) : Task(_tentry) {}
+  TaskObject(TaskEntry &_tentry, TA *_obja = NULL, TC *_objc = NULL) : obja(_obja), objc(_objc), Task(_tentry) {}
 
   /**
    * Class deconstructor.
@@ -87,8 +87,8 @@ class TaskObject : public Task {
   virtual bool Process(TaskEntry &_entry) {
     bool _result = false;
     if (_entry.IsActive()) {
-      if (condition.Check()) {
-        action.Run();
+      if (Object::IsValid(objc) && objc.Check(_entry.GetCondition()) && Object::IsValid(obja)) {
+        obja.Run(_entry.GetAction());
         _entry.Set(STRUCT_ENUM(TaskEntry, TASK_ENTRY_PROP_LAST_PROCESS), TimeCurrent());
         if (_entry.IsDone()) {
           _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE,

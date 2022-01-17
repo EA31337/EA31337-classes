@@ -71,6 +71,14 @@ class TaskManager {
    */
   bool Add(Task &_task) { return tasks.Push(_task); }
 
+  /**
+   * Adds new object task.
+   */
+  template <typename TA, typename TC>
+  bool Add(TaskObject<TA, TC> &_task_obj) {
+    return tasks.Push(_task_obj);
+  }
+
   /* Processing methods */
 
   /**

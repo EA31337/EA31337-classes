@@ -47,7 +47,7 @@ class TaskAction : public TaskActionBase {
  protected:
   // Protected class variables.
   TaskActionEntry entry;  // Action entry.
-  TO obj;                 // Object to run the action on.
+  TO *obj;                // Object to run the action on.
 
  public:
   /* Special methods */
@@ -60,7 +60,7 @@ class TaskAction : public TaskActionBase {
   /**
    * Class constructor with an entry as argument.
    */
-  TaskAction(TaskActionEntry &_entry) : entry(_entry) {}
+  TaskAction(TaskActionEntry &_entry, TO *_obj = NULL) : entry(_entry), obj(_obj) {}
 
   /* Main methods */
 

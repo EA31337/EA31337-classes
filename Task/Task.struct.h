@@ -91,8 +91,8 @@ struct TaskEntry {
     return action.Get(_prop);
   };
   // bool Get(ENUM_TASK_ENTRY_FLAGS _flag) { return HasFlag(_flag); }
-  // TaskActionEntry GetAction() { return action; }
-  // TaskConditionEntry GetCondition() { return cond; }
+  TaskActionEntry GetActionEntry() { return action; }
+  TaskConditionEntry GetConditionEntry() { return cond; }
   // Setters.
   template <typename T>
   void Set(ENUM_TASK_ENTRY_PROP _prop, T _value) {

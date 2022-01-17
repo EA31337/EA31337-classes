@@ -61,18 +61,22 @@ class TaskType1 : public Taskable<MqlParam> {
 // Test 1.
 bool TestTaskManager01() {
   bool _result = true;
+  ActionType1 _actionobj1;
+  ActionType2 _actionobj2;
+  ConditionType1 _condobj1;
+  ConditionType2 _condobj2;
   TaskManager _tsm;
   TaskActionEntry _aentry(1);
   TaskConditionEntry _centry(1);
   TaskEntry _tentry(_aentry, _centry);
-  TaskObject<ActionType1, ConditionType1> _task01(_tentry);
-  TaskObject<ActionType2, ConditionType1> _task02(_tentry);
-  TaskObject<ActionType1, ConditionType2> _task03(_tentry);
-  TaskObject<ActionType2, ConditionType2> _task04(_tentry);
-  _tsm.Add(_task01);
-  _tsm.Add(_task02);
-  _tsm.Add(_task03);
-  _tsm.Add(_task04);
+  TaskObject<ActionType1, ConditionType1> _taskobj01(_tentry, &_actionobj1, &_condobj1);
+  TaskObject<ActionType2, ConditionType1> _taskobj02(_tentry, &_actionobj2, &_condobj1);
+  TaskObject<ActionType1, ConditionType2> _taskobj03(_tentry, &_actionobj1, &_condobj2);
+  TaskObject<ActionType2, ConditionType2> _taskobj04(_tentry, &_actionobj2, &_condobj2);
+  _tsm.Add(_taskobj01);
+  _tsm.Add(_taskobj02);
+  _tsm.Add(_taskobj03);
+  _tsm.Add(_taskobj04);
   _tsm.Process();
   // @todo: Print via ToString().
   return _result;
