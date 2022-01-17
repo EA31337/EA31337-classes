@@ -27,6 +27,7 @@
 
 #include "MQL5.mqh"
 #include "MqlTick.h"
+#include "Order.enum.h"
 #include "Std.h"
 
 /**
