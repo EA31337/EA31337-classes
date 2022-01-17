@@ -52,6 +52,7 @@ jobs:
           - TaskAction.test
           - TaskCondition.test
           - TaskGetter.test
+          - TaskManager.test
           - TaskObject.test
           - TaskSetter.test
           - Taskable.car.test
