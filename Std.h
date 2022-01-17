@@ -32,7 +32,10 @@
 #include <sstream>
 #include <vector>
 
+// Data types.
+typedef std::string string;
 typedef unsigned int uint;
+typedef unsigned long datetime;
 typedef unsigned long ulong;
 typedef unsigned short ushort;
 #endif
@@ -266,58 +269,6 @@ enum ENUM_ORDER_STATE {
   ORDER_STATE_REQUEST_MODIFY,  // Order is being modified (changing its parameters)
   ORDER_STATE_REQUEST_CANCEL   // Order is being deleted (deleting from the trading system)
 };
-
-enum ENUM_DEAL_TYPE {
-  DEAL_TYPE_BUY,
-  DEAL_TYPE_SELL,
-  DEAL_TYPE_BALANCE,
-  DEAL_TYPE_CREDIT,
-  DEAL_TYPE_CHARGE,
-  DEAL_TYPE_CORRECTION,
-  DEAL_TYPE_BONUS,
-  DEAL_TYPE_COMMISSION,
-  DEAL_TYPE_COMMISSION_DAILY,
-  DEAL_TYPE_COMMISSION_MONTHLY,
-  DEAL_TYPE_COMMISSION_AGENT_DAILY,
-  DEAL_TYPE_COMMISSION_AGENT_MONTHLY,
-  DEAL_TYPE_INTEREST,
-  DEAL_TYPE_BUY_CANCELED,
-  DEAL_TYPE_SELL_CANCELED,
-  DEAL_DIVIDEND,
-  DEAL_DIVIDEND_FRANKED,
-  DEAL_TAX
-};
-
-enum ENUM_DEAL_ENTRY { DEAL_ENTRY_IN, DEAL_ENTRY_OUT, DEAL_ENTRY_INOUT, DEAL_ENTRY_OUT_BY };
-
-enum ENUM_DEAL_REASON {
-  DEAL_REASON_CLIENT,
-  DEAL_REASON_MOBILE,
-  DEAL_REASON_WEB,
-  DEAL_REASON_EXPERT,
-  DEAL_REASON_SL,
-  DEAL_REASON_TP,
-  DEAL_REASON_SO,
-  DEAL_REASON_ROLLOVER,
-  DEAL_REASON_VMARGIN,
-  DEAL_REASON_SPLIT
-};
-
-enum ENUM_DEAL_PROPERTY_DOUBLE { DEAL_VOLUME, DEAL_PRICE, DEAL_COMMISSION, DEAL_SWAP, DEAL_PROFIT, DEAL_FEE };
-
-enum ENUM_DEAL_PROPERTY_INTEGER {
-  DEAL_TICKET,
-  DEAL_ORDER,
-  DEAL_TIME,
-  DEAL_TIME_MSC,
-  DEAL_TYPE,
-  DEAL_ENTRY,
-  DEAL_MAGIC,
-  DEAL_REASON,
-  DEAL_POSITION_ID
-};
-
-enum ENUM_DEAL_PROPERTY_STRING { DEAL_SYMBOL, DEAL_COMMENT, DEAL_EXTERNAL_ID };
 
 // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderequest
 struct MqlTradeRequest {

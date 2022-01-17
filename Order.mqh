@@ -34,6 +34,7 @@
 #include "Convert.mqh"
 #include "Data.define.h"
 #include "Data.struct.h"
+#include "Deal.enum.h"
 #include "Log.mqh"
 #include "Order.define.h"
 #include "Order.enum.h"
