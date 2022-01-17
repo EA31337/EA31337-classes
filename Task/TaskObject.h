@@ -38,7 +38,7 @@
 #include "Task.h"
 
 template <typename TA, typename TC>
-class TaskObject : protected Task {
+class TaskObject : public Task {
  protected:
   TaskAction<TA> action;
   TaskCondition<TC> condition;
@@ -47,16 +47,36 @@ class TaskObject : protected Task {
   /* Special methods */
 
   /**
-   * Class constructor.
+   * Default class constructor.
    */
-  TaskObject(TaskActionEntry &_aentry, TaskConditionEntry &_centry) : action(_aentry), condition(_centry) {}
+  TaskObject() {}
+
+  /**
+   * Class constructor with task entry as argument.
+   */
+  TaskObject(TaskEntry &_tentry) : Task(_tentry) {}
 
   /**
    * Class deconstructor.
    */
   ~TaskObject() {}
 
-  /* Main methods */
+  /* Virtual methods */
+
+  /**
+   * Process tasks.
+   *
+   * @return
+   *   Returns true when tasks has been processed.
+   */
+  virtual bool Process() {
+    bool _result = true;
+    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
+      TaskEntry _entry = iter.Value();
+      _result &= Process(_entry);
+    }
+    return _result;
+  }
 
   /**
    * Process task entry.
@@ -64,9 +84,24 @@ class TaskObject : protected Task {
    * @return
    *   Returns true when tasks has been processed.
    */
-  static bool Process(TaskEntry &_entry) {
+  virtual bool Process(TaskEntry &_entry) {
     bool _result = false;
-    // @todo
+    if (_entry.IsActive()) {
+      if (condition.Check()) {
+        action.Run();
+        _entry.Set(STRUCT_ENUM(TaskEntry, TASK_ENTRY_PROP_LAST_PROCESS), TimeCurrent());
+        if (_entry.IsDone()) {
+          _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE,
+                         _entry.Get(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_DONE)));
+          _entry.SetFlag(TASK_ENTRY_FLAG_IS_FAILED,
+                         _entry.Get(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_FAILED)));
+          _entry.SetFlag(TASK_ENTRY_FLAG_IS_INVALID,
+                         _entry.Get(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID)));
+          _entry.RemoveFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
+        }
+        _result = true;
+      }
+    }
     return _result;
   }
 

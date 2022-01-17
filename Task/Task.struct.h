@@ -36,6 +36,15 @@
 #include "TaskCondition.struct.h"
 
 struct TaskEntry {
+ public:
+  /* Enumerations */
+  enum ENUM_TASK_ENTRY_PROP {
+    TASK_ENTRY_PROP_NONE = 0,      // None
+    TASK_ENTRY_PROP_EXPIRES,       // Expires
+    TASK_ENTRY_PROP_LAST_PROCESS,  // Last process
+    TASK_ENTRY_PROP_LAST_SUCCESS,  // Last success
+  };
+
  protected:
   TaskActionEntry action;   // TaskAction of the task.
   TaskConditionEntry cond;  // TaskCondition of the task.
@@ -60,6 +69,45 @@ struct TaskEntry {
   void TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) {
     Init();
   };
+  // Getters.
+  template <typename T>
+  T Get(ENUM_TASK_ENTRY_PROP _prop) {
+    switch (_prop) {
+      case TASK_ENTRY_PROP_EXPIRES:  // Expires
+        return (T)expires;
+      case TASK_ENTRY_PROP_LAST_PROCESS:  // Last process
+        return (T)last_process;
+      case TASK_ENTRY_PROP_LAST_SUCCESS:  // Last success
+        return (T)last_success;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+    }
+    return (T) false;
+  };
+  bool Get(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_FLAG) _flag) { return action.Get(_flag); };
+  template <typename T>
+  bool Get(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_PROP) _prop) {
+    return action.Get(_prop);
+  };
+  // bool Get(ENUM_TASK_ENTRY_FLAGS _flag) { return HasFlag(_flag); }
+  // TaskActionEntry GetAction() { return action; }
+  // TaskConditionEntry GetCondition() { return cond; }
+  // Setters.
+  template <typename T>
+  void Set(ENUM_TASK_ENTRY_PROP _prop, T _value) {
+    switch (_prop) {
+      case TASK_ENTRY_PROP_EXPIRES:  // Expires
+        expires = (T)_value;
+      case TASK_ENTRY_PROP_LAST_PROCESS:  // Last process
+        last_process = (T)_value;
+      case TASK_ENTRY_PROP_LAST_SUCCESS:  // Last success
+        last_success = (T)_value;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+    }
+  };
   // Flag methods.
   bool HasFlag(unsigned char _flag) { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
@@ -72,9 +120,9 @@ struct TaskEntry {
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // State methods.
-  // bool IsActive() { return HasFlag(ACTION_ENTRY_FLAG_IS_ACTIVE); }
-  // bool IsDone() { return HasFlag(ACTION_ENTRY_FLAG_IS_DONE); }
-  // bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
+  bool IsActive() { return HasFlag(TASK_ENTRY_FLAG_IS_ACTIVE); }
+  bool IsDone() { return HasFlag(TASK_ENTRY_FLAG_IS_DONE); }
+  bool IsFailed() { return HasFlag(TASK_ENTRY_FLAG_IS_FAILED); }
   bool IsValid() { return action.IsValid() && cond.IsValid(); }
   // Getters.
   int GetActionId() { return action.GetId(); }

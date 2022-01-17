@@ -72,13 +72,15 @@ class Task : protected Taskable<TaskEntry> {
    */
   void Add(TaskEntry &_entry) { tasks.Push(_entry); }
 
+  /* Virtual methods */
+
   /**
    * Process tasks.
    *
    * @return
    *   Returns true when tasks has been processed.
    */
-  bool Process() {
+  virtual bool Process() {
     bool _result = true;
     for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
       TaskEntry _entry = iter.Value();
@@ -93,24 +95,21 @@ class Task : protected Taskable<TaskEntry> {
    * @return
    *   Returns true when tasks has been processed.
    */
-  static bool Process(TaskEntry &_entry) {
+  virtual bool Process(TaskEntry &_entry) {
     bool _result = false;
-    /* @fixme
     if (_entry.IsActive()) {
-      if (TaskCondition::Test(_entry.GetCondition())) {
-        TaskActionEntry _action = _entry.GetAction();
-        TaskAction::Execute(_action);
-        if (_action.IsDone()) {
-          _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE, _action.IsDone());
-          _entry.SetFlag(TASK_ENTRY_FLAG_IS_FAILED, _action.IsFailed());
-          _entry.SetFlag(TASK_ENTRY_FLAG_IS_INVALID, _action.IsInvalid());
-          _entry.RemoveFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
-        }
+      _entry.Set(STRUCT_ENUM(TaskEntry, TASK_ENTRY_PROP_LAST_PROCESS), TimeCurrent());
+      if (_entry.IsDone()) {
+        _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE,
+                       _entry.Get(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_DONE)));
+        _entry.SetFlag(TASK_ENTRY_FLAG_IS_FAILED,
+                       _entry.Get(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_FAILED)));
+        _entry.SetFlag(TASK_ENTRY_FLAG_IS_INVALID,
+                       _entry.Get(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID)));
+        _entry.RemoveFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
       }
-      _entry.last_process = TimeCurrent();
       _result = true;
     }
-    */
     return _result;
   }
 
