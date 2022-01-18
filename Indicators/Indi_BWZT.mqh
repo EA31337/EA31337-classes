@@ -129,7 +129,7 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
       case INDI_AC:
         return iparams.indi_ac.Ptr();
       case INDI_AO:
-        return iparams.indi_ac.Ptr();
+        return iparams.indi_ao.Ptr();
     }
 
     return NULL;
