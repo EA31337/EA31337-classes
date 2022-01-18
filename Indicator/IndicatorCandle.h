@@ -108,20 +108,20 @@ class IndicatorCandle : public Indicator<TS> {
       int i = 0;
       while (true) {
         _curr_candle_time = CalcCandleTimestamp(GetBarTime(i++));
-        
+
         if (_curr_candle_time < icdata.GetMin()) {
           // There is no older entries.
           break;
         }
-        
+
         _candle = icdata.GetByKey(_curr_candle_time);
-        
+
         if (_candle.IsValid()) {
           break;
         }
       }
     }
-    
+
     if (!_candle.IsValid()) {
       // Giving up.
       DebugBreak();
