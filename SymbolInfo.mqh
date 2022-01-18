@@ -31,6 +31,7 @@ class SymbolInfo;
 #include "SymbolInfo.define.h"
 #include "SymbolInfo.enum.h"
 #include "SymbolInfo.enum.symbols.h"
+#include "SymbolInfo.extern.h"
 #include "SymbolInfo.static.h"
 #include "SymbolInfo.struct.h"
 

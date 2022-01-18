@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                                EA31337 framework |
+//|                 EA31337 - multi-strategy advanced trading robot. |
 //|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
@@ -20,14 +20,19 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef __MQL__
-#pragma once
-#endif
+/**
+ * @file
+ * Includes enumerations used for objects.
+ */
 
-// Define external global functions.
-#ifndef __MQL__
-extern string CharToString(uchar char_code);
-extern double NormalizeDouble(double value, int digits);
-extern string DoubleToString(double value, int digits = 8);
+#ifndef __MQLBUILD__
+// Used for checking the type of the object pointer.
+// @docs
+// - https://docs.mql4.com/constants/namedconstants/enum_pointer_type
+// - https://www.mql5.com/en/docs/constants/namedconstants/enum_pointer_type
+enum ENUM_POINTER_TYPE {
+  POINTER_INVALID,   // Incorrect pointer.
+  POINTER_DYNAMIC,   // Pointer of the object created by the new() operator.
+  POINTER_AUTOMATIC  // Pointer of any objects created automatically (not using new()).
+};
 #endif

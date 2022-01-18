@@ -22,6 +22,7 @@
 
 // Define external global functions.
 #ifndef __MQL__
+extern void DebugBreak();
 extern void PrintFormat(string format_string, ...);
 // Exceptions.
 extern int NotImplementedException();

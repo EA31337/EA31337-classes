@@ -26,9 +26,12 @@
 
 // Includes.
 #include "Account.enum.h"
+#include "Account.extern.h"
 #include "Array.mqh"
+#include "Convert.extern.h"
 #include "Order.enum.h"
 #include "SymbolInfo.enum.h"
+#include "SymbolInfo.extern.h"
 #include "SymbolInfo.static.h"
 
 /**
@@ -58,7 +61,7 @@ class Convert {
       case ORDER_TYPE_BUY_STOP:
         return ORDER_TYPE_BUY;
       default:
-        return (ENUM_ORDER_TYPE)WRONG_VALUE;
+        return (ENUM_ORDER_TYPE)-1;
     }
   }
 
@@ -243,7 +246,7 @@ class Convert {
   /**
    * Get the difference between two price values (in pips).
    */
-  static double GetValueDiffInPips(double price1, double price2, bool abs = false, int digits = NULL,
+  static double GetValueDiffInPips(double price1, double price2, bool abs = false, int digits = 0,
                                    string _symbol = NULL) {
     digits = digits ? digits : (int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS);
     return ValueToPips(abs ? fabs(price1 - price2) : (price1 - price2), digits);
@@ -263,7 +266,7 @@ class Convert {
     else if (currency == "EUR")
       sign = (unsigned char)0x80;  // ANSI code.
     else {
-      sign = NULL;
+      sign = ' ';
       prefix = false;
     }
     return prefix ? CharToString(sign) + DoubleToString(value, digits)

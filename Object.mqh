@@ -25,20 +25,9 @@
 #define OBJECT_MQH
 
 // Includes.
+#include "Object.enum.h"
 #include "Refs.mqh"
 #include "String.mqh"
-
-#ifndef __MQLBUILD__
-// Used for checking the type of the object pointer.
-// @docs
-// - https://docs.mql4.com/constants/namedconstants/enum_pointer_type
-// - https://www.mql5.com/en/docs/constants/namedconstants/enum_pointer_type
-enum ENUM_POINTER_TYPE {
-  POINTER_INVALID,   // Incorrect pointer.
-  POINTER_DYNAMIC,   // Pointer of the object created by the new() operator.
-  POINTER_AUTOMATIC  // Pointer of any objects created automatically (not using new()).
-};
-#endif
 
 /**
  * Class to deal with objects.
