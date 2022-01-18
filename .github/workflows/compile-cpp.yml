@@ -1,0 +1,23 @@
+---
+name: Compile C++
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  push:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+
+  Compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install compiler
+        uses: rlalik/setup-cpp-compiler@v1.1
+        with:
+          compiler: gcc-latest
+      - run: g++ --version
