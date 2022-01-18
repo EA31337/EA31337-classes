@@ -93,10 +93,10 @@ class Indi_Candle : public Indicator<CandleParams> {
           break;
         }
 
-        _ohlcs[0].open = GetDataSource().GetValue<float>(_ishift, PRICE_OPEN);
-        _ohlcs[0].high = GetDataSource().GetValue<float>(_ishift, PRICE_HIGH);
-        _ohlcs[0].low = GetDataSource().GetValue<float>(_ishift, PRICE_LOW);
-        _ohlcs[0].close = GetDataSource().GetValue<float>(_ishift, PRICE_CLOSE);
+        _ohlcs[0].open = GetDataSource().GetValue<float>(PRICE_OPEN, _ishift);
+        _ohlcs[0].high = GetDataSource().GetValue<float>(PRICE_HIGH, _ishift);
+        _ohlcs[0].low = GetDataSource().GetValue<float>(PRICE_LOW, _ishift);
+        _ohlcs[0].close = GetDataSource().GetValue<float>(PRICE_CLOSE, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
