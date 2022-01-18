@@ -29,6 +29,7 @@
 #include "Object.mqh"
 #include "Serializer.mqh"
 #include "SerializerNode.mqh"
+#include "String.extern.h"
 
 class Log;
 

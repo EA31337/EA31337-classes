@@ -26,6 +26,7 @@
  */
 
 // Includes.
+#include "../Chart.enum.h"
 #include "../Serializer.mqh"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
@@ -134,7 +135,7 @@ struct TradeSignalEntry {
         return (T)weight;
     }
     SetUserError(ERR_INVALID_PARAMETER);
-    return (T)WRONG_VALUE;
+    return (T)NULL;
   }
   bool Get(STRUCT_ENUM(TradeSignalEntry, ENUM_TRADE_SIGNAL_FLAG) _prop) { return CheckSignals(_prop); }
   /* Setters */

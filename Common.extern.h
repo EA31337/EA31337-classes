@@ -23,12 +23,16 @@
 // Define external global functions.
 #ifndef __MQL__
 extern void DebugBreak();
-extern void PrintFormat(string format_string, ...);
+// Errors.
+extern void SetUserError(ushort user_error);
 // Exceptions.
 extern int NotImplementedException();
-// Print() templates.
+// Print-related functions.
+extern void Alert(string arg1);
+extern void Alert(string arg1, string arg2);
 template <typename T>
 extern void Print(T arg);
 template <typename T1, typename T2>
 extern void Print(T1 arg1, T2 arg2);
+extern void PrintFormat(string format_string, ...);
 #endif

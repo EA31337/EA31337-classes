@@ -24,6 +24,11 @@
 #ifndef CONVERT_MQH
 #define CONVERT_MQH
 
+// Prevents processing this includes file for the second time.
+#ifndef __MQL__
+#pragma once
+#endif
+
 // Includes.
 #include "Account.enum.h"
 #include "Account.extern.h"

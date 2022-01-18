@@ -67,7 +67,7 @@ struct TradeSignalManagerParams {
         return (T)last_check;
     }
     SetUserError(ERR_INVALID_PARAMETER);
-    return (T)WRONG_VALUE;
+    return (T)NULL;
   }
 
   /* Setters */
