@@ -12,12 +12,33 @@ on:
 
 jobs:
 
+  FileList:
+    outputs:
+      filelist: ${{ steps.get-files.outputs.filelist }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set output with list of files
+        id: get-files
+        run: |
+          import glob, json, os
+          files = glob.glob("**/tests/*.cpp")
+          print("::set-output name=filelist::{}".format(json.dumps(files)))
+        shell: python
+      - name: Display output
+        run: echo ${{ steps.get-files.outputs.filelist }}
+
   Compile:
     runs-on: ubuntu-latest
+    needs: [FileList]
+    strategy:
+      matrix:
+        file: ${{ fromJson(needs.FileList.outputs.filelist) }}
     steps:
       - uses: actions/checkout@v2
       - name: Install compiler
         uses: rlalik/setup-cpp-compiler@v1.1
         with:
           compiler: gcc-latest
-      - run: g++ --version
+      - name: Compile ${{ matrix.file }}
+        run: g++ "${{ matrix.file }}"
