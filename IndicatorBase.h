@@ -565,7 +565,7 @@ class IndicatorBase : public Chart {
   virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) { return false; }
 
   template <typename T>
-  T GetValue(int _index = 0, int _mode = 0) {
+  T GetValue(int _mode = 0, int _index = 0) {
     T _out;
     GetEntryValue(_mode, _index).Get(_out);
     return _out;
