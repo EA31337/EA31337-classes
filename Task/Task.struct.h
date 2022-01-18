@@ -99,10 +99,13 @@ struct TaskEntry {
     switch (_prop) {
       case TASK_ENTRY_PROP_EXPIRES:  // Expires
         expires = (T)_value;
+        break;
       case TASK_ENTRY_PROP_LAST_PROCESS:  // Last process
         last_process = (T)_value;
+        break;
       case TASK_ENTRY_PROP_LAST_SUCCESS:  // Last success
         last_success = (T)_value;
+        break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
         break;

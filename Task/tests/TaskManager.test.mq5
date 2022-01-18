@@ -69,14 +69,18 @@ bool TestTaskManager01() {
   TaskActionEntry _aentry(1);
   TaskConditionEntry _centry(1);
   TaskEntry _tentry(_aentry, _centry);
-  TaskObject<ActionType1, ConditionType1> _taskobj01(_tentry, &_actionobj1, &_condobj1);
-  TaskObject<ActionType2, ConditionType1> _taskobj02(_tentry, &_actionobj2, &_condobj1);
-  TaskObject<ActionType1, ConditionType2> _taskobj03(_tentry, &_actionobj1, &_condobj2);
-  TaskObject<ActionType2, ConditionType2> _taskobj04(_tentry, &_actionobj2, &_condobj2);
-  _tsm.Add(_taskobj01);
-  _tsm.Add(_taskobj02);
-  _tsm.Add(_taskobj03);
-  _tsm.Add(_taskobj04);
+  Ref<TaskObject<ActionType1, ConditionType1>> _taskobj01 =
+      new TaskObject<ActionType1, ConditionType1>(_tentry, &_actionobj1, &_condobj1);
+  Ref<TaskObject<ActionType2, ConditionType1>> _taskobj02 =
+      new TaskObject<ActionType2, ConditionType1>(_tentry, &_actionobj2, &_condobj1);
+  Ref<TaskObject<ActionType1, ConditionType2>> _taskobj03 =
+      new TaskObject<ActionType1, ConditionType2>(_tentry, &_actionobj1, &_condobj2);
+  Ref<TaskObject<ActionType2, ConditionType2>> _taskobj04 =
+      new TaskObject<ActionType2, ConditionType2>(_tentry, &_actionobj2, &_condobj2);
+  _tsm.Add(_taskobj01.Ptr());
+  _tsm.Add(_taskobj02.Ptr());
+  _tsm.Add(_taskobj03.Ptr());
+  _tsm.Add(_taskobj04.Ptr());
   _tsm.Process();
   // @todo: Print via ToString().
   return _result;
