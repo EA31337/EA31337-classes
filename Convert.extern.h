@@ -27,7 +27,8 @@
 
 // Define external global functions.
 #ifndef __MQL__
-extern string CharToString(uchar char_code);
 extern double NormalizeDouble(double value, int digits);
+extern string CharToString(uchar char_code);
 extern string DoubleToString(double value, int digits = 8);
+extern string ShortToString(ushort symbol_code);
 #endif

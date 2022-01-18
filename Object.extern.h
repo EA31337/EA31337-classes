@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
  * @file
  * Includes external declarations related to objects.

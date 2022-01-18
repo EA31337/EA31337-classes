@@ -28,5 +28,5 @@
  * Includes external declarations related to date and time.
  */
 #ifndef __MQL__
-extern string TimeToString(datetime value, int mode=TIME_DATE|TIME_MINUTES);
+extern string TimeToString(datetime value, int mode = TIME_DATE | TIME_MINUTES);
 #endif
