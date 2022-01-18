@@ -40,7 +40,7 @@
 
 class TaskManager {
  protected:
-  DictObject<int, Task> tasks;
+  DictStruct<int, Ref<Task>> tasks;
   // DictObject<int, TaskObject<Task, Task>> tasks;
   // DictObject<int, TaskObject<Taskable, Taskable>> tasks; // @todo: Which one?
 
@@ -69,14 +69,17 @@ class TaskManager {
   /**
    * Adds new task.
    */
-  bool Add(Task &_task) { return tasks.Push(_task); }
+  bool Add(Task *_task) {
+    Ref<Task> _ref = _task;
+    return tasks.Push(_ref);
+  }
 
   /**
    * Adds new object task.
    */
   template <typename TA, typename TC>
-  bool Add(TaskObject<TA, TC> &_task_obj) {
-    return tasks.Push(_task_obj);
+  bool Add(TaskObject<TA, TC> *_task_obj) {
+    return Add((Task *)_task_obj);
   }
 
   /* Processing methods */
@@ -86,8 +89,8 @@ class TaskManager {
    */
   bool Process() {
     bool _result = true;
-    for (DictObjectIterator<int, Task> _iter = tasks.Begin(); _iter.IsValid(); ++_iter) {
-      TaskObject<Task, Task> *_task = _iter.Value();
+    for (DictStructIterator<int, Ref<Task>> _iter = tasks.Begin(); _iter.IsValid(); ++_iter) {
+      Task *_task = _iter.Value().Ptr();
       _result &= _task.Process();
     }
     return _result;
