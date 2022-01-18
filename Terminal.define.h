@@ -27,6 +27,16 @@
 
 /* Defines */
 
+// Codepages.
+// @see: https://www.mql5.com/en/docs/constants/io_constants/codepageusage
+#define CP_ACP 0         // The current Windows ANSI code page.
+#define CP_OEMCP 1       // The current system OEM code page.
+#define CP_MACCP 2       // The current system Macintosh code page.
+#define CP_THREAD_ACP 3  // The Windows ANSI code page for the current thread.
+#define CP_SYMBOL 42     // Symbol code page
+#define CP_UTF7 65000    // UTF-7 code page.
+#define CP_UTF8 65001    // UTF-8 code page.
+
 // Colors.
 #define AliceBlue 0xFFF8F0
 #define AntiqueWhite 0xD7EBFA
