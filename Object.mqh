@@ -26,6 +26,7 @@
 
 // Includes.
 #include "Object.enum.h"
+#include "Object.extern.h"
 #include "Refs.mqh"
 #include "String.mqh"
 

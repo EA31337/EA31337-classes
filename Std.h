@@ -31,13 +31,6 @@
 #include <locale>
 #include <sstream>
 #include <vector>
-
-// Data types.
-typedef std::string string;
-typedef unsigned int uint;
-typedef unsigned long datetime;
-typedef unsigned long ulong;
-typedef unsigned short ushort;
 #endif
 
 #ifdef __MQL__
@@ -51,12 +44,14 @@ typedef unsigned short ushort;
 #define THIS_PTR (&this)
 #define THIS_REF this
 #define PTR_ATTRIB(O, A) O.A
+#define PTR_ATTRIB2(O, A, B) O.A.B
 #define PTR_TO_REF(PTR) PTR
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
 #else
 #define THIS_PTR (this)
 #define THIS_REF (*this)
 #define PTR_ATTRIB(O, A) O->A
+#define PTR_ATTRIB2(O, A, B) O->A->B
 #define PTR_TO_REF(PTR) (*PTR)
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
 #endif
@@ -189,11 +184,6 @@ class color {
   }
   operator unsigned int() const { return value; }
 };
-#endif
-
-// GetPointer(ptr).
-#ifndef __MQL__
-unsigned int GetPointer(void* _ptr) { return (unsigned int)_ptr; }
 #endif
 
 // MQL defines.

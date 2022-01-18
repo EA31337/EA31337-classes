@@ -30,9 +30,12 @@
 #pragma once
 #endif
 
+// Includes.
+#include "Std.h"
+
 // Forward class declaration.
 class Refs;
-class ReferenceCounter;
+//class ReferenceCounter;
 template <typename X>
 struct WeakRef;
 
@@ -140,19 +143,19 @@ struct Ref {
         ptr_object = NULL;
         return;
       }
-      if (ptr_object.ptr_ref_counter == NULL) {
+      if (PTR_ATTRIB(ptr_object, ptr_ref_counter) == NULL) {
         // Object is not reference counted. Maybe a stack-based one?
         return;
       }
       // Dropping strong reference.
-      if (!--ptr_object.ptr_ref_counter.num_strong_refs) {
+      if (!--PTR_ATTRIB2(ptr_object, ptr_ref_counter, num_strong_refs)) {
 #ifdef __debug__
         Print(ptr_object.ptr_ref_counter.Debug());
 #endif
 
         // No more strong references.
-        if (!ptr_object.ptr_ref_counter.num_weak_refs) {
-          if (CheckPointer(ptr_object.ptr_ref_counter) == POINTER_INVALID) {
+        if (!PTR_ATTRIB2(ptr_object, ptr_ref_counter, num_weak_refs)) {
+          if (CheckPointer(PTR_ATTRIB(ptr_object, ptr_ref_counter)) == POINTER_INVALID) {
             // Serious problem.
 #ifndef __MQL4__
             // Bug: Avoid calling in MQL4 due to 'global initialization failed' error.
@@ -162,11 +165,11 @@ struct Ref {
           }
 
           // Also no more weak references.
-          delete ptr_object.ptr_ref_counter;
-          ptr_object.ptr_ref_counter = NULL;
+          delete PTR_ATTRIB(ptr_object, ptr_ref_counter);
+          PTR_ATTRIB(ptr_object, ptr_ref_counter) = NULL;
         } else {
           // Object becomes deleted, but there are some weak references.
-          ptr_object.ptr_ref_counter.deleted = true;
+          PTR_ATTRIB(PTR_ATTRIB(ptr_object, ptr_ref_counter), deleted) = true;
         }
 
         // Avoiding delete loop for cyclic references.
@@ -182,7 +185,7 @@ struct Ref {
         }
 
         // Avoiding double deletion in Dynamic's destructor.
-        ptr_object.ptr_ref_counter = NULL;
+        PTR_ATTRIB(ptr_object, ptr_ref_counter) = NULL;
         ptr_object = NULL;
 
         delete ptr_to_delete;
@@ -206,11 +209,11 @@ struct Ref {
     ptr_object = _ptr;
 
     if (ptr_object != NULL) {
-      if (CheckPointer(ptr_object) == POINTER_INVALID || ptr_object.ptr_ref_counter == NULL) {
+      if (CheckPointer(ptr_object) == POINTER_INVALID || PTR_ATTRIB(ptr_object, ptr_ref_counter) == NULL) {
         // Double check the pointer for invalid references. Can happen very rarely.
         return;
       }
-      ++ptr_object.ptr_ref_counter.num_strong_refs;
+      ++PTR_ATTRIB(PTR_ATTRIB(ptr_object, ptr_ref_counter), num_strong_refs);
 #ifdef __debug__
       Print(ptr_object.ptr_ref_counter.Debug());
 #endif
@@ -259,15 +262,15 @@ struct WeakRef {
    */
   ~WeakRef() { Unset(); }
 
-  bool ObjectExists() { return ptr_ref_counter != NULL && !ptr_ref_counter.deleted; }
+  bool ObjectExists() { return ptr_ref_counter != NULL && !PTR_ATTRIB(ptr_ref_counter, deleted); }
 
-  X* Ptr() { return ObjectExists() ? (X*)ptr_ref_counter.ptr_object : NULL; }
+  X* Ptr() { return ObjectExists() ? (X*)PTR_ATTRIB(ptr_ref_counter, ptr_object) : NULL; }
 
   /**
    * Makes a strong reference to the given object.
    */
   void operator=(X* _ptr) {
-    if (ptr_ref_counter == (_ptr == NULL ? NULL : _ptr.ptr_ref_counter)) {
+    if (ptr_ref_counter == (_ptr == NULL ? NULL : PTR_ATTRIB(_ptr, ptr_ref_counter))) {
       // Assigning the same object or the same NULL.
       return;
     }
@@ -279,19 +282,19 @@ struct WeakRef {
       return;
     }
 
-    if (_ptr.ptr_ref_counter.deleted) {
+    if (PTR_ATTRIB2(_ptr, ptr_ref_counter, deleted)) {
       // Assigning already deleted object.
       ptr_ref_counter = NULL;
       return;
     }
 
-    ptr_ref_counter = _ptr.ptr_ref_counter;
+    ptr_ref_counter = PTR_ATTRIB(_ptr, ptr_ref_counter);
 
 #ifdef __debug__
     Print(ptr_ref_counter.Debug());
 #endif
 
-    ++ptr_ref_counter.num_weak_refs;
+    ++PTR_ATTRIB(ptr_ref_counter, num_weak_refs);
   }
 
   /**
@@ -310,13 +313,13 @@ struct WeakRef {
   void Unset() {
     if (ptr_ref_counter != NULL) {
       // Dropping weak reference.
-      if (!--ptr_ref_counter.num_weak_refs) {
+      if (!--PTR_ATTRIB(ptr_ref_counter, num_weak_refs)) {
         // No more weak references.
 #ifdef __debug__
         Print(ptr_ref_counter.Debug());
 #endif
 
-        if (!ptr_ref_counter.num_strong_refs) {
+        if (!PTR_ATTRIB(ptr_ref_counter, num_strong_refs)) {
           // There are also no strong references.
           ReferenceCounter* stored_ptr_ref_counter = ptr_ref_counter;
           if (!ptr_ref_counter.deleted) {
