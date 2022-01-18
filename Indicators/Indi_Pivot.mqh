@@ -148,10 +148,10 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
         // must have at least 4 buffers and define OHLC in the first 4 buffers.
         // Indi_Price is an example of such indicator.
         if (HasDataSource()) {
-          _ohlc.open = GetDataSource().GetValue<float>(_shift, PRICE_OPEN);
-          _ohlc.high = GetDataSource().GetValue<float>(_shift, PRICE_HIGH);
-          _ohlc.low = GetDataSource().GetValue<float>(_shift, PRICE_LOW);
-          _ohlc.close = GetDataSource().GetValue<float>(_shift, PRICE_CLOSE);
+          _ohlc.open = GetDataSource().GetValue<float>(PRICE_OPEN, _shift);
+          _ohlc.high = GetDataSource().GetValue<float>(PRICE_HIGH, _shift);
+          _ohlc.low = GetDataSource().GetValue<float>(PRICE_LOW, _shift);
+          _ohlc.close = GetDataSource().GetValue<float>(PRICE_CLOSE, _shift);
         }
         break;
       default:

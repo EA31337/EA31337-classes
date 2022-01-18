@@ -424,9 +424,9 @@ class IndicatorBase : public Chart {
   }
 
   template <typename T>
-  T GetValue(int _index = 0, int _mode = 0) {
+  T GetValue(int _mode = 0, int _index = 0) {
     T _out;
-    GetEntryValue(_index, _mode).Get(_out);
+    GetEntryValue(_mode, _index).Get(_out);
     return _out;
   }
 
