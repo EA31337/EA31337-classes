@@ -29,6 +29,9 @@
 #pragma once
 #endif
 
+// Includes.
+#include "../../IndicatorTf.h"
+
 // Params for dummy candle-based indicator.
 struct IndicatorTfDummyParams : IndicatorTfParams {
   IndicatorTfDummyParams(uint _spc = 60) : IndicatorTfParams(_spc) {}
@@ -43,7 +46,7 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
   IndicatorTfDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorTf(_tf) {}
   IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi = 0) : IndicatorTf(_tfi) {}
 
-  string GetName() override { return "IndicatorTfDummy(" + IntegerToString(icparams.spc) + ")"; }
+  string GetName() override { return "IndicatorTfDummy(" + IntegerToString(iparams.spc) + ")"; }
 
   void OnDataSourceEntry(IndicatorDataEntry& entry) override {
     // When overriding OnDataSourceEntry() we have to remember to call parent
@@ -51,7 +54,9 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
     // create/update matching candle.
     IndicatorTf<IndicatorTfDummyParams>::OnDataSourceEntry(entry);
 
+#ifdef __debug_indicator__
     Print(GetFullName(), " got new tick at ", entry.timestamp,
           " (" + TimeToString(entry.timestamp) + "): ", entry.ToString<double>());
+#endif
   }
 };

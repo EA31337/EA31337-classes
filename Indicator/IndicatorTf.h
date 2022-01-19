@@ -56,7 +56,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    * Class constructor with timeframe enum.
    */
   IndicatorTf(uint _spc) {
-    icparams.SetSecsPerCandle(_spc);
+    iparams.SetSecsPerCandle(_spc);
     Init();
   }
 
@@ -64,7 +64,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    * Class constructor with timeframe enum.
    */
   IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    icparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
+    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
     Init();
   }
 
@@ -72,7 +72,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    * Class constructor with timeframe index.
    */
   IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
-    icparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
+    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
     Init();
   }
 

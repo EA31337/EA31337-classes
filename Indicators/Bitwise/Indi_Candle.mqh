@@ -23,7 +23,7 @@
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/IndicatorTickOrCandleSource.h"
 #include "../../Pattern.struct.h"
 #include "../../Serializer.mqh"
 #include "../Price/Indi_Price.mqh"
@@ -47,13 +47,14 @@ struct CandleParams : IndicatorParams {
 /**
  * Implements Candle Pattern Detector.
  */
-class Indi_Candle : public Indicator<CandleParams> {
+class Indi_Candle : public IndicatorTickOrCandleSource<CandleParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Candle(CandleParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CandleParams>(_p, _indi_src){};
-  Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_CANDLE, _tf, _shift){};
+  Indi_Candle(CandleParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_CANDLE, _tf, _shift){};
 
   /**
    * Alters indicator's struct value.
@@ -66,7 +67,7 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     BarOHLC _ohlcs[1];

@@ -25,7 +25,8 @@
  */
 
 // Defines.
-//#define __debug__  // Enables debug.
+// #define __debug__  // Enables debug.
+// #define __debug_verbose__
 
 // Forward declaration.
 struct DataParamEntry;
@@ -83,6 +84,11 @@ int OnInit() {
 void OnTick() {
   chart.OnTick();
 
+  // All indicators should execute its OnTick() method for every platform tick.
+  for (DictStructIterator<long, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    iter.Value().Ptr().Tick();
+  }
+
   if (chart.IsNewBar()) {
     bar_processed++;
     if (indis.Size() == 0) {
@@ -104,6 +110,7 @@ void OnTick() {
       IndicatorBase* _indi = iter.Value().Ptr();
       _indi.OnTick();
       IndicatorDataEntry _entry(_indi.GetEntry());
+
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
         if (_entry.IsValid()) {
           PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
@@ -321,7 +328,7 @@ bool InitIndicators() {
   stddev_params_on_ma_sma.SetDraw(true, 1);
 
   Ref<Indi_StdDev> indi_stddev_on_ma_sma = new Indi_StdDev(stddev_params_on_ma_sma);
-  indi_stddev_on_ma_sma.Ptr().SetDataSource(indi_ma_sma_for_stddev.Ptr(), 0);
+  indi_stddev_on_ma_sma.Ptr().SetDataSource(indi_ma_sma_for_stddev.Ptr());
   indis.Push(indi_stddev_on_ma_sma.Ptr());
 
   // Standard Deviation (StdDev) in SMA mode over Price.
@@ -409,7 +416,18 @@ bool InitIndicators() {
 
   // AMA.
   IndiAMAParams ama_params();
-  indis.Push(new Indi_AMA(ama_params));
+  // Will use Candle indicator by default. However, in that case we need to specifiy applied price (excluding ASK and
+  // BID).
+  ama_params.SetDataSourceType(IDATA_INDICATOR);
+  Indi_AMA* _indi_ama = new Indi_AMA(ama_params);
+  _indi_ama.SetAppliedPrice(PRICE_OPEN);
+  indis.Push(_indi_ama);
+
+  // Original AMA.
+  IndiAMAParams ama_params_orig();
+  ama_params_orig.SetName("Original AMA to compare");
+  ama_params_orig.SetDataSourceType(IDATA_BUILTIN);
+  indis.Push(new Indi_AMA(ama_params_orig));
 
   // Chaikin Oscillator.
   IndiCHOParams cho_params();
@@ -533,7 +551,7 @@ bool InitIndicators() {
   }
 
   // Push white-listed indicators here.
-  whitelisted_indis.Push(_indi_test);
+  // whitelisted_indis.Push(_indi_test);
 
   return GetLastError() == ERR_NO_ERROR;
 }

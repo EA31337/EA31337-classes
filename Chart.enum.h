@@ -43,8 +43,13 @@ enum ENUM_APPLIED_PRICE {
   PRICE_MEDIAN,     // Median price (H+L)/2
   PRICE_TYPICAL,    // Typical price, (H+L+C)/3
   PRICE_WEIGHTED,   // Weighted close price (H+L+C+C)/4
+  FINAL_APPLIED_PRICE_ENTRY
 };
 #endif
+
+// Additional modes for applied price.
+#define PRICE_ASK ((ENUM_APPLIED_PRICE)128)
+#define PRICE_BID ((ENUM_APPLIED_PRICE)129)
 
 // Defines enumeration for chart parameters.
 enum ENUM_CHART_PARAM {

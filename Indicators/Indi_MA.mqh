@@ -27,7 +27,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickSource.h"
 #include "../Refs.mqh"
 #include "../Storage/Singleton.h"
 #include "../Storage/ValueStorage.h"
@@ -74,13 +74,13 @@ struct IndiMAParams : IndicatorParams {
 /**
  * Implements the Moving Average indicator.
  */
-class Indi_MA : public Indicator<IndiMAParams> {
+class Indi_MA : public IndicatorTickSource<IndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMAParams>(_p, _indi_src) {}
-  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MA, _tf, _shift) {}
+  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
+  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_MA, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -261,23 +261,23 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Calculates Simple Moving Average (SMA). The same as in "Example Moving Average" indicator.
    */
   static void CalculateSimpleMA(int rates_total, int prev_calculated, int begin, ValueStorage<double> &price,
-                                ValueStorage<double> &ExtLineBuffer, int InpMAPeriod) {
+                                ValueStorage<double> &ExtLineBuffer, int _ma_period) {
     int i, start;
     // First calculation or number of bars was changed.
     if (prev_calculated == 0) {
-      start = InpMAPeriod + begin;
+      start = _ma_period + begin;
       // Set empty value for first start bars.
       for (i = 0; i < start - 1; i++) ExtLineBuffer[i] = 0.0;
       // Calculate first visible value.
       double first_value = 0;
       for (i = begin; i < start; i++) first_value += price[i].Get();
-      first_value /= InpMAPeriod;
+      first_value /= _ma_period;
       ExtLineBuffer[start - 1] = first_value;
     } else
       start = prev_calculated - 1;
     // Main loop.
     for (i = start; i < rates_total && !IsStopped(); i++) {
-      ExtLineBuffer[i] = ExtLineBuffer[i - 1] + (price[i] - price[i - InpMAPeriod]) / InpMAPeriod;
+      ExtLineBuffer[i] = ExtLineBuffer[i - 1] + (price[i] - price[i - _ma_period]) / _ma_period;
     }
   }
 
@@ -285,12 +285,12 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Calculates Exponential Moving Average (EMA). The same as in "Example Moving Average" indicator.
    */
   static void CalculateEMA(int rates_total, int prev_calculated, int begin, ValueStorage<double> &price,
-                           ValueStorage<double> &ExtLineBuffer, int InpMAPeriod) {
+                           ValueStorage<double> &ExtLineBuffer, int _ma_period) {
     int i, limit;
-    double SmoothFactor = 2.0 / (1.0 + InpMAPeriod);
+    double SmoothFactor = 2.0 / (1.0 + _ma_period);
     // First calculation or number of bars was changed.
     if (prev_calculated == 0) {
-      limit = InpMAPeriod + begin;
+      limit = _ma_period + begin;
       ExtLineBuffer[begin] = price[begin];
       for (i = begin + 1; i < limit; i++) {
         ExtLineBuffer[i] = price[i] * SmoothFactor + ExtLineBuffer[i - 1] * (1.0 - SmoothFactor);
@@ -307,14 +307,14 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Calculates Linearly Weighted Moving Average (LWMA). The same as in "Example Moving Average" indicator.
    */
   static void CalculateLWMA(int rates_total, int prev_calculated, int begin, ValueStorage<double> &price,
-                            ValueStorage<double> &ExtLineBuffer, int InpMAPeriod) {
+                            ValueStorage<double> &ExtLineBuffer, int _ma_period) {
     int i, limit;
     static int weightsum;
     double sum;
     // First calculation or number of bars was changed.
     if (prev_calculated == 0) {
       weightsum = 0;
-      limit = InpMAPeriod + begin;
+      limit = _ma_period + begin;
       // Set empty value for first limit bars.
       for (i = 0; i < limit; i++) ExtLineBuffer[i] = 0.0;
       // Calculate first visible value.
@@ -331,7 +331,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
     // Main loop.
     for (i = limit; i < rates_total && !IsStopped(); i++) {
       sum = 0;
-      for (int j = 0; j < InpMAPeriod; j++) sum += (InpMAPeriod - j) * price[i - j].Get();
+      for (int j = 0; j < _ma_period; j++) sum += (_ma_period - j) * price[i - j].Get();
       ExtLineBuffer[i] = sum / weightsum;
     }
     //---
@@ -341,23 +341,23 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Calculates Smoothed Moving Average (SMMA). The same as in "Example Moving Average" indicator.
    */
   static void CalculateSmoothedMA(int rates_total, int prev_calculated, int begin, ValueStorage<double> &price,
-                                  ValueStorage<double> &ExtLineBuffer, int InpMAPeriod) {
+                                  ValueStorage<double> &ExtLineBuffer, int _ma_period) {
     int i, limit;
     // First calculation or number of bars was changed.
     if (prev_calculated == 0) {
-      limit = InpMAPeriod + begin;
+      limit = _ma_period + begin;
       // Set empty value for first limit bars.
       for (i = 0; i < limit - 1; i++) ExtLineBuffer[i] = 0.0;
       // Calculate first visible value.
       double firstValue = 0;
       for (i = begin; i < limit; i++) firstValue += price[i].Get();
-      firstValue /= InpMAPeriod;
+      firstValue /= _ma_period;
       ExtLineBuffer[limit - 1] = firstValue;
     } else
       limit = prev_calculated - 1;
     // Main loop.
     for (i = limit; i < rates_total && !IsStopped(); i++)
-      ExtLineBuffer[i] = (ExtLineBuffer[i - 1] * (InpMAPeriod - 1) + price[i].Get()) / InpMAPeriod;
+      ExtLineBuffer[i] = (ExtLineBuffer[i - 1] * (_ma_period - 1) + price[i].Get()) / _ma_period;
     //---
   }
 
@@ -576,9 +576,9 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Calculates Moving Average. The same as in "Example Moving Average" indicator.
    */
   static int Calculate(const int rates_total, const int prev_calculated, const int begin, ValueStorage<double> &price,
-                       ValueStorage<double> &ExtLineBuffer, int InpMAMethod, int InpMAPeriod) {
+                       ValueStorage<double> &ExtLineBuffer, int _ma_method, int _ma_period) {
     // Check for bars count.
-    if (rates_total < InpMAPeriod - 1 + begin) {
+    if (rates_total < _ma_period - 1 + begin) {
       // Not enough bars for calculation.
       return (0);
     }
@@ -588,18 +588,18 @@ class Indi_MA : public Indicator<IndiMAParams> {
     }
 
     // Calculation.
-    switch (InpMAMethod) {
+    switch (_ma_method) {
       case MODE_EMA:
-        CalculateEMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        CalculateEMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, _ma_period);
         break;
       case MODE_LWMA:
-        CalculateLWMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        CalculateLWMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, _ma_period);
         break;
       case MODE_SMMA:
-        CalculateSmoothedMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        CalculateSmoothedMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, _ma_period);
         break;
       case MODE_SMA:
-        CalculateSimpleMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        CalculateSimpleMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, _ma_period);
         break;
     }
     // Return value of prev_calculated for next call.
@@ -627,7 +627,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -663,6 +663,35 @@ class Indi_MA : public Indicator<IndiMAParams> {
       _ptr.SetSymbol(_symbol);
     }
     return _ptr;
+  }
+
+  /**
+   * Returns value storage of given kind.
+   */
+  IValueStorage *GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+    switch (_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+      case INDI_VS_TYPE_PRICE_BID:
+        // We're returning the same buffer for ask and bid price, as target indicator probably won't bother.
+        return GetValueStorage(0);
+      default:
+        // Trying in parent class.
+        return Indicator<IndiMAParams>::GetSpecificValueStorage(_type);
+    }
+  }
+
+  /**
+   * Checks whether indicator support given value storage type.
+   */
+  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+    switch (_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+      case INDI_VS_TYPE_PRICE_BID:
+        return true;
+      default:
+        // Trying in parent class.
+        return Indicator<IndiMAParams>::HasSpecificValueStorage(_type);
+    }
   }
 
   /* Getters */

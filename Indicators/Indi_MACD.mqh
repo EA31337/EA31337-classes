@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -59,13 +59,14 @@ struct IndiMACDParams : IndicatorParams {
 /**
  * Implements the Moving Averages Convergence/Divergence indicator.
  */
-class Indi_MACD : public Indicator<IndiMACDParams> {
+class Indi_MACD : public IndicatorTickOrCandleSource<IndiMACDParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MACD(IndiMACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMACDParams>(_p, _indi_src) {}
-  Indi_MACD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MACD, _tf, _shift) {}
+  Indi_MACD(IndiMACDParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_MACD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_MACD, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -114,7 +115,7 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

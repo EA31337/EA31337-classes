@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -39,6 +39,11 @@ struct IndiACParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
+    switch (idstype) {
+      case IDATA_ICUSTOM:
+        SetMaxModes(2);
+        break;
+    }
   };
   IndiACParams(IndiACParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
@@ -49,13 +54,13 @@ struct IndiACParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_AC : public Indicator<IndiACParams> {
+class Indi_AC : public IndicatorTickOrCandleSource<IndiACParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AC(IndiACParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiACParams>(_p, _indi_src){};
-  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_AC, _tf, _shift){};
+  Indi_AC(IndiACParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AC, _tf, _shift){};
 
   /**
    * Returns the indicator value.
@@ -100,7 +105,7 @@ class Indi_AC : public Indicator<IndiACParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     IndicatorDataEntryValue _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

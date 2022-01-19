@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/IndicatorTickOrCandleSource.h"
 #include "../../Math.enum.h"
 
 enum ENUM_MATH_OP_MODE { MATH_OP_MODE_BUILTIN, MATH_OP_MODE_CUSTOM_FUNCTION };
@@ -82,18 +82,19 @@ struct IndiMathParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_Math : public Indicator<IndiMathParams> {
+class Indi_Math : public IndicatorTickOrCandleSource<IndiMathParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Math(IndiMathParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMathParams>(_p, _indi_src){};
-  Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_SPECIAL_MATH, _tf, _shift){};
+  Indi_Math(IndiMathParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_SPECIAL_MATH, _tf, _shift){};
 
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

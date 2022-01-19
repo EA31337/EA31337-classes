@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTf.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_AC.mqh"
 #include "Indi_AO.mqh"
@@ -40,11 +40,15 @@ enum ENUM_INDI_BWZT_MODE {
 
 // Structs.
 struct IndiBWZTParams : IndicatorParams {
+  Ref<IndicatorBase> indi_ac;
+  Ref<IndicatorBase> indi_ao;
   unsigned int period;
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
   IndiBWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE) {
+    indi_ac = NULL;
+    indi_ao = NULL;
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
     shift = _shift;
@@ -58,13 +62,14 @@ struct IndiBWZTParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Zone Trade.
  */
-class Indi_BWZT : public Indicator<IndiBWZTParams> {
+class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BWZT(IndiBWZTParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiBWZTParams>(_p, _indi_src){};
-  Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BWZT, _tf, _shift){};
+  Indi_BWZT(IndiBWZTParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_BWZT, _tf, _shift){};
 
   /**
    * Built-in version of BWZT.
@@ -100,6 +105,34 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
         _cache.GetBuffer<double>(5), _cache.GetBuffer<double>(6), 38, _indi_ac, _indi_ao));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of BWZT.
+   */
+  static double iBWZTOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
+                                 IndicatorBase *_obj) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+                                                          Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
+
+    Indi_AC *_indi_ac = _obj.GetDataSource(INDI_AC);
+    Indi_AO *_indi_ao = _obj.GetDataSource(INDI_AO);
+
+    return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ac, _indi_ao);
+  }
+
+  /**
+   * Provides built-in indicators whose can be used as data source.
+   */
+  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
+    switch (_id) {
+      case INDI_AC:
+        return iparams.indi_ac.Ptr();
+      case INDI_AO:
+        return iparams.indi_ao.Ptr();
+    }
+
+    return NULL;
   }
 
   /**
@@ -172,7 +205,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -181,6 +214,9 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_BWZT::iBWZTOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

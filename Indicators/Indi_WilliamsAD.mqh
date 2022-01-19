@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -42,14 +42,15 @@ struct IndiWilliamsADParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
+class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiWilliamsADParams>(_p, _indi_src){};
-  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_WILLIAMS_AD, _tf, _shift){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_WILLIAMS_AD, _tf, _shift){};
 
   /**
    * Built-in version of Williams' AD.
@@ -78,6 +79,16 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
         Indi_WilliamsAD::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0)));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of Williams' AD.
+   */
+  static double iWADOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+                                                          Util::MakeKey("Indi_WilliamsAD_ON_" + _indi.GetFullName()));
+    return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
   /**
@@ -124,7 +135,7 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -133,6 +144,9 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), 0, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_WilliamsAD::iWADOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

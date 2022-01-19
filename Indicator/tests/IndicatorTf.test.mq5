@@ -48,7 +48,7 @@ Ref<Indi_AMA> indi_ama_orig_sim;
  * Implements OnInit().
  */
 int OnInit() {
-  indicators.Add(indi_tick = new IndicatorTickReal(_Symbol));
+  indicators.Add(indi_tick = new IndicatorTickReal(PERIOD_CURRENT));
 
   // 1-second candles.
   // indicators.Add(indi_tf = new IndicatorTfDummy(1));
@@ -107,6 +107,6 @@ void OnTick() {
  */
 void OnDeinit(const int reason) {
   // Printing all grouped candles.
-  // Print(indi_tf.Ptr().GetName(), "'s all candles:");
-  // Print(indi_tf.Ptr().CandlesToString());
+  Print(indi_tf_orig_sim.Ptr().GetName(), "'s all candles:");
+  Print(indi_tf_orig_sim.Ptr().CandlesToString());
 }

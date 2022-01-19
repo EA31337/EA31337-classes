@@ -31,13 +31,20 @@
 
 // Includes.
 #include "../Buffer/BufferTick.h"
-#include "../IndicatorBase.h"
+#include "../Indicator.mqh"
+
+// Indicator modes.
+enum ENUM_INDI_TICK_MODE {
+  INDI_TICK_MODE_PRICE_ASK,
+  INDI_TICK_MODE_PRICE_BID,
+  FINAL_INDI_TICK_MODE_ENTRY,
+};
 
 /**
  * Class to deal with tick indicators.
  */
 template <typename TS, typename TV>
-class IndicatorTick : public IndicatorBase {
+class IndicatorTick : public Indicator<TS> {
  protected:
   BufferTick<TV> itdata;
   TS itparams;
@@ -51,6 +58,11 @@ class IndicatorTick : public IndicatorBase {
    * Called on constructor.
    */
   void Init() {
+    // We can't index by shift.
+    flags &= ~INDI_FLAG_INDEXABLE_BY_SHIFT;
+    // We can only index via timestamp.
+    flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
+
     itdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     itdata.SetOverflowListener(IndicatorTickOverflowListener, 10);
     // Ask and Bid price.
@@ -63,20 +75,47 @@ class IndicatorTick : public IndicatorBase {
   /**
    * Class constructor.
    */
-  IndicatorTick(const TS& _itparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0) {
+  IndicatorTick(const TS& _itparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
+      : Indicator(_itparams, _indi_src, _indi_mode) {
     itparams = _itparams;
     if (_indi_src != NULL) {
       SetDataSource(_indi_src, _indi_mode);
     }
     Init();
   }
-  IndicatorTick(ENUM_INDICATOR_TYPE _itype, string _symbol, int _shift = 0, string _name = "") {
-    itparams.SetIndicatorType(_itype);
-    itparams.SetShift(_shift);
+  IndicatorTick(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
+                string _name = "")
+      : Indicator(_itype, _tf, _shift, _name) {
     Init();
   }
 
-  /* Virtual method implementations */
+  /**
+   * Returns value storage of given kind.
+   */
+  IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+    switch (_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+        return (IValueStorage*)itdata.GetAskValueStorage();
+      case INDI_VS_TYPE_PRICE_BID:
+        return (IValueStorage*)itdata.GetBidValueStorage();
+      default:
+        // Trying in parent class.
+        return Indicator<TS>::GetSpecificValueStorage(_type);
+    }
+  }
+
+  /**
+   * Checks whether indicator support given value storage type.
+   */
+  virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
+    switch (_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+      case INDI_VS_TYPE_PRICE_BID:
+        return true;
+    }
+
+    return Indicator<TS>::HasSpecificValueStorage(_type);
+  }
 
   /**
    * Sends historic entries to listening indicators. May be overriden.
@@ -145,7 +184,7 @@ class IndicatorTick : public IndicatorBase {
    * @return
    *   Returns DataParamEntry struct filled with a single value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : itparams.GetShift();
     return GetEntry(_ishift)[_mode];
   }
@@ -165,7 +204,7 @@ class IndicatorTick : public IndicatorBase {
   /**
    * Sets indicator data source.
    */
-  void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) {
+  void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) {
     indi_src = _indi;
     itparams.SetDataSource(-1, _input_mode);
   }

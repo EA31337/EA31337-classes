@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "Indi_CCI.mqh"
 #include "Indi_Envelopes.mqh"
 #include "Indi_MA.mqh"
@@ -86,14 +86,14 @@ struct IndiBandsParams : IndicatorParams {
 /**
  * Implements the Bollinger Bands® indicator.
  */
-class Indi_Bands : public Indicator<IndiBandsParams> {
+class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_Bands(IndiBandsParams &_p, IndicatorBase *_indi_src = NULL, int _mode = 0)
-      : Indicator<IndiBandsParams>(_p, _indi_src, _mode) {}
-  Indi_Bands(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BANDS, _tf, _shift) {}
+      : IndicatorTickSource(_p, _indi_src, _mode) {}
+  Indi_Bands(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_BANDS, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -239,7 +239,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BAND_BASE, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BAND_BASE, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

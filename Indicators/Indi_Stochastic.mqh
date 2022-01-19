@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -62,13 +62,14 @@ struct IndiStochParams : IndicatorParams {
 /**
  * Implements the Stochastic Oscillator.
  */
-class Indi_Stochastic : public Indicator<IndiStochParams> {
+class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Stochastic(IndiStochParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiStochParams>(_p, _indi_src) {}
-  Indi_Stochastic(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_STOCHASTIC, _tf, _shift) {}
+  Indi_Stochastic(IndiStochParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Stochastic(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_STOCHASTIC, _tf, _shift) {}
 
   /**
    * Calculates the Stochastic Oscillator and returns its value.
@@ -119,7 +120,7 @@ class Indi_Stochastic : public Indicator<IndiStochParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

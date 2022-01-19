@@ -71,6 +71,8 @@ class IndicatorBase : public Chart {
   int indi_src_mode;            // Mode of source indicator
   IndicatorCalculateCache<double> cache;
   ARRAY(WeakRef<IndicatorBase>, listeners);  // List of indicators that listens for events from this one.
+  long last_tick_time;                       // Time of the last Tick() call.
+  int flags;                                 // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
 
  public:
   /* Indicator enumerations */
@@ -91,18 +93,24 @@ class IndicatorBase : public Chart {
    * Class constructor.
    */
   IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : indi_src(NULL), Chart(_tf, _symbol) {
+    // By default, indicator is indexable only by shift and data source must be also indexable by shift.
+    flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
     is_fed = false;
     indi_src = NULL;
+    last_tick_time = 0;
   }
 
   /**
    * Class constructor.
    */
   IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : Chart(_tfi, _symbol) {
+    // By default, indicator is indexable only by shift and data source must be also indexable by shift.
+    flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
     is_fed = false;
     indi_src = NULL;
+    last_tick_time = 0;
   }
 
   /**
@@ -121,11 +129,32 @@ class IndicatorBase : public Chart {
   /* Operator overloading methods */
 
   /**
-   * Access indicator entry data using [] operator.
+   * Access indicator entry data using [] operator via shift.
    */
-  // IndicatorDataEntry operator[](datetime _dt) { return GetEntry(_dt); }
-  IndicatorDataEntry operator[](int _index) { return GetEntry(_index); }
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) { return GetEntry(_index); }
+  IndicatorDataEntry operator[](int _index) {
+    if (!bool(flags | INDI_FLAG_INDEXABLE_BY_SHIFT)) {
+      Print(GetFullName(), " is not indexable by shift!");
+      DebugBreak();
+      IndicatorDataEntry _default;
+      return _default;
+    }
+    return GetEntry(_index);
+  }
+
+  /**
+   * Access indicator entry data using [] operator via datetime.
+   */
+  IndicatorDataEntry operator[](datetime _dt) {
+    if (!bool(flags | INDI_FLAG_INDEXABLE_BY_TIMESTAMP)) {
+      Print(GetFullName(), " is not indexable by timestamp!");
+      DebugBreak();
+      IndicatorDataEntry _default;
+      return _default;
+    }
+    return GetEntry(_dt);
+  }
+
+  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) { return GetEntry((int)_index); }
 
   /* Buffer methods */
 
@@ -275,7 +304,53 @@ class IndicatorBase : public Chart {
    */
   IndicatorBase* GetDataSourceRaw() { return indi_src.Ptr(); }
 
+  /**
+   * Returns given data source type. Used by i*OnIndicator methods if indicator's Calculate() uses other indicators.
+   */
+  IndicatorBase* GetDataSource(ENUM_INDICATOR_TYPE _type) {
+    IndicatorBase* _result = NULL;
+    if (indicators.KeyExists((int)_type)) {
+      _result = indicators[(int)_type].Ptr();
+    } else {
+      Ref<IndicatorBase> _indi = FetchDataSource(_type);
+      if (!_indi.IsSet()) {
+        Alert(GetFullName(), " does not define required indicator type ", EnumToString(_type), " for symbol ",
+              GetSymbol(), ", and timeframe ", GetTf(), "!");
+        DebugBreak();
+      } else {
+        indicators.Set((int)_type, _indi);
+        _result = _indi.Ptr();
+      }
+    }
+    return _result;
+  }
+
+  /**
+   * Called if data source is requested, but wasn't yet set. May be used to initialize indicators that must operate on
+   * some data source.
+   */
+  virtual IndicatorBase* OnDataSourceRequest() {
+    Print("In order to use IDATA_INDICATOR mode for indicator ", GetFullName(),
+          " without explicitly selecting an indicator, ", GetFullName(),
+          " must override OnDataSourceRequest() method and return new instance of data source to be used by default.");
+    DebugBreak();
+    return NULL;
+  }
+
+  /**
+   * Creates default, tick based indicator for given applied price.
+   */
+  virtual IndicatorBase* DataSourceRequestReturnDefault(int _applied_price) {
+    DebugBreak();
+    return NULL;
+  }
+
   /* Getters */
+
+  /**
+   * Returns indicator's flags.
+   */
+  int GetFlags() { return flags; }
 
   /**
    * Returns buffers' cache.
@@ -308,7 +383,7 @@ class IndicatorBase : public Chart {
   /**
    * Whether data source is selected.
    */
-  virtual bool HasDataSource() { return false; }
+  virtual bool HasDataSource(bool _try_initialize = false) { return false; }
 
   /**
    * Returns currently selected data source doing validation.
@@ -330,7 +405,7 @@ class IndicatorBase : public Chart {
   /**
    * Get name of the indicator.
    */
-  virtual string GetName() { return "<Unknown>"; }
+  virtual string GetName() { return EnumToString(GetType()); }
 
   /**
    * Get full name of the indicator (with "over ..." part).
@@ -371,7 +446,7 @@ class IndicatorBase : public Chart {
   /**
    * Sets indicator data source.
    */
-  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = 0) = NULL;
+  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) = NULL;
 
   /**
    * Sets data source's input mode.
@@ -423,6 +498,72 @@ class IndicatorBase : public Chart {
     return value_storages[_mode];
   }
 
+  /**
+   * Returns value storage of given kind.
+   */
+  virtual IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
+    Print("Error: ", GetFullName(), " indicator has no storage type ", EnumToString(_type), "!");
+    DebugBreak();
+    return NULL;
+  }
+
+  virtual IValueStorage* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
+    switch (_ap) {
+      case PRICE_ASK:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+      case PRICE_BID:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
+      case PRICE_OPEN:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
+      case PRICE_HIGH:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
+      case PRICE_LOW:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
+      case PRICE_CLOSE:
+        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
+      case PRICE_MEDIAN:
+      case PRICE_TYPICAL:
+      case PRICE_WEIGHTED:
+      default:
+        Print("Error: Invalid applied price " + EnumToString(_ap) +
+              ", only PRICE_(OPEN|HIGH|LOW|CLOSE) are currently supported by "
+              "IndicatorBase::GetSpecificAppliedPriceValueStorage()!");
+        DebugBreak();
+        return NULL;
+    }
+  }
+
+  virtual bool HasSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
+    switch (_ap) {
+      case PRICE_ASK:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+      case PRICE_BID:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
+      case PRICE_OPEN:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
+      case PRICE_HIGH:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
+      case PRICE_LOW:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
+      case PRICE_CLOSE:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
+      case PRICE_MEDIAN:
+      case PRICE_TYPICAL:
+      case PRICE_WEIGHTED:
+      default:
+        Print("Error: Invalid applied price " + EnumToString(_ap) +
+              ", only PRICE_(OPEN|HIGH|LOW|CLOSE) are currently supported by "
+              "IndicatorBase::HasSpecificAppliedPriceValueStorage()!");
+        DebugBreak();
+        return false;
+    }
+  }
+
+  /**
+   * Checks whether indicator support given value storage type.
+   */
+  virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) { return false; }
+
   template <typename T>
   T GetValue(int _mode = 0, int _index = 0) {
     T _out;
@@ -468,6 +609,31 @@ class IndicatorBase : public Chart {
     return _result;
   }
 
+  void Tick() {
+    long _current_time = TimeCurrent();
+
+    if (last_tick_time == _current_time) {
+      // We've already ticked.
+      return;
+    }
+
+    last_tick_time = _current_time;
+
+    // Checking and potentially initializing new data source.
+    if (HasDataSource(true) != NULL) {
+      // Ticking data source if not yet ticked.
+      GetDataSource().Tick();
+    }
+
+    // Also ticking all used indicators if they've not yet ticked.
+    for (DictStructIterator<int, Ref<IndicatorBase>> iter = indicators.Begin(); iter.IsValid(); ++iter) {
+      iter.Value().Ptr().Tick();
+    }
+
+    // Overridable OnTick() method.
+    OnTick();
+  }
+
   virtual void OnTick() {}
 
   /* Data representation methods */
@@ -477,7 +643,19 @@ class IndicatorBase : public Chart {
   /**
    * Returns the indicator's struct value.
    */
-  virtual IndicatorDataEntry GetEntry(int _index = -1) = NULL;
+  virtual IndicatorDataEntry GetEntry(int _index = 0) = NULL;
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  virtual IndicatorDataEntry GetEntry(datetime _dt) {
+    Print(GetFullName(),
+          " must implement IndicatorDataEntry IndicatorBase::GetEntry(datetime _dt) in order to use GetEntry(datetime "
+          "_dt) or _indi[datetime] subscript operator!");
+    DebugBreak();
+    IndicatorDataEntry _default;
+    return _default;
+  }
 
   /**
    * Alters indicator's struct value.
@@ -492,7 +670,7 @@ class IndicatorBase : public Chart {
   /**
    * Returns the indicator's entry value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _index = -1) = NULL;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) = NULL;
 
   /**
    * Sends entry to listening indicators.
@@ -521,9 +699,18 @@ class IndicatorBase : public Chart {
   virtual void OnBecomeDataSourceFor(IndicatorBase* _base_indi){};
 
   /**
+   * Called when user tries to set given data source. Could be used to check if indicator implements all required value
+   * storages.
+   */
+  virtual bool OnValidateDataSource(IndicatorBase* _ds, string& _reason) {
+    _reason = "Indicator " + GetName() + " does not implement OnValidateDataSource()";
+    return false;
+  }
+
+  /**
    * Returns indicator value for a given shift and mode.
    */
-  // virtual double GetValue(int _shift = -1, int _mode = 0) = NULL;
+  // virtual double GetValue(int _shift = 0, int _mode = 0) = NULL;
 
   /**
    * Checks whether indicator has a valid value for a given shift.
@@ -605,6 +792,138 @@ class IndicatorBase : public Chart {
    * Gets indicator's time-frame.
    */
   ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
+
+  /* Defines MQL backward compatible methods */
+
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, DUMMY);
+#endif
+  }
+
+  template <typename A>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a);
+#endif
+  }
+
+  template <typename A, typename B>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b);
+#endif
+  }
+
+  template <typename A, typename B, typename C>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, int _mode,
+                 int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, int _mode,
+                 int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e,
+                 int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, J _j, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, J _j, K _k, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K, typename L, typename M>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, J _j, K _k, L _l, M _m, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(;, COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k
+                       COMMA _l COMMA _m);
+#endif
+  }
 };
 
 /**

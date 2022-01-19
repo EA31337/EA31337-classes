@@ -28,7 +28,7 @@
  * Test functionality of Indi_TickMt indicator class.
  */
 
-Indi_TickMt indi(_Symbol);
+Indi_TickMt indi(PERIOD_CURRENT);
 
 /**
  * Implements Init event handler.
