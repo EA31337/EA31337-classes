@@ -111,13 +111,6 @@ void OnTick() {
       _indi.OnTick();
       IndicatorDataEntry _entry(_indi.GetEntry());
 
-      if (_indi.GetType() == INDI_AMA) {
-        PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
-        continue;
-      } else {
-        continue;
-      }
-
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
         if (_entry.IsValid()) {
           PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
@@ -558,7 +551,7 @@ bool InitIndicators() {
   }
 
   // Push white-listed indicators here.
-  whitelisted_indis.Push(_indi_test);
+  // whitelisted_indis.Push(_indi_test);
 
   return GetLastError() == ERR_NO_ERROR;
 }
