@@ -22,5 +22,10 @@
 
 // Define external global functions.
 #ifndef __MQL__
-extern double MathMax(double value1, double value2);
+extern double MathAbs(double value);
+extern double fabs(double value);
+template <typename T>
+extern T MathMax(T value1, T value2);
+template <typename T>
+extern T MathMin(T value1, T value2);
 #endif

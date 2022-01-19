@@ -35,7 +35,7 @@
 
 // Forward class declaration.
 class Refs;
-// class ReferenceCounter;
+class ReferenceCounter;
 template <typename X>
 struct WeakRef;
 

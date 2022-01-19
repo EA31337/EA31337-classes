@@ -27,10 +27,11 @@
 
 // Includes.
 #include "Array.extern.h"
-#include "Convert.extern.h"
 #include "Common.extern.h"
+#include "Convert.extern.h"
 #include "Math.extern.h"
 #include "Std.h"
+#include "String.extern.h"
 
 // Defines.
 #ifndef MODE_ASCEND
@@ -533,7 +534,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
    */
   template <typename T>
   void ArrayPrint(ARRAY_REF(T, _arr),         // Printed array.
-                  int _digits = 0,         // Number of decimal places.
+                  int _digits = 0,            // Number of decimal places.
                   const string _dlm = NULL,   // Separator of the structure field values.
                   long _start = 0,            // First printed element index.
                   long _count = WHOLE_ARRAY,  // Number of printed elements.

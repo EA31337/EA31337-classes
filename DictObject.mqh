@@ -46,7 +46,7 @@ class DictObjectIterator : public DictIteratorBase<K, V> {
    */
   DictObjectIterator(const DictObjectIterator& right) : DictIteratorBase(right) {}
 
-  V* Value() { return &_dict.GetSlot(_slotIdx).value; }
+  V* Value() { return &(_dict PTR_DEREF GetSlot(_slotIdx) PTR_DEREF value); }
 };
 
 /**
@@ -76,6 +76,19 @@ class DictObject : public DictBase<K, V> {
     _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
     _current_id = right._current_id;
     _mode = right._mode;
+  }
+
+  DictObjectIterator<K, V> Begin() {
+    // Searching for first item index.
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+      if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
+        DictObjectIterator<K, V> iter(THIS_REF, i);
+        return iter;
+      }
+    }
+    // No items found.
+    DictObjectIterator<K, V> invalid;
+    return invalid;
   }
 
   void operator=(const DictObject<K, V>& right) {
@@ -163,7 +176,9 @@ class DictObject : public DictBase<K, V> {
   /**
    * Checks whether dictionary contains given key => value pair.
    */
+#ifdef __MQL__
   template <>
+#endif
   bool Contains(const K key, const V& value) {
     unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, key, position);
@@ -336,11 +351,14 @@ class DictObject : public DictBase<K, V> {
     return true;
   }
 
+ public:
+#ifdef __MQL__
   template <>
+#endif
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i)
-        s.PassObject(this, GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
+        s.PassObject(THIS_REF, GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
 
       return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {
@@ -384,7 +402,9 @@ class DictObject : public DictBase<K, V> {
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
+#ifdef __MQL__
   template <>
+#endif
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
     V _child;
 

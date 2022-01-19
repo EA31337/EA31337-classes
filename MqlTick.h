@@ -29,6 +29,8 @@
 #pragma once
 #endif
 
+#include "DateTime.extern.h"
+
 #ifndef __MQL__
 /**
  * Structure for storing the latest prices of the symbol.

@@ -38,7 +38,7 @@ class DictSlot;
 
 template <typename K, typename V>
 struct DictSlotsRef {
-  DictSlot<K, V> DictSlots[];
+  ARRAY(DictSlot<K _COMMA V>, DictSlots);
 
   // Incremental index for dict operating in list mode.
   int _list_index;

@@ -43,6 +43,7 @@
 #ifdef __MQL__
 #define THIS_PTR (&this)
 #define THIS_REF this
+#define PTR_DEREF .
 #define PTR_ATTRIB(O, A) O.A
 #define PTR_ATTRIB2(O, A, B) O.A.B
 #define PTR_TO_REF(PTR) PTR
@@ -50,6 +51,7 @@
 #else
 #define THIS_PTR (this)
 #define THIS_REF (*this)
+#define PTR_DEREF ->
 #define PTR_ATTRIB(O, A) O->A
 #define PTR_ATTRIB2(O, A, B) O->A->B
 #define PTR_TO_REF(PTR) (*PTR)
@@ -64,6 +66,7 @@
 #endif
 
 // Arrays and references to arrays.
+#define _COMMA ,
 #ifdef __MQL__
 #define ARRAY_DECLARATION_BRACKETS []
 #else

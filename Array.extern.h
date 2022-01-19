@@ -22,10 +22,27 @@
 
 // Define external global functions.
 #ifndef __MQL__
-extern int ArrayInitialize();
-extern int ArrayResize(void& array[], int new_size, int reserve_size = 0);
-extern bool ArrayReverse();
-extern bool ArraySetAsSeries(const void& array[], bool flag);
-extern int ArraySize(const void& array[]);
-extern bool ArraySort(void& array[]);
+#pragma once
+
+template <typename T>
+extern int ArraySize(const ARRAY_REF(T, _array));
+
+template <typename T, int size>
+extern constexpr int ArraySize(const T REF(_array)[size]);
+
+template <typename T>
+extern int ArrayResize(ARRAY_REF(T, _array), int _new_size, int _reserve_size = 0);
+
+template <typename T>
+extern bool ArraySetAsSeries(ARRAY_REF(T, _array), bool _flag);
+
+template <typename T>
+extern int ArrayMaximum(const ARRAY_REF(T, _array), int _start = 0, unsigned int _count = WHOLE_ARRAY);
+
+template <typename T>
+extern int ArrayMinimum(const ARRAY_REF(T, _array), int _start = 0, unsigned int _count = WHOLE_ARRAY);
+
+template <typename T>
+extern int ArrayFree(const ARRAY_REF(T, _array));
+
 #endif

@@ -65,10 +65,12 @@ class SerializerJson {
 
     repr += ident;
 
-    if (PTR_ATTRIB(_node, GetKeyParam()) != NULL && PTR_ATTRIB(PTR_ATTRIB(_node, GetKeyParam()), AsString(false, false)) != "")
+    if (PTR_ATTRIB(_node, GetKeyParam()) != NULL &&
+        PTR_ATTRIB(PTR_ATTRIB(_node, GetKeyParam()), AsString(false, false)) != "")
       repr += PTR_ATTRIB(PTR_ATTRIB(_node, GetKeyParam()), AsString(false, true)) + ":" + (trimWhitespaces ? "" : " ");
 
-    if (PTR_ATTRIB(_node, GetValueParam()) != NULL) repr += PTR_ATTRIB(PTR_ATTRIB(_node, GetValueParam()), AsString(false, true));
+    if (PTR_ATTRIB(_node, GetValueParam()) != NULL)
+      repr += PTR_ATTRIB(PTR_ATTRIB(_node, GetValueParam()), AsString(false, true));
 
     switch (PTR_ATTRIB(_node, GetType())) {
       case SerializerNodeObject:
@@ -178,9 +180,10 @@ class SerializerJson {
           expectingKey = false;
           expectingSemicolon = true;
         } else if (expectingValue) {
-          PTR_ATTRIB(current, AddChild(new SerializerNode(
-              PTR_ATTRIB(current, GetType()) == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem,
-              current, key, SerializerNodeParam::FromString(extracted))));
+          PTR_ATTRIB(current, AddChild(new SerializerNode(PTR_ATTRIB(current, GetType()) == SerializerNodeObject
+                                                              ? SerializerNodeObjectProperty
+                                                              : SerializerNodeArrayItem,
+                                                          current, key, SerializerNodeParam::FromString(extracted))));
 
 #ifdef __debug__
           Print("SerializerJson: Value \"" + extracted + "\" for key " +
@@ -280,9 +283,10 @@ class SerializerJson {
               (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
 #endif
 
-        PTR_ATTRIB(current, AddChild(new SerializerNode(
-            PTR_ATTRIB(current, GetType()) == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
-            key, value)));
+        PTR_ATTRIB(current, AddChild(new SerializerNode(PTR_ATTRIB(current, GetType()) == SerializerNodeObject
+                                                            ? SerializerNodeObjectProperty
+                                                            : SerializerNodeArrayItem,
+                                                        current, key, value)));
         expectingValue = false;
 
         // Skipping value.
@@ -303,9 +307,10 @@ class SerializerJson {
         // Skipping value.
         i += ch == 't' ? 3 : 4;
 
-        PTR_ATTRIB(current, AddChild(new SerializerNode(
-            PTR_ATTRIB(current, GetType()) == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
-            key, value)));
+        PTR_ATTRIB(current, AddChild(new SerializerNode(PTR_ATTRIB(current, GetType()) == SerializerNodeObject
+                                                            ? SerializerNodeObjectProperty
+                                                            : SerializerNodeArrayItem,
+                                                        current, key, value)));
         expectingValue = false;
 
         // We don't want to delete it twice.
@@ -342,7 +347,7 @@ class SerializerJson {
     string str;
 
     for (unsigned int i = index; i < (unsigned int)StringLen(data); ++i) {
-#ifdef __MQL5__
+#ifndef __MQL4__
       unsigned short ch = StringGetCharacter(data, i);
 #else
       unsigned short ch = StringGetChar(data, i);

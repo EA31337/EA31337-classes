@@ -116,7 +116,7 @@ struct TradeSignalEntry {
   TradeSignalEntry(unsigned int _signals = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, long _magic_id = 0,
                    float _strength = 0.0f, float _weight = 0.0f, long _time = 0)
       : magic_id(_magic_id), signals(_signals), strength(_strength), tf(_tf), timestamp(_time), weight(_weight) {}
-  TradeSignalEntry(const TradeSignalEntry &_entry) { this = _entry; }
+  TradeSignalEntry(const TradeSignalEntry &_entry) { THIS_REF = _entry; }
   /* Getters */
   template <typename T>
   T Get(STRUCT_ENUM(TradeSignalEntry, ENUM_TRADE_SIGNAL_PROP) _prop) {
@@ -190,7 +190,7 @@ struct TradeSignalEntry {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckSignals(1 << i) ? 1 : 0;
-      _s.Pass(THIS_REF, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      _s.Pass(THIS_REF, IntegerToString(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     }
     return SerializerNodeObject;
   }

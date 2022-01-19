@@ -96,7 +96,7 @@ class SerializerConverter {
 
   template <typename R>
   string ToString(unsigned int stringify_flags = 0, void* stringify_aux_arg = NULL) {
-    string result = ((R*)NULL).Stringify(root_node, stringify_flags, stringify_aux_arg);
+    string result = ((R*)NULL)PTR_DEREF Stringify(root_node, stringify_flags, stringify_aux_arg);
     if ((_serializer_flags & SERIALIZER_FLAG_REUSE_OBJECT) == 0) {
       Clean();
     }

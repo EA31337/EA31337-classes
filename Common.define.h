@@ -29,7 +29,6 @@
 typedef std::string string;
 typedef unsigned char uchar;
 typedef unsigned int uint;
-typedef unsigned long datetime;
 typedef unsigned long ulong;
 typedef unsigned short ushort;
 #endif

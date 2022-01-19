@@ -72,7 +72,7 @@ class Serializer {
 
   template <typename X>
   SerializerIterator<X> Begin() {
-    SerializerIterator<X> iter(&this, _node);
+    SerializerIterator<X> iter(THIS_PTR, _node);
     return iter;
   }
 

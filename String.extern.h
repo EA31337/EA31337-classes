@@ -27,11 +27,10 @@
 
 // Define external global functions.
 #ifndef __MQL__
-extern datetime StringToTime(const string time_string);
 extern double StringToDouble(string value);
 extern int StringFind(string string_value, string match_substring, int start_pos = 0);
 extern int StringLen(string string_value);
-extern int StringSplit(const string string_value, const ushort separator, string result[]);
+extern int StringSplit(const string& string_value, const unsigned short separator, ARRAY_REF(string, result));
 extern long StringToInteger(string value);
 extern string IntegerToString(long number, int str_len = 0, ushort fill_symbol = ' ');
 extern string StringFormat(string format, ...);
