@@ -28,12 +28,14 @@
 #include "Convert.mqh"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
-#include "SerializerConverter.mqh"
 #include "SerializerNode.mqh"
-#include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
 
 #define SERIALIZER_DEFAULT_FP_PRECISION 8
+
+// Forward declarations.
+template <typename X>
+class SerializerIterator;
 
 class Serializer {
  protected:
@@ -71,10 +73,7 @@ class Serializer {
   }
 
   template <typename X>
-  SerializerIterator<X> Begin() {
-    SerializerIterator<X> iter(THIS_PTR, _node);
-    return iter;
-  }
+  SerializerIterator<X> Begin();
 
   void FreeRootNodeOwnership() { _root_node_ownership = false; }
 
@@ -200,9 +199,9 @@ class Serializer {
       value.Serialize(this);
       fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
 
-      SerializerNode* obj = _node.GetChild(_node.NumChildren() - 1);
+      SerializerNode* obj = _node PTR_DEREF GetChild(PTR_ATTRIB(_node, NumChildren()) - 1);
 
-      obj.SetKey(name);
+      obj PTR_DEREF SetKey(name);
     } else {
       _single_value_name = name;
       value.Serialize(this);
@@ -345,7 +344,7 @@ class Serializer {
           if (si.HasKey()) {
             // Should not happen.
           } else {
-            _node = parent.GetChild(si.Index());
+            _node = parent PTR_DEREF GetChild(si.Index());
             array[si.Index()] = si.Struct();
           }
         }
@@ -431,19 +430,12 @@ class Serializer {
 
     return NULL;
   }
-
-  template <typename X>
-  static SerializerConverter MakeStubObject(int _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL, int _n1 = 1,
-                                            int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
-    if (_serializer_flags == 0) {
-      // Avoiding flags misuse.
-      _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL;
-    }
-
-    X stub;
-    stub.SerializeStub(_n1, _n2, _n3, _n4, _n5);
-    return SerializerConverter::FromObject(stub, _serializer_flags);
-  }
 };
+
+template <typename X>
+SerializerIterator<X> Serializer::Begin() {
+  SerializerIterator<X> iter(THIS_PTR, _node);
+  return iter;
+}
 
 #endif  // End: SERIALIZER_MQH

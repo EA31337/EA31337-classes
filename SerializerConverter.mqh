@@ -23,6 +23,7 @@
 // Prevents processing this includes file for the second time.
 #ifndef SERIALIZER_CONVERTER_MQH
 #define SERIALIZER_CONVERTER_MQH
+#include "SerializerDict.mqh"
 
 // Forward declarations.
 class SerializerNode;
@@ -30,6 +31,7 @@ class SerializerNode;
 // Includes.
 #include "File.mqh"
 #include "Serializer.enum.h"
+#include "Serializer.mqh"
 #include "SerializerNode.mqh"
 
 class SerializerConverter {

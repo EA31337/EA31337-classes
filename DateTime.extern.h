@@ -40,10 +40,8 @@ class datetime {
 
  public:
   datetime();
-  datetime(const time_t& _time);
   datetime(const long& _time);
   datetime(const int& _time);
-  datetime& operator=(const time_t& _time);
   bool operator==(const int& _time) const;
   bool operator==(const datetime& _time) const;
   bool operator<(const int& _time) const;

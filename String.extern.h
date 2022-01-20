@@ -23,6 +23,7 @@
 // Prevents processing this includes file for the second time.
 #ifndef __MQL__
 #pragma once
+#include "Terminal.define.h"
 #endif
 
 // Define external global functions.
@@ -36,4 +37,6 @@ extern string IntegerToString(long number, int str_len = 0, ushort fill_symbol =
 extern string StringFormat(string format, ...);
 extern string StringSubstr(string string_value, int start_pos, int length = -1);
 extern ushort StringGetCharacter(string string_value, int pos);
+int StringToCharArray(string text_string, ARRAY_REF(uchar, array), int start = 0, int count = -1,
+                      uint codepage = CP_ACP);
 #endif

@@ -203,6 +203,12 @@ class color {
 const char* cstring_from(const std::string& _value) { return _value.c_str(); }
 #endif
 
+#ifdef __cplusplus
+using std::string;
+#endif
+
+bool IsNull(const string& str) { return str == ""; }
+
 /**
  * Referencing struct's enum.
  *

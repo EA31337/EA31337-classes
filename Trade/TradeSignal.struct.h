@@ -27,7 +27,6 @@
 
 // Includes.
 #include "../Chart.enum.h"
-#include "../Serializer.mqh"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
 

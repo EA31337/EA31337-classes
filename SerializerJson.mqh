@@ -118,9 +118,7 @@ class SerializerJson {
       return false;
     }
 
-    Serializer serializer(node, JsonUnserialize);
-
-    if (logger != NULL) serializer.Logger().Link(logger);
+    Serializer serializer(node, Unserialize);
 
     // We don't use result. We parse data as it is.
     obj.Serialize(serializer);

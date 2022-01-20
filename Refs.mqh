@@ -25,7 +25,7 @@
 #define REFS_MQH
 
 // Includes.
-#include "Refs.struct.h"
+#include "Refs.rc.h"
 #include "Std.h"
 
 /**
@@ -65,54 +65,6 @@
 
 // Forward class declaration.
 class Dynamic;
-
-class ReferenceCounter {
- public:
-  /**
-   * Number of weak references to target object.
-   */
-  unsigned int num_weak_refs;
-
-  /**
-   * Number of strong references to target object.
-   */
-  unsigned int num_strong_refs;
-
-  /**
-   * Target object pointer.
-   */
-  Dynamic* ptr_object;
-
-  /**
-   * Whether object has been deleted (but still have weak references).
-   */
-  bool deleted;
-
-  /**
-   * Constructor.
-   */
-  ReferenceCounter() {
-    num_weak_refs = 0;
-    num_strong_refs = 0;
-    ptr_object = NULL;
-    deleted = false;
-  }
-
-  string Debug() { return StringFormat("%d: %d strong, %d weak", ptr_object, num_strong_refs, num_weak_refs); }
-
-  /**
-   * ReferenceCounter class allocator.
-   */
-  static ReferenceCounter* alloc();
-};
-
-/**
- * ReferenceCounter class allocator.
- */
-ReferenceCounter* ReferenceCounter::alloc() {
-  // @todo Enhance with linked-list object reuse.
-  return new ReferenceCounter();
-}
 
 /**
  * Base class for reference-counted objects.

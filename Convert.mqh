@@ -34,6 +34,7 @@
 #include "Account.extern.h"
 #include "Array.mqh"
 #include "Convert.extern.h"
+#include "Math.extern.h"
 #include "Order.enum.h"
 #include "SymbolInfo.enum.h"
 #include "SymbolInfo.extern.h"
@@ -101,7 +102,7 @@ class Convert {
   /**
    * Points per pip given digits after decimal point of a symbol price.
    */
-  static uint PointsPerPip(uint digits) { return (uint)pow(10, digits - (digits < 4 ? 2 : 4)); }
+  static uint PointsPerPip(uint digits) { return (uint)pow((unsigned int)10, digits - (digits < 4 ? 2 : 4)); }
 
   /**
    * Returns number of points per pip.

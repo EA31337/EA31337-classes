@@ -45,4 +45,13 @@ extern int ArrayMinimum(const ARRAY_REF(T, _array), int _start = 0, unsigned int
 template <typename T>
 extern int ArrayFree(const ARRAY_REF(T, _array));
 
+template <typename T>
+extern int ArrayReverse(const ARRAY_REF(T, _array));
+
+template <typename T>
+extern int ArrayInitialize(ARRAY_REF(T, array), char value);
+
+template <typename T>
+extern int ArraySort(ARRAY_REF(T, array));
+
 #endif
