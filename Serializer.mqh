@@ -29,6 +29,7 @@
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
 #include "SerializerNode.mqh"
+#include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
 
 #define SERIALIZER_DEFAULT_FP_PRECISION 8
@@ -73,7 +74,10 @@ class Serializer {
   }
 
   template <typename X>
-  SerializerIterator<X> Begin();
+  SerializerIterator<X> Begin() {
+    SerializerIterator<X> iter(THIS_PTR, _node);
+    return iter;
+  }
 
   void FreeRootNodeOwnership() { _root_node_ownership = false; }
 
@@ -431,11 +435,5 @@ class Serializer {
     return NULL;
   }
 };
-
-template <typename X>
-SerializerIterator<X> Serializer::Begin() {
-  SerializerIterator<X> iter(THIS_PTR, _node);
-  return iter;
-}
 
 #endif  // End: SERIALIZER_MQH

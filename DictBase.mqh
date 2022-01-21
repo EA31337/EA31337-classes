@@ -204,7 +204,7 @@ class DictBase {
 
       if (_DictSlots_ref.DictSlots[position].IsUsed()) {
         if (GetMode() == DictModeList) {
-          _should_be_removed = position == (int)key;
+          _should_be_removed = position == (unsigned int)key;
         } else {
           _should_be_removed =
               _DictSlots_ref.DictSlots[position].HasKey() && _DictSlots_ref.DictSlots[position].key == key;

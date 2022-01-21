@@ -32,6 +32,7 @@
 
 // Includes.
 #include "Chart.enum.h"
+#include "Terminal.define.h"
 
 /* Defines struct for chart timeframe. */
 struct ChartTf {

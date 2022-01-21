@@ -79,6 +79,12 @@ class SerializerJson {
       case SerializerNodeArray:
         repr += string("[") + (trimWhitespaces ? "" : "\n");
         break;
+      case SerializerNodeUnknown:
+      case SerializerNodeValue:
+      case SerializerNodeObjectProperty:
+      case SerializerNodeArrayItem:
+        break;
+      default:;
     }
 
     if (PTR_ATTRIB(_node, HasChildren())) {
@@ -94,6 +100,11 @@ class SerializerJson {
       case SerializerNodeArray:
         repr += ident + "]";
         break;
+      case SerializerNodeUnknown:
+      case SerializerNodeValue:
+      case SerializerNodeObjectProperty:
+      case SerializerNodeArrayItem:
+      default:;
     }
 
     if (!PTR_ATTRIB(_node, IsLast())) repr += ",";
@@ -127,11 +138,10 @@ class SerializerJson {
   }
 
   static SerializerNode* Parse(string data, unsigned int converter_flags = 0) {
-    SerializerNodeType type;
     if (StringGetCharacter(data, 0) == '{')
-      type = SerializerNodeObject;
+      ;
     else if (StringGetCharacter(data, 0) == '[')
-      type = SerializerNodeArray;
+      ;
     else {
       return GracefulReturn("Failed to parse JSON. It must start with either \"{\" or \"[\".", 0, NULL, NULL);
     }
@@ -142,7 +152,6 @@ class SerializerJson {
 
     string extracted;
 
-    bool isOuterScope = true;
     bool expectingKey = false;
     bool expectingValue = false;
     bool expectingSemicolon = false;
@@ -218,7 +227,6 @@ class SerializerJson {
 
         current = node;
 
-        isOuterScope = false;
         expectingValue = false;
         expectingKey = ch2 != '}';
         key = NULL;
@@ -252,7 +260,6 @@ class SerializerJson {
 
         current = node;
         expectingValue = ch2 != ']';
-        isOuterScope = false;
         key = NULL;
       } else if (ch == ']') {
 #ifdef __debug__

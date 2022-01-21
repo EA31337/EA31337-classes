@@ -23,6 +23,7 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
+#include "Math.define.h"
 #endif
 
 // Data types.
@@ -155,7 +156,7 @@ class _cpp_array {
   /**
    * Returns number of elements in the array.
    */
-  int size() const { return m_data.size(); }
+  int size() const { return (int)m_data.size(); }
 
   /**
    * Checks whether
@@ -230,6 +231,12 @@ bool IsNull(const string& str) { return str == ""; }
 #define SYMBOL_MARGIN_STOP ((ENUM_SYMBOL_INFO_DOUBLE)47)
 #define SYMBOL_MARGIN_STOPLIMIT ((ENUM_SYMBOL_INFO_DOUBLE)48)
 #endif
+
+template <typename T>
+class InvalidEnumValue {
+ public:
+  static T value() { return (T)INT_MAX; }
+};
 
 #ifndef __MQL__
 // Converter of NULL_VALUE into expected type. e.g., "int x = NULL_VALUE" will end up with "x = 0".

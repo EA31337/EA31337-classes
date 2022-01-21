@@ -231,7 +231,7 @@ class DictObject : public DictBase<K, V> {
       position = this PTR_DEREF Hash(key) % ArraySize(dictSlotsRef.DictSlots);
 
       unsigned int _starting_position = position;
-      int _num_conflicts = 0;
+      unsigned int _num_conflicts = 0;
       bool _overwrite_slot = false;
 
       // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
@@ -363,8 +363,10 @@ class DictObject : public DictBase<K, V> {
 #endif
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
-      for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i)
-        s.PassObject(THIS_REF, this PTR_DEREF GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
+      for (DictObjectIterator<K, V> i(Begin()); i.IsValid(); ++i) {
+        V* _value = i.Value();
+        s.PassObject(THIS_REF, this PTR_DEREF GetMode() == DictModeDict ? i.KeyAsString() : "", PTR_TO_REF(_value));
+      }
 
       return (this PTR_DEREF GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {
@@ -395,9 +397,11 @@ class DictObject : public DictBase<K, V> {
 
             // Note that we're retrieving value by a key (as we are in an
             // object!).
-            Set(key, i.Struct(i.Key()));
+            V _prop = i.Struct(i.Key());
+            Set(key, _prop);
           } else {
-            Push(i.Struct());
+            V _prop = i.Struct();
+            Push(_prop);
           }
         }
         return i.ParentNodeType();

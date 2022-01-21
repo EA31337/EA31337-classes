@@ -39,7 +39,7 @@
 #include "Order.define.h"
 #include "Order.enum.h"
 #include "Order.struct.h"
-#include "Serializer.mqh"
+#include "SerializerConverter.mqh"
 #include "SerializerJson.mqh"
 #include "Std.h"
 #include "String.mqh"
@@ -2735,7 +2735,7 @@ class Order : public SymbolInfo {
    * Returns order details in text.
    */
   string const ToString() {
-    SerializerConverter stub(Serializer::MakeStubObject<Order>(SERIALIZER_FLAG_SKIP_HIDDEN));
+    SerializerConverter stub(SerializerConverter::MakeStubObject<Order>(SERIALIZER_FLAG_SKIP_HIDDEN));
     return SerializerConverter::FromObject(THIS_REF, SERIALIZER_FLAG_SKIP_HIDDEN)
         .ToString<SerializerJson>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub);
   }

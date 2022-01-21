@@ -544,7 +544,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
 #else
     int i;
     string output = "";
-    for (i = _start; i < _count == WHOLE_ARRAY ? ArraySize(_arr) : _count; i++) {
+    for (i = _start; i < (_count == WHOLE_ARRAY ? ArraySize(_arr) : _count); i++) {
       output += (string)_arr[i] + _dlm;
     }
     Print(output);

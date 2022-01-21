@@ -26,6 +26,7 @@
  */
 #ifndef __MQL__
 // Data types.
+#include <string>
 typedef std::string string;
 typedef unsigned char uchar;
 typedef unsigned int uint;
