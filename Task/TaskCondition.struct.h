@@ -83,7 +83,7 @@ struct TaskConditionEntry {
         tries(-1) {
     Init();
   }
-  TaskConditionEntry(TaskConditionEntry &_ae) { this = _ae; }
+  TaskConditionEntry(TaskConditionEntry &_ae) { THIS_REF = _ae; }
   // Deconstructor.
   void ~TaskConditionEntry() {}
   // Getters.
@@ -143,6 +143,7 @@ struct TaskConditionEntry {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
+  void SetTries(short _count) { tries = _count; }
   // Flag methods.
   bool HasFlag(unsigned char _flag) const { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
@@ -161,12 +162,30 @@ struct TaskConditionEntry {
   bool IsReady() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_READY); }
   bool IsInvalid() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_INVALID); }
   bool IsValid() const { return !IsInvalid(); }
-  // Setters.
-  void AddArg(MqlParam &_arg) {
-    // @todo: Add another value to args[].
+  // Methods for arguments.
+  void ArgAdd(DataParamEntry &_arg) { ArgSet(_arg, ::ArraySize(args)); }
+  void ArgsGet(ARRAY_REF(MqlParam, _args)) {
+    ::ArrayResize(_args, ::ArraySize(args));
+    for (unsigned int i = 0; i < _args.Size(); i++) {
+      _args[i] = args[i];
+    }
   }
-  void SetArgs(MqlParam &_args[]) {
-    // @todo: for().
+  void ArgSet(DataParamEntry &_arg, int _index = 0) {
+    if (::ArraySize(args) <= _index) {
+      ::ArrayResize(args, _index + 1);
+    }
+    args[_index] = _arg;
   }
-  void SetTries(short _count) { tries = _count; }
+  void ArgsSet(ARRAY_REF(MqlParam, _args)) {
+    ::ArrayResize(args, ::ArraySize(_args));
+    for (unsigned int i = 0; i < _args.Size(); i++) {
+      args[i] = _args[i];
+    }
+  }
+  void ArgRemove(int _index) {
+    for (unsigned int i = 1; i < args.Size(); i++) {
+      ArgSet(args[i], i - 1);
+    }
+    ::ArrayResize(args, _index - 1);
+  }
 };

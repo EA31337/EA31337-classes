@@ -78,7 +78,7 @@ struct TaskActionEntry {
         tries(-1) {
     Init();
   }
-  TaskActionEntry(TaskActionEntry &_ae) { this = _ae; }
+  TaskActionEntry(TaskActionEntry &_ae) { THIS_REF = _ae; }
   // Flag methods.
   bool HasFlag(unsigned char _flag) const { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
@@ -150,11 +150,31 @@ struct TaskActionEntry {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  void AddArg(MqlParam &_arg) {
-    // @todo: Add another value to args[].
+  // Methods for arguments.
+  void ArgAdd(DataParamEntry &_arg) { ArgSet(_arg, ::ArraySize(args)); }
+  void ArgsGet(ARRAY_REF(MqlParam, _args)) {
+    ::ArrayResize(_args, ::ArraySize(args));
+    for (unsigned int i = 0; i < _args.Size(); i++) {
+      _args[i] = args[i];
+    }
   }
-  void SetArgs(ARRAY_REF(MqlParam, _args)) {
-    // @todo: for().
+  void ArgSet(DataParamEntry &_arg, int _index = 0) {
+    if (::ArraySize(args) <= _index) {
+      ::ArrayResize(args, _index + 1);
+    }
+    args[_index] = _arg;
+  }
+  void ArgsSet(ARRAY_REF(MqlParam, _args)) {
+    ::ArrayResize(args, ::ArraySize(_args));
+    for (unsigned int i = 0; i < _args.Size(); i++) {
+      args[i] = _args[i];
+    }
+  }
+  void ArgRemove(int _index) {
+    for (unsigned int i = 1; i < args.Size(); i++) {
+      ArgSet(args[i], i - 1);
+    }
+    ::ArrayResize(args, _index - 1);
   }
   // Serializers
   SerializerNodeType Serialize(Serializer &s) {
