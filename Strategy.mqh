@@ -639,112 +639,6 @@ class Strategy : public Taskable<DataParamEntry> {
     return true;
   }
 
-  /**
-   * Execute Strategy action.
-   *
-   * @param ENUM_STRATEGY_ACTION _action
-   *   Strategy action to execute.
-   * @param MqlParam _args
-   *   Strategy action arguments.
-   * @return
-   *   Returns true when the action has been executed successfully.
-   */
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, DataParamEntry &_args[]) {
-    bool _result = false;
-    double arg1d = EMPTY_VALUE;
-    double arg2d = EMPTY_VALUE;
-    double arg3d = EMPTY_VALUE;
-    long arg1i = EMPTY;
-    long arg2i = EMPTY;
-    long arg3i = EMPTY;
-    long arg_size = ArraySize(_args);
-    if (arg_size > 0) {
-      arg1d = _args[0].type == TYPE_DOUBLE ? _args[0].double_value : EMPTY_VALUE;
-      arg1i = _args[0].type == TYPE_INT ? _args[0].integer_value : EMPTY;
-      if (arg_size > 1) {
-        arg2d = _args[1].type == TYPE_DOUBLE ? _args[1].double_value : EMPTY_VALUE;
-        arg2i = _args[1].type == TYPE_INT ? _args[1].integer_value : EMPTY;
-      }
-      if (arg_size > 2) {
-        arg3d = _args[2].type == TYPE_DOUBLE ? _args[2].double_value : EMPTY_VALUE;
-        arg3i = _args[2].type == TYPE_INT ? _args[2].integer_value : EMPTY;
-      }
-    }
-    switch (_action) {
-      case STRAT_ACTION_DISABLE:
-        sparams.Enabled(false);
-        return true;
-      case STRAT_ACTION_ENABLE:
-        sparams.Enabled(true);
-        return true;
-      case STRAT_ACTION_SUSPEND:
-        sparams.Suspended(true);
-        return true;
-      case STRAT_ACTION_TRADE_EXE:
-        // Args:
-        // 1st (i:0) - Trade's enum action to execute.
-        // 2rd (i:1) - Trade's argument to pass.
-        if (arg_size > 0) {
-          DataParamEntry _sargs[];
-          ArrayResize(_sargs, ArraySize(_args) - 1);
-          for (int i = 0; i < ArraySize(_sargs); i++) {
-            _sargs[i] = _args[i + 1];
-          }
-          _result = trade.ExecuteAction((ENUM_TRADE_ACTION)_args[0].integer_value, _sargs);
-          /* @fixme
-          if (_result) {
-            Order *_order = trade.GetOrderLast();
-            switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
-              case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
-                // OnOrderClose();// @todo
-                break;
-              case TRADE_ACTION_ORDER_OPEN:
-                // @fixme: Operation on the structure copy.
-                OnOrderOpen(_order.GetParams());
-                break;
-            }
-          }
-          */
-        }
-        return _result;
-      case STRAT_ACTION_UNSUSPEND:
-        sparams.Suspended(false);
-        return true;
-      default:
-        GetLogger().Error(StringFormat("Invalid Strategy action: %s!", EnumToString(_action), __FUNCTION_LINE__));
-        break;
-    }
-    return _result;
-  }
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    ArrayPushObject(_args, _param1);
-    return Strategy::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
-    ArrayPushObject(_args, _param1);
-    ArrayPushObject(_args, _param2);
-    return Strategy::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2, long _arg3) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
-    DataParamEntry _param3 = _arg3;
-    ArrayPushObject(_args, _param1);
-    ArrayPushObject(_args, _param2);
-    ArrayPushObject(_args, _param3);
-    return Strategy::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
-    ARRAY(DataParamEntry, _args);
-    return Strategy::ExecuteAction(_action, _args);
-  }
-
   /* Printers methods */
 
   /**
@@ -1214,7 +1108,21 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual bool Run(const TaskActionEntry &_entry) {
     bool _result = false;
     switch (_entry.GetId()) {
+      case STRAT_ACTION_DISABLE:
+        sparams.Enabled(false);
+        return true;
+      case STRAT_ACTION_ENABLE:
+        sparams.Enabled(true);
+        return true;
+      case STRAT_ACTION_SUSPEND:
+        sparams.Suspended(true);
+        return true;
+      case STRAT_ACTION_UNSUSPEND:
+        sparams.Suspended(false);
+        return true;
       default:
+        GetLogger().Error(StringFormat("Invalid Strategy action: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
     return _result;

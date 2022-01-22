@@ -164,9 +164,9 @@ struct TaskConditionEntry {
   bool IsValid() const { return !IsInvalid(); }
   // Methods for arguments.
   void ArgAdd(DataParamEntry &_arg) { ArgSet(_arg, ::ArraySize(args)); }
-  void ArgsGet(ARRAY_REF(MqlParam, _args)) {
+  void ArgsGet(ARRAY_REF(DataParamEntry, _args)) {
     ::ArrayResize(_args, ::ArraySize(args));
-    for (unsigned int i = 0; i < _args.Size(); i++) {
+    for (int i = 0; i < ::ArraySize(_args); i++) {
       _args[i] = args[i];
     }
   }
@@ -176,14 +176,14 @@ struct TaskConditionEntry {
     }
     args[_index] = _arg;
   }
-  void ArgsSet(ARRAY_REF(MqlParam, _args)) {
+  void ArgsSet(ARRAY_REF(DataParamEntry, _args)) {
     ::ArrayResize(args, ::ArraySize(_args));
-    for (unsigned int i = 0; i < _args.Size(); i++) {
+    for (int i = 0; i < ::ArraySize(_args); i++) {
       args[i] = _args[i];
     }
   }
   void ArgRemove(int _index) {
-    for (unsigned int i = 1; i < args.Size(); i++) {
+    for (int i = 1; i < ::ArraySize(args); i++) {
       ArgSet(args[i], i - 1);
     }
     ::ArrayResize(args, _index - 1);

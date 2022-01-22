@@ -819,70 +819,6 @@ class EA : public Taskable<DataParamEntry> {
     return _result;
   }
 
-  /**
-   * Execute EA action.
-   *
-   * @param ENUM_EA_ACTION _action
-   *   EA action to execute.
-   * @return
-   *   Returns true when the action has been executed successfully.
-   */
-  bool ExecuteAction(ENUM_EA_ACTION _action, DataParamEntry &_args[]) {
-    bool _result = false;
-    long arg_size = ArraySize(_args);
-    switch (_action) {
-      case EA_ACTION_DISABLE:
-        estate.Enable(false);
-        return true;
-      case EA_ACTION_ENABLE:
-        estate.Enable();
-        return true;
-      case EA_ACTION_EXPORT_DATA:
-        DataExport();
-        return true;
-      case EA_ACTION_STRATS_EXE_ACTION:
-        // Args:
-        // 1st (i:0) - Strategy's enum action to execute.
-        // 2nd (i:1) - Strategy's argument to pass.
-        for (DictStructIterator<long, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat.IsValid(); ++iter_strat) {
-          DataParamEntry _sargs[];
-          ArrayResize(_sargs, ArraySize(_args) - 1);
-          for (int i = 0; i < ArraySize(_sargs); i++) {
-            _sargs[i] = _args[i + 1];
-          }
-          Strategy *_strat = iter_strat.Value().Ptr();
-          _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)_args[0].integer_value, _sargs);
-        }
-        return _result;
-      case EA_ACTION_TASKS_CLEAN:
-        // @todo
-        // return tasks.Size() == 0;
-        return false;
-      default:
-        logger.Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
-        return false;
-    }
-    return _result;
-  }
-  bool ExecuteAction(ENUM_EA_ACTION _action) {
-    ARRAY(DataParamEntry, _args);
-    return EA::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    ArrayPushObject(_args, _param1);
-    return EA::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1, long _arg2) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
-    ArrayPushObject(_args, _param1);
-    ArrayPushObject(_args, _param2);
-    return EA::ExecuteAction(_action, _args);
-  }
-
   /* Tasks methods */
 
   /**
@@ -959,8 +895,36 @@ class EA : public Taskable<DataParamEntry> {
   virtual bool Run(const TaskActionEntry &_entry) {
     bool _result = false;
     switch (_entry.GetId()) {
+      case EA_ACTION_DISABLE:
+        estate.Enable(false);
+        return true;
+      case EA_ACTION_ENABLE:
+        estate.Enable();
+        return true;
+      case EA_ACTION_EXPORT_DATA:
+        DataExport();
+        return true;
+      case EA_ACTION_STRATS_EXE_ACTION: {
+        // Args:
+        // 1st (i:0) - Strategy's enum action to execute.
+        // 2nd (i:1) - Strategy's argument to pass.
+        TaskActionEntry _entry_strat = _entry;
+        _entry_strat.ArgRemove(0);
+        for (DictStructIterator<long, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat.IsValid(); ++iter_strat) {
+          Strategy *_strat = iter_strat.Value().Ptr();
+
+          _result &= _strat.Run(_entry_strat);
+        }
+        return _result;
+      }
+      case EA_ACTION_TASKS_CLEAN:
+        // @todo
+        // return tasks.Size() == 0;
+        SetUserError(ERR_INVALID_PARAMETER);
+        return false;
       default:
-        break;
+        GetLogger().Error(StringFormat("Invalid EA action: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
     }
     return _result;
   }
