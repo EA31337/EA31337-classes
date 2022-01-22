@@ -5,13 +5,11 @@ name: Test Task
 on:
   pull_request:
     paths:
-      - 'Task/**.h'
-      - 'Task/**.mq?'
+      - 'Task/**'
       - '.github/workflows/test-task.yml'
   push:
     paths:
-      - 'Task/**.h'
-      - 'Task/**.mq?'
+      - 'Task/**'
       - '.github/workflows/test-task.yml'
 
 jobs:

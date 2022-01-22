@@ -68,13 +68,24 @@ class TaskConditionTest02 : public TaskConditionBase {
 int OnInit() {
   bool _result = true;
   // Test01
+  TaskConditionTest01 _test01;
   TaskConditionEntry _entry01(TASK_CONDITION_TEST01);
-  TaskCondition<TaskConditionTest01> _cond01(_entry01);
+  TaskCondition<TaskConditionTest01> _cond01(_entry01, &_test01);
   _result &= _cond01.Check();
   _cond01.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST02);
   _result &= _cond01.Check();
   _cond01.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST03);
   _result &= _cond01.Check();
+  assertTrueOrFail(_result && _cond01.GetObject().GetSum() == 6, "Fail!");
+  // Test02
+  TaskConditionTest02 _test02;
+  TaskConditionEntry _entry02(TASK_CONDITION_TEST02);
+  TaskCondition<TaskConditionTest02> _cond02(_entry02, &_test02);
+  _result &= _cond02.Check();
+  _cond02.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST02);
+  _result &= _cond02.Check();
+  _cond02.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST03);
+  _result &= _cond02.Check();
   assertTrueOrFail(_result && _cond01.GetObject().GetSum() == 6, "Fail!");
   _result &= GetLastError() == ERR_NO_ERROR;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
