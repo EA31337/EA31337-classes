@@ -99,7 +99,7 @@ class Strategy : public Taskable<DataParamEntry> {
   MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
-  TaskManager tsm;                // Tasks.
+  TaskManager tasks;              // Tasks.
   Trade trade;                    // Trade instance.
                                   // TradeSignalEntry last_signal;    // Last signals.
 
@@ -163,7 +163,7 @@ class Strategy : public Taskable<DataParamEntry> {
   StgProcessResult Process(unsigned short _periods_started = DATETIME_NONE) {
     sresult.last_error = ERR_NO_ERROR;
     if (_periods_started > 0) {
-      tsm.Process();
+      tasks.Process();
     }
     return sresult;
   }
@@ -1161,7 +1161,7 @@ class Strategy : public Taskable<DataParamEntry> {
     bool _is_valid = _tentry.IsValid();
     if (_is_valid) {
       TaskObject<Strategy, Strategy> _taskobj(_tentry, THIS_PTR, THIS_PTR);
-      tsm.Add(&_taskobj);
+      tasks.Add(&_taskobj);
     }
     return _is_valid;
   }
@@ -1169,7 +1169,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Process tasks.
    */
-  void ProcessTasks() { tsm.Process(); }
+  void ProcessTasks() { tasks.Process(); }
 
   /* Tasks */
 
