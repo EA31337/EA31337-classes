@@ -68,14 +68,25 @@ class TaskActionTest02 : public TaskActionBase {
 int OnInit() {
   bool _result = true;
   // Test01
+  TaskActionTest01 _atest01;
   TaskActionEntry _entry01(TASK_ACTION_TEST01);
-  TaskAction<TaskActionTest01> _action01(_entry01);
+  TaskAction<TaskActionTest01> _action01(_entry01, &_atest01);
   _action01.Run();
   _action01.Set(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_ID), TASK_ACTION_TEST02);
   _action01.Run();
   _action01.Set(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_ID), TASK_ACTION_TEST03);
   _action01.Run();
   assertTrueOrFail(_result && _action01.GetObject().GetSum() == 6, "Fail!");
+  // Test02.
+  TaskActionTest02 _atest02;
+  TaskActionEntry _entry02(TASK_ACTION_TEST02);
+  TaskAction<TaskActionTest02> _action02(_entry02, &_atest02);
+  _action02.Run();
+  _action02.Set(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_ID), TASK_ACTION_TEST02);
+  _action02.Run();
+  _action02.Set(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_ID), TASK_ACTION_TEST03);
+  _action02.Run();
+  assertTrueOrFail(_result && _action02.GetObject().GetSum() == 7, "Fail!");
   _result &= GetLastError() == ERR_NO_ERROR;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
