@@ -100,6 +100,13 @@
 #include "../SummaryReport.mqh"
 #include "../SymbolInfo.mqh"
 #include "../Task/Task.h"
+#include "../Task/TaskAction.h"
+#include "../Task/TaskCondition.h"
+#include "../Task/TaskGetter.h"
+#include "../Task/TaskManager.h"
+#include "../Task/TaskObject.h"
+#include "../Task/TaskSetter.h"
+#include "../Task/Taskable.h"
 #include "../Terminal.mqh"
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"
