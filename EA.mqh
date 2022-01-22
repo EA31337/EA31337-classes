@@ -44,7 +44,7 @@
 #include "SerializerSqlite.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
-#include "Task/Task.h"
+#include "Task/TaskManager.h"
 #include "Task/Taskable.h"
 #include "Terminal.mqh"
 #include "Trade.mqh"
@@ -67,10 +67,10 @@ class EA : public Taskable<DataParamEntry> {
   DictObject<string, Trade> trade;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
-  DictStruct<int, TaskEntry> tasks;
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
+  TaskManager tasks;
   TradeSignalManager tsm;
 
  public:
@@ -82,7 +82,7 @@ class EA : public Taskable<DataParamEntry> {
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     UpdateStateFlags();
     // Add and process tasks.
-    TaskAdd(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
+    AddTask(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
     ProcessTasks();
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
     // Initialize a trade instance for the current chart and symbol.
@@ -653,55 +653,6 @@ class EA : public Taskable<DataParamEntry> {
   }
   */
 
-  /* Tasks */
-
-  /**
-   * Add task.
-   */
-  bool TaskAdd(TaskEntry &_entry) {
-    bool _result = false;
-    if (_entry.IsValid()) {
-      /* @fixme
-      switch (_entry.GetConditionId()) {
-        case COND_TYPE_ACCOUNT:
-          _entry.SetConditionObject(account);
-          break;
-        case COND_TYPE_EA:
-          _entry.SetConditionObject(THIS_PTR);
-          break;
-        case COND_TYPE_TRADE:
-          _entry.SetConditionObject(trade.GetByKey(_Symbol));
-          break;
-      }
-      switch (_entry.GetActionId()) {
-        case ACTION_TYPE_EA:
-          _entry.SetActionObject(THIS_PTR);
-          break;
-        case ACTION_TYPE_TRADE:
-          _entry.SetActionObject(trade.GetByKey(_Symbol));
-          break;
-      }
-      */
-      _result |= tasks.Push(_entry);
-    }
-    return _result;
-  }
-
-  /**
-   * Process EA tasks.
-   */
-  unsigned int ProcessTasks() {
-    unsigned int _counter = 0;
-    for (DictStructIterator<int, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      bool _is_processed = false;
-      TaskEntry _entry = iter.Value();
-      _is_processed = _is_processed || Task::Process(_entry);
-      // _entry.last_process = TimeCurrent();
-      _counter += (unsigned short)_is_processed;
-    }
-    return _counter;
-  }
-
   /* Strategy methods */
 
   /**
@@ -868,53 +819,6 @@ class EA : public Taskable<DataParamEntry> {
     return _result;
   }
 
-  /* Conditions and actions */
-
-  /**
-   * Checks for EA condition.
-   *
-   * @param ENUM_EA_CONDITION _cond
-   *   EA condition.
-   * @return
-   *   Returns true when the condition is met.
-   */
-  bool CheckCondition(ENUM_EA_CONDITION _cond, DataParamEntry &_args[]) {
-    bool _result = false;
-    switch (_cond) {
-      case EA_COND_IS_ACTIVE:
-        return estate.IsActive();
-      case EA_COND_IS_ENABLED:
-        return estate.IsEnabled();
-      case EA_COND_IS_NOT_CONNECTED:
-        estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_CONNECTED), GetTerminal().IsConnected());
-        return !estate.IsConnected();
-      case EA_COND_ON_NEW_MINUTE:  // On new minute.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0;
-      case EA_COND_ON_NEW_HOUR:  // On new hour.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0;
-      case EA_COND_ON_NEW_DAY:  // On new day.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0;
-      case EA_COND_ON_NEW_WEEK:  // On new week.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0;
-      case EA_COND_ON_NEW_MONTH:  // On new month.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0;
-      case EA_COND_ON_NEW_YEAR:  // On new year.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0;
-      case EA_COND_ON_INIT:
-        return estate.IsOnInit();
-      case EA_COND_ON_QUIT:
-        return estate.IsOnQuit();
-      default:
-        logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        break;
-    }
-    return _result;
-  }
-  bool CheckCondition(ENUM_EA_CONDITION _cond) {
-    ARRAY(DataParamEntry, _args);
-    return EA::CheckCondition(_cond, _args);
-  }
-
   /**
    * Execute EA action.
    *
@@ -952,7 +856,8 @@ class EA : public Taskable<DataParamEntry> {
         return _result;
       case EA_ACTION_TASKS_CLEAN:
         // @todo
-        return tasks.Size() == 0;
+        // return tasks.Size() == 0;
+        return false;
       default:
         logger.Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
@@ -978,6 +883,25 @@ class EA : public Taskable<DataParamEntry> {
     return EA::ExecuteAction(_action, _args);
   }
 
+  /* Tasks methods */
+
+  /**
+   * Add task.
+   */
+  bool AddTask(TaskEntry &_tentry) {
+    bool _is_valid = _tentry.IsValid();
+    if (_is_valid) {
+      TaskObject<EA, EA> _taskobj(_tentry, THIS_PTR, THIS_PTR);
+      tasks.Add(&_taskobj);
+    }
+    return _is_valid;
+  }
+
+  /**
+   * Process tasks.
+   */
+  void ProcessTasks() { tasks.Process(); }
+
   /* Tasks */
 
   /**
@@ -986,7 +910,32 @@ class EA : public Taskable<DataParamEntry> {
   virtual bool Check(const TaskConditionEntry &_entry) {
     bool _result = false;
     switch (_entry.GetId()) {
+      case EA_COND_IS_ACTIVE:
+        return estate.IsActive();
+      case EA_COND_IS_ENABLED:
+        return estate.IsEnabled();
+      case EA_COND_IS_NOT_CONNECTED:
+        estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_CONNECTED), GetTerminal().IsConnected());
+        return !estate.IsConnected();
+      case EA_COND_ON_NEW_MINUTE:  // On new minute.
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0;
+      case EA_COND_ON_NEW_HOUR:  // On new hour.
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0;
+      case EA_COND_ON_NEW_DAY:  // On new day.
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0;
+      case EA_COND_ON_NEW_WEEK:  // On new week.
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0;
+      case EA_COND_ON_NEW_MONTH:  // On new month.
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0;
+      case EA_COND_ON_NEW_YEAR:  // On new year.
+        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0;
+      case EA_COND_ON_INIT:
+        return estate.IsOnInit();
+      case EA_COND_ON_QUIT:
+        return estate.IsOnQuit();
       default:
+        GetLogger().Error(StringFormat("Invalid EA condition: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
     return _result;
