@@ -374,8 +374,6 @@ class EA : public Taskable<DataParamEntry> {
             }
             if (_strat.TickFilter(_tick)) {
               _can_trade &= !_strat.IsSuspended();
-              _can_trade &=
-                  !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
               TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
               if (_sentry.Get<uint>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
                 TradeSignal _signal(_sentry);

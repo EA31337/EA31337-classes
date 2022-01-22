@@ -62,7 +62,6 @@ enum ENUM_STRATEGY_CONDITION {
   STRAT_COND_IS_SUSPENDED,    // Strategy is suspended.
   STRAT_COND_IS_TREND,        // Strategy is in trend.
   STRAT_COND_SIGNALOPEN,      // On strategy's signal to open.
-  STRAT_COND_TRADE_COND,      // On strategy's trade condition (args).
   FINAL_STRATEGY_CONDITION_ENTRY
 };
 

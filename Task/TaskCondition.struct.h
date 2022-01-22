@@ -109,7 +109,7 @@ struct TaskConditionEntry {
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
-  DataParamEntry GetArg(int _index) { return args[_index]; }
+  DataParamEntry GetArg(int _index) const { return args[_index]; }
   int GetId() const { return id; }
   // Setters.
   void TriesDec() { tries -= tries > 0 ? 1 : 0; }
