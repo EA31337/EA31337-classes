@@ -6,10 +6,12 @@ on:
   pull_request:
     paths:
       - 'Task/**.h'
+      - 'Task/**.mq?'
       - '.github/workflows/test-task.yml'
   push:
     paths:
       - 'Task/**.h'
+      - 'Task/**.mq?'
       - '.github/workflows/test-task.yml'
 
 jobs:
