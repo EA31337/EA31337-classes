@@ -73,18 +73,34 @@ class EA : public Taskable<DataParamEntry> {
   TaskManager tasks;
   TradeSignalManager tsm;
 
+ protected:
+  /* Protected methods */
+
+  /**
+   * Init code (called on constructor).
+   */
+  void Init() { InitTask(); }
+
+  /**
+   * Process initial task (called on constructor).
+   */
+  void InitTask() {
+    // Add and process init task.
+    TaskObject<EA, EA> _taskobj_init(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
+    _taskobj_init.Process();
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
+  }
+
  public:
   /**
    * Class constructor.
    */
   EA(EAParams &_params) : account(new Account) {
     eparams = _params;
-    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     UpdateStateFlags();
     // Add and process tasks.
-    AddTask(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
-    ProcessTasks();
-    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
+    Init();
     // Initialize a trade instance for the current chart and symbol.
     ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
     TradeParams _tparams;

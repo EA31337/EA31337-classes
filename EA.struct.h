@@ -195,7 +195,7 @@ struct EAParams {
     ver = _ver;
     author = _author;
   }
-  // void SetTaskEntry(TaskEntry &_task_entry) { task_init = _task_entry; }
+  void SetTaskEntry(TaskEntry &_task_entry) { task_init = _task_entry; }
   // Printers.
   string ToString(string _dlm = ",") { return StringFormat("%s v%s by %s (%s)", name, ver, author, desc); }
 };
