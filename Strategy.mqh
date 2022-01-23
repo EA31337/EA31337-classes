@@ -682,7 +682,7 @@ class Strategy : public Object {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, DataParamEntry &_args[]) {
-    bool _result = true;
+    bool _result = false;
     long arg_size = ArraySize(_args);
     long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
     long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
@@ -716,8 +716,9 @@ class Strategy : public Object {
         return _result;
       default:
         GetLogger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
+        break;
     }
+    return _result;
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
     ARRAY(DataParamEntry, _args);
@@ -749,7 +750,7 @@ class Strategy : public Object {
    *   Returns true when the action has been executed successfully.
    */
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, DataParamEntry &_args[]) {
-    bool _result = true;
+    bool _result = false;
     double arg1d = EMPTY_VALUE;
     double arg2d = EMPTY_VALUE;
     double arg3d = EMPTY_VALUE;
@@ -811,7 +812,7 @@ class Strategy : public Object {
         return true;
       default:
         GetLogger().Error(StringFormat("Invalid Strategy action: %s!", EnumToString(_action), __FUNCTION_LINE__));
-        return false;
+        break;
     }
     return _result;
   }
@@ -1207,7 +1208,8 @@ class Strategy : public Object {
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {
       int _ishift = 12;  // @todo: Make it dynamic or as variable.
-      float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
+      float _value = 0.0f; // @todo
+      //float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
       _value = _value + (float)Math::ChangeByPct(fabs(_value - _chart.GetCloseOffer(0)), _level) * _direction;
       _psm.SetIndicatorPriceValue(_value);
       /*

@@ -65,6 +65,36 @@ class Util {
     return _result;
   }
 
+  /**
+   * Removes value from the array.
+   */
+  template <typename T>
+  static bool ArrayRemove(T& _array[], int index) {
+    if (index < 0 || index >= ArraySize(_array)) {
+      // Index out of array bounds.
+      return false;
+    }
+    for (int i = index; i < ArraySize(_array) - 1; ++i) {
+      _array[i] = _array[i + 1];
+    }
+    Util::ArrayResize(_array, ArraySize(_array) - 1);
+    return true;
+  }
+
+  /**
+   * Removes value from the array.
+   */
+  template <typename T>
+  static bool ArrayRemoveFirst(T& _array[], T& value) {
+    for (int i = 0; i < ArraySize(_array); ++i) {
+      if (_array[i] == value) {
+        Util::ArrayRemove(_array, i);
+        return true;
+      }
+    }
+    return false;
+  }
+
   template <typename T>
   static T Print(T& _array[]) {
     string _result;
@@ -72,6 +102,21 @@ class Util {
       _result += IntegerToString(i) + ": " + (string)_array[i];
     }
     return _result;
+  }
+
+  /**
+   * Splits prints by newlines on MT4.
+   */
+  static void Print(string _value) {
+#ifdef __MQL4__
+    string _segments[];
+    StringSplit(_value, '\n', _segments);
+    for (int i = 0; i < ArraySize(_segments); ++i) {
+      ::Print(_segments[i]);
+    }
+#else
+    ::Print(_value);
+#endif
   }
 
   /**

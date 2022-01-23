@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.price.h"
 #include "../Storage/ValueStorage.spread.h"
@@ -55,13 +55,14 @@ struct IndiADXWParams : IndiADXParams {
 /**
  * Implements the Average Directional Movement Index indicator by Welles Wilder.
  */
-class Indi_ADXW : public Indicator<IndiADXWParams> {
+class Indi_ADXW : public IndicatorTickOrCandleSource<IndiADXWParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ADXW(IndiADXWParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiADXWParams>(_p, _indi_src){};
-  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ADXW, _tf, _shift){};
+  Indi_ADXW(IndiADXWParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_ADXW, _tf, _shift){};
 
   /**
    * Built-in version of ADX Wilder.
@@ -100,6 +101,16 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
     // Returns value from the first calculation buffer.
     // Returns first value for as-series array or last value for non-as-series array.
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of ADX Wilder.
+   */
+  static double iADXWilderOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                      int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_ADXW_ON_" + _indi.GetFullName(), _period));
+    return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
 
   /**
@@ -215,7 +226,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -226,6 +237,10 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          _mode, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_ADXW::iADXWilderOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod() /*]*/, _mode,
+                                                  _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
