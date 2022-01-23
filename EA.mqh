@@ -813,7 +813,7 @@ class EA : public Taskable<DataParamEntry> {
     if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
       // Auto calculate lot size for all strategies.
       Trade *_trade = trade.GetByKey(_Symbol);
-      _result &= _trade.ExecuteAction(TRADE_ACTION_CALC_LOT_SIZE);
+      _result &= _trade.Run(TRADE_ACTION_CALC_LOT_SIZE);
       Set(STRAT_PARAM_LS, _trade.Get<float>(TRADE_PARAM_LOT_SIZE));
     }
     return _result;

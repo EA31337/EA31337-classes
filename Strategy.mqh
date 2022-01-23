@@ -855,9 +855,11 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 3)) _result &= !trade.HasOrderOppositeType(_cmd);  // 8
       if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd);                 // 16
       if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);        // 32
+      /*
       if (METHOD(_method, 6))
-        _result &= !trade.CheckCondition(
+        _result &= !trade.Check(
             TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_LOW : ACCOUNT_COND_EQUITY_01PC_HIGH);  // 64
+      */
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -962,10 +964,12 @@ class Strategy : public Taskable<DataParamEntry> {
         _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
       if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd);                           // 16
       if (METHOD(_method, 5)) _result |= _result || trade.HasOrderBetter(_cmd);                   // 32
+      /*
       if (METHOD(_method, 6))
         _result |=
-            _result || trade.CheckCondition(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
+            _result || trade.Check(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
                                                                             : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
+      */
       // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -1088,6 +1092,10 @@ class Strategy : public Taskable<DataParamEntry> {
         break;
     }
     return _result;
+  }
+  bool Check(int _id) {
+    TaskConditionEntry _entry(_id);
+    return Check(_entry);
   }
 
   /**
