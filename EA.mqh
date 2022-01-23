@@ -86,7 +86,8 @@ class EA : public Taskable<DataParamEntry> {
    */
   void InitTask() {
     // Add and process init task.
-    TaskObject<EA, EA> _taskobj_init(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
+    TaskObject<EA, EA> _taskobj_init(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)),
+                                     THIS_PTR, THIS_PTR);
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     _taskobj_init.Process();
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
