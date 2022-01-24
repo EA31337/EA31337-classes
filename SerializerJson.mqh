@@ -65,10 +65,12 @@ class SerializerJson {
 
     repr += ident;
 
-    if (PTR_ATTRIB(_node, GetKeyParam()) != NULL && PTR_ATTRIB(PTR_ATTRIB(_node, GetKeyParam()), AsString(false, false)) != "")
+    if (PTR_ATTRIB(_node, GetKeyParam()) != NULL &&
+        PTR_ATTRIB(PTR_ATTRIB(_node, GetKeyParam()), AsString(false, false)) != "")
       repr += PTR_ATTRIB(PTR_ATTRIB(_node, GetKeyParam()), AsString(false, true)) + ":" + (trimWhitespaces ? "" : " ");
 
-    if (PTR_ATTRIB(_node, GetValueParam()) != NULL) repr += PTR_ATTRIB(PTR_ATTRIB(_node, GetValueParam()), AsString(false, true));
+    if (PTR_ATTRIB(_node, GetValueParam()) != NULL)
+      repr += PTR_ATTRIB(PTR_ATTRIB(_node, GetValueParam()), AsString(false, true));
 
     switch (PTR_ATTRIB(_node, GetType())) {
       case SerializerNodeObject:
@@ -77,6 +79,12 @@ class SerializerJson {
       case SerializerNodeArray:
         repr += string("[") + (trimWhitespaces ? "" : "\n");
         break;
+      case SerializerNodeUnknown:
+      case SerializerNodeValue:
+      case SerializerNodeObjectProperty:
+      case SerializerNodeArrayItem:
+        break;
+      default:;
     }
 
     if (PTR_ATTRIB(_node, HasChildren())) {
@@ -92,6 +100,11 @@ class SerializerJson {
       case SerializerNodeArray:
         repr += ident + "]";
         break;
+      case SerializerNodeUnknown:
+      case SerializerNodeValue:
+      case SerializerNodeObjectProperty:
+      case SerializerNodeArrayItem:
+      default:;
     }
 
     if (!PTR_ATTRIB(_node, IsLast())) repr += ",";
@@ -116,9 +129,7 @@ class SerializerJson {
       return false;
     }
 
-    Serializer serializer(node, JsonUnserialize);
-
-    if (logger != NULL) serializer.Logger().Link(logger);
+    Serializer serializer(node, Unserialize);
 
     // We don't use result. We parse data as it is.
     obj.Serialize(serializer);
@@ -127,11 +138,10 @@ class SerializerJson {
   }
 
   static SerializerNode* Parse(string data, unsigned int converter_flags = 0) {
-    SerializerNodeType type;
     if (StringGetCharacter(data, 0) == '{')
-      type = SerializerNodeObject;
+      ;
     else if (StringGetCharacter(data, 0) == '[')
-      type = SerializerNodeArray;
+      ;
     else {
       return GracefulReturn("Failed to parse JSON. It must start with either \"{\" or \"[\".", 0, NULL, NULL);
     }
@@ -142,7 +152,6 @@ class SerializerJson {
 
     string extracted;
 
-    bool isOuterScope = true;
     bool expectingKey = false;
     bool expectingValue = false;
     bool expectingSemicolon = false;
@@ -178,9 +187,10 @@ class SerializerJson {
           expectingKey = false;
           expectingSemicolon = true;
         } else if (expectingValue) {
-          PTR_ATTRIB(current, AddChild(new SerializerNode(
-              PTR_ATTRIB(current, GetType()) == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem,
-              current, key, SerializerNodeParam::FromString(extracted))));
+          PTR_ATTRIB(current, AddChild(new SerializerNode(PTR_ATTRIB(current, GetType()) == SerializerNodeObject
+                                                              ? SerializerNodeObjectProperty
+                                                              : SerializerNodeArrayItem,
+                                                          current, key, SerializerNodeParam::FromString(extracted))));
 
 #ifdef __debug__
           Print("SerializerJson: Value \"" + extracted + "\" for key " +
@@ -217,7 +227,6 @@ class SerializerJson {
 
         current = node;
 
-        isOuterScope = false;
         expectingValue = false;
         expectingKey = ch2 != '}';
         key = NULL;
@@ -251,7 +260,6 @@ class SerializerJson {
 
         current = node;
         expectingValue = ch2 != ']';
-        isOuterScope = false;
         key = NULL;
       } else if (ch == ']') {
 #ifdef __debug__
@@ -280,9 +288,10 @@ class SerializerJson {
               (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
 #endif
 
-        PTR_ATTRIB(current, AddChild(new SerializerNode(
-            PTR_ATTRIB(current, GetType()) == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
-            key, value)));
+        PTR_ATTRIB(current, AddChild(new SerializerNode(PTR_ATTRIB(current, GetType()) == SerializerNodeObject
+                                                            ? SerializerNodeObjectProperty
+                                                            : SerializerNodeArrayItem,
+                                                        current, key, value)));
         expectingValue = false;
 
         // Skipping value.
@@ -303,9 +312,10 @@ class SerializerJson {
         // Skipping value.
         i += ch == 't' ? 3 : 4;
 
-        PTR_ATTRIB(current, AddChild(new SerializerNode(
-            PTR_ATTRIB(current, GetType()) == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
-            key, value)));
+        PTR_ATTRIB(current, AddChild(new SerializerNode(PTR_ATTRIB(current, GetType()) == SerializerNodeObject
+                                                            ? SerializerNodeObjectProperty
+                                                            : SerializerNodeArrayItem,
+                                                        current, key, value)));
         expectingValue = false;
 
         // We don't want to delete it twice.
@@ -342,7 +352,7 @@ class SerializerJson {
     string str;
 
     for (unsigned int i = index; i < (unsigned int)StringLen(data); ++i) {
-#ifdef __MQL5__
+#ifndef __MQL4__
       unsigned short ch = StringGetCharacter(data, i);
 #else
       unsigned short ch = StringGetChar(data, i);

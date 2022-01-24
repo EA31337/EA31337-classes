@@ -23,6 +23,7 @@
 // Prevents processing this includes file for the second time.
 #ifndef SERIALIZER_CONVERTER_MQH
 #define SERIALIZER_CONVERTER_MQH
+#include "SerializerDict.mqh"
 
 // Forward declarations.
 class SerializerNode;
@@ -30,6 +31,7 @@ class SerializerNode;
 // Includes.
 #include "File.mqh"
 #include "Serializer.enum.h"
+#include "Serializer.mqh"
 #include "SerializerNode.mqh"
 
 class SerializerConverter {
@@ -96,7 +98,7 @@ class SerializerConverter {
 
   template <typename R>
   string ToString(unsigned int stringify_flags = 0, void* stringify_aux_arg = NULL) {
-    string result = ((R*)NULL).Stringify(root_node, stringify_flags, stringify_aux_arg);
+    string result = ((R*)NULL)PTR_DEREF Stringify(root_node, stringify_flags, stringify_aux_arg);
     if ((_serializer_flags & SERIALIZER_FLAG_REUSE_OBJECT) == 0) {
       Clean();
     }

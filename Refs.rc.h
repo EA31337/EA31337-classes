@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Includes Dicts's enums and defines.
+ * Includes Refs' ReferenceCounter struct.
  */
 
 #ifndef __MQL__
@@ -30,26 +30,53 @@
 #pragma once
 #endif
 
-#define DICT_GROW_UP_PERCENT_DEFAULT 25
-#define DICT_PERFORMANCE_PROBLEM_AVG_CONFLICTS 10
+// Forward declarations.
+class Dynamic;
 
-/**
- * Whether Dict operates in yet uknown mode, as dict or as list.
- */
-enum DictMode { DictModeUnknown, DictModeDict, DictModeList };
+class ReferenceCounter {
+ public:
+  /**
+   * Number of weak references to target object.
+   */
+  unsigned int num_weak_refs;
 
-/**
- * Reason of call to overflow listener.
- */
-enum ENUM_DICT_OVERFLOW_REASON {
-  DICT_OVERFLOW_REASON_FULL,
-  DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS,
+  /**
+   * Number of strong references to target object.
+   */
+  unsigned int num_strong_refs;
+
+  /**
+   * Target object pointer.
+   */
+  Dynamic* ptr_object;
+
+  /**
+   * Whether object has been deleted (but still have weak references).
+   */
+  bool deleted;
+
+  /**
+   * Constructor.
+   */
+  ReferenceCounter() {
+    num_weak_refs = 0;
+    num_strong_refs = 0;
+    ptr_object = NULL;
+    deleted = false;
+  }
+
+  string Debug() { return StringFormat("%d: %d strong, %d weak", ptr_object, num_strong_refs, num_weak_refs); }
+
+  /**
+   * ReferenceCounter class allocator.
+   */
+  static ReferenceCounter* alloc();
 };
 
 /**
- * Dictionary flags.
+ * ReferenceCounter class allocator.
  */
-enum ENUM_DICT_FLAG {
-  DICT_FLAG_NONE = 0,
-  DICT_FLAG_FILL_HOLES_UNSORTED = 1,
-};
+ReferenceCounter* ReferenceCounter::alloc() {
+  // @todo Enhance with linked-list object reuse.
+  return new ReferenceCounter();
+}

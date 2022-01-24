@@ -34,6 +34,7 @@
 #include "Account.extern.h"
 #include "Array.mqh"
 #include "Convert.extern.h"
+#include "Math.extern.h"
 #include "Order.enum.h"
 #include "SymbolInfo.enum.h"
 #include "SymbolInfo.extern.h"
@@ -66,7 +67,7 @@ class Convert {
       case ORDER_TYPE_BUY_STOP:
         return ORDER_TYPE_BUY;
       default:
-        return (ENUM_ORDER_TYPE)-1;
+        return InvalidEnumValue<ENUM_ORDER_TYPE>::value();
     }
   }
 
@@ -81,7 +82,7 @@ class Convert {
    *   Returns OP_BUY when value is positive, OP_SELL when negative, otherwise -1.
    */
   static ENUM_ORDER_TYPE ValueToOp(int value) {
-    return value == 0 ? (ENUM_ORDER_TYPE)-1 : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
+    return value == 0 ? InvalidEnumValue<ENUM_ORDER_TYPE>::value() : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
 
   /**
@@ -95,13 +96,13 @@ class Convert {
    *   Returns OP_BUY when value is positive, OP_SELL when negative, otherwise -1.
    */
   static ENUM_ORDER_TYPE ValueToOp(double value) {
-    return value == 0 ? (ENUM_ORDER_TYPE)-1 : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
+    return value == 0 ? InvalidEnumValue<ENUM_ORDER_TYPE>::value() : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
 
   /**
    * Points per pip given digits after decimal point of a symbol price.
    */
-  static uint PointsPerPip(uint digits) { return (uint)pow(10, digits - (digits < 4 ? 2 : 4)); }
+  static uint PointsPerPip(uint digits) { return (uint)pow((unsigned int)10, digits - (digits < 4 ? 2 : 4)); }
 
   /**
    * Returns number of points per pip.
@@ -180,19 +181,19 @@ class Convert {
     switch (mode) {
       case 0:  // Forex.
         // In currencies a tick is a point.
-        return pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return (double)pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 1:  // CFD.
         // In metals a Tick is still the smallest change, but is larger than a point.
         // If price can change from 123.25 to 123.50,
         // you have a TickSize of 0.25 and a point of 0.01. Pip has no meaning.
         // @todo
-        return pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return (double)pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 2:  // Futures.
         // @todo
-        return pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return (double)pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 3:  // CFD for indices.
         // @todo
-        return pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return (double)pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
     }
     return false;
   }

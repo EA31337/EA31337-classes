@@ -25,6 +25,7 @@
 #define JSON_NODE_MQH
 
 // Includes.
+#include "Math.extern.h"
 #include "SerializerNode.enum.h"
 #include "SerializerNodeParam.mqh"
 
@@ -81,8 +82,7 @@ class SerializerNode {
   /**
    * Checks whether node has specified key.
    */
-  bool HasKey() { return _key != NULL && PTR_ATTRIB(_key, _string) != "";
-  }
+  bool HasKey() { return _key != NULL && PTR_ATTRIB(_key, _string) != ""; }
 
   /**
    * Checks whether node is an array.
@@ -211,7 +211,8 @@ class SerializerNode {
     }
 
     for (unsigned int i = 0; i < _numChildren; ++i) {
-      if (PTR_ATTRIB(_children[i], GetType()) == SerializerNodeArray || PTR_ATTRIB(_children[i], GetType()) == SerializerNodeObject) {
+      if (PTR_ATTRIB(_children[i], GetType()) == SerializerNodeArray ||
+          PTR_ATTRIB(_children[i], GetType()) == SerializerNodeObject) {
         _sum += PTR_ATTRIB(_children[i], MaximumNumContainersInDeepEnd());
       }
     }
@@ -257,7 +258,7 @@ class SerializerNode {
    * Adds child to this node.
    */
   void AddChild(SerializerNode* child) {
-    if (_numChildren == ArraySize(_children)) ArrayResize(_children, _numChildren + 10);
+    if (_numChildren == (unsigned int)ArraySize(_children)) ArrayResize(_children, _numChildren + 10);
 
     PTR_ATTRIB(child, _index) = (int)_numChildren;
     _children[_numChildren++] = child;
@@ -326,6 +327,11 @@ class SerializerNode {
       case SerializerNodeArray:
         repr += string("[") + (trimWhitespaces ? "" : "\n");
         break;
+      case SerializerNodeUnknown:
+      case SerializerNodeValue:
+      case SerializerNodeObjectProperty:
+      case SerializerNodeArrayItem:
+      default:;
     }
 
     if (HasChildren()) {
@@ -341,6 +347,11 @@ class SerializerNode {
       case SerializerNodeArray:
         repr += ident + "]";
         break;
+      case SerializerNodeUnknown:
+      case SerializerNodeValue:
+      case SerializerNodeObjectProperty:
+      case SerializerNodeArrayItem:
+      default:;
     }
 
     if (!IsLast()) repr += ",";

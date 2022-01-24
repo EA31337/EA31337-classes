@@ -31,11 +31,11 @@
 #endif
 
 // Includes.
+#include "Refs.rc.h"
 #include "Std.h"
 
+class Dynamic;
 // Forward class declaration.
-class Refs;
-// class ReferenceCounter;
 template <typename X>
 struct WeakRef;
 
@@ -322,16 +322,18 @@ struct WeakRef {
         if (!PTR_ATTRIB(ptr_ref_counter, num_strong_refs)) {
           // There are also no strong references.
           ReferenceCounter* stored_ptr_ref_counter = ptr_ref_counter;
-          if (!ptr_ref_counter.deleted) {
+          if (!ptr_ref_counter PTR_DEREF deleted) {
             // It is safe to delete object and reference counter object.
             // Avoiding double deletion in Dynamic's destructor.
-            ptr_ref_counter.ptr_object.ptr_ref_counter = NULL;
+            ptr_ref_counter PTR_DEREF ptr_object PTR_DEREF ptr_ref_counter = NULL;
 
 #ifdef __debug__
             Print("Refs: Deleting object ", ptr_ref_counter.ptr_object);
 #endif
 
-            if (CheckPointer(ptr_ref_counter.ptr_object) == POINTER_INVALID) {
+#ifdef __MQL__
+            // We can't check pointer validity in C++ (other than check for NULL).
+            if (CheckPointer(ptr_ref_counter PTR_DEREF ptr_object) == POINTER_INVALID) {
               // Serious problem.
 #ifndef __MQL4__
               // Bug: Avoid calling in MQL4 due to 'global initialization failed' error.
@@ -339,10 +341,12 @@ struct WeakRef {
 #endif
               return;
             }
-
-            delete ptr_ref_counter.ptr_object;
+#endif
+            delete ptr_ref_counter PTR_DEREF ptr_object;
           }
 
+#ifdef __MQL__
+          // We can't check pointer validity in C++ (other than check for NULL).
           if (CheckPointer(stored_ptr_ref_counter) == POINTER_INVALID) {
             // Serious problem.
 #ifndef __MQL4__
@@ -351,6 +355,7 @@ struct WeakRef {
 #endif
             return;
           }
+#endif
 
           delete stored_ptr_ref_counter;
         }

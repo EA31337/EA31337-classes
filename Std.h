@@ -23,6 +23,7 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
+#include "Math.define.h"
 #endif
 
 // Data types.
@@ -43,6 +44,7 @@
 #ifdef __MQL__
 #define THIS_PTR (&this)
 #define THIS_REF this
+#define PTR_DEREF .
 #define PTR_ATTRIB(O, A) O.A
 #define PTR_ATTRIB2(O, A, B) O.A.B
 #define PTR_TO_REF(PTR) PTR
@@ -50,6 +52,7 @@
 #else
 #define THIS_PTR (this)
 #define THIS_REF (*this)
+#define PTR_DEREF ->
 #define PTR_ATTRIB(O, A) O->A
 #define PTR_ATTRIB2(O, A, B) O->A->B
 #define PTR_TO_REF(PTR) (*PTR)
@@ -64,6 +67,7 @@
 #endif
 
 // Arrays and references to arrays.
+#define _COMMA ,
 #ifdef __MQL__
 #define ARRAY_DECLARATION_BRACKETS []
 #else
@@ -152,7 +156,7 @@ class _cpp_array {
   /**
    * Returns number of elements in the array.
    */
-  int size() const { return m_data.size(); }
+  int size() const { return (int)m_data.size(); }
 
   /**
    * Checks whether
@@ -200,6 +204,12 @@ class color {
 const char* cstring_from(const std::string& _value) { return _value.c_str(); }
 #endif
 
+#ifdef __cplusplus
+using std::string;
+#endif
+
+bool IsNull(const string& str) { return str == ""; }
+
 /**
  * Referencing struct's enum.
  *
@@ -221,6 +231,12 @@ const char* cstring_from(const std::string& _value) { return _value.c_str(); }
 #define SYMBOL_MARGIN_STOP ((ENUM_SYMBOL_INFO_DOUBLE)47)
 #define SYMBOL_MARGIN_STOPLIMIT ((ENUM_SYMBOL_INFO_DOUBLE)48)
 #endif
+
+template <typename T>
+class InvalidEnumValue {
+ public:
+  static T value() { return (T)INT_MAX; }
+};
 
 #ifndef __MQL__
 // Converter of NULL_VALUE into expected type. e.g., "int x = NULL_VALUE" will end up with "x = 0".

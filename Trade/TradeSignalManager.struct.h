@@ -34,8 +34,8 @@
  */
 struct TradeSignalManagerParams {
  protected:
-  long last_check;  // Last check.
   short freq;       // Signal process refresh frequency (in sec).
+  long last_check;  // Last check.
 
  public:
   /* Struct's enumerations */

@@ -25,8 +25,10 @@
  */
 
 // Includes.
-#include "../../Std.h"
 #include "../../Common.define.h"
 #include "../../Common.extern.h"
-//#include "../../String.extern.h"
+#include "../../Std.h"
+#include "../../String.extern.h"
 #include "../TradeSignal.h"
+
+int main(int argc, char **argv) {}

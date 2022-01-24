@@ -32,27 +32,6 @@
 #include "Serializer.mqh"
 
 /**
- * Whether Dict operates in yet uknown mode, as dict or as list.
- */
-enum DictMode { DictModeUnknown, DictModeDict, DictModeList };
-
-/**
- * Reason of call to overflow listener.
- */
-enum ENUM_DICT_OVERFLOW_REASON {
-  DICT_OVERFLOW_REASON_FULL,
-  DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS,
-};
-
-/**
- * Dictionary flags.
- */
-enum ENUM_DICT_FLAG {
-  DICT_FLAG_NONE = 0,
-  DICT_FLAG_FILL_HOLES_UNSORTED = 1,
-};
-
-/**
  * Dictionary overflow listener. arguments are:
  * - ENUM_DICT_OVERFLOW_REASON overflow_reason
  * - int current_dict_size
@@ -225,7 +204,7 @@ class DictBase {
 
       if (_DictSlots_ref.DictSlots[position].IsUsed()) {
         if (GetMode() == DictModeList) {
-          _should_be_removed = position == (int)key;
+          _should_be_removed = position == (unsigned int)key;
         } else {
           _should_be_removed =
               _DictSlots_ref.DictSlots[position].HasKey() && _DictSlots_ref.DictSlots[position].key == key;
@@ -262,7 +241,7 @@ class DictBase {
    */
   void FillHoleUnsorted(int _hole_slot_idx) {
     // After moving last element to fill the hole we
-    if (_hole_slot_idx == Size() - 1) {
+    if ((unsigned int)_hole_slot_idx == Size() - 1) {
       // We've just removed last element, thus don't need to do anything.
     } else {
       // Moving last slot into given one.
@@ -361,10 +340,10 @@ class DictBase {
    * Specialization of hashing function.
    */
   unsigned int Hash(const string& x) {
-    unsigned char c[];
+    ARRAY(unsigned char, c);
     unsigned int h = 0;
 
-    if (x != NULL) {
+    if (!IsNull(x)) {
       h = 5381;
       int n = StringToCharArray(x, c);
       for (int i = 0; i < n; i++) {

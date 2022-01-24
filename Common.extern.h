@@ -22,17 +22,26 @@
 
 // Define external global functions.
 #ifndef __MQL__
+#pragma once
+#include "Chart.enum.h"
+#include "DateTime.enum.h"
+
 extern void DebugBreak();
 // Errors.
 extern void SetUserError(ushort user_error);
 // Exceptions.
 extern int NotImplementedException();
 // Print-related functions.
-extern void Alert(string arg1);
-extern void Alert(string arg1, string arg2);
-template <typename T>
-extern void Print(T arg);
-template <typename T1, typename T2>
-extern void Print(T1 arg1, T2 arg2);
-extern void PrintFormat(string format_string, ...);
+template <typename... Args>
+extern std::string StringFormat(const std::string& format, Args... args);
+
+template <typename... Args>
+extern std::string PrintFormat(const std::string& format, Args... args);
+
+template <typename... Args>
+extern void Print(Args... args);
+
+template <typename... Args>
+extern void Alert(Args... args);
+
 #endif
