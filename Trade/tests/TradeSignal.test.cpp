@@ -30,3 +30,5 @@
 #include "../../Std.h"
 #include "../../String.extern.h"
 #include "../TradeSignal.h"
+
+int main(int argc, char **argv) {}

@@ -43,7 +43,7 @@ class Object : public Dynamic {
   /**
    * Class constructor.
    */
-  Object() : id(rand()), obj(THIS_PTR) {}
+  Object() : obj(THIS_PTR), id(rand()) {}
   Object(void *_obj, long _id = __LINE__) {
     obj = _obj;
     id = _id;
@@ -110,11 +110,11 @@ class Object : public Dynamic {
   /**
    * Safely delete the object.
    */
-#ifdef __cplusplus
   template <typename T>
   static void Delete(T *_obj) {
-#else
-  static void Delete(void *_obj) {
+#ifdef __cplusplus
+    static_assert(!std::is_same<decltype(_obj), void *>::value,
+                  "Please avoid deleting void* pointers as no destructor will be called!");
 #endif
 #ifdef __MQL__
     if (CheckPointer(_obj) == POINTER_DYNAMIC) {
@@ -124,7 +124,6 @@ class Object : public Dynamic {
       delete _obj;
     }
   }
-  void Delete() { Delete(obj); }
 
   /* Virtual methods */
 

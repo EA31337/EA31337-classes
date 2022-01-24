@@ -241,7 +241,7 @@ class DictBase {
    */
   void FillHoleUnsorted(int _hole_slot_idx) {
     // After moving last element to fill the hole we
-    if (_hole_slot_idx == Size() - 1) {
+    if ((unsigned int)_hole_slot_idx == Size() - 1) {
       // We've just removed last element, thus don't need to do anything.
     } else {
       // Moving last slot into given one.

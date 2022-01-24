@@ -61,7 +61,7 @@ struct DictSlotsRef {
    */
   void AddConflicts(int num) {
     if (num != 0) {
-      _avg_conflicts += float(num) / ++_num_conflicts;
+      _avg_conflicts += (float)num / (float)++_num_conflicts;
     }
   }
 

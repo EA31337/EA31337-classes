@@ -53,12 +53,12 @@
 // Structure for a trade signal.
 struct TradeSignalEntry {
  protected:
-  ENUM_TIMEFRAMES tf;    // Timeframe.
-  float strength;        // Signal strength.
-  float weight;          // Signal weight.
   long magic_id;         // Magic identifier.
-  long timestamp;        // Creation timestamp
   unsigned int signals;  // Store signals (@see: ENUM_TRADE_SIGNAL_FLAG).
+  float strength;        // Signal strength.
+  ENUM_TIMEFRAMES tf;    // Timeframe.
+  long timestamp;        // Creation timestamp
+  float weight;          // Signal weight.
 
  public:
   /* Struct's enumerations */
