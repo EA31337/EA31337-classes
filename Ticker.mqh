@@ -145,7 +145,7 @@ class Ticker {
     return true;
   }
   bool Add() {
-    MqlTick _tick = this.symbol.GetTick();
+    MqlTick _tick = this PTR_DEREF symbol.GetTick();
     return Add(_tick);
   }
 
@@ -172,8 +172,8 @@ class Ticker {
       FileWrite(_handle, "Datatime", "Bid", "Ask", "Volume");
       for (int i = 0; i < index; i++) {
         if (data[i].time > 0) {
-          FileWrite(_handle, DateTimeStatic::TimeToStr(data[i].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), data[i].bid,
-                    data[i].ask, data[i].volume);
+          FileWrite(_handle, DateTimeStatic::TimeToStr(data[i].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+                    data[i].bid, data[i].ask, data[i].volume);
           total_saved++;
         }
       }

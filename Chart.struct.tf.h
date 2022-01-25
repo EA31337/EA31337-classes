@@ -33,6 +33,7 @@
 // Includes.
 #include "Chart.enum.h"
 #include "Serializer.mqh"
+#include "Terminal.define.h"
 
 /* Defines struct for chart timeframe. */
 struct ChartTf {

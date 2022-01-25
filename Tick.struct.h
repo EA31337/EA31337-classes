@@ -29,6 +29,9 @@
 #pragma once
 #endif
 
+// Includes.
+#include "DateTime.extern.h"
+
 /**
  * Structure for storing ask and bid prices of the symbol.
  */
