@@ -36,6 +36,9 @@
 
 // Includes.
 #include "../DictObject.mqh"
+#include "../SerializerConverter.mqh"
+#include "../SerializerJson.mqh"
+#include "Task.struct.h"
 #include "TaskObject.h"
 
 class TaskManager {
@@ -72,6 +75,16 @@ class TaskManager {
   bool Add(Task *_task) {
     Ref<Task> _ref = _task;
     return tasks.Push(_ref);
+  }
+
+  /**
+   * Adds new task.
+   */
+  bool Add(string _entry_str) {
+    TaskEntry _entry;
+    SerializerConverter::FromString<SerializerJson>(_entry_str).ToObject(_entry);
+    Ref<Task> _task = new Task(_entry);
+    return Add(_task.Ptr());
   }
 
   /**

@@ -132,4 +132,13 @@ struct TaskEntry {
   int GetConditionId() { return cond.GetId(); }
   TaskActionEntry GetAction() { return action; }
   TaskConditionEntry GetCondition() { return cond; }
+
+ public:
+  SerializerNodeType Serialize(Serializer &s) {
+    s.PassStruct(THIS_REF, "aentry", action);
+    s.PassStruct(THIS_REF, "centry", cond);
+    return SerializerNodeObject;
+  }
+
+  SERIALIZER_EMPTY_STUB;
 };
