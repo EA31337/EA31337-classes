@@ -220,18 +220,18 @@ class DictObject : public DictBase<K, V> {
     unsigned int position;
     DictSlot<K, V>* keySlot = this PTR_DEREF GetSlotByKey(dictSlotsRef, key, position);
 
-    if (keySlot == NULL && !IsGrowUpAllowed()) {
+    if (keySlot == NULL && !this PTR_DEREF IsGrowUpAllowed()) {
       // Resize is prohibited.
       return false;
     }
 
     // Will resize dict if there were performance problems before.
-    if (allow_resize && IsGrowUpAllowed() && !dictSlotsRef.IsPerformant()) {
+    if (allow_resize && this PTR_DEREF IsGrowUpAllowed() && !dictSlotsRef.IsPerformant()) {
       if (!GrowUp()) {
         return false;
       }
       // We now have new positions of slots, so we have to take the corrent slot again.
-      keySlot = GetSlotByKey(dictSlotsRef, key, position);
+      keySlot = this PTR_DEREF GetSlotByKey(dictSlotsRef, key, position);
     }
 
     if (keySlot == NULL && dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {

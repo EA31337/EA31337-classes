@@ -32,6 +32,24 @@
 // Includes.
 #include "DateTime.extern.h"
 
+#ifndef __MQL__
+/**
+ * Structure for storing the latest prices of the symbol.
+ * @docs
+ * https://www.mql5.com/en/docs/constants/structures/mqltick
+ */
+struct MqlTick {
+  datetime time;         // Time of the last prices update.
+  double ask;            // Current Ask price.
+  double bid;            // Current Bid price.
+  double last;           // Price of the last deal (last).
+  double volume_real;    // Volume for the current last price with greater accuracy.
+  long time_msc;         // Time of a price last update in milliseconds.
+  unsigned int flags;    // Tick flags.
+  unsigned long volume;  // Volume for the current last price.
+};
+#endif
+
 /**
  * Structure for storing ask and bid prices of the symbol.
  */
@@ -51,24 +69,6 @@ template <typename T>
 struct TickTAB : TickAB<T> {
   datetime time;  // Time of the last prices update.
   // Struct constructors.
-  TickTAB(datetime _time = 0, T _ask = 0, T _bid = 0) : time(_time), TickAB(_ask, _bid) {}
-  TickTAB(MqlTick &_tick) : time(_tick.time), TickAB(_tick) {}
+  TickTAB(datetime _time = 0, T _ask = 0, T _bid = 0) : time(_time), TickAB<T>(_ask, _bid) {}
+  TickTAB(MqlTick &_tick) : time(_tick.time), TickAB<T>(_tick) {}
 };
-
-#ifndef __MQL__
-/**
- * Structure for storing the latest prices of the symbol.
- * @docs
- * https://www.mql5.com/en/docs/constants/structures/mqltick
- */
-struct MqlTick {
-  datetime time;         // Time of the last prices update.
-  double ask;            // Current Ask price.
-  double bid;            // Current Bid price.
-  double last;           // Price of the last deal (last).
-  double volume_real;    // Volume for the current last price with greater accuracy.
-  long time_msc;         // Time of a price last update in milliseconds.
-  unsigned int flags;    // Tick flags.
-  unsigned long volume;  // Volume for the current last price.
-};
-#endif
