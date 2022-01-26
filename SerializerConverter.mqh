@@ -54,7 +54,7 @@ class SerializerConverter {
       return "<NULL>";
     }
 
-    return root_node.ToString(_json_flags);
+    return root_node PTR_DEREF ToString(_json_flags);
   }
 
   template <typename X>
