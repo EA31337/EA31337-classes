@@ -81,6 +81,10 @@ bool TestTaskManager01() {
   _tsm.Add(_taskobj02.Ptr());
   _tsm.Add(_taskobj03.Ptr());
   _tsm.Add(_taskobj04.Ptr());
+
+  // @todo: Need a way to test if object was added properly.
+  _tsm.Add("{\"aentry\": {\"id\": 1}, \"centry\": {\"id\": 2}}");
+
   _tsm.Process();
   // @todo: Print via ToString().
   return _result;

@@ -188,4 +188,19 @@ struct TaskConditionEntry {
     }
     ::ArrayResize(args, _index - 1);
   }
+
+ public:
+  // Serializers
+  SerializerNodeType Serialize(Serializer &s) {
+    s.Pass(THIS_REF, "flags", flags);
+    s.Pass(THIS_REF, "id", id);
+    s.Pass(THIS_REF, "last_check", last_check);
+    s.Pass(THIS_REF, "last_success", last_success);
+    s.Pass(THIS_REF, "tries", tries);
+    s.PassEnum(THIS_REF, "freq", freq);
+    s.PassArray(this, "args", args);
+    return SerializerNodeObject;
+  }
+
+  SERIALIZER_EMPTY_STUB;
 };
