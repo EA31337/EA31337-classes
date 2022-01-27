@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,8 +21,8 @@
 
 /**
  * @file
- * Test functionality of Condition class.
+ * Test functionality of TaskManager class.
  */
 
 // Includes.
-#include "ConditionTest.mq5"
+#include "TaskManager.test.mq5"

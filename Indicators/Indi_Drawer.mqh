@@ -24,10 +24,10 @@
 struct IndicatorParams;
 
 // Includes.
-#include "../Action.mqh"
 #include "../DictStruct.mqh"
 #include "../Indicator.mqh"
 #include "../Redis.mqh"
+#include "../Task/TaskAction.h"
 #include "Indi_Drawer.struct.h"
 #include "Price/Indi_Price.mqh"
 
@@ -72,8 +72,6 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
     int num_args = ArraySize(_args), i;
 
     IndicatorDataEntry entry(num_args - 1);
-    // @fixit Not sure if we should enforce double.
-    // entry.AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
 
     if (_action == INDI_ACTION_SET_VALUE) {
       iparams.SetMaxModes(num_args - 1);
@@ -100,7 +98,8 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
   virtual void OnTick() {
     Indicator<IndiDrawerParams>::OnTick();
 
-    ActionEntry action(INDI_ACTION_SET_VALUE);
+    /* @fixme
+    TaskActionEntry action(INDI_ACTION_SET_VALUE);
     ArrayResize(action.args, 3);
     action.args[0].type = TYPE_LONG;
     action.args[0].integer_value = GetBarTime();
@@ -110,9 +109,11 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
 
     action.args[2].type = TYPE_DOUBLE;
     action.args[2].double_value = 1.25;
+    */
 
-    string json = SerializerConverter::FromObject(action).ToString<SerializerJson>(/*SERIALIZER_JSON_NO_WHITESPACES*/);
+    //string json = SerializerConverter::FromObject(action).ToString<SerializerJson>(/*SERIALIZER_JSON_NO_WHITESPACES*/);
 
+    /* @fixme
     RedisMessage msg;
     msg.Add("message");
     msg.Add("INDICATOR_DRAW");
@@ -127,7 +128,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
       Print("Got: ", message.Message);
 #endif
       if (message.Command == "message" && message.Channel == "INDICATOR_DRAW") {
-        ActionEntry action_entry;
+        TaskActionEntry action_entry;
         SerializerConverter::FromString<SerializerJson>(message.Message).ToObject(action_entry);
         ExecuteAction((ENUM_INDICATOR_ACTION)action_entry.action_id, action_entry.args);
 #ifdef __debug__
@@ -137,6 +138,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
         // Drawing on the buffer.
       }
     }
+    */
   }
 
   Redis *Redis() { return &redis; }

@@ -36,7 +36,8 @@ class Trade;
 #include "Strategy.enum.h"
 #include "Strategy.struct.h"
 #include "String.mqh"
-#include "Task.mqh"
+#include "Task/TaskManager.h"
+#include "Task/Taskable.h"
 #include "Trade.mqh"
 
 // Defines.
@@ -85,7 +86,7 @@ class Trade;
 /**
  * Implements strategy class.
  */
-class Strategy : public Object {
+class Strategy : public Taskable<DataParamEntry> {
  public:
   StgParams sparams;
 
@@ -94,11 +95,11 @@ class Strategy : public Object {
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list.
-  DictStruct<short, TaskEntry> tasks;
-  Log logger;  // Log instance.
+  Log logger;                                      // Log instance.
   MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
+  TaskManager tasks;              // Tasks.
   Trade trade;                    // Trade instance.
                                   // TradeSignalEntry last_signal;    // Last signals.
 
@@ -122,7 +123,7 @@ class Strategy : public Object {
    * Class constructor.
    */
   Strategy(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
-      : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
+      : sparams(_sparams), trade(_tparams, _cparams) {
     // Initialize variables.
     name = _name;
     MqlTick _tick = {0};
@@ -162,42 +163,9 @@ class Strategy : public Object {
   StgProcessResult Process(unsigned short _periods_started = DATETIME_NONE) {
     sresult.last_error = ERR_NO_ERROR;
     if (_periods_started > 0) {
-      ProcessTasks();
+      tasks.Process();
     }
     return sresult;
-  }
-
-  /* Tasks */
-
-  /**
-   * Add task.
-   */
-  void AddTask(TaskEntry &_entry) {
-    if (_entry.IsValid()) {
-      if (_entry.GetAction().GetType() == ACTION_TYPE_STRATEGY) {
-        _entry.SetActionObject(GetPointer(this));
-      }
-      if (_entry.GetCondition().GetType() == COND_TYPE_STRATEGY) {
-        _entry.SetConditionObject(GetPointer(this));
-      }
-      tasks.Push(_entry);
-    }
-  }
-
-  /**
-   * Process strategy's tasks.
-   *
-   * @return
-   *   Returns StgProcessResult struct.
-   */
-  void ProcessTasks() {
-    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      bool _is_processed = false;
-      TaskEntry _entry = iter.Value();
-      _is_processed = Task::Process(_entry);
-      sresult.tasks_processed += (unsigned short)_is_processed;
-      sresult.tasks_processed_not += (unsigned short)!_is_processed;
-    }
   }
 
   /* State checkers */
@@ -671,179 +639,6 @@ class Strategy : public Object {
     return true;
   }
 
-  /* Conditions and actions */
-
-  /**
-   * Checks for Strategy condition.
-   *
-   * @param ENUM_STRATEGY_CONDITION _cond
-   *   Strategy condition.
-   * @return
-   *   Returns true when the condition is met.
-   */
-  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, DataParamEntry &_args[]) {
-    bool _result = true;
-    long arg_size = ArraySize(_args);
-    long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
-    long _arg3l = ArraySize(_args) > 2 ? DataParamEntry::ToInteger(_args[2]) : WRONG_VALUE;
-    switch (_cond) {
-      case STRAT_COND_IS_ENABLED:
-        return sparams.IsEnabled();
-      case STRAT_COND_IS_SUSPENDED:
-        return sparams.IsSuspended();
-      case STRAT_COND_IS_TREND:
-        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
-        return IsTrend((ENUM_ORDER_TYPE)_arg1l);
-      case STRAT_COND_SIGNALOPEN: {
-        ENUM_ORDER_TYPE _cmd = ArraySize(_args) > 1 ? (ENUM_ORDER_TYPE)_args[0].integer_value : ORDER_TYPE_BUY;
-        int _method = ArraySize(_args) > 1 ? (int)_args[1].integer_value : 0;
-        float _level = ArraySize(_args) > 2 ? (float)_args[2].double_value : 0;
-        return SignalOpen(_cmd, _method, _level);
-      }
-      case STRAT_COND_TRADE_COND:
-        // Args:
-        // 1st (i:0) - Trade's enum condition to check.
-        // 2rd... (i:1) - Optionally trade's arguments to pass.
-        if (arg_size > 0) {
-          DataParamEntry _sargs[];
-          ArrayResize(_sargs, ArraySize(_args) - 1);
-          for (int i = 0; i < ArraySize(_sargs); i++) {
-            _sargs[i] = _args[i + 1];
-          }
-          _result = trade.CheckCondition((ENUM_TRADE_CONDITION)_arg1l, _sargs);
-        }
-        return _result;
-      default:
-        GetLogger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
-    }
-  }
-  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    ArrayPushObject(_args, _param1);
-    return Strategy::CheckCondition(_cond, _args);
-  }
-  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1, long _arg2) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
-    ArrayPushObject(_args, _param1);
-    ArrayPushObject(_args, _param2);
-    return Strategy::CheckCondition(_cond, _args);
-  }
-  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
-    ARRAY(DataParamEntry, _args);
-    return CheckCondition(_cond, _args);
-  }
-
-  /**
-   * Execute Strategy action.
-   *
-   * @param ENUM_STRATEGY_ACTION _action
-   *   Strategy action to execute.
-   * @param MqlParam _args
-   *   Strategy action arguments.
-   * @return
-   *   Returns true when the action has been executed successfully.
-   */
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, DataParamEntry &_args[]) {
-    bool _result = true;
-    double arg1d = EMPTY_VALUE;
-    double arg2d = EMPTY_VALUE;
-    double arg3d = EMPTY_VALUE;
-    long arg1i = EMPTY;
-    long arg2i = EMPTY;
-    long arg3i = EMPTY;
-    long arg_size = ArraySize(_args);
-    if (arg_size > 0) {
-      arg1d = _args[0].type == TYPE_DOUBLE ? _args[0].double_value : EMPTY_VALUE;
-      arg1i = _args[0].type == TYPE_INT ? _args[0].integer_value : EMPTY;
-      if (arg_size > 1) {
-        arg2d = _args[1].type == TYPE_DOUBLE ? _args[1].double_value : EMPTY_VALUE;
-        arg2i = _args[1].type == TYPE_INT ? _args[1].integer_value : EMPTY;
-      }
-      if (arg_size > 2) {
-        arg3d = _args[2].type == TYPE_DOUBLE ? _args[2].double_value : EMPTY_VALUE;
-        arg3i = _args[2].type == TYPE_INT ? _args[2].integer_value : EMPTY;
-      }
-    }
-    switch (_action) {
-      case STRAT_ACTION_DISABLE:
-        sparams.Enabled(false);
-        return true;
-      case STRAT_ACTION_ENABLE:
-        sparams.Enabled(true);
-        return true;
-      case STRAT_ACTION_SUSPEND:
-        sparams.Suspended(true);
-        return true;
-      case STRAT_ACTION_TRADE_EXE:
-        // Args:
-        // 1st (i:0) - Trade's enum action to execute.
-        // 2rd (i:1) - Trade's argument to pass.
-        if (arg_size > 0) {
-          DataParamEntry _sargs[];
-          ArrayResize(_sargs, ArraySize(_args) - 1);
-          for (int i = 0; i < ArraySize(_sargs); i++) {
-            _sargs[i] = _args[i + 1];
-          }
-          _result = trade.ExecuteAction((ENUM_TRADE_ACTION)_args[0].integer_value, _sargs);
-          /* @fixme
-          if (_result) {
-            Order *_order = trade.GetOrderLast();
-            switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
-              case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
-                // OnOrderClose();// @todo
-                break;
-              case TRADE_ACTION_ORDER_OPEN:
-                // @fixme: Operation on the structure copy.
-                OnOrderOpen(_order.GetParams());
-                break;
-            }
-          }
-          */
-        }
-        return _result;
-      case STRAT_ACTION_UNSUSPEND:
-        sparams.Suspended(false);
-        return true;
-      default:
-        GetLogger().Error(StringFormat("Invalid Strategy action: %s!", EnumToString(_action), __FUNCTION_LINE__));
-        return false;
-    }
-    return _result;
-  }
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    ArrayPushObject(_args, _param1);
-    return Strategy::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
-    ArrayPushObject(_args, _param1);
-    ArrayPushObject(_args, _param2);
-    return Strategy::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2, long _arg3) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
-    DataParamEntry _param3 = _arg3;
-    ArrayPushObject(_args, _param1);
-    ArrayPushObject(_args, _param2);
-    ArrayPushObject(_args, _param3);
-    return Strategy::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
-    ARRAY(DataParamEntry, _args);
-    return Strategy::ExecuteAction(_action, _args);
-  }
-
   /* Printers methods */
 
   /**
@@ -1060,9 +855,11 @@ class Strategy : public Object {
       if (METHOD(_method, 3)) _result &= !trade.HasOrderOppositeType(_cmd);  // 8
       if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd);                 // 16
       if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);        // 32
+      /*
       if (METHOD(_method, 6))
-        _result &= !trade.CheckCondition(
+        _result &= !trade.Check(
             TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_LOW : ACCOUNT_COND_EQUITY_01PC_HIGH);  // 64
+      */
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -1167,10 +964,12 @@ class Strategy : public Object {
         _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
       if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd);                           // 16
       if (METHOD(_method, 5)) _result |= _result || trade.HasOrderBetter(_cmd);                   // 32
+      /*
       if (METHOD(_method, 6))
         _result |=
-            _result || trade.CheckCondition(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
+            _result || trade.Check(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
                                                                             : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
+      */
       // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -1250,6 +1049,105 @@ class Strategy : public Object {
     }
     return _result;
   };
+
+  /* Tasks methods */
+
+  /**
+   * Add task.
+   */
+  bool AddTask(TaskEntry &_tentry) {
+    bool _is_valid = _tentry.IsValid();
+    if (_is_valid) {
+      TaskObject<Strategy, Strategy> _taskobj(_tentry, THIS_PTR, THIS_PTR);
+      tasks.Add(&_taskobj);
+    }
+    return _is_valid;
+  }
+
+  /**
+   * Process tasks.
+   */
+  void ProcessTasks() { tasks.Process(); }
+
+  /* Tasks */
+
+  /**
+   * Checks a condition.
+   */
+  virtual bool Check(const TaskConditionEntry &_entry) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      case STRAT_COND_IS_ENABLED:
+        return sparams.IsEnabled();
+      case STRAT_COND_IS_SUSPENDED:
+        return sparams.IsSuspended();
+      case STRAT_COND_IS_TREND:
+        return IsTrend(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>());
+      case STRAT_COND_SIGNALOPEN:
+        return SignalOpen(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>(),
+                          _entry.GetArg(2).ToValue<float>());
+      default:
+        GetLogger().Error(StringFormat("Invalid EA condition: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+    }
+    return _result;
+  }
+  bool Check(int _id) {
+    TaskConditionEntry _entry(_id);
+    return Check(_entry);
+  }
+
+  /**
+   * Gets a copy of structure.
+   */
+  virtual DataParamEntry Get(const TaskGetterEntry &_entry) {
+    DataParamEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  virtual bool Run(const TaskActionEntry &_entry) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      case STRAT_ACTION_DISABLE:
+        sparams.Enabled(false);
+        return true;
+      case STRAT_ACTION_ENABLE:
+        sparams.Enabled(true);
+        return true;
+      case STRAT_ACTION_SUSPEND:
+        sparams.Suspended(true);
+        return true;
+      case STRAT_ACTION_UNSUSPEND:
+        sparams.Suspended(false);
+        return true;
+      default:
+        GetLogger().Error(StringFormat("Invalid Strategy action: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Sets an entry value.
+   */
+  virtual bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      // _entry_value.GetValue()
+      default:
+        break;
+    }
+    return _result;
+  }
 
   /* Serializers */
 

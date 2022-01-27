@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Includes Action's enums.
+ * Includes TaskAction's enums.
  */
 
 #ifndef __MQL__
@@ -33,19 +33,10 @@
 #ifndef ACTION_ENUM_H
 #define ACTION_ENUM_H
 
-/* Defines action entry flags. */
-enum ENUM_ACTION_ENTRY_FLAGS {
-  ACTION_ENTRY_FLAG_NONE = 0,
-  ACTION_ENTRY_FLAG_IS_ACTIVE = 1,
-  ACTION_ENTRY_FLAG_IS_DONE = 2,
-  ACTION_ENTRY_FLAG_IS_FAILED = 4,
-  ACTION_ENTRY_FLAG_IS_INVALID = 8
-};
-
 /* Defines action types. */
 enum ENUM_ACTION_TYPE {
   ACTION_TYPE_NONE = 0,   // None.
-  ACTION_TYPE_ACTION,     // Action of action.
+  ACTION_TYPE_ACTION,     // TaskAction of action.
   ACTION_TYPE_EA,         // EA action.
   ACTION_TYPE_INDICATOR,  // Order action.
   ACTION_TYPE_ORDER,      // Order action.
@@ -56,7 +47,7 @@ enum ENUM_ACTION_TYPE {
   FINAL_ACTION_TYPE_ENTRY
 };
 
-/* Defines action types for Action class. */
+/* Defines action types for TaskAction class. */
 enum ENUM_ACTION_ACTION {
   ACTION_ACTION_NONE = 0,          // Does nothing.
   ACTION_ACTION_DISABLE,           // Disables action.

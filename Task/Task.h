@@ -25,23 +25,24 @@
  * Provides integration with tasks (manages conditions and actions).
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Prevents processing this includes file for the second time.
-#ifndef TASK_MQH
-#define TASK_MQH
+#ifndef TASK_H
+#define TASK_H
 
 // Includes.
-#include "Action.mqh"
-#include "Condition.mqh"
-#include "DictStruct.mqh"
-#include "Refs.mqh"
+#include "../DictStruct.mqh"
 #include "Task.enum.h"
 #include "Task.struct.h"
+#include "TaskAction.h"
+#include "TaskCondition.h"
+#include "Taskable.h"
 
-class Task {
- protected:
-  // Class variables.
-  Ref<Log> logger;
-
+class Task : public Taskable<TaskEntry> {
  public:
   // Class variables.
   DictStruct<short, TaskEntry> tasks;
@@ -64,8 +65,6 @@ class Task {
    */
   ~Task() {}
 
-  Log *Logger() { return logger.Ptr(); }
-
   /* Main methods */
 
   /**
@@ -73,18 +72,19 @@ class Task {
    */
   void Add(TaskEntry &_entry) { tasks.Push(_entry); }
 
+  /* Virtual methods */
+
   /**
    * Process tasks.
    *
    * @return
    *   Returns true when tasks has been processed.
    */
-  bool Process() {
-    bool _result = false;
+  virtual bool Process() {
+    bool _result = true;
     for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      bool _curr_result = false;
       TaskEntry _entry = iter.Value();
-      Process(_entry);
+      _result &= Process(_entry);
     }
     return _result;
   }
@@ -95,21 +95,73 @@ class Task {
    * @return
    *   Returns true when tasks has been processed.
    */
-  static bool Process(TaskEntry &_entry) {
+  virtual bool Process(TaskEntry &_entry) {
     bool _result = false;
     if (_entry.IsActive()) {
-      if (Condition::Test(_entry.GetCondition())) {
-        ActionEntry _action = _entry.GetAction();
-        Action::Execute(_action);
-        if (_action.IsDone()) {
-          _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE, _action.IsDone());
-          _entry.SetFlag(TASK_ENTRY_FLAG_IS_FAILED, _action.IsFailed());
-          _entry.SetFlag(TASK_ENTRY_FLAG_IS_INVALID, _action.IsInvalid());
-          _entry.RemoveFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
-        }
+      _entry.Set(STRUCT_ENUM(TaskEntry, TASK_ENTRY_PROP_LAST_PROCESS), TimeCurrent());
+      if (_entry.IsDone()) {
+        _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE,
+                       _entry.Get(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_DONE)));
+        _entry.SetFlag(TASK_ENTRY_FLAG_IS_FAILED,
+                       _entry.Get(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_FAILED)));
+        _entry.SetFlag(TASK_ENTRY_FLAG_IS_INVALID,
+                       _entry.Get(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID)));
+        _entry.RemoveFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
       }
-      _entry.last_process = TimeCurrent();
       _result = true;
+    }
+    return _result;
+  }
+
+  /* Task methods */
+
+  /**
+   * Checks a condition.
+   */
+  virtual bool Check(const TaskConditionEntry &_entry) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Gets a copy of structure.
+   */
+  virtual TaskEntry Get(const TaskGetterEntry &_entry) {
+    TaskEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  virtual bool Run(const TaskActionEntry &_entry) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Sets an entry value.
+   */
+  virtual bool Set(const TaskSetterEntry &_entry, const TaskEntry &_entry_value) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        break;
     }
     return _result;
   }
@@ -232,7 +284,6 @@ class Task {
         // Is invalid.
         return IsInvalid();
       default:
-        Logger().Error(StringFormat("Invalid Task condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -256,7 +307,7 @@ class Task {
         // Process tasks.
         return Process();
       default:
-        Logger().Error(StringFormat("Invalid Task action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         return false;
     }
     return _result;
@@ -268,4 +319,4 @@ class Task {
 
   /* Other methods */
 };
-#endif  // TASK_MQH
+#endif  // TASK_H

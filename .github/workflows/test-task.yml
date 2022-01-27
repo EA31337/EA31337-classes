@@ -1,18 +1,16 @@
 ---
-name: Test Trade
+name: Test Task
 
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - 'Trade/**.h'
-      - 'Trade/**.mq?'
-      - '.github/workflows/test-trade.yml'
+      - 'Task/**'
+      - '.github/workflows/test-task.yml'
   push:
     paths:
-      - 'Trade/**.h'
-      - 'Trade/**.mq?'
-      - '.github/workflows/test-trade.yml'
+      - 'Task/**'
+      - '.github/workflows/test-task.yml'
 
 jobs:
 
@@ -24,7 +22,7 @@ jobs:
         uses: fx31337/mql-compile-action@master
         with:
           init-platform: true
-          path: 'Trade/tests'
+          path: 'Task/tests'
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
@@ -40,18 +38,25 @@ jobs:
           name: files-ex5
           path: '**/*.ex5'
 
-  Trade-Tests-MQL4:
+  Task-Tests-MQL4:
     defaults:
       run:
         shell: bash
-        working-directory: Trade/tests
+        working-directory: Task/tests
     needs: Compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
         test:
-          - TradeSignalTest
-          - TradeSignalManagerTest
+          - Task.test
+          - TaskAction.test
+          - TaskCondition.test
+          - TaskGetter.test
+          - TaskManager.test
+          - TaskObject.test
+          - TaskSetter.test
+          - Taskable.car.test
+          - Taskable.test
     steps:
       - uses: actions/download-artifact@v2
         with:
@@ -60,4 +65,3 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: ${{ matrix.test }}
-    timeout-minutes: 10
