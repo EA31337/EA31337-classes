@@ -303,6 +303,7 @@ class Action {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_ACTION_CONDITION _cond, DataParamEntry &_args[]) {
+    bool _result = false;
     switch (_cond) {
       case ACTION_COND_IS_ACTIVE:
         // Is active;
@@ -321,8 +322,9 @@ class Action {
         return IsInvalid();
       default:
         logger.Ptr().Error(StringFormat("Invalid Action condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
+        break;
     }
+    return _result;
   }
   bool CheckCondition(ENUM_ACTION_CONDITION _cond) {
     ARRAY(DataParamEntry, _args);
@@ -338,7 +340,7 @@ class Action {
    *   Returns true when the action has been executed successfully.
    */
   bool ExecuteAction(ENUM_ACTION_ACTION _action, DataParamEntry &_args[]) {
-    bool _result = true;
+    bool _result = false;
     switch (_action) {
       case ACTION_ACTION_DISABLE:
         // Disable action.
@@ -360,7 +362,7 @@ class Action {
         return SetFlags(ACTION_ENTRY_FLAG_IS_INVALID);
       default:
         logger.Ptr().Error(StringFormat("Invalid action of action: %s!", EnumToString(_action), __FUNCTION_LINE__));
-        return false;
+        break;
     }
     return _result;
   }

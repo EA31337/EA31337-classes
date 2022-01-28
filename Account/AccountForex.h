@@ -20,11 +20,37 @@
  *
  */
 
-/**
- * @file
- * Include file to include all special indicators.
- */
+// Prevents processing this includes file for the second time.
+#ifndef ACCOUNTFOREX_H
+#define ACCOUNTFOREX_H
 
-// Special indicators.
-#include "Indi_Custom.mqh"
-#include "Indi_Math.mqh"
+// Includes.
+#include "../Serializer.mqh"
+#include "Account.h"
+#include "AccountForex.struct.h"
+
+/**
+ * Class to provide functions that return parameters of the current account.
+ */
+class AccountForex : public Account<AccountForexState, AccountForexEntry> {
+ protected:
+  // AP AccountParams;
+  /**
+   * Init code (called on constructor).
+   */
+  void Init() {
+    // ...
+  }
+
+ public:
+  /**
+   * Class constructor.
+   */
+  AccountForex() { Init(); }
+
+  /**
+   * Class deconstructor.
+   */
+  ~AccountForex() {}
+};
+#endif  // ACCOUNTFOREX_H

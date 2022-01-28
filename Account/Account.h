@@ -20,11 +20,40 @@
  *
  */
 
-/**
- * @file
- * Include file to include all special indicators.
- */
+// Prevents processing this includes file for the second time.
+#ifndef ACCOUNT_H
+#define ACCOUNT_H
 
-// Special indicators.
-#include "Indi_Custom.mqh"
-#include "Indi_Math.mqh"
+// Includes.
+#include "../BufferStruct.mqh"
+#include "../Serializer.mqh"
+#include "AccountBase.h"
+
+/**
+ * Class to provide functions that return parameters of the current account.
+ */
+template <typename AS, typename AE>
+class Account : public AccountBase {
+ protected:
+  AS state;
+  BufferStruct<AE> entries;
+
+  /**
+   * Init code (called on constructor).
+   */
+  void Init() {
+    // ...
+  }
+
+ public:
+  /**
+   * Class constructor.
+   */
+  Account() { Init(); }
+
+  /**
+   * Class deconstructor.
+   */
+  ~Account() {}
+};
+#endif  // ACCOUNT_H

@@ -43,11 +43,11 @@ enum ENUM_EA_DATA_STORE_TYPE {
 
 /* Defines EA data export methods. */
 enum ENUM_EA_DATA_EXPORT_METHOD {
-  EA_DATA_EXPORT_NONE = 0 << 0,
-  EA_DATA_EXPORT_CSV = 1 << 0,        // Export into CSV file.
-  EA_DATA_EXPORT_DB = 1 << 1,         // Export into database table.
-  EA_DATA_EXPORT_JSON = 1 << 2,       // Export into JSON file.
-  EA_DATA_EXPORT_ALL = (1 << 3) - 1,  // Export in all formats.
+  EA_DATA_EXPORT_NONE = 0 << 0,       // (None)
+  EA_DATA_EXPORT_CSV = 1 << 0,        // CSV file
+  EA_DATA_EXPORT_DB = 1 << 1,         // Database (SQLite)
+  EA_DATA_EXPORT_JSON = 1 << 2,       // JSON file
+  EA_DATA_EXPORT_ALL = (1 << 3) - 1,  // All
 };
 
 /* Defines EA state flags. */
