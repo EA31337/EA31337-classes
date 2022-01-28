@@ -151,14 +151,9 @@ bool InitIndicators() {
  * Print indicators.
  */
 bool PrintIndicators(string _prefix = "") {
+  ResetLastError();
   for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     IndicatorBase *_indi = iter.Value();
-    MqlParam _value = _indi.GetEntryValue();
-    if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
-        GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
-      ResetLastError();
-      continue;
-    }
     if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
     }

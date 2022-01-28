@@ -147,19 +147,20 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_VIDYA::iVIDyA(_Symbol, GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(), GetVIDYAShift(),
-                                    GetAppliedPrice() /*]*/, 0, _shift, THIS_PTR);
+        _value = Indi_VIDYA::iVIDyA(GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(), GetVIDYAShift(),
+                                    GetAppliedPrice() /*]*/, 0, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
                          GetCMOPeriod(), GetMAPeriod(),
                          GetVIDYAShift()
                          /*]*/,
-                         0, _shift);
+                         0, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

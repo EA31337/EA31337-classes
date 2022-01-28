@@ -30,9 +30,7 @@
 #define EA_MQH
 
 // Includes.
-#include "Action.enum.h"
 #include "Chart.mqh"
-#include "Condition.enum.h"
 #include "Data.struct.h"
 #include "Dict.mqh"
 #include "DictObject.mqh"
@@ -46,13 +44,14 @@
 #include "SerializerSqlite.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
-#include "Task.mqh"
+#include "Task/TaskManager.h"
+#include "Task/Taskable.h"
 #include "Terminal.mqh"
 #include "Trade.mqh"
 #include "Trade/TradeSignal.h"
 #include "Trade/TradeSignalManager.h"
 
-class EA {
+class EA : public Taskable<DataParamEntry> {
  protected:
   // Class variables.
   Account *account;
@@ -68,11 +67,31 @@ class EA {
   DictObject<string, Trade> trade;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
-  DictStruct<int, TaskEntry> tasks;
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
+  TaskManager tasks;
   TradeSignalManager tsm;
+
+ protected:
+  /* Protected methods */
+
+  /**
+   * Init code (called on constructor).
+   */
+  void Init() { InitTask(); }
+
+  /**
+   * Process initial task (called on constructor).
+   */
+  void InitTask() {
+    // Add and process init task.
+    TaskObject<EA, EA> _taskobj_init(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)),
+                                     THIS_PTR, THIS_PTR);
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
+    _taskobj_init.Process();
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
+  }
 
  public:
   /**
@@ -80,12 +99,9 @@ class EA {
    */
   EA(EAParams &_params) : account(new Account) {
     eparams = _params;
-    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     UpdateStateFlags();
     // Add and process tasks.
-    TaskAdd(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
-    ProcessTasks();
-    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
+    Init();
     // Initialize a trade instance for the current chart and symbol.
     ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
     TradeParams _tparams;
@@ -375,8 +391,6 @@ class EA {
             }
             if (_strat.TickFilter(_tick)) {
               _can_trade &= !_strat.IsSuspended();
-              _can_trade &=
-                  !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
               TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
               if (_sentry.Get<uint>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
                 TradeSignal _signal(_sentry);
@@ -658,53 +672,6 @@ class EA {
   }
   */
 
-  /* Tasks */
-
-  /**
-   * Add task.
-   */
-  bool TaskAdd(TaskEntry &_entry) {
-    bool _result = false;
-    if (_entry.IsValid()) {
-      switch (_entry.GetConditionType()) {
-        case COND_TYPE_ACCOUNT:
-          _entry.SetConditionObject(account);
-          break;
-        case COND_TYPE_EA:
-          _entry.SetConditionObject(THIS_PTR);
-          break;
-        case COND_TYPE_TRADE:
-          _entry.SetConditionObject(trade.GetByKey(_Symbol));
-          break;
-      }
-      switch (_entry.GetActionType()) {
-        case ACTION_TYPE_EA:
-          _entry.SetActionObject(THIS_PTR);
-          break;
-        case ACTION_TYPE_TRADE:
-          _entry.SetActionObject(trade.GetByKey(_Symbol));
-          break;
-      }
-      _result |= tasks.Push(_entry);
-    }
-    return _result;
-  }
-
-  /**
-   * Process EA tasks.
-   */
-  unsigned int ProcessTasks() {
-    unsigned int _counter = 0;
-    for (DictStructIterator<int, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      bool _is_processed = false;
-      TaskEntry _entry = iter.Value();
-      _is_processed = _is_processed || Task::Process(_entry);
-      // _entry.last_process = TimeCurrent();
-      _counter += (unsigned short)_is_processed;
-    }
-    return _counter;
-  }
-
   /* Strategy methods */
 
   /**
@@ -865,24 +832,39 @@ class EA {
     if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
       // Auto calculate lot size for all strategies.
       Trade *_trade = trade.GetByKey(_Symbol);
-      _result &= _trade.ExecuteAction(TRADE_ACTION_CALC_LOT_SIZE);
+      _result &= _trade.Run(TRADE_ACTION_CALC_LOT_SIZE);
       Set(STRAT_PARAM_LS, _trade.Get<float>(TRADE_PARAM_LOT_SIZE));
     }
     return _result;
   }
 
-  /* Conditions and actions */
+  /* Tasks methods */
 
   /**
-   * Checks for EA condition.
-   *
-   * @param ENUM_EA_CONDITION _cond
-   *   EA condition.
-   * @return
-   *   Returns true when the condition is met.
+   * Add task.
    */
-  bool CheckCondition(ENUM_EA_CONDITION _cond, DataParamEntry &_args[]) {
-    switch (_cond) {
+  bool AddTask(TaskEntry &_tentry) {
+    bool _is_valid = _tentry.IsValid();
+    if (_is_valid) {
+      TaskObject<EA, EA> _taskobj(_tentry, THIS_PTR, THIS_PTR);
+      tasks.Add(&_taskobj);
+    }
+    return _is_valid;
+  }
+
+  /**
+   * Process tasks.
+   */
+  void ProcessTasks() { tasks.Process(); }
+
+  /* Tasks */
+
+  /**
+   * Checks a condition.
+   */
+  virtual bool Check(const TaskConditionEntry &_entry) {
+    bool _result = false;
+    switch (_entry.GetId()) {
       case EA_COND_IS_ACTIVE:
         return estate.IsActive();
       case EA_COND_IS_ENABLED:
@@ -907,27 +889,31 @@ class EA {
       case EA_COND_ON_QUIT:
         return estate.IsOnQuit();
       default:
-        logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
+        GetLogger().Error(StringFormat("Invalid EA condition: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
     }
-  }
-  bool CheckCondition(ENUM_EA_CONDITION _cond) {
-    ARRAY(DataParamEntry, _args);
-    return EA::CheckCondition(_cond, _args);
+    return _result;
   }
 
   /**
-   * Execute EA action.
-   *
-   * @param ENUM_EA_ACTION _action
-   *   EA action to execute.
-   * @return
-   *   Returns true when the action has been executed successfully.
+   * Gets a copy of structure.
    */
-  bool ExecuteAction(ENUM_EA_ACTION _action, DataParamEntry &_args[]) {
-    bool _result = true;
-    long arg_size = ArraySize(_args);
-    switch (_action) {
+  virtual DataParamEntry Get(const TaskGetterEntry &_entry) {
+    DataParamEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  virtual bool Run(const TaskActionEntry &_entry) {
+    bool _result = false;
+    switch (_entry.GetId()) {
       case EA_ACTION_DISABLE:
         estate.Enable(false);
         return true;
@@ -937,46 +923,42 @@ class EA {
       case EA_ACTION_EXPORT_DATA:
         DataExport();
         return true;
-      case EA_ACTION_STRATS_EXE_ACTION:
+      case EA_ACTION_STRATS_EXE_ACTION: {
         // Args:
         // 1st (i:0) - Strategy's enum action to execute.
         // 2nd (i:1) - Strategy's argument to pass.
+        TaskActionEntry _entry_strat = _entry;
+        _entry_strat.ArgRemove(0);
         for (DictStructIterator<long, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat.IsValid(); ++iter_strat) {
-          DataParamEntry _sargs[];
-          ArrayResize(_sargs, ArraySize(_args) - 1);
-          for (int i = 0; i < ArraySize(_sargs); i++) {
-            _sargs[i] = _args[i + 1];
-          }
           Strategy *_strat = iter_strat.Value().Ptr();
-          _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)_args[0].integer_value, _sargs);
+
+          _result &= _strat.Run(_entry_strat);
         }
         return _result;
+      }
       case EA_ACTION_TASKS_CLEAN:
         // @todo
-        return tasks.Size() == 0;
-      default:
-        logger.Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        // return tasks.Size() == 0;
+        SetUserError(ERR_INVALID_PARAMETER);
         return false;
+      default:
+        GetLogger().Error(StringFormat("Invalid EA action: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
     }
     return _result;
   }
-  bool ExecuteAction(ENUM_EA_ACTION _action) {
-    ARRAY(DataParamEntry, _args);
-    return EA::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    ArrayPushObject(_args, _param1);
-    return EA::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1, long _arg2) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
-    ArrayPushObject(_args, _param1);
-    ArrayPushObject(_args, _param2);
-    return EA::ExecuteAction(_action, _args);
+
+  /**
+   * Sets an entry value.
+   */
+  virtual bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      // _entry_value.GetValue()
+      default:
+        break;
+    }
+    return _result;
   }
 
   /* Getters */

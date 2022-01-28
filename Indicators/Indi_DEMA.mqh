@@ -166,26 +166,27 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
 
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // We're getting DEMA from Price indicator.
 
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_DEMA::iDEMA(_Symbol, GetTf(), GetPeriod(), GetMAShift(), GetAppliedPrice(), _shift, _mode,
+        _value = Indi_DEMA::iDEMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetAppliedPrice(), _ishift, _mode,
                                   GetPointer(this));
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.custom_indi_name, /*[*/ GetPeriod(), GetMAShift(),
-                         GetAppliedPrice() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /*[*/ GetPeriod(), GetMAShift(),
+                         GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
         _value = Indi_DEMA::iDEMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetPeriod(),
-                                             GetMAShift(), _shift);
+                                             GetMAShift(), _ishift);
         break;
     }
     return _value;

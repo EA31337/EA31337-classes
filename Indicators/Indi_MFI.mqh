@@ -111,20 +111,21 @@ class Indi_MFI : public Indicator<IndiMFIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
-        _value = Indi_MFI::iMFI(_Symbol, GetTf(), GetPeriod(), _shift);
+        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _ishift);
 #else  // __MQL5__
-        _value = Indi_MFI::iMFI(_Symbol, GetTf(), GetPeriod(), GetAppliedVolume(), _shift, THIS_PTR);
+        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _ishift, THIS_PTR);
 #endif
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
-                         VOLUME_TICK /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+                         VOLUME_TICK /*]*/, 0, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

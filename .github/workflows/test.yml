@@ -27,7 +27,7 @@ jobs:
       - name: Compile
         uses: fx31337/mql-compile-action@master
         with:
-          init-platform: true
+          mt-version: 4.0.0.1349
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
@@ -54,12 +54,10 @@ jobs:
       matrix:
         test:
           - AccountTest
-          - ActionTest
           - BufferStructTest
           - BufferTest
           - ChartTest
           - CompileIndicatorsTest
-          - ConditionTest
           - DatabaseTest
           - DrawIndicatorTest
           - EATest
@@ -76,7 +74,6 @@ jobs:
           - StrategyTest-RSI
           - SymbolInfoTest
           - SummaryReportTest
-          - TaskTest
           - TickerTest
           - TradeTest
     steps:
@@ -89,6 +86,7 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           BtYears: 2020
+          MtVersion: 4.0.0.1349
           TestExpert: ${{ matrix.test }}
     timeout-minutes: 10
 
@@ -102,6 +100,7 @@ jobs:
     strategy:
       matrix:
         test:
+          #  - 3DTest
           - CollectionTest
           - ConfigTest
           - ConvertTest

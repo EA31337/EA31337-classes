@@ -24,16 +24,26 @@
  * Test compilation of all class files.
  */
 
+// 3D includes (MQL5 only).
+#ifdef __MQL5__
+#include "../3D/Chart3D.h"
+#include "../3D/Cube.h"
+#include "../3D/Devices/MTDX/MTDXDevice.h"
+#include "../3D/Devices/MTDX/MTDXIndexBuffer.h"
+#include "../3D/Devices/MTDX/MTDXShader.h"
+#include "../3D/Devices/MTDX/MTDXVertexBuffer.h"
+#include "../3D/Frontends/MT5Frontend.h"
+#endif
+
 // Includes.
 #include "../Account.mqh"
-#include "../Action.mqh"
 #include "../Array.mqh"
+#include "../Task/TaskAction.h"
 //#include "../BasicTrade.mqh" // @removeme
 #include "../Buffer.mqh"
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
 #include "../Collection.mqh"
-#include "../Condition.mqh"
 #include "../Config.mqh"
 #include "../Convert.mqh"
 #include "../Database.mqh"
@@ -56,6 +66,7 @@
 #include "../Log.mqh"
 #include "../MD5.mqh"
 #include "../Storage/IValueStorage.h"
+#include "../Task/TaskCondition.h"
 //#include "../MQL4.mqh" // @removeme
 //#include "../MQL5.mqh" // @removeme
 #include "../Mail.mqh"
@@ -99,7 +110,14 @@
 #include "../String.mqh"
 #include "../SummaryReport.mqh"
 #include "../SymbolInfo.mqh"
-#include "../Task.mqh"
+#include "../Task/Task.h"
+#include "../Task/TaskAction.h"
+#include "../Task/TaskCondition.h"
+#include "../Task/TaskGetter.h"
+#include "../Task/TaskManager.h"
+#include "../Task/TaskObject.h"
+#include "../Task/TaskSetter.h"
+#include "../Task/Taskable.h"
 #include "../Terminal.mqh"
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"

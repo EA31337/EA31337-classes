@@ -169,22 +169,23 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Gator::iGator(_Symbol, GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(),
-                                    GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(),
-                                    (ENUM_GATOR_HISTOGRAM)_mode, _shift, THIS_PTR);
+        _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
+                                    GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(),
+                                    (ENUM_GATOR_HISTOGRAM)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /**/
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/
                          GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(),
                          GetLipsShift(), GetMAMethod(),
                          GetAppliedPrice()
                          /**/,
-                         _mode, _shift);
+                         _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

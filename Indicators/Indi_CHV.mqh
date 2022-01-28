@@ -162,16 +162,17 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_CHV::iCHV(_Symbol, GetTf(), /*[*/ GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod() /*]*/,
-                                _mode, _shift, THIS_PTR);
+        _value = Indi_CHV::iCHV(GetSymbol(), GetTf(), /*[*/ GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod() /*]*/,
+                                _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
-                         GetCHVPeriod(), GetSmoothMethod() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
+                         GetCHVPeriod(), GetSmoothMethod() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

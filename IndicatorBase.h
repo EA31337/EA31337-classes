@@ -45,7 +45,6 @@ class Chart;
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
 #include "Indicator.struct.signal.h"
-#include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
 #include "Serializer.mqh"
@@ -79,6 +78,17 @@ double iCustom5(string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C
   int _handle = _handlers.GetByKey(_key);
   ICUSTOM_DEF(_handlers.Set(_key, _handle),
               COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
+}
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+          typename J, typename K, typename L, typename M>
+double iCustom5(string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i,
+                J _j, K _k, L _l, M _m, int _mode, int _shift) {
+  ResetLastError();
+  static Dict<string, int> _handlers;
+  string _key = Util::MakeKey(_symbol, (string)_tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j);
+  int _handle = _handlers.GetByKey(_key);
+  ICUSTOM_DEF(_handlers.Set(_key, _handle), COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h
+                                                COMMA _i COMMA _j COMMA _k COMMA _l COMMA _m);
 }
 #endif
 
@@ -118,7 +128,36 @@ class IndicatorBase : public Object {
   /**
    * Class constructor.
    */
-  IndicatorBase(IndicatorBase* _indi_src = NULL) : indi_src(_indi_src), is_fed(false) {}
+  IndicatorBase() : indi_src(NULL) {
+    calc_start_bar = 0;
+    is_fed = false;
+  }
+
+  /**
+   * Class constructor.
+   */
+  IndicatorBase(ChartParams& _cparams) : indi_src(NULL) {
+    calc_start_bar = 0;
+    is_fed = false;
+  }
+
+  /**
+   * Class constructor.
+   */
+  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) {
+    calc_start_bar = 0;
+    is_fed = false;
+    indi_src = NULL;
+  }
+
+  /**
+   * Class constructor.
+   */
+  IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) {
+    calc_start_bar = 0;
+    is_fed = false;
+    indi_src = NULL;
+  }
 
   /**
    * Class deconstructor.
@@ -813,16 +852,11 @@ class IndicatorBase : public Object {
     return value_storages[_mode];
   }
 
-  /**
-   * Returns indicator value for a given shift and mode.
-   */
   template <typename T>
-  T GetValue(int _shift = 0, int _mode = -1) {
-    T _result;
-    int _index = _mode != -1 ? _mode : GetDataSourceMode();
-    GetEntry(_shift).values[_index].Get(_result);
-    ResetLastError();
-    return _result;
+  T GetValue(int _shift = 0, int _mode = 0) {
+    T _out;
+    GetEntryValue(_shift, _mode).Get(_out);
+    return _out;
   }
 
   /**
@@ -914,7 +948,7 @@ class IndicatorBase : public Object {
   /**
    * Returns the indicator's entry value.
    */
-  virtual DataParamEntry GetEntryValue(datetime _bar_time = 0, int _mode = 0) = NULL;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) = NULL;
 
   /**
    * Returns indicator value for a given shift and mode.
@@ -958,7 +992,6 @@ class IndicatorBase : public Object {
     IndicatorDataEntry _stub_entry;
     _stub_entry.AddFlags(_entry.GetFlags());
     SerializerConverter _stub = SerializerConverter::MakeStubObject(_stub_entry, _serializer_flags, _entry.GetSize());
-
     return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub);
   }
 
@@ -967,21 +1000,22 @@ class IndicatorBase : public Object {
     int _bars = Bars(GetSymbol(), GetTf());
 
     if (!is_fed) {
-      calc_start_bar = 0;
-
       // Calculating start_bar.
-      for (int i = 0; i < _bars; ++i) {
-        // Iterating from the oldest.
-        IndicatorDataEntry _entry = GetEntry(_bars - i - 1);
+      for (; calc_start_bar < _bars; ++calc_start_bar) {
+        // Iterating from the oldest or previously iterated.
+        IndicatorDataEntry _entry = GetEntry(_bars - calc_start_bar - 1);
 
         if (_entry.IsValid()) {
           // From this point we assume that future entries will be all valid.
-          calc_start_bar = i;
           is_fed = true;
-
           return _bars - calc_start_bar;
         }
       }
+    }
+
+    if (!is_fed) {
+      Print("Can't find valid bars for ", GetFullName());
+      return 0;
     }
 
     // Assuming all entries are calculated (even if have invalid values).

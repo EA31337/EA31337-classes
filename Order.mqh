@@ -30,7 +30,6 @@
 #define ORDER_MQH
 
 // Includes.
-#include "Action.enum.h"
 #include "Convert.mqh"
 #include "Data.define.h"
 #include "Data.struct.h"
@@ -43,6 +42,7 @@
 #include "Std.h"
 #include "String.mqh"
 #include "SymbolInfo.mqh"
+#include "Task/TaskAction.enum.h"
 
 /* Defines for backward compatibility. */
 

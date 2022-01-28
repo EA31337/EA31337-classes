@@ -111,17 +111,19 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_OsMA::iOsMA(_Symbol, GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
-                                  GetAppliedPrice(), _shift, THIS_PTR);
+        _value = Indi_OsMA::iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
+                                  GetAppliedPrice(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(),
-                         GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice() /*]*/, 0, _shift);
+        _value =
+            iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(),
+                    GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice() /*]*/, 0, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

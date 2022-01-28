@@ -39,6 +39,11 @@ struct IndiACParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
+    switch (idstype) {
+      case IDATA_ICUSTOM:
+        SetMaxModes(2);
+        break;
+    }
   };
   IndiACParams(IndiACParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
@@ -100,15 +105,16 @@ class Indi_AC : public Indicator<IndiACParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual double GetValue(int _mode = 0, int _shift = 0) {
-    double _value = EMPTY_VALUE;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+    IndicatorDataEntryValue _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_AC::iAC(_Symbol, GetTf(), _shift, THIS_PTR);
+        _value = Indi_AC::iAC(GetSymbol(), GetTf(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

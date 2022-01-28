@@ -109,8 +109,6 @@ void OnTick() {
           PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
           tested.Set(iter.Key(), true);  // Mark as tested.
           indis.Unset(iter.Key());
-        } else if (bar_processed > 20) {
-          DebugBreak();
         }
       }
     }
@@ -390,12 +388,12 @@ bool InitIndicators() {
   indi_rsi_on_price.Ptr().SetDataSource(indi_price_4_rsi.Ptr());
   indis.Push(indi_rsi_on_price.Ptr());
 
-  // Drawer (socket-based) indicator.
+  // Drawer (socket-based) indicator over RSI over Price.
   IndiDrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
-  // drawer_params.SetIndicatorData(indi_price_4_rsi);
-  // drawer_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
   drawer_params.SetDraw(clrBisque, 0);
-  indis.Push(_indi_drawer = new Indi_Drawer(drawer_params));
+  Ref<Indi_Drawer> indi_drawer_on_rsi = new Indi_Drawer(drawer_params);
+  indi_drawer_on_rsi.Ptr().SetDataSource(indi_rsi_on_price.Ptr(), PRICE_OPEN);
+  indis.Push(indi_drawer_on_rsi.Ptr());
 
   // Applied Price over OHCL indicator.
   IndiAppliedPriceParams applied_price_params();
@@ -519,7 +517,7 @@ bool InitIndicators() {
 
   // Pattern Detector.
   IndiPatternParams pattern_params();
-  indis.Push(_indi_test = new Indi_Pattern(pattern_params));
+  indis.Push(new Indi_Pattern(pattern_params));
 
   // Pivot.
   IndiPivotParams pivot_params();
@@ -559,7 +557,7 @@ bool PrintIndicators(string _prefix = "") {
     }
 
     string _indi_name = _indi.GetFullName();
-    MqlParam _value = _indi.GetEntryValue();
+    IndicatorDataEntryValue _value = _indi.GetEntryValue();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
         GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
       ResetLastError();
