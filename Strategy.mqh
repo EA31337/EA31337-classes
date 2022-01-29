@@ -943,7 +943,8 @@ class Strategy : public Object {
    * Filters strategy's market tick.
    *
    * @param
-   *   _method - signal method to filter a tick (bitwise AND operation)
+   *   _tick Tick to use for filtering.
+   *   _method Signal method to filter a tick (bitwise AND operation).
    *
    * @result bool
    *   Returns true when tick should be processed, otherwise false.
@@ -1016,9 +1017,10 @@ class Strategy : public Object {
    * Checks strategy's trade open signal.
    *
    * @param
-   *   _cmd    - type of trade order command
-   *   _method - signal method to open a trade (bitwise AND operation)
-   *   _level  - signal level to open a trade (bitwise AND operation)
+   *   _cmd Ttype of trade order command.
+   *   _method Signal method to open a trade (bitwise AND operation).
+   *   _level Signal level to open a trade.
+   *   _shift Signal shift relative to the current bar.
    *
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
@@ -1029,8 +1031,9 @@ class Strategy : public Object {
    * Returns strength of strategy's open signal.
    *
    * @param
-   *   _method - signal method to open a trade (bitwise AND operation)
-   *   _level  - signal level to open a trade (bitwise AND operation)
+   *   _method Signal method to open a trade (bitwise AND operation).
+   *   _level Signal level to open a trade.
+   *   _shift Signal shift relative to the current bar.
    *
    * @result float
    *   Returns value strength of strategy's open signal ranging from -1 to 1.
