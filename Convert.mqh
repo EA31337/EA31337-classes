@@ -30,8 +30,8 @@
 #endif
 
 // Includes.
-#include "Account.enum.h"
-#include "Account.extern.h"
+#include "Account/Account.enum.h"
+#include "Account/Account.extern.h"
 #include "Array.mqh"
 #include "Convert.extern.h"
 #include "Math.extern.h"

@@ -28,10 +28,10 @@
 class Account;
 
 // Includes.
-#include "Account.define.h"
-#include "Account.enum.h"
-#include "Account.extern.h"
-#include "Account.struct.h"
+#include "Account/Account.define.h"
+#include "Account/Account.enum.h"
+#include "Account/Account.extern.h"
+#include "Account/Account.struct.h"
 #include "Array.mqh"
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
