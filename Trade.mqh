@@ -1407,7 +1407,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     double _vol_min = GetChart().GetVolumeMin();
     double _vol_step = GetChart().GetVolumeStep() > 0.0 ? GetChart().GetVolumeStep() : _vol_min;
     if (_vol_step > 0) {
-      // Related: http://forum.mql4.com/47988
+      // Related: https://www.mql5.com/en/forum/139338
       double _precision = 1 / _vol_step;
       // Edge case when step is higher than minimum.
       _lot_size = _ceil ? ceil(_lots * _precision) / _precision : floor(_lots * _precision) / _precision;
