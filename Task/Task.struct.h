@@ -31,6 +31,7 @@
 #endif
 
 // Includes.
+#include "../Terminal.define.h"
 #include "Task.enum.h"
 #include "TaskAction.struct.h"
 #include "TaskCondition.struct.h"

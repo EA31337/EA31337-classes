@@ -44,13 +44,14 @@ struct IndiPivotParams : IndicatorParams {
 /**
  * Implements Pivot Detector.
  */
-class Indi_Pivot : public Indicator<IndiPivotParams> {
+class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Pivot(IndiPivotParams& _p, IndicatorBase* _indi_src = NULL) : Indicator<IndiPivotParams>(_p, _indi_src){};
-  Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PIVOT, _tf, _shift) {
+  Indi_Pivot(IndiPivotParams& _p, IndicatorBase* _indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_PIVOT, _tf, _shift) {
     iparams.tf = _tf;
   };
 
@@ -62,7 +63,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = -1) {
+  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     long _bar_time = GetBarTime(_ishift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
@@ -100,7 +101,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     return GetEntry(_ishift)[_mode];
   }
@@ -148,10 +149,10 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
         // must have at least 4 buffers and define OHLC in the first 4 buffers.
         // Indi_Price is an example of such indicator.
         if (HasDataSource()) {
-          _ohlc.open = GetDataSource().GetValue<float>(_shift, PRICE_OPEN);
-          _ohlc.high = GetDataSource().GetValue<float>(_shift, PRICE_HIGH);
-          _ohlc.low = GetDataSource().GetValue<float>(_shift, PRICE_LOW);
-          _ohlc.close = GetDataSource().GetValue<float>(_shift, PRICE_CLOSE);
+          _ohlc.open = GetDataSource().GetValue<float>(PRICE_OPEN, _shift);
+          _ohlc.high = GetDataSource().GetValue<float>(PRICE_HIGH, _shift);
+          _ohlc.low = GetDataSource().GetValue<float>(PRICE_LOW, _shift);
+          _ohlc.close = GetDataSource().GetValue<float>(PRICE_CLOSE, _shift);
         }
         break;
       default:

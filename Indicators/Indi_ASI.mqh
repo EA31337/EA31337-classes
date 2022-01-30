@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -46,13 +46,13 @@ struct IndiASIParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_ASI : public Indicator<IndiASIParams> {
+class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ASI(IndiASIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiASIParams>(_p, _indi_src){};
-  Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ASI, _tf, _shift){};
+  Indi_ASI(IndiASIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ASI, _tf, _shift){};
 
   /**
    * Built-in version of ASI.
@@ -82,6 +82,16 @@ class Indi_ASI : public Indicator<IndiASIParams> {
                                                  _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2), _mpc));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of ASI.
+   */
+  static double iASIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0,
+                                int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+                                                          Util::MakeKey("Indi_ASI_ON_" + _indi.GetFullName(), _mpc));
+    return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
   }
 
   /**
@@ -155,7 +165,7 @@ class Indi_ASI : public Indicator<IndiASIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -168,8 +178,11 @@ class Indi_ASI : public Indicator<IndiASIParams> {
                                                            Util::MakeKey("Indi_ASI", GetMaximumPriceChanging()));
         _value =
             iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, GetMaximumPriceChanging(), _mode, _ishift, _cache);
+      } break;
+      case IDATA_INDICATOR:
+        _value = Indi_ASI::iASIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetMaximumPriceChanging() /*]*/,
+                                           _mode, _ishift, THIS_PTR);
         break;
-      }
       default:
         SetUserError(ERR_INVALID_PARAMETER);
     }

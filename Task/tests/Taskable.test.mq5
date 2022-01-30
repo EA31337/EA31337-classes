@@ -113,7 +113,7 @@ int OnInit() {
   _result &= _entry_get.Get(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_FLAG_IS_ACTIVE));
   // Checks the results.
   assertTrueOrFail(_result && _test01.GetSum() == 8, "Fail!");
-  _result &= GetLastError() == ERR_NO_ERROR;
+  _result &= GetLastError() == 0;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 

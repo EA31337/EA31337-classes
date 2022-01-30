@@ -35,6 +35,7 @@
 #define TASK_ACTION_H
 
 // Includes.
+#include "../Terminal.define.h"
 #include "TaskAction.enum.h"
 #include "TaskAction.struct.h"
 #include "TaskActionBase.h"

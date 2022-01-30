@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -62,14 +62,14 @@ struct IndiBWIndiMFIParams : IndicatorParams {
 /**
  * Implements the Market Facilitation Index by Bill Williams indicator.
  */
-class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
+class Indi_BWMFI : public IndicatorTickOrCandleSource<IndiBWIndiMFIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiBWIndiMFIParams>(_p, _indi_src) {}
-  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BWMFI, _tf, _shift) {}
+  Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_BWMFI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -114,9 +114,11 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BWMFI_BUFFER, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BWMFI_BUFFER, int _shift = 0) {
+    int _ishift = iparams.GetShift() + _shift;
+
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
@@ -136,7 +138,7 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
     Indicator<IndiBWIndiMFIParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // @see: https://en.wikipedia.org/wiki/Market_facilitation_index

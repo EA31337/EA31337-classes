@@ -36,6 +36,7 @@
 
 // Includes.
 #include "../DictStruct.mqh"
+#include "../Terminal.define.h"
 #include "Task.enum.h"
 #include "Task.struct.h"
 #include "TaskAction.h"

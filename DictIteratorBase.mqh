@@ -60,7 +60,7 @@ class DictIteratorBase {
    */
   DictIteratorBase(const DictIteratorBase& right)
       : _dict(right._dict),
-        _hash(right._dict ? right._dict.GetHash() : 0),
+        _hash(right._dict ? right._dict PTR_DEREF GetHash() : 0),
         _slotIdx(right._slotIdx),
         _index(right._index) {
     _invalid_until_incremented = false;
@@ -75,24 +75,24 @@ class DictIteratorBase {
     ++_index;
     _invalid_until_incremented = false;
 
-    DictSlot<K, V>* slot = _dict.GetSlot(_slotIdx);
+    DictSlot<K, V>* slot = _dict PTR_DEREF GetSlot(_slotIdx);
 
     // Iterating until we find valid, used slot.
-    while (slot != NULL && !slot.IsUsed()) {
-      slot = _dict.GetSlot(++_slotIdx);
+    while (slot != NULL && !slot PTR_DEREF IsUsed()) {
+      slot = _dict PTR_DEREF GetSlot(++_slotIdx);
     }
 
-    if (!slot || !slot.IsValid()) {
+    if (!slot || !slot PTR_DEREF IsValid()) {
       // Invalidating iterator.
       _dict = NULL;
     }
   }
 
-  bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
+  bool HasKey() { return _dict PTR_DEREF GetSlot(_slotIdx) PTR_DEREF HasKey(); }
 
   K Key() {
     CheckValidity();
-    return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key;
+    return PTR_ATTRIB(_dict, GetMode()) == DictModeList ? (K)_slotIdx : _dict PTR_DEREF GetSlot(_slotIdx) PTR_DEREF key;
   }
 
   string KeyAsString(bool includeQuotes = false) {
@@ -106,7 +106,7 @@ class DictIteratorBase {
 
   V Value() {
     CheckValidity();
-    return _dict.GetSlot(_slotIdx).value;
+    return _dict PTR_DEREF GetSlot(_slotIdx) PTR_DEREF value;
   }
 
   void CheckValidity() {
@@ -121,15 +121,15 @@ class DictIteratorBase {
   bool IsLast() {
     if (!IsValid()) return true;
 
-    if (_dict.GetMode() == DictModeUnknown || _dict.Size() == 0) {
+    if (_dict PTR_DEREF GetMode() == DictModeUnknown || _dict.Size() == 0) {
       return false;
     }
 
-    if (_dict.GetMode() != DictModeList) {
+    if (_dict PTR_DEREF GetMode() != DictModeList) {
       Alert("Dict iterator's IsLast() method may be used only when elements are added via Push() method.");
     }
 
-    return _index == _dict.Size() - 1;
+    return _index == _dict PTR_DEREF Size() - 1;
   }
 
   void ShiftPosition(int shift, bool invalid_until_incremented = false) {

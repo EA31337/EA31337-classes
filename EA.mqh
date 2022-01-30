@@ -165,7 +165,7 @@ class EA : public Taskable<DataParamEntry> {
    * @return
    *   Returns TradeSignalEntry struct.
    */
-  TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, bool _trade_allowed = true, int _shift = -1) {
+  TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, bool _trade_allowed = true, int _shift = 0) {
     // float _bf = 1.0;
     float _scl = _strat.Get<float>(STRAT_PARAM_SCL);
     float _sol = _strat.Get<float>(STRAT_PARAM_SOL);
@@ -499,7 +499,7 @@ class EA : public Taskable<DataParamEntry> {
       string _key_chart = "Chart";
       _key_chart += StringFormat("-%d-%d", data_chart.GetMin(), data_chart.GetMax());
 
-      SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<ChartEntry>>(_serializer_flags);
+      SerializerConverter _stub = SerializerConverter::MakeStubObject<BufferStruct<ChartEntry>>(_serializer_flags);
       SerializerConverter _obj = SerializerConverter::FromObject(data_chart, _serializer_flags);
 
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
@@ -519,7 +519,8 @@ class EA : public Taskable<DataParamEntry> {
       _obj.Clean();
     }
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
-      SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(_serializer_flags);
+      SerializerConverter _stub =
+          SerializerConverter::MakeStubObject<BufferStruct<IndicatorDataEntry>>(_serializer_flags);
 
       /*
       for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
@@ -554,7 +555,7 @@ class EA : public Taskable<DataParamEntry> {
       _stub.Clean();
     }
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
-      SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<StgEntry>>(_serializer_flags);
+      SerializerConverter _stub = SerializerConverter::MakeStubObject<BufferStruct<StgEntry>>(_serializer_flags);
 
       /* @fixme
       for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
@@ -584,7 +585,7 @@ class EA : public Taskable<DataParamEntry> {
       _stub.Clean();
     }
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_SYMBOL)) {
-      SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(_serializer_flags);
+      SerializerConverter _stub = SerializerConverter::MakeStubObject<BufferStruct<SymbolInfoEntry>>(_serializer_flags);
       SerializerConverter _obj = SerializerConverter::FromObject(data_symbol, _serializer_flags);
 
       string _key_sym = "Symbol";

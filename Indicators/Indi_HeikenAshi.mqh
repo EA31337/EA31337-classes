@@ -28,7 +28,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Enums.
@@ -68,14 +68,15 @@ struct IndiHeikenAshiParams : IndicatorParams {
 /**
  * Implements the Heiken-Ashi indicator.
  */
-class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
+class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiHeikenAshiParams>(_p, _indi_src) {}
-  Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_HEIKENASHI, _tf, _shift) {}
+      : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_HEIKENASHI, _tf, _shift) {}
 
   /**
    * Returns value for iHeikenAshi indicator.
@@ -158,6 +159,16 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   }
 
   /**
+   * On-indicator version of Heiken Ashi.
+   */
+  static double iHeikenAshiOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                       int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+                                                          Util::MakeKey("Indi_HeikenAshi_ON_" + _indi.GetFullName()));
+    return iHeikenAshiOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+  }
+
+  /**
    * OnCalculate() method for Mass Index indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtOBuffer,
@@ -195,7 +206,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = HA_OPEN, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = HA_OPEN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -226,6 +237,10 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_HeikenAshi::iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
                                                           _ishift, THIS_PTR);
+        break;
+      case IDATA_INDICATOR:
+        _value =
+            Indi_HeikenAshi::iHeikenAshiOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

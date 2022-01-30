@@ -28,9 +28,10 @@
 class Account;
 
 // Includes.
-#include "Account.define.h"
-#include "Account.enum.h"
-#include "Account.struct.h"
+#include "Account/Account.define.h"
+#include "Account/Account.enum.h"
+#include "Account/Account.extern.h"
+#include "Account/Account.struct.h"
 #include "Array.mqh"
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
@@ -62,6 +63,11 @@ class Account {
    * Class constructor.
    */
   Account() : init_balance(CalcInitDeposit()), start_balance(GetBalance()), start_credit(GetCredit()) {}
+
+  /**
+   * Class copy constructor.
+   */
+  Account(const Account &_account) {}
 
   /**
    * Class deconstructor.

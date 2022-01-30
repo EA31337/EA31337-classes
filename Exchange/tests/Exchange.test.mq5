@@ -21,28 +21,23 @@
 
 /**
  * @file
- * MqlTick structure.
+ * Test functionality of Exchange class.
  */
 
-#ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
-#endif
+// Includes.
+#include "../../Test.mqh"
+#include "../Exchange.h"
 
-#ifndef __MQL__
+// Test classes.
+class ExchangeDummy : public Exchange {};
+
+// Global variables.
+ExchangeDummy ex_dummy;
+
 /**
- * Structure for storing the latest prices of the symbol.
- * @docs
- * https://www.mql5.com/en/docs/constants/structures/mqltick
+ * Implements OnInit().
  */
-struct MqlTick {
-  datetime time;         // Time of the last prices update.
-  double ask;            // Current Ask price.
-  double bid;            // Current Bid price.
-  double last;           // Price of the last deal (last).
-  double volume_real;    // Volume for the current last price with greater accuracy.
-  long time_msc;         // Time of a price last update in milliseconds.
-  unsigned int flags;    // Tick flags.
-  unsigned long volume;  // Volume for the current last price.
-};
-#endif
+int OnInit() {
+  bool _result = true;
+  return _result && GetLastError() == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED;
+}

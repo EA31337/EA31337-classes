@@ -1,0 +1,65 @@
+---
+name: Test Indicators (Special)
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Indicator**'
+      - 'Indicators/Special/**'
+      - '.github/workflows/test-indicators-special.yml'
+  push:
+    paths:
+      - 'Indicator**'
+      - 'Indicators/Special/**'
+      - '.github/workflows/test-indicators-special.yml'
+
+jobs:
+
+  Compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
+        with:
+          init-platform: true
+          path: 'Indicators/Special/tests'
+          verbose: true
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload artifacts (MQL4)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex4
+          path: '**/*.ex4'
+      - name: Upload artifacts (MQL5)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex5
+          path: '**/*.ex5'
+
+  Indicators-Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Indicators/tests
+    needs: Compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - Indi_Custom.test
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 4-8
+          BtMonths: 1
+          BtYears: 2020
+          TestExpert: ${{ matrix.test }}
+    timeout-minutes: 10

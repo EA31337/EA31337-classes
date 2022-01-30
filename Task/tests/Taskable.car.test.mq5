@@ -188,7 +188,7 @@ int OnInit() {
   bool _result = true;
   // @todo
   _result &= TestCarCanDrive();
-  _result &= GetLastError() == ERR_NO_ERROR;
+  _result &= GetLastError() == 0;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 

@@ -70,7 +70,7 @@ int OnInit() {
   _data_entry.SetValue(3);
   _result &= _test01.Set(_entry01, _data_entry);
   assertTrueOrFail(_result && _test01.GetValue() == 6, "Fail!");
-  _result &= GetLastError() == ERR_NO_ERROR;
+  _result &= GetLastError() == 0;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 

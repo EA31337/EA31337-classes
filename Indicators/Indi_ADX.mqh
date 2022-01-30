@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "Price/Indi_Price.mqh"
 
 #ifndef __MQL4__
@@ -61,13 +61,13 @@ struct IndiADXParams : IndicatorParams {
 /**
  * Implements the Average Directional Movement Index indicator.
  */
-class Indi_ADX : public Indicator<IndiADXParams> {
+class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ADX(IndiADXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiADXParams>(_p, _indi_src) {}
-  Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ADX, _tf, _shift) {}
+  Indi_ADX(IndiADXParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -115,7 +115,7 @@ class Indi_ADX : public Indicator<IndiADXParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

@@ -25,7 +25,7 @@ struct IndicatorParams;
 
 // Includes.
 #include "../DictStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Redis.mqh"
 #include "../Task/TaskAction.h"
 #include "Indi_Drawer.struct.h"
@@ -34,7 +34,7 @@ struct IndicatorParams;
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_Drawer : public Indicator<IndiDrawerParams> {
+class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
   Redis redis;
 
  public:
@@ -42,10 +42,11 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
    * Class constructor.
    */
   Indi_Drawer(const IndiDrawerParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiDrawerParams>(_p, _indi_src), redis(true) {
+      : IndicatorTickOrCandleSource(_p, _indi_src), redis(true) {
     Init();
   }
-  Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DRAWER, _tf, _shift), redis(true) {
+  Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_DRAWER, _tf, _shift), redis(true) {
     Init();
   }
 
@@ -174,7 +175,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

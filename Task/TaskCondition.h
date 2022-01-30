@@ -35,6 +35,7 @@
 #define TASK_CONDITION_H
 
 // Includes.
+#include "../Terminal.define.h"
 #include "TaskCondition.enum.h"
 #include "TaskCondition.struct.h"
 #include "TaskConditionBase.h"

@@ -87,7 +87,7 @@ int OnInit() {
   _action02.Set(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_ID), TASK_ACTION_TEST03);
   _action02.Run();
   assertTrueOrFail(_result && _action02.GetObject().GetSum() == 7, "Fail!");
-  _result &= GetLastError() == ERR_NO_ERROR;
+  _result &= GetLastError() == 0;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 

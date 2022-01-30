@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Includes Account's structs.
+ * Includes AccountForex's structs.
  */
 
 #ifndef __MQL__
@@ -35,12 +35,11 @@
 class Serializer;
 
 // Includes.
-#include "Serializer.mqh"
+#include "../Serializer.mqh"
+#include "../Terminal.define.h"
 
 // Struct for account entries.
-struct AccountEntry {
-  datetime dtime;
-  double balance;
+struct AccountForexEntry : public AccountBaseEntry {
   double credit;
   double equity;
   double profit;
@@ -90,4 +89,14 @@ struct AccountEntry {
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
+};
+
+// Struct for account state.
+struct AccountForexState : public AccountBaseState {
+  double credit;
+  double equity;
+  double profit;
+  double margin_used;
+  double margin_free;
+  double margin_avail;
 };

@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.price.h"
 #include "Indi_MA.mqh"
 
@@ -48,15 +48,15 @@ struct IndiDetrendedPriceParams : IndicatorParams {
 /**
  * Implements Detrended Price Oscillator.
  */
-class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
+class Indi_DetrendedPrice : public IndicatorTickOrCandleSource<IndiDetrendedPriceParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_DetrendedPrice(IndiDetrendedPriceParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiDetrendedPriceParams>(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_DetrendedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_DETRENDED_PRICE, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_DETRENDED_PRICE, _tf, _shift){};
 
   /**
    * Built-in version of AMA.
@@ -65,14 +65,14 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
                      int _shift = 0, IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
                                                         Util::MakeKey("Indi_DPO", _period, (int)_ap));
-    return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);
+    return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode, _shift, _cache);
   }
 
   /**
    * Calculates DPO on the array of values.
    */
-  static double iDPOOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, int _mode, int _shift,
-                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+  static double iDPOOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, ENUM_APPLIED_PRICE _ap, int _mode,
+                            int _shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
     if (!_cache.HasBuffers()) {
@@ -87,6 +87,16 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
         INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1), _period));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of DPO.
+   */
+  static double iDPOOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
+        _indi, _symbol, _tf, _ap, Util::MakeKey("Indi_DPO_ON_" + _indi.GetFullName(), _period, (int)_ap));
+    return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode, _shift, _cache);
   }
 
   /**
@@ -116,7 +126,7 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -127,6 +137,10 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_DetrendedPrice::iDPOOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(),
+                                                      GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

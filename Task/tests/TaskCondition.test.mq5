@@ -87,7 +87,7 @@ int OnInit() {
   _cond02.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_ID), TASK_CONDITION_TEST03);
   _result &= _cond02.Check();
   assertTrueOrFail(_result && _cond01.GetObject().GetSum() == 6, "Fail!");
-  _result &= GetLastError() == ERR_NO_ERROR;
+  _result &= GetLastError() == 0;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 

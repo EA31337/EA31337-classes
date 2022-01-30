@@ -22,13 +22,16 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_ATR.mqh"
 #include "Indi_MA.mqh"
 
 // Structs.
 struct IndiUltimateOscillatorParams : IndicatorParams {
+  Ref<IndicatorBase> indi_atr_fast;
+  Ref<IndicatorBase> indi_atr_middle;
+  Ref<IndicatorBase> indi_atr_slow;
   int fast_period;
   int middle_period;
   int slow_period;
@@ -59,15 +62,15 @@ struct IndiUltimateOscillatorParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
+class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateOscillatorParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_UltimateOscillator(IndiUltimateOscillatorParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiUltimateOscillatorParams>(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_UltimateOscillator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_ULTIMATE_OSCILLATOR, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_ULTIMATE_OSCILLATOR, _tf, _shift){};
 
   /**
    * Built-in version of Ultimate Oscillator.
@@ -111,6 +114,41 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
         _middle_period, _slow_period, _fast_k, _middle_k, _slow_k, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of Ultimate Oscillator.
+   */
+  static double iUOOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period,
+                               int _middle_period, int _slow_period, int _fast_k, int _middle_k, int _slow_k,
+                               int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf,
+        Util::MakeKey("Indi_UltimateOscillator_ON_" + _indi.GetFullName(), _fast_period, _middle_period, _slow_period,
+                      _fast_k, _middle_k, _slow_k));
+
+    // @fixit This won't work! Find a way to differentiate ATRs.
+    Indi_ATR *_indi_atr_fast = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_FAST);
+    Indi_ATR *_indi_atr_middle = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_MIDDLE);
+    Indi_ATR *_indi_atr_slow = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_SLOW);
+
+    return iUOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_period, _middle_period, _slow_period, _fast_k,
+                      _middle_k, _slow_k, _mode, _shift, _cache, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow);
+  }
+
+  /**
+   * Provides built-in indicators whose can be used as data source.
+   */
+  IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
+    switch (_id) {
+      case INDI_ULTIMATE_OSCILLATOR_ATR_FAST:
+        return iparams.indi_atr_fast.Ptr();
+      case INDI_ULTIMATE_OSCILLATOR_ATR_MIDDLE:
+        return iparams.indi_atr_middle.Ptr();
+      case INDI_ULTIMATE_OSCILLATOR_ATR_SLOW:
+        return iparams.indi_atr_slow.Ptr();
+    }
+    return NULL;
   }
 
   /**
@@ -209,7 +247,7 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -224,6 +262,11 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
                          GetSlowK()
                          /*]*/,
                          0, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_UltimateOscillator::iUOOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetFastPeriod(),
+                                                         GetMiddlePeriod(), GetSlowPeriod(), GetFastK(), GetMiddleK(),
+                                                         GetSlowK() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

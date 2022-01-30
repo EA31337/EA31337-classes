@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -62,13 +62,13 @@ struct IndiOBVParams : IndicatorParams {
 /**
  * Implements the On Balance Volume indicator.
  */
-class Indi_OBV : public Indicator<IndiOBVParams> {
+class Indi_OBV : public IndicatorTickOrCandleSource<IndiOBVParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OBV(IndiOBVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiOBVParams>(_p, _indi_src) {}
-  Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_OBV, _tf, _shift) {}
+  Indi_OBV(IndiOBVParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_OBV, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -118,7 +118,7 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

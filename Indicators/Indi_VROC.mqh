@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -47,13 +47,14 @@ struct IndiVROCParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_VROC : public Indicator<IndiVROCParams> {
+class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_VROC(IndiVROCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiVROCParams>(_p, _indi_src){};
-  Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_VROC, _tf, _shift){};
+  Indi_VROC(IndiVROCParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_VROC, _tf, _shift){};
 
   /**
    * Built-in version of VROC.
@@ -65,7 +66,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
   }
 
   /**
-   * Calculates AMVROC on the array of values.
+   * Calculates VROC on the array of values.
    */
   static double iVROCOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, ENUM_APPLIED_VOLUME _av, int _mode,
                              int _shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
@@ -83,6 +84,16 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
         Indi_VROC::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _period, _av));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of VROC indicator.
+   */
+  static double iVROCOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                 ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_VROC_ON_" + _indi.GetFullName(), _period, (int)_av));
+    return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode, _shift, _cache);
   }
 
   /**
@@ -130,7 +141,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -141,6 +152,10 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_VROC::iVROCOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(),
+                                             GetAppliedVolume() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -32,6 +32,7 @@
 // Includes.
 #include "../Data.struct.h"
 #include "../Std.h"
+#include "../Terminal.define.h"
 #include "Task.enum.h"
 
 /* Entry for TaskAction class. */

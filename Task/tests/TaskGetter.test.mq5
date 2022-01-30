@@ -76,7 +76,7 @@ int OnInit() {
   _sum += _test01.Get().GetValue();
   _sum += _test01.Get(_entry01).GetValue();
   assertTrueOrFail(_result && _sum == 9, "Fail!");
-  _result &= GetLastError() == ERR_NO_ERROR;
+  _result &= GetLastError() == 0;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 

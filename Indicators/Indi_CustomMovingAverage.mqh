@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 // Structs.
 struct IndiCustomMovingAverageParams : IndicatorParams {
@@ -32,7 +32,7 @@ struct IndiCustomMovingAverageParams : IndicatorParams {
   // Struct constructor.
   IndiCustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0,
                                 ENUM_MA_METHOD _smooth_method = MODE_SMMA, int _shift = 0)
-      : IndicatorParams(INDI_CUSTOM_MOVING_AVG, 3, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_CUSTOM_MOVING_AVG, 1, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_ICUSTOM);
 #ifdef __MQL5__
@@ -54,20 +54,20 @@ struct IndiCustomMovingAverageParams : IndicatorParams {
 /**
  * Implements the Custom Moving Average indicator.
  */
-class Indi_CustomMovingAverage : public Indicator<IndiCustomMovingAverageParams> {
+class Indi_CustomMovingAverage : public IndicatorTickOrCandleSource<IndiCustomMovingAverageParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_CustomMovingAverage(IndiCustomMovingAverageParams& _p, IndicatorBase* _indi_src = NULL)
-      : Indicator<IndiCustomMovingAverageParams>(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_CUSTOM_MOVING_AVG, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_CUSTOM_MOVING_AVG, _tf, _shift){};
 
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

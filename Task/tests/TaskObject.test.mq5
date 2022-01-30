@@ -81,7 +81,7 @@ bool TestTaskObject01() {
 int OnInit() {
   bool _result = true;
   _result &= TestTaskObject01();
-  _result &= GetLastError() == ERR_NO_ERROR;
+  _result &= GetLastError() == 0;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
