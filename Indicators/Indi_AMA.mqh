@@ -176,11 +176,6 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
 
     CalculateInit(InpPeriodAMA, InpFastPeriodEMA, InpSlowPeriodEMA, InpShiftAMA, ExtFastSC, ExtSlowSC, ExtPeriodAMA,
                   ExtSlowPeriodEMA, ExtFastPeriodEMA);
-
-    for (int x = prev_calculated; x < rates_total; ++x) {
-      Print("price[", x, "] = ", price[x].Get(), ", O = ", iOpen(Symbol(), PERIOD_CURRENT, Bars(Symbol(), PERIOD_CURRENT) - x - 1));
-    }
-
     int i;
     // Check for rates count.
     if (rates_total < ExtPeriodAMA + begin) return (0);
