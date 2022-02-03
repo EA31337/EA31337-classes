@@ -51,7 +51,7 @@ class TaskConditionBase {
   /**
    * Checks a condition.
    */
-  virtual bool Check(const TaskConditionEntry &_entry) = NULL;
+  virtual bool Check(const TaskConditionEntry &_entry) = 0;
 };
 
 #endif  // TASK_CONDITION_BASE_H

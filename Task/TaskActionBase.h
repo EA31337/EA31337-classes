@@ -51,7 +51,7 @@ class TaskActionBase {
   /**
    * Runs an action.
    */
-  virtual bool Run(const TaskActionEntry &_entry) = NULL;
+  virtual bool Run(const TaskActionEntry &_entry) = 0;
 };
 
 #endif  // TASK_ACTION_BASE_H

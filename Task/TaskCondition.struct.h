@@ -67,14 +67,17 @@ struct TaskConditionEntry {
   short tries;            // Number of successful tries left (-1 for unlimited).
   // ENUM_TASK_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
   // ENUM_TASK_CONDITION_TYPE type;                 // Task's condition type.
-  DataParamEntry args[];  // Task's condition arguments.
+  ARRAY(DataParamEntry, args);  // Task's condition arguments.
  protected:
   // Protected methods.
-  void Init() { SetFlag(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID), id == WRONG_VALUE); }
+  void Init() {
+    SetFlag(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID),
+            id == InvalidEnumValue<int>::value());
+  }
 
  public:
   // Constructors.
-  TaskConditionEntry() : flags(0), freq(60), id(WRONG_VALUE), tries(-1) { Init(); }
+  TaskConditionEntry() : flags(0), freq(60), id(InvalidEnumValue<int>::value()), tries(-1) { Init(); }
   TaskConditionEntry(int _id)
       : flags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE)),
         freq(60),
@@ -86,7 +89,7 @@ struct TaskConditionEntry {
   }
   TaskConditionEntry(TaskConditionEntry &_ae) { THIS_REF = _ae; }
   // Deconstructor.
-  void ~TaskConditionEntry() {}
+  ~TaskConditionEntry() {}
   // Getters.
   bool Get(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_FLAGS) _flag) const { return HasFlag(_flag); }
   template <typename T>
@@ -108,7 +111,7 @@ struct TaskConditionEntry {
         break;
     }
     SetUserError(ERR_INVALID_PARAMETER);
-    return WRONG_VALUE;
+    return InvalidEnumValue<T>::value();
   }
   DataParamEntry GetArg(int _index) const { return args[_index]; }
   int GetId() const { return id; }
@@ -128,7 +131,7 @@ struct TaskConditionEntry {
         return;
       case TASK_CONDITION_ENTRY_ID:
         id = (int)_value;
-        SetFlag(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID), id == WRONG_VALUE);
+        SetFlag(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID), id == InvalidEnumValue<int>::value());
         return;
       case TASK_CONDITION_ENTRY_TRIES:
         tries = (short)_value;
@@ -199,7 +202,7 @@ struct TaskConditionEntry {
     s.Pass(THIS_REF, "last_success", last_success);
     s.Pass(THIS_REF, "tries", tries);
     s.PassEnum(THIS_REF, "freq", freq);
-    s.PassArray(this, "args", args);
+    s.PassArray(THIS_REF, "args", args);
     return SerializerNodeObject;
   }
 

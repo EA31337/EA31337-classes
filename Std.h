@@ -26,6 +26,7 @@
 #include "Math.define.h"
 #endif
 
+
 // Data types.
 #ifdef __cplusplus
 #include <iomanip>
@@ -37,11 +38,12 @@
 #ifdef __MQL__
 #define ASSIGN_TO_THIS(TYPE, VALUE) ((TYPE)this) = ((TYPE)VALUE)
 #else
-#define ASSIGN_TO_THIS(TYPE, VALUE) ((TYPE&)this) = ((TYPE&)VALUE)
+#define ASSIGN_TO_THIS(TYPE, VALUE) ((TYPE&)*this) = ((TYPE&)VALUE)
 #endif
 
 // Pointers.
 #ifdef __MQL__
+#define THIS_ATTR
 #define THIS_PTR (&this)
 #define THIS_REF this
 #define PTR_DEREF .
@@ -50,6 +52,7 @@
 #define PTR_TO_REF(PTR) PTR
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
 #else
+#define THIS_ATTR this->
 #define THIS_PTR (this)
 #define THIS_REF (*this)
 #define PTR_DEREF ->
@@ -71,7 +74,7 @@
 #ifdef __MQL__
 #define ARRAY_DECLARATION_BRACKETS []
 #else
-// C++'s _cpp_array is an object, so no brackets are nedded.
+// C++'s _cpp_array is an object, so no brackets are needed.
 #define ARRAY_DECLARATION_BRACKETS
 #endif
 
@@ -201,14 +204,14 @@ class color {
 #else
 #define C_STR(S) cstring_from(S)
 
-const char* cstring_from(const std::string& _value) { return _value.c_str(); }
+inline const char* cstring_from(const std::string& _value) { return _value.c_str(); }
 #endif
 
 #ifdef __cplusplus
 using std::string;
 #endif
 
-bool IsNull(const string& str) { return str == ""; }
+inline bool IsNull(const string& str) { return str == ""; }
 
 /**
  * Referencing struct's enum.

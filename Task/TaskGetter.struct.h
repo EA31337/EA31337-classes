@@ -63,14 +63,16 @@ struct TaskGetterEntry {
   int freq;               /* How often to run (0 for no limit). */
   int id;                 /* TaskGetter's enum ID. */
   short tries;            /* Number of retries left (-1 for unlimited). */
-  DataParamEntry args[];  /* TaskGetter arguments. */
+  ARRAY(DataParamEntry, args);  /* TaskGetter arguments. */
  protected:
   // Protected methods.
-  void Init() { SetFlag(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_FLAG_IS_INVALID), id == WRONG_VALUE); }
+  void Init() {
+    SetFlag(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_FLAG_IS_INVALID), id == InvalidEnumValue<int>::value());
+  }
 
  public:
   // Constructors.
-  TaskGetterEntry() : flags(0), freq(60), id(WRONG_VALUE), time_last_get(0), tries(-1) { Init(); }
+  TaskGetterEntry() : flags(0), freq(60), id(InvalidEnumValue<int>::value()), time_last_get(0), tries(-1) { Init(); }
   TaskGetterEntry(int _id)
       : flags(STRUCT_ENUM(TaskGetterEntry, TASK_GETTER_ENTRY_FLAG_IS_ACTIVE)),
         id(_id),
@@ -79,7 +81,7 @@ struct TaskGetterEntry {
         tries(-1) {
     Init();
   }
-  TaskGetterEntry(TaskGetterEntry &_ae) { this = _ae; }
+  TaskGetterEntry(TaskGetterEntry &_ae) { THIS_REF = _ae; }
   // Flag methods.
   bool HasFlag(unsigned char _flag) const { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }

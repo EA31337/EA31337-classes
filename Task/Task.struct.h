@@ -64,10 +64,10 @@ struct TaskEntry {
 
  public:
   // Constructors.
-  void TaskEntry() { Init(); }
-  void TaskEntry(TaskActionEntry &_action, TaskConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
+  TaskEntry() { Init(); }
+  TaskEntry(TaskActionEntry &_action, TaskConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
   template <typename AE, typename CE>
-  void TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) {
+  TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) {
     Init();
   };
   // Getters.
