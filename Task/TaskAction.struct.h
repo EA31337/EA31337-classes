@@ -60,22 +60,19 @@ struct TaskActionEntry {
  protected:
   ARRAY(DataParamEntry, args); /* TaskAction arguments. */
   unsigned char flags;         /* TaskAction flags. */
-  int freq;               /* How often to run (0 for no limit). */
-  int id;                 /* TaskAction's enum ID. */
-  datetime time_last_run; /* Time of the successful run. */
-  short tries;            /* Number of retries left (-1 for unlimited). */
+  int freq;                    /* How often to run (0 for no limit). */
+  int id;                      /* TaskAction's enum ID. */
+  datetime time_last_run;      /* Time of the successful run. */
+  short tries;                 /* Number of retries left (-1 for unlimited). */
  protected:
   // Protected methods.
   void Init() {
-    SetFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID),
-            id == InvalidEnumValue<int>::value());
+    SetFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID), id == InvalidEnumValue<int>::value());
   }
 
  public:
   // Constructors.
-  TaskActionEntry() : flags(0), freq(60), id(InvalidEnumValue<int>::value()), time_last_run(0), tries(-1) {
-    Init();
-  }
+  TaskActionEntry() : flags(0), freq(60), id(InvalidEnumValue<int>::value()), time_last_run(0), tries(-1) { Init(); }
   TaskActionEntry(int _id)
       : flags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE)),
         freq(60),
@@ -84,7 +81,7 @@ struct TaskActionEntry {
         tries(-1) {
     Init();
   }
-  TaskActionEntry(TaskActionEntry &_ae) { THIS_REF = _ae; }
+  TaskActionEntry(const TaskActionEntry &_ae) { THIS_REF = _ae; }
   // Flag methods.
   bool HasFlag(unsigned char _flag) const { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
@@ -128,7 +125,9 @@ struct TaskActionEntry {
   DataParamEntry GetArg(int _index) const { return args[_index]; }
   int GetId() const { return id; }
   // Setters.
-  void TriesDec() { if(tries > 0) --tries; }
+  void TriesDec() {
+    if (tries > 0) --tries;
+  }
   void Set(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_FLAG) _flag, bool _value = true) {
     SetFlag(_flag, _value);
   }
@@ -143,8 +142,7 @@ struct TaskActionEntry {
         return;
       case TASK_ACTION_ENTRY_ID:
         id = (int)_value;
-        SetFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID),
-                id == InvalidEnumValue<int>::value());
+        SetFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_INVALID), id == InvalidEnumValue<int>::value());
         return;
       case TASK_ACTION_ENTRY_TRIES:
         tries = (short)_value;

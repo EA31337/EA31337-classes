@@ -59,15 +59,15 @@ struct TaskConditionEntry {
   };
 
  protected:
-  unsigned char flags;    // Condition flags.
-  datetime last_check;    // Time of the latest check.
-  datetime last_success;  // Time of the last success.
-  int freq;               // How often to run (0 for no limit).
-  int id;                 // Condition ID.
-  short tries;            // Number of successful tries left (-1 for unlimited).
+  ARRAY(DataParamEntry, args);  // Task's condition arguments.
+  unsigned char flags;          // Condition flags.
+  int freq;                     // How often to run (0 for no limit).
+  int id;                       // Condition ID.
+  datetime last_check;          // Time of the latest check.
+  datetime last_success;        // Time of the last success.
+  short tries;                  // Number of successful tries left (-1 for unlimited).
   // ENUM_TASK_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
   // ENUM_TASK_CONDITION_TYPE type;                 // Task's condition type.
-  ARRAY(DataParamEntry, args);  // Task's condition arguments.
  protected:
   // Protected methods.
   void Init() {
@@ -87,7 +87,7 @@ struct TaskConditionEntry {
         tries(-1) {
     Init();
   }
-  TaskConditionEntry(TaskConditionEntry &_ae) { THIS_REF = _ae; }
+  TaskConditionEntry(const TaskConditionEntry &_ae) { THIS_REF = _ae; }
   // Deconstructor.
   ~TaskConditionEntry() {}
   // Getters.
@@ -116,7 +116,9 @@ struct TaskConditionEntry {
   DataParamEntry GetArg(int _index) const { return args[_index]; }
   int GetId() const { return id; }
   // Setters.
-  void TriesDec() { tries -= tries > 0 ? 1 : 0; }
+  void TriesDec() {
+    if (tries > 0) --tries;
+  }
   void Set(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_FLAGS) _flag, bool _value = true) {
     SetFlag(_flag, _value);
   }
@@ -131,7 +133,8 @@ struct TaskConditionEntry {
         return;
       case TASK_CONDITION_ENTRY_ID:
         id = (int)_value;
-        SetFlag(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID), id == InvalidEnumValue<int>::value());
+        SetFlag(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID),
+                id == InvalidEnumValue<int>::value());
         return;
       case TASK_CONDITION_ENTRY_TRIES:
         tries = (short)_value;
@@ -151,7 +154,7 @@ struct TaskConditionEntry {
   // Flag methods.
   bool HasFlag(unsigned char _flag) const { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void RemoveFlags(unsigned char _flags) { flags &= (unsigned char)~_flags; }
   void SetFlag(ENUM_TASK_CONDITION_ENTRY_FLAGS _flag, bool _value) {
     if (_value)
       AddFlags(_flag);

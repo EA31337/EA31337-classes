@@ -46,6 +46,7 @@ struct TaskSetterEntry {
     TASK_SETTER_ENTRY_ID,
     TASK_SETTER_ENTRY_TRIES,
     TASK_SETTER_ENTRY_TIME_LAST_GET,
+    TASK_SETTER_ENTRY_TIME_LAST_RUN,
   };
   // Defines action entry flags.
   enum ENUM_TASK_SETTER_ENTRY_FLAG {
@@ -57,32 +58,39 @@ struct TaskSetterEntry {
   };
 
  protected:
-  unsigned char flags;    /* TaskSetter flags. */
-  datetime time_last_get; /* Time of the successful get. */
-  int freq;               /* How often to run (0 for no limit). */
-  int id;                 /* TaskSetter's enum ID. */
-  short tries;            /* Number of retries left (-1 for unlimited). */
-  DataParamEntry args[];  /* TaskSetter arguments. */
+  ARRAY(DataParamEntry, args); /* TaskSetter arguments. */
+  unsigned char flags;         /* TaskSetter flags. */
+  int freq;                    /* How often to run (0 for no limit). */
+  int id;                      /* TaskSetter's enum ID. */
+  datetime time_last_get;      /* Time of the successful get. */
+  datetime time_last_run;      /* Time of the successful run. */
+  short tries;                 /* Number of retries left (-1 for unlimited). */
  protected:
   // Protected methods.
-  void Init() { SetFlag(STRUCT_ENUM(TaskSetterEntry, TASK_SETTER_ENTRY_FLAG_IS_INVALID), id == WRONG_VALUE); }
+  void Init() {
+    SetFlag(STRUCT_ENUM(TaskSetterEntry, TASK_SETTER_ENTRY_FLAG_IS_INVALID), id == InvalidEnumValue<int>::value());
+  }
 
  public:
   // Constructors.
-  TaskSetterEntry() : flags(0), freq(60), id(WRONG_VALUE), time_last_get(0), tries(-1) { Init(); }
+  TaskSetterEntry()
+      : flags(0), freq(60), id(InvalidEnumValue<int>::value()), time_last_get(0), time_last_run(0), tries(-1) {
+    Init();
+  }
   TaskSetterEntry(int _id)
       : flags(STRUCT_ENUM(TaskSetterEntry, TASK_SETTER_ENTRY_FLAG_IS_ACTIVE)),
-        id(_id),
         freq(60),
+        id(_id),
         time_last_get(0),
+        time_last_run(0),
         tries(-1) {
     Init();
   }
-  TaskSetterEntry(TaskSetterEntry &_ae) { this = _ae; }
+  TaskSetterEntry(TaskSetterEntry &_ae) { THIS_REF = _ae; }
   // Flag methods.
   bool HasFlag(unsigned char _flag) const { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void RemoveFlags(unsigned char _flags) { flags &= (unsigned char)~_flags; }
   void SetFlag(STRUCT_ENUM(TaskSetterEntry, ENUM_TASK_SETTER_ENTRY_FLAG) _flag, bool _value) {
     if (_value) {
       AddFlags(_flag);
@@ -111,17 +119,21 @@ struct TaskSetterEntry {
         return (T)id;
       case TASK_SETTER_ENTRY_TRIES:
         return (T)tries;
+      case TASK_SETTER_ENTRY_TIME_LAST_GET:
+        return (T)time_last_run;
       case TASK_SETTER_ENTRY_TIME_LAST_RUN:
         return (T)time_last_run;
       default:
         break;
     }
     SetUserError(ERR_INVALID_PARAMETER);
-    return WRONG_VALUE;
+    return InvalidEnumValue<T>::value();
   }
   int GetId() const { return id; }
   // Setters.
-  void TriesDec() { tries -= tries > 0 ? 1 : 0; }
+  void TriesDec() {
+    if (tries > 0) --tries;
+  }
   void Set(STRUCT_ENUM(TaskSetterEntry, ENUM_TASK_SETTER_ENTRY_FLAG) _flag, bool _value = true) {
     SetFlag(_flag, _value);
   }
@@ -136,7 +148,7 @@ struct TaskSetterEntry {
         return;
       case TASK_SETTER_ENTRY_ID:
         id = (int)_value;
-        SetFlag(STRUCT_ENUM(TaskSetterEntry, TASK_SETTER_ENTRY_FLAG_IS_INVALID), id == WRONG_VALUE);
+        SetFlag(STRUCT_ENUM(TaskSetterEntry, TASK_SETTER_ENTRY_FLAG_IS_INVALID), id == InvalidEnumValue<int>::value());
         return;
       case TASK_SETTER_ENTRY_TRIES:
         tries = (short)_value;
@@ -162,7 +174,7 @@ struct TaskSetterEntry {
     s.Pass(THIS_REF, "time_last_get", time_last_get);
     s.Pass(THIS_REF, "tries", tries);
     s.PassEnum(THIS_REF, "freq", freq);
-    s.PassArray(this, "args", args);
+    s.PassArray(THIS_REF, "args", args);
     return SerializerNodeObject;
   }
 

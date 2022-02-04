@@ -333,7 +333,7 @@ class Serializer {
       if (Enter(SerializerEnterArray, name)) {
         num_items = ArraySize(array);
         for (int i = 0; i < num_items; ++i) {
-          PassStruct(this, "", array[i]);
+          PassStruct(THIS_REF, "", array[i]);
         }
         Leave();
       }

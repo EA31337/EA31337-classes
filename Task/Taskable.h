@@ -59,22 +59,22 @@ class Taskable : public Object {
   /**
    * Checks a condition.
    */
-  virtual bool Check(const TaskConditionEntry &_entry) = NULL;
+  virtual bool Check(const TaskConditionEntry &_entry) = 0;
 
   /**
    * Gets a copy of structure.
    */
-  virtual TS Get(const TaskGetterEntry &_entry) = NULL;
+  virtual TS Get(const TaskGetterEntry &_entry) = 0;
 
   /**
    * Runs an action.
    */
-  virtual bool Run(const TaskActionEntry &_entry) = NULL;
+  virtual bool Run(const TaskActionEntry &_entry) = 0;
 
   /**
    * Sets an entry value.
    */
-  virtual bool Set(const TaskSetterEntry &_entry, const TS &_entry_value) = NULL;
+  virtual bool Set(const TaskSetterEntry &_entry, const TS &_entry_value) = 0;
 };
 
 #endif  // TASKABLE_H

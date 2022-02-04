@@ -59,7 +59,7 @@ class Task : public Taskable<TaskEntry> {
   /**
    * Class copy constructor.
    */
-  Task(Task &_task) { tasks = _task.GetTasks(); }
+  Task(Task &_task) { tasks = PTR_TO_REF(_task.GetTasks()); }
 
   /**
    * Class deconstructor.
@@ -267,7 +267,7 @@ class Task : public Taskable<TaskEntry> {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_TASK_CONDITION _cond, DataParamEntry &_args[]) {
+  bool CheckCondition(ENUM_TASK_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     switch (_cond) {
       case TASK_COND_IS_ACTIVE:
         // Is active;
@@ -301,7 +301,7 @@ class Task : public Taskable<TaskEntry> {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_TASK_ACTION _action, DataParamEntry &_args[]) {
+  bool ExecuteAction(ENUM_TASK_ACTION _action, ARRAY_REF(DataParamEntry, _args)) {
     bool _result = true;
     switch (_action) {
       case TASK_ACTION_PROCESS:

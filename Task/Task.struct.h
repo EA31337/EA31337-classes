@@ -65,7 +65,7 @@ struct TaskEntry {
  public:
   // Constructors.
   TaskEntry() { Init(); }
-  TaskEntry(TaskActionEntry &_action, TaskConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
+  TaskEntry(const TaskActionEntry &_action, const TaskConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
   template <typename AE, typename CE>
   TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) {
     Init();
@@ -89,7 +89,7 @@ struct TaskEntry {
   bool Get(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_FLAG) _flag) { return action.Get(_flag); };
   template <typename T>
   bool Get(STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_PROP) _prop) {
-    return action.Get(_prop);
+    return action.Get<bool>(_prop);
   };
   // bool Get(ENUM_TASK_ENTRY_FLAGS _flag) { return HasFlag(_flag); }
   TaskActionEntry GetActionEntry() { return action; }
@@ -115,7 +115,7 @@ struct TaskEntry {
   // Flag methods.
   bool HasFlag(unsigned char _flag) { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void RemoveFlags(unsigned char _flags) { flags &= (unsigned char)~_flags; }
   void SetFlag(ENUM_TASK_ENTRY_FLAGS _flag, bool _value) {
     if (_value)
       AddFlags(_flag);
