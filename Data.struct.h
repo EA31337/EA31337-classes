@@ -37,6 +37,7 @@ struct MqlRates;
 
 // Includes.
 #include "Data.enum.h"
+#include "DateTime.mqh"
 #include "Serializer.enum.h"
 #include "SerializerNode.enum.h"
 #include "Std.h"

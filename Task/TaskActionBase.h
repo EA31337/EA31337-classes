@@ -34,6 +34,9 @@
 #ifndef TASK_ACTION_BASE_H
 #define TASK_ACTION_BASE_H
 
+// Includes.
+#include "TaskAction.struct.h"
+
 /**
  * TaskActionBase class.
  */

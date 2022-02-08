@@ -101,17 +101,17 @@ struct Ref {
   /**
    * Constructor.
    */
-  Ref(X* _ptr) { this = _ptr; }
+  Ref(X* _ptr) { THIS_REF = _ptr; }
 
   /**
    * Constructor.
    */
-  Ref(Ref<X>& ref) { this = ref.Ptr(); }
+  Ref(Ref<X>& ref) { THIS_REF = ref.Ptr(); }
 
   /**
    * Constructor.
    */
-  Ref(WeakRef<X>& ref) { this = ref.Ptr(); }
+  Ref(WeakRef<X>& ref) { THIS_REF = ref.Ptr(); }
 
   /**
    * Constructor.
@@ -138,11 +138,13 @@ struct Ref {
    */
   void Unset() {
     if (ptr_object != NULL) {
+#ifdef __MQL__
       if (CheckPointer(ptr_object) == POINTER_INVALID) {
         // Double check the pointer for invalid references. Can happen in rare circumstances.
         ptr_object = NULL;
         return;
       }
+#endif
       if (PTR_ATTRIB(ptr_object, ptr_ref_counter) == NULL) {
         // Object is not reference counted. Maybe a stack-based one?
         return;
@@ -155,6 +157,7 @@ struct Ref {
 
         // No more strong references.
         if (!PTR_ATTRIB2(ptr_object, ptr_ref_counter, num_weak_refs)) {
+#ifdef __MQL__
           if (CheckPointer(PTR_ATTRIB(ptr_object, ptr_ref_counter)) == POINTER_INVALID) {
             // Serious problem.
 #ifndef __MQL4__
@@ -163,6 +166,7 @@ struct Ref {
 #endif
             return;
           }
+#endif
 
           // Also no more weak references.
           delete PTR_ATTRIB(ptr_object, ptr_ref_counter);
@@ -175,6 +179,7 @@ struct Ref {
         // Avoiding delete loop for cyclic references.
         X* ptr_to_delete = ptr_object;
 
+#ifdef __MQL__
         if (CheckPointer(ptr_to_delete) == POINTER_INVALID) {
           // Serious problem.
 #ifndef __MQL4__
@@ -183,6 +188,7 @@ struct Ref {
 #endif
           return;
         }
+#endif
 
         // Avoiding double deletion in Dynamic's destructor.
         PTR_ATTRIB(ptr_object, ptr_ref_counter) = NULL;
@@ -213,7 +219,12 @@ struct Ref {
     ptr_object = _ptr;
 
     if (ptr_object != NULL) {
-      if (CheckPointer(ptr_object) == POINTER_INVALID || PTR_ATTRIB(ptr_object, ptr_ref_counter) == NULL) {
+#ifdef __MQL__
+      if (CheckPointer(ptr_object) == POINTER_INVALID) {
+        return Ptr();
+      }
+#endif
+      if (PTR_ATTRIB(ptr_object, ptr_ref_counter) == NULL) {
         // Double check the pointer for invalid references. Can happen very rarely.
         return Ptr();
       }
@@ -238,7 +249,7 @@ struct Ref {
    * Makes a strong reference to the strongly-referenced object.
    */
   X* operator=(Ref<X>& right) {
-    this = right.Ptr();
+    THIS_REF = right.Ptr();
     return Ptr();
   }
 

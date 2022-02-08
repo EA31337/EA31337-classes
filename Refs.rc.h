@@ -30,6 +30,9 @@
 #pragma once
 #endif
 
+// Includes.
+#include "String.mqh"
+
 // Forward declarations.
 class Dynamic;
 

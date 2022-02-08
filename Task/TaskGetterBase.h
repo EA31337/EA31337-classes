@@ -34,6 +34,9 @@
 #ifndef TASK_GETTER_BASE_H
 #define TASK_GETTER_BASE_H
 
+// Includes.
+#include "TaskGetter.struct.h"
+
 /**
  * TaskGetterBase class.
  */
