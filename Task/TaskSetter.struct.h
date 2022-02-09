@@ -120,7 +120,7 @@ struct TaskSetterEntry {
       case TASK_SETTER_ENTRY_TRIES:
         return (T)tries;
       case TASK_SETTER_ENTRY_TIME_LAST_GET:
-        return (T)time_last_run;
+        return (T)time_last_get;
       case TASK_SETTER_ENTRY_TIME_LAST_RUN:
         return (T)time_last_run;
       default:

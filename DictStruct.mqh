@@ -419,7 +419,7 @@ class DictStruct : public DictBase<K, V> {
     // Freeing old DictSlots array.
     ArrayFree(THIS_ATTR _DictSlots_ref.DictSlots);
 
-    THIS_ATTR _DictSlots_ref = new_DictSlots;
+    THIS_ATTR _DictSlots_ref = (DictSlotsRef<K, V>&)new_DictSlots;
 
     return true;
   }

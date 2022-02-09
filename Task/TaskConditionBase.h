@@ -34,6 +34,9 @@
 #ifndef TASK_CONDITION_BASE_H
 #define TASK_CONDITION_BASE_H
 
+// Includes.
+#include "TaskCondition.struct.h"
+
 /**
  * TaskConditionBase class.
  */

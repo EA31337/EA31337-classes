@@ -32,6 +32,7 @@
 
 // Includes.
 #include "Dict.enum.h"
+#include "Std.h"
 
 template <typename K, typename V>
 class DictSlot;
@@ -54,6 +55,27 @@ struct DictSlotsRef {
     _num_used = 0;
     _num_conflicts = 0;
     _avg_conflicts = 0;
+  }
+
+  void operator=(const DictSlotsRef& r) {
+    DictSlots = r.DictSlots;
+    _list_index = r._list_index;
+    _num_used = r._num_used;
+    _num_conflicts = r._num_conflicts;
+    _avg_conflicts = r._avg_conflicts;
+  }
+
+  void operator=(DictSlotsRef& r) {
+#ifdef __MQL__
+    DictSlots = r.DictSlots;
+#else
+    // Getting rid of "const" qualifier.
+    DictSlots = (_cpp_array<DictSlot<K, V> >&)r.DictSlots;
+#endif
+    _list_index = r._list_index;
+    _num_used = r._num_used;
+    _num_conflicts = r._num_conflicts;
+    _avg_conflicts = r._avg_conflicts;
   }
 
   /**

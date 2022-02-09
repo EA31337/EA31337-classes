@@ -87,6 +87,8 @@
  */
 #define ARRAY_REF(T, N) REF(T) N ARRAY_DECLARATION_BRACKETS
 
+#define CONST_ARRAY_REF(T, N) const N ARRAY_DECLARATION_BRACKETS
+
 /**
  * Array definition.
  *
@@ -105,6 +107,8 @@
  *   ARRAY_REF(<type of the array items>, <name of the variable>)
  */
 #define ARRAY_REF(T, N) _cpp_array<T>& N
+
+#define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
 
 /**
  * Array definition.
@@ -139,6 +143,16 @@ class _cpp_array {
   template <int size>
   _cpp_array(const T REF(_arr)[size]) {
     for (const auto& _item : _arr) m_data.push_back(_item);
+  }
+
+  _cpp_array(_cpp_array& r) {
+    m_data = (std::vector<T>&)r.m_data;
+    m_isSeries = r.m_isSeries;
+  }
+
+  _cpp_array(const _cpp_array& r) {
+    m_data = r.m_data;
+    m_isSeries = r.m_isSeries;
   }
 
   /**
