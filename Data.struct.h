@@ -286,6 +286,7 @@ struct DataParamEntry : public MqlParam {
       case TYPE_USHORT:
         return DBL_MIN;
     }
+    return DBL_MIN;
   }
 
   /**
@@ -314,6 +315,7 @@ struct DataParamEntry : public MqlParam {
       case TYPE_USHORT:
         return INT_MIN;
     }
+    return INT_MIN;
   }
 
   /* Serializers */

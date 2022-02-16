@@ -40,17 +40,19 @@ class DictSlot {
 
   DictSlot(unsigned char flags = 0) : _flags(flags) {}
 
-#ifdef __cplusplus
-  // Ensuring we are able to use Ref<T> type which requires non-const r-value in constructor.
-  DictSlot(const DictSlot &r) = delete;
-#endif
+  /*
+    DictSlot(DictSlot &r) {
+      _flags = r._flags;
+      key = r.key;
+      value = r.value;
+    }
 
-  void operator=(DictSlot &r) {
-    _flags = r._flags;
-    key = r.key;
-    typedef typename std::remove_const<V>::type non_const_v;
-    value = (non_const_v &)r.value;
-  }
+    void operator=(DictSlot &r) {
+      _flags = r._flags;
+      key = r.key;
+      value = r.value;
+    }
+  */
 
   bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
 

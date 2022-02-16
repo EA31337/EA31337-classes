@@ -145,13 +145,23 @@ class _cpp_array {
     for (const auto& _item : _arr) m_data.push_back(_item);
   }
 
-  _cpp_array(_cpp_array& r) {
-    m_data = (std::vector<T>&)r.m_data;
+  _cpp_array(const _cpp_array& r) {
+    m_data = r.m_data;
     m_isSeries = r.m_isSeries;
   }
 
-  _cpp_array(const _cpp_array& r) {
+  _cpp_array(_cpp_array& r) {
+    m_data.assign(r.m_data.begin(), r.m_data.end());
+    m_isSeries = r.m_isSeries;
+  }
+
+  void operator=(const _cpp_array& r) {
     m_data = r.m_data;
+    m_isSeries = r.m_isSeries;
+  }
+
+  void operator=(_cpp_array& r) {
+    m_data.assign(r.m_data.begin(), r.m_data.end());
     m_isSeries = r.m_isSeries;
   }
 

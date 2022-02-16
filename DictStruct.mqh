@@ -65,7 +65,32 @@ class DictStruct : public DictBase<K, V> {
     THIS_ATTR _mode = right._mode;
   }
 
+  /**
+   * Copy constructor.
+   */
+  DictStruct(DictStruct<K, V>& right) {
+    Clear();
+    Resize(right.GetSlotCount());
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
+      this PTR_DEREF _DictSlots_ref PTR_DEREF DictSlots[i] = right._DictSlots_ref.DictSlots[i];
+    }
+    THIS_ATTR _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
+    THIS_ATTR _current_id = right._current_id;
+    THIS_ATTR _mode = right._mode;
+  }
+
   void operator=(const DictStruct<K, V>& right) {
+    Clear();
+    Resize(right.GetSlotCount());
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
+      THIS_ATTR _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
+    }
+    THIS_ATTR _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
+    THIS_ATTR _current_id = right._current_id;
+    THIS_ATTR _mode = right._mode;
+  }
+
+  void operator=(DictStruct<K, V>& right) {
     Clear();
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
@@ -419,7 +444,7 @@ class DictStruct : public DictBase<K, V> {
     // Freeing old DictSlots array.
     ArrayFree(THIS_ATTR _DictSlots_ref.DictSlots);
 
-    THIS_ATTR _DictSlots_ref = (DictSlotsRef<K, V>&)new_DictSlots;
+    THIS_ATTR _DictSlots_ref = new_DictSlots;
 
     return true;
   }
@@ -462,9 +487,9 @@ class DictStruct : public DictBase<K, V> {
 
             // Note that we're retrieving value by a key (as we are in an
             // object!).
-            Set(key, i.Struct(i.Key()));
+            Set(key, s.Struct<V>(i.Key()));
           } else {
-            Push(i.Struct());
+            Push(s.Struct<V>());
           }
         }
         return i.ParentNodeType();
