@@ -235,7 +235,13 @@ bool IsNull(const string& str) { return str == ""; }
 template <typename T>
 class InvalidEnumValue {
  public:
-  static T value() { return (T)INT_MAX; }
+#ifdef __cplusplus
+  constexpr
+#endif
+      static const T
+      value() {
+    return (T)INT_MAX;
+  }
 };
 
 #ifndef __MQL__
