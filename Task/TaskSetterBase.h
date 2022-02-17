@@ -52,7 +52,7 @@ class TaskSetterBase {
   /**
    * Sets an entry value.
    */
-  virtual bool Set(const TaskSetterEntry &_entry, const TS &_entry_value) = NULL;
+  virtual bool Set(const TaskSetterEntry &_entry, const TS &_entry_value) = 0;
 };
 
 #endif  // TASK_SETTER_BASE_H

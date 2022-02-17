@@ -31,7 +31,11 @@
 #endif
 
 // Includes.
+#include "Array.mqh"
 #include "Dict.enum.h"
+#include "DictSlot.mqh"
+#include "Std.h"
+#include "Util.h"
 
 template <typename K, typename V>
 class DictSlot;
@@ -54,6 +58,14 @@ struct DictSlotsRef {
     _num_used = 0;
     _num_conflicts = 0;
     _avg_conflicts = 0;
+  }
+
+  void operator=(DictSlotsRef& r) {
+    Util::ArrayCopy(DictSlots, r.DictSlots);
+    _list_index = r._list_index;
+    _num_used = r._num_used;
+    _num_conflicts = r._num_conflicts;
+    _avg_conflicts = r._avg_conflicts;
   }
 
   /**

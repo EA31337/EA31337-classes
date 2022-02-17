@@ -37,11 +37,12 @@
 #ifdef __MQL__
 #define ASSIGN_TO_THIS(TYPE, VALUE) ((TYPE)this) = ((TYPE)VALUE)
 #else
-#define ASSIGN_TO_THIS(TYPE, VALUE) ((TYPE&)this) = ((TYPE&)VALUE)
+#define ASSIGN_TO_THIS(TYPE, VALUE) ((TYPE&)*this) = ((TYPE&)VALUE)
 #endif
 
 // Pointers.
 #ifdef __MQL__
+#define THIS_ATTR
 #define THIS_PTR (&this)
 #define THIS_REF this
 #define PTR_DEREF .
@@ -49,7 +50,9 @@
 #define PTR_ATTRIB2(O, A, B) O.A.B
 #define PTR_TO_REF(PTR) PTR
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
+#define nullptr NULL
 #else
+#define THIS_ATTR this->
 #define THIS_PTR (this)
 #define THIS_REF (*this)
 #define PTR_DEREF ->
@@ -71,7 +74,7 @@
 #ifdef __MQL__
 #define ARRAY_DECLARATION_BRACKETS []
 #else
-// C++'s _cpp_array is an object, so no brackets are nedded.
+// C++'s _cpp_array is an object, so no brackets are needed.
 #define ARRAY_DECLARATION_BRACKETS
 #endif
 
@@ -83,6 +86,8 @@
  *   ARRAY_REF(<type of the array items>, <name of the variable>)
  */
 #define ARRAY_REF(T, N) REF(T) N ARRAY_DECLARATION_BRACKETS
+
+#define CONST_ARRAY_REF(T, N) const N ARRAY_DECLARATION_BRACKETS
 
 /**
  * Array definition.
@@ -102,6 +107,8 @@
  *   ARRAY_REF(<type of the array items>, <name of the variable>)
  */
 #define ARRAY_REF(T, N) _cpp_array<T>& N
+
+#define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
 
 /**
  * Array definition.
@@ -136,6 +143,26 @@ class _cpp_array {
   template <int size>
   _cpp_array(const T REF(_arr)[size]) {
     for (const auto& _item : _arr) m_data.push_back(_item);
+  }
+
+  _cpp_array(const _cpp_array& r) {
+    m_data = r.m_data;
+    m_isSeries = r.m_isSeries;
+  }
+
+  _cpp_array(_cpp_array& r) {
+    m_data.assign(r.m_data.begin(), r.m_data.end());
+    m_isSeries = r.m_isSeries;
+  }
+
+  void operator=(const _cpp_array& r) {
+    m_data = r.m_data;
+    m_isSeries = r.m_isSeries;
+  }
+
+  void operator=(_cpp_array& r) {
+    m_data.assign(r.m_data.begin(), r.m_data.end());
+    m_isSeries = r.m_isSeries;
   }
 
   /**
@@ -201,14 +228,14 @@ class color {
 #else
 #define C_STR(S) cstring_from(S)
 
-const char* cstring_from(const std::string& _value) { return _value.c_str(); }
+inline const char* cstring_from(const std::string& _value) { return _value.c_str(); }
 #endif
 
 #ifdef __cplusplus
 using std::string;
 #endif
 
-bool IsNull(const string& str) { return str == ""; }
+inline bool IsNull(const string& str) { return str == ""; }
 
 /**
  * Referencing struct's enum.
@@ -235,7 +262,13 @@ bool IsNull(const string& str) { return str == ""; }
 template <typename T>
 class InvalidEnumValue {
  public:
-  static T value() { return (T)INT_MAX; }
+#ifdef __cplusplus
+  constexpr
+#endif
+      static const T
+      value() {
+    return (T)INT_MAX;
+  }
 };
 
 #ifndef __MQL__

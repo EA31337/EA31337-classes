@@ -420,10 +420,10 @@ class DictObject : public DictBase<K, V> {
 
             // Note that we're retrieving value by a key (as we are in an
             // object!).
-            V _prop = i.Struct(i.Key());
+            V _prop = s.Struct<V>(i.Key());
             Set(key, _prop);
           } else {
-            V _prop = i.Struct();
+            V _prop = s.Struct<V>();
             Push(_prop);
           }
         }

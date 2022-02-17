@@ -37,6 +37,7 @@
 // Forward declarations.
 template <typename X>
 class SerializerIterator;
+class IndicatorBase;
 
 class Serializer {
  protected:
@@ -333,7 +334,7 @@ class Serializer {
       if (Enter(SerializerEnterArray, name)) {
         num_items = ArraySize(array);
         for (int i = 0; i < num_items; ++i) {
-          PassStruct(this, "", array[i]);
+          PassStruct(THIS_REF, "", array[i]);
         }
         Leave();
       }
@@ -349,7 +350,7 @@ class Serializer {
             // Should not happen.
           } else {
             _node = parent PTR_DEREF GetChild(si.Index());
-            array[si.Index()] = si.Struct();
+            array[si.Index()] = Struct<VT>(si.Key());
           }
         }
 
@@ -375,6 +376,21 @@ class Serializer {
       PassObject(self, name, newborn, flags);
 
       value = newborn;
+    }
+  }
+
+  template <typename T>
+  void Pass(T& self, string name, IndicatorBase*& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+    if (_mode == Serialize) {
+      if (!IsFieldVisible(_flags, flags)) {
+        return;
+      }
+
+      PassObject(self, name, value, flags);
+    } else {
+      Print("Error: Deserialization of IndicatorBase* cannot be done as method is abstract!");
+      DebugBreak();
+      value = nullptr;
     }
   }
 
@@ -433,6 +449,34 @@ class Serializer {
     }
 
     return NULL;
+  }
+
+  /**
+   * Returns next value or value by given key.
+   */
+  template <typename X>
+  X Value(string key = "") {
+    X value;
+    Pass(THIS_REF, key, value);
+    return value;
+  }
+
+  /**
+   * Returns next structure or structure by given key.
+   */
+  template <typename X>
+  X Struct(string key = "") {
+    X value;
+    PassStruct(THIS_REF, key, value);
+    return value;
+  }
+
+  /**
+   * Returns next object or object by given key.
+   */
+  template <typename X>
+  X Object(string key = "") {
+    return Struct<X>(key);
   }
 };
 

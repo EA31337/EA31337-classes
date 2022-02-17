@@ -34,6 +34,9 @@
 #ifndef TASK_ACTION_BASE_H
 #define TASK_ACTION_BASE_H
 
+// Includes.
+#include "TaskAction.struct.h"
+
 /**
  * TaskActionBase class.
  */
@@ -51,7 +54,7 @@ class TaskActionBase {
   /**
    * Runs an action.
    */
-  virtual bool Run(const TaskActionEntry &_entry) = NULL;
+  virtual bool Run(const TaskActionEntry &_entry) = 0;
 };
 
 #endif  // TASK_ACTION_BASE_H

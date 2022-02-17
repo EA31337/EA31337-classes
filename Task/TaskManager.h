@@ -73,7 +73,7 @@ class TaskManager {
    * Adds new task.
    */
   bool Add(Task *_task) {
-    Ref<Task> _ref = _task;
+    Ref<Task> _ref(_task);
     return tasks.Push(_ref);
   }
 
@@ -83,7 +83,7 @@ class TaskManager {
   bool Add(string _entry_str) {
     TaskEntry _entry;
     SerializerConverter::FromString<SerializerJson>(_entry_str).ToObject(_entry);
-    Ref<Task> _task = new Task(_entry);
+    Ref<Task> _task(new Task(_entry));
     return Add(_task.Ptr());
   }
 
@@ -104,7 +104,7 @@ class TaskManager {
     bool _result = true;
     for (DictStructIterator<int, Ref<Task>> _iter = tasks.Begin(); _iter.IsValid(); ++_iter) {
       Task *_task = _iter.Value().Ptr();
-      _result &= _task.Process();
+      _result &= _task PTR_DEREF Process();
     }
     return _result;
   }

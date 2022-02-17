@@ -34,6 +34,9 @@
 #ifndef TASK_GETTER_BASE_H
 #define TASK_GETTER_BASE_H
 
+// Includes.
+#include "TaskGetter.struct.h"
+
 /**
  * TaskGetterBase class.
  */
@@ -52,7 +55,7 @@ class TaskGetterBase {
   /**
    * Gets a copy of structure.
    */
-  virtual TS Get(const TaskGetterEntry &_entry) = NULL;
+  virtual TS Get(const TaskGetterEntry &_entry) = 0;
 };
 
 #endif  // TASK_GETTER_BASE_H

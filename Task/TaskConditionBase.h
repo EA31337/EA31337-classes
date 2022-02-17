@@ -34,6 +34,9 @@
 #ifndef TASK_CONDITION_BASE_H
 #define TASK_CONDITION_BASE_H
 
+// Includes.
+#include "TaskCondition.struct.h"
+
 /**
  * TaskConditionBase class.
  */
@@ -51,7 +54,7 @@ class TaskConditionBase {
   /**
    * Checks a condition.
    */
-  virtual bool Check(const TaskConditionEntry &_entry) = NULL;
+  virtual bool Check(const TaskConditionEntry &_entry) = 0;
 };
 
 #endif  // TASK_CONDITION_BASE_H

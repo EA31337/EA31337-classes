@@ -98,7 +98,7 @@ class Dynamic {
   /**
    * Destructor.
    */
-  ~Dynamic() {
+  virtual ~Dynamic() {
     if (ptr_ref_counter != NULL && PTR_ATTRIB(ptr_ref_counter, num_strong_refs) == 0 &&
         PTR_ATTRIB(ptr_ref_counter, num_weak_refs) == 0) {
 #ifdef __MQL__
