@@ -239,19 +239,16 @@ class Task : public Taskable<TaskEntry> {
     unsigned int _counter = 0;
     for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
       TaskEntry _entry = iter.Value();
-      switch (_value) {
-        case false:
-          if (_entry.HasFlag(_flag)) {
-            _entry.SetFlag(_flag, _value);
-            _counter++;
-          }
-          break;
-        case true:
-          if (!_entry.HasFlag(_flag)) {
-            _entry.SetFlag(_flag, _value);
-            _counter++;
-          }
-          break;
+      if (!_value) {
+        if (_entry.HasFlag(_flag)) {
+          _entry.SetFlag(_flag, _value);
+          _counter++;
+        }
+      } else {
+        if (!_entry.HasFlag(_flag)) {
+          _entry.SetFlag(_flag, _value);
+          _counter++;
+        }
       }
     }
     return _counter > 0;
