@@ -382,17 +382,17 @@ class EA : public Taskable<DataParamEntry> {
           Strategy *_strat = iter.Value().Ptr();
           Trade *_trade = trade.GetByKey(_Symbol);
           if (_strat.IsEnabled()) {
-            if (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
+            if (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
               // Process when new periods started.
               _strat.OnPeriod(estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)));
               _strat.ProcessTasks();
-              _trade.OnPeriod(estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)));
+              _trade.OnPeriod(estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)));
               eresults.stg_processed_periods++;
             }
             if (_strat.TickFilter(_tick)) {
               _can_trade &= !_strat.IsSuspended();
               TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
-              if (_sentry.Get<uint>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
+              if (_sentry.Get<unsigned int>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
                 TradeSignal _signal(_sentry);
                 if (_signal.GetSignalClose() != _signal.GetSignalOpen()) {
                   tsm.SignalAdd(_signal);  //, _tick.time);
@@ -413,13 +413,13 @@ class EA : public Taskable<DataParamEntry> {
           // On error, print logs.
           logger.Flush();
         }
-        if (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
+        if (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
           // Process data, tasks and trades on new periods.
           ProcessTrades();
         }
       }
       estate.last_updated.Update();
-      if (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
+      if (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
         // Process data and tasks on new periods.
         ProcessData();
         ProcessTasks();
@@ -482,9 +482,9 @@ class EA : public Taskable<DataParamEntry> {
    * Checks for new starting periods.
    */
   unsigned int ProcessPeriods() {
-    estate.Set<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS), estate.last_updated.GetStartedPeriods());
+    estate.Set<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS), estate.last_updated.GetStartedPeriods());
     OnPeriod();
-    return estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS));
+    return estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS));
   }
 
   /**
@@ -764,7 +764,7 @@ class EA : public Taskable<DataParamEntry> {
             continue;
           }
           ENUM_ORDER_TYPE _otype = _order.Get<ENUM_ORDER_TYPE>(ORDER_TYPE);
-          Strategy *_strat = strats.GetByKey(_order.Get<ulong>(ORDER_MAGIC)).Ptr();
+          Strategy *_strat = strats.GetByKey(_order.Get<unsigned long>(ORDER_MAGIC)).Ptr();
           Strategy *_strat_sl = _strat.GetStratSl();
           Strategy *_strat_tp = _strat.GetStratTp();
           if (_strat_sl != NULL) {
@@ -872,17 +872,17 @@ class EA : public Taskable<DataParamEntry> {
         estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_CONNECTED), GetTerminal().IsConnected());
         return !estate.IsConnected();
       case EA_COND_ON_NEW_MINUTE:  // On new minute.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0;
       case EA_COND_ON_NEW_HOUR:  // On new hour.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0;
       case EA_COND_ON_NEW_DAY:  // On new day.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0;
       case EA_COND_ON_NEW_WEEK:  // On new week.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0;
       case EA_COND_ON_NEW_MONTH:  // On new month.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0;
       case EA_COND_ON_NEW_YEAR:  // On new year.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0;
       case EA_COND_ON_INIT:
         return estate.IsOnInit();
       case EA_COND_ON_QUIT:
@@ -1044,7 +1044,7 @@ class EA : public Taskable<DataParamEntry> {
    * Executed when new time is started (like each minute).
    */
   virtual void OnPeriod() {
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0) {
       // New minute started.
 #ifndef __optimize__
       if (Terminal::IsRealtime()) {
@@ -1052,24 +1052,24 @@ class EA : public Taskable<DataParamEntry> {
       }
 #endif
     }
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0) {
       // New hour started.
       tsm.Refresh();
     }
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0) {
       // New day started.
       UpdateLotSize();
 #ifndef __optimize__
       logger.Flush();
 #endif
     }
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0) {
       // New week started.
     }
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0) {
       // New month started.
     }
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0) {
       // New year started.
     }
   }

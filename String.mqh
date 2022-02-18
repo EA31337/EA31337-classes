@@ -54,7 +54,7 @@ class String {
    * Add a new string.
    */
   bool Add(string _string) {
-    uint _size = ArraySize(strings);
+    unsigned int _size = ArraySize(strings);
     if (ArrayResize(strings, _size + 1, 100)) {
       strings[_size] = _string;
       return true;
@@ -91,7 +91,7 @@ class String {
    */
   static void PrintText(string text) {
     ARRAY(string, _result);
-    ushort usep = StringGetCharacter("\n", 0);
+    unsigned short usep = StringGetCharacter("\n", 0);
     for (int i = StringSplit(text, usep, _result) - 1; i >= 0; i--) {
       Print(_result[i]);
     }
@@ -102,7 +102,7 @@ class String {
    *
    * @see https://www.mql5.com/en/articles/81
    */
-  static string StringSetChar(string string_var, int pos, ushort character) {
+  static string StringSetChar(string string_var, int pos, unsigned short character) {
 #ifdef __MQLBUILD__
 #ifdef __MQL4__
     // In MQL4 the character is symbol code in ASCII.

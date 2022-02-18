@@ -99,7 +99,7 @@ double MarketInfo(string _symbol, int _type) {
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-string StringSetChar(const string &String_Var, const int iPos, const ushort Value) {
+string StringSetChar(const string &String_Var, const int iPos, const unsigned short Value) {
   string Str = String_Var;
 
   ::StringSetCharacter(Str, iPos, Value);
@@ -123,7 +123,7 @@ class MT4HISTORY {
   static const bool IsTester;
 
   long Tickets[];
-  uint Amount;
+  unsigned int Amount;
 
   datetime LastTime;
 
@@ -252,14 +252,14 @@ class MT4HISTORY {
   }
 
  public:
-  static bool IsMT4Deal(const ulong Ticket) {
+  static bool IsMT4Deal(const unsigned long Ticket) {
     const ENUM_DEAL_TYPE Type = (ENUM_DEAL_TYPE)::HistoryDealGetInteger(Ticket, DEAL_TYPE);
 
     return (((Type != DEAL_TYPE_BUY) && (Type != DEAL_TYPE_SELL)) ||
             ((ENUM_DEAL_ENTRY)::HistoryDealGetInteger(Ticket, DEAL_ENTRY) == DEAL_ENTRY_OUT));
   }
 
-  static bool IsMT4Order(const ulong Ticket) {
+  static bool IsMT4Order(const unsigned long Ticket) {
     return ((::HistoryOrderGetDouble(Ticket, ORDER_VOLUME_CURRENT) > 0) ||
             (::HistoryOrderGetInteger(Ticket, ORDER_POSITION_ID) == 0));
   }
@@ -276,7 +276,7 @@ class MT4HISTORY {
     return ((int)this PTR_DEREF Amount);
   }
 
-  long operator[](const uint Pos) {
+  long operator[](const unsigned int Pos) {
     long Res = 0;
 
     if (Pos >= this PTR_DEREF Amount) {
@@ -349,15 +349,15 @@ class MT4ORDERS {
 
   static const bool IsTester;
 
-  static ulong GetPositionDealIn(const ulong PositionIdentifier = 0) {
-    ulong Ticket = 0;
+  static unsigned long GetPositionDealIn(const unsigned long PositionIdentifier = 0) {
+    unsigned long Ticket = 0;
 
     if ((PositionIdentifier == 0) ? ::HistorySelectByPosition(::PositionGetInteger(POSITION_IDENTIFIER))
                                   : ::HistorySelectByPosition(PositionIdentifier)) {
       const int Total = ::HistoryDealsTotal();
 
       for (int i = 0; i < Total; i++) {
-        const ulong TicketDeal = ::HistoryDealGetTicket(i);
+        const unsigned long TicketDeal = ::HistoryDealGetTicket(i);
 
         if (TicketDeal > 0)
           if ((ENUM_DEAL_ENTRY)::HistoryDealGetInteger(TicketDeal, DEAL_ENTRY) == DEAL_ENTRY_IN) {
@@ -375,7 +375,7 @@ class MT4ORDERS {
     double Commission = ::PositionGetDouble(POSITION_COMMISSION);
 
     if (Commission == 0) {
-      const ulong Ticket = MT4ORDERS::GetPositionDealIn();
+      const unsigned long Ticket = MT4ORDERS::GetPositionDealIn();
 
       if (Ticket > 0) {
         const double LotsIn = ::HistoryDealGetDouble(Ticket, DEAL_VOLUME);
@@ -392,7 +392,7 @@ class MT4ORDERS {
     string comment = ::PositionGetString(POSITION_COMMENT);
 
     if (comment == "") {
-      const ulong Ticket = MT4ORDERS::GetPositionDealIn();
+      const unsigned long Ticket = MT4ORDERS::GetPositionDealIn();
 
       if (Ticket > 0) comment = ::HistoryDealGetString(Ticket, DEAL_COMMENT);
     }
@@ -460,7 +460,7 @@ class MT4ORDERS {
     return;
   }
 
-  static void GetHistoryOrderData(const ulong Ticket) {
+  static void GetHistoryOrderData(const unsigned long Ticket) {
     MT4ORDERS::Order.Ticket = (int)::HistoryOrderGetInteger(Ticket, ORDER_TICKET);
     MT4ORDERS::Order.Type = (int)::HistoryOrderGetInteger(Ticket, ORDER_TYPE);
 
@@ -492,7 +492,7 @@ class MT4ORDERS {
     return;
   }
 
-  static void GetHistoryPositionData(const ulong Ticket) {
+  static void GetHistoryPositionData(const unsigned long Ticket) {
     MT4ORDERS::Order.Ticket = (int)::HistoryDealGetInteger(Ticket, DEAL_TICKET);
     MT4ORDERS::Order.Type = (int)::HistoryDealGetInteger(Ticket, DEAL_TYPE);
 
@@ -525,7 +525,7 @@ class MT4ORDERS {
     MT4ORDERS::Order.Commission = ::HistoryDealGetDouble(Ticket, DEAL_COMMISSION);
     MT4ORDERS::Order.Swap = ::HistoryDealGetDouble(Ticket, DEAL_SWAP);
 
-    const ulong OpenTicket = MT4ORDERS::GetPositionDealIn(::HistoryDealGetInteger(Ticket, DEAL_POSITION_ID));
+    const unsigned long OpenTicket = MT4ORDERS::GetPositionDealIn(::HistoryDealGetInteger(Ticket, DEAL_POSITION_ID));
 
     if (OpenTicket > 0) {
       MT4ORDERS::Order.OpenPrice = ::HistoryDealGetDouble(OpenTicket, DEAL_PRICE);
@@ -547,7 +547,7 @@ class MT4ORDERS {
   }
 
   static bool Waiting(const bool FlagInit = false) {
-    static ulong StartTime = 0;
+    static unsigned long StartTime = 0;
 
     if (FlagInit) StartTime = ::GetMicrosecondCount();
 
@@ -637,7 +637,7 @@ class MT4ORDERS {
     return (MT4ORDERS::OrderSend(Request, Result) ? Result.retcode < TRADE_RETCODE_ERROR : false);
   }
 
-  static bool ModifyPosition(const ulong Ticket, MqlTradeRequest &Request) {
+  static bool ModifyPosition(const unsigned long Ticket, MqlTradeRequest &Request) {
     const bool Res = ::PositionSelectByTicket(Ticket);
 
     if (Res) {
@@ -650,7 +650,7 @@ class MT4ORDERS {
     return (Res);
   }
 
-  static ENUM_ORDER_TYPE_FILLING GetFilling(const string Symb, const uint Type = ORDER_FILLING_FOK) {
+  static ENUM_ORDER_TYPE_FILLING GetFilling(const string Symb, const unsigned int Type = ORDER_FILLING_FOK) {
     const ENUM_SYMBOL_TRADE_EXECUTION ExeMode =
         (ENUM_SYMBOL_TRADE_EXECUTION)::SymbolInfoInteger(Symb, SYMBOL_TRADE_EXEMODE);
     const int FillingMode = (int)::SymbolInfoInteger(Symb, SYMBOL_FILLING_MODE);
@@ -662,7 +662,7 @@ class MT4ORDERS {
                 : (ENUM_ORDER_TYPE_FILLING)Type);
   }
 
-  static bool ModifyOrder(const ulong _ticket, const double _price, const datetime _expiration,
+  static bool ModifyOrder(const unsigned long _ticket, const double _price, const datetime _expiration,
                           MqlTradeRequest &Request) {
     const bool _res = ::OrderSelect(_ticket);
 
@@ -756,7 +756,7 @@ class MT4ORDERS {
   }
 
  public:
-  static uint OrderSend_MaxPause;
+  static unsigned int OrderSend_MaxPause;
 
   static bool MT4OrderSelect(const int Index, const int Select, const int Pool = MODE_TRADES) {
     return ((Select == SELECT_BY_POS)
@@ -765,7 +765,7 @@ class MT4ORDERS {
   }
 
   // MT5 OrderSelect
-  static bool MT4OrderSelect(const ulong Ticket) { return (::OrderSelect(Ticket)); }
+  static bool MT4OrderSelect(const unsigned long Ticket) { return (::OrderSelect(Ticket)); }
 
   static int MT4OrdersTotal(void) { return (::OrdersTotal() + ::PositionsTotal()); }
 
@@ -791,7 +791,7 @@ class MT4ORDERS {
     Request.deviation = SlipPage;
     Request.type = (ENUM_ORDER_TYPE)Type;
 
-    Request.type_filling = MT4ORDERS::GetFilling(Request.symbol, (uint)Request.deviation);
+    Request.type_filling = MT4ORDERS::GetFilling(Request.symbol, (unsigned int)Request.deviation);
 
     if (dExpiration > 0) {
       Request.type_time = ORDER_TIME_SPECIFIED;
@@ -810,7 +810,7 @@ class MT4ORDERS {
                 : -1);
   }
 
-  static bool MT4OrderModify(const ulong Ticket, const double _price, const double SL, const double TP,
+  static bool MT4OrderModify(const unsigned long Ticket, const double _price, const double SL, const double TP,
                              const datetime Expiration, const color Arrow_Color = clrNONE) {
     MqlTradeRequest Request = {0};
 
@@ -833,7 +833,7 @@ class MT4ORDERS {
     return (Res);
   }
 
-  static bool MT4OrderClose(const ulong Ticket, const double dLots, const double _price, const int SlipPage,
+  static bool MT4OrderClose(const unsigned long Ticket, const double dLots, const double _price, const int SlipPage,
                             const color Arrow_Color = clrNONE) {
     bool Res = ::PositionSelectByTicket(Ticket);
 
@@ -852,7 +852,7 @@ class MT4ORDERS {
 
       Request.type = (ENUM_ORDER_TYPE)(1 - ::PositionGetInteger(POSITION_TYPE));
 
-      Request.type_filling = MT4ORDERS::GetFilling(Request.symbol, (uint)Request.deviation);
+      Request.type_filling = MT4ORDERS::GetFilling(Request.symbol, (unsigned int)Request.deviation);
 
       Res = MT4ORDERS::NewOrderSend(Request);
     }
@@ -860,7 +860,7 @@ class MT4ORDERS {
     return (Res);
   }
 
-  static bool MT4OrderCloseBy(const ulong Ticket, const int Opposite, const color Arrow_color) {
+  static bool MT4OrderCloseBy(const unsigned long Ticket, const int Opposite, const color Arrow_color) {
     bool Res = ::PositionSelectByTicket(Ticket);
 
     if (Res) {
@@ -886,7 +886,7 @@ class MT4ORDERS {
     return (Res);
   }
 
-  static bool MT4OrderDelete(const ulong Ticket, const color Arrow_Color = clrNONE) {
+  static bool MT4OrderDelete(const unsigned long Ticket, const color Arrow_Color = clrNONE) {
     bool Res = ::OrderSelect(Ticket);
 
     if (Res) {
@@ -909,23 +909,23 @@ static MT4HISTORY MT4ORDERS::History;
 static const bool MT4ORDERS::IsTester = (::MQLInfoInteger(MQL_TESTER) || ::MQLInfoInteger(MQL_OPTIMIZATION) ||
                                          ::MQLInfoInteger(MQL_VISUAL_MODE) || ::MQLInfoInteger(MQL_FRAME_MODE));
 
-static uint MT4ORDERS::OrderSend_MaxPause = 1000000;  // Maximum time synchronization in microseconds.
+static unsigned int MT4ORDERS::OrderSend_MaxPause = 1000000;  // Maximum time synchronization in microseconds.
 
-bool OrderClose(const ulong Ticket, const double dLots, const double _price, const int SlipPage,
+bool OrderClose(const unsigned long Ticket, const double dLots, const double _price, const int SlipPage,
                 const color Arrow_Color = clrNONE) {
   return (MT4ORDERS::MT4OrderClose(Ticket, dLots, _price, SlipPage, Arrow_Color));
 }
 
-bool OrderModify(const ulong Ticket, const double _price, const double SL, const double TP, const datetime Expiration,
-                 const color Arrow_Color = clrNONE) {
+bool OrderModify(const unsigned long Ticket, const double _price, const double SL, const double TP,
+                 const datetime Expiration, const color Arrow_Color = clrNONE) {
   return (MT4ORDERS::MT4OrderModify(Ticket, _price, SL, TP, Expiration, Arrow_Color));
 }
 
-bool OrderDelete(const ulong Ticket, const color Arrow_Color = clrNONE) {
+bool OrderDelete(const unsigned long Ticket, const color Arrow_Color = clrNONE) {
   return (MT4ORDERS::MT4OrderDelete(Ticket, Arrow_Color));
 }
 
-bool OrderCloseBy(const ulong Ticket, const int Opposite, const color Arrow_color) {
+bool OrderCloseBy(const unsigned long Ticket, const int Opposite, const color Arrow_color) {
   return (MT4ORDERS::MT4OrderCloseBy(Ticket, Opposite, Arrow_color));
 }
 

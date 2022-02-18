@@ -55,7 +55,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
   /**
    * Class constructor with timeframe enum.
    */
-  IndicatorTf(uint _spc) {
+  IndicatorTf(unsigned int _spc) {
     iparams.SetSecsPerCandle(_spc);
     Init();
   }

@@ -149,14 +149,14 @@ struct TradeParams {
     }
   }
   void SetBarsMin(unsigned short _value) { bars_min = _value; }
-  void SetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, uint _value = 0) {
+  void SetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, unsigned int _value = 0) {
     // Set new trading limits for the given type and period.
 #ifdef __debug__
     Print("Setting trade limit for type ", EnumToString(_type), " and period ", EnumToString(_period), " to ", _value);
 #endif
     limits_stats[_type][_period] = _value;
   }
-  void SetLimits(ENUM_TRADE_STAT_PERIOD _period, uint _value = 0) {
+  void SetLimits(ENUM_TRADE_STAT_PERIOD _period, unsigned int _value = 0) {
     // Set new trading limits for the given period.
     for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
 #ifdef __debug__
@@ -166,13 +166,13 @@ struct TradeParams {
       limits_stats[t][_period] = _value;
     }
   }
-  void SetLimits(ENUM_TRADE_STAT_TYPE _type, uint _value = 0) {
+  void SetLimits(ENUM_TRADE_STAT_TYPE _type, unsigned int _value = 0) {
     // Set new trading limits for the given type.
     for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
       limits_stats[_type][p] = _value;
     }
   }
-  void SetLimits(uint _value = 0) {
+  void SetLimits(unsigned int _value = 0) {
     // Set new trading limits for all types and periods.
     // Zero value is for no limits.
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {

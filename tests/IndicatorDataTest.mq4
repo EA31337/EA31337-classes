@@ -28,7 +28,8 @@
 #include "../IndicatorData.mqh"
 
 // User inputs.
-#ifdef __input__ input #endif string __MA_Parameters__ = "-- Settings for the Moving Average indicator --";  // >>> MA <<<
+#ifdef __input__ input #endif string __MA_Parameters__ = \
+    "-- Settings for the Moving Average indicator --";                  // >>> MA <<<
 #ifdef __input__ input #endif int MA_Period_Fast = 14;                  // Period Fast
 #ifdef __input__ input #endif int MA_Period_Medium = 20;                // Period Medium
 #ifdef __input__ input #endif int MA_Period_Slow = 48;                  // Period Slow
@@ -64,7 +65,7 @@ class I_MA : public IndicatorData {
    * - https://docs.mql4.com/indicators/ima
    * - https://www.mql5.com/en/docs/indicators/ima
    */
-  static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, uint _ma_period, int _ma_shift,
+  static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, int _ma_shift,
                     ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                     ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
                                                         // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
@@ -77,7 +78,7 @@ class I_MA : public IndicatorData {
     return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
 #endif
   }
-  double iMA(uint _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price,
+  double iMA(unsigned int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price,
              int _shift = 0) {
     double _value = iMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _ma_period, _ma_shift,
                         _ma_method, _applied_price, _shift);
@@ -190,7 +191,7 @@ int OnInit() {
 int OnCalculate(const int rates_total, const int prev_calculated, const datetime &time[], const double &open[],
                 const double &high[], const double &low[], const double &close[], const long &tick_volume[],
                 const long &volume[], const int &spread[]) {
-  uint start_at = GetTickCount();
+  unsigned int start_at = GetTickCount();
 
   int oldest_bar = rates_total - prev_calculated - 1;
   for (int i = oldest_bar; i >= 0; i--) {
