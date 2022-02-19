@@ -120,7 +120,6 @@
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"
 #include "../Tests.mqh"
-#include "../Ticker.mqh"
 #include "../Timer.mqh"
 #include "../Trade.mqh"
 #include "../Util.h"

@@ -74,7 +74,6 @@ jobs:
           - StrategyTest-RSI
           - SymbolInfoTest
           - SummaryReportTest
-          - TickerTest
           - TradeTest
     steps:
       - uses: actions/download-artifact@v2

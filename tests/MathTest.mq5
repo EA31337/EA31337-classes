@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Test functionality of Ticker class.
+ * Test functionality of Math class.
  */
 
 // Includes.
