@@ -69,7 +69,6 @@ jobs:
           - MatrixTest
           - OrderTest
           - OrdersTest
-          - StatsTest
           - StrategyTest
           - StrategyTest-RSI
           - SymbolInfoTest

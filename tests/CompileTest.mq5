@@ -101,7 +101,6 @@
 #include "../Session.mqh"
 #include "../SetFile.mqh"
 #include "../Socket.mqh"
-#include "../Stats.mqh"
 #include "../Std.h"
 #include "../Storage/Singleton.h"
 #include "../Strategy.mqh"

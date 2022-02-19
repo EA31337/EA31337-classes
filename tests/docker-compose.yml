@@ -205,15 +205,6 @@ services:
       BT_DAYS: 1-4
       BT_MONTHS: 1
       OPT_VERBOSE: 1
-  StatsTest:
-    command: run_backtest -e StatsTest.mq4
-    image: ea31337/ea-tester:EURUSD-2019-DS
-    volumes:
-      - ../:/opt/src
-    environment:
-      BT_DAYS: 1-4
-      BT_MONTHS: 1
-      OPT_VERBOSE: 1
   StrategyTest:
     command: run_backtest -e StrategyTest.mq4
     image: ea31337/ea-tester:EURUSD-2019-DS
