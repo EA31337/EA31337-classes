@@ -29,15 +29,42 @@
 #include "../Exchange.h"
 
 // Test classes.
+class AccountDummy : public Account {};
 class ExchangeDummy : public Exchange {};
+class SymbolDummy : public SymbolInfo {};
+class TradeDummy : public Trade {};
 
 // Global variables.
 ExchangeDummy ex_dummy;
+
+// Test dummy Exchange.
+bool TestExchange01() {
+  bool _result = true;
+  // Initialize a dummy Exchange instance.
+  ExchangeDummy exchange;
+  // Attach instances of dummy accounts.
+  AccountDummy account01;
+  AccountDummy account02;
+  exchange.AccountAdd(account01, "Account01");
+  exchange.AccountAdd(account02, "Account02");
+  // Attach instances of dummy symbols.
+  SymbolDummy symbol01;
+  SymbolDummy symbol02;
+  exchange.SymbolAdd(symbol01, "Symbol01");
+  exchange.SymbolAdd(symbol02, "Symbol02");
+  // Attach instances of dummy trades.
+  TradeDummy trade01;
+  TradeDummy trade02;
+  exchange.TradeAdd(trade01, "Trade01");
+  exchange.TradeAdd(trade02, "Trade02");
+  return _result;
+}
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
   bool _result = true;
-  return _result && GetLastError() == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED;
+  assertTrueOrFail(TestExchange01(), "Fail!");
+  return _result && GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED;
 }
