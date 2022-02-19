@@ -432,7 +432,10 @@ class AccountMt {
   /**
    * Get current account drawdown in percent.
    */
-  static double GetDrawdownInPct() { return (100 / AccountTotalBalance()) * (AccountTotalBalance() - AccountEquity()); }
+  static double GetDrawdownInPct() {
+    double _balance_total = AccountTotalBalance();
+    return _balance_total != 0 ? (100 / AccountTotalBalance()) * (AccountTotalBalance() - AccountEquity()) : 0.0;
+  }
 
   /**
    * Get current account risk margin level.
