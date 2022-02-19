@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,12 +24,13 @@
 class Orders;
 
 // Includes.
-#include "Account.mqh"
+#include "Account/Account.h"
 #include "Chart.mqh"
 #include "Log.mqh"
 #include "Math.h"
 #include "Order.mqh"
 #include "Terminal.mqh"
+#include "Trade.struct.h"
 
 /* Defines */
 

@@ -36,11 +36,12 @@
 #endif
 
 // Includes.
-#include "../Account.mqh"
+#include "../Account/AccountMt.h"
 #include "../Array.mqh"
 #include "../Task/TaskAction.h"
 //#include "../BasicTrade.mqh" // @removeme
 #include "../Buffer.mqh"
+#include "../BufferFXT.mqh"
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
 #include "../Config.mqh"

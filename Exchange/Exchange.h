@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -27,7 +27,7 @@
 #define EXCHANGE_H
 
 // Includes.
-#include "../Account.mqh"
+#include "../Account/AccountMt.h"
 #include "../DictObject.mqh"
 #include "../SymbolInfo.mqh"
 #include "../Trade.mqh"
@@ -35,7 +35,7 @@
 
 class Exchange {
  protected:
-  DictObject<string, Account> accounts;
+  DictObject<string, AccountMt> accounts;
   DictObject<string, SymbolInfo> symbols;
   DictObject<string, Trade> trades;
   ExchangeParams eparams;
@@ -61,7 +61,7 @@ class Exchange {
   /**
    * Adds account instance to the list.
    */
-  void AccountAdd(Account &_account, string _name) { accounts.Set(_name, _account); }
+  void AccountAdd(AccountMt &_account, string _name) { accounts.Set(_name, _account); }
 
   /**
    * Adds symbol instance to the list.

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,8 +21,8 @@
 
 /**
  * @file
- * Test functionality of Account class.
+ * Test functionality of AccountMt class.
  */
 
 // Includes.
-#include "AccountTest.mq5"
+#include "AccountMt.test.mq5"

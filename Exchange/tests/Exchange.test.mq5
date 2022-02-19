@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -29,7 +29,7 @@
 #include "../Exchange.h"
 
 // Test classes.
-class AccountDummy : public Account {};
+class AccountDummy : public AccountMt {};  // <AccountForexState, AccountForexEntry>
 class ExchangeDummy : public Exchange {};
 class SymbolDummy : public SymbolInfo {};
 class TradeDummy : public Trade {};

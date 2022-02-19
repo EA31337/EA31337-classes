@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,33 +21,33 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef ACCOUNT_MQH
-#define ACCOUNT_MQH
+#ifndef ACCOUNT_MT_MQH
+#define ACCOUNT_MT_MQH
 
 // Forward class declaration.
-class Account;
+class AccountMt;
 
 // Includes.
-#include "Account/Account.define.h"
-#include "Account/Account.enum.h"
-#include "Account/Account.extern.h"
-#include "Account/Account.struct.h"
-#include "Array.mqh"
-#include "BufferStruct.mqh"
-#include "Chart.mqh"
-#include "Convert.mqh"
-#include "Data.struct.h"
-#include "Indicator.struct.h"
-#include "Order.struct.h"
-#include "Orders.mqh"
-#include "Serializer.mqh"
-#include "SymbolInfo.mqh"
-#include "Trade.struct.h"
+#include "../Array.mqh"
+#include "../BufferStruct.mqh"
+#include "../Chart.mqh"
+#include "../Convert.mqh"
+#include "../Data.struct.h"
+#include "../Indicator.struct.h"
+#include "../Order.struct.h"
+#include "../Orders.mqh"
+#include "../Serializer.mqh"
+#include "../SymbolInfo.mqh"
+#include "../Trade.struct.h"
+#include "Account.define.h"
+#include "Account.enum.h"
+#include "Account.extern.h"
+#include "Account.struct.h"
 
 /**
  * Class to provide functions that return parameters of the current account.
  */
-class Account {
+class AccountMt {
  protected:
   // Struct variables.
   BufferStruct<AccountEntry> entries;
@@ -62,17 +62,17 @@ class Account {
   /**
    * Class constructor.
    */
-  Account() : init_balance(CalcInitDeposit()), start_balance(GetBalance()), start_credit(GetCredit()) {}
+  AccountMt() : init_balance(CalcInitDeposit()), start_balance(GetBalance()), start_credit(GetCredit()) {}
 
   /**
    * Class copy constructor.
    */
-  Account(const Account &_account) {}
+  AccountMt(const AccountMt &_account) {}
 
   /**
    * Class deconstructor.
    */
-  ~Account() {}
+  ~AccountMt() {}
 
   /* Entries */
 
@@ -139,7 +139,7 @@ class Account {
   float GetBalance() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_BALANCE, AccountBalance());
-    return (float)Account::AccountBalance();
+    return (float)AccountMt::AccountBalance();
   }
 
   /**
@@ -149,7 +149,7 @@ class Account {
   float GetCredit() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_CREDIT, AccountCredit());
-    return (float)Account::AccountCredit();
+    return (float)AccountMt::AccountCredit();
   }
 
   /**
@@ -159,7 +159,7 @@ class Account {
   float GetProfit() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_PROFIT, AccountProfit());
-    return (float)Account::AccountProfit();
+    return (float)AccountMt::AccountProfit();
   }
 
   /**
@@ -169,7 +169,7 @@ class Account {
   float GetEquity() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_EQUITY, AccountEquity());
-    return (float)Account::AccountEquity();
+    return (float)AccountMt::AccountEquity();
   }
 
   /**
@@ -179,7 +179,7 @@ class Account {
   float GetMarginUsed() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_USED, AccountMargin());
-    return (float)Account::AccountMargin();
+    return (float)AccountMt::AccountMargin();
   }
 
   /**
@@ -201,7 +201,7 @@ class Account {
   float GetMarginFree() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
-    return (float)Account::AccountFreeMargin();
+    return (float)AccountMt::AccountFreeMargin();
   }
 
   /**
@@ -287,7 +287,7 @@ class Account {
     return NULL;
 #endif
   }
-  static double GetAccountFreeMarginMode() { return Account::AccountFreeMarginMode(); }
+  static double GetAccountFreeMarginMode() { return AccountMt::AccountFreeMarginMode(); }
 
   /* State checkers */
 
@@ -315,7 +315,7 @@ class Account {
   /**
    * Returns type of account (Demo or Live).
    */
-  static string GetType() { return Account::GetServerName() != "" ? (IsDemo() ? "Demo" : "Live") : "Off-line"; }
+  static string GetType() { return AccountMt::GetServerName() != "" ? (IsDemo() ? "Demo" : "Live") : "Off-line"; }
 
   /* Setters */
 
@@ -455,7 +455,7 @@ class Account {
    * Calculates initial deposit based on the current balance and previous orders.
    */
   static double CalcInitDeposit() {
-    double deposit = Account::AccountInfoDouble(ACCOUNT_BALANCE);
+    double deposit = AccountMt::AccountInfoDouble(ACCOUNT_BALANCE);
     for (int i = TradeHistoryStatic::HistoryOrdersTotal() - 1; i >= 0; i--) {
       if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
       int type = Order::OrderType();
@@ -518,7 +518,7 @@ class Account {
    * Checks for account condition.
    *
    * @param ENUM_ACCOUNT_CONDITION _cond
-   *   Account condition.
+   *   AccountMt condition.
    * @return
    *   Returns true when the condition is met.
    */
@@ -629,13 +629,13 @@ class Account {
   }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond) {
     ARRAY(DataParamEntry, _args);
-    return Account::CheckCondition(_cond, _args);
+    return AccountMt::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, long _arg1) {
     ARRAY(DataParamEntry, _args);
     DataParamEntry _param1 = _arg1;
     ArrayPushObject(_args, _param1);
-    return Account::CheckCondition(_cond, _args);
+    return AccountMt::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, long _arg1, long _arg2) {
     ARRAY(DataParamEntry, _args);
@@ -643,7 +643,7 @@ class Account {
     DataParamEntry _param2 = _arg2;
     ArrayPushObject(_args, _param1);
     ArrayPushObject(_args, _param2);
-    return Account::CheckCondition(_cond, _args);
+    return AccountMt::CheckCondition(_cond, _args);
   }
 
   /* Printers */
@@ -714,4 +714,4 @@ class Account {
    */
   static string AccountInfoString(ENUM_ACCOUNT_INFO_STRING _prop_id) { return ::AccountInfoString(_prop_id); }
 };
-#endif  // ACCOUNT_MQH
+#endif  // ACCOUNT_MT_MQH
