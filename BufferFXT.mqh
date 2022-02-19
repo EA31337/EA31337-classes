@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2022, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,7 +24,7 @@
 #define BUFFER_FXT_MQH
 
 // Includes.
-#include "Account.mqh"
+#include "Account/AccountMt.h"
 #include "Chart.mqh"
 #include "DictStruct.mqh"
 #include "Object.mqh"
@@ -169,7 +169,7 @@ struct BufferFXTHeader {
   //----
   int reserved[60];  // Reserved - space for future use.
   // Struct constructor.
-  BufferFXTHeader(Chart *_c, Account *_a)
+  BufferFXTHeader(Chart *_c, AccountMt *_a)
       : version(405),
         period(_c.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
         model(0),
@@ -229,11 +229,11 @@ struct BufferFXTHeader {
 };
 
 struct BufferFXTParams {
-  Account *account;
+  AccountMt *account;
   Chart *chart;
   // Struct constructor.
-  void BufferFXTParams(Chart *_chart = NULL, Account *_account = NULL)
-      : account(Object::IsValid(_account) ? _account : new Account),
+  void BufferFXTParams(Chart *_chart = NULL, AccountMt *_account = NULL)
+      : account(Object::IsValid(_account) ? _account : new AccountMt),
         chart(Object::IsValid(_chart) ? _chart : new Chart) {}
   // Struct deconstructor.
   void ~BufferFXTParams() {
