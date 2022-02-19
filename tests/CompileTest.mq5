@@ -87,7 +87,6 @@
 #include "../Report.mqh"
 #include "../Storage/Objects.h"
 #include "../Storage/ObjectsCache.h"
-// #include "../SVG.mqh" // @removeme
 #include "../Serializer.mqh"
 #include "../SerializerBinary.mqh"
 #include "../SerializerConversions.h"
