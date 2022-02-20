@@ -2572,7 +2572,7 @@ class Order : public SymbolInfo {
     return NULL;
 #else
     return OrderGetValue(_prop_id, _type, _out);
-#endif;
+#endif
   }
 
 #endif
@@ -2802,4 +2802,4 @@ ENUM_ORDER_SELECT_TYPE Order::selected_ticket_type = ORDER_SELECT_TYPE_NONE;
 unsigned long Order::selected_ticket_id = 0;
 #endif
 
-#endif ORDER_MQH
+#endif  // ORDER_MQH
