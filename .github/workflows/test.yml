@@ -101,7 +101,6 @@ jobs:
       matrix:
         test:
           #  - 3DTest
-          - CollectionTest
           - ConfigTest
           - ConvertTest
           - DateTimeTest
