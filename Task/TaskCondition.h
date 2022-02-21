@@ -35,6 +35,7 @@
 #define TASK_CONDITION_H
 
 // Includes.
+#include "../Std.h"
 #include "../Terminal.define.h"
 #include "TaskCondition.enum.h"
 #include "TaskCondition.struct.h"
@@ -71,7 +72,7 @@ class TaskCondition : public TaskConditionBase {
    */
   bool Check() {
     bool _result = entry.IsValid() && entry.HasTriesLeft();
-    _result &= obj.Check(entry);
+    _result &= obj PTR_DEREF Check(entry);
     if (_result) {
       entry.RemoveFlags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE));
       entry.Set(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_TIME_LAST_CHECK), TimeCurrent());

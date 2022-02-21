@@ -48,7 +48,7 @@ class Ticker {
   };
 
  protected:
-  ulong total_added, total_ignored, total_processed, total_saved;
+  unsigned long total_added, total_ignored, total_processed, total_saved;
   // Struct variables.
   MqlTick data[];
   // Class variables.
@@ -85,22 +85,22 @@ class Ticker {
   /**
    * Get number of added ticks.
    */
-  ulong GetTotalAdded() { return total_added; }
+  unsigned long GetTotalAdded() { return total_added; }
 
   /**
    * Get number of ignored ticks.
    */
-  ulong GetTotalIgnored() { return total_ignored; }
+  unsigned long GetTotalIgnored() { return total_ignored; }
 
   /**
    * Get number of parsed ticks.
    */
-  ulong GetTotalProcessed() { return total_processed; }
+  unsigned long GetTotalProcessed() { return total_processed; }
 
   /**
    * Get number of saved ticks.
    */
-  ulong GetTotalSaved() { return total_saved; }
+  unsigned long GetTotalSaved() { return total_saved; }
 
   /* Other methods */
 
@@ -113,7 +113,7 @@ class Ticker {
    * @return
    * Returns true when tick should be parsed, otherwise ignored.
    */
-  bool Process(Chart *_chart, uint _method) {
+  bool Process(Chart *_chart, unsigned int _method) {
     total_processed++;
     if (_method == 0 || total_processed == 1) {
       return true;

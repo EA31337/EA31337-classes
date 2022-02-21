@@ -209,7 +209,7 @@ class Log : public Object {
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     // Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
-    uint _size = ArraySize(_logs);
+    unsigned int _size = ArraySize(_logs);
     if (!ArrayResize(_logs, _size + last_entry)) {
       return false;
     }

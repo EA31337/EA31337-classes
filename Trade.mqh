@@ -600,10 +600,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns calculated lot size (volume).
    */
-  float CalcLotSize(float _risk_margin = 1,   // Risk margin in %.
-                    float _risk_ratio = 1.0,  // Risk ratio factor.
-                    uint _orders_avg = 10,    // Number of orders to use for the calculation.
-                    uint _method = 0          // Method of calculation (0-3).
+  float CalcLotSize(float _risk_margin = 1,         // Risk margin in %.
+                    float _risk_ratio = 1.0,        // Risk ratio factor.
+                    unsigned int _orders_avg = 10,  // Number of orders to use for the calculation.
+                    unsigned int _method = 0        // Method of calculation (0-3).
   ) {
     float _avail_amount = _method % 2 == 0 ? account.GetMarginAvail() : account.GetTotalBalance();
     float _lot_size_min = (float)GetChart().GetVolumeMin();
@@ -643,7 +643,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         // Pass-through.
       case ERR_NO_ERROR:  // 0
-        orders_active.Set(_order.Get<ulong>(ORDER_PROP_TICKET), _ref_order);
+        orders_active.Set(_order.Get<unsigned long>(ORDER_PROP_TICKET), _ref_order);
         order_last = _order;
         tstates.AddState(TRADE_STATE_ORDERS_ACTIVE);
         tstats.Add(TRADE_STAT_ORDERS_OPENED);
@@ -676,9 +676,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool OrderMoveToHistory(Order *_order) {
     _order.Refresh(true);
-    orders_active.Unset(_order.Get<ulong>(ORDER_PROP_TICKET));
+    orders_active.Unset(_order.Get<unsigned long>(ORDER_PROP_TICKET));
     Ref<Order> _ref_order = _order;
-    bool result = orders_history.Set(_order.Get<ulong>(ORDER_PROP_TICKET), _ref_order);
+    bool result = orders_history.Set(_order.Get<unsigned long>(ORDER_PROP_TICKET), _ref_order);
     /* @todo
     if (strategy != NULL) {
       strategy.OnOrderClose(_order);
@@ -843,7 +843,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           OrderMoveToHistory(_order.Ptr());
           order_last = _order;
         } else {
-          logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
+          logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR));
           return -1;
         }
       } else {
@@ -876,7 +876,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             order_last = _order;
           } else {
             logger.Error("Error while closing order!", __FUNCTION_LINE__,
-                         StringFormat("Code: %d", _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR)));
+                         StringFormat("Code: %d", _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR)));
             return -1;
           }
           order_last = _order;
@@ -913,7 +913,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             OrderMoveToHistory(_order.Ptr());
             order_last = _order;
           } else {
-            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
+            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR));
             return -1;
           }
         }
@@ -970,7 +970,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Calculate available lot size given the risk margin.
    */
   /* @fixme
-  uint CalcMaxLotSize(double risk_margin = 1.0) {
+  unsigned int CalcMaxLotSize(double risk_margin = 1.0) {
     double _avail_margin = account.AccountAvailMargin();
     double _opened_lots = GetTrades().GetOpenLots();
     // @todo
@@ -1675,7 +1675,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   virtual void OnOrderOpen(const Order &_order) {
     if (logger.GetLevel() >= V_INFO) {
-      // logger.Info(_order.ToString(), (string)_order.Get<ulong>(ORDER_TICKET)); // @fixme
+      // logger.Info(_order.ToString(), (string)_order.Get<unsigned long>(ORDER_TICKET)); // @fixme
       ResetLastError();  // @fixme: Error 69539
     }
   }

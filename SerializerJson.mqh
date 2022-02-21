@@ -27,6 +27,7 @@
 // Includes.
 #include "DictBase.mqh"
 #include "Object.mqh"
+#include "Serializer.enum.h"
 #include "Serializer.mqh"
 #include "SerializerNode.mqh"
 #include "String.extern.h"

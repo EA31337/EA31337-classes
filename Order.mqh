@@ -315,7 +315,7 @@ class Order : public SymbolInfo {
    *   Returns true when order values can be refreshed, otherwise false.
    */
   bool ShouldRefresh() {
-    return odata.Get<long>(ORDER_PROP_TIME_LAST_REFRESH) + oparams.Get<ushort>(ORDER_PARAM_REFRESH_FREQ) <=
+    return odata.Get<long>(ORDER_PROP_TIME_LAST_REFRESH) + oparams.Get<unsigned short>(ORDER_PARAM_REFRESH_FREQ) <=
            TimeCurrent();
   }
 
@@ -326,7 +326,8 @@ class Order : public SymbolInfo {
    *   Returns true when order stops can be updated, otherwise false.
    */
   bool ShouldUpdate() {
-    return odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATE) + oparams.Get<ushort>(ORDER_PARAM_UPDATE_FREQ) <= TimeCurrent();
+    return odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATE) + oparams.Get<unsigned short>(ORDER_PARAM_UPDATE_FREQ) <=
+           TimeCurrent();
   }
 
   /* State checking */

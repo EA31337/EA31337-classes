@@ -209,10 +209,10 @@ struct DXQuaternion {
 //| DViewport                                                        |
 //+------------------------------------------------------------------+
 struct DViewport {
-  ulong x;
-  ulong y;
-  ulong width;
-  ulong height;
+  unsigned long x;
+  unsigned long y;
+  unsigned long width;
+  unsigned long height;
   float minz;
   float maxz;
 };
@@ -2336,7 +2336,7 @@ float DXSHDot(int order, const float &a[], const float &b[]) {
 //+------------------------------------------------------------------+
 //| weightedcapintegrale                                             |
 //+------------------------------------------------------------------+
-void weightedcapintegrale(float &out[], uint order, float angle) {
+void weightedcapintegrale(float &out[], unsigned int order, float angle) {
   float coeff[3];
   coeff[0] = (float)cos(angle);
 
@@ -3031,7 +3031,7 @@ void DXSHMultiply4(float &out[], const float &a[], const float &b[]) {
 //+------------------------------------------------------------------+
 //| rotate_X                                                         |
 //+------------------------------------------------------------------+
-void rotate_X(float &out[], uint order, float a, float &in[]) {
+void rotate_X(float &out[], unsigned int order, float a, float &in[]) {
   out[0] = in[0];
   out[1] = a * in[2];
   out[2] = -a * in[1];

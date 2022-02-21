@@ -28,18 +28,17 @@
  * Class to provide various tests.
  */
 class Tests {
-public:
-
+ public:
   /**
    * Test Bands indicator values.
    */
   static bool TestBands(bool _print = true, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     bool correct, result = true;
     double _bands[3] = {};
-    int _periods[5] = { 1, 5, 15, 30, 60 };
-    int _modes[3] = { BAND_LOWER, BAND_BASE, BAND_UPPER };
+    int _periods[5] = {1, 5, 15, 30, 60};
+    int _modes[3] = {BAND_LOWER, BAND_BASE, BAND_UPPER};
     Chart *_chart = new Chart(_tf, _symbol);
-    uint _digits = _chart.GetDigits();
+    unsigned int _digits = _chart.GetDigits();
     double _bid = _chart.GetBid();
     double _ask = _chart.GetAsk();
     double _open = _chart.GetOpen();
@@ -54,15 +53,17 @@ public:
     }
     for (int p = 0; p < ArraySize(_periods); p++) {
       for (int m = 0; m < ArraySize(_modes); m++) {
-        #ifdef __MQL4__
-          _bands[m] = iBands(_symbol, _periods[p], 20, 2.0, 0, 0, _modes[m], 0);
-        #else
-          // @fixme: Convert to use Indicator class, so it works in both MQL4 and MQL5.
-          _bands[m] = 0.0;
-        #endif
+#ifdef __MQL4__
+        _bands[m] = iBands(_symbol, _periods[p], 20, 2.0, 0, 0, _modes[m], 0);
+#else
+        // @fixme: Convert to use Indicator class, so it works in both MQL4 and MQL5.
+        _bands[m] = 0.0;
+#endif
       }
       correct = (_bands[0] > 0 && _bands[1] > 0 && _bands[2] > 0 && _bands[0] < _bands[1] && _bands[1] < _bands[2]);
-      if (_print) PrintFormat("Bands M%d          : %g/%g/%g => %s", _periods[p], _bands[0], _bands[1], _bands[2], correct ? "CORRECT" : "INCORRECT");
+      if (_print)
+        PrintFormat("Bands M%d          : %g/%g/%g => %s", _periods[p], _bands[0], _bands[1], _bands[2],
+                    correct ? "CORRECT" : "INCORRECT");
       result &= correct;
     }
     if (_print) Print(result ? "Bands values are correct!" : "Error: Bands values are not correct!");
@@ -78,5 +79,4 @@ public:
     result &= TestBands(print);
     return result;
   }
-
 };
