@@ -114,7 +114,7 @@ class SerializerConverter {
   template <typename C>
   static SerializerConverter FromFile(string path) {
     string data = File::ReadFile(path);
-    SerializerConverter _converter(((C*)NULL).Parse(data), 0);
+    SerializerConverter _converter(((C*)nullptr)PTR_DEREF Parse(data), 0);
     return _converter;
   }
 
