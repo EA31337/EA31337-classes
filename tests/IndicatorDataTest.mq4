@@ -28,8 +28,8 @@
 #include "../IndicatorData.mqh"
 
 // User inputs.
-#ifdef __input__ input #endif string __MA_Parameters__ = \
-    "-- Settings for the Moving Average indicator --";                  // >>> MA <<<
+#ifdef __input__ input #endif string __MA_Parameters__ =
+"-- Settings for the Moving Average indicator --";                      // >>> MA <<<
 #ifdef __input__ input #endif int MA_Period_Fast = 14;                  // Period Fast
 #ifdef __input__ input #endif int MA_Period_Medium = 20;                // Period Medium
 #ifdef __input__ input #endif int MA_Period_Slow = 48;                  // Period Slow

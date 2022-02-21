@@ -40,20 +40,6 @@ class DictSlot {
 
   DictSlot(unsigned char flags = 0) : _flags(flags) {}
 
-  /*
-    DictSlot(DictSlot &r) {
-      _flags = r._flags;
-      key = r.key;
-      value = r.value;
-    }
-
-    void operator=(DictSlot &r) {
-      _flags = r._flags;
-      key = r.key;
-      value = r.value;
-    }
-  */
-
   bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
 
   bool HasKey() { return bool(_flags & DICT_SLOT_HAS_KEY); }
