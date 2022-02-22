@@ -35,6 +35,7 @@
 #define TASK_ACTION_H
 
 // Includes.
+#include "../Std.h"
 #include "../Terminal.define.h"
 #include "TaskAction.enum.h"
 #include "TaskAction.struct.h"
@@ -70,7 +71,7 @@ class TaskAction : public TaskActionBase {
    */
   bool Run() {
     bool _result = entry.IsValid() && entry.HasTriesLeft();
-    _result &= obj.Run(entry);
+    _result &= obj PTR_DEREF Run(entry);
     if (_result) {
       entry.AddFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_DONE));
       entry.RemoveFlags(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE));

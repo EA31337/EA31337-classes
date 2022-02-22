@@ -227,7 +227,7 @@ enum INDICATOR_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_IS_EXPIRED = 1 << 2,
   INDI_ENTRY_FLAG_IS_REAL = 1 << 3,  // Type is real (float or double).
   INDI_ENTRY_FLAG_IS_PRICE = 1 << 4,
-  INDI_ENTRY_FLAG_IS_UNSIGNED = 1 << 5,  // Type is unsigned (uint or ulong).
+  INDI_ENTRY_FLAG_IS_UNSIGNED = 1 << 5,  // Type is unsigned (unsigned int or unsigned long).
   INDI_ENTRY_FLAG_IS_VALID = 1 << 6,
   INDI_ENTRY_FLAG_INSUFFICIENT_DATA = 1 << 7,  // Entry has missing value for that shift and probably won't ever have.
 };

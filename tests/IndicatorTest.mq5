@@ -43,7 +43,7 @@ int OnInit() {
   // Check dynamic allocation.
   MqlParam entry;
   entry.integer_value = 1;
-  for (uint i = 0; i < in.GetBufferSize() * 2; i++) {
+  for (unsigned int i = 0; i < in.GetBufferSize() * 2; i++) {
     in.AddValue(entry);
     Print("Index ", i, ": Curr: ", in.GetValue(0, 0).integer_value, "; Prev: ", in.GetValue(0, 1).integer_value);
     assertTrueOrFail(in.GetValue(0, 0).integer_value == entry.integer_value,

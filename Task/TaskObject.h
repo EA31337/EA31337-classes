@@ -87,8 +87,8 @@ class TaskObject : public Task {
   virtual bool Process(TaskEntry &_entry) {
     bool _result = false;
     if (_entry.IsActive()) {
-      if (Object::IsValid(objc) && objc.Check(_entry.GetCondition()) && Object::IsValid(obja)) {
-        obja.Run(_entry.GetAction());
+      if (Object::IsValid(objc) && objc PTR_DEREF Check(_entry.GetCondition()) && Object::IsValid(obja)) {
+        obja PTR_DEREF Run(_entry.GetAction());
         _entry.Set(STRUCT_ENUM(TaskEntry, TASK_ENTRY_PROP_LAST_PROCESS), TimeCurrent());
         if (_entry.IsDone()) {
           _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE,

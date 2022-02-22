@@ -135,10 +135,10 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
   /**
    * Group ticks by seconds.
    */
-  DictStruct<uint, DictStruct<uint, TickAB<TV>>> GroupBySecs(uint _spc) {
-    // DictStruct<uint, DictStruct<TickAB<TV>>> _result;
+  DictStruct<unsigned int, DictStruct<unsigned int, TickAB<TV>>> GroupBySecs(unsigned int _spc) {
+    // DictStruct<unsigned int, DictStruct<TickAB<TV>>> _result;
     // @todo: for each iter
-    // for (DictStructIterator<uint, DictStruct<TickAB<TV>>> iter(Begin()); iter.IsValid(); ++iter) {
+    // for (DictStructIterator<unsigned int, DictStruct<TickAB<TV>>> iter(Begin()); iter.IsValid(); ++iter) {
     // Load timestamp from key, TickAB from value
     // foreach some timestamp mod % _spc - calculate shift
     // _result.Push(_shift, TickAB<TV>)

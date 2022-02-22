@@ -250,7 +250,7 @@ class Account {
    *   Returns the limit orders (0 for unlimited).
    */
   static long AccountLimitOrders() { return AccountInfoInteger(ACCOUNT_LIMIT_ORDERS); }
-  long GetLimitOrders(uint _max = 999) {
+  long GetLimitOrders(unsigned int _max = 999) {
     long _limit = AccountLimitOrders();
     return _limit > 0 ? _limit : _max;
   }
@@ -322,7 +322,7 @@ class Account {
   double UpdateStats(ENUM_ACC_STAT_VALUE _type, double _value) {
     static datetime _last_check = TimeCurrent();
     bool _stats_rotate = false;
-    for (uint _pindex = 0; _pindex < FINAL_ENUM_ACC_STAT_PERIOD; _pindex++) {
+    for (unsigned int _pindex = 0; _pindex < FINAL_ENUM_ACC_STAT_PERIOD; _pindex++) {
       acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR] =
           fmin(acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR], _value);
       acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR] =
