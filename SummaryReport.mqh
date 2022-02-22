@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -20,7 +20,7 @@
  *
  */
 
-#include "Account.mqh"
+#include "Account/AccountMt.h"
 #include "Convert.mqh"
 #include "Order.struct.h"
 #include "Terminal.mqh"
@@ -74,7 +74,7 @@ class SummaryReport {
      * Default constructor.
      */
     SummaryReport() {
-      InitVars(Account::AccountBalance());
+      InitVars(AccountMt::AccountBalance());
     }
 
     /**
@@ -132,7 +132,7 @@ class SummaryReport {
       else if (!Terminal::IsRealtime() && init_deposit > 0) {
         deposit = init_deposit;
       } else {
-        deposit = Account::CalcInitDeposit();
+        deposit = AccountMt::CalcInitDeposit();
       }
       return (deposit);
     }

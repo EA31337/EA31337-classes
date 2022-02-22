@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -27,7 +27,7 @@
 #define EXCHANGE_H
 
 // Includes.
-#include "../Account.mqh"
+#include "../Account/Account.h"
 #include "../DictObject.mqh"
 #include "../SymbolInfo.mqh"
 #include "../Trade.mqh"
@@ -35,7 +35,7 @@
 
 class Exchange {
  protected:
-  DictObject<string, Account> accounts;
+  DictObject<string, AccountBase> accounts;
   DictObject<string, SymbolInfo> symbols;
   DictObject<string, Trade> trades;
   ExchangeParams eparams;
@@ -59,25 +59,35 @@ class Exchange {
   /* Adders */
 
   /**
-   * Adds account to the list.
+   * Adds account instance to the list.
    */
-  void AccountAdd(Account &_account, string _name) { accounts.Set(_name, _account); }
+  void AccountAdd(AccountBase &_account, string _name) { accounts.Set(_name, _account); }
 
   /**
-   * Adds symbol to the list.
+   * Adds symbol instance to the list.
    */
   void SymbolAdd(SymbolInfo &_sinfo, string _name) { symbols.Set(_name, _sinfo); }
+
+  /**
+   * Adds trade instance to the list.
+   */
+  void TradeAdd(Trade &_trade, string _name) { trades.Set(_name, _trade); }
 
   /* Removers */
 
   /**
-   * Removes account from the list.
+   * Removes account instance from the list.
    */
   void AccountRemove(string _name) { accounts.Unset(_name); }
 
   /**
-   * Removes symbol from the list.
+   * Removes symbol instance from the list.
    */
   void SymbolRemove(string _name) { symbols.Unset(_name); }
+
+  /**
+   * Removes trade instance from the list.
+   */
+  void TradeRemove(string _name) { trades.Unset(_name); }
 };
 #endif  // EXCHANGE_H

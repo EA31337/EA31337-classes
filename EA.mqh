@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -54,7 +54,7 @@
 class EA : public Taskable<DataParamEntry> {
  protected:
   // Class variables.
-  Account *account;
+  AccountMt *account;
   DictStruct<long, Ref<Strategy>> strats;
   Log logger;
   Terminal terminal;
@@ -97,7 +97,7 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Class constructor.
    */
-  EA(EAParams &_params) : account(new Account) {
+  EA(EAParams &_params) : account(new AccountMt) {
     eparams = _params;
     UpdateStateFlags();
     // Add and process tasks.
@@ -1024,7 +1024,7 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Gets pointer to account details.
    */
-  Account *Account() { return account; }
+  AccountMt *Account() { return account; }
 
   /**
    * Gets pointer to log instance.
