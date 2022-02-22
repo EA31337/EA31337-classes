@@ -29,7 +29,7 @@
 #include "../Exchange.h"
 
 // Test classes.
-class AccountDummy : public AccountMt {};  // <AccountForexState, AccountForexEntry>
+class AccountDummy : public AccountBase {};  // <AccountForexState, AccountForexEntry>
 class ExchangeDummy : public Exchange {};
 class SymbolDummy : public SymbolInfo {};
 class TradeDummy : public Trade {};
