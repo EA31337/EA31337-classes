@@ -154,7 +154,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Process strategy's signals and orders.
    *
-   * @param ushort _periods_started
+   * @param unsigned short _periods_started
    *   Periods which started.
    *
    * @return
@@ -339,7 +339,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Get strategy orders currently open.
    */
-  uint GetOrdersOpen() {
+  unsigned int GetOrdersOpen() {
     // UpdateOrderStats(EA_STATS_TOTAL);
     // @todo
     return stats.orders_open;
@@ -362,7 +362,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Gets strategy orders total opened.
    */
-  uint GetOrdersTotal(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+  unsigned int GetOrdersTotal(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
     return stats_period[_period].orders_total;
   }
@@ -370,7 +370,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Gets strategy orders won.
    */
-  uint GetOrdersWon(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+  unsigned int GetOrdersWon(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
     return stats_period[_period].orders_won;
   }
@@ -378,7 +378,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Gets strategy orders lost.
    */
-  uint GetOrdersLost(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+  unsigned int GetOrdersLost(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
     return stats_period[_period].orders_lost;
   }
@@ -590,7 +590,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Convert timeframe constant to index value.
    */
-  uint TfToIndex(ENUM_TIMEFRAMES _tf) { return ChartTf::TfToIndex(_tf); }
+  unsigned int TfToIndex(ENUM_TIMEFRAMES _tf) { return ChartTf::TfToIndex(_tf); }
 
   /**
    * Class constructor.
@@ -1005,9 +1005,9 @@ class Strategy : public Taskable<DataParamEntry> {
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {
-      int _ishift = 12;  // @todo: Make it dynamic or as variable.
-      float _value = 0.0f; // @todo
-      //float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
+      int _ishift = 12;     // @todo: Make it dynamic or as variable.
+      float _value = 0.0f;  // @todo
+      // float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
       _value = _value + (float)Math::ChangeByPct(fabs(_value - _chart.GetCloseOffer(0)), _level) * _direction;
       _psm.SetIndicatorPriceValue(_value);
       /*

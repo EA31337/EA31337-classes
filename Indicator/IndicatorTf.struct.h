@@ -35,13 +35,13 @@
 
 /* Structure for IndicatorTf class parameters. */
 struct IndicatorTfParams : IndicatorParams {
-  uint spc;  // Seconds per candle.
+  unsigned int spc;  // Seconds per candle.
   // Struct constructor.
-  IndicatorTfParams(uint _spc = 60) : spc(_spc) {}
+  IndicatorTfParams(unsigned int _spc = 60) : spc(_spc) {}
   // Getters.
-  uint GetSecsPerCandle() { return spc; }
+  unsigned int GetSecsPerCandle() { return spc; }
   // Setters.
-  void SetSecsPerCandle(uint _spc) { spc = _spc; }
+  void SetSecsPerCandle(unsigned int _spc) { spc = _spc; }
   // Copy constructor.
   IndicatorTfParams(const IndicatorTfParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     THIS_REF = _params;

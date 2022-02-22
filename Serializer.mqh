@@ -57,7 +57,7 @@ class Serializer {
   /**
    * Constructor.
    */
-  Serializer(SerializerNode* node, SerializerMode mode, int flags) : _node(node), _mode(mode), _flags(flags) {
+  Serializer(SerializerNode* node, SerializerMode mode, int flags = 0) : _node(node), _mode(mode), _flags(flags) {
     _root = node;
     _root_node_ownership = true;
     fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;

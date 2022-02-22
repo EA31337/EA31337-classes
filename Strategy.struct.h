@@ -416,21 +416,21 @@ struct StgProcessResult {
 
 /* Struture for strategy statistics */
 struct StgStats {
-  uint orders_open;  // Number of current opened orders.
-  uint errors;       // Count reported errors.
+  unsigned int orders_open;  // Number of current opened orders.
+  unsigned int errors;       // Count reported errors.
 };
 
 /* Structure for strategy's statistical periods. */
 struct StgStatsPeriod {
   // Statistics variables.
-  uint orders_total;     // Number of total opened orders.
-  uint orders_won;       // Number of total won orders.
-  uint orders_lost;      // Number of total lost orders.
-  double avg_spread;     // Average spread.
-  double net_profit;     // Total net profit.
-  double gross_profit;   // Total gross profit.
-  double gross_loss;     // Total gross loss.
-  double profit_factor;  // Profit factor.
+  unsigned int orders_total;  // Number of total opened orders.
+  unsigned int orders_won;    // Number of total won orders.
+  unsigned int orders_lost;   // Number of total lost orders.
+  double avg_spread;          // Average spread.
+  double net_profit;          // Total net profit.
+  double gross_profit;        // Total gross profit.
+  double gross_loss;          // Total gross loss.
+  double profit_factor;       // Profit factor.
   // Getters.
   string ToCSV() {
     return StringFormat("%d,%d,%d,%g,%g,%g,%g,%g", orders_total, orders_won, orders_lost, avg_spread, net_profit,

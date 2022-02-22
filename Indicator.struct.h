@@ -329,7 +329,7 @@ struct IndicatorDataEntry {
   int GetYear() { return DateTimeStatic::Year(timestamp); }
   long GetTime() { return timestamp; };
   ENUM_DATATYPE GetDataType(int _mode) { return values[_mode].GetDataType(); }
-  ushort GetDataTypeFlags(ENUM_DATATYPE _dt) {
+  unsigned short GetDataTypeFlags(ENUM_DATATYPE _dt) {
     switch (_dt) {
       case TYPE_BOOL:
       case TYPE_CHAR:

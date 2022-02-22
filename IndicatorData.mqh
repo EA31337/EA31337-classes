@@ -182,10 +182,10 @@ class IndicatorBuffer {
     return true;
   }
 
-  string ToString(uint _limit = TO_STRING_LIMIT_DEFAULT) {
+  string ToString(unsigned int _limit = TO_STRING_LIMIT_DEFAULT) {
     string out = NULL;
     IndicatorValue* it = _head;
-    uint i = 0;
+    unsigned int i = 0;
     while (CheckPointer(it) == POINTER_DYNAMIC && i < _limit) {
       if (out != NULL)
         // add comma
@@ -228,7 +228,7 @@ class IndicatorData : public Chart {
   /**
    * Class constructor.
    */
-  void IndicatorData(string _name = NULL, uint _max_buffer = INDICATOR_BUFFERS_COUNT_MIN) : iname(_name) {
+  void IndicatorData(string _name = NULL, unsigned int _max_buffer = INDICATOR_BUFFERS_COUNT_MIN) : iname(_name) {
     _max_buffer = fmax(_max_buffer, INDICATOR_BUFFERS_COUNT_MIN);
     ArrayResize(buffers, _max_buffer);
   }
@@ -241,24 +241,24 @@ class IndicatorData : public Chart {
   /**
    * Store a new indicator value.
    */
-  bool IsValidMode(uint _mode) { return _mode < (uint)ArraySize(buffers); }
+  bool IsValidMode(unsigned int _mode) { return _mode < (unsigned int)ArraySize(buffers); }
 
-  bool Add(double _value, uint _mode = 0, uint _shift = CURR, bool _force = false) {
+  bool Add(double _value, unsigned int _mode = 0, unsigned int _shift = CURR, bool _force = false) {
     if (!IsValidMode(_mode)) return false;
     return buffers[_mode].Add(_value, GetBarTime(_shift), _force);
   }
 
-  bool Add(int _value, uint _mode = 0, uint _shift = CURR, bool _force = false) {
+  bool Add(int _value, unsigned int _mode = 0, unsigned int _shift = CURR, bool _force = false) {
     if (!IsValidMode(_mode)) return false;
     return buffers[_mode].Add(_value, GetBarTime(_shift), _force);
   }
 
-  double GetDouble(uint _mode = 0, uint _shift = CURR) {
+  double GetDouble(unsigned int _mode = 0, unsigned int _shift = CURR) {
     if (!IsValidMode(_mode)) return 0;
     return buffers[_mode].GetDouble(GetBarTime(_shift));
   }
 
-  int GetInt(uint _mode = 0, uint _shift = CURR) {
+  int GetInt(unsigned int _mode = 0, unsigned int _shift = CURR) {
     if (!IsValidMode(_mode)) return 0;
     return buffers[_mode].GetInt(GetBarTime(_shift));
   }
@@ -271,7 +271,7 @@ class IndicatorData : public Chart {
   /**
    * Print stored data.
    */
-  string ToString(int mode = -1, uint _limit = TO_STRING_LIMIT_DEFAULT) {
+  string ToString(int mode = -1, unsigned int _limit = TO_STRING_LIMIT_DEFAULT) {
     string _out = StringFormat("%s DATA:\n", GetName());
     if (mode == -1) {  // print all series
       for (int m = 0; m < ArraySize(buffers); m++) {
@@ -288,7 +288,7 @@ class IndicatorData : public Chart {
   /**
    * Print stored data.
    */
-  void PrintData(int mode = -1, uint _limit = TO_STRING_LIMIT_DEFAULT) { Print(ToString(mode, _limit)); }
+  void PrintData(int mode = -1, unsigned int _limit = TO_STRING_LIMIT_DEFAULT) { Print(ToString(mode, _limit)); }
 
   /**
    * Update indicator.
