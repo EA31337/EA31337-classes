@@ -27,7 +27,7 @@
 #define EXCHANGE_H
 
 // Includes.
-#include "../Account/AccountMt.h"
+#include "../Account/Account.h"
 #include "../DictObject.mqh"
 #include "../SymbolInfo.mqh"
 #include "../Trade.mqh"
@@ -35,7 +35,7 @@
 
 class Exchange {
  protected:
-  DictObject<string, AccountMt> accounts;
+  DictObject<string, AccountBase> accounts;
   DictObject<string, SymbolInfo> symbols;
   DictObject<string, Trade> trades;
   ExchangeParams eparams;
@@ -61,7 +61,7 @@ class Exchange {
   /**
    * Adds account instance to the list.
    */
-  void AccountAdd(AccountMt &_account, string _name) { accounts.Set(_name, _account); }
+  void AccountAdd(AccountBase &_account, string _name) { accounts.Set(_name, _account); }
 
   /**
    * Adds symbol instance to the list.
