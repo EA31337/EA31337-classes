@@ -58,7 +58,9 @@ class Indi_Price : public IndicatorTickOrCandleSource<PriceIndiParams> {
   /**
    * Checks whether indicator has a valid value for a given shift.
    */
-  virtual bool HasValidEntry(int _shift = 0) { return GetBarTime(_shift) != 0; }
+  virtual bool HasValidEntry(int _shift = 0) {
+    return GetChart() PTR_DEREF GetBarTime(GetSymbol(), GetTf(), _shift) != 0;
+  }
 
   /**
    * Returns the indicator's value.
@@ -81,9 +83,9 @@ class Indi_Price : public IndicatorTickOrCandleSource<PriceIndiParams> {
     Indi_Price *_indi_price;
     if (!Objects<Indi_Price>::TryGet(_key, _indi_price)) {
       PriceIndiParams _indi_price_params(_ap, _shift);
+      _indi_price_params.SetSymbol(_symbol);
       _indi_price_params.SetTf(_tf);
       _indi_price = Objects<Indi_Price>::Set(_key, new Indi_Price(_indi_price_params));
-      _indi_price.SetSymbol(_symbol);
     }
     return _indi_price;
   }

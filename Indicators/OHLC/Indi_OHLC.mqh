@@ -94,8 +94,8 @@ class Indi_OHLC : public IndicatorTickOrCandleSource<IndiOHLCParams> {
     if (!Objects<Indi_OHLC>::TryGet(_key, _indi_ohlc)) {
       IndiOHLCParams _indi_ohlc_params(_shift);
       _indi_ohlc_params.SetTf(_tf);
+      _indi_ohlc_params.SetSymbol(_symbol);
       _indi_ohlc = Objects<Indi_OHLC>::Set(_key, new Indi_OHLC(_indi_ohlc_params));
-      _indi_ohlc.SetSymbol(_symbol);
     }
     return _indi_ohlc;
   }

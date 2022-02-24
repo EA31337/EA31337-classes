@@ -762,16 +762,6 @@ class Indicator : public IndicatorBase {
   IndicatorParams GetParams() { return iparams; }
 
   /**
-   * Gets indicator's symbol.
-   */
-  string GetSymbol() { return Get<string>(CHART_PARAM_SYMBOL); }
-
-  /**
-   * Gets indicator's time-frame.
-   */
-  ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
-
-  /**
    * Gets indicator's signals.
    *
    * When indicator values are not valid, returns empty signals.
@@ -785,7 +775,7 @@ class Indicator : public IndicatorBase {
       return _signals;
     }
     // Returns signals.
-    IndicatorSignal _signals(_data, iparams, cparams, _mode1, _mode2);
+    IndicatorSignal _signals(_data, iparams, GetSymbol(), GetTf(), _mode1, _mode2);
     return _signals;
   }
 
@@ -822,14 +812,6 @@ class Indicator : public IndicatorBase {
   /* Setters */
 
   /**
-   * Sets an indicator's chart parameter value.
-   */
-  template <typename T>
-  void Set(ENUM_CHART_PARAM _param, T _value) {
-    Chart::Set<T>(_param, _value);
-  }
-
-  /**
    * Sets name of the indicator.
    */
   void SetName(string _name) { iparams.SetName(_name); }
@@ -848,11 +830,6 @@ class Indicator : public IndicatorBase {
    * Sets indicator's params.
    */
   void SetParams(IndicatorParams& _iparams) { iparams = _iparams; }
-
-  /**
-   * Sets indicator's symbol.
-   */
-  void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
 
   /* Conditions */
 
@@ -959,7 +936,7 @@ class Indicator : public IndicatorBase {
   bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
     if (!entry.IsValid()) return false;
 
-    datetime timestamp = GetBarTime(_shift);
+    datetime timestamp = ChartStatic::iTime(GetSymbol(), GetTf(), _shift);
     entry.timestamp = timestamp;
     idata.Add(entry, timestamp);
 
@@ -967,13 +944,11 @@ class Indicator : public IndicatorBase {
   }
 
   void OnTick() override {
-    Chart::OnTick();
-
     if (iparams.is_draw) {
       // Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
       for (int i = 0; i < (int)iparams.GetMaxModes(); ++i)
         draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.GetDataSourceMode()),
-                        GetBarTime(0), GetEntry(0)[i], iparams.draw_window);
+                        ChartStatic::iTime(GetSymbol(), GetTf(), 0), GetEntry(0)[i], iparams.draw_window);
     }
   }
 
@@ -1095,11 +1070,11 @@ class Indicator : public IndicatorBase {
   IndicatorDataEntry GetEntry(int _index = -1) override {
     ResetLastError();
     int _ishift = _index >= 0 ? _index : iparams.GetShift();
-    long _bar_time = GetBarTime(_ishift);
+    long _bar_time = ChartStatic::iTime(GetSymbol(), GetTf(), _ishift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(iparams.GetMaxModes());
-      _entry.timestamp = GetBarTime(_ishift);
+      _entry.timestamp = ChartStatic::iTime(GetSymbol(), GetTf(), _ishift);
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         switch (iparams.GetDataValueType()) {
           case TYPE_BOOL:

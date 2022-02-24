@@ -31,8 +31,8 @@
 
 // Includes.
 #include "../Buffer/BufferCandle.h"
-#include "../Indicator.mqh"
 #include "../Candle.struct.h"
+#include "../Indicator.mqh"
 
 // Indicator modes.
 enum ENUM_INDI_CANDLE_MODE {
@@ -99,7 +99,7 @@ class IndicatorCandle : public Indicator<TS> {
   IndicatorDataEntry GetEntry(int _index = -1) override {
     ResetLastError();
     unsigned int _ishift = _index >= 0 ? _index : iparams.GetShift();
-    long _candle_time = CalcCandleTimestamp(GetBarTime(_ishift));
+    long _candle_time = CalcCandleTimestamp(ChartStatic::iTime(GetSymbol(), GetTf(), _ishift));
     long _curr_candle_time;
     CandleOCTOHLC<TV> _candle;
 
@@ -107,7 +107,7 @@ class IndicatorCandle : public Indicator<TS> {
     if (icdata.Size() > 0) {
       int i = 0;
       while (true) {
-        _curr_candle_time = CalcCandleTimestamp(GetBarTime(i++));
+        _curr_candle_time = CalcCandleTimestamp(ChartStatic::iTime(GetSymbol(), GetTf(), i++));
 
         if (_curr_candle_time < icdata.GetMin()) {
           // There is no older entries.
@@ -125,7 +125,8 @@ class IndicatorCandle : public Indicator<TS> {
     if (!_candle.IsValid()) {
       // Giving up.
       DebugBreak();
-      Print(GetFullName(), ": Missing candle after thorough search at shift ", _index, " (", TimeToString(_candle_time), "). Lowest timestamp in history is ", icdata.GetMin());
+      Print(GetFullName(), ": Missing candle after thorough search at shift ", _index, " (", TimeToString(_candle_time),
+            "). Lowest timestamp in history is ", icdata.GetMin());
     }
 
     return CandleToEntry(_candle_time, _candle);

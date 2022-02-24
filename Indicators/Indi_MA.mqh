@@ -659,8 +659,8 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
     string _key = Util::MakeKey(_symbol, (int)_tf, _period, _ma_shift, (int)_ma_method, (int)_ap);
     if (!Objects<Indi_MA>::TryGet(_key, _ptr)) {
       IndiMAParams _p(_period, _ma_shift, _ma_method, _ap);
+      _p.SetSymbol(_symbol);
       _ptr = Objects<Indi_MA>::Set(_key, new Indi_MA(_p));
-      _ptr.SetSymbol(_symbol);
     }
     return _ptr;
   }

@@ -65,12 +65,12 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
    */
   virtual IndicatorDataEntry GetEntry(int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    long _bar_time = GetBarTime(_ishift);
+    long _bar_time = GetChart() PTR_DEREF GetBarTime(GetSymbol(), GetTf(), _ishift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       ResetLastError();
       BarOHLC _ohlc = GetOHLC(_ishift);
-      _entry.timestamp = GetBarTime(_ishift);
+      _entry.timestamp = GetChart() PTR_DEREF GetBarTime(GetSymbol(), GetTf(), _ishift);
       if (_ohlc.IsValid()) {
         _entry.Resize(iparams.GetMaxModes());
         _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vflt, _entry.values[1].value.vflt,
@@ -142,7 +142,7 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
-        _ohlc = Chart::GetOHLC(_shift);
+        _ohlc = GetChart() PTR_DEREF GetOHLC(GetSymbol(), GetTf(), _shift);
         break;
       case IDATA_INDICATOR:
         // In this mode, price is fetched from given indicator. Such indicator

@@ -128,8 +128,8 @@ class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
     string _key = Util::MakeKey(_symbol, (int)_tf, _period);
     if (!Objects<Indi_ATR>::TryGet(_key, _ptr)) {
       IndiATRParams _p(_period, _tf);
+      _p.SetSymbol(_symbol);
       _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_p));
-      _ptr.SetSymbol(_symbol);
     }
     return _ptr;
   }

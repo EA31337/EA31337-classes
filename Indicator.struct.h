@@ -422,6 +422,7 @@ struct IndicatorParams {
   bool is_draw;                         // Draw active.
   int draw_window;                      // Drawing window.
   string custom_indi_name;              // Name of the indicator passed to iCustom() method.
+  string symbol;                        // Symbol used by indicator.
  public:
   /* Special methods */
   // Constructor.
@@ -476,6 +477,7 @@ struct IndicatorParams {
   int GetMaxModes() const { return (int)max_modes; }
   int GetMaxParams() const { return (int)max_params; }
   int GetShift() const { return shift; }
+  string GetSymbol() const { return symbol; }
   ENUM_DATATYPE GetDataValueType() const { return dtype; }
   ENUM_IDATA_SOURCE_TYPE GetDataSourceType() const { return idstype; }
   ENUM_IDATA_VALUE_RANGE GetIDataValueRange() const { return idvrange; }
@@ -542,6 +544,7 @@ struct IndicatorParams {
   void SetName(string _name) { name = _name; };
   void SetShift(int _shift) { shift = _shift; }
   void SetSize(int _size) { max_buffers = _size; };
+  void SetSymbol(string _symbol) { symbol = _symbol; }
   void SetTf(ENUM_TIMEFRAMES _tf) { tf.SetTf(_tf); }
   // Serializers.
   // SERIALIZER_EMPTY_STUB;

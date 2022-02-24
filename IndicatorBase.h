@@ -37,6 +37,8 @@ class Chart;
 #include "Array.mqh"
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
+#include "Chart.struct.tf.h"
+#include "ChartBase.h"
 #include "DateTime.mqh"
 #include "DrawIndicator.mqh"
 #include "Indicator.define.h"
@@ -45,6 +47,7 @@ class Chart;
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
 #include "Indicator.struct.signal.h"
+#include "Log.mqh"
 #include "Object.mqh"
 #include "Refs.mqh"
 #include "Serializer.mqh"
@@ -58,8 +61,11 @@ class Chart;
 /**
  * Class to deal with indicators.
  */
-class IndicatorBase : public Chart {
+class IndicatorBase : public Object {
  protected:
+  Ref<ChartBase> chart;      // Chart we are currently connected to.
+  const ENUM_TIMEFRAMES tf;  // Time-frame the indicator operates on. Cannot be changed once set.
+  const string symbol;       // Symbol the indicator operates on. Cannot be changed once set.
   IndicatorState istate;
   void* mydata;
   bool is_fed;                                     // Whether calc_start_bar is already calculated.
@@ -73,6 +79,7 @@ class IndicatorBase : public Chart {
   ARRAY(WeakRef<IndicatorBase>, listeners);  // List of indicators that listens for events from this one.
   long last_tick_time;                       // Time of the last Tick() call.
   int flags;                                 // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
+  Ref<Log> logger;
 
  public:
   /* Indicator enumerations */
@@ -92,7 +99,8 @@ class IndicatorBase : public Chart {
   /**
    * Class constructor.
    */
-  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : indi_src(NULL), Chart(_tf, _symbol) {
+  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
+      : tf(_tf), symbol(_symbol), indi_src(NULL) {
     // By default, indicator is indexable only by shift and data source must be also indexable by shift.
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
@@ -104,7 +112,7 @@ class IndicatorBase : public Chart {
   /**
    * Class constructor.
    */
-  IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : Chart(_tfi, _symbol) {
+  IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : tf(ChartTf::IndexToTf(_tfi)), symbol(_symbol) {
     // By default, indicator is indexable only by shift and data source must be also indexable by shift.
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
@@ -348,6 +356,17 @@ class IndicatorBase : public Chart {
   /* Getters */
 
   /**
+   * Returns pointer to chart the indicator is bound to.
+   */
+  ChartBase* GetChart() {
+    if (!chart.IsSet()) {
+      chart = new ChartMt();
+    }
+
+    return chart.Ptr();
+  }
+
+  /**
    * Returns indicator's flags.
    */
   int GetFlags() { return flags; }
@@ -358,19 +377,21 @@ class IndicatorBase : public Chart {
   IndicatorCalculateCache<double>* GetCache() { return &cache; }
 
   /**
-   * Gets an indicator's chart parameter value.
-   */
-  template <typename T>
-  T Get(ENUM_CHART_PARAM _param) {
-    return Chart::Get<T>(_param);
-  }
-
-  /**
    * Gets an indicator's state property value.
    */
   template <typename T>
   T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
     return istate.Get<T>(_prop);
+  }
+
+  /**
+   * Returns logger.
+   */
+  Log* GetLogger() {
+    if (!logger.IsSet()) {
+      logger = new Log();
+    }
+    return logger.Ptr();
   }
 
   /**
@@ -420,14 +441,6 @@ class IndicatorBase : public Chart {
   /* Setters */
 
   /**
-   * Sets an indicator's chart parameter value.
-   */
-  template <typename T>
-  void Set(ENUM_CHART_PARAM _param, T _value) {
-    Chart::Set<T>(_param, _value);
-  }
-
-  /**
    * Adds event listener.
    */
   void AddListener(IndicatorBase* _indi) {
@@ -464,11 +477,6 @@ class IndicatorBase : public Chart {
    * Note: Not supported in MT4.
    */
   virtual void SetHandle(int _handle) {}
-
-  /**
-   * Sets indicator's symbol.
-   */
-  void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
 
   /* Other methods */
 
@@ -786,12 +794,12 @@ class IndicatorBase : public Chart {
   /**
    * Gets indicator's symbol.
    */
-  string GetSymbol() { return Get<string>(CHART_PARAM_SYMBOL); }
+  string GetSymbol() { return symbol; }
 
   /**
    * Gets indicator's time-frame.
    */
-  ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
+  ENUM_TIMEFRAMES GetTf() { return tf; }
 
   /* Defines MQL backward compatible methods */
 

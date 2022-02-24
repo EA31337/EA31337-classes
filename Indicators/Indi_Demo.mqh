@@ -67,7 +67,7 @@ class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
    */
   static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                       IndicatorBase *_obj = NULL) {
-    return 0.1 + (0.1 * _obj.GetBarIndex());
+    return 0.1 + (0.1 * _obj PTR_DEREF GetChart() PTR_DEREF GetBarIndex());
   }
 
   /**
@@ -77,7 +77,7 @@ class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _ishift, THIS_PTR);
     if (iparams.is_draw) {
-      draw.DrawLineTo(GetName(), GetBarTime(_ishift), _value);
+      draw.DrawLineTo(GetName(), GetChart() PTR_DEREF GetBarTime(GetSymbol(), GetTf(), _ishift), _value);
     }
     return _value;
   }
