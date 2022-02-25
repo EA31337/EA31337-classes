@@ -67,7 +67,7 @@ class Indi_Pattern : public IndicatorTickOrCandleSource<IndiPatternParams> {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
         for (i = 0; i < iparams.GetMaxModes(); ++i) {
-          _ohlcs[i] = chart.Ptr() PTR_DEREF GetOHLC(GetSymbol(), GetTf(), _ishift + i);
+          _ohlcs[i] = GetChart() PTR_DEREF GetOHLC(GetSymbol(), GetTf(), _ishift + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
             return WRONG_VALUE;

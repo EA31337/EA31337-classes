@@ -39,6 +39,7 @@ class Chart;
 #include "Chart.mqh"
 #include "Chart.struct.tf.h"
 #include "ChartBase.h"
+#include "ChartMt.h"
 #include "DateTime.mqh"
 #include "DrawIndicator.mqh"
 #include "Indicator.define.h"

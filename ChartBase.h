@@ -23,10 +23,6 @@
 /**
  * @file
  * Class to provide generic chart operations.
- *
- * @docs
- * - https://www.mql5.com/en/docs/chart_operations
- * - https://www.mql5.com/en/docs/series
  */
 
 // Prevents processing this includes file for the second time.
@@ -37,17 +33,18 @@
 // Includes.
 #include "Bar.struct.h"
 #include "Chart.enum.h"
+#include "Dict.mqh"
 #include "Refs.mqh"
 
 /**
- * Abstract class used as a base for
+ * Abstract class used as a base for market prices source.
  */
 class ChartBase : public Dynamic {
   // Generic chart params.
   ChartParams cparams;
 
-  // Time of the last bar.
-  datetime last_bar_time;
+  // Time of the last bar per symbol and timeframe.
+  Dict<string, datetime> last_bar_time;
 
   // Current tick index (incremented every OnTick()).
   int tick_index;
@@ -65,6 +62,32 @@ class ChartBase : public Dynamic {
   }
 
   /**
+   * Check if there is a new bar to parse.
+   */
+  bool IsNewBar(string _symbol, ENUM_TIMEFRAMES _tf) {
+    bool _result = false;
+    datetime _bar_time = GetBarTime(_symbol, _tf);
+    if (GetLastBarTime(_symbol, _tf) != _bar_time) {
+      SetLastBarTime(_symbol, _tf, _bar_time);
+      _result = true;
+    }
+    return _result;
+  }
+
+  datetime GetLastBarTime(string _symbol, ENUM_TIMEFRAMES _tf) {
+    string _key = _symbol + "_" + IntegerToString((int)_tf);
+    if (last_bar_time.KeyExists(_key)) {
+      return last_bar_time.GetByKey(_key);
+    }
+    return 0;
+  }
+
+  void SetLastBarTime(string _symbol, ENUM_TIMEFRAMES _tf, datetime _dt) {
+    string _key = _symbol + "_" + IntegerToString((int)_tf);
+    last_bar_time.Set(_key, _dt);
+  }
+
+  /**
    * Returns current tick index (incremented every OnTick()).
    */
   unsigned int GetTickIndex() { return tick_index == -1 ? 0 : tick_index; }
@@ -79,10 +102,10 @@ class ChartBase : public Dynamic {
    */
   void OnTick() {
     ++tick_index;
-
-    if (GetLastBarTime() != GetBarTime()) {
-      ++bar_index;
-    }
+    // @fixit @todo
+    // if (last_bar_time != GetBarTime()) {
+    //  ++bar_index;
+    //}
   }
 
   /**
@@ -90,57 +113,47 @@ class ChartBase : public Dynamic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetOpen(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return GetPrice(PRICE_OPEN, _symbol, _tf);
-  }
+  double GetOpen(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) { return GetPrice(PRICE_OPEN, _symbol, _tf); }
 
   /**
    * Returns high price value for the bar of indicated symbol and timeframe.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetHigh(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return GetPrice(PRICE_HIGH, _symbol, _tf);
-  }
+  double GetHigh(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) { return GetPrice(PRICE_HIGH, _symbol, _tf); }
 
   /**
    * Returns low price value for the bar of indicated symbol and timeframe.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetLow(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return GetPrice(PRICE_LOW, _symbol, _tf);
-  }
+  double GetLow(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) { return GetPrice(PRICE_LOW, _symbol, _tf); }
 
   /**
    * Returns close price value for the bar of indicated symbol and timeframe.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetClose(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return GetPrice(PRICE_CLOSE, _symbol, _tf);
-  }
-
-  // Virtual methods.
+  double GetClose(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) { return GetPrice(PRICE_CLOSE, _symbol, _tf); }
 
   /**
    * Gets OHLC price values.
    */
-  virtual BarOHLC GetOHLC(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) = 0;
+  virtual BarOHLC GetOHLC(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) = 0;
 
-  virtual datetime GetBarTime(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) = 0;
+  virtual datetime GetBarTime(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) = 0;
 
   /**
    * Returns the current price value given applied price type, symbol and timeframe.
    */
-  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) = 0;
+  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) = 0;
 
   /**
    * Returns tick volume value for the bar.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual long GetVolume(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) = 0;
+  virtual long GetVolume(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) = 0;
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -155,7 +168,7 @@ class ChartBase : public Dynamic {
   /**
    * Returns the number of bars on the chart.
    */
-  virtual int GetBars() = 0;
+  virtual int GetBars(string _symbol, ENUM_TIMEFRAMES _tf) = 0;
 
   /**
    * Search for a bar by its time.
@@ -169,5 +182,5 @@ class ChartBase : public Dynamic {
    *
    * In case of error, check it via GetLastError().
    */
-  virtual double GetPeakPrice(string _symbol, ENUM_TIMEFRAMES _tf, int bars, int mode, int index) = 0;
+  virtual double GetPeakPrice(string _symbol, ENUM_TIMEFRAMES _tf, int _bars, int _mode, int _index) = 0;
 };
