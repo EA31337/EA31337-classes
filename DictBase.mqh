@@ -106,7 +106,7 @@ class DictBase {
   /**
    * Returns slot by key.
    */
-  DictSlot<K, V>* GetSlotByKey(DictSlotsRef<K, V>& dictSlotsRef, const K _key, unsigned int& position) {
+  DictSlot<K, V>* GetSlotByKey(DictSlotsRef<K, V>& dictSlotsRef, const K& _key, unsigned int& position) {
     unsigned int numSlots = ArraySize(dictSlotsRef.DictSlots);
 
     if (numSlots == 0) return NULL;
@@ -163,7 +163,7 @@ class DictBase {
   /**
    * Removes value from the dictionary by the given key (if exists).
    */
-  void Unset(const K key) {
+  void Unset(const K& key) {
     if (HasFlags(DICT_FLAG_FILL_HOLES_UNSORTED)) {
       Print(
           "Unset on Dict with DICT_FLAG_FILL_HOLES_UNSORTED flag must be called by passing the iterator, instead of "
@@ -177,7 +177,7 @@ class DictBase {
   /**
    * Removes value from the dictionary by the given key (if exists).
    */
-  void InternalUnset(const K key) {
+  void InternalUnset(const K& key) {
     if (ArraySize(_DictSlots_ref.DictSlots) == 0) {
       // Nothing to unset.
       return;
@@ -279,7 +279,7 @@ class DictBase {
   /**
    * Checks whether given key exists in the dictionary.
    */
-  bool KeyExists(const K key, unsigned int& position) {
+  bool KeyExists(const K& key, unsigned int& position) {
     int numSlots = ArraySize(_DictSlots_ref.DictSlots);
 
     if (numSlots == 0) return false;
@@ -307,7 +307,7 @@ class DictBase {
     // No key found.
     return false;
   }
-  bool KeyExists(const K key) {
+  bool KeyExists(const K& key) {
     unsigned int position;
     return KeyExists(key, position);
   }

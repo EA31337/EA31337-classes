@@ -33,6 +33,7 @@
 // Includes.
 #include "Bar.struct.h"
 #include "Chart.enum.h"
+#include "Chart.symboltf.h"
 #include "Dict.mqh"
 #include "Refs.mqh"
 
@@ -44,13 +45,13 @@ class ChartBase : public Dynamic {
   ChartParams cparams;
 
   // Time of the last bar per symbol and timeframe.
-  Dict<string, datetime> last_bar_time;
+  Dict<SymbolTf, datetime> last_bar_time;
 
-  // Current tick index (incremented every OnTick()).
-  int tick_index;
+  // Index of the current bar per symbol and timeframe.
+  Dict<SymbolTf, int> bar_index;
 
-  // Current bar index (incremented every OnTick() if IsNewBar() is true).
-  int bar_index;
+  // Index of the current tick per symbol and timeframe.
+  Dict<SymbolTf, int> tick_index;
 
  public:
   /**
@@ -64,28 +65,33 @@ class ChartBase : public Dynamic {
   /**
    * Check if there is a new bar to parse.
    */
-  bool IsNewBar(string _symbol, ENUM_TIMEFRAMES _tf) {
+  bool IsNewBar(const SymbolTf& _symbol_tf) {
     bool _result = false;
-    datetime _bar_time = GetBarTime(_symbol, _tf);
-    if (GetLastBarTime(_symbol, _tf) != _bar_time) {
-      SetLastBarTime(_symbol, _tf, _bar_time);
+    datetime _bar_time = GetBarTime(_symbol_tf);
+    if (GetLastBarTime(_symbol_tf) != _bar_time) {
+      SetLastBarTime(_symbol_tf, _bar_time);
       _result = true;
     }
     return _result;
   }
 
-  datetime GetLastBarTime(string _symbol, ENUM_TIMEFRAMES _tf) {
-    string _key = _symbol + "_" + IntegerToString((int)_tf);
-    if (last_bar_time.KeyExists(_key)) {
-      return last_bar_time.GetByKey(_key);
+  datetime GetLastBarTime(const SymbolTf& _symbol_tf) {
+    if (last_bar_time.KeyExists(_symbol_tf.Key())) {
+      return last_bar_time.GetByKey(_symbol_tf.Key());
+    }
+    return GetBarTime();
+  }
+
+  void SetLastBarTime(const SymbolTf& _symbol_tf, datetime _dt) { last_bar_time.Set(_symbol_tf.Key(), _dt); }
+
+  int GetBarIndex(const SymbolTf& _symbol_tf) {
+    if (bar_index.KeyExists(_symbol_tf.Key())) {
+      return bar_index.GetByKey(_symbol_tf.Key());
     }
     return 0;
   }
 
-  void SetLastBarTime(string _symbol, ENUM_TIMEFRAMES _tf, datetime _dt) {
-    string _key = _symbol + "_" + IntegerToString((int)_tf);
-    last_bar_time.Set(_key, _dt);
-  }
+  void SetBarIndex(const SymbolTf& _symbol_tf, int _bar_index) { bar_index.Set(_symbol_tf, _bar_index); }
 
   /**
    * Returns current tick index (incremented every OnTick()).
@@ -113,74 +119,74 @@ class ChartBase : public Dynamic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetOpen(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) { return GetPrice(PRICE_OPEN, _symbol, _tf); }
+  double GetOpen(const SymbolTf& _symbol_tf, int _shift = 0) { return GetPrice(PRICE_OPEN, _symbol, _tf); }
 
   /**
    * Returns high price value for the bar of indicated symbol and timeframe.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetHigh(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) { return GetPrice(PRICE_HIGH, _symbol, _tf); }
+  double GetHigh(const SymbolTf& _symbol_tf, int _shift = 0) { return GetPrice(PRICE_HIGH, _symbol, _tf); }
 
   /**
    * Returns low price value for the bar of indicated symbol and timeframe.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetLow(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) { return GetPrice(PRICE_LOW, _symbol, _tf); }
+  double GetLow(const SymbolTf& _symbol_tf, int _shift = 0) { return GetPrice(PRICE_LOW, _symbol, _tf); }
 
   /**
    * Returns close price value for the bar of indicated symbol and timeframe.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetClose(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) { return GetPrice(PRICE_CLOSE, _symbol, _tf); }
+  double GetClose(const SymbolTf& _symbol_tf, int _shift = 0) { return GetPrice(PRICE_CLOSE, _symbol, _tf); }
 
   /**
    * Gets OHLC price values.
    */
-  virtual BarOHLC GetOHLC(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) = 0;
+  virtual BarOHLC GetOHLC(const SymbolTf& _symbol_tf, int _shift = 0) = 0;
 
-  virtual datetime GetBarTime(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) = 0;
+  virtual datetime GetBarTime(const SymbolTf& _symbol_tf, int _shift = 0) = 0;
 
   /**
    * Returns the current price value given applied price type, symbol and timeframe.
    */
-  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) = 0;
+  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, const SymbolTf& _symbol_tf, int _shift = 0) = 0;
 
   /**
    * Returns tick volume value for the bar.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual long GetVolume(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) = 0;
+  virtual long GetVolume(const SymbolTf& _symbol_tf, int _shift = 0) = 0;
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
-  virtual int GetHighest(string _symbol, ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) = 0;
+  virtual int GetHighest(const SymbolTf& _symbol_tf, int type, int _count = WHOLE_ARRAY, int _start = 0) = 0;
 
   /**
    * Returns the shift of the minimum value over a specific number of periods depending on type.
    */
-  virtual int GetLowest(string _symbol, ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) = 0;
+  virtual int GetLowest(const SymbolTf& _symbol_tf, int type, int _count = WHOLE_ARRAY, int _start = 0) = 0;
 
   /**
    * Returns the number of bars on the chart.
    */
-  virtual int GetBars(string _symbol, ENUM_TIMEFRAMES _tf) = 0;
+  virtual int GetBars(const SymbolTf& _symbol_tf) = 0;
 
   /**
    * Search for a bar by its time.
    *
    * Returns the index of the bar which covers the specified time.
    */
-  virtual int GetBarShift(string _symbol, ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) = 0;
+  virtual int GetBarShift(const SymbolTf& _symbol_tf, datetime _time, bool _exact = false) = 0;
 
   /**
    * Get peak price at given number of bars.
    *
    * In case of error, check it via GetLastError().
    */
-  virtual double GetPeakPrice(string _symbol, ENUM_TIMEFRAMES _tf, int _bars, int _mode, int _index) = 0;
+  virtual double GetPeakPrice(const SymbolTf& _symbol_tf, int _bars, int _mode, int _index) = 0;
 };

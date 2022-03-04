@@ -64,9 +64,7 @@ class Chart;
  */
 class IndicatorBase : public Object {
  protected:
-  Ref<ChartBase> chart;      // Chart we are currently connected to.
-  const ENUM_TIMEFRAMES tf;  // Time-frame the indicator operates on. Cannot be changed once set.
-  const string symbol;       // Symbol the indicator operates on. Cannot be changed once set.
+  Ref<ChartBase> chart;  // Chart we are currently connected to.
   IndicatorState istate;
   void* mydata;
   bool is_fed;                                     // Whether calc_start_bar is already calculated.
@@ -81,6 +79,7 @@ class IndicatorBase : public Object {
   long last_tick_time;                       // Time of the last Tick() call.
   int flags;                                 // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
   Ref<Log> logger;
+  SymbolTf symbol_tf;  // Symbol and timeframe the indicator operates on. Cannot be changed once set.
 
  public:
   /* Indicator enumerations */
@@ -100,8 +99,7 @@ class IndicatorBase : public Object {
   /**
    * Class constructor.
    */
-  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
-      : tf(_tf), symbol(_symbol), indi_src(NULL) {
+  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : indi_src(NULL), symbol_tf(_symbol, _tf) {
     // By default, indicator is indexable only by shift and data source must be also indexable by shift.
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
@@ -113,7 +111,7 @@ class IndicatorBase : public Object {
   /**
    * Class constructor.
    */
-  IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : tf(ChartTf::IndexToTf(_tfi)), symbol(_symbol) {
+  IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : symbol_tf(_symbol, ChartTf::IndexToTf(_tfi)) {
     // By default, indicator is indexable only by shift and data source must be also indexable by shift.
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
@@ -365,6 +363,72 @@ class IndicatorBase : public Object {
     }
 
     return chart.Ptr();
+  }
+
+  /**
+   * Gets OHLC price values.
+   */
+  BarOHLC GetOHLC(int _shift = 0) { return chart.Ptr() PTR_DEREF GetOHLC(symbol_tf, _shift); }
+
+  /**
+   * Returns time of the bar for a given shift.
+   */
+  datetime GetBarTime(int _shift = 0) { return chart.Ptr() PTR_DEREF GetBarTime(symbol_tf, _shift); }
+
+  /**
+   * Returns time of the last bar.
+   */
+  datetime GetLastBarTime() { return chart.Ptr() PTR_DEREF GetLastBarTime(symbol_tf); }
+
+  /**
+   * Returns the current price value given applied price type, symbol and timeframe.
+   */
+  double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
+    return chart.Ptr() PTR_DEREF GetPrice(_ap, symbol_tf, _shift);
+  }
+
+  /**
+   * Returns tick volume value for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  long GetVolume(int _shift = 0) { return chart.Ptr() PTR_DEREF GetVolume(symbol_tf, _shift); }
+
+  /**
+   * Returns the shift of the maximum value over a specific number of periods depending on type.
+   */
+  int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
+    return chart.Ptr() PTR_DEREF GetHighest(symbol_tf, type, _count, _start);
+  }
+
+  /**
+   * Returns the shift of the minimum value over a specific number of periods depending on type.
+   */
+  int GetLowest(string _symbol, ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
+    return chart.Ptr() PTR_DEREF GetLowest(symbol_tf, type, _count, _start);
+  }
+
+  /**
+   * Returns the number of bars on the chart.
+   */
+  int GetBars() { return chart.Ptr() PTR_DEREF GetBars(symbol_tf); }
+
+  /**
+   * Search for a bar by its time.
+   *
+   * Returns the index of the bar which covers the specified time.
+   */
+  int GetBarShift(datetime _time, bool _exact = false) {
+    return chart.Ptr() PTR_DEREF GetBarShift(symbol_tf, _time, _exact);
+  }
+
+  /**
+   * Get peak price at given number of bars.
+   *
+   * In case of error, check it via GetLastError().
+   */
+  double GetPeakPrice(int _bars, int _mode, int _index) {
+    return chart.Ptr() PTR_DEREF GetPeakPrice(symbol_tf, _bars, _mode, _index);
   }
 
   /**

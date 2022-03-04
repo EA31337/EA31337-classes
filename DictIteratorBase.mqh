@@ -90,7 +90,7 @@ class DictIteratorBase {
 
   bool HasKey() { return _dict PTR_DEREF GetSlot(_slotIdx) PTR_DEREF HasKey(); }
 
-  K Key() {
+  const K& Key() {
     CheckValidity();
     return PTR_ATTRIB(_dict, GetMode()) == DictModeList ? (K)_slotIdx : _dict PTR_DEREF GetSlot(_slotIdx) PTR_DEREF key;
   }
