@@ -39,41 +39,42 @@
  */
 class ChartMt : public ChartBase {
  public:
-  // Virtual methods.
+  /**
+   * Constructor.
+   */
+  ChartMt(ENUM_TIMEFRAMES _tf) : ChartBase(_tf) {}
 
   /**
-   * Gets OHLC price values.
+   * Returns new or existing instance of Chart for a given timeframe.
    */
-  virtual BarOHLC GetOHLC(const SymbolTf& _symbol_tf, int _shift = 0) override {
-    datetime _time = GetBarTime(_symbol_tf, _shift);
-    float _open = 0, _high = 0, _low = 0, _close = 0;
-    if (_time > 0) {
-      _open = (float)GetOpen(_symbol_tf, _shift);
-      _high = (float)GetHigh(_symbol_tf, _shift);
-      _low = (float)GetLow(_symbol_tf, _shift);
-      _close = (float)GetClose(_symbol_tf, _shift);
+  static ChartMt* GetInstance(ENUM_TIMEFRAMES _tf) {
+    ChartMt* _ptr;
+    string _key = Util::MakeKey((int)_tf);
+    if (!Objects<ChartMt>::TryGet(_key, _ptr)) {
+      _ptr = Objects<ChartMt>::Set(_key, new ChartMt(_tf));
     }
-    BarOHLC _ohlc(_open, _high, _low, _close, _time);
-    return _ohlc;
+    return _ptr;
   }
 
-  virtual datetime GetBarTime(const SymbolTf& _symbol_tf, int _shift = 0) override {
-    return ::iTime(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
+  // Virtual methods.
+
+  virtual datetime GetBarTime(CONST_REF_TO(string) _symbol, int _shift = 0) override {
+    return ::iTime(_symbol, GetTf(), _shift);
   }
 
   /**
    * Returns the current price value given applied price type, symbol and timeframe.
    */
-  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, const SymbolTf& _symbol_tf, int _shift = 0) override {
+  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, CONST_REF_TO(string) _symbol, int _shift = 0) override {
     switch (_ap) {
       case PRICE_OPEN:
-        return ::iOpen(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
+        return ::iOpen(_symbol, GetTf(), _shift);
       case PRICE_HIGH:
-        return ::iHigh(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
+        return ::iHigh(_symbol, GetTf(), _shift);
       case PRICE_LOW:
-        return ::iLow(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
+        return ::iLow(_symbol, GetTf(), _shift);
       case PRICE_CLOSE:
-        return ::iClose(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
+        return ::iClose(_symbol, GetTf(), _shift);
     }
     Print("Invalid applied price!");
     DebugBreak();
@@ -85,33 +86,49 @@ class ChartMt : public ChartBase {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual long GetVolume(const SymbolTf& _symbol_tf, int _shift = 0) override {
-    return ::iVolume(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
+  virtual long GetVolume(CONST_REF_TO(string) _symbol, int _shift = 0) override {
+    return ::iVolume(_symbol, GetTf(), _shift);
   }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
-  virtual int GetHighest(const SymbolTf& _symbol_tf, int type, int _count = WHOLE_ARRAY, int _start = 0) override {
-    return ::iHighest(_symbol_tf.Symbol(), _symbol_tf.Tf(), (ENUM_SERIESMODE)type, _count, _start);
+  virtual int GetHighest(CONST_REF_TO(string) _symbol, int type, int _count = WHOLE_ARRAY, int _start = 0) override {
+    return ::iHighest(_symbol, GetTf(), (ENUM_SERIESMODE)type, _count, _start);
   }
 
   /**
    * Returns the shift of the minimum value over a specific number of periods depending on type.
    */
-  virtual int GetLowest(const SymbolTf& _symbol_tf, int type, int _count = WHOLE_ARRAY, int _start = 0) override {
-    return ::iLowest(_symbol_tf.Symbol(), _symbol_tf.Tf(), (ENUM_SERIESMODE)type, _count, _start);
+  virtual int GetLowest(CONST_REF_TO(string) _symbol, int type, int _count = WHOLE_ARRAY, int _start = 0) override {
+    return ::iLowest(_symbol, GetTf(), (ENUM_SERIESMODE)type, _count, _start);
   }
 
   /**
    * Returns the number of bars on the chart.
    */
-  virtual int GetBars(const SymbolTf& _symbol_tf) override {
+  virtual int GetBars(CONST_REF_TO(string) _symbol) override {
 #ifdef __MQL4__
     // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
-    return ::iBars(_symbol_tf.Symbol(), _symbol_tf.Tf());
+    return ::iBars(_symbol, GetTf());
 #else  // _MQL5__
-    return ::Bars(_symbol_tf.Symbol(), _symbol_tf.Tf());
+    return ::Bars(_symbol, GetTf());
+#endif
+  }
+
+  /**
+   * Returns open time price value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  virtual datetime GetTime(CONST_REF_TO(string) _symbol, unsigned int _shift = 0) override {
+#ifdef __MQL4__
+    return ::iTime(_symbol, GetTf(), _shift);  // Same as: Time[_shift]
+#else                                          // __MQL5__
+    ARRAY(datetime, _arr);
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    // @todo: Improves performance by caching values.
+    return (_shift >= 0 && ::CopyTime(_symbol, GetTf(), _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif
   }
 
@@ -120,17 +137,17 @@ class ChartMt : public ChartBase {
    *
    * Returns the index of the bar which covers the specified time.
    */
-  virtual int GetBarShift(const SymbolTf& _symbol_tf, datetime _time, bool _exact = false) override {
+  virtual int GetBarShift(CONST_REF_TO(string) _symbol, datetime _time, bool _exact = false) override {
 #ifdef __MQL4__
-    return ::iBarShift(_symbol_tf.Symbol(), _symbol_tf.Tf(), _time, _exact);
+    return ::iBarShift(_symbol, GetTf(), _time, _exact);
 #else  // __MQL5__
     if (_time < 0) return (-1);
     ARRAY(datetime, arr);
     datetime _time0;
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
-    CopyTime(_symbol_tf.Symbol(), _symbol_tf.Tf(), 0, 1, arr);
+    CopyTime(_symbol, GetTf(), 0, 1, arr);
     _time0 = arr[0];
-    if (CopyTime(_symbol_tf.Symbol(), _symbol_tf.Tf(), _time, _time0, arr) > 0) {
+    if (CopyTime(_symbol, GetTf(), _time, _time0, arr) > 0) {
       if (ArraySize(arr) > 2) {
         return ArraySize(arr) - 1;
       } else {
@@ -147,17 +164,17 @@ class ChartMt : public ChartBase {
    *
    * In case of error, check it via GetLastError().
    */
-  virtual double GetPeakPrice(const SymbolTf& _symbol_tf, int _bars, int _mode, int _index) override {
+  virtual double GetPeakPrice(CONST_REF_TO(string) _symbol, int _bars, int _mode, int _index) override {
     int _ibar = -1;
     // @todo: Add symbol parameter.
-    double _peak_price = GetOpen(_symbol_tf.Symbol(), _symbol_tf.Tf(), 0);
+    double _peak_price = GetOpen(_symbol_tf, 0);
     switch (_mode) {
       case MODE_HIGH:
-        _ibar = ChartStatic::iHighest(_symbol_tf.Symbol(), _symbol_tf.Tf(), MODE_HIGH, _bars, _index);
-        return _ibar >= 0 ? GetHigh(_symbol_tf.Symbol(), _symbol_tf.Tf(), _ibar) : false;
+        _ibar = ChartStatic::iHighest(_symbol_tf, MODE_HIGH, _bars, _index);
+        return _ibar >= 0 ? GetHigh(_symbol_tf, _ibar) : false;
       case MODE_LOW:
-        _ibar = ChartStatic::iLowest(_symbol_tf.Symbol(), _symbol_tf.Tf(), MODE_LOW, _bars, _index);
-        return _ibar >= 0 ? GetLow(_symbol_tf.Symbol(), _symbol_tf.Tf(), _ibar) : false;
+        _ibar = ChartStatic::iLowest(_symbol_tf, MODE_LOW, _bars, _index);
+        return _ibar >= 0 ? GetLow(_symbol_tf, _ibar) : false;
       default:
         return false;
     }

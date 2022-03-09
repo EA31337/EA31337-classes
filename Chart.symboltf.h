@@ -38,9 +38,9 @@ struct SymbolTf {
   const ENUM_TIMEFRAMES tf;
   const string symbol_tf_key;
 
-  const string Key() { return symbol_tf_key; }
-  const string Symbol() { return symbol; }
-  ENUM_TIMEFRAMES Tf() { return tf; }
+  const string Key() const { return symbol_tf_key; }
+  const string Symbol() const { return symbol; }
+  ENUM_TIMEFRAMES Tf() const { return tf; }
 
   SymbolTf(string _symbol, ENUM_TIMEFRAMES _tf)
       : symbol(_symbol), tf(_tf), symbol_tf_key(_symbol + "_" + IntegerToString((int)_tf)) {}

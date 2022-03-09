@@ -80,6 +80,11 @@
 
 #ifdef __MQL__
 /**
+ * Reference to object.
+ */
+#define CONST_REF_TO(T) const T
+
+/**
  * Reference to the array.
  *
  * @usage
@@ -95,9 +100,13 @@
  * @usage
  *   ARRAY(<type of the array items>, <name of the variable>)
  */
-#define ARRAY(T, N) T N[];
+#define ARRAY(T, N) T N[]
 
 #else
+/**
+ * Reference to object.
+ */
+#define CONST_REF_TO(T) const T&
 
 /**
 

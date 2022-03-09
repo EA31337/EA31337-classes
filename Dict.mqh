@@ -112,12 +112,12 @@ class Dict : public DictBase<K, V> {
   /**
    * Inserts or replaces value for a given key.
    */
-  bool Set(const K& key, V value) {
+  bool Set(K key, V value) {
     if (!InsertInto(_DictSlots_ref, key, value, true)) return false;
     return true;
   }
 
-  V operator[](const K& key) {
+  V operator[](K key) {
     if (_mode == DictModeList) return GetSlot((unsigned int)key).value;
 
     int position;
@@ -134,7 +134,7 @@ class Dict : public DictBase<K, V> {
    * @return
    *   Returns value for a given key, otherwise the default value.
    */
-  V GetByKey(const K& _key, V _default = NULL) {
+  V GetByKey(const K _key, V _default = NULL) {
     unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, _key, position);
 
@@ -165,7 +165,7 @@ class Dict : public DictBase<K, V> {
    * Checks whether dictionary contains given key => value pair.
    */
   template <>
-  bool Contains(const K& key, const V value) {
+  bool Contains(const K key, const V value) {
     unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, key, position);
 
@@ -205,7 +205,7 @@ class Dict : public DictBase<K, V> {
   /**
    * Inserts value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K& key, V value, bool allow_resize) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V value, bool allow_resize) {
     if (_mode == DictModeUnknown)
       _mode = DictModeDict;
     else if (_mode != DictModeDict) {

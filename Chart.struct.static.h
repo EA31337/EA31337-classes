@@ -25,6 +25,9 @@
  * Includes Chart's static structs.
  */
 
+// Includes.
+#include "Chart.symboltf.h"
+
 /* Defines struct for chart static methods. */
 struct ChartStatic {
   /**
@@ -102,37 +105,37 @@ struct ChartStatic {
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
-  static int iHighest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_HIGH,
-                      unsigned int _count = WHOLE_ARRAY, int _start = 0) {
+  static int iHighest(const SymbolTf& _symbol_tf, int _type = MODE_HIGH, unsigned int _count = WHOLE_ARRAY,
+                      int _start = 0) {
 #ifdef __MQL4__
-    return ::iHighest(_symbol, _tf, _type, _count, _start);
+    return ::iHighest(_symbol_tf.Symbol(), _symbol_tf.Tf(), _type, _count, _start);
 #else  // __MQL5__
     if (_start < 0) return (-1);
-    _count = (_count <= 0 ? ChartStatic::iBars(_symbol, _tf) : _count);
+    _count = (_count <= 0 ? ChartStatic::iBars(_symbol_tf.Symbol(), _symbol_tf.Tf()) : _count);
     ARRAY(double, arr_d);
     ARRAY(long, arr_l);
     ARRAY(datetime, arr_dt);
     ArraySetAsSeries(arr_d, true);
     switch (_type) {
       case MODE_OPEN:
-        CopyOpen(_symbol, _tf, _start, _count, arr_d);
+        CopyOpen(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_d);
         break;
       case MODE_LOW:
-        CopyLow(_symbol, _tf, _start, _count, arr_d);
+        CopyLow(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_d);
         break;
       case MODE_HIGH:
-        CopyHigh(_symbol, _tf, _start, _count, arr_d);
+        CopyHigh(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_d);
         break;
       case MODE_CLOSE:
-        CopyClose(_symbol, _tf, _start, _count, arr_d);
+        CopyClose(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_d);
         break;
       case MODE_VOLUME:
         ArraySetAsSeries(arr_l, true);
-        CopyTickVolume(_symbol, _tf, _start, _count, arr_l);
+        CopyTickVolume(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_l);
         return (ArrayMaximum(arr_l, 0, _count) + _start);
       case MODE_TIME:
         ArraySetAsSeries(arr_dt, true);
-        CopyTime(_symbol, _tf, _start, _count, arr_dt);
+        CopyTime(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_dt);
         return (ArrayMaximum(arr_dt, 0, _count) + _start);
       default:
         break;
@@ -254,22 +257,6 @@ struct ChartStatic {
         break;
     }
     return _result;
-  }
-
-  /**
-   * Returns open time price value for the bar of indicated symbol.
-   *
-   * If local history is empty (not loaded), function returns 0.
-   */
-  static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
-#ifdef __MQL4__
-    return ::iTime(_symbol, _tf, _shift);  // Same as: Time[_shift]
-#else                                      // __MQL5__
-    ARRAY(datetime, _arr);
-    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
-    // @todo: Improves performance by caching values.
-    return (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
-#endif
   }
 
   /**

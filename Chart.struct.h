@@ -118,13 +118,14 @@ struct ChartParams {
  * @see: https://docs.mql4.com/predefined/close
  */
 struct ChartPriceClose {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
+ protected:
+  const SymbolTf symbol_tf;
 
-  ChartPriceClose() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartStatic::iClose(_symbol, _tf, _shift);
+ public:
+  ChartPriceClose() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
+  static double Get(const SymbolTf& _symbol_tf, const int _shift) {
+    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetClose(_symbol_tf.Symbol(), _shift);
   }
 };
 
@@ -134,13 +135,14 @@ struct ChartPriceClose {
  * @see: https://docs.mql4.com/predefined/high
  */
 struct ChartPriceHigh {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
+ protected:
+  const SymbolTf symbol_tf;
 
-  ChartPriceHigh() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartStatic::iHigh(_symbol, _tf, _shift);
+ public:
+  ChartPriceHigh() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
+  static double Get(const SymbolTf& _symbol_tf, const int _shift) {
+    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetHigh(_symbol_tf.Symbol(), _shift);
   }
 };
 
@@ -150,13 +152,14 @@ struct ChartPriceHigh {
  * @see: https://docs.mql4.com/predefined/low
  */
 struct ChartPriceLow {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
+ protected:
+  const SymbolTf symbol_tf;
 
-  ChartPriceLow() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartStatic::iLow(_symbol, _tf, _shift);
+ public:
+  ChartPriceLow() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
+  static double Get(const SymbolTf& _symbol_tf, const int _shift) {
+    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetLow(_symbol_tf.Symbol(), _shift);
   }
 };
 
@@ -166,13 +169,14 @@ struct ChartPriceLow {
  * @see: https://docs.mql4.com/predefined/open
  */
 struct ChartPriceOpen {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
+ protected:
+  const SymbolTf symbol_tf;
 
-  ChartPriceOpen() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartStatic::iOpen(_symbol, _tf, _shift);
+ public:
+  ChartPriceOpen() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
+  static double Get(const SymbolTf& _symbol_tf, const int _shift) {
+    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetOpen(_symbol_tf.Symbol(), _shift);
   }
 };
 
@@ -183,13 +187,12 @@ struct ChartPriceOpen {
  */
 struct ChartBarTime {
  protected:
-  string symbol;
-  ENUM_TIMEFRAMES tf;
+  const SymbolTf symbol_tf;
 
  public:
-  ChartBarTime() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  datetime operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static datetime Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartStatic::iTime(_symbol, _tf, _shift);
+  ChartBarTime() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  datetime operator[](const int _shift) const { return Get(symbol_tf, _shift); }
+  static datetime Get(const SymbolTf& _symbol_tf, const int _shift) {
+    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetTime(_symbol_tf.Symbol(), _shift);
   }
 };
