@@ -167,16 +167,101 @@ class ChartMt : public ChartBase {
   virtual double GetPeakPrice(CONST_REF_TO(string) _symbol, int _bars, int _mode, int _index) override {
     int _ibar = -1;
     // @todo: Add symbol parameter.
-    double _peak_price = GetOpen(_symbol_tf, 0);
+    double _peak_price = GetOpen(_symbol, 0);
     switch (_mode) {
       case MODE_HIGH:
-        _ibar = ChartStatic::iHighest(_symbol_tf, MODE_HIGH, _bars, _index);
-        return _ibar >= 0 ? GetHigh(_symbol_tf, _ibar) : false;
+        _ibar = GetHighest(_symbol, MODE_HIGH, _bars, _index);
+        return _ibar >= 0 ? GetHigh(_symbol, _ibar) : false;
       case MODE_LOW:
-        _ibar = ChartStatic::iLowest(_symbol_tf, MODE_LOW, _bars, _index);
-        return _ibar >= 0 ? GetLow(_symbol_tf, _ibar) : false;
+        _ibar = GetLowest(_symbol, MODE_LOW, _bars, _index);
+        return _ibar >= 0 ? GetLow(_symbol, _ibar) : false;
       default:
         return false;
     }
+  }
+};
+
+/**
+ * Wrapper struct that returns close prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/close
+ */
+struct ChartPriceClose {
+ protected:
+  const SymbolTf symbol_tf;
+
+ public:
+  ChartPriceClose() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
+  static double Get(const SymbolTf& _symbol_tf, const int _shift) {
+    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetClose(_symbol_tf.Symbol(), _shift);
+  }
+};
+
+/**
+ * Wrapper struct that returns the highest prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/high
+ */
+struct ChartPriceHigh {
+ protected:
+  const SymbolTf symbol_tf;
+
+ public:
+  ChartPriceHigh() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
+  static double Get(const SymbolTf& _symbol_tf, const int _shift) {
+    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetHigh(_symbol_tf.Symbol(), _shift);
+  }
+};
+
+/**
+ * Wrapper struct that returns the lowest prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/low
+ */
+struct ChartPriceLow {
+ protected:
+  const SymbolTf symbol_tf;
+
+ public:
+  ChartPriceLow() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
+  static double Get(const SymbolTf& _symbol_tf, const int _shift) {
+    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetLow(_symbol_tf.Symbol(), _shift);
+  }
+};
+
+/**
+ * Wrapper struct that returns open prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/open
+ */
+struct ChartPriceOpen {
+ protected:
+  const SymbolTf symbol_tf;
+
+ public:
+  ChartPriceOpen() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
+  static double Get(const SymbolTf& _symbol_tf, const int _shift) {
+    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetOpen(_symbol_tf.Symbol(), _shift);
+  }
+};
+
+/**
+ * Wrapper struct that returns open time of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/time
+ */
+struct ChartBarTime {
+ protected:
+  const SymbolTf symbol_tf;
+
+ public:
+  ChartBarTime() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  datetime operator[](const int _shift) const { return Get(symbol_tf, _shift); }
+  static datetime Get(const SymbolTf& _symbol_tf, const int _shift) {
+    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetTime(_symbol_tf.Symbol(), _shift);
   }
 };

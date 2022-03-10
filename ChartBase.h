@@ -36,6 +36,7 @@
 #include "Chart.struct.h"
 #include "Chart.symboltf.h"
 #include "Dict.mqh"
+#include "Log.mqh"
 #include "Refs.mqh"
 
 /**
@@ -56,11 +57,22 @@ class ChartBase : public Dynamic {
   // Index of the current tick per symbol and timeframe.
   Dict<string, int> tick_index;
 
+  // Logger.
+  Ref<Log> logger;
+
+  // Array of saved chart entries.
+  ARRAY(ChartEntry, chart_saves);
+
  public:
   /**
    * Constructor.
    */
-  ChartBase(ENUM_TIMEFRAMES _tf) : tf(_tf) {}
+  ChartBase(ENUM_TIMEFRAMES _tf) : tf(_tf), logger(new Log()) {}
+
+  /**
+   * Returns pointer to logger.
+   */
+  Log* GetLogger() { return logger.Ptr(); }
 
   /**
    * Return time-frame bound to chart.
@@ -89,20 +101,20 @@ class ChartBase : public Dynamic {
   }
 
   datetime GetLastBarTime(CONST_REF_TO(string) _symbol) {
-    if (last_bar_time.KeyExists(_symbol.Key())) {
-      return last_bar_time.GetByKey(_symbol.Key());
+    if (last_bar_time.KeyExists(_symbol)) {
+      return last_bar_time.GetByKey(_symbol);
     }
     return GetBarTime(_symbol);
   }
 
-  void SetLastBarTime(CONST_REF_TO(string) _symbol, datetime _dt) { last_bar_time.Set(_symbol.Key(), _dt); }
+  void SetLastBarTime(CONST_REF_TO(string) _symbol, datetime _dt) { last_bar_time.Set(_symbol, _dt); }
 
   /**
    * Returns current bar index (incremented every OnTick() if IsNewBar() is true).
    */
   int GetBarIndex(CONST_REF_TO(string) _symbol) {
-    if (bar_index.KeyExists(_symbol.Key())) {
-      return bar_index.GetByKey(_symbol.Key());
+    if (bar_index.KeyExists(_symbol)) {
+      return bar_index.GetByKey(_symbol);
     }
     return 0;
   }
@@ -110,13 +122,13 @@ class ChartBase : public Dynamic {
   /**
    * Sets current bar index.
    */
-  void SetBarIndex(CONST_REF_TO(string) _symbol, int _bar_index) { bar_index.Set(_symbol.Key(), _bar_index); }
+  void SetBarIndex(CONST_REF_TO(string) _symbol, int _bar_index) { bar_index.Set(_symbol, _bar_index); }
 
   /**
    * Increases current bar index (used in OnTick()). If there was no bar, the current bar will become 0.
    */
   void IncreaseBarIndex(CONST_REF_TO(string) _symbol) {
-    if (bar_index.KeyExists(_symbol.Key())) {
+    if (bar_index.KeyExists(_symbol)) {
       SetBarIndex(_symbol, GetBarIndex(_symbol) + 1);
     } else {
       SetBarIndex(_symbol, 0);
@@ -127,8 +139,8 @@ class ChartBase : public Dynamic {
    * Returns current tick index (incremented every OnTick()).
    */
   int GetTickIndex(CONST_REF_TO(string) _symbol) {
-    if (tick_index.KeyExists(_symbol.Key())) {
-      return tick_index.GetByKey(_symbol.Key());
+    if (tick_index.KeyExists(_symbol)) {
+      return tick_index.GetByKey(_symbol);
     }
     return 0;
   }
@@ -136,13 +148,13 @@ class ChartBase : public Dynamic {
   /**
    * Sets current tick index.
    */
-  void SetTickIndex(CONST_REF_TO(string) _symbol, int _tick_index) { tick_index.Set(_symbol.Key(), _tick_index); }
+  void SetTickIndex(CONST_REF_TO(string) _symbol, int _tick_index) { tick_index.Set(_symbol, _tick_index); }
 
   /**
    * Increases current tick index (used in OnTick()). If there was no tick, the current tick will become 0.
    */
   void IncreaseTickIndex(CONST_REF_TO(string) _symbol) {
-    if (tick_index.KeyExists(_symbol.Key())) {
+    if (tick_index.KeyExists(_symbol)) {
       SetTickIndex(_symbol, GetTickIndex(_symbol) + 1);
     } else {
       SetTickIndex(_symbol, 0);
@@ -160,28 +172,42 @@ class ChartBase : public Dynamic {
   }
 
   /**
-   * Returns open price value for the bar of indicated symbol and timeframe.
+   * Returns ask price value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  double GetAsk(CONST_REF_TO(string) _symbol, int _shift = 0) { return GetPrice(PRICE_ASK, _symbol, _shift); }
+
+  /**
+   * Returns bid price value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  double GetBid(CONST_REF_TO(string) _symbol, int _shift = 0) { return GetPrice(PRICE_BID, _symbol, _shift); }
+
+  /**
+   * Returns open price value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    */
   double GetOpen(CONST_REF_TO(string) _symbol, int _shift = 0) { return GetPrice(PRICE_OPEN, _symbol, _shift); }
 
   /**
-   * Returns high price value for the bar of indicated symbol and timeframe.
+   * Returns high price value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    */
   double GetHigh(CONST_REF_TO(string) _symbol, int _shift = 0) { return GetPrice(PRICE_HIGH, _symbol, _shift); }
 
   /**
-   * Returns low price value for the bar of indicated symbol and timeframe.
+   * Returns low price value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    */
   double GetLow(CONST_REF_TO(string) _symbol, int _shift = 0) { return GetPrice(PRICE_LOW, _symbol, _shift); }
 
   /**
-   * Returns close price value for the bar of indicated symbol and timeframe.
+   * Returns close price value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    */
@@ -264,12 +290,12 @@ class ChartBase : public Dynamic {
   virtual double GetPeakPrice(CONST_REF_TO(string) _symbol, int _bars, int _mode, int _index) {
     int _ibar = -1;
     double peak_price = GetOpen(_symbol, 0);
-    switch (mode) {
+    switch (_mode) {
       case MODE_HIGH:
-        _ibar = GetHighest(_symbol, MODE_HIGH, bars, index);
+        _ibar = GetHighest(_symbol, MODE_HIGH, _bars, _index);
         return _ibar >= 0 ? GetHigh(_symbol, _ibar) : false;
       case MODE_LOW:
-        _ibar = GetLowest(_symbol, MODE_LOW, bars, index);
+        _ibar = GetLowest(_symbol, MODE_LOW, _bars, _index);
         return _ibar >= 0 ? GetLow(_symbol, _ibar) : false;
       default:
         return false;
@@ -302,17 +328,383 @@ class ChartBase : public Dynamic {
   /**
    * Validate whether given timeframe index is valid.
    */
-  static bool IsValidTfIndex(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) {
-    return IsValidTf(ChartTf::IndexToTf(_tfi), _symbol);
+  bool IsValidTfIndex(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) {
+    for (int i = 0; i < GetTfIndicesTotal(); ++i) {
+      if (GetTfIndicesItem(i) == _tfi) {
+        return IsValidSymbol(_symbol);
+      }
+    }
+
+    return false;
   }
 
   /**
    * Validates whether given timeframe is valid.
    */
-  static bool IsValidShift(CONST_REF_TO(string) _symbol, int _shift) { return GetTime(_symbol, _shift) > 0; }
+  bool IsValidShift(CONST_REF_TO(string) _symbol, int _shift) { return GetTime(_symbol, _shift) > 0; }
 
   /**
    * Validates whether given timeframe is valid.
    */
-  bool IsValidTf(CONST_REF_TO(string) _symbol) { return GetOpen(CONST_REF_TO(string) _symbol) > 0; }
+  bool IsValidSymbol(CONST_REF_TO(string) _symbol) { return GetOpen(_symbol) > 0; }
+
+  /**
+   * Returns total number of timeframe indices the chart supports. Supports all TFs by default.
+   */
+  virtual int GetTfIndicesTotal() { return FINAL_ENUM_TIMEFRAMES_INDEX; }
+
+  /**
+   * Returns item from the list of timeframe indices the chart supports. Supports all TFs by default.
+   */
+  virtual ENUM_TIMEFRAMES_INDEX GetTfIndicesItem(int _index) { return (ENUM_TIMEFRAMES_INDEX)_index; }
+
+  /**
+   * List active timeframes.
+   *
+   * @param
+   * _all bool If true, return also non-active timeframes.
+   *
+   * @return
+   * Returns textual representation of list of timeframes.
+   */
+  string ListTimeframes(bool _all = false, string _prefix = "Timeframes: ") {
+    string output = _prefix;
+    for (int i = 0; i < GetTfIndicesTotal(); i++) {
+      ENUM_TIMEFRAMES_INDEX _tfi = GetTfIndicesItem(i);
+      if (_all) {
+        output += StringFormat("%s: %s; ", ChartTf::IndexToString(_tfi), IsValidTfIndex(_tfi) ? "On" : "Off");
+      } else {
+        output += IsValidTfIndex(_tfi) ? ChartTf::IndexToString(_tfi) + "; " : "";
+      }
+    }
+    return output;
+  }
+
+  /**
+   * Returns list of modelling quality for all periods.
+   */
+  static string GetModellingQuality() {
+    string output = "Modelling Quality: ";
+    output += StringFormat(
+        "%s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%;",
+        "M1", CalcModellingQuality(PERIOD_M1), "M5", CalcModellingQuality(PERIOD_M5), "M15",
+        CalcModellingQuality(PERIOD_M15), "M30", CalcModellingQuality(PERIOD_M30), "H1",
+        CalcModellingQuality(PERIOD_H1), "H4", CalcModellingQuality(PERIOD_H4), "D1", CalcModellingQuality(PERIOD_D1),
+        "W1", CalcModellingQuality(PERIOD_W1), "MN1", CalcModellingQuality(PERIOD_MN1));
+    return output;
+  }
+
+  /**
+   * Calculate modelling quality.
+   *
+   * @see:
+   * - https://www.mql5.com/en/articles/1486
+   * - https://www.mql5.com/en/articles/1513
+   */
+  static double CalcModellingQuality(ENUM_TIMEFRAMES TimePr = PERIOD_CURRENT) {
+    int i;
+    int nBarsInM1 = 0;
+    int nBarsInPr = 0;
+    int nBarsInNearPr = 0;
+    ENUM_TIMEFRAMES TimeNearPr = PERIOD_M1;
+    double ModellingQuality = 0;
+    long StartGen = 0;
+    long StartBar = 0;
+    long StartGenM1 = 0;
+    long HistoryTotal = 0;
+    datetime x = StrToTime("1971.01.01 00:00");
+    datetime modeling_start_time = StrToTime("1971.01.01 00:00");
+
+    /** @TODO
+
+    if (TimePr == NULL) TimePr = (ENUM_TIMEFRAMES)Period();
+    if (TimePr == PERIOD_M1) TimeNearPr = PERIOD_M1;
+    if (TimePr == PERIOD_M5) TimeNearPr = PERIOD_M1;
+    if (TimePr == PERIOD_M15) TimeNearPr = PERIOD_M5;
+    if (TimePr == PERIOD_M30) TimeNearPr = PERIOD_M15;
+    if (TimePr == PERIOD_H1) TimeNearPr = PERIOD_M30;
+    if (TimePr == PERIOD_H4) TimeNearPr = PERIOD_H1;
+    if (TimePr == PERIOD_D1) TimeNearPr = PERIOD_H4;
+    if (TimePr == PERIOD_W1) TimeNearPr = PERIOD_D1;
+    if (TimePr == PERIOD_MN1) TimeNearPr = PERIOD_W1;
+
+    // 1 minute.
+    double nBars = fmin(iBars(NULL, TimePr) * TimePr, iBars(NULL, PERIOD_M1));
+    for (i = 0; i < nBars; i++) {
+      if (ChartStatic::iOpen(NULL, PERIOD_M1, i) >= 0.000001) {
+        if (GetTime(NULL, PERIOD_M1, i) >= modeling_start_time) {
+          nBarsInM1++;
+        }
+      }
+    }
+
+    // Nearest time.
+    nBars = ChartStatic::iBars(NULL, TimePr);
+    for (i = 0; i < nBars; i++) {
+      if (ChartStatic::iOpen(NULL, TimePr, i) >= 0.000001) {
+        if (ChartStatic::iTime(NULL, TimePr, i) >= modeling_start_time) nBarsInPr++;
+      }
+    }
+
+    // Period time.
+    nBars = fmin(ChartStatic::iBars(NULL, TimePr) * TimePr / TimeNearPr, iBars(NULL, TimeNearPr));
+    for (i = 0; i < nBars; i++) {
+      if (ChartStatic::iOpen(NULL, TimeNearPr, (int)i) >= 0.000001) {
+        if (ChartStatic::iTime(NULL, TimeNearPr, i) >= modeling_start_time) nBarsInNearPr++;
+      }
+    }
+
+    HistoryTotal = nBarsInPr;
+    nBarsInM1 = nBarsInM1 / TimePr;
+    nBarsInNearPr = nBarsInNearPr * TimeNearPr / TimePr;
+    StartGenM1 = HistoryTotal - nBarsInM1;
+    StartBar = HistoryTotal - nBarsInPr;
+    StartBar = 0;
+    StartGen = HistoryTotal - nBarsInNearPr;
+
+    if (TimePr == PERIOD_M1) {
+      StartGenM1 = HistoryTotal;
+      StartGen = StartGenM1;
+    }
+    if ((HistoryTotal - StartBar) != 0) {
+      ModellingQuality =
+          ((0.25 * (StartGen - StartBar) + 0.5 * (StartGenM1 - StartGen) + 0.9 * (HistoryTotal - StartGenM1)) /
+           (HistoryTotal - StartBar)) *
+          100;
+    }
+    
+    */
+
+    return (ModellingQuality);
+  }
+
+  /**
+   * Checks for chart condition.
+   *
+   * @param ENUM_CHART_CONDITION _cond
+   *   Chart condition.
+   * @param MqlParam _args
+   *   Trade action arguments.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool CheckCondition(CONST_REF_TO(string) _symbol, ENUM_CHART_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
+    float _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
+    switch (_cond) {
+      case CHART_COND_ASK_BAR_PEAK:
+        return IsPeak(_symbol);
+      case CHART_COND_ASK_GT_BAR_HIGH:
+        return GetAsk(_symbol) > GetHigh(_symbol);
+      case CHART_COND_ASK_GT_BAR_LOW:
+        return GetAsk(_symbol) > GetLow(_symbol);
+      case CHART_COND_ASK_LT_BAR_HIGH:
+        return GetAsk(_symbol) < GetHigh(_symbol);
+      case CHART_COND_ASK_LT_BAR_LOW:
+        return GetAsk(_symbol) < GetLow(_symbol);
+      case CHART_COND_BAR_CLOSE_GT_PP_PP: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        return GetClose(_symbol) > _centry.bar.ohlc.GetPivot();
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_R1: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) > _r1;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_R2: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) > _r2;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_R3: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) > _r3;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_R4: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) > _r4;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_S1: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) > _s1;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_S2: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) > _s2;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_S3: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) > _s3;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_S4: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) > _s4;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_PP: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        return GetClose(_symbol) < _centry.bar.ohlc.GetPivot();
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_R1: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) < _r1;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_R2: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) < _r2;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_R3: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) < _r3;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_R4: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) < _r4;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_S1: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) < _s1;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_S2: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) < _s2;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_S3: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) < _s3;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_S4: {
+        ChartEntry _centry = GetEntry(_symbol, 1);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose(_symbol) < _s4;
+      }
+      case CHART_COND_BAR_HIGHEST_CURR_20:
+        return GetHighest(_symbol, MODE_CLOSE, 20) == 0;
+      case CHART_COND_BAR_HIGHEST_CURR_50:
+        return GetHighest(_symbol, MODE_CLOSE, 50) == 0;
+      case CHART_COND_BAR_HIGHEST_PREV_20:
+        return GetHighest(_symbol, MODE_CLOSE, 20) == 1;
+      case CHART_COND_BAR_HIGHEST_PREV_50:
+        return GetHighest(_symbol, MODE_CLOSE, 50) == 1;
+      case CHART_COND_BAR_HIGH_GT_OPEN:
+        return GetHigh(_symbol) > GetOpen(_symbol);
+      case CHART_COND_BAR_HIGH_LT_OPEN:
+        return GetHigh(_symbol) < GetOpen(_symbol);
+      case CHART_COND_BAR_INDEX_EQ_ARG:
+        // Current bar's index equals argument value.
+        if (ArraySize(_args) > 0) {
+          return GetBarIndex(_symbol) == DataParamEntry::ToInteger(_args[0]);
+        } else {
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      case CHART_COND_BAR_INDEX_GT_ARG:
+        // Current bar's index greater than argument value.
+        if (ArraySize(_args) > 0) {
+          return GetBarIndex(_symbol) > DataParamEntry::ToInteger(_args[0]);
+        } else {
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      case CHART_COND_BAR_INDEX_LT_ARG:
+        // Current bar's index lower than argument value.
+        if (ArraySize(_args) > 0) {
+          return GetBarIndex(_symbol) < DataParamEntry::ToInteger(_args[0]);
+        } else {
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      case CHART_COND_BAR_LOWEST_CURR_20:
+        return GetLowest(_symbol, MODE_CLOSE, 20) == 0;
+      case CHART_COND_BAR_LOWEST_CURR_50:
+        return GetLowest(_symbol, MODE_CLOSE, 50) == 0;
+      case CHART_COND_BAR_LOWEST_PREV_20:
+        return GetLowest(_symbol, MODE_CLOSE, 20) == 1;
+      case CHART_COND_BAR_LOWEST_PREV_50:
+        return GetLowest(_symbol, MODE_CLOSE, 50) == 1;
+      case CHART_COND_BAR_LOW_GT_OPEN:
+        return GetLow(_symbol) > GetOpen(_symbol);
+      case CHART_COND_BAR_LOW_LT_OPEN:
+        return GetLow(_symbol) < GetOpen(_symbol);
+      case CHART_COND_BAR_NEW:
+        return IsNewBar(_symbol);
+      /*
+      case CHART_COND_BAR_NEW_DAY:
+        // @todo;
+        return false;
+      case CHART_COND_BAR_NEW_HOUR:
+        // @todo;
+        return false;
+      case CHART_COND_BAR_NEW_MONTH:
+        // @todo;
+        return false;
+      case CHART_COND_BAR_NEW_WEEK:
+        // @todo;
+        return false;
+      case CHART_COND_BAR_NEW_YEAR:
+        // @todo;
+        return false;
+      */
+      default:
+        GetLogger().Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
+    }
+  }
+  bool CheckCondition(CONST_REF_TO(string) _symbol, ENUM_CHART_CONDITION _cond) {
+    ARRAY(DataParamEntry, _args);
+    return CheckCondition(_symbol, _cond, _args);
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns textual representation of the Chart class.
+   */
+  string ToString(CONST_REF_TO(string) _symbol, unsigned int _shift = 0) {
+    return StringFormat("%s: %s", ChartTf::TfToString(Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
+                        GetEntry(_symbol, _shift).ToCSV());
+  }
+
+  /* Snapshots */
+
+  /**
+   * Save the current BarOHLC values.
+   *
+   * @return
+   *   Returns true if BarOHLC values has been saved, otherwise false.
+   */
+  bool SaveChartEntry(CONST_REF_TO(string) _symbol) {
+    // @todo: Use MqlRates.
+    unsigned int _last = ArraySize(chart_saves);
+    if (ArrayResize(chart_saves, _last + 1, 100)) {
+      chart_saves[_last].bar.ohlc.time = GetTime(_symbol);
+      chart_saves[_last].bar.ohlc.open = (float)GetOpen(_symbol);
+      chart_saves[_last].bar.ohlc.high = (float)GetHigh(_symbol);
+      chart_saves[_last].bar.ohlc.low = (float)GetLow(_symbol);
+      chart_saves[_last].bar.ohlc.close = (float)GetClose(_symbol);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /* State checking */
+
+  /**
+   * Check whether the price is in its peak for the current period.
+   */
+  bool IsPeak(CONST_REF_TO(string) _symbol) {
+    return GetAsk(_symbol) >= GetHigh(_symbol) || GetAsk(_symbol) <= GetLow(_symbol);
+  }
 };

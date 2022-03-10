@@ -936,7 +936,7 @@ class Indicator : public IndicatorBase {
   bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
     if (!entry.IsValid()) return false;
 
-    datetime timestamp = ChartStatic::iTime(GetSymbol(), GetTf(), _shift);
+    datetime timestamp = GetTime(_shift);
     entry.timestamp = timestamp;
     idata.Add(entry, timestamp);
 
