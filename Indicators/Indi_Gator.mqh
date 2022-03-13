@@ -211,8 +211,8 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return !_entry.HasValue(EMPTY_VALUE) &&
-           (_entry.values[LINE_UPPER_HISTOGRAM].GetDbl() != 0 || _entry.values[LINE_LOWER_HISTOGRAM].GetDbl() != 0);
+    return !_entry.HasValue(EMPTY_VALUE) && (_entry.values[(int)LINE_UPPER_HISTOGRAM].GetDbl() != 0 ||
+                                             _entry.values[(int)LINE_LOWER_HISTOGRAM].GetDbl() != 0);
   }
 
   /* Getters */

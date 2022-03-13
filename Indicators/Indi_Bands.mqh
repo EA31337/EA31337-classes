@@ -266,7 +266,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
     return !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt<double>(0) &&
-           _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl();
+           _entry.values[(int)BAND_LOWER].GetDbl() < _entry.values[(int)BAND_UPPER].GetDbl();
   }
 
   /**

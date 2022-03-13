@@ -171,7 +171,7 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
     // so we are duplicating it.
     _entry.values[0] = GetEntryValue(LINE_TENKANSEN, _shift);
 #endif
-    _entry.values[LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _shift + 26);
+    _entry.values[(int)LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _shift + 26);
   }
 
   /**

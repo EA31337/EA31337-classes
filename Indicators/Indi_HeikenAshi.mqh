@@ -238,6 +238,6 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
     return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0) &&
-           _entry.values[HA_LOW].GetDbl() < _entry.values[HA_HIGH].GetDbl();
+           _entry.values[(int)HA_LOW].GetDbl() < _entry.values[(int)HA_HIGH].GetDbl();
   }
 };
