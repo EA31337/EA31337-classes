@@ -1003,7 +1003,7 @@ class Strategy : public Taskable<DataParamEntry> {
     Chart *_chart = trade.GetChart();
     IndicatorBase *_indi = GetIndicators().Begin().Value().Ptr();
     StrategyPriceStop _psm(_method);
-    _psm.SetChartParams(_chart.GetParams());
+    _psm.SetChart(_chart);
     if (Object::IsValid(_indi)) {
       int _ishift = 12;     // @todo: Make it dynamic or as variable.
       float _value = 0.0f;  // @todo

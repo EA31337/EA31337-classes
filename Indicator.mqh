@@ -936,7 +936,7 @@ class Indicator : public IndicatorBase {
   bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
     if (!entry.IsValid()) return false;
 
-    datetime timestamp = GetTime(_shift);
+    datetime timestamp = GetBarTime(_shift);
     entry.timestamp = timestamp;
     idata.Add(entry, timestamp);
 
@@ -948,7 +948,7 @@ class Indicator : public IndicatorBase {
       // Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
       for (int i = 0; i < (int)iparams.GetMaxModes(); ++i)
         draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.GetDataSourceMode()),
-                        ChartStatic::iTime(GetSymbol(), GetTf(), 0), GetEntry(0)[i], iparams.draw_window);
+                        GetBarTime(0), GetEntry(0)[i], iparams.draw_window);
     }
   }
 
@@ -1070,11 +1070,11 @@ class Indicator : public IndicatorBase {
   IndicatorDataEntry GetEntry(int _index = -1) override {
     ResetLastError();
     int _ishift = _index >= 0 ? _index : iparams.GetShift();
-    long _bar_time = ChartStatic::iTime(GetSymbol(), GetTf(), _ishift);
+    long _bar_time = GetBarTime(_ishift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(iparams.GetMaxModes());
-      _entry.timestamp = ChartStatic::iTime(GetSymbol(), GetTf(), _ishift);
+      _entry.timestamp = GetBarTime(_ishift);
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         switch (iparams.GetDataValueType()) {
           case TYPE_BOOL:

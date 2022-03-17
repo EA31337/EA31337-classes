@@ -156,10 +156,8 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
   static double iRSIOnIndicator(IndicatorBase *_indi, Indi_RSI *_obj, string _symbol = NULL,
                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                 ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0) {
-    long _bar_time_curr =
-        _obj PTR_DEREF GetChart() PTR_DEREF GetBarTime(_obj PTR_DEREF GetSymbol(), _obj PTR_DEREF GetTf(), _shift);
-    long _bar_time_prev =
-        _obj PTR_DEREF GetChart() PTR_DEREF GetBarTime(_obj PTR_DEREF GetSymbol(), _obj PTR_DEREF GetTf(), _shift + 1);
+    long _bar_time_curr = _obj PTR_DEREF GetBarTime(_shift);
+    long _bar_time_prev = _obj PTR_DEREF GetBarTime(_shift + 1);
     if (fmin(_bar_time_curr, _bar_time_prev) < 0) {
       // Return empty value on invalid bar time.
       return EMPTY_VALUE;

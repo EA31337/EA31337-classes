@@ -162,8 +162,7 @@ class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
         _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
                                                      GetDataSourceMode(), iparams.shift + _shift);
         if (iparams.is_draw) {
-          draw.DrawLineTo(StringFormat("%s", GetName()),
-                          GetChart() PTR_DEREF GetBarTime(GetSymbol(), GetTf(), iparams.shift + _shift), _value, 1);
+          draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + _shift), _value, 1);
         }
         break;
     }

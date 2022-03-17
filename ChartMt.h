@@ -42,93 +42,35 @@ class ChartMt : public ChartBase {
   /**
    * Constructor.
    */
-  ChartMt(ENUM_TIMEFRAMES _tf) : ChartBase(_tf) {}
+  ChartMt(string _symbol, ENUM_TIMEFRAMES _tf) : ChartBase(_symbol, _tf) {}
 
   /**
    * Returns new or existing instance of Chart for a given timeframe.
    */
-  static ChartMt* GetInstance(ENUM_TIMEFRAMES _tf) {
+  static ChartMt* GetInstance(const SymbolTf& _symbol_tf) {
     ChartMt* _ptr;
-    string _key = Util::MakeKey((int)_tf);
-    if (!Objects<ChartMt>::TryGet(_key, _ptr)) {
-      _ptr = Objects<ChartMt>::Set(_key, new ChartMt(_tf));
+    if (!Objects<ChartMt>::TryGet(_symbol_tf.Key(), _ptr)) {
+      _ptr = Objects<ChartMt>::Set(_symbol_tf.Key(), new ChartMt(_symbol_tf.Symbol(), _symbol_tf.Tf()));
     }
     return _ptr;
   }
 
   // Virtual methods.
 
-  virtual datetime GetBarTime(CONST_REF_TO(string) _symbol, int _shift = 0) override {
-    return ::iTime(_symbol, GetTf(), _shift);
-  }
-
   /**
-   * Returns the current price value given applied price type, symbol and timeframe.
+   * Returns time of the bar with a given shift.
    */
-  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, CONST_REF_TO(string) _symbol, int _shift = 0) override {
-    switch (_ap) {
-      case PRICE_OPEN:
-        return ::iOpen(_symbol, GetTf(), _shift);
-      case PRICE_HIGH:
-        return ::iHigh(_symbol, GetTf(), _shift);
-      case PRICE_LOW:
-        return ::iLow(_symbol, GetTf(), _shift);
-      case PRICE_CLOSE:
-        return ::iClose(_symbol, GetTf(), _shift);
-    }
-    Print("Invalid applied price!");
-    DebugBreak();
-    return 0;
-  }
-
-  /**
-   * Returns tick volume value for the bar.
-   *
-   * If local history is empty (not loaded), function returns 0.
-   */
-  virtual long GetVolume(CONST_REF_TO(string) _symbol, int _shift = 0) override {
-    return ::iVolume(_symbol, GetTf(), _shift);
-  }
-
-  /**
-   * Returns the shift of the maximum value over a specific number of periods depending on type.
-   */
-  virtual int GetHighest(CONST_REF_TO(string) _symbol, int type, int _count = WHOLE_ARRAY, int _start = 0) override {
-    return ::iHighest(_symbol, GetTf(), (ENUM_SERIESMODE)type, _count, _start);
-  }
-
-  /**
-   * Returns the shift of the minimum value over a specific number of periods depending on type.
-   */
-  virtual int GetLowest(CONST_REF_TO(string) _symbol, int type, int _count = WHOLE_ARRAY, int _start = 0) override {
-    return ::iLowest(_symbol, GetTf(), (ENUM_SERIESMODE)type, _count, _start);
-  }
+  virtual datetime GetBarTime(int _shift = 0) override { return ::iTime(GetSymbol(), GetTf(), _shift); }
 
   /**
    * Returns the number of bars on the chart.
    */
-  virtual int GetBars(CONST_REF_TO(string) _symbol) override {
+  virtual int GetBars() override {
 #ifdef __MQL4__
     // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
-    return ::iBars(_symbol, GetTf());
+    return ::iBars(GetSymbol(), GetTf());
 #else  // _MQL5__
-    return ::Bars(_symbol, GetTf());
-#endif
-  }
-
-  /**
-   * Returns open time price value for the bar of indicated symbol.
-   *
-   * If local history is empty (not loaded), function returns 0.
-   */
-  virtual datetime GetTime(CONST_REF_TO(string) _symbol, unsigned int _shift = 0) override {
-#ifdef __MQL4__
-    return ::iTime(_symbol, GetTf(), _shift);  // Same as: Time[_shift]
-#else                                          // __MQL5__
-    ARRAY(datetime, _arr);
-    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
-    // @todo: Improves performance by caching values.
-    return (_shift >= 0 && ::CopyTime(_symbol, GetTf(), _shift, 1, _arr) > 0) ? _arr[0] : 0;
+    return ::Bars(GetSymbol(), GetTf());
 #endif
   }
 
@@ -137,17 +79,17 @@ class ChartMt : public ChartBase {
    *
    * Returns the index of the bar which covers the specified time.
    */
-  virtual int GetBarShift(CONST_REF_TO(string) _symbol, datetime _time, bool _exact = false) override {
+  virtual int GetBarShift(datetime _time, bool _exact = false) override {
 #ifdef __MQL4__
-    return ::iBarShift(_symbol, GetTf(), _time, _exact);
+    return ::iBarShift(GetTf(), _time, _exact);
 #else  // __MQL5__
     if (_time < 0) return (-1);
     ARRAY(datetime, arr);
     datetime _time0;
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
-    CopyTime(_symbol, GetTf(), 0, 1, arr);
+    CopyTime(GetSymbol(), GetTf(), 0, 1, arr);
     _time0 = arr[0];
-    if (CopyTime(_symbol, GetTf(), _time, _time0, arr) > 0) {
+    if (CopyTime(GetSymbol(), GetTf(), _time, _time0, arr) > 0) {
       if (ArraySize(arr) > 2) {
         return ArraySize(arr) - 1;
       } else {
@@ -160,25 +102,81 @@ class ChartMt : public ChartBase {
   }
 
   /**
+   * Returns the shift of the maximum value over a specific number of periods depending on type.
+   */
+  virtual int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) override {
+    return ::iHighest(GetSymbol(), GetTf(), (ENUM_SERIESMODE)type, _count, _start);
+  }
+
+  /**
+   * Returns the shift of the minimum value over a specific number of periods depending on type.
+   */
+  virtual int GetLowest(int type, int _count = WHOLE_ARRAY, int _start = 0) override {
+    return ::iLowest(GetSymbol(), GetTf(), (ENUM_SERIESMODE)type, _count, _start);
+  }
+
+  /**
    * Get peak price at given number of bars.
    *
    * In case of error, check it via GetLastError().
    */
-  virtual double GetPeakPrice(CONST_REF_TO(string) _symbol, int _bars, int _mode, int _index) override {
+  virtual double GetPeakPrice(int _bars, int _mode, int _index) override {
     int _ibar = -1;
     // @todo: Add symbol parameter.
-    double _peak_price = GetOpen(_symbol, 0);
+    double _peak_price = GetOpen(0);
     switch (_mode) {
       case MODE_HIGH:
-        _ibar = GetHighest(_symbol, MODE_HIGH, _bars, _index);
-        return _ibar >= 0 ? GetHigh(_symbol, _ibar) : false;
+        _ibar = GetHighest(MODE_HIGH, _bars, _index);
+        return _ibar >= 0 ? GetHigh(_ibar) : false;
       case MODE_LOW:
-        _ibar = GetLowest(_symbol, MODE_LOW, _bars, _index);
-        return _ibar >= 0 ? GetLow(_symbol, _ibar) : false;
+        _ibar = GetLowest(MODE_LOW, _bars, _index);
+        return _ibar >= 0 ? GetLow(_ibar) : false;
       default:
         return false;
     }
   }
+
+  /**
+   * Returns the current price value given applied price type, symbol and timeframe.
+   */
+  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) override {
+    switch (_ap) {
+      case PRICE_OPEN:
+        return ::iOpen(GetSymbol(), GetTf(), _shift);
+      case PRICE_HIGH:
+        return ::iHigh(GetSymbol(), GetTf(), _shift);
+      case PRICE_LOW:
+        return ::iLow(GetSymbol(), GetTf(), _shift);
+      case PRICE_CLOSE:
+        return ::iClose(GetSymbol(), GetTf(), _shift);
+    }
+    Print("Invalid applied price!");
+    DebugBreak();
+    return 0;
+  }
+
+  /**
+   * Returns open time price value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  virtual datetime GetTime(unsigned int _shift = 0) override {
+#ifdef __MQL4__
+    return ::iTime(GetTf(), _shift);  // Same as: Time[_shift]
+#else                                 // __MQL5__
+    ARRAY(datetime, _arr);
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    // @todo: Improves performance by caching values.
+    return (_shift >= 0 && ::CopyTime(GetSymbol(), GetTf(), _shift, 1, _arr) > 0) ? _arr[0] : 0;
+#endif
+  }
+
+  /**
+   * Returns tick volume value for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  virtual long GetVolume(int _shift = 0) override { return ::iVolume(GetSymbol(), GetTf(), _shift); }
 };
 
 /**
@@ -191,10 +189,10 @@ struct ChartPriceClose {
   const SymbolTf symbol_tf;
 
  public:
-  ChartPriceClose() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  ChartPriceClose() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static double Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetClose(_symbol_tf.Symbol(), _shift);
+    return ChartMt::GetInstance(_symbol_tf) PTR_DEREF GetClose(_shift);
   }
 };
 
@@ -208,10 +206,10 @@ struct ChartPriceHigh {
   const SymbolTf symbol_tf;
 
  public:
-  ChartPriceHigh() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  ChartPriceHigh() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static double Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetHigh(_symbol_tf.Symbol(), _shift);
+    return ChartMt::GetInstance(_symbol_tf) PTR_DEREF GetHigh(_shift);
   }
 };
 
@@ -225,10 +223,10 @@ struct ChartPriceLow {
   const SymbolTf symbol_tf;
 
  public:
-  ChartPriceLow() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  ChartPriceLow() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static double Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetLow(_symbol_tf.Symbol(), _shift);
+    return ChartMt::GetInstance(_symbol_tf) PTR_DEREF GetLow(_shift);
   }
 };
 
@@ -242,10 +240,10 @@ struct ChartPriceOpen {
   const SymbolTf symbol_tf;
 
  public:
-  ChartPriceOpen() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  ChartPriceOpen() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static double Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetOpen(_symbol_tf.Symbol(), _shift);
+    return ChartMt::GetInstance(_symbol_tf) PTR_DEREF GetOpen(_shift);
   }
 };
 
@@ -259,9 +257,9 @@ struct ChartBarTime {
   const SymbolTf symbol_tf;
 
  public:
-  ChartBarTime() : symbol_tf(_Symbol, PERIOD_CURRENT) {}
+  ChartBarTime() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   datetime operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static datetime Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartMt::GetInstance(_symbol_tf.Tf()) PTR_DEREF GetTime(_symbol_tf.Symbol(), _shift);
+    return ChartMt::GetInstance(_symbol_tf) PTR_DEREF GetTime(_shift);
   }
 };

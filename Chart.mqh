@@ -110,24 +110,6 @@ class Chart : public Market {
   int bar_index;
 
  public:
-  /* Getters */
-
-  /**
-   * Gets a chart parameter value.
-   */
-  template <typename T>
-  T Get(ENUM_CHART_PARAM _param) {
-    return cparams.Get<T>(_param);
-  }
-
-  /**
-   * Gets copy of params.
-   *
-   * @return
-   *   Returns structure for Trade's params.
-   */
-  ChartParams GetParams() const { return cparams; }
-
   /* State checking */
 
   /**
@@ -195,44 +177,6 @@ class Chart : public Market {
   /* Conditions */
 
   /* Printer methods */
-
-  /* Static methods */
-
-  /**
-   * Returns the price value given applied price type.
-   */
-  static float GetAppliedPrice(ENUM_APPLIED_PRICE _ap, float _o, float _h, float _c, float _l) {
-    BarOHLC _bar(_o, _h, _c, _l);
-    return _bar.GetAppliedPrice(_ap);
-  }
-
-  /* Other methods */
-
-  /**
-   * Load stored BarOHLC values.
-   *
-   * @param
-   *   _index unsigned int Index of the element in BarOHLC array.
-   * @return
-   *   Returns BarOHLC struct element.
-   */
-  ChartEntry LoadChartEntry(unsigned int _index = 0) { return chart_saves[_index]; }
-
-  /**
-   * Return size of BarOHLC array.
-   */
-  unsigned long SizeChartEntry() { return ArraySize(chart_saves); }
-
-  /* Serializers */
-
-  /**
-   * Returns serialized representation of the object instance.
-   */
-  SerializerNodeType Serialize(Serializer &_s) {
-    ChartEntry _centry = GetEntry();
-    _s.PassStruct(THIS_REF, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    return SerializerNodeObject;
-  }
 };
 
 #endif

@@ -30,6 +30,9 @@
 #pragma once
 #endif
 
+// Includes.
+#include "Std.h"
+
 /**
  * Represents symbol and timeframe. To be used by IndicatorBase and ChartBase classes.
  */
@@ -38,8 +41,8 @@ struct SymbolTf {
   const ENUM_TIMEFRAMES tf;
   const string symbol_tf_key;
 
-  const string Key() const { return symbol_tf_key; }
-  const string Symbol() const { return symbol; }
+  CONST_REF_TO(string) Key() const { return symbol_tf_key; }
+  CONST_REF_TO(string) Symbol() const { return symbol; }
   ENUM_TIMEFRAMES Tf() const { return tf; }
 
   SymbolTf(string _symbol, ENUM_TIMEFRAMES _tf)
