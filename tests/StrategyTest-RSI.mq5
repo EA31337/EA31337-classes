@@ -25,6 +25,7 @@
  */
 
 // Includes.
+#include "../ChartMt.h"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Strategy.mqh"
 #include "../Test.mqh"
@@ -75,8 +76,8 @@ class Stg_RSI : public Strategy {
 };
 
 // Global variables.
-Strategy *stg_rsi;
-Trade *trade;
+Ref<Strategy> stg_rsi;
+Ref<Trade> trade;
 
 /**
  * Implements OnInit().
@@ -84,24 +85,24 @@ Trade *trade;
 int OnInit() {
   // Initialize strategy instance.
   stg_rsi = Stg_RSI::Init(PERIOD_CURRENT);
-  stg_rsi.SetName("Stg_RSI");
-  stg_rsi.Set<long>(STRAT_PARAM_ID, 1234);
+  stg_rsi REF_DEREF SetName("Stg_RSI");
+  stg_rsi REF_DEREF Set<long>(STRAT_PARAM_ID, 1234);
 
   // Initialize trade instance.
-  ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
+  Ref<ChartBase> _chart = new ChartMt(_Symbol, (ENUM_TIMEFRAMES)_Period);
   TradeParams _tparams;
-  trade = new Trade(_tparams, _cparams);
+  trade = new Trade(_tparams, _chart.Ptr());
 
-  assertTrueOrFail(stg_rsi.GetName() == "Stg_RSI", "Invalid Strategy name!");
-  assertTrueOrFail(stg_rsi.IsValid(), "Fail on IsValid()!");
-  // assertTrueOrFail(stg_rsi.GetMagicNo() == 1234, "Invalid magic number!");
+  assertTrueOrFail(stg_rsi REF_DEREF GetName() == "Stg_RSI", "Invalid Strategy name!");
+  assertTrueOrFail(stg_rsi REF_DEREF IsValid(), "Fail on IsValid()!");
+  // assertTrueOrFail(stg_rsi REF_DEREF GetMagicNo() == 1234, "Invalid magic number!");
 
   // Test whether strategy is enabled and not suspended.
-  assertTrueOrFail(stg_rsi.IsEnabled(), "Fail on IsEnabled()!");
-  assertFalseOrFail(stg_rsi.IsSuspended(), "Fail on IsSuspended()!");
+  assertTrueOrFail(stg_rsi REF_DEREF IsEnabled(), "Fail on IsEnabled()!");
+  assertFalseOrFail(stg_rsi REF_DEREF IsSuspended(), "Fail on IsSuspended()!");
 
   // Output.
-  Print(stg_rsi.ToString());
+  Print(stg_rsi REF_DEREF ToString());
 
   // Check for errors.
   long _last_error = GetLastError();
@@ -118,33 +119,33 @@ void OnTick() {
   static MqlTick _tick_last;
   MqlTick _tick_new = SymbolInfoStatic::GetTick(_Symbol);
   if (_tick_new.time % 60 < _tick_last.time % 60) {
-    if (stg_rsi.SignalOpen(ORDER_TYPE_BUY)) {
-      MqlTradeRequest _request =
-          trade.GetTradeOpenRequest(ORDER_TYPE_BUY, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
-      trade.RequestSend(_request);
-    } else if (stg_rsi.SignalOpen(ORDER_TYPE_SELL)) {
-      MqlTradeRequest _request =
-          trade.GetTradeOpenRequest(ORDER_TYPE_SELL, 0, stg_rsi.Get<long>(STRAT_PARAM_ID), stg_rsi.GetName());
-      trade.RequestSend(_request);
+    if (stg_rsi REF_DEREF SignalOpen(ORDER_TYPE_BUY)) {
+      MqlTradeRequest _request = trade REF_DEREF GetTradeOpenRequest(
+          ORDER_TYPE_BUY, 0, stg_rsi REF_DEREF Get<long>(STRAT_PARAM_ID), stg_rsi REF_DEREF GetName());
+      trade REF_DEREF RequestSend(_request);
+    } else if (stg_rsi REF_DEREF SignalOpen(ORDER_TYPE_SELL)) {
+      MqlTradeRequest _request = trade REF_DEREF GetTradeOpenRequest(
+          ORDER_TYPE_SELL, 0, stg_rsi REF_DEREF Get<long>(STRAT_PARAM_ID), stg_rsi REF_DEREF GetName());
+      trade REF_DEREF RequestSend(_request);
     }
-    if (trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-      if (stg_rsi.SignalClose(ORDER_TYPE_BUY)) {
+    if (trade REF_DEREF Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+      if (stg_rsi REF_DEREF SignalClose(ORDER_TYPE_BUY)) {
         // Close signal for buy order.
-        trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
-            ORDER_MAGIC, stg_rsi.Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_BUY, MATH_COND_EQ,
-            ORDER_REASON_CLOSED_BY_SIGNAL, stg_rsi.GetOrderCloseComment());
+        trade REF_DEREF OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
+            ORDER_MAGIC, stg_rsi REF_DEREF Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_BUY, MATH_COND_EQ,
+            ORDER_REASON_CLOSED_BY_SIGNAL, stg_rsi REF_DEREF GetOrderCloseComment());
       }
-      if (stg_rsi.SignalClose(ORDER_TYPE_SELL)) {
-        trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
-            ORDER_MAGIC, stg_rsi.Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_SELL, MATH_COND_EQ,
-            ORDER_REASON_CLOSED_BY_SIGNAL, stg_rsi.GetOrderCloseComment());
+      if (stg_rsi REF_DEREF SignalClose(ORDER_TYPE_SELL)) {
+        trade REF_DEREF OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
+            ORDER_MAGIC, stg_rsi REF_DEREF Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_SELL, MATH_COND_EQ,
+            ORDER_REASON_CLOSED_BY_SIGNAL, stg_rsi REF_DEREF GetOrderCloseComment());
       }
     }
     if (_tick_new.time % 3600 < _tick_last.time % 3600) {
-      stg_rsi.ProcessTasks();
-      trade.UpdateStates();
+      stg_rsi REF_DEREF ProcessTasks();
+      trade REF_DEREF UpdateStates();
       // Print strategy values every hour.
-      Print(stg_rsi.ToString());
+      Print(stg_rsi REF_DEREF ToString());
     }
     long _last_error = GetLastError();
     if (_last_error > 0) {
@@ -157,7 +158,4 @@ void OnTick() {
 /**
  * Implements OnDeinit().
  */
-void OnDeinit(const int reason) {
-  delete stg_rsi;
-  delete trade;
-}
+void OnDeinit(const int reason) {}

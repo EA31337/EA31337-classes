@@ -35,9 +35,11 @@
 #include "Chart.enum.h"
 #include "Chart.struct.h"
 #include "Chart.symboltf.h"
+#include "Data.define.h"
 #include "Dict.mqh"
 #include "Log.mqh"
 #include "Refs.mqh"
+#include "Task/TaskCondition.enum.h"
 
 /**
  * Abstract class used as a base for market prices source.
@@ -320,12 +322,21 @@ class ChartBase : public Dynamic {
   /* State checking */
 
   /**
+   * Checks whether chart has valid configuration.
+   */
+  bool IsValid() { return GetOpen() > 0; }
+
+  /**
    * Validate whether given timeframe index is valid.
    */
   bool IsValidTfIndex(ENUM_TIMEFRAMES_INDEX _tfi) {
+    if (!IsValid()) {
+      return false;
+    }
+
     for (int i = 0; i < GetTfIndicesTotal(); ++i) {
       if (GetTfIndicesItem(i) == _tfi) {
-        return IsValidSymbol();
+        return true;
       }
     }
 
@@ -349,11 +360,6 @@ class ChartBase : public Dynamic {
    * Validates whether given timeframe is valid.
    */
   bool IsValidShift(int _shift) { return GetTime(_shift) > 0; }
-
-  /**
-   * Validates whether given timeframe is valid.
-   */
-  bool IsValidSymbol() { return GetOpen() > 0; }
 
   /**
    * Returns total number of timeframe indices the chart supports. Supports all TFs by default.
@@ -480,6 +486,7 @@ class ChartBase : public Dynamic {
           100;
     }
     
+
 
     */
 
@@ -749,6 +756,7 @@ class ChartBase : public Dynamic {
     /**
     TODO
     
+
     ChartEntry _centry = GetEntry();
     _s.PassStruct(THIS_REF, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     */
