@@ -575,6 +575,24 @@ struct IndicatorState {
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }
+  // Setters.
+  template <typename T>
+  void Set(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop, T _value) {
+    switch (_prop) {
+      case INDICATOR_STATE_PROP_HANDLE:
+        handle = (T)_value;
+        break;
+      case INDICATOR_STATE_PROP_IS_CHANGED:
+        is_changed = (T)_value;
+        break;
+      case INDICATOR_STATE_PROP_IS_READY:
+        is_ready = (T)_value;
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+    };
+  }
   // State checkers.
   bool IsChanged() { return is_changed; }
   bool IsReady() { return is_ready; }
