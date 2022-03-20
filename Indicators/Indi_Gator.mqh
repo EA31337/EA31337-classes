@@ -174,7 +174,6 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
                                     GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(),
                                     (ENUM_GATOR_HISTOGRAM)_mode, _ishift, THIS_PTR);

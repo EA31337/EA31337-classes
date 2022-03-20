@@ -119,7 +119,6 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_BWMFI::iBWMFI(GetSymbol(), GetTf(), _ishift, (ENUM_BWMFI_BUFFER)_mode, THIS_PTR);
         break;
       case IDATA_ICUSTOM:

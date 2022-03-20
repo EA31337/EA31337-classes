@@ -146,7 +146,6 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), iparams.shift + _ishift,
                                           THIS_PTR);

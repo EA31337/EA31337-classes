@@ -108,7 +108,6 @@ class Indi_ATR : public Indicator<IndiATRParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_ATR::iATR(GetSymbol(), GetTf(), GetPeriod(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
