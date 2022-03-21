@@ -55,8 +55,8 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
   /**
    * Built-in version of Williams' AD.
    */
-  static double iWAD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_WilliamsAD");
+  static double iWAD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf, "Indi_WilliamsAD");
     return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
@@ -84,9 +84,8 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
   /**
    * On-indicator version of Williams' AD.
    */
-  static double iWADOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+  static double iWADOnIndicator(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi,
                                                           Util::MakeKey("Indi_WilliamsAD_ON_" + _indi.GetFullName()));
     return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
@@ -140,13 +139,13 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_WilliamsAD::iWAD(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_WilliamsAD::iWAD(GetSymbol(), GetTf(), _mode, _ishift, GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_WilliamsAD::iWADOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_WilliamsAD::iWADOnIndicator(GetDataSource(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

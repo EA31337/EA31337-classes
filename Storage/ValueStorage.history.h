@@ -43,11 +43,8 @@ class ValueStorage;
 template <typename C>
 class HistoryValueStorage : public ValueStorage<C> {
  protected:
-  // Symbol to fetch history for.
-  string symbol;
-
-  // Time-frame to fetch history for.
-  ENUM_TIMEFRAMES tf;
+  // Chart to take data from.
+  Ref<ChartBase> chart;
 
   // Time of the first bar possible to fetch.
   datetime start_bar_time;
@@ -59,9 +56,8 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Constructor.
    */
-  HistoryValueStorage(string _symbol, ENUM_TIMEFRAMES _tf, bool _is_series = false)
-      : symbol(_symbol), tf(_tf), is_series(_is_series) {
-    start_bar_time = ChartStatic::iTime(_symbol, _tf, BarsFromStart() - 1);
+  HistoryValueStorage(ChartBase* _chart, bool _is_series = false) : chart(_chart), is_series(_is_series) {
+    start_bar_time = chart REF_DEREF GetTime(BarsFromStart() - 1);
   }
 
   /**
@@ -86,7 +82,7 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Number of bars passed from the start. There will be a single bar at the start.
    */
-  int BarsFromStart() const { return Bars(symbol, tf); }
+  int BarsFromStart() const { return chart REF_DEREF GetBars(); }
 
   /**
    * Returns number of values available to fetch (size of the values buffer).

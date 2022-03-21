@@ -61,8 +61,8 @@ class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangePar
    * Built-in version of Rate of Change.
    */
   static double iROC(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                     int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
+                     int _shift = 0, ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_chart, _symbol, _tf, _ap,
                                                         Util::MakeKey("Indi_RateOfChange", _period, (int)_ap));
     return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);
   }
@@ -91,10 +91,10 @@ class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangePar
   /**
    * On-indicator version of Rate of Change.
    */
-  static double iROCOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iROCOnIndicator(IndicatorBase *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
+                                int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
-        _indi, _symbol, _tf, _ap, Util::MakeKey("Indi_RateOfChange_ON_" + _indi.GetFullName(), _period, (int)_ap));
+        _indi, _ap, Util::MakeKey("Indi_RateOfChange_ON_" + _indi.GetFullName(), _period, (int)_ap));
     return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);
   }
 
@@ -126,15 +126,15 @@ class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangePar
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_RateOfChange::iROC(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode,
-                                         _ishift, THIS_PTR);
+                                         _ishift, GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_RateOfChange::iROCOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(),
-                                                    GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_RateOfChange::iROCOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode,
+                                                    _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

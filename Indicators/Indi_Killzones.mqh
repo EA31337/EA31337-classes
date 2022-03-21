@@ -120,8 +120,8 @@ class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
         ikt.Set(::TimeGMT());
         if (ikt.CheckHours(_index)) {
           // Pass values to check for new highs or lows.
-          ikt.Update(_mode % 2 == 0 ? (float)GetChart() PTR_DEREF GetHigh(GetSymbol(), GetTf(), _ishift)
-                                    : (float)GetChart() PTR_DEREF GetLow(GetSymbol(), GetTf(), _ishift),
+          ikt.Update(_mode % 2 == 0 ? (float)GetChart() PTR_DEREF GetHigh(_ishift)
+                                    : (float)GetChart() PTR_DEREF GetLow(_ishift),
                      _index);
         }
         // Set a final value.

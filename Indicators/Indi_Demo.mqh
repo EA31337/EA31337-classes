@@ -77,7 +77,7 @@ class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _ishift, THIS_PTR);
     if (iparams.is_draw) {
-      draw.DrawLineTo(GetName(), GetChart() PTR_DEREF GetBarTime(GetSymbol(), GetTf(), _ishift), _value);
+      draw.DrawLineTo(GetName(), GetChart() PTR_DEREF GetBarTime(_ishift), _value);
     }
     return _value;
   }

@@ -106,7 +106,7 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
                                   int _ema_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
                                   IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
-        _indi, _symbol, _tf, _ap,
+        _indi, _ap,
         Util::MakeKey("Indi_VIDYA_ON_" + _indi.GetFullName(), _cmo_period, _ema_period, _ma_shift, (int)_ap));
     return iVIDyAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _cmo_period, _ema_period, _ma_shift, _mode, _shift,
                          _cache);

@@ -76,10 +76,9 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
    * Built-in version of Ultimate Oscillator.
    */
   static double iUO(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period, int _middle_period, int _slow_period,
-                    int _fast_k, int _middle_k, int _slow_k, int _mode = 0, int _shift = 0,
-                    IndicatorBase *_obj = NULL) {
+                    int _fast_k, int _middle_k, int _slow_k, int _mode = 0, int _shift = 0, ChartBase *_chart = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
-        _symbol, _tf,
+        _chart, _symbol, _tf,
         Util::MakeKey("Indi_UltimateOscillator", _fast_period, _middle_period, _slow_period, _fast_k, _middle_k,
                       _slow_k));
 
@@ -119,18 +118,16 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
   /**
    * On-indicator version of Ultimate Oscillator.
    */
-  static double iUOOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period,
-                               int _middle_period, int _slow_period, int _fast_k, int _middle_k, int _slow_k,
-                               int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iUOOnIndicator(IndicatorBase *_indi, int _fast_period, int _middle_period, int _slow_period,
+                               int _fast_k, int _middle_k, int _slow_k, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf,
-        Util::MakeKey("Indi_UltimateOscillator_ON_" + _indi.GetFullName(), _fast_period, _middle_period, _slow_period,
-                      _fast_k, _middle_k, _slow_k));
+        _indi, Util::MakeKey("Indi_UltimateOscillator_ON_" + _indi PTR_DEREF GetFullName(), _fast_period,
+                             _middle_period, _slow_period, _fast_k, _middle_k, _slow_k));
 
-    // @fixit This won't work! Find a way to differentiate ATRs.
-    Indi_ATR *_indi_atr_fast = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_FAST);
-    Indi_ATR *_indi_atr_middle = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_MIDDLE);
-    Indi_ATR *_indi_atr_slow = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_SLOW);
+    // @fixit This won't work! Find a way to differentiate ATRs. Maybe an additional key for GetDataSource?
+    Indi_ATR *_indi_atr_fast = (Indi_ATR *)_indi PTR_DEREF GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_FAST);
+    Indi_ATR *_indi_atr_middle = (Indi_ATR *)_indi PTR_DEREF GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_MIDDLE);
+    Indi_ATR *_indi_atr_slow = (Indi_ATR *)_indi PTR_DEREF GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_SLOW);
 
     return iUOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_period, _middle_period, _slow_period, _fast_k,
                       _middle_k, _slow_k, _mode, _shift, _cache, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow);
@@ -254,7 +251,7 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
       case IDATA_BUILTIN:
         _value = Indi_UltimateOscillator::iUO(GetSymbol(), GetTf(), /*[*/ GetFastPeriod(), GetMiddlePeriod(),
                                               GetSlowPeriod(), GetFastK(), GetMiddleK(), GetSlowK() /*]*/, _mode,
-                                              _ishift, THIS_PTR);
+                                              _ishift, GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
@@ -264,9 +261,9 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_UltimateOscillator::iUOOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetFastPeriod(),
-                                                         GetMiddlePeriod(), GetSlowPeriod(), GetFastK(), GetMiddleK(),
-                                                         GetSlowK() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_UltimateOscillator::iUOOnIndicator(GetDataSource(), /*[*/ GetFastPeriod(), GetMiddlePeriod(),
+                                                         GetSlowPeriod(), GetFastK(), GetMiddleK(), GetSlowK() /*]*/,
+                                                         _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

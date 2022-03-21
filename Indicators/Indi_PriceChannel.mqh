@@ -59,8 +59,9 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
    * Returns value for Price Channel indicator.
    */
   static double iPriceChannel(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _mode = 0, int _shift = 0,
-                              IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_PriceChannel", _period));
+                              ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf,
+                                                       Util::MakeKey("Indi_PriceChannel", _period));
     return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
 
@@ -89,10 +90,9 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
   /**
    * On-indicator version of Price Channel.
    */
-  static double iPriceChannelOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                         int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iPriceChannelOnIndicator(IndicatorBase *_indi, int _period, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf, Util::MakeKey("Indi_PriceChannel_ON_" + _indi.GetFullName(), _period));
+        _indi, Util::MakeKey("Indi_PriceChannel_ON_" + _indi.GetFullName(), _period));
     return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
 
@@ -121,15 +121,15 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_PriceChannel::iPriceChannel(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
+        _value = Indi_PriceChannel::iPriceChannel(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_PriceChannel::iPriceChannelOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
-                                                             /*[*/ GetPeriod() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_PriceChannel::iPriceChannelOnIndicator(GetDataSource(),
+                                                             /*[*/ GetPeriod() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

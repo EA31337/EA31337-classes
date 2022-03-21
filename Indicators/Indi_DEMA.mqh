@@ -148,10 +148,10 @@ class Indi_DEMA : public IndicatorTickOrCandleSource<IndiDEIndiMAParams> {
   /**
    * On-indicator version of DEMA.
    */
-  static double iDEMAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _ma_shift,
-                                 ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iDEMAOnIndicator(IndicatorBase *_indi, int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
+                                 int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
-        _indi, _symbol, _tf, (int)_ap, Util::MakeKey("Indi_CHV_ON_" + _indi.GetFullName(), _period, _ma_shift));
+        _indi, (int)_ap, Util::MakeKey("Indi_CHV_ON_" + _indi.GetFullName(), _period, _ma_shift));
     return iDEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ma_shift, _mode, _shift, _cache);
   }
 
@@ -196,8 +196,8 @@ class Indi_DEMA : public IndicatorTickOrCandleSource<IndiDEIndiMAParams> {
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
-        _value = Indi_DEMA::iDEMAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetMAShift(),
-                                             GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_DEMA::iDEMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/,
+                                             _mode, _ishift, THIS_PTR);
         break;
     }
     return _value;

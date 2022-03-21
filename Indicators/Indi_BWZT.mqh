@@ -74,8 +74,8 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
   /**
    * Built-in version of BWZT.
    */
-  static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_BWZT");
+  static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf, "Indi_BWZT");
 
     Indi_AC *_indi_ac = Indi_AC::GetCached(_symbol, _tf);
     Indi_AO *_indi_ao = Indi_AO::GetCached(_symbol, _tf);
@@ -112,8 +112,7 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
    */
   static double iBWZTOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
                                  IndicatorBase *_obj) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
-                                                          Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
 
     Indi_AC *_indi_ac = _obj.GetDataSource(INDI_AC);
     Indi_AO *_indi_ao = _obj.GetDataSource(INDI_AO);
@@ -210,7 +209,7 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_BWZT::iBWZT(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_BWZT::iBWZT(GetSymbol(), GetTf(), _mode, _ishift, GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);

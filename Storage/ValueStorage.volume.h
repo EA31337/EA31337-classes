@@ -36,21 +36,21 @@ class VolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  VolumeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : HistoryValueStorage(_symbol, _tf) {}
+  VolumeValueStorage(ChartBase *_chart) : HistoryValueStorage(_chart) {}
 
   /**
    * Copy constructor.
    */
-  VolumeValueStorage(const VolumeValueStorage &_r) : HistoryValueStorage(_r.symbol, _r.tf) {}
+  VolumeValueStorage(const VolumeValueStorage &_r) : HistoryValueStorage(_r.chart.Ptr()) {}
 
   /**
    * Returns pointer to VolumeValueStorage of a given symbol and time-frame.
    */
-  static VolumeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
+  static VolumeValueStorage *GetInstance(ChartBase *_chart) {
     VolumeValueStorage *_storage;
-    string _key = _symbol + "/" + IntegerToString((int)_tf);
+    string _key = Util::MakeKey(_chart PTR_DEREF GetId());
     if (!ObjectsCache<VolumeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<VolumeValueStorage>::Set(_key, new VolumeValueStorage(_symbol, _tf));
+      _storage = ObjectsCache<VolumeValueStorage>::Set(_key, new VolumeValueStorage(_chart));
     }
     return _storage;
   }
@@ -60,7 +60,7 @@ class VolumeValueStorage : public HistoryValueStorage<long> {
    */
   virtual long Fetch(int _shift) {
     ResetLastError();
-    long _volume = iVolume(symbol, tf, RealShift(_shift));
+    long _volume = chart REF_DEREF GetVolume(RealShift(_shift));
     if (_LastError != ERR_NO_ERROR) {
       Print("Cannot fetch iVolume! Error: ", _LastError);
       DebugBreak();

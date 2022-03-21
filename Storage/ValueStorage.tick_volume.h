@@ -36,22 +36,21 @@ class TickVolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  TickVolumeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : HistoryValueStorage(_symbol, _tf) {}
+  TickVolumeValueStorage(ChartBase *_chart) : HistoryValueStorage(_chart) {}
 
   /**
    * Copy constructor.
    */
-  TickVolumeValueStorage(const TickVolumeValueStorage &_r) : HistoryValueStorage(_r.symbol, _r.tf) {}
+  TickVolumeValueStorage(const TickVolumeValueStorage &_r) : HistoryValueStorage(_r.chart.Ptr()) {}
 
   /**
    * Returns pointer to TickVolumeValueStorage of a given symbol and time-frame.
    */
-  static TickVolumeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
+  static TickVolumeValueStorage *GetInstance(ChartBase *_chart) {
     TickVolumeValueStorage *_storage;
-    string _key = _symbol + "/" + IntegerToString((int)_tf);
+    string _key = Util::MakeKey(_chart PTR_DEREF GetId());
     if (!ObjectsCache<TickVolumeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<TickVolumeValueStorage>::Set(_key, new TickVolumeValueStorage(_symbol, _tf));
+      _storage = ObjectsCache<TickVolumeValueStorage>::Set(_key, new TickVolumeValueStorage(_chart));
     }
     return _storage;
   }
@@ -59,5 +58,5 @@ class TickVolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual long Fetch(int _shift) { return ChartStatic::iVolume(symbol, tf, RealShift(_shift)); }
+  virtual long Fetch(int _shift) { return chart REF_DEREF GetVolume(RealShift(_shift)); }
 };

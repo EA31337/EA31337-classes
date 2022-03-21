@@ -59,8 +59,8 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
    * "Built-in" version of Color Line.
    */
   static double iColorLine(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                           IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorLine");
+                           ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf, "Indi_ColorLine");
 
     Indi_MA *_indi_ma = Indi_MA::GetCached(_symbol, _tf, 10, 0, MODE_EMA, PRICE_CLOSE);
 
@@ -92,9 +92,8 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
   /**
    * On-indicator version of Color Line.
    */
-  static double iColorLineOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                      int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+  static double iColorLineOnIndicator(IndicatorBase *_indi, int _mode, int _shift, IndicatorBase *_obj) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi,
                                                           Util::MakeKey("Indi_ColorLine_ON_" + _indi.GetFullName()));
 
     Indi_MA *_indi_ma = _obj.GetDataSource(INDI_MA);
@@ -204,13 +203,13 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_ColorLine::iColorLine(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_ColorLine::iColorLine(GetSymbol(), GetTf(), _mode, _ishift, GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ColorLine::iColorLineOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_ColorLine::iColorLineOnIndicator(GetDataSource(), _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

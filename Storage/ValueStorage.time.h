@@ -37,21 +37,21 @@ class TimeValueStorage : public HistoryValueStorage<datetime> {
   /**
    * Constructor.
    */
-  TimeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : HistoryValueStorage(_symbol, _tf) {}
+  TimeValueStorage(ChartBase *_chart) : HistoryValueStorage(_chart) {}
 
   /**
    * Copy constructor.
    */
-  TimeValueStorage(const TimeValueStorage &_r) : HistoryValueStorage(_r.symbol, _r.tf) {}
+  TimeValueStorage(const TimeValueStorage &_r) : HistoryValueStorage(_r.chart.Ptr()) {}
 
   /**
    * Returns pointer to TimeValueStorage of a given symbol and time-frame.
    */
-  static TimeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
+  static TimeValueStorage *GetInstance(ChartBase *_chart) {
     TimeValueStorage *_storage;
-    string _key = Util::MakeKey(_symbol, (int)_tf);
+    string _key = Util::MakeKey(_chart PTR_DEREF GetId());
     if (!ObjectsCache<TimeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<TimeValueStorage>::Set(_key, new TimeValueStorage(_symbol, _tf));
+      _storage = ObjectsCache<TimeValueStorage>::Set(_key, new TimeValueStorage(_chart));
     }
     return _storage;
   }
@@ -59,5 +59,5 @@ class TimeValueStorage : public HistoryValueStorage<datetime> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual datetime Fetch(int _shift) { return iTime(symbol, tf, RealShift(_shift)); }
+  virtual datetime Fetch(int _shift) { return chart REF_DEREF GetTime(RealShift(_shift)); }
 };

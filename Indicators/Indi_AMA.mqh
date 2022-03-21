@@ -122,7 +122,7 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
                                 int _fast_ema_period, int _slow_ema_period, int _ama_shift, ENUM_APPLIED_PRICE _ap,
                                 int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(
-        _indi, _symbol, _tf, _ap,
+        _indi, _ap,
         Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift,
                       (int)_ap));
     return iAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ama_period, _fast_ema_period, _slow_ema_period,

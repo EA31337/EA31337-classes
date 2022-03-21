@@ -131,8 +131,8 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
    * "Built-in" version of Heiken Ashi.
    */
   static double iHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                            Indi_HeikenAshi *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_HeikenAshi");
+                            ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf, "Indi_HeikenAshi");
     return iHeikenAshiOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
@@ -161,9 +161,8 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
   /**
    * On-indicator version of Heiken Ashi.
    */
-  static double iHeikenAshiOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                       int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+  static double iHeikenAshiOnIndicator(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi,
                                                           Util::MakeKey("Indi_HeikenAshi_ON_" + _indi.GetFullName()));
     return iHeikenAshiOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
@@ -228,7 +227,7 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
             break;
         }
 #endif
-        _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _ishift, GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
@@ -239,8 +238,7 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
                                                           _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value =
-            Indi_HeikenAshi::iHeikenAshiOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_HeikenAshi::iHeikenAshiOnIndicator(GetDataSource(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

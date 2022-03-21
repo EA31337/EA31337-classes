@@ -106,13 +106,11 @@ class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
   /**
    * On-indicator version of Chaikin Oscillator.
    */
-  static double iChaikinOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period,
-                                    int _slow_ma_period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av,
-                                    int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iChaikinOnIndicator(IndicatorBase *_indi, int _fast_ma_period, int _slow_ma_period,
+                                    ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf,
-        Util::MakeKey("Indi_CHO_ON_" + _indi.GetFullName(), _fast_ma_period, _slow_ma_period, (int)_ma_method,
-                      (int)_av));
+        _indi, Util::MakeKey("Indi_CHO_ON_" + _indi.GetFullName(), _fast_ma_period, _slow_ma_period, (int)_ma_method,
+                             (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
                            _mode, _shift, _cache);
   }
@@ -194,8 +192,8 @@ class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
                          GetSlowMA(), GetSmoothMethod(), GetInputVolume() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_CHO::iChaikinOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetFastMA(), GetSlowMA(),
-                                               GetSmoothMethod(), GetInputVolume() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_CHO::iChaikinOnIndicator(GetDataSource(), /*[*/ GetFastMA(), GetSlowMA(), GetSmoothMethod(),
+                                               GetInputVolume() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

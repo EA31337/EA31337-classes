@@ -102,8 +102,7 @@ class Indi_TEMA : public IndicatorTickOrCandleSource<IndiTEMAParams> {
                                  int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
                                  IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
-        _indi, _symbol, _tf, _ap,
-        Util::MakeKey("Indi_TEMA_ON_" + _indi.GetFullName(), _ma_period, _ma_shift, (int)_ap));
+        _indi, _ap, Util::MakeKey("Indi_TEMA_ON_" + _indi.GetFullName(), _ma_period, _ma_shift, (int)_ap));
     return iTEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _ma_shift, _mode, _shift, _cache);
   }
 

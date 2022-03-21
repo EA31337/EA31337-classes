@@ -62,8 +62,8 @@ class Indi_DetrendedPrice : public IndicatorTickOrCandleSource<IndiDetrendedPric
    * Built-in version of AMA.
    */
   static double iDPO(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                     int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
+                     int _shift = 0, ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_chart, _symbol, _tf, _ap,
                                                         Util::MakeKey("Indi_DPO", _period, (int)_ap));
     return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode, _shift, _cache);
   }
@@ -92,10 +92,10 @@ class Indi_DetrendedPrice : public IndicatorTickOrCandleSource<IndiDetrendedPric
   /**
    * On-indicator version of DPO.
    */
-  static double iDPOOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iDPOOnIndicator(IndicatorBase *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
+                                int _shift = 0, IndicatorBase *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
-        _indi, _symbol, _tf, _ap, Util::MakeKey("Indi_DPO_ON_" + _indi.GetFullName(), _period, (int)_ap));
+        _indi, _ap, Util::MakeKey("Indi_DPO_ON_" + _indi.GetFullName(), _period, (int)_ap));
     return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode, _shift, _cache);
   }
 
@@ -132,15 +132,15 @@ class Indi_DetrendedPrice : public IndicatorTickOrCandleSource<IndiDetrendedPric
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_DetrendedPrice::iDPO(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode,
-                                           _ishift, THIS_PTR);
+                                           _ishift, GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_DetrendedPrice::iDPOOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(),
-                                                      GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_DetrendedPrice::iDPOOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/,
+                                                      _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

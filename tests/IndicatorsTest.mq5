@@ -32,6 +32,7 @@
 struct DataParamEntry;
 
 // Includes.
+#include "../ChartMt.h"
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
@@ -39,13 +40,14 @@ struct DataParamEntry;
 #include "../Indicators/indicators.h"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
+#include "../Std.h"
 #include "../Test.mqh"
 
 // Custom indicator identifiers.
 enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_ENTRY + 1 };
 
 // Global variables.
-Chart* chart;
+Ref<ChartBase> chart;
 DictStruct<long, Ref<IndicatorBase>> indis;
 DictStruct<int, Ref<IndicatorBase>> whitelisted_indis;
 Dict<long, bool> tested;
@@ -61,8 +63,8 @@ Ref<IndicatorBase> _indi_test;
  */
 int OnInit() {
   bool _result = true;
-  // Initialize chart.
-  chart = new Chart();
+  // Initialize chart REF_DEREF
+  chart = new ChartMt(_Symbol, _Period);
   Print("We have ", Bars(NULL, 0), " bars to analyze");
   // Initialize indicators.
   _result &= InitIndicators();
@@ -82,14 +84,14 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-  chart.OnTick();
+  chart REF_DEREF OnTick();
 
   // All indicators should execute its OnTick() method for every platform tick.
   for (DictStructIterator<long, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
     iter.Value().Ptr().Tick();
   }
 
-  if (chart.IsNewBar()) {
+  if (chart REF_DEREF IsNewBar()) {
     bar_processed++;
     if (indis.Size() == 0) {
       return;
@@ -133,8 +135,6 @@ void OnDeinit(const int reason) {
       ++num_not_tested;
     }
   }
-
-  delete chart;
 
   PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, num_not_tested);
   assertTrueOrExit(num_not_tested == 0, "Not all indicators has been tested!");

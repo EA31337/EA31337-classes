@@ -107,8 +107,8 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
    * Returns value for ZigZag indicator.
    */
   static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep,
-                        ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, Indi_ZigZag *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf,
+                        ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf,
                                                        Util::MakeKey("Indi_ZigZag", _depth, _deviation, _backstep));
     return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
                           _cache);
@@ -139,11 +139,10 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
   /**
    * On-indicator version of ZigZag indicator.
    */
-  static double iZigZagOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _depth,
-                                   int _deviation, int _backstep, int _mode = 0, int _shift = 0,
-                                   IndicatorBase *_obj = NULL) {
+  static double iZigZagOnIndicator(IndicatorBase *_indi, int _depth, int _deviation, int _backstep, int _mode = 0,
+                                   int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf, Util::MakeKey("Indi_ZigZag_ON_" + _indi.GetFullName(), _depth, _deviation, _backstep));
+        _indi, Util::MakeKey("Indi_ZigZag_ON_" + _indi.GetFullName(), _depth, _deviation, _backstep));
     return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
                           _cache);
   }
@@ -353,7 +352,7 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/,
-                                      (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
+                                      (ENUM_ZIGZAG_LINE)_mode, _ishift, GetChart());
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
@@ -362,8 +361,8 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
                                        GetDeviation(), GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ZigZag::iZigZagOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetDepth(),
-                                                 GetDeviation(), GetBackstep() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_ZigZag::iZigZagOnIndicator(GetDataSource(), /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/,
+                                                 _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

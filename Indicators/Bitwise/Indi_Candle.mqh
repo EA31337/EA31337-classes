@@ -75,7 +75,7 @@ class Indi_Candle : public IndicatorTickOrCandleSource<CandleParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
-        _ohlcs[0] = GetChart() PTR_DEREF GetOHLC(GetSymbol(), GetTf(), _ishift);
+        _ohlcs[0] = GetChart() PTR_DEREF GetOHLC(_ishift);
         break;
       case IDATA_INDICATOR:
         // In this mode, price is fetched from given indicator. Such indicator

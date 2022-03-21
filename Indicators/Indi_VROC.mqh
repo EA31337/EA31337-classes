@@ -60,8 +60,9 @@ class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
    * Built-in version of VROC.
    */
   static double iVROC(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_VOLUME _av, int _mode = 0,
-                      int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_VROC", _period, (int)_av));
+                      int _shift = 0, ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf,
+                                                       Util::MakeKey("Indi_VROC", _period, (int)_av));
     return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode, _shift, _cache);
   }
 
@@ -89,10 +90,10 @@ class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
   /**
    * On-indicator version of VROC indicator.
    */
-  static double iVROCOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                 ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iVROCOnIndicator(IndicatorBase *_indi, int _period, ENUM_APPLIED_VOLUME _av, int _mode = 0,
+                                 int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf, Util::MakeKey("Indi_VROC_ON_" + _indi.GetFullName(), _period, (int)_av));
+        _indi, Util::MakeKey("Indi_VROC_ON_" + _indi.GetFullName(), _period, (int)_av));
     return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode, _shift, _cache);
   }
 
@@ -147,15 +148,15 @@ class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         _value = Indi_VROC::iVROC(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, _ishift,
-                                  THIS_PTR);
+                                  GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_VROC::iVROCOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(),
-                                             GetAppliedVolume() /*]*/, _mode, _ishift, THIS_PTR);
+        _value =
+            Indi_VROC::iVROCOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

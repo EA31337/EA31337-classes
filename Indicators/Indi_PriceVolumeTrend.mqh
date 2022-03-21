@@ -59,8 +59,9 @@ class Indi_PriceVolumeTrend : public IndicatorTickOrCandleSource<IndiPriceVolume
    * Built-in version of Price Volume Trend.
    */
   static double iPVT(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
-                     IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_PriceVolumeTrend", (int)_av));
+                     ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf,
+                                                       Util::MakeKey("Indi_PriceVolumeTrend", (int)_av));
     return iPVTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
   }
 
@@ -88,10 +89,9 @@ class Indi_PriceVolumeTrend : public IndicatorTickOrCandleSource<IndiPriceVolume
   /**
    * On-indicator version of Price Volume Trend.
    */
-  static double iPVTOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av,
-                                int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iPVTOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf, Util::MakeKey("Indi_PVT_ON_" + _indi.GetFullName(), (int)_av));
+        _indi, Util::MakeKey("Indi_PVT_ON_" + _indi.GetFullName(), (int)_av));
     return iPVTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
   }
 
@@ -136,16 +136,16 @@ class Indi_PriceVolumeTrend : public IndicatorTickOrCandleSource<IndiPriceVolume
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value =
-            Indi_PriceVolumeTrend::iPVT(GetSymbol(), GetTf(), /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_PriceVolumeTrend::iPVT(GetSymbol(), GetTf(), /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift,
+                                             GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetAppliedVolume() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_PriceVolumeTrend::iPVTOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
-                                                        /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_PriceVolumeTrend::iPVTOnIndicator(GetDataSource(),
+                                                        /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

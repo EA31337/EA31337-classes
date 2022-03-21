@@ -98,11 +98,10 @@ class Indi_FrAMA : public IndicatorTickOrCandleSource<IndiFrAIndiMAParams> {
   /**
    * On-indicator version of FrAMA.
    */
-  static double iFrAMAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
-                                  int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
-                                  IndicatorBase *_obj = NULL) {
+  static double iFrAMAOnIndicator(IndicatorBase *_indi, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
+                                  int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf, Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ma_period, _ma_shift, (int)_ap));
+        _indi, Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ma_period, _ma_shift, (int)_ap));
     return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode, _shift, _cache);
   }
 
@@ -158,8 +157,8 @@ class Indi_FrAMA : public IndicatorTickOrCandleSource<IndiFrAIndiMAParams> {
                          GetFRAMAShift() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_FrAMA::iFrAMAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(),
-                                               GetFRAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_FrAMA::iFrAMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetFRAMAShift(),
+                                               GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -52,10 +52,10 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
    * Constructor.
    */
   IndicatorBufferValueStorage(IndicatorBase *_indi, int _mode = 0, bool _is_series = false)
-      : indicator(_indi), mode(_mode), HistoryValueStorage(_indi.GetSymbol(), _indi.GetTf()) {}
+      : indicator(_indi), mode(_mode), HistoryValueStorage(_indi.GetChart()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual C Fetch(int _shift) { return indicator.GetValue<C>(mode, RealShift(_shift)); }
+  virtual C Fetch(int _shift) { return indicator PTR_DEREF GetValue<C>(mode, RealShift(_shift)); }
 };

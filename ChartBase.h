@@ -45,6 +45,9 @@
  * Abstract class used as a base for market prices source.
  */
 class ChartBase : public Dynamic {
+  // Unique, incremental id of the chart.
+  int id;
+
   // Generic chart params.
   ChartParams cparams;
 
@@ -70,6 +73,9 @@ class ChartBase : public Dynamic {
   ChartBase(string _symbol, ENUM_TIMEFRAMES _tf) : logger(new Log()) {
     Set<string>(CHART_PARAM_SYMBOL, _symbol);
     Set<ENUM_TIMEFRAMES>(CHART_PARAM_TF, _tf);
+
+    static int _id = 0;
+    id = _id++;
   }
 
   /* Getters */
@@ -105,6 +111,11 @@ class ChartBase : public Dynamic {
    * Returns the index of the bar which covers the specified time.
    */
   virtual int GetBarShift(datetime _time, bool _exact = false) = 0;
+
+  /**
+   * Unique, incremental id of the chart.
+   */
+  int GetId() { return id; }
 
   /**
    * Returns pointer to logger.
@@ -289,7 +300,7 @@ class ChartBase : public Dynamic {
    */
   template <typename T>
   void Set(ENUM_CHART_PARAM _param, T _value) {
-    return cparams.Get<T>(_param, _value);
+    cparams.Set(_param, _value);
   }
 
   /**
@@ -415,7 +426,6 @@ class ChartBase : public Dynamic {
    * - https://www.mql5.com/en/articles/1513
    */
   static double CalcModellingQuality(ENUM_TIMEFRAMES TimePr = PERIOD_CURRENT) {
-    int i;
     int nBarsInM1 = 0;
     int nBarsInPr = 0;
     int nBarsInNearPr = 0;

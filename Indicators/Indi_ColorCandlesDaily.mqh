@@ -55,8 +55,8 @@ class Indi_ColorCandlesDaily : public IndicatorTickOrCandleSource<IndiColorCandl
   /**
    * "Built-in" version of Color Candles Daily.
    */
-  static double iCCD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorCandlesDaily");
+  static double iCCD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, ChartBase *_chart = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf, "Indi_ColorCandlesDaily");
     return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
@@ -85,10 +85,9 @@ class Indi_ColorCandlesDaily : public IndicatorTickOrCandleSource<IndiColorCandl
   /**
    * On-indicator version of Color Candles Daily.
    */
-  static double iCCDOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iCCDOnIndicator(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf, Util::MakeKey("Indi_ColorCandlesDaily_ON_" + _indi.GetFullName()));
+        _indi, Util::MakeKey("Indi_ColorCandlesDaily_ON_" + _indi.GetFullName()));
     return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
@@ -125,14 +124,13 @@ class Indi_ColorCandlesDaily : public IndicatorTickOrCandleSource<IndiColorCandl
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_ColorCandlesDaily::iCCD(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_ColorCandlesDaily::iCCD(GetSymbol(), GetTf(), _mode, _ishift, GetChart());
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value =
-            Indi_ColorCandlesDaily::iCCDOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_ColorCandlesDaily::iCCDOnIndicator(GetDataSource(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
