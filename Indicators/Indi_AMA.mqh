@@ -118,9 +118,8 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
   /**
    * On-indicator version of AMA.
    */
-  static double iAMAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period,
-                                int _fast_ema_period, int _slow_ema_period, int _ama_shift, ENUM_APPLIED_PRICE _ap,
-                                int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iAMAOnIndicator(IndicatorBase *_indi, int _ama_period, int _fast_ema_period, int _slow_ema_period,
+                                int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(
         _indi, _ap,
         Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift,
@@ -231,9 +230,8 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
 
         break;
       case IDATA_INDICATOR:
-        _value = Indi_AMA::iAMAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(),
-                                           GetSlowPeriod(), GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift,
-                                           THIS_PTR);
+        _value = Indi_AMA::iAMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
+                                           GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

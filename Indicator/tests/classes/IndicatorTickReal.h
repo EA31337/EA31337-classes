@@ -99,6 +99,11 @@ class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> 
     // Copying only the last tick.
     int _num_copied = CopyTicks(GetSymbol(), _ticks, COPY_TICKS_INFO, 0, 1);
 
+    if (_num_copied < 1 || _LastError != 0) {
+      Print("Error. Cannot copy MT ticks via CopyTicks(). Error " + IntegerToString(_LastError));
+      DebugBreak();
+    }
+
 #ifdef __debug_verbose__
     Print("TickReal: ", TimeToString(_ticks[0].time), " = ", _ticks[0].bid);
 #endif

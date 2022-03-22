@@ -360,7 +360,7 @@ class Indicator : public IndicatorBase {
     }
 
     if (_source == NULL) {
-      Alert("Error! You have to select source indicator's via SetDataSource().");
+      Alert("Error! " + _target.GetFullName() + " have to select source indicator's via SetDataSource().");
       DebugBreak();
       return;
     }
@@ -722,11 +722,11 @@ class Indicator : public IndicatorBase {
       // User sets data source's mode to On-Indicator, but not set data source via SetDataSource()!
 
       // Requesting potential data source.
-      IndicatorBase* _ds = OnDataSourceRequest();
+      _result = OnDataSourceRequest();
 
-      if (_ds != NULL) {
+      if (_result != NULL) {
         // Initializing with new data source.
-        SetDataSource(_ds);
+        SetDataSource(_result);
         iparams.SetDataSourceType(IDATA_INDICATOR);
       }
     }
@@ -739,7 +739,7 @@ class Indicator : public IndicatorBase {
   /**
    * Gets number of modes available to retrieve by GetValue().
    */
-  virtual int GetModeCount() { return 0; }
+  virtual int GetModeCount() override { return (int)iparams.max_modes; }
 
   /**
    * Whether data source is selected.

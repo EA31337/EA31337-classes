@@ -360,6 +360,7 @@ class IndicatorBase : public Object {
    */
   ChartBase* GetChart() {
     if (!chart.IsSet()) {
+      Print("Warning: Creating default ChartMt for indicator " + GetFullName());
       chart = new ChartMt(_Symbol, PERIOD_CURRENT);
     }
 
@@ -374,62 +375,64 @@ class IndicatorBase : public Object {
   /**
    * Gets OHLC price values.
    */
-  BarOHLC GetOHLC(int _shift = 0) { return chart REF_DEREF GetOHLC(_shift); }
+  BarOHLC GetOHLC(int _shift = 0) { return GetChart() PTR_DEREF GetOHLC(_shift); }
 
   /**
    * Returns time of the bar for a given shift.
    */
-  datetime GetBarTime(int _shift = 0) { return chart REF_DEREF GetBarTime(_shift); }
+  datetime GetBarTime(int _shift = 0) { return GetChart() PTR_DEREF GetBarTime(_shift); }
 
   /**
    * Returns time of the last bar.
    */
-  datetime GetLastBarTime() { return chart REF_DEREF GetLastBarTime(); }
+  datetime GetLastBarTime() { return GetChart() PTR_DEREF GetLastBarTime(); }
 
   /**
    * Returns the current price value given applied price type, symbol and timeframe.
    */
-  double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) { return chart REF_DEREF GetPrice(_ap, _shift); }
+  double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) { return GetChart() PTR_DEREF GetPrice(_ap, _shift); }
 
   /**
    * Returns tick volume value for the bar.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetVolume(int _shift = 0) { return chart REF_DEREF GetVolume(_shift); }
+  long GetVolume(int _shift = 0) { return GetChart() PTR_DEREF GetVolume(_shift); }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
   int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return chart REF_DEREF GetHighest(type, _count, _start);
+    return GetChart() PTR_DEREF GetHighest(type, _count, _start);
   }
 
   /**
    * Returns the shift of the minimum value over a specific number of periods depending on type.
    */
   int GetLowest(string _symbol, ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return chart REF_DEREF GetLowest(type, _count, _start);
+    return GetChart() PTR_DEREF GetLowest(type, _count, _start);
   }
 
   /**
    * Returns the number of bars on the chart.
    */
-  int GetBars() { return chart REF_DEREF GetBars(); }
+  int GetBars() { return GetChart() PTR_DEREF GetBars(); }
 
   /**
    * Search for a bar by its time.
    *
    * Returns the index of the bar which covers the specified time.
    */
-  int GetBarShift(datetime _time, bool _exact = false) { return chart REF_DEREF GetBarShift(_time, _exact); }
+  int GetBarShift(datetime _time, bool _exact = false) { return GetChart() PTR_DEREF GetBarShift(_time, _exact); }
 
   /**
    * Get peak price at given number of bars.
    *
    * In case of error, check it via GetLastError().
    */
-  double GetPeakPrice(int _bars, int _mode, int _index) { return chart REF_DEREF GetPeakPrice(_bars, _mode, _index); }
+  double GetPeakPrice(int _bars, int _mode, int _index) {
+    return GetChart() PTR_DEREF GetPeakPrice(_bars, _mode, _index);
+  }
 
   /**
    * Returns indicator's flags.
@@ -854,17 +857,15 @@ class IndicatorBase : public Object {
     return _bars;
   }
 
-  /* Methods to get rid of */
-
   /**
    * Gets indicator's symbol.
    */
-  string GetSymbol() { return symbol_tf.Symbol(); }
+  string GetSymbol() { return GetChart() PTR_DEREF GetSymbol(); }
 
   /**
    * Gets indicator's time-frame.
    */
-  ENUM_TIMEFRAMES GetTf() { return symbol_tf.Tf(); }
+  ENUM_TIMEFRAMES GetTf() { return GetChart() PTR_DEREF GetTf(); }
 
   /* Defines MQL backward compatible methods */
 

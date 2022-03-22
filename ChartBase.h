@@ -57,6 +57,9 @@ class ChartBase : public Dynamic {
   // Index of the current bar.
   int bar_index;
 
+  // Whether new bar happened in the current tick.
+  bool is_new_bar;
+
   // Index of the current tick.
   int tick_index;
 
@@ -357,7 +360,12 @@ class ChartBase : public Dynamic {
   /**
    * Check if there is a new bar to parse.
    */
-  bool IsNewBar() {
+  bool IsNewBar() { return is_new_bar; }
+
+  /**
+   * Check if there is a new bar to parse.
+   */
+  bool IsNewBarInternal() {
     bool _result = false;
     datetime _bar_time = GetBarTime();
     if (GetLastBarTime() != _bar_time) {
@@ -496,6 +504,7 @@ class ChartBase : public Dynamic {
           100;
     }
     
+
 
 
     */
@@ -747,8 +756,17 @@ class ChartBase : public Dynamic {
    */
   void OnTick() {
     IncreaseTickIndex();
-    if (IsNewBar()) {
+
+    if (is_new_bar) {
+      // IsNewBar() will no longer signal new bar.
+      is_new_bar = false;
+    }
+
+    if (IsNewBarInternal()) {
       IncreaseBarIndex();
+      is_new_bar = true;
+    } else {
+      is_new_bar = false;
     }
   }
 
@@ -766,6 +784,7 @@ class ChartBase : public Dynamic {
     /**
     TODO
     
+
 
     ChartEntry _centry = GetEntry();
     _s.PassStruct(THIS_REF, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);

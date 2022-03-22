@@ -48,9 +48,9 @@ enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_EN
 
 // Global variables.
 Ref<ChartBase> chart;
-DictStruct<long, Ref<IndicatorBase>> indis;
+DictStruct<int, Ref<IndicatorBase>> indis;
 DictStruct<int, Ref<IndicatorBase>> whitelisted_indis;
-Dict<long, bool> tested;
+DictStruct<int, Ref<IndicatorBase>> tested;
 int bar_processed;
 double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235,
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
@@ -87,7 +87,7 @@ void OnTick() {
   chart REF_DEREF OnTick();
 
   // All indicators should execute its OnTick() method for every platform tick.
-  for (DictStructIterator<long, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
     iter.Value().Ptr().Tick();
   }
 
@@ -97,9 +97,9 @@ void OnTick() {
       return;
     }
 
-    for (DictStructIterator<long, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
       if (whitelisted_indis.Size() == 0) {
-        if (tested.GetByKey(iter.Key())) {
+        if (tested.Contains(iter.Value())) {
           // Indicator is already tested, skipping.
           continue;
         }
@@ -116,8 +116,7 @@ void OnTick() {
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
         if (_entry.IsValid()) {
           PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
-          tested.Set(iter.Key(), true);  // Mark as tested.
-          indis.Unset(iter.Key());
+          tested.Push(iter.Value());  // Mark as tested.
         }
       }
     }
@@ -129,9 +128,9 @@ void OnTick() {
  */
 void OnDeinit(const int reason) {
   int num_not_tested = 0;
-  for (DictIterator<long, bool> iter = tested.Begin(); iter.IsValid(); ++iter) {
-    if (!iter.Value()) {
-      PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, indis[iter.Key()].Ptr().GetName());
+  for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    if (!tested.Contains(iter.Value())) {
+      PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, iter.Value().Ptr().GetName());
       ++num_not_tested;
     }
   }
@@ -545,11 +544,6 @@ bool InitIndicators() {
   CandleParams candle_params();
   indis.Push(new Indi_Candle(candle_params));
 
-  // Mark all as untested.
-  for (DictIterator<long, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    tested.Set(iter.Key(), false);
-  }
-
   // Push white-listed indicators here.
   // whitelisted_indis.Push(_indi_test);
 
@@ -562,7 +556,7 @@ double MathCustomOp(double a, double b) { return 1.11 + (b - a) * 2.0; }
  * Print indicators.
  */
 bool PrintIndicators(string _prefix = "") {
-  for (DictIterator<long, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
     if (whitelisted_indis.Size() != 0 && !whitelisted_indis.Contains(iter.Value())) {
       continue;
     }
@@ -571,17 +565,18 @@ bool PrintIndicators(string _prefix = "") {
 
     if (_indi.GetModeCount() == 0) {
       // Indicator has no modes.
+      PrintFormat("Skipping %s as it has no modes.", _indi.GetFullName());
       continue;
     }
 
     string _indi_name = _indi.GetFullName();
-    IndicatorDataEntryValue _value = _indi.GetEntryValue();
+    IndicatorDataEntry _entry = _indi.GetEntry();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
         GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
       ResetLastError();
       continue;
     }
-    if (_indi.Get<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
+    if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString(0));
     }
   }
