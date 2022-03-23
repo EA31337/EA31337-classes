@@ -107,7 +107,6 @@ class Indi_SAR : public Indicator<IndiSARParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_SAR::iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:

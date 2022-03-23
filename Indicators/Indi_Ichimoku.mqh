@@ -147,7 +147,6 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Ichimoku::iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode,
                                           _ishift, THIS_PTR);
         break;
@@ -171,7 +170,7 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
     // so we are duplicating it.
     _entry.values[0] = GetEntryValue(LINE_TENKANSEN, _shift);
 #endif
-    _entry.values[LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _shift + 26);
+    _entry.values[(int)LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _shift + 26);
   }
 
   /**

@@ -174,7 +174,6 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
                                     GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(),
                                     (ENUM_GATOR_HISTOGRAM)_mode, _ishift, THIS_PTR);
@@ -211,8 +210,8 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return !_entry.HasValue(EMPTY_VALUE) &&
-           (_entry.values[LINE_UPPER_HISTOGRAM].GetDbl() != 0 || _entry.values[LINE_LOWER_HISTOGRAM].GetDbl() != 0);
+    return !_entry.HasValue(EMPTY_VALUE) && (_entry.values[(int)LINE_UPPER_HISTOGRAM].GetDbl() != 0 ||
+                                             _entry.values[(int)LINE_LOWER_HISTOGRAM].GetDbl() != 0);
   }
 
   /* Getters */

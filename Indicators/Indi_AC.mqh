@@ -110,7 +110,6 @@ class Indi_AC : public Indicator<IndiACParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_AC::iAC(GetSymbol(), GetTf(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:

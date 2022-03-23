@@ -223,7 +223,6 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM_LEGACY:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_HeikenAshi::iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
                                                           _ishift, THIS_PTR);
         break;
@@ -238,6 +237,6 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
     return !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0) &&
-           _entry.values[HA_LOW].GetDbl() < _entry.values[HA_HIGH].GetDbl();
+           _entry.values[(int)HA_LOW].GetDbl() < _entry.values[(int)HA_HIGH].GetDbl();
   }
 };
