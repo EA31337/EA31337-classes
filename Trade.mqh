@@ -46,7 +46,7 @@ class Trade;
 class Trade : public Taskable<DataParamEntry> {
  public:
   AccountMt account;
-  Ref<ChartBase> chart;
+  Ref<IndicatorTick> indi_tick;
   DictStruct<long, Ref<Order>> orders_active;
   DictStruct<long, Ref<Order>> orders_history;
   DictStruct<long, Ref<Order>> orders_pending;

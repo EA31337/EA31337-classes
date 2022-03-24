@@ -30,6 +30,8 @@
 #pragma once
 #endif
 
+#ifdef __DISABLE
+
 // Includes.`
 #include "Bar.struct.h"
 #include "Chart.enum.h"
@@ -92,11 +94,6 @@ class ChartBase : public Dynamic {
   }
 
   /**
-   * Returns current bar index (incremented every OnTick() if IsNewBar() is true).
-   */
-  int GetBarIndex() { return bar_index; }
-
-  /**
    * Returns time of the bar with a given shift.
    */
   virtual datetime GetBarTime(int _shift = 0) = 0;
@@ -142,11 +139,6 @@ class ChartBase : public Dynamic {
    * Return time-frame bound to chart.
    */
   ENUM_TIMEFRAMES GetTf() { return cparams.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
-
-  /**
-   * Returns current tick index (incremented every OnTick()).
-   */
-  int GetTickIndex() { return tick_index; }
 
   /**
    * Returns open time price value for the bar of indicated symbol.
@@ -306,33 +298,6 @@ class ChartBase : public Dynamic {
     cparams.Set(_param, _value);
   }
 
-  /**
-   * Sets current bar index.
-   */
-  void SetBarIndex(int _bar_index) { _bar_index = _bar_index; }
-
-  /**
-   * Sets last bar time.
-   */
-  void SetLastBarTime(datetime _dt) { last_bar_time = _dt; }
-
-  /**
-   * Sets current tick index.
-   */
-  void SetTickIndex(int _tick_index) { tick_index = _tick_index; }
-
-  /* Chart state */
-
-  /**
-   * Increases current bar index (used in OnTick()). If there was no bar, the current bar will become 0.
-   */
-  void IncreaseBarIndex() { SetBarIndex(bar_index == -1 ? 0 : bar_index + 1); }
-
-  /**
-   * Increases current tick index (used in OnTick()). If there was no tick, the current tick will become 0.
-   */
-  void IncreaseTickIndex() { SetTickIndex(tick_index == -1 ? 0 : tick_index + 1); }
-
   /* State checking */
 
   /**
@@ -355,24 +320,6 @@ class ChartBase : public Dynamic {
     }
 
     return false;
-  }
-
-  /**
-   * Check if there is a new bar to parse.
-   */
-  bool IsNewBar() { return is_new_bar; }
-
-  /**
-   * Check if there is a new bar to parse.
-   */
-  bool IsNewBarInternal() {
-    bool _result = false;
-    datetime _bar_time = GetBarTime();
-    if (GetLastBarTime() != _bar_time) {
-      SetLastBarTime(_bar_time);
-      _result = true;
-    }
-    return _result;
   }
 
   /**
@@ -504,6 +451,7 @@ class ChartBase : public Dynamic {
           100;
     }
     
+
 
 
 
@@ -752,25 +700,6 @@ class ChartBase : public Dynamic {
   ChartEntry LoadChartEntry(unsigned int _index = 0) { return chart_saves[_index]; }
 
   /**
-   * Acknowledges chart that new tick happened.
-   */
-  void OnTick() {
-    IncreaseTickIndex();
-
-    if (is_new_bar) {
-      // IsNewBar() will no longer signal new bar.
-      is_new_bar = false;
-    }
-
-    if (IsNewBarInternal()) {
-      IncreaseBarIndex();
-      is_new_bar = true;
-    } else {
-      is_new_bar = false;
-    }
-  }
-
-  /**
    * Return size of BarOHLC array.
    */
   unsigned long SizeChartEntry() { return ArraySize(chart_saves); }
@@ -786,9 +715,12 @@ class ChartBase : public Dynamic {
     
 
 
+
     ChartEntry _centry = GetEntry();
     _s.PassStruct(THIS_REF, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     */
     return SerializerNodeObject;
   }
 };
+
+#endif

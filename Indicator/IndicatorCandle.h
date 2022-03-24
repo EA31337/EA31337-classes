@@ -33,6 +33,7 @@
 #include "../Buffer/BufferCandle.h"
 #include "../Candle.struct.h"
 #include "../Indicator.mqh"
+#include "TickBarCounter.h"
 
 // Indicator modes.
 enum ENUM_INDI_CANDLE_MODE {
@@ -53,6 +54,7 @@ template <typename TS, typename TV>
 class IndicatorCandle : public Indicator<TS> {
  protected:
   BufferCandle<TV> icdata;
+  TickBarCounter counter;
 
  protected:
   /* Protected methods */
@@ -85,6 +87,23 @@ class IndicatorCandle : public Indicator<TS> {
       : Indicator(_itype, _tf, _shift, _name) {
     Init();
   }
+
+  /* Getters */
+
+  /**
+   * Returns current bar index (incremented every OnTick() if IsNewBar() is true).
+   */
+  int GetBarIndex() { return counter.GetBarIndex(); }
+
+  /**
+   * Returns current tick index (incremented every OnTick()).
+   */
+  int GetTickIndex() { return counter.GetTickIndex(); }
+
+  /**
+   * Check if there is a new bar to parse.
+   */
+  bool IsNewBar() { return counter.is_new_bar; }
 
   /* Virtual method implementations */
 
@@ -206,6 +225,9 @@ class IndicatorCandle : public Indicator<TS> {
   void OnDataSourceEntry(IndicatorDataEntry& entry) override {
     // Updating candle from bid price.
     UpdateCandle(entry.timestamp, entry[1]);
+
+    // Updating tick & bar indices.
+    counter.OnTick(CalcCandleTimeStamp(entry.timestamp));
   };
 
   /**

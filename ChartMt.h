@@ -31,6 +31,11 @@
 #endif
 
 // Includes.
+#include "Chart.symboltf.h"
+
+#ifdef __DISABLED
+
+// Includes.
 #include "Bar.struct.h"
 #include "ChartBase.h"
 
@@ -179,6 +184,8 @@ class ChartMt : public ChartBase {
   virtual long GetVolume(int _shift = 0) override { return ::iVolume(GetSymbol(), GetTf(), _shift); }
 };
 
+#endif
+
 /**
  * Wrapper struct that returns close prices of each bar of the current chart.
  *
@@ -192,7 +199,7 @@ struct ChartPriceClose {
   ChartPriceClose() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static double Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartMt::GetInstance(_symbol_tf) PTR_DEREF GetClose(_shift);
+    return ChartStatic::iClose(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
   }
 };
 

@@ -31,6 +31,7 @@
 #endif
 
 // Includes.
+#include "../Indicator/.h"
 #include "ValueStorage.h"
 
 // Forward declarations.
@@ -43,8 +44,8 @@ class ValueStorage;
 template <typename C>
 class HistoryValueStorage : public ValueStorage<C> {
  protected:
-  // Chart to take data from.
-  Ref<ChartBase> chart;
+  // Indicator used as an OHLC source.
+  Ref<IndicatorCandle> indi_candle;
 
   // Time of the first bar possible to fetch.
   datetime start_bar_time;
@@ -56,8 +57,9 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Constructor.
    */
-  HistoryValueStorage(ChartBase* _chart, bool _is_series = false) : chart(_chart), is_series(_is_series) {
-    start_bar_time = chart REF_DEREF GetTime(BarsFromStart() - 1);
+  HistoryValueStorage(IndicatorCandle* _indi_candle, bool _is_series = false)
+      : indi_candle(_indi_candle), is_series(_is_series) {
+    start_bar_time = indi_candle REF_DEREF GetTime(BarsFromStart() - 1);
   }
 
   /**
@@ -82,7 +84,7 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Number of bars passed from the start. There will be a single bar at the start.
    */
-  int BarsFromStart() const { return chart REF_DEREF GetBars(); }
+  int BarsFromStart() const { return indi_candle REF_DEREF GetBars(); }
 
   /**
    * Returns number of values available to fetch (size of the values buffer).

@@ -47,7 +47,7 @@ struct DataParamEntry;
 enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_ENTRY + 1 };
 
 // Global variables.
-Ref<ChartBase> chart;
+Ref<IndicatorTick> indi_tick;
 DictStruct<int, Ref<IndicatorBase>> indis;
 DictStruct<int, Ref<IndicatorBase>> whitelisted_indis;
 DictStruct<int, Ref<IndicatorBase>> tested;
@@ -84,8 +84,6 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-  chart REF_DEREF OnTick();
-
   // All indicators should execute its OnTick() method for every platform tick.
   for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
     iter.Value().Ptr().Tick();

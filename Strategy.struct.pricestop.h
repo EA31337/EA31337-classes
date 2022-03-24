@@ -56,7 +56,7 @@ struct StrategyPriceStop {
   float ivalue;         // Indicator price value.
   unsigned int method;  // Store price stop methods (@see: ENUM_STRATEGY_PRICE_STOP).
   // unsigned int mode[2]; // Indicator modes to use.
-  Ref<ChartBase> chart;
+  Ref<IndicatorTick> indi_tick;
   // IndicatorDataEntry idata[];
   // IndicatorParams iparams;
 

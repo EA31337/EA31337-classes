@@ -228,46 +228,6 @@ class IndicatorTick : public Indicator<TS> {
     return _tick;
   }
 
-  /**
-   * Checks if indicator entry is valid.
-   *
-   * @return
-   *   Returns true if entry is valid (has valid values), otherwise false.
-   */
-  virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
-    bool _result = true;
-    _result &= _entry.timestamp > 0;
-    _result &= _entry.GetSize() > 0;
-    if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_REAL)) {
-      if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
-        _result &= !_entry.HasValue<double>(DBL_MAX);
-        _result &= !_entry.HasValue<double>(NULL);
-      } else {
-        _result &= !_entry.HasValue<float>(FLT_MAX);
-        _result &= !_entry.HasValue<float>(NULL);
-      }
-    } else {
-      if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_UNSIGNED)) {
-        if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
-          _result &= !_entry.HasValue<unsigned long>(ULONG_MAX);
-          _result &= !_entry.HasValue<unsigned long>(NULL);
-        } else {
-          _result &= !_entry.HasValue<unsigned int>(UINT_MAX);
-          _result &= !_entry.HasValue<unsigned int>(NULL);
-        }
-      } else {
-        if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
-          _result &= !_entry.HasValue<long>(LONG_MAX);
-          _result &= !_entry.HasValue<long>(NULL);
-        } else {
-          _result &= !_entry.HasValue<int>(INT_MAX);
-          _result &= !_entry.HasValue<int>(NULL);
-        }
-      }
-    }
-    return _result;
-  }
-
   /* Callback methods */
 
   /**

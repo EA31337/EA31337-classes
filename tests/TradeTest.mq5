@@ -28,6 +28,7 @@
 struct DataParamEntry;
 
 // Includes.
+#include "../ChartMt.h"
 #include "../Test.mqh"
 #include "../Trade.mqh"
 
@@ -39,8 +40,8 @@ int OnInit() {
   assertTrueOrFail(SymbolInfoStatic::GetAsk(_Symbol) > 0, "Invalid Ask price!");
 
   // Test 1.
-  ChartParams _cparams_m1(PERIOD_M1, _Symbol);
-  Trade *trade1 = new Trade(trade_params_defaults, _cparams_m1);
+  Ref<ChartBase> _chart_m1 = new ChartMt(_Symbol, PERIOD_M1);
+  Trade *trade1 = new Trade(trade_params_defaults, _chart_m1.Ptr());
 
   // Test market.
   assertTrueOrFail(trade1.IsTradeAllowed(), "Trade not allowed!");
@@ -64,8 +65,8 @@ int OnInit() {
   delete trade1;
 
   // Test 2.
-  ChartParams _cparams_m5(PERIOD_M5, _Symbol);
-  Trade *trade2 = new Trade(trade_params_defaults, _cparams_m5);
+  Ref<ChartBase> _chart_m5 = new ChartMt(_Symbol, PERIOD_M5);
+  Trade *trade2 = new Trade(trade_params_defaults, _chart_m5.Ptr());
 
   // Test market.
   assertTrueOrFail(trade2.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF) == PERIOD_M5,

@@ -24,13 +24,9 @@
 #ifndef INDICATOR_MQH
 #define INDICATOR_MQH
 
-// Forward declaration.
-class Chart;
-
 // Includes.
 #include "Array.mqh"
 #include "BufferStruct.mqh"
-#include "Chart.mqh"
 #include "DateTime.mqh"
 #include "DrawIndicator.mqh"
 #include "Indicator.define.h"
