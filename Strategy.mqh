@@ -292,7 +292,7 @@ class Strategy : public Object {
   StgEntry GetEntry() {
     StgEntry _entry = {};
     for (ENUM_STRATEGY_STATS_PERIOD _p = EA_STATS_DAILY; _p < FINAL_ENUM_STRATEGY_STATS_PERIOD; _p++) {
-      _entry.SetStats(stats_period[_p], _p);
+      _entry.SetStats(stats_period[(int)_p], _p);
     }
     return _entry;
   }
@@ -396,7 +396,7 @@ class Strategy : public Object {
    */
   uint GetOrdersTotal(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].orders_total;
+    return stats_period[(int)_period].orders_total;
   }
 
   /**
@@ -404,7 +404,7 @@ class Strategy : public Object {
    */
   uint GetOrdersWon(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].orders_won;
+    return stats_period[(int)_period].orders_won;
   }
 
   /**
@@ -412,7 +412,7 @@ class Strategy : public Object {
    */
   uint GetOrdersLost(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].orders_lost;
+    return stats_period[(int)_period].orders_lost;
   }
 
   /**
@@ -420,7 +420,7 @@ class Strategy : public Object {
    */
   double GetNetProfit(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].net_profit;
+    return stats_period[(int)_period].net_profit;
   }
 
   /**
@@ -428,7 +428,7 @@ class Strategy : public Object {
    */
   double GetGrossProfit(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].gross_profit;
+    return stats_period[(int)_period].gross_profit;
   }
 
   /**
@@ -436,7 +436,7 @@ class Strategy : public Object {
    */
   double GetGrossLoss(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].gross_loss;
+    return stats_period[(int)_period].gross_loss;
   }
 
   /**
@@ -444,7 +444,7 @@ class Strategy : public Object {
    */
   double GetAvgSpread(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].avg_spread;
+    return stats_period[(int)_period].avg_spread;
   }
 
   /* Setters */
@@ -943,7 +943,8 @@ class Strategy : public Object {
    * Filters strategy's market tick.
    *
    * @param
-   *   _method - signal method to filter a tick (bitwise AND operation)
+   *   _tick Tick to use for filtering.
+   *   _method Signal method to filter a tick (bitwise AND operation).
    *
    * @result bool
    *   Returns true when tick should be processed, otherwise false.
@@ -1016,9 +1017,10 @@ class Strategy : public Object {
    * Checks strategy's trade open signal.
    *
    * @param
-   *   _cmd    - type of trade order command
-   *   _method - signal method to open a trade (bitwise AND operation)
-   *   _level  - signal level to open a trade (bitwise AND operation)
+   *   _cmd Ttype of trade order command.
+   *   _method Signal method to open a trade (bitwise AND operation).
+   *   _level Signal level to open a trade.
+   *   _shift Signal shift relative to the current bar.
    *
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
@@ -1029,8 +1031,9 @@ class Strategy : public Object {
    * Returns strength of strategy's open signal.
    *
    * @param
-   *   _method - signal method to open a trade (bitwise AND operation)
-   *   _level  - signal level to open a trade (bitwise AND operation)
+   *   _method Signal method to open a trade (bitwise AND operation).
+   *   _level Signal level to open a trade.
+   *   _shift Signal shift relative to the current bar.
    *
    * @result float
    *   Returns value strength of strategy's open signal ranging from -1 to 1.

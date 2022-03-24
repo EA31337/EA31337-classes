@@ -110,7 +110,6 @@ class Indi_BullsPower : public IndicatorTickOrCandleSource<IndiBullsPowerParams>
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:

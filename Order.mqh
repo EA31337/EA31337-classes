@@ -191,7 +191,7 @@ class Order : public SymbolInfo {
    * Gets an order property double value.
    */
   template <typename T>
-  double Get(ENUM_ORDER_PROPERTY_DOUBLE _prop) {
+  T Get(ENUM_ORDER_PROPERTY_DOUBLE _prop) {
     return odata.Get<T>(_prop);
   }
 

@@ -137,6 +137,9 @@ class SerializerNode {
         case SerializerNodeParamString:
           _result += StringLen(PTR_ATTRIB(_value, _string)) + 1;
           break;
+        default:
+          Print("Error: Wrong value type ", EnumToString(GetType()), "!");
+          DebugBreak();
       }
     }
 

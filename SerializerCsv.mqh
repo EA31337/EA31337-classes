@@ -153,6 +153,9 @@ class SerializerCsv {
         return param.AsString(false, false, false, param.GetFloatingPointPrecision());
       case SerializerNodeParamString:
         return EscapeString(param.AsString(false, false, false, param.GetFloatingPointPrecision()));
+      default:
+        Print("Error: Wrong param type ", EnumToString(param.GetType()), "!");
+        DebugBreak();
     }
 
     return "";
@@ -274,6 +277,10 @@ class SerializerCsv {
       bool _include_titles_tree = (_flags & SERIALIZER_CSV_INCLUDE_TITLES_TREE) == SERIALIZER_CSV_INCLUDE_TITLES_TREE;
 
       if (_column_types != NULL) {
+        if (_data.GetValueParam() == NULL) {
+          Alert("Error: Expected value here! Stub is probably initialized without proper structure.");
+          DebugBreak();
+        }
         _column_types.Set(_column, 0, _data.GetValueParam().GetType());
       }
 

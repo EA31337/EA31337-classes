@@ -116,7 +116,6 @@ class Indi_MFI : public IndicatorTickOrCandleSource<IndiMFIParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
         _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _ishift);
 #else  // __MQL5__

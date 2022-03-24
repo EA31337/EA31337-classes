@@ -134,8 +134,6 @@ struct SymbolInfoStatic {
   /**
    * Get number of points per pip.
    *
-   * To be used to replace Point for trade parameters calculations.
-   * See: http://forum.mql4.com/30672
    */
   static unsigned int GetPointsPerPip(string _symbol) {
     return (unsigned int)pow((unsigned int)10,

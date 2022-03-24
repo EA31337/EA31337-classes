@@ -108,7 +108,6 @@ class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_AO::iAO(GetSymbol(), GetTf(), _ishift, _mode, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
