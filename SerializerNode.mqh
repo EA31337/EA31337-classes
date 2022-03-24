@@ -28,6 +28,7 @@
 #include "Math.extern.h"
 #include "SerializerNode.enum.h"
 #include "SerializerNodeParam.mqh"
+#include "Terminal.define.h"
 
 class SerializerNode {
  protected:
@@ -138,7 +139,8 @@ class SerializerNode {
           _result += StringLen(PTR_ATTRIB(_value, _string)) + 1;
           break;
         default:
-          Print("Error: Wrong value type ", EnumToString(GetType()), "!");
+          Print("Error: Wrong value type!");
+          SetUserError(ERR_INVALID_PARAMETER);
           DebugBreak();
       }
     }

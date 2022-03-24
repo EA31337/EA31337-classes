@@ -30,6 +30,7 @@
 #include "Serializer.enum.h"
 #include "SerializerNode.mqh"
 #include "SerializerNodeParam.mqh"
+#include "Terminal.define.h"
 
 #define SERIALIZER_DEFAULT_FP_PRECISION 8
 
@@ -431,7 +432,8 @@ class Serializer {
               Convert::StringToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _string), value);
               break;
             default:
-              Print("Error: Wrong param type ", EnumToString(paramType), "!");
+              Print("Error: Wrong param type!");
+              SetUserError(ERR_INVALID_PARAMETER);
               DebugBreak();
           }
 
