@@ -189,6 +189,11 @@ class IndicatorTick : public Indicator<TS> {
     return GetEntry(_ishift)[_mode];
   }
 
+  /**
+   * Traverses source indicators' hierarchy and tries to find IndicatorTick object at the end.
+   */
+  virtual IndicatorTick* GetTickIndicator() { return THIS_PTR; }
+
   /* Setters */
 
   /**

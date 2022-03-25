@@ -31,10 +31,10 @@
 #endif
 
 // Includes.
-#include "../Indicator/.h"
 #include "ValueStorage.h"
 
 // Forward declarations.
+class IndicatorBase;
 template <typename C>
 class ValueStorage;
 
@@ -44,8 +44,8 @@ class ValueStorage;
 template <typename C>
 class HistoryValueStorage : public ValueStorage<C> {
  protected:
-  // Indicator used as an OHLC source.
-  Ref<IndicatorCandle> indi_candle;
+  // Indicator used as an OHLC source, e.g. IndicatorCandle.
+  Ref<IndicatorBase> indi_ohlc;
 
   // Time of the first bar possible to fetch.
   datetime start_bar_time;
@@ -57,8 +57,11 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Constructor.
    */
-  HistoryValueStorage(IndicatorCandle* _indi_candle, bool _is_series = false)
+  HistoryValueStorage(IndicatorOHLC* _indi_ohlc, bool _is_series = false)
       : indi_candle(_indi_candle), is_series(_is_series) {
+    if (!GetOHLCIndicator()) {
+      Print(_indi_ohlc PTR_DEREF GetFullName() + " has no required OHLC indicator in its hierarchy!")
+    }
     start_bar_time = indi_candle REF_DEREF GetTime(BarsFromStart() - 1);
   }
 

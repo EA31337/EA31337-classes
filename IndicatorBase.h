@@ -462,7 +462,64 @@ class IndicatorBase : public Object {
    */
   virtual IndicatorBase* GetDataSource() { return NULL; }
 
+  /**
+   * Returns mode (buffer index) to be used by source's indicator.
+   */
   int GetDataSourceMode() { return indi_src_mode; }
+
+  /**
+   * Traverses source indicators' hierarchy and tries to find OHLC-featured
+   * indicator. IndicatorCandle satisfies such requirements.
+   */
+  virtual IndicatorBase* GetOHLCIndicator() {
+    IndicatorBase* _indi_src = GetDataSource();
+
+    if (_indi_src != NULL) {
+      if (_indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN) &&
+          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH) &&
+          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW) &&
+          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE)) {
+        return _indi_src;
+      } else {
+        return _indi_src PTR_DEREF GetCandleIndicator();
+      }
+    } else {
+      // _indi_src == NULL.
+      Print(
+          "Can't find Candle-compatible indicator (which have storage buffers for: Open, High, Low, Close) in the "
+          "hierarchy!");
+      DebugBreak();
+      return NULL;
+    }
+  }
+
+  /**
+   * Traverses source indicators' hierarchy and tries to find Ask, Bid, Spread,
+   * Volume and Tick Volume-featured indicator. IndicatorTick satisfies such
+   * requirements.
+   */
+  virtual IndicatorBase* GetTickIndicator() {
+    IndicatorBase* _indi_src = GetDataSource();
+
+    if (_indi_src != NULL) {
+      if (_indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK) &&
+          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID) &&
+          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_SPREAD) &&
+          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME) &&
+          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME)) {
+        return _indi_src;
+      } else {
+        return _indi_src PTR_DEREF GetCandleIndicator();
+      }
+    } else {
+      // _indi_src == NULL.
+      Print(
+          "Can't find Tick-compatible indicator (which have storage buffers for: Ask, Bid, Spread, Volume, Tick "
+          "Volume) in the hierarchy!");
+      DebugBreak();
+      return NULL;
+    }
+  }
 
   /**
    * Get indicator type.
