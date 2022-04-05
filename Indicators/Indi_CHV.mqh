@@ -68,7 +68,8 @@ class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
    * Built-in version of Chaikin Volatility.
    */
   static double iCHV(string _symbol, ENUM_TIMEFRAMES _tf, int _smooth_period, int _chv_period,
-                     ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode = 0, int _shift = 0, ChartBase *_chart = NULL) {
+                     ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode = 0, int _shift = 0,
+                     IndicatorBase *_indi = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _chart, _symbol, _tf, Util::MakeKey("Indi_CHV", _smooth_period, _chv_period, _smooth_method));
     return iCHVOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _smooth_period, _chv_period, _smooth_method, _mode,

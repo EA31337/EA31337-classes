@@ -32,10 +32,12 @@
 struct DataParamEntry;
 
 // Includes.
-#include "../ChartMt.h"
+//#include "../ChartMt.h"
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
+#include "../Indicator/tests/classes/IndicatorTfDummy.h"
+#include "../Indicator/tests/classes/IndicatorTickReal.h"
 #include "../Indicators/Bitwise/indicators.h"
 #include "../Indicators/indicators.h"
 #include "../SerializerConverter.mqh"
@@ -47,7 +49,6 @@ struct DataParamEntry;
 enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_ENTRY + 1 };
 
 // Global variables.
-Ref<IndicatorTick> indi_tick;
 DictStruct<int, Ref<IndicatorBase>> indis;
 DictStruct<int, Ref<IndicatorBase>> whitelisted_indis;
 DictStruct<int, Ref<IndicatorBase>> tested;
@@ -57,14 +58,17 @@ double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
 Ref<Indi_Drawer> _indi_drawer;
 Ref<IndicatorBase> _indi_test;
+Ref<IndicatorTickReal> _ticks;
+Ref<IndicatorTfDummy> _candles;
 
 /**
  * Implements Init event handler.
  */
 int OnInit() {
   bool _result = true;
-  // Initialize chart REF_DEREF
-  chart = new ChartMt(_Symbol, _Period);
+  _ticks = new IndicatorTickReal(PERIOD_CURRENT);
+  _candles = new IndicatorTfDummy(ChartTf::TfToSeconds(PERIOD_CURRENT));
+  _candles.Ptr().SetDataSource(_ticks.Ptr());
   Print("We have ", Bars(NULL, 0), " bars to analyze");
   // Initialize indicators.
   _result &= InitIndicators();
@@ -89,7 +93,7 @@ void OnTick() {
     iter.Value().Ptr().Tick();
   }
 
-  if (chart REF_DEREF IsNewBar()) {
+  if (_candles REF_DEREF IsNewBar()) {
     bar_processed++;
     if (indis.Size() == 0) {
       return;

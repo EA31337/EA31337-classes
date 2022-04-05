@@ -59,7 +59,7 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
    * Returns value for Price Channel indicator.
    */
   static double iPriceChannel(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _mode = 0, int _shift = 0,
-                              ChartBase *_chart = NULL) {
+                              IndicatorBase *_indi = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf,
                                                        Util::MakeKey("Indi_PriceChannel", _period));
     return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);

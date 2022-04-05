@@ -45,7 +45,7 @@ template <typename C>
 class HistoryValueStorage : public ValueStorage<C> {
  protected:
   // Indicator used as an OHLC source, e.g. IndicatorCandle.
-  Ref<IndicatorBase> indi_ohlc;
+  Ref<IndicatorBase> indi_candle;
 
   // Time of the first bar possible to fetch.
   datetime start_bar_time;
@@ -57,10 +57,11 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Constructor.
    */
-  HistoryValueStorage(IndicatorOHLC* _indi_ohlc, bool _is_series = false)
+  HistoryValueStorage(IndicatorBase* _indi_candle, bool _is_series = false)
       : indi_candle(_indi_candle), is_series(_is_series) {
-    if (!GetOHLCIndicator()) {
-      Print(_indi_ohlc PTR_DEREF GetFullName() + " has no required OHLC indicator in its hierarchy!")
+    if (!indi_candle.IsSet()) {
+      Print("Cannot create has no required OHLC indicator in its hierarchy!");
+      DebugBreak();
     }
     start_bar_time = indi_candle REF_DEREF GetTime(BarsFromStart() - 1);
   }

@@ -56,7 +56,7 @@ class Indi_ColorBars : public IndicatorTickOrCandleSource<IndiColorBarsParams> {
    * "Built-in" version of Color Bars.
    */
   static double iColorBars(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                           ChartBase *_chart = NULL) {
+                           IndicatorBase *_indi = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf, "Indi_ColorBars");
     return iColorBarsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }

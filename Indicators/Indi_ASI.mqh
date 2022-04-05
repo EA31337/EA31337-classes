@@ -88,7 +88,7 @@ class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
    * On-indicator version of ASI.
    */
   static double iASIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0,
-                                int _shift = 0, ChartBase *_chart = NULL) {
+                                int _shift = 0, IndicatorBase *_indi = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi,
                                                           Util::MakeKey("Indi_ASI_ON_" + _indi.GetFullName(), _mpc));
     return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);

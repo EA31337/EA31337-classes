@@ -107,7 +107,7 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
    * Returns value for ZigZag indicator.
    */
   static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep,
-                        ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, ChartBase *_chart = NULL) {
+                        ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, IndicatorBase *_indi = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf,
                                                        Util::MakeKey("Indi_ZigZag", _depth, _deviation, _backstep));
     return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,

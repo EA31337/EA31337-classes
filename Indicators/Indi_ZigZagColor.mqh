@@ -66,7 +66,7 @@ class Indi_ZigZagColor : public IndicatorTickOrCandleSource<IndiZigZagColorParam
    * Returns value for ZigZag Color indicator.
    */
   static double iZigZagColor(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep,
-                             ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, ChartBase *_chart = NULL) {
+                             ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, IndicatorBase *_indi = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _chart, _symbol, _tf, Util::MakeKey("Indi_ZigZagColor", _depth, _deviation, _backstep));
     return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,

@@ -281,6 +281,22 @@ struct ChartStatic {
   }
 
   /**
+   * Returns open time price value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  static datetime GetBarTime(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
+#ifdef __MQL4__
+    return ::iTime(_tf, _shift);  // Same as: Time[_shift]
+#else                             // __MQL5__
+    ARRAY(datetime, _arr);
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    // @todo: Improves performance by caching values.
+    return (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
+#endif
+  }
+
+  /**
    * Gets Chart ID.
    */
   static long ID() { return ::ChartID(); }

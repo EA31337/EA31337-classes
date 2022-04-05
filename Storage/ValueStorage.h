@@ -65,35 +65,14 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
 
 #define INDICATOR_CALCULATE_GET_PARAMS_SHORT _cache.GetTotal(), _cache.GetPrevCalculated(), 0, _cache.GetPriceBuffer()
 
-#define INDICATOR_CALCULATE_POPULATE_CACHE(CHART, KEY)                                                   \
+#define INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)                                                    \
   IndicatorCalculateCache<double> *_cache;                                                               \
-  string _key = Util::MakeKey(CHART PTR_DEREF GetId(), KEY);                                             \
+  string _key = Util::MakeKey(INDI PTR_DEREF GetId(), KEY);                                              \
   if (!Objects<IndicatorCalculateCache<double>>::TryGet(_key, _cache)) {                                 \
     _cache = Objects<IndicatorCalculateCache<double>>::Set(_key, new IndicatorCalculateCache<double>()); \
   }
 
-// @todo If CHART is NULL then use ChartMt for given SYMBOL and TF.
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(CHART, SYMBOL, TF, KEY)         \
-  ValueStorage<datetime> *_time = TimeValueStorage::GetInstance(CHART);                    \
-  ValueStorage<long> *_tick_volume = TickVolumeValueStorage::GetInstance(CHART);           \
-  ValueStorage<long> *_volume = VolumeValueStorage::GetInstance(CHART);                    \
-  ValueStorage<long> *_spread = SpreadValueStorage::GetInstance(CHART);                    \
-  ValueStorage<double> *_price_open = PriceValueStorage::GetInstance(CHART, PRICE_OPEN);   \
-  ValueStorage<double> *_price_high = PriceValueStorage::GetInstance(CHART, PRICE_HIGH);   \
-  ValueStorage<double> *_price_low = PriceValueStorage::GetInstance(CHART, PRICE_LOW);     \
-  ValueStorage<double> *_price_close = PriceValueStorage::GetInstance(CHART, PRICE_CLOSE); \
-  INDICATOR_CALCULATE_POPULATE_CACHE(CHART, KEY)
-
-// @todo If CHART is NULL then use ChartMt for given SYMBOL and TF.
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(CHART, SYMBOL, TF, APPLIED_PRICE, KEY) \
-  ValueStorage<double> *_price = PriceValueStorage::GetInstance(CHART, APPLIED_PRICE);             \
-  INDICATOR_CALCULATE_POPULATE_CACHE(CHART, KEY)
-
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(INDI, APPLIED_PRICE, KEY) \
-  ValueStorage<double> *_price = INDI PTR_DEREF GetValueStorage(APPLIED_PRICE);          \
-  INDICATOR_CALCULATE_POPULATE_CACHE(INDI PTR_DEREF GetChart(), KEY)
-
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(INDI, APPLIED_PRICE, KEY)                     \
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(INDI, APPLIED_PRICE, KEY)                                 \
   ValueStorage<double> *_price;                                                                                       \
   if (_indi PTR_DEREF HasSpecificAppliedPriceValueStorage(APPLIED_PRICE)) {                                           \
     _price = INDI PTR_DEREF GetSpecificAppliedPriceValueStorage(APPLIED_PRICE);                                       \
@@ -103,8 +82,7 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
           "applied price/data source mode and try again.");                                                           \
     DebugBreak();                                                                                                     \
   }                                                                                                                   \
-                                                                                                                      \
-  INDICATOR_CALCULATE_POPULATE_CACHE(INDI PTR_DEREF GetChart(), KEY)
+  INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)
 
 #define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(INDI, KEY)                                               \
   ValueStorage<datetime> *_time = (ValueStorage<datetime> *)INDI PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_TIME); \
@@ -120,7 +98,7 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
       (ValueStorage<double> *)INDI PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);                          \
   ValueStorage<double> *_price_close =                                                                                 \
       (ValueStorage<double> *)INDI PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);                        \
-  INDICATOR_CALCULATE_POPULATE_CACHE(INDI PTR_DEREF GetChart(), KEY)
+  INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)
 
 #define INDICATOR_CALCULATE_POPULATED_PARAMS_LONG \
   _time, _price_open, _price_high, _price_low, _price_close, _tick_volume, _volume, _spread

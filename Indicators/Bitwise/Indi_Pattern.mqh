@@ -65,9 +65,9 @@ class Indi_Pattern : public IndicatorTickOrCandleSource<IndiPatternParams> {
 
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        // In this mode, price is fetched from chart.
+        // In this mode, price is fetched from candle.
         for (i = 0; i < iparams.GetMaxModes(); ++i) {
-          _ohlcs[i] = GetChart() PTR_DEREF GetOHLC(_ishift + i);
+          _ohlcs[i] = GetCandle() PTR_DEREF GetOHLC(_ishift + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
             return WRONG_VALUE;

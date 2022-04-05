@@ -161,22 +161,6 @@ class ChartMt : public ChartBase {
   }
 
   /**
-   * Returns open time price value for the bar of indicated symbol.
-   *
-   * If local history is empty (not loaded), function returns 0.
-   */
-  virtual datetime GetTime(unsigned int _shift = 0) override {
-#ifdef __MQL4__
-    return ::iTime(GetTf(), _shift);  // Same as: Time[_shift]
-#else                                 // __MQL5__
-    ARRAY(datetime, _arr);
-    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
-    // @todo: Improves performance by caching values.
-    return (_shift >= 0 && ::CopyTime(GetSymbol(), GetTf(), _shift, 1, _arr) > 0) ? _arr[0] : 0;
-#endif
-  }
-
-  /**
    * Returns tick volume value for the bar.
    *
    * If local history is empty (not loaded), function returns 0.
@@ -216,7 +200,7 @@ struct ChartPriceHigh {
   ChartPriceHigh() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static double Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartMt::GetInstance(_symbol_tf) PTR_DEREF GetHigh(_shift);
+    return ChartStatic::iHigh(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
   }
 };
 
@@ -233,7 +217,7 @@ struct ChartPriceLow {
   ChartPriceLow() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static double Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartMt::GetInstance(_symbol_tf) PTR_DEREF GetLow(_shift);
+    return ChartStatic::iLow(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
   }
 };
 
@@ -250,7 +234,7 @@ struct ChartPriceOpen {
   ChartPriceOpen() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static double Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartMt::GetInstance(_symbol_tf) PTR_DEREF GetOpen(_shift);
+    return ChartStatic::iOpen(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
   }
 };
 
@@ -267,6 +251,6 @@ struct ChartBarTime {
   ChartBarTime() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   datetime operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static datetime Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartMt::GetInstance(_symbol_tf) PTR_DEREF GetTime(_shift);
+    return ChartStatic::GetBarTime(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
   }
 };

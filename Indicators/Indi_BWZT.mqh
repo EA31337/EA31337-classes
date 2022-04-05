@@ -74,7 +74,7 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
   /**
    * Built-in version of BWZT.
    */
-  static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, ChartBase *_chart = NULL) {
+  static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_indi = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf, "Indi_BWZT");
 
     Indi_AC *_indi_ac = Indi_AC::GetCached(_symbol, _tf);

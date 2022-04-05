@@ -26,9 +26,11 @@
 
 // Includes.
 #include "../Chart.struct.h"
-#include "../ChartBase.h"
 #include "ObjectsCache.h"
 #include "ValueStorage.history.h"
+
+// Forward declarations.
+class ChartBase;
 
 /**
  * Storage to retrieve OHLC.

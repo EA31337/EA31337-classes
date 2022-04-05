@@ -59,12 +59,13 @@ class Indi_DetrendedPrice : public IndicatorTickOrCandleSource<IndiDetrendedPric
       : IndicatorTickOrCandleSource(INDI_DETRENDED_PRICE, _tf, _shift){};
 
   /**
-   * Built-in version of AMA.
+   * Built-in version of DPO.
    */
   static double iDPO(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                     int _shift = 0, ChartBase *_chart = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_chart, _symbol, _tf, _ap,
-                                                        Util::MakeKey("Indi_DPO", _period, (int)_ap));
+                     int _shift = 0, IndicatorBase *_indi = NULL) {
+    string _key = Util::MakeKey("Indi_DPO", _symbol, (int)_tf, _period, (int)_ap)
+        // INDICATOR_CALCULATE_POPULATE_INDI_IF_NOT_SET(_indi, _symbol, _tf, _key, );
+        INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, _indi.GetId());
     return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode, _shift, _cache);
   }
 

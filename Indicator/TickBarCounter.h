@@ -69,7 +69,7 @@ struct TickBarCounter {
    */
   bool IsNewBarInternal(datetime _bar_time) {
     bool _result = false;
-    if (GetLastBarTime() != _bar_time) {
+    if (last_bar_time != _bar_time) {
       SetLastBarTime(_bar_time);
       _result = true;
     }
@@ -104,7 +104,7 @@ struct TickBarCounter {
       is_new_bar = false;
     }
 
-    if (IsNewBarInternal()) {
+    if (IsNewBarInternal(_bar_time)) {
       IncreaseBarIndex();
       is_new_bar = true;
     } else {

@@ -227,7 +227,7 @@ class IndicatorCandle : public Indicator<TS> {
     UpdateCandle(entry.timestamp, entry[1]);
 
     // Updating tick & bar indices.
-    counter.OnTick(CalcCandleTimeStamp(entry.timestamp));
+    counter.OnTick(CalcCandleTimestamp(entry.timestamp));
   };
 
   /**

@@ -356,57 +356,55 @@ class IndicatorBase : public Object {
   /**
    * Gets OHLC price values.
    */
-  BarOHLC GetOHLC(int _shift = 0) { return GetIndicatorTick() PTR_DEREF GetOHLC(_shift); }
+  BarOHLC GetOHLC(int _shift = 0) { return GetCandle() PTR_DEREF GetOHLC(_shift); }
 
   /**
    * Returns time of the bar for a given shift.
    */
-  datetime GetBarTime(int _shift = 0) { return GetIndicatorTick() PTR_DEREF GetBarTime(_shift); }
+  datetime GetBarTime(int _shift = 0) { return GetCandle() PTR_DEREF GetBarTime(_shift); }
 
   /**
    * Returns time of the last bar.
    */
-  datetime GetLastBarTime() { return GetIndicatorTick() PTR_DEREF GetLastBarTime(); }
+  datetime GetLastBarTime() { return GetCandle() PTR_DEREF GetLastBarTime(); }
 
   /**
    * Returns the current price value given applied price type, symbol and timeframe.
    */
-  double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) { return GetIndicatorTick() PTR_DEREF GetPrice(_ap, _shift); }
+  double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) { return GetCandle() PTR_DEREF GetPrice(_ap, _shift); }
 
   /**
    * Returns tick volume value for the bar.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetVolume(int _shift = 0) { return GetIndicatorTick() PTR_DEREF GetVolume(_shift); }
+  long GetVolume(int _shift = 0) { return GetCandle() PTR_DEREF GetVolume(_shift); }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
   int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return GetIndicatorTick() PTR_DEREF GetHighest(type, _count, _start);
+    return GetCandle() PTR_DEREF GetHighest(type, _count, _start);
   }
 
   /**
    * Returns the shift of the minimum value over a specific number of periods depending on type.
    */
-  int GetLowest(string _symbol, ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return GetIndicatorTick() PTR_DEREF GetLowest(type, _count, _start);
+  int GetLowest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
+    return GetCandle() PTR_DEREF GetLowest(type, _count, _start);
   }
 
   /**
    * Returns the number of bars on the chart.
    */
-  int GetBars() { return GetIndicatorTick() PTR_DEREF GetBars(); }
+  int GetBars() { return GetTick() PTR_DEREF GetBars(); }
 
   /**
    * Search for a bar by its time.
    *
    * Returns the index of the bar which covers the specified time.
    */
-  int GetBarShift(datetime _time, bool _exact = false) {
-    return GetIndicatorTick() PTR_DEREF GetBarShift(_time, _exact);
-  }
+  int GetBarShift(datetime _time, bool _exact = false) { return GetTick() PTR_DEREF GetBarShift(_time, _exact); }
 
   /**
    * Get peak price at given number of bars.
@@ -414,7 +412,7 @@ class IndicatorBase : public Object {
    * In case of error, check it via GetLastError().
    */
   double GetPeakPrice(int _bars, int _mode, int _index) {
-    return GetIndicatorTick() PTR_DEREF GetPeakPrice(_bars, _mode, _index);
+    return GetTick() PTR_DEREF GetPeakPrice(_bars, _mode, _index);
   }
 
   /**
@@ -471,7 +469,7 @@ class IndicatorBase : public Object {
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
    * indicator. IndicatorCandle satisfies such requirements.
    */
-  virtual IndicatorBase* GetOHLCIndicator() {
+  virtual IndicatorBase* GetCandle() {
     IndicatorBase* _indi_src = GetDataSource();
 
     if (_indi_src != NULL) {
@@ -481,7 +479,7 @@ class IndicatorBase : public Object {
           _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE)) {
         return _indi_src;
       } else {
-        return _indi_src PTR_DEREF GetCandleIndicator();
+        return _indi_src PTR_DEREF GetCandle();
       }
     } else {
       // _indi_src == NULL.
@@ -498,7 +496,7 @@ class IndicatorBase : public Object {
    * Volume and Tick Volume-featured indicator. IndicatorTick satisfies such
    * requirements.
    */
-  virtual IndicatorBase* GetTickIndicator() {
+  virtual IndicatorBase* GetTick() {
     IndicatorBase* _indi_src = GetDataSource();
 
     if (_indi_src != NULL) {
@@ -509,7 +507,7 @@ class IndicatorBase : public Object {
           _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME)) {
         return _indi_src;
       } else {
-        return _indi_src PTR_DEREF GetCandleIndicator();
+        return _indi_src PTR_DEREF GetTick();
       }
     } else {
       // _indi_src == NULL.
@@ -900,12 +898,12 @@ class IndicatorBase : public Object {
   /**
    * Gets indicator's symbol.
    */
-  string GetSymbol() { return GetIndicatorTick() PTR_DEREF GetSymbol(); }
+  string GetSymbol() { return GetTick() PTR_DEREF GetSymbol(); }
 
   /**
    * Gets indicator's time-frame.
    */
-  ENUM_TIMEFRAMES GetTf() { return GetIndicatorTick() PTR_DEREF GetTf(); }
+  ENUM_TIMEFRAMES GetTf() { return GetTick() PTR_DEREF GetTf(); }
 
   /* Defines MQL backward compatible methods */
 

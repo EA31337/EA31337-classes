@@ -76,7 +76,8 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
    * Built-in version of Ultimate Oscillator.
    */
   static double iUO(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period, int _middle_period, int _slow_period,
-                    int _fast_k, int _middle_k, int _slow_k, int _mode = 0, int _shift = 0, ChartBase *_chart = NULL) {
+                    int _fast_k, int _middle_k, int _slow_k, int _mode = 0, int _shift = 0,
+                    IndicatorBase *_indi = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _chart, _symbol, _tf,
         Util::MakeKey("Indi_UltimateOscillator", _fast_period, _middle_period, _slow_period, _fast_k, _middle_k,
