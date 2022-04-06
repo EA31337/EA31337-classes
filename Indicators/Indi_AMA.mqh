@@ -25,7 +25,6 @@
 #include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Storage/ValueStorage.h"
-#include "../Storage/ValueStorage.price.h"
 #include "Price/Indi_Price.mqh"
 
 // Structs.
@@ -120,7 +119,7 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
    */
   static double iAMAOnIndicator(IndicatorBase *_indi, int _ama_period, int _fast_ema_period, int _slow_ema_period,
                                 int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
         _indi, _ap,
         Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift,
                       (int)_ap));

@@ -23,7 +23,6 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/IndicatorTickOrCandleSource.h"
-#include "../Storage/ValueStorage.price.h"
 
 // Structs.
 struct IndiRateOfChangeParams : IndicatorParams {
@@ -58,11 +57,10 @@ class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangePar
       : IndicatorTickOrCandleSource(INDI_RATE_OF_CHANGE, _tf, _shift){};
 
   /**
-   * Built-in version of Rate of Change.
+   * OnCalculate-based version of Rate of Change as there is no built-in one.
    */
-  static double iROC(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                     int _shift = 0, IndicatorBase *_indi = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_chart, _symbol, _tf, _ap,
+  double iROC(int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(THIS_PTR, _ap,
                                                         Util::MakeKey("Indi_RateOfChange", _period, (int)_ap));
     return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);
   }
@@ -124,7 +122,7 @@ class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangePar
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
-      case IDATA_BUILTIN:
+      case IDATA_ONCALCULATE:
         _value = Indi_RateOfChange::iROC(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode,
                                          _ishift, GetChart());
         break;

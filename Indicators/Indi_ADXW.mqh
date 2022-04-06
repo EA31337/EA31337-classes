@@ -23,8 +23,8 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Storage/ValueStorage.applied_price.h"
 #include "../Storage/ValueStorage.h"
-#include "../Storage/ValueStorage.price.h"
 #include "../Storage/ValueStorage.spread.h"
 #include "../Storage/ValueStorage.tick_volume.h"
 #include "../Storage/ValueStorage.time.h"

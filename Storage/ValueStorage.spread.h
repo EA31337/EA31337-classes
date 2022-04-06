@@ -37,27 +37,15 @@ class SpreadValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  SpreadValueStorage(ChartBase *_chart) : HistoryValueStorage(_chart) {}
+  SpreadValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  SpreadValueStorage(const SpreadValueStorage &_r) : HistoryValueStorage(_r.chart.Ptr()) {}
-
-  /**
-   * Returns pointer to SpreadValueStorage of a given symbol and time-frame.
-   */
-  static SpreadValueStorage *GetInstance(ChartBase *_chart) {
-    SpreadValueStorage *_storage;
-    string _key = Util::MakeKey(_chart PTR_DEREF GetId());
-    if (!ObjectsCache<SpreadValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<SpreadValueStorage>::Set(_key, new SpreadValueStorage(_chart));
-    }
-    return _storage;
-  }
+  SpreadValueStorage(const SpreadValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual long Fetch(int _shift) { return chart REF_DEREF GetVolume(RealShift(_shift)); }
+  virtual long Fetch(int _shift) { return indi_candle REF_DEREF GetVolume(RealShift(_shift)); }
 };

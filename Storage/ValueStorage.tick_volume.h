@@ -36,27 +36,15 @@ class TickVolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  TickVolumeValueStorage(ChartBase *_chart) : HistoryValueStorage(_chart) {}
+  TickVolumeValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  TickVolumeValueStorage(const TickVolumeValueStorage &_r) : HistoryValueStorage(_r.chart.Ptr()) {}
-
-  /**
-   * Returns pointer to TickVolumeValueStorage of a given symbol and time-frame.
-   */
-  static TickVolumeValueStorage *GetInstance(ChartBase *_chart) {
-    TickVolumeValueStorage *_storage;
-    string _key = Util::MakeKey(_chart PTR_DEREF GetId());
-    if (!ObjectsCache<TickVolumeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<TickVolumeValueStorage>::Set(_key, new TickVolumeValueStorage(_chart));
-    }
-    return _storage;
-  }
+  TickVolumeValueStorage(const TickVolumeValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual long Fetch(int _shift) { return chart REF_DEREF GetVolume(RealShift(_shift)); }
+  virtual long Fetch(int _shift) { return indi_candle REF_DEREF GetVolume(RealShift(_shift)); }
 };

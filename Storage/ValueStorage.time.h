@@ -37,27 +37,15 @@ class TimeValueStorage : public HistoryValueStorage<datetime> {
   /**
    * Constructor.
    */
-  TimeValueStorage(ChartBase *_chart) : HistoryValueStorage(_chart) {}
+  TimeValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  TimeValueStorage(const TimeValueStorage &_r) : HistoryValueStorage(_r.chart.Ptr()) {}
-
-  /**
-   * Returns pointer to TimeValueStorage of a given symbol and time-frame.
-   */
-  static TimeValueStorage *GetInstance(ChartBase *_chart) {
-    TimeValueStorage *_storage;
-    string _key = Util::MakeKey(_chart PTR_DEREF GetId());
-    if (!ObjectsCache<TimeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<TimeValueStorage>::Set(_key, new TimeValueStorage(_chart));
-    }
-    return _storage;
-  }
+  TimeValueStorage(const TimeValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual datetime Fetch(int _shift) { return chart REF_DEREF GetTime(RealShift(_shift)); }
+  virtual datetime Fetch(int _shift) { return indi_candle REF_DEREF GetBarTime(RealShift(_shift)); }
 };

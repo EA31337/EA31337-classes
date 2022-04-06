@@ -36,31 +36,19 @@ class VolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  VolumeValueStorage(ChartBase *_chart) : HistoryValueStorage(_chart) {}
+  VolumeValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  VolumeValueStorage(const VolumeValueStorage &_r) : HistoryValueStorage(_r.chart.Ptr()) {}
-
-  /**
-   * Returns pointer to VolumeValueStorage of a given symbol and time-frame.
-   */
-  static VolumeValueStorage *GetInstance(ChartBase *_chart) {
-    VolumeValueStorage *_storage;
-    string _key = Util::MakeKey(_chart PTR_DEREF GetId());
-    if (!ObjectsCache<VolumeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<VolumeValueStorage>::Set(_key, new VolumeValueStorage(_chart));
-    }
-    return _storage;
-  }
+  VolumeValueStorage(const VolumeValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
   virtual long Fetch(int _shift) {
     ResetLastError();
-    long _volume = chart REF_DEREF GetVolume(RealShift(_shift));
+    long _volume = indi_candle REF_DEREF GetVolume(RealShift(_shift));
     if (_LastError != ERR_NO_ERROR) {
       Print("Cannot fetch iVolume! Error: ", _LastError);
       DebugBreak();

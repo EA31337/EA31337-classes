@@ -33,9 +33,9 @@
 class ChartBase;
 
 /**
- * Storage to retrieve OHLC.
+ * Storage to retrieve OHLC from Candle indicator.
  */
-class PriceValueStorage : public HistoryValueStorage<double> {
+class AppliedPriceValueStorage : public HistoryValueStorage<double> {
   // Time-frame to fetch price for.
   ENUM_APPLIED_PRICE ap;
 
@@ -43,29 +43,13 @@ class PriceValueStorage : public HistoryValueStorage<double> {
   /**
    * Constructor.
    */
-  PriceValueStorage(ChartBase *_chart, ENUM_APPLIED_PRICE _ap = PRICE_OPEN) : ap(_ap), HistoryValueStorage(_chart) {}
+  AppliedPriceValueStorage(IndicatorBase *_indi_candle, ENUM_APPLIED_PRICE _ap = PRICE_OPEN)
+      : ap(_ap), HistoryValueStorage(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  PriceValueStorage(const PriceValueStorage &_r) : ap(_r.ap), HistoryValueStorage(_r.chart.Ptr()) {}
-
-  /**
-   * Returns pointer to PriceValueStorage of a given chart.
-   */
-  static PriceValueStorage *GetInstance(ChartBase *_chart, ENUM_APPLIED_PRICE _ap) {
-    PriceValueStorage *_storage;
-    string _key = Util::MakeKey(_chart PTR_DEREF GetId(), (int)_ap);
-    if (!ObjectsCache<PriceValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<PriceValueStorage>::Set(_key, new PriceValueStorage(_chart, _ap));
-    }
-
-    if (CheckPointer(_storage) == POINTER_INVALID) {
-      Print("Failure while getting point to object from cache!");
-    }
-
-    return _storage;
-  }
+  AppliedPriceValueStorage(const AppliedPriceValueStorage &_r) : ap(_r.ap), HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
@@ -90,7 +74,7 @@ class PriceValueStorage : public HistoryValueStorage<double> {
     return 0.0;
   }
 
-  double Fetch(ENUM_APPLIED_PRICE _ap, int _shift) { return chart REF_DEREF GetPrice(_ap, RealShift(_shift)); }
+  double Fetch(ENUM_APPLIED_PRICE _ap, int _shift) { return indi_candle REF_DEREF GetPrice(_ap, RealShift(_shift)); }
 
   static double GetApplied(ValueStorage<double> &_open, ValueStorage<double> &_high, ValueStorage<double> &_low,
                            ValueStorage<double> &_close, int _shift, ENUM_APPLIED_PRICE _ap) {

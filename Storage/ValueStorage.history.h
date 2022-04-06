@@ -63,7 +63,7 @@ class HistoryValueStorage : public ValueStorage<C> {
       Print("Cannot create has no required OHLC indicator in its hierarchy!");
       DebugBreak();
     }
-    start_bar_time = indi_candle REF_DEREF GetTime(BarsFromStart() - 1);
+    start_bar_time = indi_candle REF_DEREF GetBarTime(BarsFromStart() - 1);
   }
 
   /**

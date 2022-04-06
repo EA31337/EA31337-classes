@@ -55,11 +55,10 @@ class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
   Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ASI, _tf, _shift){};
 
   /**
-   * Built-in version of ASI.
+   * OnCalculate-based version of ASI as there is no built-in one.
    */
-  static double iASI(string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0, int _shift = 0,
-                     IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_obj.GetChart(), _symbol, _tf, Util::MakeKey("Indi_ASI", _mpc));
+  double iASI(double _mpc, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(THIS_PTR, Util::MakeKey(_mpc));
     return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
   }
 
@@ -174,10 +173,7 @@ class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
                          /*[*/ GetMaximumPriceChanging() /*]*/, 0, _ishift);
         break;
       case IDATA_ONCALCULATE: {
-        INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(GetChart(), GetSymbol(), GetTf(),
-                                                           Util::MakeKey("Indi_ASI", GetMaximumPriceChanging()));
-        _value =
-            iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, GetMaximumPriceChanging(), _mode, _ishift, _cache);
+        _value = iASI(GetMaximumPriceChanging(), _mode, _ishift);
       } break;
       case IDATA_INDICATOR:
         _value = Indi_ASI::iASIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetMaximumPriceChanging() /*]*/,

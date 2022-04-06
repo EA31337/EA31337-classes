@@ -65,13 +65,12 @@ class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
       : IndicatorTickOrCandleSource(INDI_CHAIKIN_V, _tf, _shift){};
 
   /**
-   * Built-in version of Chaikin Volatility.
+   * OnCalculate-based version of Chaikin Volatility as there is no built-in one.
    */
-  static double iCHV(string _symbol, ENUM_TIMEFRAMES _tf, int _smooth_period, int _chv_period,
-                     ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode = 0, int _shift = 0,
-                     IndicatorBase *_indi = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
-        _chart, _symbol, _tf, Util::MakeKey("Indi_CHV", _smooth_period, _chv_period, _smooth_method));
+  double iCHV(IndicatorBase *_indi, int _smooth_period, int _chv_period, ENUM_CHV_SMOOTH_METHOD _smooth_method,
+              int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi,
+                                                       Util::MakeKey(_smooth_period, _chv_period, _smooth_method));
     return iCHVOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _smooth_period, _chv_period, _smooth_method, _mode,
                        _shift, _cache);
   }
@@ -180,8 +179,7 @@ class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_CHV::iCHV(GetSymbol(), GetTf(), /*[*/ GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod() /*]*/,
-                                _mode, _ishift, GetChart());
+        _value = iCHV(GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod() /*]*/, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),

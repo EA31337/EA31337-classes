@@ -72,11 +72,12 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
       : IndicatorTickOrCandleSource(INDI_BWZT, _tf, _shift){};
 
   /**
-   * Built-in version of BWZT.
+   * OnCalculate-based version of BWZT as there is no built-in one.
    */
-  static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_indi = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf, "Indi_BWZT");
+  double iBWZT(int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(THIS_PTR, "");
 
+    // @fixit AC and AO should use the same Candle indicator as BWZT!
     Indi_AC *_indi_ac = Indi_AC::GetCached(_symbol, _tf);
     Indi_AO *_indi_ao = Indi_AO::GetCached(_symbol, _tf);
 
@@ -208,8 +209,8 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
-      case IDATA_BUILTIN:
-        _value = Indi_BWZT::iBWZT(GetSymbol(), GetTf(), _mode, _ishift, GetChart());
+      case IDATA_ONCALCULATE:
+        _value = iBWZT(_mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);

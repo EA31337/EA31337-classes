@@ -23,7 +23,6 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/IndicatorTickOrCandleSource.h"
-#include "../Storage/ValueStorage.price.h"
 
 // Structs.
 struct IndiVIDYAParams : IndicatorParams {
