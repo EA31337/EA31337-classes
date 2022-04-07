@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 #include "../Util.h"
 #include "Indi_MA.mqh"
@@ -54,14 +54,13 @@ struct IndiCHOParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
+class Indi_CHO : public Indicator<IndiCHOParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CHO(IndiCHOParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_CHAIKIN, _tf, _shift){};
+  Indi_CHO(IndiCHOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_CHO(int _shift = 0) : Indicator(INDI_CHAIKIN, _shift){};
 
   /**
    * Built-in version of Chaikin Oscillator.
@@ -108,9 +107,8 @@ class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
    */
   static double iChaikinOnIndicator(IndicatorBase *_indi, int _fast_ma_period, int _slow_ma_period,
                                     ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, Util::MakeKey("Indi_CHO_ON_" + _indi.GetFullName(), _fast_ma_period, _slow_ma_period, (int)_ma_method,
-                             (int)_av));
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
+        _indi, Util::MakeKey(_fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
                            _mode, _shift, _cache);
   }

@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../../BufferStruct.mqh"
-#include "../../Indicator/IndicatorTickOrCandleSource.h"
+#include "../../Indicator.mqh"
 #include "../../Math.enum.h"
 
 enum ENUM_MATH_OP_MODE { MATH_OP_MODE_BUILTIN, MATH_OP_MODE_CUSTOM_FUNCTION };
@@ -82,14 +82,13 @@ struct IndiMathParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_Math : public IndicatorTickOrCandleSource<IndiMathParams> {
+class Indi_Math : public Indicator<IndiMathParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Math(IndiMathParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_SPECIAL_MATH, _tf, _shift){};
+  Indi_Math(IndiMathParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_Math(int _shift = 0) : Indicator(INDI_SPECIAL_MATH, _shift){};
 
   /**
    * Returns the indicator's value.

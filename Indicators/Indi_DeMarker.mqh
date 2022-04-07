@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -50,14 +50,13 @@ struct IndiDeMarkerParams : IndicatorParams {
 /**
  * Implements the DeMarker indicator.
  */
-class Indi_DeMarker : public IndicatorTickOrCandleSource<IndiDeMarkerParams> {
+class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_DeMarker(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_DEMARKER, _tf, _shift) {}
+  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_DeMarker(int _shift = 0) : Indicator(INDI_DEMARKER, _shift) {}
 
   /**
    * Returns the indicator value.

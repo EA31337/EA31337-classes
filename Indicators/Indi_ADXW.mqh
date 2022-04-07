@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.applied_price.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.spread.h"
@@ -37,8 +37,8 @@
 struct IndiADXWParams : IndiADXParams {
   // Struct constructor.
   IndiADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : IndiADXParams(_period, _ap, _shift, _tf, _idstype) {
+                 ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+      : IndiADXParams(_period, _ap, _shift, _idstype) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
     switch (idstype) {
       case IDATA_ICUSTOM:
@@ -46,34 +46,35 @@ struct IndiADXWParams : IndiADXParams {
         break;
     }
   };
-  IndiADXWParams(IndiADXWParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
 };
 
 /**
  * Implements the Average Directional Movement Index indicator by Welles Wilder.
  */
-class Indi_ADXW : public IndicatorTickOrCandleSource<IndiADXWParams> {
+class Indi_ADXW : public Indicator<IndiADXWParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ADXW(IndiADXWParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_ADXW, _tf, _shift){};
+  Indi_ADXW(IndiADXWParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_ADXW(int _shift = 0) : Indicator(INDI_ADXW, _shift){};
 
   /**
-   * Built-in version of ADX Wilder.
+   * Built-in or OnCalculate-based version of ADX Wilder.
    */
   static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = LINE_MAIN_ADX,
                            int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
 #else
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_ADXW", _ma_period));
-    return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _mode, _shift, _cache);
+    if (_obj == nullptr) {
+      Print(
+          "Indi_ADXW::iADXWilder() can work without supplying pointer to IndicatorBase only in MQL5. In this platform "
+          "the pointer is required.");
+      DebugBreak();
+      return 0;
+    }
+    return iADXWilderOnIndicator(_obj, _ma_period, _mode, _shift);
 #endif
   }
 
@@ -106,10 +107,8 @@ class Indi_ADXW : public IndicatorTickOrCandleSource<IndiADXWParams> {
   /**
    * On-indicator version of ADX Wilder.
    */
-  static double iADXWilderOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                      int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, Util::MakeKey("Indi_ADXW_ON_" + _indi.GetFullName(), _period));
+  static double iADXWilder(IndicatorBase *_indi, int _period, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period));
     return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
 
@@ -232,15 +231,14 @@ class Indi_ADXW : public IndicatorTickOrCandleSource<IndiADXWParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_ADXW::iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
+        _value = iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ADXW::iADXWilderOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod() /*]*/, _mode,
-                                                  _ishift, THIS_PTR);
+        _value = iADXWilder(GetDataSource(), GetPeriod(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -28,7 +28,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 
 // Enums.
@@ -68,15 +68,13 @@ struct IndiHeikenAshiParams : IndicatorParams {
 /**
  * Implements the Heiken-Ashi indicator.
  */
-class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams> {
+class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_HEIKENASHI, _tf, _shift) {}
+  Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_HeikenAshi(int _shift = 0) : Indicator(INDI_HEIKENASHI, _shift) {}
 
   /**
    * Returns value for iHeikenAshi indicator.
@@ -128,11 +126,10 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
   }
 
   /**
-   * "Built-in" version of Heiken Ashi.
+   * OnCalculate-based version of Color Heiken Ashi as there is no built-in one.
    */
-  static double iHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                            IndicatorBase *_indi = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf, "Indi_HeikenAshi");
+  static double iHeikenAshi(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     return iHeikenAshiOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
@@ -156,15 +153,6 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4)));
 
     return _cache.GetTailValue<double>(_mode, _shift);
-  }
-
-  /**
-   * On-indicator version of Heiken Ashi.
-   */
-  static double iHeikenAshiOnIndicator(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi,
-                                                          Util::MakeKey("Indi_HeikenAshi_ON_" + _indi.GetFullName()));
-    return iHeikenAshiOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
   /**
@@ -209,7 +197,7 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
-      case IDATA_BUILTIN:
+      case IDATA_ONCALCULATE:
 #ifdef __MQL4__
         // Converting MQL4's enum into MQL5 one, as OnCalculate uses further one.
         switch (_mode) {
@@ -227,18 +215,18 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
             break;
         }
 #endif
-        _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _ishift, GetChart());
+        _value = iHeikenAshi(THIS_PTR, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM_LEGACY:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_HeikenAshi::iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
-                                                          _ishift, THIS_PTR);
+        _value =
+            iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_HeikenAshi::iHeikenAshiOnIndicator(GetDataSource(), _mode, _ishift);
+        _value = iHeikenAshi(GetDataSource(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

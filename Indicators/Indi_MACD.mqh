@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -59,14 +59,13 @@ struct IndiMACDParams : IndicatorParams {
 /**
  * Implements the Moving Averages Convergence/Divergence indicator.
  */
-class Indi_MACD : public IndicatorTickOrCandleSource<IndiMACDParams> {
+class Indi_MACD : public Indicator<IndiMACDParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MACD(IndiMACDParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_MACD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_MACD, _tf, _shift) {}
+  Indi_MACD(IndiMACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_MACD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MACD, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

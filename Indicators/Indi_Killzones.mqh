@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Market.struct.h"
 
 // Defines enumerations.
@@ -91,7 +91,7 @@ struct Indi_Killzones_Time : MarketTimeForex {
 /**
  * Implements Pivot Detector.
  */
-class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
+class Indi_Killzones : public Indicator<IndiKillzonesParams> {
  protected:
   Indi_Killzones_Time ikt;
 
@@ -99,10 +99,8 @@ class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
   /**
    * Class constructor.
    */
-  Indi_Killzones(IndiKillzonesParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_Killzones(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_KILLZONES, _tf, _shift) {}
+  Indi_Killzones(IndiKillzonesParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_Killzones(int _shift = 0) : Indicator(INDI_KILLZONES, _shift) {}
 
   /**
    * Returns the indicator's value.
@@ -120,8 +118,8 @@ class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
         ikt.Set(::TimeGMT());
         if (ikt.CheckHours(_index)) {
           // Pass values to check for new highs or lows.
-          ikt.Update(_mode % 2 == 0 ? (float)GetChart() PTR_DEREF GetHigh(_ishift)
-                                    : (float)GetChart() PTR_DEREF GetLow(_ishift),
+          ikt.Update(_mode % 2 == 0 ? (float)GetCandle() PTR_DEREF GetHigh(_ishift)
+                                    : (float)GetCandle() PTR_DEREF GetLow(_ishift),
                      _index);
         }
         // Set a final value.

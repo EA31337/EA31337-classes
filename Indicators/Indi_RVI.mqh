@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -50,13 +50,13 @@ struct IndiRVIParams : IndicatorParams {
 /**
  * Implements the Relative Vigor Index indicator.
  */
-class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
+class Indi_RVI : public Indicator<IndiRVIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_RVI(const IndiRVIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RVI, _tf, _shift) {}
+  Indi_RVI(const IndiRVIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RVI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.

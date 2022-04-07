@@ -82,28 +82,47 @@ class IndicatorCandle : public Indicator<TS> {
       : Indicator(_icparams, _indi_src, _indi_mode) {
     Init();
   }
-  IndicatorCandle(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                  string _name = "")
-      : Indicator(_itype, _tf, _shift, _name) {
+  IndicatorCandle(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
+      : Indicator(_itype, _shift, _name) {
     Init();
   }
 
   /* Getters */
 
   /**
+   * Gets open price for a given, optional shift.
+   */
+  double GetOpen(int _shift = 0) override { return GetCandle() PTR_DEREF GetOpen(_shift); }
+
+  /**
+   * Gets high price for a given, optional shift.
+   */
+  double GetHigh(int _shift = 0) override { return GetCandle() PTR_DEREF GetHigh(_shift); }
+
+  /**
+   * Gets low price for a given, optional shift.
+   */
+  double GetLow(int _shift = 0) override { return GetCandle() PTR_DEREF GetLow(_shift); }
+
+  /**
+   * Gets close price for a given, optional shift.
+   */
+  double GetClose(int _shift = 0) override { return GetCandle() PTR_DEREF GetClose(_shift); }
+
+  /**
    * Returns current bar index (incremented every OnTick() if IsNewBar() is true).
    */
-  int GetBarIndex() { return counter.GetBarIndex(); }
+  int GetBarIndex() override { return counter.GetBarIndex(); }
 
   /**
    * Returns current tick index (incremented every OnTick()).
    */
-  int GetTickIndex() { return counter.GetTickIndex(); }
+  int GetTickIndex() override { return counter.GetTickIndex(); }
 
   /**
    * Check if there is a new bar to parse.
    */
-  bool IsNewBar() { return counter.is_new_bar; }
+  bool IsNewBar() override { return counter.is_new_bar; }
 
   /* Virtual method implementations */
 
@@ -258,7 +277,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Checks whether indicator support given value storage type.
    */
-  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
+  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
     switch (_type) {
       case INDI_VS_TYPE_PRICE_OPEN:
       case INDI_VS_TYPE_PRICE_HIGH:

@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../../BufferStruct.mqh"
-#include "../../Indicator/IndicatorTickOrCandleSource.h"
+#include "../../Indicator.mqh"
 #include "../../Storage/Objects.h"
 
 // Structs.
@@ -46,14 +46,13 @@ struct PriceIndiParams : IndicatorParams {
 /**
  * Price Indicator.
  */
-class Indi_Price : public IndicatorTickOrCandleSource<PriceIndiParams> {
+class Indi_Price : public Indicator<PriceIndiParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Price(PriceIndiParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_Price(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_PRICE, _tf, _shift){};
+  Indi_Price(PriceIndiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_Price(int _shift = 0) : Indicator(INDI_PRICE, _shift){};
 
   /**
    * Checks whether indicator has a valid value for a given shift.

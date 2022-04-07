@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -30,35 +30,30 @@ struct IndiASIParams : IndicatorParams {
   unsigned int period;
   double mpc;
   // Struct constructor.
-  IndiASIParams(double _mpc = 300.0, int _shift = 0)
-      : IndicatorParams(INDI_ASI, 1, TYPE_DOUBLE, PERIOD_CURRENT, IDATA_ONCALCULATE) {
+  IndiASIParams(double _mpc = 300.0, int _shift = 0) : IndicatorParams(INDI_ASI, 1, TYPE_DOUBLE, IDATA_ONCALCULATE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ASI");
     mpc = _mpc;
     shift = _shift;
-  };
-  IndiASIParams(IndiASIParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
   };
 };
 
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
+class Indi_ASI : public Indicator<IndiASIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ASI(IndiASIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ASI, _tf, _shift){};
+  Indi_ASI(IndiASIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_ASI(int _shift = 0) : Indicator(INDI_ASI, _shift){};
 
   /**
    * OnCalculate-based version of ASI as there is no built-in one.
    */
-  double iASI(double _mpc, int _mode = 0, int _shift = 0) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(THIS_PTR, Util::MakeKey(_mpc));
+  static double iASI(IndicatorBase *_indi, double _mpc, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_mpc));
     return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
   }
 
@@ -81,16 +76,6 @@ class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
                                                  _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2), _mpc));
 
     return _cache.GetTailValue<double>(_mode, _shift);
-  }
-
-  /**
-   * On-indicator version of ASI.
-   */
-  static double iASIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0,
-                                int _shift = 0, IndicatorBase *_indi = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi,
-                                                          Util::MakeKey("Indi_ASI_ON_" + _indi.GetFullName(), _mpc));
-    return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
   }
 
   /**
@@ -172,12 +157,11 @@ class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetMaximumPriceChanging() /*]*/, 0, _ishift);
         break;
-      case IDATA_ONCALCULATE: {
-        _value = iASI(GetMaximumPriceChanging(), _mode, _ishift);
-      } break;
+      case IDATA_ONCALCULATE:
+        _value = iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, _ishift);
+        break;
       case IDATA_INDICATOR:
-        _value = Indi_ASI::iASIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetMaximumPriceChanging() /*]*/,
-                                           _mode, _ishift, GetChart());
+        _value = iASI(GetDataSource(), GetMaximumPriceChanging(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 #include "../Util.h"
 #include "Indi_MA.mqh"
@@ -55,14 +55,13 @@ struct IndiCHVParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
+class Indi_CHV : public Indicator<IndiCHVParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CHV(IndiCHVParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_CHAIKIN_V, _tf, _shift){};
+  Indi_CHV(IndiCHVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_CHV(int _shift = 0) : Indicator(INDI_CHAIKIN_V, _shift){};
 
   /**
    * OnCalculate-based version of Chaikin Volatility as there is no built-in one.
@@ -98,17 +97,6 @@ class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
     // Returns value from the first calculation buffer.
     // Returns first value for as-series array or last value for non-as-series array.
     return _cache.GetTailValue<double>(_mode, _shift);
-  }
-
-  /**
-   * On-indicator version of Chaikin Volatility.
-   */
-  static double iCHVOnIndicator(IndicatorBase *_indi, int _smooth_period, int _chv_period,
-                                ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode = 0, int _shift = 0) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, Util::MakeKey("Indi_CHV_ON_" + _indi.GetFullName(), _smooth_period, _chv_period, _smooth_method));
-    return iCHVOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _smooth_period, _chv_period, _smooth_method, _mode,
-                       _shift, _cache);
   }
 
   /**
@@ -178,16 +166,15 @@ class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
-      case IDATA_BUILTIN:
-        _value = iCHV(GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod() /*]*/, _mode, _ishift);
+      case IDATA_ONCALCULATE:
+        _value = iCHV(THIS_PTR, GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
                          GetCHVPeriod(), GetSmoothMethod() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_CHV::iCHVOnIndicator(GetDataSource(), /*[*/ GetSmoothPeriod(), GetCHVPeriod(),
-                                           GetSmoothMethod() /*]*/, _mode, _ishift);
+        _value = iCHV(GetDataSource(), GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

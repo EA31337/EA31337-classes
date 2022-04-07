@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -51,13 +51,13 @@ struct IndiMFIParams : IndicatorParams {
 /**
  * Implements the Money Flow Index indicator.
  */
-class Indi_MFI : public IndicatorTickOrCandleSource<IndiMFIParams> {
+class Indi_MFI : public Indicator<IndiMFIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MFI(IndiMFIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_MFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_MFI, _tf, _shift) {}
+  Indi_MFI(IndiMFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_MFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MFI, _tf, _shift) {}
 
   /**
    * Calculates the Money Flow Index indicator and returns its value.

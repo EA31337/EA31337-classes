@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -95,15 +95,13 @@ struct IndiAlligatorParams : IndicatorParams {
 /**
  * Implements the Alligator indicator.
  */
-class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
+class Indi_Alligator : public Indicator<IndiAlligatorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Alligator(IndiAlligatorParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift){};
+  Indi_Alligator(IndiAlligatorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_Alligator(int _shift = 0) : Indicator(INDI_ADX, _shift){};
 
   /**
    * Returns the indicator value.

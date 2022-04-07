@@ -62,24 +62,25 @@ struct IndiBWZTParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Zone Trade.
  */
-class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
+class Indi_BWZT : public Indicator<IndiBWZTParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BWZT(IndiBWZTParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_BWZT, _tf, _shift){};
+  Indi_BWZT(IndiBWZTParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_BWZT(int _shift = 0) : Indicator(INDI_BWZT, _shift){};
 
   /**
    * OnCalculate-based version of BWZT as there is no built-in one.
    */
-  double iBWZT(int _mode = 0, int _shift = 0) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(THIS_PTR, "");
+  static double iBWZT(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
 
-    // @fixit AC and AO should use the same Candle indicator as BWZT!
-    Indi_AC *_indi_ac = Indi_AC::GetCached(_symbol, _tf);
-    Indi_AO *_indi_ao = Indi_AO::GetCached(_symbol, _tf);
+    // Will return Indi_AC with the same candles source as _indi's.
+    Indi_AC *_indi_ac = Indi_AC::GetCached(_indi);
+
+    // Will return Indi_AO with the same candles source as _indi's.
+    Indi_AO *_indi_ao = Indi_AO::GetCached(_indi);
 
     return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ac, _indi_ao);
   }
@@ -113,7 +114,7 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
    */
   static double iBWZTOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
                                  IndicatorBase *_obj) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
 
     Indi_AC *_indi_ac = _obj.GetDataSource(INDI_AC);
     Indi_AO *_indi_ao = _obj.GetDataSource(INDI_AO);
@@ -210,13 +211,13 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_ONCALCULATE:
-        _value = iBWZT(_mode, _ishift);
+        _value = iBWZT(THIS_PTR, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_BWZT::iBWZTOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = iBWZT(GetDataSource(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

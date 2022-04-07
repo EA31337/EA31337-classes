@@ -78,7 +78,6 @@ class IndicatorBase : public Object {
   long last_tick_time;                       // Time of the last Tick() call.
   int flags;                                 // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
   Ref<Log> logger;
-  SymbolTf symbol_tf;  // Symbol and timeframe the indicator operates on. Cannot be changed once set.
 
  public:
   /* Indicator enumerations */
@@ -98,19 +97,7 @@ class IndicatorBase : public Object {
   /**
    * Class constructor.
    */
-  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : indi_src(NULL), symbol_tf(_symbol, _tf) {
-    // By default, indicator is indexable only by shift and data source must be also indexable by shift.
-    flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
-    calc_start_bar = 0;
-    is_fed = false;
-    indi_src = NULL;
-    last_tick_time = 0;
-  }
-
-  /**
-   * Class constructor.
-   */
-  IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : symbol_tf(_symbol, ChartTf::IndexToTf(_tfi)) {
+  IndicatorBase() : indi_src(NULL) {
     // By default, indicator is indexable only by shift and data source must be also indexable by shift.
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
@@ -356,62 +343,101 @@ class IndicatorBase : public Object {
   /**
    * Gets OHLC price values.
    */
-  BarOHLC GetOHLC(int _shift = 0) { return GetCandle() PTR_DEREF GetOHLC(_shift); }
+  virtual BarOHLC GetOHLC(int _shift = 0) { return GetCandle() PTR_DEREF GetOHLC(_shift); }
+
+  /**
+   * Gets open price for a given, optional shift.
+   */
+  virtual double GetOpen(int _shift = 0) { return GetCandle() PTR_DEREF GetOpen(_shift); }
+
+  /**
+   * Gets high price for a given, optional shift.
+   */
+  virtual double GetHigh(int _shift = 0) { return GetCandle() PTR_DEREF GetHigh(_shift); }
+
+  /**
+   * Gets low price for a given, optional shift.
+   */
+  virtual double GetLow(int _shift = 0) { return GetCandle() PTR_DEREF GetLow(_shift); }
+
+  /**
+   * Gets close price for a given, optional shift.
+   */
+  virtual double GetClose(int _shift = 0) { return GetCandle() PTR_DEREF GetClose(_shift); }
 
   /**
    * Returns time of the bar for a given shift.
    */
-  datetime GetBarTime(int _shift = 0) { return GetCandle() PTR_DEREF GetBarTime(_shift); }
+  virtual datetime GetBarTime(int _shift = 0) { return GetCandle() PTR_DEREF GetBarTime(_shift); }
 
   /**
    * Returns time of the last bar.
    */
-  datetime GetLastBarTime() { return GetCandle() PTR_DEREF GetLastBarTime(); }
+  virtual datetime GetLastBarTime() { return GetCandle() PTR_DEREF GetLastBarTime(); }
 
   /**
    * Returns the current price value given applied price type, symbol and timeframe.
    */
-  double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) { return GetCandle() PTR_DEREF GetPrice(_ap, _shift); }
+  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
+    return GetCandle() PTR_DEREF GetPrice(_ap, _shift);
+  }
 
   /**
    * Returns tick volume value for the bar.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetVolume(int _shift = 0) { return GetCandle() PTR_DEREF GetVolume(_shift); }
+  virtual long GetVolume(int _shift = 0) { return GetCandle() PTR_DEREF GetVolume(_shift); }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
-  int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
+  virtual int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
     return GetCandle() PTR_DEREF GetHighest(type, _count, _start);
   }
 
   /**
    * Returns the shift of the minimum value over a specific number of periods depending on type.
    */
-  int GetLowest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
+  virtual int GetLowest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
     return GetCandle() PTR_DEREF GetLowest(type, _count, _start);
   }
 
   /**
    * Returns the number of bars on the chart.
    */
-  int GetBars() { return GetTick() PTR_DEREF GetBars(); }
+  virtual int GetBars() { return GetTick() PTR_DEREF GetBars(); }
+
+  /**
+   * Returns index of the current bar.
+   */
+  virtual int GetBarIndex() { return GetCandle() PTR_DEREF GetBarIndex(); }
+
+  /**
+   * Returns current tick index (incremented every OnTick()).
+   */
+  virtual int GetTickIndex() { return GetTick() PTR_DEREF GetTickIndex(); }
+
+  /**
+   * Check if there is a new bar to parse.
+   */
+  virtual bool IsNewBar() { return GetCandle() PTR_DEREF IsNewBar(); }
 
   /**
    * Search for a bar by its time.
    *
    * Returns the index of the bar which covers the specified time.
    */
-  int GetBarShift(datetime _time, bool _exact = false) { return GetTick() PTR_DEREF GetBarShift(_time, _exact); }
+  virtual int GetBarShift(datetime _time, bool _exact = false) {
+    return GetTick() PTR_DEREF GetBarShift(_time, _exact);
+  }
 
   /**
    * Get peak price at given number of bars.
    *
    * In case of error, check it via GetLastError().
    */
-  double GetPeakPrice(int _bars, int _mode, int _index) {
+  virtual double GetPeakPrice(int _bars, int _mode, int _index) {
     return GetTick() PTR_DEREF GetPeakPrice(_bars, _mode, _index);
   }
 

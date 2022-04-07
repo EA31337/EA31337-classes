@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -54,13 +54,13 @@ struct IndiACParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_AC : public IndicatorTickOrCandleSource<IndiACParams> {
+class Indi_AC : public Indicator<IndiACParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AC(IndiACParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AC, _tf, _shift){};
+  Indi_AC(IndiACParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_AC(int _shift = 0) : Indicator(INDI_AC, _shift){};
 
   /**
    * Returns the indicator value.
@@ -123,13 +123,16 @@ class Indi_AC : public IndicatorTickOrCandleSource<IndiACParams> {
   }
 
   /**
-   * Returns reusable indicator for a given symbol and time-frame.
+   * Returns reusable indicator with the same candle indicator as given indicator's one.
    */
-  static Indi_AC *GetCached(string _symbol, ENUM_TIMEFRAMES _tf) {
+  static Indi_AC *GetCached(IndicatorBase *_indi) {
     Indi_AC *_ptr;
-    string _key = Util::MakeKey(_symbol, (int)_tf);
+    // There will be only one Indi_AC per IndicatorCandle instance.
+    string _key = Util::MakeKey(_indi PTR_DEREF GetCandle() PTR_DEREF GetId());
     if (!Objects<Indi_AC>::TryGet(_key, _ptr)) {
-      _ptr = Objects<Indi_AC>::Set(_key, new Indi_AC(_tf));
+      _ptr = Objects<Indi_AC>::Set(_key, new Indi_AC());
+      // Assigning the same candle indicator for AC as in _indi.
+      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }

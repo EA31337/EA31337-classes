@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Storage/ValueStorage.h"
 #include "Price/Indi_Price.mqh"
@@ -63,16 +63,16 @@ struct IndiAMAParams : IndicatorParams {
 /**
  * Implements the AMA indicator.
  */
-class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
+class Indi_AMA : public Indicator<IndiAMAParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL, int _indi_mode = 0)
-      : IndicatorTickOrCandleSource(_p, _indi_src, _indi_mode) {
+      : Indicator(_p, _indi_src, _indi_mode) {
     iparams.SetIndicatorType(INDI_AMA);
   };
-  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AMA, _tf, _shift){};
+  Indi_AMA(int _shift = 0) : Indicator(INDI_AMA, _shift){};
 
   /**
    * Built-in version of AMA.
@@ -84,11 +84,14 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iAMA(_symbol, _tf, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap), _mode, _shift);
 #else
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
-        _symbol, _tf, _ap,
-        Util::MakeKey("Indi_AMA", _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
-    return iAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ama_period, _fast_ema_period, _slow_ema_period,
-                       _ama_shift, _mode, _shift, _cache);
+    if (_obj == nullptr) {
+      Print(
+          "Indi_AMA::iAMA() can work without supplying pointer to IndicatorBase only in MQL5. In this platform the "
+          "pointer is required.");
+      DebugBreak();
+      return 0;
+    }
+    return iAMAOnIndicator(_obj, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap, _mode, _shift);
 #endif
   }
 
@@ -120,9 +123,7 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
   static double iAMAOnIndicator(IndicatorBase *_indi, int _ama_period, int _fast_ema_period, int _slow_ema_period,
                                 int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
-        _indi, _ap,
-        Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift,
-                      (int)_ap));
+        _indi, _ap, Util::MakeKey(_ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
     return iAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ama_period, _fast_ema_period, _slow_ema_period,
                        _ama_shift, _mode, _shift, _cache);
   }

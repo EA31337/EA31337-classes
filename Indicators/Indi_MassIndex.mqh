@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_MA.mqh"
 
@@ -50,23 +50,20 @@ struct IndiMassIndexParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
+class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MassIndex(IndiMassIndexParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_MASS_INDEX, _tf, _shift){};
+  Indi_MassIndex(IndiMassIndexParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MASS_INDEX, _tf, _shift){};
 
   /**
-   * Built-in version of Mass Index.
+   * OnCalculate-based version of Mass Index as there is no built-in one.
    */
-  static double iMI(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _second_period, int _sum_period,
-                    int _mode = 0, int _shift = 0, IndicatorBase *_indi = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
-        _chart, _symbol, _tf, Util::MakeKey("Indi_MassIndex", _period, _second_period, _sum_period));
+  static double iMI(IndicatorBase *_indi, int _period, int _second_period, int _sum_period, int _mode = 0,
+                    int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period, _second_period, _sum_period));
     return iMIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _second_period, _sum_period, _mode, _shift,
                       _cache);
   }
@@ -91,17 +88,6 @@ class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _period, _second_period, _sum_period));
 
     return _cache.GetTailValue<double>(_mode, _shift);
-  }
-
-  /**
-   * On-indicator version of Mass Index.
-   */
-  static double iMIOnIndicator(IndicatorBase *_indi, int _period, int _second_period, int _sum_period, int _mode = 0,
-                               int _shift = 0) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, Util::MakeKey("Indi_MassIndex_ON_" + _indi.GetFullName(), _period, _second_period, _sum_period));
-    return iMIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _second_period, _sum_period, _mode, _shift,
-                      _cache);
   }
 
   /**
@@ -169,7 +155,7 @@ class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
-      case IDATA_BUILTIN:
+      case IDATA_ONCALCULATE:
         _value = Indi_MassIndex::iMI(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetSecondPeriod(), GetSumPeriod() /*]*/,
                                      _mode, _ishift, GetChart());
         break;

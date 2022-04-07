@@ -32,7 +32,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -65,15 +65,14 @@ struct IndiForceParams : IndicatorParams {
 /**
  * Implements the Force Index indicator.
  */
-class Indi_Force : public IndicatorTickOrCandleSource<IndiForceParams> {
+class Indi_Force : public Indicator<IndiForceParams> {
  protected:
  public:
   /**
    * Class constructor.
    */
-  Indi_Force(IndiForceParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_Force(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_FORCE, _tf, _shift) {}
+  Indi_Force(IndiForceParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_Force(int _shift = 0) : Indicator(INDI_FORCE, _shift) {}
 
   /**
    * Returns the indicator value.

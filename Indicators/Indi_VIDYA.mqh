@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 // Structs.
 struct IndiVIDYAParams : IndicatorParams {
@@ -52,14 +52,13 @@ struct IndiVIDYAParams : IndicatorParams {
 /**
  * Implements the Variable Index Dynamic Average indicator.
  */
-class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
+class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_VIDYA(IndiVIDYAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_VIDYA, _tf, _shift){};
+  Indi_VIDYA(IndiVIDYAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_VIDYA, _tf, _shift){};
 
   /**
    * Built-in version of iVIDyA.

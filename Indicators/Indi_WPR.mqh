@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -50,13 +50,13 @@ struct IndiWPRParams : IndicatorParams {
 /**
  * Implements the Larry Williams' Percent Range.
  */
-class Indi_WPR : public IndicatorTickOrCandleSource<IndiWPRParams> {
+class Indi_WPR : public Indicator<IndiWPRParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_WPR(IndiWPRParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_WPR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_WPR, _tf, _shift) {}
+  Indi_WPR(IndiWPRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_WPR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_WPR, _tf, _shift) {}
 
   /**
    * Calculates the Larry Williams' Percent Range and returns its value.

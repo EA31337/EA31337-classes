@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../../BufferStruct.mqh"
-#include "../../Indicator/IndicatorTickOrCandleSource.h"
+#include "../../Indicator.mqh"
 #include "../../Storage/Objects.h"
 
 // Enums.
@@ -49,14 +49,13 @@ struct IndiOHLCParams : IndicatorParams {
 /**
  * OHLC Indicator.
  */
-class Indi_OHLC : public IndicatorTickOrCandleSource<IndiOHLCParams> {
+class Indi_OHLC : public Indicator<IndiOHLCParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OHLC(IndiOHLCParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_OHLC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_PRICE, _tf, _shift){};
+  Indi_OHLC(IndiOHLCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_OHLC(int _shift = 0) : Indicator(INDI_PRICE, _shift){};
 
   /**
    * Returns the indicator's value.

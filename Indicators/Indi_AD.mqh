@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -48,15 +48,13 @@ struct IndiADParams : IndicatorParams {
 /**
  * Implements the Accumulation/Distribution indicator.
  */
-class Indi_AD : public IndicatorTickOrCandleSource<IndiADParams> {
+class Indi_AD : public Indicator<IndiADParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_AD(IndiADParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AD, _tf, _shift) {
-    iparams.SetTf(_tf);
-  };
+  Indi_AD(IndiADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_AD(int _shift = 0) : Indicator(INDI_AD, _shift){};
 
   /**
    * Returns the indicator value.

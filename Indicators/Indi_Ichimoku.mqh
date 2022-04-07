@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -86,14 +86,13 @@ struct IndiIchimokuParams : IndicatorParams {
 /**
  * Implements the Ichimoku Kinko Hyo indicator.
  */
-class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
+class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_Ichimoku(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_ICHIMOKU, _tf, _shift) {}
+  Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_Ichimoku(int _shift = 0) : Indicator(INDI_ICHIMOKU, _shift) {}
 
   /**
    * Returns the indicator value.

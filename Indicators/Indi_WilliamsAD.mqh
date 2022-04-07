@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -42,21 +42,19 @@ struct IndiWilliamsADParams : IndicatorParams {
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams> {
+class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_WILLIAMS_AD, _tf, _shift){};
+  Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_WILLIAMS_AD, _tf, _shift){};
 
   /**
-   * Built-in version of Williams' AD.
+   * OnCalculate-based version of Williams' AD as there is no built-in one.
    */
-  static double iWAD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_indi = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf, "Indi_WilliamsAD");
+  static double iWAD(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
@@ -79,15 +77,6 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
         Indi_WilliamsAD::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0)));
 
     return _cache.GetTailValue<double>(_mode, _shift);
-  }
-
-  /**
-   * On-indicator version of Williams' AD.
-   */
-  static double iWADOnIndicator(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi,
-                                                          Util::MakeKey("Indi_WilliamsAD_ON_" + _indi.GetFullName()));
-    return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
   /**
@@ -138,14 +127,14 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
-      case IDATA_BUILTIN:
-        _value = Indi_WilliamsAD::iWAD(GetSymbol(), GetTf(), _mode, _ishift, GetChart());
+      case IDATA_ONCALCULATE:
+        _value = iWAD(THIS_PTR, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_WilliamsAD::iWADOnIndicator(GetDataSource(), _mode, _ishift);
+        _value = iWAD(GetDataSource(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

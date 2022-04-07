@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -51,15 +51,13 @@ struct IndiBearsPowerParams : IndicatorParams {
 /**
  * Implements the Bears Power indicator.
  */
-class Indi_BearsPower : public IndicatorTickOrCandleSource<IndiBearsPowerParams> {
+class Indi_BearsPower : public Indicator<IndiBearsPowerParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BearsPower(IndiBearsPowerParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_BearsPower(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_BEARS, _tf, _shift) {}
+  Indi_BearsPower(IndiBearsPowerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_BearsPower(int _shift = 0) : Indicator(INDI_BEARS, _shift) {}
 
   /**
    * Returns the indicator value.

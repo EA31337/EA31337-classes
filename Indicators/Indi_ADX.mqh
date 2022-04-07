@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "Price/Indi_Price.mqh"
 
 #ifndef __MQL4__
@@ -39,7 +39,7 @@ struct IndiADXParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
   IndiADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-                ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+                ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX, FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE) {
     SetDataSourceType(_idstype);
     SetDataValueRange(IDATA_RANGE_RANGE);
@@ -52,22 +52,18 @@ struct IndiADXParams : IndicatorParams {
         break;
     }
   };
-  IndiADXParams(IndiADXParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
 };
 
 /**
  * Implements the Average Directional Movement Index indicator.
  */
-class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
+class Indi_ADX : public Indicator<IndiADXParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ADX(IndiADXParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift) {}
+  Indi_ADX(IndiADXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_ADX(int _shift = 0) : Indicator(INDI_ADX, _shift) {}
 
   /**
    * Returns the indicator value.

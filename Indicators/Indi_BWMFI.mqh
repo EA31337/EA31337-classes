@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -62,14 +62,13 @@ struct IndiBWIndiMFIParams : IndicatorParams {
 /**
  * Implements the Market Facilitation Index by Bill Williams indicator.
  */
-class Indi_BWMFI : public IndicatorTickOrCandleSource<IndiBWIndiMFIParams> {
+class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_BWMFI, _tf, _shift) {}
+  Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_BWMFI(int _shift = 0) : Indicator(INDI_BWMFI, _shift) {}
 
   /**
    * Returns the indicator value.

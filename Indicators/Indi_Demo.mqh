@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "Price/Indi_Price.mqh"
 
 /**
@@ -53,21 +53,19 @@ struct IndiDemoParams : IndicatorParams {
 /**
  * Demo/Dummy Indicator.
  */
-class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
+class Indi_Demo : public Indicator<IndiDemoParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Demo(IndiDemoParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_DEMO, _tf, _shift){};
+  Indi_Demo(IndiDemoParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
+  Indi_Demo(int _shift = 0) : Indicator(INDI_DEMO, _shift){};
 
   /**
    * Returns the indicator value.
    */
-  static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                      IndicatorBase *_obj = NULL) {
-    return 0.1 + (0.1 * _obj PTR_DEREF GetChart() PTR_DEREF GetBarIndex());
+  static double iDemo(IndicatorBase *_obj, int _shift = 0) {
+    return 0.1 + (0.1 * _obj PTR_DEREF GetCandle() PTR_DEREF GetBarIndex());
   }
 
   /**
@@ -75,9 +73,9 @@ class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _ishift, THIS_PTR);
+    double _value = Indi_Demo::iDemo(THIS_PTR, _ishift);
     if (iparams.is_draw) {
-      draw.DrawLineTo(GetName(), GetChart() PTR_DEREF GetBarTime(_ishift), _value);
+      draw.DrawLineTo(GetName(), GetCandle() PTR_DEREF GetBarTime(_ishift), _value);
     }
     return _value;
   }

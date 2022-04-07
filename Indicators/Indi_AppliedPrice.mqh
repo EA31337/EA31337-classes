@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "OHLC/Indi_OHLC.mqh"
 
 // Structs.
@@ -44,7 +44,7 @@ struct IndiAppliedPriceParams : IndicatorParams {
 /**
  * Implements the "Applied Price over OHCL Indicator" indicator, e.g. over Indi_Price.
  */
-class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPriceParams> {
+class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
  protected:
   void OnInit() {
     if (!indi_src.IsSet()) {
@@ -57,14 +57,10 @@ class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPricePar
   /**
    * Class constructor.
    */
-  Indi_AppliedPrice(IndiAppliedPriceParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {
+  Indi_AppliedPrice(IndiAppliedPriceParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {
     OnInit();
   };
-  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_PRICE, _tf, _shift) {
-    OnInit();
-  };
+  Indi_AppliedPrice(int _shift = 0) : Indicator(INDI_PRICE, _shift) { OnInit(); };
 
   static double iAppliedPriceOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];

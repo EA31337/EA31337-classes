@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -52,13 +52,13 @@ struct IndiATRParams : IndicatorParams {
  *
  * Note: It doesn't give independent signals. It is used to define volatility (trend strength).
  */
-class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
+class Indi_ATR : public Indicator<IndiATRParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ATR(IndiATRParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ATR, _tf, _shift){};
+  Indi_ATR(IndiATRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_ATR(int _shift = 0) : Indicator(INDI_ATR, _shift){};
 
   /**
    * Returns the indicator value.

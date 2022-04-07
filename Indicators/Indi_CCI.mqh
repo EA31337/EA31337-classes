@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickSource.h"
+#include "../Indicator.mqh"
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
 #include "Price/Indi_Price.mqh"
@@ -58,13 +58,13 @@ struct IndiCCIParams : IndicatorParams {
 /**
  * Implements the Commodity Channel Index indicator.
  */
-class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
+class Indi_CCI : public Indicator<IndiCCIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CCI(IndiCCIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
-  Indi_CCI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_CCI, _tf, _shift) {}
+  Indi_CCI(IndiCCIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_CCI(int _shift = 0) : Indicator(INDI_CCI, _shift) {}
 
   /**
    * Returns the indicator value.

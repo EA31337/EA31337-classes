@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "Indi_ZigZag.mqh"
 
 // Structs.
@@ -45,23 +45,20 @@ struct IndiPriceChannelParams : IndicatorParams {
 /**
  * Implements Price Channel indicator.
  */
-class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelParams> {
+class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_PriceChannel(IndiPriceChannelParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_PriceChannel(IndiPriceChannelParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
   Indi_PriceChannel(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_PRICE_CHANNEL, _tf, _shift){};
+      : Indicator(INDI_PRICE_CHANNEL, _tf, _shift){};
 
   /**
-   * Returns value for Price Channel indicator.
+   * OnCalculate-based version of Price Channel indicator as there is no built-in one.
    */
-  static double iPriceChannel(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _mode = 0, int _shift = 0,
-                              IndicatorBase *_indi = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_chart, _symbol, _tf,
-                                                       Util::MakeKey("Indi_PriceChannel", _period));
+  static double iPriceChannel(IndicatorBase *_indi, int _period, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period));
     return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
 
@@ -88,15 +85,6 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
   }
 
   /**
-   * On-indicator version of Price Channel.
-   */
-  static double iPriceChannelOnIndicator(IndicatorBase *_indi, int _period, int _mode = 0, int _shift = 0) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, Util::MakeKey("Indi_PriceChannel_ON_" + _indi.GetFullName(), _period));
-    return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
-  }
-
-  /**
    * OnCalculate() method for Price Channel indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtHighBuffer,
@@ -120,16 +108,15 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
-      case IDATA_BUILTIN:
-        _value = Indi_PriceChannel::iPriceChannel(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, GetChart());
+      case IDATA_ONCALCULATE:
+        _value = iPriceChannel(THIS_PTR, GetPeriod(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_PriceChannel::iPriceChannelOnIndicator(GetDataSource(),
-                                                             /*[*/ GetPeriod() /*]*/, _mode, _ishift);
+        _value = iPriceChannel(GetDataSource(), GetPeriod(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

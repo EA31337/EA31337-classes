@@ -27,7 +27,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Refs.mqh"
 #include "../Storage/Objects.h"
 #include "../Storage/ValueStorage.h"
@@ -63,14 +63,13 @@ struct IndiDEIndiMAParams : IndicatorParams {
 /**
  * Implements the Moving Average indicator.
  */
-class Indi_DEMA : public IndicatorTickOrCandleSource<IndiDEIndiMAParams> {
+class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_DEMA(IndiDEIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_DEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_DEMA, _tf, _shift) {}
+  Indi_DEMA(IndiDEIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_DEMA(int _shift = 0) : Indicator(INDI_DEMA, _shift) {}
 
   /**
    * Updates the indicator value.
@@ -150,8 +149,7 @@ class Indi_DEMA : public IndicatorTickOrCandleSource<IndiDEIndiMAParams> {
    */
   static double iDEMAOnIndicator(IndicatorBase *_indi, int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                                  int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
-        _indi, (int)_ap, Util::MakeKey("Indi_CHV_ON_" + _indi.GetFullName(), _period, _ma_shift));
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, _ma_shift));
     return iDEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ma_shift, _mode, _shift, _cache);
   }
 

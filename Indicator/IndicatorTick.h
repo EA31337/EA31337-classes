@@ -83,9 +83,8 @@ class IndicatorTick : public Indicator<TS> {
     }
     Init();
   }
-  IndicatorTick(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                string _name = "")
-      : Indicator(_itype, _tf, _shift, _name) {
+  IndicatorTick(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
+      : Indicator(_itype, _shift, _name) {
     Init();
   }
 

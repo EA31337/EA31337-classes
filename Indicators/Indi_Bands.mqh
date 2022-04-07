@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "Indi_CCI.mqh"
 #include "Indi_Envelopes.mqh"
 #include "Indi_MA.mqh"
@@ -86,14 +86,13 @@ struct IndiBandsParams : IndicatorParams {
 /**
  * Implements the Bollinger Bands® indicator.
  */
-class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
+class Indi_Bands : public Indicator<IndiBandsParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Bands(IndiBandsParams &_p, IndicatorBase *_indi_src = NULL, int _mode = 0)
-      : IndicatorTickSource(_p, _indi_src, _mode) {}
-  Indi_Bands(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_BANDS, _tf, _shift) {}
+  Indi_Bands(IndiBandsParams &_p, IndicatorBase *_indi_src = NULL, int _mode = 0) : Indicator(_p, _indi_src, _mode) {}
+  Indi_Bands(int _shift = 0) : Indicator(INDI_BANDS, _shift) {}
 
   /**
    * Returns the indicator value.

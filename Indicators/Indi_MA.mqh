@@ -27,7 +27,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
-#include "../Indicator/IndicatorTickSource.h"
+#include "../Indicator.mqh"
 #include "../Refs.mqh"
 #include "../Storage/Singleton.h"
 #include "../Storage/ValueStorage.h"
@@ -74,13 +74,13 @@ struct IndiMAParams : IndicatorParams {
 /**
  * Implements the Moving Average indicator.
  */
-class Indi_MA : public IndicatorTickSource<IndiMAParams> {
+class Indi_MA : public Indicator<IndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
-  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_MA, _tf, _shift) {}
+  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_MA(int _shift = 0) : Indicator(INDI_MA, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -651,16 +651,18 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
   }
 
   /**
-   * Returns reusable indicator.
+   * Returns reusable indicator with the same candle indicator as given indicator's one.
    */
-  static Indi_MA *GetCached(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _ma_shift, ENUM_MA_METHOD _ma_method,
+  static Indi_MA *GetCached(IndicatorBase *_indi, int _period, int _ma_shift, ENUM_MA_METHOD _ma_method,
                             ENUM_APPLIED_PRICE _ap) {
     Indi_MA *_ptr;
-    string _key = Util::MakeKey(_symbol, (int)_tf, _period, _ma_shift, (int)_ma_method, (int)_ap);
+    string _key =
+        Util::MakeKey(_indi PTR_DEREF GetCandle() PTR_DEREF GetId(), _period, _ma_shift, (int)_ma_method, (int)_ap);
     if (!Objects<Indi_MA>::TryGet(_key, _ptr)) {
       IndiMAParams _p(_period, _ma_shift, _ma_method, _ap);
-      _p.SetSymbol(_symbol);
       _ptr = Objects<Indi_MA>::Set(_key, new Indi_MA(_p));
+      // Assigning the same candle indicator for MA as in _indi.
+      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }

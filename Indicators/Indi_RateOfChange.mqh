@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 // Structs.
 struct IndiRateOfChangeParams : IndicatorParams {
@@ -46,15 +46,14 @@ struct IndiRateOfChangeParams : IndicatorParams {
 /**
  * Implements the Rate of Change indicator.
  */
-class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangeParams> {
+class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_RateOfChange(IndiRateOfChangeParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_RateOfChange(IndiRateOfChangeParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
   Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_RATE_OF_CHANGE, _tf, _shift){};
+      : Indicator(INDI_RATE_OF_CHANGE, _tf, _shift){};
 
   /**
    * OnCalculate-based version of Rate of Change as there is no built-in one.

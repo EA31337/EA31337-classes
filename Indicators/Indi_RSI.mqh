@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../DictStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "Indi_Bands.mqh"
 #include "Indi_CCI.mqh"
 #include "Indi_Envelopes.mqh"
@@ -89,15 +89,15 @@ struct RSIGainLossData {
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
+class Indi_RSI : public Indicator<IndiRSIParams> {
   DictStruct<long, RSIGainLossData> aux_data;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_RSI(IndiRSIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RSI, _tf, _shift) {}
+  Indi_RSI(IndiRSIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_RSI(int _shift = 0) : Indicator(INDI_RSI, _shift) {}
 
   /**
    * Returns the indicator value.

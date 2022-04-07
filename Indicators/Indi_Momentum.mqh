@@ -30,7 +30,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "Indi_PriceFeeder.mqh"
 
 #ifndef __MQL4__
@@ -61,14 +61,13 @@ struct IndiMomentumParams : IndicatorParams {
 /**
  * Implements the Momentum indicator.
  */
-class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
+class Indi_Momentum : public Indicator<IndiMomentumParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Momentum(IndiMomentumParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_Momentum(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_MOMENTUM, _tf, _shift) {}
+  Indi_Momentum(IndiMomentumParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_Momentum(int _shift = 0) : Indicator(INDI_MOMENTUM, _shift) {}
 
   /**
    * Returns the indicator value.

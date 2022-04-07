@@ -25,7 +25,7 @@ struct IndicatorParams;
 
 // Includes.
 #include "../DictStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Redis.mqh"
 #include "../Task/TaskAction.h"
 #include "Indi_Drawer.struct.h"
@@ -34,21 +34,17 @@ struct IndicatorParams;
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
+class Indi_Drawer : public Indicator<IndiDrawerParams> {
   Redis redis;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Drawer(const IndiDrawerParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src), redis(true) {
+  Indi_Drawer(const IndiDrawerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src), redis(true) {
     Init();
   }
-  Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_DRAWER, _tf, _shift), redis(true) {
-    Init();
-  }
+  Indi_Drawer(int _shift = 0) : Indicator(INDI_DRAWER, _shift), redis(true) { Init(); }
 
   void Init() {
     // Drawer is always ready.
@@ -112,7 +108,8 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
     action.args[2].double_value = 1.25;
     */
 
-    //string json = SerializerConverter::FromObject(action).ToString<SerializerJson>(/*SERIALIZER_JSON_NO_WHITESPACES*/);
+    // string json =
+    // SerializerConverter::FromObject(action).ToString<SerializerJson>(/*SERIALIZER_JSON_NO_WHITESPACES*/);
 
     /* @fixme
     RedisMessage msg;
