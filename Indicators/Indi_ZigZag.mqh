@@ -64,7 +64,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
    * Class constructor.
    */
   Indi_ZigZag(IndiZigZagParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_ZigZag(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ZIGZAG, _tf, _shift) {}
+  Indi_ZigZag(int _shift = 0) : Indicator(INDI_ZIGZAG, _shift) {}
 
   /**
    * Returns value for ZigZag indicator.
@@ -347,7 +347,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
                                        GetDeviation(), GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = iZigZag(GetDataSource(), GetDepth(), GetDeviation(), GetBackstep() _mode, _ishift);
+        _value = iZigZag(GetDataSource(), GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

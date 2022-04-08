@@ -74,7 +74,7 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
 
 #define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(INDI, APPLIED_PRICE, KEY)                                 \
   ValueStorage<double> *_price;                                                                                       \
-  if (_indi PTR_DEREF HasSpecificAppliedPriceValueStorage(APPLIED_PRICE)) {                                           \
+  if (INDI PTR_DEREF HasSpecificAppliedPriceValueStorage(APPLIED_PRICE)) {                                            \
     _price = INDI PTR_DEREF GetSpecificAppliedPriceValueStorage(APPLIED_PRICE);                                       \
   } else {                                                                                                            \
     Print("Source indicator ", INDI PTR_DEREF GetFullName(),                                                          \

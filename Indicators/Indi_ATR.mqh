@@ -121,15 +121,17 @@ class Indi_ATR : public Indicator<IndiATRParams> {
   }
 
   /**
-   * Returns reusable indicator for a given parameters.
+   * Returns reusable indicator with the same candle indicator as given indicator's one.
    */
-  static Indi_ATR *GetCached(string _symbol, ENUM_TIMEFRAMES _tf, int _period) {
+  static Indi_ATR *GetCached(IndicatorBase *_indi, int _period) {
     Indi_ATR *_ptr;
-    string _key = Util::MakeKey(_symbol, (int)_tf, _period);
+    // There will be only one Indi_ATR per IndicatorCandle instance.
+    string _key = Util::MakeKey(_indi PTR_DEREF GetCandle() PTR_DEREF GetId());
     if (!Objects<Indi_ATR>::TryGet(_key, _ptr)) {
-      IndiATRParams _p(_period, _tf);
-      _p.SetSymbol(_symbol);
-      _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_p));
+      IndiATRParams _params(_period);
+      _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_params));
+      // Assigning the same candle indicator for ATR as in _indi.
+      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }

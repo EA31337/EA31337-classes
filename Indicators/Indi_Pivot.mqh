@@ -49,10 +49,8 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Class constructor.
    */
-  Indi_Pivot(IndiPivotParams& _p, IndicatorBase* _indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PIVOT, _tf, _shift) {
-    iparams.tf = _tf;
-  };
+  Indi_Pivot(IndiPivotParams& _p, IndicatorBase* _indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_Pivot(int _shift = 0) : Indicator(INDI_PIVOT, _shift) {}
 
   /**
    * Returns the indicator's struct entry for the given shift.
@@ -64,12 +62,12 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    */
   virtual IndicatorDataEntry GetEntry(int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    long _bar_time = GetChart() PTR_DEREF GetBarTime(_ishift);
+    long _bar_time = GetCandle() PTR_DEREF GetBarTime(_ishift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       ResetLastError();
       BarOHLC _ohlc = GetOHLC(_ishift);
-      _entry.timestamp = GetChart() PTR_DEREF GetBarTime(_ishift);
+      _entry.timestamp = GetCandle() PTR_DEREF GetBarTime(_ishift);
       if (_ohlc.IsValid()) {
         _entry.Resize(iparams.GetMaxModes());
         _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vflt, _entry.values[1].value.vflt,
@@ -141,7 +139,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
-        _ohlc = GetChart() PTR_DEREF GetOHLC(_shift);
+        _ohlc = GetCandle() PTR_DEREF GetOHLC(_shift);
         break;
       case IDATA_INDICATOR:
         // In this mode, price is fetched from given indicator. Such indicator

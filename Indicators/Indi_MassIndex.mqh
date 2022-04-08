@@ -56,7 +56,7 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
    * Class constructor.
    */
   Indi_MassIndex(IndiMassIndexParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MASS_INDEX, _tf, _shift){};
+  Indi_MassIndex(int _shift = 0) : Indicator(INDI_MASS_INDEX, _shift){};
 
   /**
    * OnCalculate-based version of Mass Index as there is no built-in one.
@@ -156,16 +156,14 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_ONCALCULATE:
-        _value = Indi_MassIndex::iMI(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetSecondPeriod(), GetSumPeriod() /*]*/,
-                                     _mode, _ishift, GetChart());
+        _value = iMI(THIS_PTR, GetPeriod(), GetSecondPeriod(), GetSumPeriod(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetSecondPeriod(), GetSumPeriod() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_MassIndex::iMIOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetSecondPeriod(),
-                                                GetSumPeriod() /*]*/, _mode, _ishift);
+        _value = iMI(GetDataSource(), GetPeriod(), GetSecondPeriod(), GetSumPeriod(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

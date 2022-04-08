@@ -65,7 +65,7 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
    * Class constructor.
    */
   Indi_MACD(IndiMACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_MACD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MACD, _tf, _shift) {}
+  Indi_MACD(int _shift = 0) : Indicator(INDI_MACD, _shift) {}
 
   /**
    * Returns the indicator value.

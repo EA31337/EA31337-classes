@@ -68,7 +68,7 @@ class Indi_Stochastic : public Indicator<IndiStochParams> {
    * Class constructor.
    */
   Indi_Stochastic(IndiStochParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_Stochastic(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_STOCHASTIC, _tf, _shift) {}
+  Indi_Stochastic(int _shift = 0) : Indicator(INDI_STOCHASTIC, _shift) {}
 
   /**
    * Calculates the Stochastic Oscillator and returns its value.

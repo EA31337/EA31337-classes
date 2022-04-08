@@ -64,7 +64,7 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
    * Class constructor.
    */
   Indi_OsMA(IndiOsMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_OsMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_OSMA, _tf, _shift) {}
+  Indi_OsMA(int _shift = 0) : Indicator(INDI_OSMA, _shift) {}
 
   /**
    * Returns the indicator value.

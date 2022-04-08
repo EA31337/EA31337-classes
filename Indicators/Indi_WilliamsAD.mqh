@@ -48,7 +48,7 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
    * Class constructor.
    */
   Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_WILLIAMS_AD, _tf, _shift){};
+  Indi_WilliamsAD(int _shift = 0) : Indicator(INDI_WILLIAMS_AD, _shift){};
 
   /**
    * OnCalculate-based version of Williams' AD as there is no built-in one.

@@ -52,7 +52,7 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
    * Class constructor.
    */
   Indi_Volumes(IndiVolumesParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_VOLUMES, _tf, _shift){};
+  Indi_Volumes(int _shift = 0) : Indicator(INDI_VOLUMES, _shift){};
 
   /**
    * OnCalculate-based version of Volumes as there is no built-in one.

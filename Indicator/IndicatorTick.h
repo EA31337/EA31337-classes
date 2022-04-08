@@ -97,6 +97,12 @@ class IndicatorTick : public Indicator<TS> {
         return (IValueStorage*)itdata.GetAskValueStorage();
       case INDI_VS_TYPE_PRICE_BID:
         return (IValueStorage*)itdata.GetBidValueStorage();
+      case INDI_VS_TYPE_SPREAD:
+        return (IValueStorage*)itdata.GetSpreadValueStorage();
+      case INDI_VS_TYPE_VOLUME:
+        return (IValueStorage*)itdata.GetVolumeValueStorage();
+      case INDI_VS_TYPE_TICK_VOLUME:
+        return (IValueStorage*)itdata.GetTickVolumeValueStorage();
       default:
         // Trying in parent class.
         return Indicator<TS>::GetSpecificValueStorage(_type);
@@ -110,6 +116,9 @@ class IndicatorTick : public Indicator<TS> {
     switch (_type) {
       case INDI_VS_TYPE_PRICE_ASK:
       case INDI_VS_TYPE_PRICE_BID:
+      case INDI_VS_TYPE_SPREAD:
+      case INDI_VS_TYPE_VOLUME:
+      case INDI_VS_TYPE_TICK_VOLUME:
         return true;
     }
 
@@ -187,6 +196,13 @@ class IndicatorTick : public Indicator<TS> {
     int _ishift = _shift >= 0 ? _shift : itparams.GetShift();
     return GetEntry(_ishift)[_mode];
   }
+
+  /**
+   * Gets symbol of the tick.
+   *
+   * @fixit Retrieve valid symbol.
+   */
+  string GetSymbol() override { return "EURUSD"; }
 
   /**
    * Traverses source indicators' hierarchy and tries to find IndicatorTick object at the end.

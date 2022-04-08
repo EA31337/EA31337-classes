@@ -51,8 +51,7 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
    * Class constructor.
    */
   Indi_PriceChannel(IndiPriceChannelParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_PriceChannel(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_PRICE_CHANNEL, _tf, _shift){};
+  Indi_PriceChannel(int _shift = 0) : Indicator(INDI_PRICE_CHANNEL, _shift){};
 
   /**
    * OnCalculate-based version of Price Channel indicator as there is no built-in one.

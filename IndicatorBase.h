@@ -523,26 +523,20 @@ class IndicatorBase : public Object {
    * requirements.
    */
   virtual IndicatorBase* GetTick() {
-    IndicatorBase* _indi_src = GetDataSource();
-
-    if (_indi_src != NULL) {
-      if (_indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK) &&
-          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID) &&
-          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_SPREAD) &&
-          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME) &&
-          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME)) {
-        return _indi_src;
-      } else {
-        return _indi_src PTR_DEREF GetTick();
-      }
-    } else {
-      // _indi_src == NULL.
-      Print(
-          "Can't find Tick-compatible indicator (which have storage buffers for: Ask, Bid, Spread, Volume, Tick "
-          "Volume) in the hierarchy!");
-      DebugBreak();
-      return NULL;
+    if (HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK) && HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID) &&
+        HasSpecificValueStorage(INDI_VS_TYPE_SPREAD) && HasSpecificValueStorage(INDI_VS_TYPE_VOLUME) &&
+        HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME)) {
+      return THIS_PTR;
+    } else if (HasDataSource()) {
+      return GetDataSource() PTR_DEREF GetTick();
     }
+
+    // No IndicatorTick compatible indicator found in hierarchy.
+    Print(
+        "Can't find Tick-compatible indicator (which have storage buffers for: Ask, Bid, Spread, Volume, Tick "
+        "Volume) in the hierarchy!");
+    DebugBreak();
+    return NULL;
   }
 
   /**
@@ -924,12 +918,12 @@ class IndicatorBase : public Object {
   /**
    * Gets indicator's symbol.
    */
-  string GetSymbol() { return GetTick() PTR_DEREF GetSymbol(); }
+  virtual string GetSymbol() { return GetTick() PTR_DEREF GetSymbol(); }
 
   /**
    * Gets indicator's time-frame.
    */
-  ENUM_TIMEFRAMES GetTf() { return GetTick() PTR_DEREF GetTf(); }
+  virtual ENUM_TIMEFRAMES GetTf() { return GetTick() PTR_DEREF GetTf(); }
 
   /* Defines MQL backward compatible methods */
 

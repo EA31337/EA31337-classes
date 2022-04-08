@@ -72,6 +72,15 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
   // Bid prices ValueStorage proxy.
   BufferTickValueStorage<TV> *_vs_bid;
 
+  // Spread ValueStorage proxy.
+  BufferTickValueStorage<TV> *_vs_spread;
+
+  // Volume ValueStorage proxy.
+  BufferTickValueStorage<TV> *_vs_volume;
+
+  // Tick Volume ValueStorage proxy.
+  BufferTickValueStorage<TV> *_vs_tick_volume;
+
  protected:
   /* Protected methods */
 
@@ -83,6 +92,9 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
   void Init() {
     _vs_ask = NULL;
     _vs_bid = NULL;
+    _vs_spread = NULL;
+    _vs_volume = NULL;
+    _vs_tick_volume = NULL;
     SetOverflowListener(BufferTickOverflowListener, 10);
   }
 
@@ -108,6 +120,15 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
     if (_vs_bid != NULL) {
       delete _vs_bid;
     }
+    if (_vs_spread != NULL) {
+      delete _vs_spread;
+    }
+    if (_vs_volume != NULL) {
+      delete _vs_volume;
+    }
+    if (_vs_tick_volume != NULL) {
+      delete _vs_tick_volume;
+    }
   }
 
   /**
@@ -128,6 +149,36 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
       _vs_bid = new BufferTickValueStorage<TV>(THIS_PTR, PRICE_BID);
     }
     return _vs_bid;
+  }
+
+  /**
+   * Returns Spread ValueStorage proxy.
+   */
+  BufferTickValueStorage<TV> *GetSpreadValueStorage() {
+    if (_vs_spread == NULL) {
+      // _vs_spread = new BufferTickValueStorage<TV>(THIS_PTR, );
+    }
+    return _vs_spread;
+  }
+
+  /**
+   * Returns Volume ValueStorage proxy.
+   */
+  BufferTickValueStorage<TV> *GetVolumeValueStorage() {
+    if (_vs_volume == NULL) {
+      // _vs_volume = new BufferTickValueStorage<TV>(THIS_PTR, );
+    }
+    return _vs_volume;
+  }
+
+  /**
+   * Returns Tick Volume ValueStorage proxy.
+   */
+  BufferTickValueStorage<TV> *GetTickVolumeValueStorage() {
+    if (_vs_tick_volume == NULL) {
+      // _vs_tick_volume = new BufferTickValueStorage<TV>(THIS_PTR, );
+    }
+    return _vs_tick_volume;
   }
 
   /* Grouping methods */
