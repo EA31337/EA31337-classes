@@ -66,12 +66,21 @@ Ref<IndicatorTfDummy> _candles;
  */
 int OnInit() {
   bool _result = true;
-  _ticks = new IndicatorTickReal(PERIOD_CURRENT);
-  _candles = new IndicatorTfDummy(ChartTf::TfToSeconds(PERIOD_CURRENT));
+  _ticks = new IndicatorTickReal();
+  _candles = new IndicatorTfDummy(PERIOD_M1);
   _candles.Ptr().SetDataSource(_ticks.Ptr());
   Print("We have ", Bars(NULL, 0), " bars to analyze");
   // Initialize indicators.
   _result &= InitIndicators();
+
+  // Connecting all indicator to our single candle indicator (which is connected to tick indicator).
+  for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    Print("Setting outer data source for " + iter.Value().Ptr().GetName());
+    if (!iter.Value() REF_DEREF GetCandle(false)) {
+      iter.Value() REF_DEREF GetOuterDataSource() PTR_DEREF SetDataSource(_candles.Ptr());
+    }
+  }
+
   Print("Indicators to test: ", indis.Size());
   // Check for any errors.
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
@@ -81,6 +90,7 @@ int OnInit() {
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
   bar_processed = 0;
+
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -113,6 +123,7 @@ void OnTick() {
 
       IndicatorBase* _indi = iter.Value().Ptr();
       _indi.OnTick();
+      Print("Getting value for " + _indi.GetFullName());
       IndicatorDataEntry _entry(_indi.GetEntry());
 
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
@@ -515,24 +526,27 @@ bool InitIndicators() {
   indis.Push(new Indi_CustomMovingAverage(cma_params));
 
   // Math (specialized indicator).
-  IndiMathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
-  math_params.SetDraw(clrBlue);
-  math_params.SetName("Bands(UP - LO)");
-  Ref<Indi_Math> indi_math_1 = new Indi_Math(math_params);
-  indi_math_1.Ptr().SetDataSource(indi_bands.Ptr(), 0);
-  indis.Push(indi_math_1.Ptr());
+  // @todo Uncomment when ready.
+  // IndiMathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
+  // math_params.SetDraw(clrBlue);
+  // math_params.SetName("Bands(UP - LO)");
+  // Ref<Indi_Math> indi_math_1 = new Indi_Math(math_params);
+  // indi_math_1.Ptr().SetDataSource(indi_bands.Ptr(), 0);
+  // indis.Push(indi_math_1.Ptr());
 
   // Math (specialized indicator) via custom math method.
-  IndiMathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
-  math_custom_params.SetDraw(clrBeige);
-  math_custom_params.SetName("Bands(Custom math fn)");
-  Ref<Indi_Math> indi_math_2 = new Indi_Math(math_custom_params);
-  indi_math_2.Ptr().SetDataSource(indi_bands.Ptr(), 0);
-  indis.Push(indi_math_2.Ptr());
+  // @todo Uncomment when ready.
+  // IndiMathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
+  // math_custom_params.SetDraw(clrBeige);
+  // math_custom_params.SetName("Bands(Custom math fn)");
+  // Ref<Indi_Math> indi_math_2 = new Indi_Math(math_custom_params);
+  // indi_math_2.Ptr().SetDataSource(indi_bands.Ptr(), 0);
+  // indis.Push(indi_math_2.Ptr());
 
   // RS (Math-based) indicator.
-  IndiRSParams rs_params();
-  indis.Push(new Indi_RS(rs_params));
+  // @todo Uncomment when ready.
+  // IndiRSParams rs_params();
+  // indis.Push(new Indi_RS(rs_params));
 
   // Pattern Detector.
   IndiPatternParams pattern_params();
@@ -572,6 +586,7 @@ bool PrintIndicators(string _prefix = "") {
     }
 
     string _indi_name = _indi.GetFullName();
+    Print("Trying to get value from " + _indi_name);
     IndicatorDataEntry _entry = _indi.GetEntry();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
         GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {

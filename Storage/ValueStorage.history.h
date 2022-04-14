@@ -60,7 +60,7 @@ class HistoryValueStorage : public ValueStorage<C> {
   HistoryValueStorage(IndicatorBase* _indi_candle, bool _is_series = false)
       : indi_candle(_indi_candle), is_series(_is_series) {
     if (!indi_candle.IsSet()) {
-      Print("Cannot create has no required OHLC indicator in its hierarchy!");
+      Print("You have to pass IndicatorCandle-compatible indicator as parameter to HistoryValueStorage!");
       DebugBreak();
     }
     start_bar_time = indi_candle REF_DEREF GetBarTime(BarsFromStart() - 1);

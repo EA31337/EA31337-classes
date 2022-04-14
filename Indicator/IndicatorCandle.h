@@ -33,6 +33,10 @@
 #include "../Buffer/BufferCandle.h"
 #include "../Candle.struct.h"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.spread.h"
+#include "../Storage/ValueStorage.tick_volume.h"
+#include "../Storage/ValueStorage.time.h"
+#include "../Storage/ValueStorage.volume.h"
 #include "TickBarCounter.h"
 
 // Indicator modes.
@@ -43,6 +47,7 @@ enum ENUM_INDI_CANDLE_MODE {
   INDI_CANDLE_MODE_PRICE_CLOSE,
   INDI_CANDLE_MODE_SPREAD,
   INDI_CANDLE_MODE_TICK_VOLUME,
+  INDI_CANDLE_MODE_TIME,
   INDI_CANDLE_MODE_VOLUME,
   FINAL_INDI_CANDLE_MODE_ENTRY,
 };
@@ -115,6 +120,11 @@ class IndicatorCandle : public Indicator<TS> {
   int GetBarIndex() override { return counter.GetBarIndex(); }
 
   /**
+   * Returns the number of bars on the chart.
+   */
+  int GetBars() override { return (int)icdata.Size(); }
+
+  /**
    * Returns current tick index (incremented every OnTick()).
    */
   int GetTickIndex() override { return counter.GetTickIndex(); }
@@ -125,6 +135,55 @@ class IndicatorCandle : public Indicator<TS> {
   bool IsNewBar() override { return counter.is_new_bar; }
 
   /* Virtual method implementations */
+
+  /**
+   * Traverses source indicators' hierarchy and tries to find OHLC-featured
+   * indicator. IndicatorCandle satisfies such requirements.
+   */
+  IndicatorBase* GetCandle(bool _warn_if_not_found = true) override {
+    // We are the candle indicator!
+    return THIS_PTR;
+  }
+
+  /**
+   * Gets OHLC price values.
+   */
+  BarOHLC GetOHLC(int _shift = 0) override {
+    datetime _bar_time = GetBarTime(_shift);
+    BarOHLC _ohlc;
+
+    if ((long)_bar_time != 0) {
+      CandleOCTOHLC<TV> candle = icdata.GetByKey((long)_bar_time);
+      _ohlc.open = (float)candle.open;
+      _ohlc.high = (float)candle.high;
+      _ohlc.low = (float)candle.low;
+      _ohlc.close = (float)candle.close;
+      _ohlc.time = _bar_time;
+    }
+
+    return _ohlc;
+  }
+
+  /**
+   * Returns volume value for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  long GetVolume(int _shift = 0) override { return 0; }
+
+  /**
+   * Returns spread for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  long GetSpread(int _shift = 0) override { return 0; }
+
+  /**
+   * Returns tick volume value for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  long GetTickVolume(int _shift = 0) override { return 0; }
 
   /**
    * Returns the indicator's data entry.
@@ -171,6 +230,42 @@ class IndicatorCandle : public Indicator<TS> {
   }
 
   /**
+   * Returns value storage for a given mode.
+   */
+  IValueStorage* GetValueStorage(int _mode = 0) {
+    if (_mode < GetModeCount()) {
+      return Indicator<TS>::GetValueStorage(_mode);
+    }
+
+    if (_mode >= ArraySize(value_storages)) {
+      ArrayResize(value_storages, _mode + 1);
+    }
+
+    if (value_storages[_mode] == nullptr) {
+      // Buffer not yet created.
+      switch (_mode) {
+        case INDI_CANDLE_MODE_SPREAD:
+          value_storages[_mode] = new SpreadValueStorage(THIS_PTR);
+          break;
+        case INDI_CANDLE_MODE_TICK_VOLUME:
+          value_storages[_mode] = new TickVolumeValueStorage(THIS_PTR);
+          break;
+        case INDI_CANDLE_MODE_TIME:
+          value_storages[_mode] = new TimeValueStorage(THIS_PTR);
+          break;
+        case INDI_CANDLE_MODE_VOLUME:
+          value_storages[_mode] = new VolumeValueStorage(THIS_PTR);
+          break;
+        default:
+          Print("Unsupported mode to fetch: " + IntegerToString(_mode));
+          DebugBreak();
+      }
+    }
+
+    return value_storages[_mode];
+  }
+
+  /**
    * Function should return true if resize can be made, or false to overwrite current slot.
    */
   static bool IndicatorCandleOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
@@ -200,12 +295,16 @@ class IndicatorCandle : public Indicator<TS> {
    * Converts candle into indicator's data entry.
    */
   IndicatorDataEntry CandleToEntry(long _timestamp, CandleOCTOHLC<TV>& _candle) {
-    IndicatorDataEntry _entry(4);
+    IndicatorDataEntry _entry(FINAL_INDI_CANDLE_MODE_ENTRY);
     _entry.timestamp = _timestamp;
-    _entry.values[0] = _candle.open;
-    _entry.values[1] = _candle.high;
-    _entry.values[2] = _candle.low;
-    _entry.values[3] = _candle.close;
+    _entry.values[INDI_CANDLE_MODE_PRICE_OPEN] = _candle.open;
+    _entry.values[INDI_CANDLE_MODE_PRICE_HIGH] = _candle.high;
+    _entry.values[INDI_CANDLE_MODE_PRICE_LOW] = _candle.low;
+    _entry.values[INDI_CANDLE_MODE_PRICE_CLOSE] = _candle.close;
+    _entry.values[INDI_CANDLE_MODE_SPREAD] = 0;       // @todo
+    _entry.values[INDI_CANDLE_MODE_TICK_VOLUME] = 0;  // @todo
+    _entry.values[INDI_CANDLE_MODE_TIME] = _timestamp;
+    _entry.values[INDI_CANDLE_MODE_VOLUME] = 0;  // @todo
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _candle.IsValid());
     return _entry;
   }
@@ -266,6 +365,8 @@ class IndicatorCandle : public Indicator<TS> {
         return GetValueStorage(INDI_CANDLE_MODE_SPREAD);
       case INDI_VS_TYPE_TICK_VOLUME:
         return GetValueStorage(INDI_CANDLE_MODE_TICK_VOLUME);
+      case INDI_VS_TYPE_TIME:
+        return GetValueStorage(INDI_CANDLE_MODE_TIME);
       case INDI_VS_TYPE_VOLUME:
         return GetValueStorage(INDI_CANDLE_MODE_VOLUME);
       default:
@@ -285,6 +386,7 @@ class IndicatorCandle : public Indicator<TS> {
       case INDI_VS_TYPE_PRICE_CLOSE:
       case INDI_VS_TYPE_SPREAD:
       case INDI_VS_TYPE_TICK_VOLUME:
+      case INDI_VS_TYPE_TIME:
       case INDI_VS_TYPE_VOLUME:
         return true;
       default:

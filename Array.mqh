@@ -761,6 +761,9 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
   static void ArrayStore(ARRAY_REF(X, array), int index, X value, int reserve_size = 0) {
     if (index >= ArraySize(array)) {
       ArrayResize(array, MathMax(index + 1, ArraySize(array)), reserve_size);
+    } else if (index < 0) {
+      Print("Index cannot be negative! " + IntegerToString(index) + " passed.");
+      DebugBreak();
     }
 
     array[index] = value;

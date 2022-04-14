@@ -518,7 +518,9 @@ struct IndicatorParams {
   void SetDataSource(int _id, int _input_mode = -1) {
     indi_data_source_id = _id;
     indi_data_source_mode = _input_mode;
-    idstype = IDATA_INDICATOR;
+    if (_id != -1) {
+      idstype = IDATA_INDICATOR;
+    }
   }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetInputParams(ARRAY_REF(DataParamEntry, _params)) {

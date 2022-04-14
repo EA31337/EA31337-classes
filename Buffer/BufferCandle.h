@@ -34,7 +34,6 @@
 template <typename TV>
 class BufferCandle : public BufferStruct<CandleOCTOHLC<TV>> {
  protected:
- protected:
   /* Protected methods */
 
   /**

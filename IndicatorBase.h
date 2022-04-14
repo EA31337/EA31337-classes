@@ -70,7 +70,7 @@ class IndicatorBase : public Object {
   int calc_start_bar;                              // Index of the first valid bar (from 0).
   DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
-  ARRAY(ValueStorage<double>*, value_storages);
+  ARRAY(IValueStorage*, value_storages);
   Ref<IndicatorBase> indi_src;  // // Indicator used as data source.
   int indi_src_mode;            // Mode of source indicator
   IndicatorCalculateCache<double> cache;
@@ -293,6 +293,15 @@ class IndicatorBase : public Object {
   virtual IndicatorBase* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return NULL; }
 
   /**
+   * Returns the most parent data source.
+   */
+  IndicatorBase* GetOuterDataSource() {
+    if (!HasDataSource()) return THIS_PTR;
+
+    return GetDataSource() PTR_DEREF GetOuterDataSource();
+  }
+
+  /**
    * Returns currently selected data source without any validation.
    */
   IndicatorBase* GetDataSourceRaw() { return indi_src.Ptr(); }
@@ -383,7 +392,21 @@ class IndicatorBase : public Object {
   }
 
   /**
+   * Returns spread for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  virtual long GetSpread(int _shift = 0) { return GetCandle() PTR_DEREF GetSpread(_shift); }
+
+  /**
    * Returns tick volume value for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  virtual long GetTickVolume(int _shift = 0) { return GetCandle() PTR_DEREF GetTickVolume(_shift); }
+
+  /**
+   * Returns volume value for the bar.
    *
    * If local history is empty (not loaded), function returns 0.
    */
@@ -406,7 +429,7 @@ class IndicatorBase : public Object {
   /**
    * Returns the number of bars on the chart.
    */
-  virtual int GetBars() { return GetTick() PTR_DEREF GetBars(); }
+  virtual int GetBars() { return GetCandle() PTR_DEREF GetBars(); }
 
   /**
    * Returns index of the current bar.
@@ -495,24 +518,22 @@ class IndicatorBase : public Object {
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
    * indicator. IndicatorCandle satisfies such requirements.
    */
-  virtual IndicatorBase* GetCandle() {
-    IndicatorBase* _indi_src = GetDataSource();
-
-    if (_indi_src != NULL) {
-      if (_indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN) &&
-          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH) &&
-          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW) &&
-          _indi_src PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE)) {
-        return _indi_src;
-      } else {
-        return _indi_src PTR_DEREF GetCandle();
-      }
+  virtual IndicatorBase* GetCandle(bool _warn_if_not_found = true) {
+    if (HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN) && HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH) &&
+        HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW) && HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE) &&
+        HasSpecificValueStorage(INDI_VS_TYPE_SPREAD) && HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME) &&
+        HasSpecificValueStorage(INDI_VS_TYPE_TIME) && HasSpecificValueStorage(INDI_VS_TYPE_VOLUME)) {
+      return THIS_PTR;
+    } else if (HasDataSource()) {
+      return GetDataSource() PTR_DEREF GetCandle(_warn_if_not_found);
     } else {
       // _indi_src == NULL.
-      Print(
-          "Can't find Candle-compatible indicator (which have storage buffers for: Open, High, Low, Close) in the "
-          "hierarchy!");
-      DebugBreak();
+      if (_warn_if_not_found) {
+        Print(
+            "Can't find Candle-compatible indicator (which have storage buffers for: Open, High, Low, Close) in the "
+            "hierarchy!");
+        DebugBreak();
+      }
       return NULL;
     }
   }
@@ -522,7 +543,7 @@ class IndicatorBase : public Object {
    * Volume and Tick Volume-featured indicator. IndicatorTick satisfies such
    * requirements.
    */
-  virtual IndicatorBase* GetTick() {
+  virtual IndicatorBase* GetTick(bool _warn_if_not_found = true) {
     if (HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK) && HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID) &&
         HasSpecificValueStorage(INDI_VS_TYPE_SPREAD) && HasSpecificValueStorage(INDI_VS_TYPE_VOLUME) &&
         HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME)) {
@@ -532,10 +553,12 @@ class IndicatorBase : public Object {
     }
 
     // No IndicatorTick compatible indicator found in hierarchy.
-    Print(
-        "Can't find Tick-compatible indicator (which have storage buffers for: Ask, Bid, Spread, Volume, Tick "
-        "Volume) in the hierarchy!");
-    DebugBreak();
+    if (_warn_if_not_found) {
+      Print(
+          "Can't find Tick-compatible indicator (which have storage buffers for: Ask, Bid, Spread, Volume, Tick "
+          "Volume) in the hierarchy!");
+      DebugBreak();
+    }
     return NULL;
   }
 
@@ -621,6 +644,9 @@ class IndicatorBase : public Object {
     istate.is_changed = true;
   }
 
+  /**
+   * Returns value storage for a given mode.
+   */
   ValueStorage<double>* GetValueStorage(int _mode = 0) {
     if (_mode >= ArraySize(value_storages)) {
       ArrayResize(value_storages, _mode + 1);
@@ -630,6 +656,21 @@ class IndicatorBase : public Object {
       value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
     }
     return value_storages[_mode];
+  }
+
+  /**
+   * Initializes value storage to be later accessed via GetValueStorage() for a given mode.
+   */
+  void SetValueStorage(int _mode, IValueStorage* _storage) {
+    if (_mode >= ArraySize(value_storages)) {
+      ArrayResize(value_storages, _mode + 1);
+    }
+
+    if (value_storages[_mode] != NULL) {
+      delete value_storages[_mode];
+    }
+
+    value_storages[_mode] = _storage;
   }
 
   /**
@@ -923,7 +964,7 @@ class IndicatorBase : public Object {
   /**
    * Gets indicator's time-frame.
    */
-  virtual ENUM_TIMEFRAMES GetTf() { return GetTick() PTR_DEREF GetTf(); }
+  virtual ENUM_TIMEFRAMES GetTf() { return GetCandle() PTR_DEREF GetTf(); }
 
   /* Defines MQL backward compatible methods */
 
