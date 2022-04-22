@@ -35,6 +35,8 @@
 
 // Includes.
 #include "Objects.h"
+#include "../SerializerConversions.h"
+#include "../Util.h"
 
 // Enumeration for iPeak().
 enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
@@ -168,6 +170,15 @@ class ValueStorage : public IValueStorage {
     return true;
   }
 };
+
+template<typename C>
+string StringifyOHLC(ValueStorage<C> &_open, ValueStorage<C> &_high, ValueStorage<C> &_low, ValueStorage<C> &_close, int _shift = 0) {
+  C _o = _open[_shift].Get();
+  C _h = _high[_shift].Get();
+  C _l = _low[_shift].Get();
+  C _c = _close[_shift].Get();
+  return IntegerToString(_shift) + ": " + Util::MakeKey(_o, _h, _l, _c);
+}
 
 /**
  * ValueStorage-compatible wrapper for ArrayInitialize.
