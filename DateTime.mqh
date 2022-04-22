@@ -114,9 +114,14 @@ class DateTime {
       _result |= DATETIME_SECOND;
     }
 
-    if (dt_curr.GetValue(DATETIME_DAY | DATETIME_WEEK) != dt_last.GetValue(DATETIME_DAY | DATETIME_WEEK)) {
-      // New week started.
-      _result |= DATETIME_WEEK;
+    if (dt_curr.GetValue(DATETIME_DAY | DATETIME_WEEK) == 0) {
+      // It's the first day of the week (Sunday).
+      // Note that GetValue() for the above flags just returns value of GetDayOfWeek().
+      // @see https://docs.mql4.com/dateandtime/dayofweek
+      if (dt_curr.GetValue(DATETIME_DAY | DATETIME_WEEK) != dt_last.GetValue(DATETIME_DAY | DATETIME_WEEK)) {
+        // New week started.
+        _result |= DATETIME_WEEK;
+      }
     }
 
 #ifdef __debug_verbose__
