@@ -100,7 +100,11 @@ class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> 
 
     if (_num_copied < 1 || _LastError != 0) {
       Print("Error. Cannot copy MT ticks via CopyTicks(). Error " + IntegerToString(_LastError));
-      DebugBreak();
+      // DebugBreak();
+      // Just emitting zeroes in case of error.
+      TickAB<double> _tick(0, 0);
+      EmitEntry(TickToEntry(TimeCurrent(), _tick));
+      return;
     }
 
 #ifdef __debug_verbose__

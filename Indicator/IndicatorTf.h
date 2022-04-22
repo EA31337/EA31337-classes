@@ -102,7 +102,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
         _curr -= ChartTf::TfToSeconds(tf);
       }
     }
-
+    
     // No entry found. Returning last valid candle.
     if (icdata.KeyExists(_curr)) {
       return _curr;

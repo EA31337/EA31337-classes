@@ -156,7 +156,7 @@ struct BarOHLC
   float GetBody() const { return close - open; }
   float GetBodyAbs() const { return fabs(close - open); }
   float GetBodyInPct(int _hundreds = 100) const { return GetRange() > 0 ? _hundreds / GetRange() * GetBodyAbs() : 0; }
-  float GetChangeInPct(int _hundreds = 100) const { return (close - open) / open * _hundreds; }
+  float GetChangeInPct(int _hundreds = 100) const { return open > 0 ? ((close - open) / open * _hundreds) : 0 /* Error */; }
   float GetClose() const { return close; }
   float GetHigh() const { return high; }
   float GetLow() const { return low; }
