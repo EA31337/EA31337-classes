@@ -217,15 +217,22 @@ struct CandleOHLC
   string ToCSV() { return StringFormat("%g,%g,%g,%g", open, high, low, close); }
 };
 
-/* Structure for storing OHLC values with open and close timestamp. */
+/* Structure for storing OHLC values, number of ticks which formed the candle and both, open and close timestamp of the
+ * candle. */
 template <typename T>
 struct CandleOCTOHLC : CandleOHLC<T> {
   long open_timestamp, close_timestamp;
 
+  // Number of ticks which formed the candle. Also known as volume.
+  int volume;
+
   // Struct constructors.
   CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, long _open_timestamp = -1,
-                long _close_timestamp = -1)
-      : CandleOHLC(_open, _high, _low, _close), open_timestamp(_open_timestamp), close_timestamp(_close_timestamp) {}
+                long _close_timestamp = -1, int _volume = 0)
+      : CandleOHLC(_open, _high, _low, _close),
+        open_timestamp(_open_timestamp),
+        close_timestamp(_close_timestamp),
+        volume(_volume) {}
 
   // Updates OHLC values taking into consideration tick's timestamp.
   void Update(long _timestamp, T _price) {
@@ -239,6 +246,8 @@ struct CandleOCTOHLC : CandleOHLC<T> {
     }
     high = MathMax(high, _price);
     low = MathMin(low, _price);
+    // Increasing candle's volume.
+    ++volume;
   }
 
   // Returns timestamp of open price.

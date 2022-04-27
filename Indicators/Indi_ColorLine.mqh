@@ -195,6 +195,7 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
+      case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iColorLine(THIS_PTR, _mode, _ishift);
         break;

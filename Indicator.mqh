@@ -1005,27 +1005,39 @@ class Indicator : public IndicatorBase {
     if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_REAL)) {
       if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
         _result &= !_entry.HasValue<double>(DBL_MAX);
-        _result &= !_entry.HasValue<double>(NULL);
+        if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
+          _result &= !_entry.HasValue<double>(0);
+        }
       } else {
         _result &= !_entry.HasValue<float>(FLT_MAX);
-        _result &= !_entry.HasValue<float>(NULL);
+        if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
+          _result &= !_entry.HasValue<float>(0);
+        }
       }
     } else {
       if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_UNSIGNED)) {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
           _result &= !_entry.HasValue<unsigned long>(ULONG_MAX);
-          _result &= !_entry.HasValue<unsigned long>(NULL);
+          if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
+            _result &= !_entry.HasValue<unsigned long>(0);
+          }
         } else {
           _result &= !_entry.HasValue<unsigned int>(UINT_MAX);
-          _result &= !_entry.HasValue<unsigned int>(NULL);
+          if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
+            _result &= !_entry.HasValue<unsigned int>(0);
+          }
         }
       } else {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
           _result &= !_entry.HasValue<long>(LONG_MAX);
-          _result &= !_entry.HasValue<long>(NULL);
+          if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
+            _result &= !_entry.HasValue<long>(0);
+          }
         } else {
           _result &= !_entry.HasValue<int>(INT_MAX);
-          _result &= !_entry.HasValue<int>(NULL);
+          if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
+            _result &= !_entry.HasValue<int>(0);
+          }
         }
       }
     }
@@ -1036,7 +1048,24 @@ class Indicator : public IndicatorBase {
    * Get full name of the indicator (with "over ..." part).
    */
   string GetFullName() override {
-    return GetName() + "[" + IntegerToString(iparams.GetMaxModes()) + "]" +
+    string _mode;
+
+    switch (iparams.GetDataSourceType()) {
+      case IDATA_BUILTIN:
+        _mode = "B-in";
+        break;
+      case IDATA_ONCALCULATE:
+        _mode = "On-C";
+        break;
+      case IDATA_ICUSTOM:
+        _mode = "iCus";
+        break;
+      case IDATA_INDICATOR:
+        _mode = "On-I";
+        break;
+    }
+
+    return GetName() + "-" + _mode + "[" + IntegerToString(iparams.GetMaxModes()) + "]" +
            (HasDataSource() ? (" (over " + GetDataSource().GetFullName() + ")") : "");
   }
 

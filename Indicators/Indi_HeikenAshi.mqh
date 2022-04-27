@@ -197,6 +197,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
+      case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
 #ifdef __MQL4__
         // Converting MQL4's enum into MQL5 one, as OnCalculate uses further one.

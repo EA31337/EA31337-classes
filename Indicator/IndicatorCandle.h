@@ -97,22 +97,22 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Gets open price for a given, optional shift.
    */
-  double GetOpen(int _shift = 0) override { return GetCandle() PTR_DEREF GetOpen(_shift); }
+  double GetOpen(int _shift = 0) override { return GetOHLC(_shift).open; }
 
   /**
    * Gets high price for a given, optional shift.
    */
-  double GetHigh(int _shift = 0) override { return GetCandle() PTR_DEREF GetHigh(_shift); }
+  double GetHigh(int _shift = 0) override { return GetOHLC(_shift).high; }
 
   /**
    * Gets low price for a given, optional shift.
    */
-  double GetLow(int _shift = 0) override { return GetCandle() PTR_DEREF GetLow(_shift); }
+  double GetLow(int _shift = 0) override { return GetOHLC(_shift).low; }
 
   /**
    * Gets close price for a given, optional shift.
    */
-  double GetClose(int _shift = 0) override { return GetCandle() PTR_DEREF GetClose(_shift); }
+  double GetClose(int _shift = 0) override { return GetOHLC(_shift).close; }
 
   /**
    * Returns current bar index (incremented every OnTick() if IsNewBar() is true).
@@ -169,7 +169,16 @@ class IndicatorCandle : public Indicator<TS> {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetVolume(int _shift = 0) override { return 0; }
+  long GetVolume(int _shift = 0) override {
+    datetime _bar_time = GetBarTime(_shift);
+
+    if ((long)_bar_time == 0) {
+      return 0;
+    }
+
+    CandleOCTOHLC<TV> candle = icdata.GetByKey((long)_bar_time);
+    return candle.volume;
+  }
 
   /**
    * Returns spread for the bar.
@@ -183,7 +192,7 @@ class IndicatorCandle : public Indicator<TS> {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetTickVolume(int _shift = 0) override { return 0; }
+  long GetTickVolume(int _shift = 0) override { return GetVolume(); }
 
   /**
    * Returns the indicator's data entry.
@@ -196,34 +205,16 @@ class IndicatorCandle : public Indicator<TS> {
   IndicatorDataEntry GetEntry(int _index = -1) override {
     ResetLastError();
     unsigned int _ishift = _index >= 0 ? _index : iparams.GetShift();
-    long _candle_time = CalcCandleTimestamp(GetBarTime(_ishift));
-    long _curr_candle_time;
+    long _candle_time = GetBarTime(_ishift);
     CandleOCTOHLC<TV> _candle;
-
-    // Trying current and older shifts.
-    if (icdata.Size() > 0) {
-      int i = 0;
-      while (true) {
-        _curr_candle_time = CalcCandleTimestamp(GetBarTime(i++));
-
-        if (_curr_candle_time < icdata.GetMin()) {
-          // There is no older entries.
-          break;
-        }
-
-        _candle = icdata.GetByKey(_curr_candle_time);
-
-        if (_candle.IsValid()) {
-          break;
-        }
-      }
-    }
+    _candle = icdata.GetByKey(_candle_time);
 
     if (!_candle.IsValid()) {
-      // Giving up.
+      // No candle found.
       DebugBreak();
-      Print(GetFullName(), ": Missing candle after thorough search at shift ", _index, " (", TimeToString(_candle_time),
-            "). Lowest timestamp in history is ", icdata.GetMin());
+      Print(GetFullName(), ": Missing candle at shift ", _index, " (",
+            TimeToString(_candle_time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), "). Lowest timestamp in history is ",
+            icdata.GetMin());
     }
 
     return CandleToEntry(_candle_time, _candle);
@@ -301,10 +292,10 @@ class IndicatorCandle : public Indicator<TS> {
     _entry.values[INDI_CANDLE_MODE_PRICE_HIGH] = _candle.high;
     _entry.values[INDI_CANDLE_MODE_PRICE_LOW] = _candle.low;
     _entry.values[INDI_CANDLE_MODE_PRICE_CLOSE] = _candle.close;
-    _entry.values[INDI_CANDLE_MODE_SPREAD] = 0;       // @todo
-    _entry.values[INDI_CANDLE_MODE_TICK_VOLUME] = 0;  // @todo
+    _entry.values[INDI_CANDLE_MODE_SPREAD] = 0.1;              // @todo
+    _entry.values[INDI_CANDLE_MODE_TICK_VOLUME] = MathRand();  // @todo
     _entry.values[INDI_CANDLE_MODE_TIME] = _timestamp;
-    _entry.values[INDI_CANDLE_MODE_VOLUME] = 0;  // @todo
+    _entry.values[INDI_CANDLE_MODE_VOLUME] = MathRand();  // @todo
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _candle.IsValid());
     return _entry;
   }
@@ -316,15 +307,25 @@ class IndicatorCandle : public Indicator<TS> {
     long _candle_timestamp = CalcCandleTimestamp(_tick_timestamp);
 
 #ifdef __debug_verbose__
-    Print("Updating candle for ", GetFullName(), " at candle ", TimeToString(_candle_timestamp), " from tick at ",
-          TimeToString(_tick_timestamp));
+    Print("Updating candle for ", GetFullName(), " at candle ",
+          TimeToString(_candle_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " from tick at ",
+          TimeToString(_tick_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS), ": ", _price);
 #endif
 
     CandleOCTOHLC<double> _candle(_price, _price, _price, _price, _tick_timestamp, _tick_timestamp);
     if (icdata.KeyExists(_candle_timestamp)) {
       // Candle already exists.
       _candle = icdata.GetByKey(_candle_timestamp);
+
+#ifdef __debug_verbose__
+      Print("Candle was ", _candle.ToCSV());
+#endif
+
       _candle.Update(_tick_timestamp, _price);
+
+#ifdef __debug_verbose__
+      Print("Candle is  ", _candle.ToCSV());
+#endif
     }
 
     icdata.Add(_candle, _candle_timestamp);

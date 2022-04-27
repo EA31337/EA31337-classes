@@ -144,7 +144,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
                                   double _deviation, int _bands_shift,
                                   ENUM_BANDS_LINE _mode,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
-                                  int _shift, Indi_Bands *_target = NULL) {
+                                  int _shift, IndicatorBase *_indi_source = NULL) {
     double _indi_value_buffer[];
     double _std_dev;
     double _line_value;
@@ -155,7 +155,9 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
       int current_shift = _shift + (i - _bands_shift);
       // Getting current indicator value.
       _indi_value_buffer[i - _bands_shift] =
-          _indi[i - _bands_shift].values[_target != NULL ? _target.GetDataSourceMode() : 0].Get<double>();
+          _indi[i - _bands_shift]
+              .values[_indi_source != NULL ? _indi_source.GetDataSourceMode() : (int)_mode]
+              .Get<double>();
     }
 
     // Base band.
@@ -243,9 +245,12 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
                                     GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift, THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        _value = Indi_Bands::iBandsOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
+                                               GetBandsShift(), (ENUM_BANDS_LINE)_mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),

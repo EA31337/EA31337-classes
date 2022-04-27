@@ -108,7 +108,8 @@ class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> 
     }
 
 #ifdef __debug_verbose__
-    Print("TickReal: ", TimeToString(_tmp_ticks[0].time), " = ", _tmp_ticks[0].bid);
+    Print("TickReal: ", TimeToString(_tmp_ticks[0].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " = ",
+          _tmp_ticks[0].bid);
 #endif
 
     double _ask = _tmp_ticks[0].ask;

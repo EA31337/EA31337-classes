@@ -75,7 +75,7 @@ int OnInit() {
 
   // Connecting all indicator to our single candle indicator (which is connected to tick indicator).
   for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    //Print("Setting outer data source for " + iter.Value().Ptr().GetName());
+    // Print("Setting outer data source for " + iter.Value().Ptr().GetName());
     if (!iter.Value() REF_DEREF GetCandle(false)) {
       iter.Value() REF_DEREF GetOuterDataSource() PTR_DEREF SetDataSource(_candles.Ptr());
     }
@@ -123,7 +123,7 @@ void OnTick() {
 
       IndicatorBase* _indi = iter.Value().Ptr();
       _indi.OnTick();
-      //Print("Getting value for " + _indi.GetFullName());
+      // Print("Getting value for " + _indi.GetFullName());
       IndicatorDataEntry _entry(_indi.GetEntry());
 
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
@@ -182,10 +182,15 @@ bool InitIndicators() {
   IndiATRParams atr_params(14);
   indis.Push(new Indi_ATR(atr_params));
 
-  // Bollinger Bands.
+  // Bollinger Bands - Built-in.
   IndiBandsParams bands_params(20, 2, 0, PRICE_OPEN);
   Ref<IndicatorBase> indi_bands = new Indi_Bands(bands_params);
   indis.Push(indi_bands);
+
+  // Bollinger Bands - OnCalculate.
+  bands_params.SetDataSourceType(IDATA_ONCALCULATE);
+  Ref<IndicatorBase> indi_bands_oncalculate = new Indi_Bands(bands_params);
+  indis.Push(indi_bands_oncalculate);
 
   // Bollinger Bands over RSI.
   IndiBandsParams bands_over_rsi_params(20, 2, 0, PRICE_OPEN);
@@ -518,8 +523,8 @@ bool InitIndicators() {
   indis.Push(new Indi_WilliamsAD(williams_ad_params));
 
   // ZigZag Color.
-  //IndiZigZagColorParams zigzag_color_params();
-  //indis.Push(new Indi_ZigZagColor(zigzag_color_params));
+  // IndiZigZagColorParams zigzag_color_params();
+  // indis.Push(new Indi_ZigZagColor(zigzag_color_params));
 
   // Custom Moving Average.
   IndiCustomMovingAverageParams cma_params();
@@ -586,7 +591,7 @@ bool PrintIndicators(string _prefix = "") {
     }
 
     string _indi_name = _indi.GetFullName();
-    //Print("Trying to get value from " + _indi_name);
+    // Print("Trying to get value from " + _indi_name);
     IndicatorDataEntry _entry = _indi.GetEntry();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
         GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {

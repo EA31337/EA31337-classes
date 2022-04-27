@@ -337,6 +337,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
+      case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);
         break;

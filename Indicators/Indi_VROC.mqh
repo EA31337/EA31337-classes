@@ -133,6 +133,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
+      case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iVROC(THIS_PTR, GetPeriod(), GetAppliedVolume(), _mode, _ishift);
         break;

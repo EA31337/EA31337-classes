@@ -107,6 +107,7 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
+      case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iPriceChannel(THIS_PTR, GetPeriod(), _mode, _ishift);
         break;

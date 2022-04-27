@@ -121,6 +121,17 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
   }
 
   /**
+   * Alters indicator's struct value.
+   *
+   * This method allows user to modify the struct entry before it's added to cache.
+   * This method is called on GetEntry() right after values are set.
+   */
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _index = -1) {
+    Indicator<IndiVolumesParams>::GetEntryAlter(_entry);
+    _entry.SetFlag(INDI_ENTRY_FLAG_ACCEPT_ZEROES, true);
+  }
+
+  /**
    * Returns the indicator's value.
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
@@ -128,6 +139,7 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
+      case IDATA_ONCALCULATE:
         _value = iVolumes(THIS_PTR, GetAppliedVolume(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:

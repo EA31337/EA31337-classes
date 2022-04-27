@@ -155,6 +155,7 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
+      case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iMI(THIS_PTR, GetPeriod(), GetSecondPeriod(), GetSumPeriod(), _mode, _ishift);
         break;

@@ -91,21 +91,22 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    */
   datetime GetBarTimeLegacy(int _shift = 0) {
     datetime _curr = ::iTime(GetSymbol(), GetTf(), 0);
+    datetime _last_valid = 0;
 
     while (_curr >= icdata.GetMin()) {
       if (icdata.KeyExists(_curr)) {
+        _last_valid = _curr;
         if (_shift-- == 0) {
           return _curr;
         }
-      } else {
-        // Going back in time by TF.
-        _curr -= ChartTf::TfToSeconds(tf);
       }
+      // Going back in time by TF.
+      _curr -= ChartTf::TfToSeconds(tf);
     }
-    
+
     // No entry found. Returning last valid candle.
-    if (icdata.KeyExists(_curr)) {
-      return _curr;
+    if (icdata.KeyExists(_last_valid)) {
+      return _last_valid;
     } else {
       // Not a single valid candle found.
       return 0;

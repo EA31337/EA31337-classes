@@ -115,16 +115,18 @@ class Indi_ASI : public Indicator<IndiASIParams> {
       ExtSIBuffer[0] = 0.0;
       ExtTRBuffer[0] = high[0] - low[0];
     }
-    
-    Print("- ASI cycle " + IntegerToString(pos) + " - " + IntegerToString(rates_total));
-    
+
+    // Print("- ASI cycle " + IntegerToString(pos) + " - " + IntegerToString(rates_total));
+
     // Main cycle.
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       // Get some data.
-      
-      Print("Prev: "+ StringifyOHLC(open, high, low, close, i-1));
-      Print("Next "+ StringifyOHLC(open, high, low, close, i));
-      
+
+      // Print("Prev: "+ StringifyOHLC(open, high, low, close, i-3));
+      // Print("Prev: "+ StringifyOHLC(open, high, low, close, i-2));
+      // Print("Prev: "+ StringifyOHLC(open, high, low, close, i-1));
+      // Print("Curr: "+ StringifyOHLC(open, high, low, close, i));
+
       double dPrevClose = close[i - 1].Get();
       double dPrevOpen = open[i - 1].Get();
       double dClose = close[i].Get();
@@ -160,6 +162,7 @@ class Indi_ASI : public Indicator<IndiASIParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
+      case IDATA_BUILTIN:
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetMaximumPriceChanging() /*]*/, 0, _ishift);
