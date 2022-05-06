@@ -696,6 +696,10 @@ class Indicator : public IndicatorBase {
     if (GetDataSourceRaw() != NULL) {
       _result = GetDataSourceRaw();
     } else if (iparams.GetDataSourceId() != -1) {
+      Print("Setting data source by id is now obsolete. Please use SetDataSource(IndicatorBase*) method for ",
+            GetName(), " (data source id ", iparams.GetDataSourceId(), ").");
+      DebugBreak();
+
       int _source_id = iparams.GetDataSourceId();
 
       if (indicators.KeyExists(_source_id)) {
@@ -1093,7 +1097,9 @@ class Indicator : public IndicatorBase {
   IndicatorDataEntry GetEntry(int _index = -1) override {
     ResetLastError();
     int _ishift = _index >= 0 ? _index : iparams.GetShift();
-    long _bar_time = GetBarTime(_ishift);
+    long _bar_time;
+    _bar_time = GetBarTime(_ishift);
+
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(iparams.GetMaxModes());

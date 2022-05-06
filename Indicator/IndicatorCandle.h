@@ -161,6 +161,11 @@ class IndicatorCandle : public Indicator<TS> {
       _ohlc.time = _bar_time;
     }
 
+#ifdef __debug_verbose__
+    Print("Fetching OHLC #", _shift, " from ", TimeToString(_ohlc.time, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+    Print("^- ", _ohlc.open, ", ", _ohlc.high, ", ", _ohlc.low, ", ", _ohlc.close);
+#endif
+
     return _ohlc;
   }
 
@@ -292,10 +297,10 @@ class IndicatorCandle : public Indicator<TS> {
     _entry.values[INDI_CANDLE_MODE_PRICE_HIGH] = _candle.high;
     _entry.values[INDI_CANDLE_MODE_PRICE_LOW] = _candle.low;
     _entry.values[INDI_CANDLE_MODE_PRICE_CLOSE] = _candle.close;
-    _entry.values[INDI_CANDLE_MODE_SPREAD] = 0.1;              // @todo
-    _entry.values[INDI_CANDLE_MODE_TICK_VOLUME] = MathRand();  // @todo
+    _entry.values[INDI_CANDLE_MODE_SPREAD] = 0.1;  // @todo
+    _entry.values[INDI_CANDLE_MODE_TICK_VOLUME] = _candle.volume;
     _entry.values[INDI_CANDLE_MODE_TIME] = _timestamp;
-    _entry.values[INDI_CANDLE_MODE_VOLUME] = MathRand();  // @todo
+    _entry.values[INDI_CANDLE_MODE_VOLUME] = _candle.volume;
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _candle.IsValid());
     return _entry;
   }

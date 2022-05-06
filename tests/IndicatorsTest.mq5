@@ -52,7 +52,6 @@ enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_EN
 DictStruct<int, Ref<IndicatorBase>> indis;
 DictStruct<int, Ref<IndicatorBase>> whitelisted_indis;
 DictStruct<int, Ref<IndicatorBase>> tested;
-int bar_processed;
 double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235,
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
@@ -89,7 +88,6 @@ int OnInit() {
   _result &= PrintIndicators(__FUNCTION__);
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
-  bar_processed = 0;
 
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
@@ -104,7 +102,6 @@ void OnTick() {
   }
 
   if (_candles REF_DEREF IsNewBar()) {
-    bar_processed++;
     if (indis.Size() == 0) {
       return;
     }
@@ -117,7 +114,7 @@ void OnTick() {
         }
       } else {
         if (!whitelisted_indis.Contains(iter.Value())) {
-          // continue; // @fixme
+          continue;
         }
       }
 
@@ -128,8 +125,8 @@ void OnTick() {
 
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
         if (_entry.IsValid()) {
-          PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
-          tested.Push(iter.Value());  // Mark as tested.
+          PrintFormat("%s: bar %d: %s", _indi.GetFullName(), _candles REF_DEREF GetBars(), _indi.ToString());
+          // tested.Push(iter.Value());  // Mark as tested.
         }
       }
     }
@@ -186,11 +183,13 @@ bool InitIndicators() {
   IndiBandsParams bands_params(20, 2, 0, PRICE_OPEN);
   Ref<IndicatorBase> indi_bands = new Indi_Bands(bands_params);
   indis.Push(indi_bands);
+  // whitelisted_indis.Push(indi_bands);
 
   // Bollinger Bands - OnCalculate.
   bands_params.SetDataSourceType(IDATA_ONCALCULATE);
   Ref<IndicatorBase> indi_bands_oncalculate = new Indi_Bands(bands_params);
   indis.Push(indi_bands_oncalculate);
+  // whitelisted_indis.Push(indi_bands_oncalculate);
 
   // Bollinger Bands over RSI.
   IndiBandsParams bands_over_rsi_params(20, 2, 0, PRICE_OPEN);

@@ -33,6 +33,8 @@
 #include "../../../Chart.struct.static.h"
 #include "../../IndicatorTick.h"
 
+#define INDICATOR_TICK_REAL_FETCH_HISTORY 0
+
 // Params for real tick-based indicator.
 struct IndicatorTickRealParams : IndicatorParams {
   IndicatorTickRealParams() : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {}
@@ -50,6 +52,11 @@ class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> 
 #ifdef __debug__
     Print(GetFullName(), " became a data source for ", _base_indi.GetFullName());
 #endif
+
+    if (INDICATOR_TICK_REAL_FETCH_HISTORY == 0) {
+      // No history requested.
+      return;
+    }
 
 #ifndef __MQL4__
     int _ticks_to_emit = 1000;
@@ -75,12 +82,22 @@ class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> 
       }
     }
 
+#ifdef __debug_verbose__
+    Print(_base_indi.GetFullName(), " was filled with ", (_num_copied < 0 ? 0 : _num_copied), " out of ",
+          _ticks_to_emit, " historical entries requested");
+#endif
+
     // Clearing possible error 4004.
     ResetLastError();
 
     for (int i = 0; i < _num_copied; ++i) {
       TickAB<double> _tick(_tmp_ticks[i].ask, _tmp_ticks[i].bid);
       // We can't call EmitEntry() here, as tick would go to multiple sources at the same time!
+#ifdef __debug_verbose__
+      Print("Tick at ", TimeToString(_tmp_ticks[i].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), ": ",
+            _tmp_ticks[i].ask, ", ", _tmp_ticks[i].bid);
+#endif
+
       _base_indi.OnDataSourceEntry(TickToEntry(_tmp_ticks[i].time, _tick));
     }
 #endif
@@ -108,13 +125,16 @@ class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> 
     }
 
 #ifdef __debug_verbose__
-    Print("TickReal: ", TimeToString(_tmp_ticks[0].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " = ",
-          _tmp_ticks[0].bid);
+    Print("CpyT: ", TimeToString(_tmp_ticks[0].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " = ", _tmp_ticks[0].bid,
+          " (", _tmp_ticks[0].time, ")");
+    Print("RlCl: ", TimeToString(::iTime(GetSymbol(), PERIOD_CURRENT, 0), TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+          " = ", ::iClose(GetSymbol(), PERIOD_CURRENT, 0));
 #endif
 
     double _ask = _tmp_ticks[0].ask;
     double _bid = _tmp_ticks[0].bid;
-    long _time = _tmp_ticks[0].time;
+    // long _time = _tmp_ticks[0].time;
+    long _time = TimeCurrent();
 #endif
     TickAB<double> _tick(_ask, _bid);
     EmitEntry(TickToEntry(_time, _tick));

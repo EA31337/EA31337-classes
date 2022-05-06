@@ -46,13 +46,7 @@ struct IndiAMAParams : IndicatorParams {
     // Defaulting to on-indicator mode (will use real ticks from platform via IndicatorTickReal).
     SetDataSourceMode(IDATA_INDICATOR);
     SetShift(_shift);
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        if (custom_indi_name == "") {
-          SetCustomIndicatorName("Examples\\AMA");
-        }
-        break;
-    }
+    SetCustomIndicatorName("Examples\\AMA");
   };
   IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
@@ -228,6 +222,10 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _ishift);
 
+        break;
+      case IDATA_ONCALCULATE:
+        _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift(),
+                                           GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
         _value = Indi_AMA::iAMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
