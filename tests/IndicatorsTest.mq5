@@ -126,7 +126,7 @@ void OnTick() {
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
         if (_entry.IsValid()) {
           PrintFormat("%s: bar %d: %s", _indi.GetFullName(), _candles REF_DEREF GetBars(), _indi.ToString());
-          // tested.Push(iter.Value());  // Mark as tested.
+          tested.Push(iter.Value());  // Mark as tested.
         }
       }
     }
@@ -190,11 +190,6 @@ bool InitIndicators() {
   Ref<IndicatorBase> indi_bands_oncalculate = new Indi_Bands(bands_params);
   indis.Push(indi_bands_oncalculate);
   // whitelisted_indis.Push(indi_bands_oncalculate);
-
-  // Bollinger Bands over RSI.
-  IndiBandsParams bands_over_rsi_params(20, 2, 0, PRICE_OPEN);
-  bands_over_rsi_params.SetDataSource(INDI_RSI);
-  indis.Push(new Indi_Bands(bands_over_rsi_params));
 
   // Bears Power.
   IndiBearsPowerParams bears_params(13, PRICE_CLOSE);
@@ -274,12 +269,25 @@ bool InitIndicators() {
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_params(14, PRICE_OPEN);
-  indis.Push(new Indi_RSI(rsi_params));
+  Ref<IndicatorBase> indi_rsi = new Indi_RSI(rsi_params);
+  indis.Push(indi_rsi);
 
-  // Relative Strength Index (RSI).
-  IndiRSIParams rsi_over_blt_stddev_params();
-  rsi_over_blt_stddev_params.SetDataSource(INDI_STDDEV);
-  indis.Push(new Indi_RSI(rsi_over_blt_stddev_params));
+  // Bollinger Bands over RSI.
+  IndiBandsParams indi_bands_over_rsi_params(20, 2, 0, PRICE_OPEN);
+  Ref<IndicatorBase> indi_bands_over_rsi = new Indi_Bands(indi_bands_over_rsi_params);
+  indi_bands_over_rsi.Ptr().SetDataSource(indi_rsi.Ptr());
+  indis.Push(indi_bands_over_rsi);
+
+  // Standard Deviation (StdDev).
+  IndiStdDevParams stddev_params(13, 10, MODE_SMA, PRICE_OPEN);
+  Ref<IndicatorBase> indi_stddev = new Indi_StdDev(stddev_params);
+  indis.Push(indi_stddev);
+
+  // Relative Strength Index (RSI) over Standard Deviation (StdDev).
+  IndiRSIParams indi_rsi_over_stddev_params();
+  Ref<IndicatorBase> indi_rsi_over_stddev = new Indi_RSI(indi_rsi_over_stddev_params);
+  indi_rsi_over_stddev.Ptr().SetDataSource(indi_stddev.Ptr());
+  indis.Push(indi_rsi_over_stddev);
 
   // Relative Vigor Index (RVI).
   IndiRVIParams rvi_params(14);
@@ -288,10 +296,6 @@ bool InitIndicators() {
   // Parabolic SAR.
   IndiSARParams sar_params(0.02, 0.2);
   indis.Push(new Indi_SAR(sar_params));
-
-  // Standard Deviation (StdDev).
-  IndiStdDevParams stddev_params(13, 10, MODE_SMA, PRICE_OPEN);
-  indis.Push(new Indi_StdDev(stddev_params));
 
   // Standard Deviation (StdDev).
   Ref<IndicatorBase> indi_price_for_stdev = new Indi_Price(PriceIndiParams());

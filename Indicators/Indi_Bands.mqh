@@ -178,9 +178,6 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
         break;
     }
 
-    Print("iBands On.In price = ", _indi_applied_price[0].Get());
-    // Print("iBands On.In price = ", StringifyOHLC(open, high, low, close, _bands_shift + _shift));
-
     return _result;
   }
 
@@ -247,10 +244,6 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
    * (before mode and shift).
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = BAND_BASE, int _shift = 0) {
-    Print("B-in OHLC = ", iOpen(GetSymbol(), GetTf(), _shift), ",", iHigh(GetSymbol(), GetTf(), _shift), ",",
-          iLow(GetSymbol(), GetTf(), _shift), ",", iClose(GetSymbol(), GetTf(), _shift));
-    Print("O-cl OHLC = ", GetOHLC(_shift).ToCSV());
-
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

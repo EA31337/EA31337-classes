@@ -519,6 +519,10 @@ struct IndicatorParams {
     indi_data_source_id = _id;
     indi_data_source_mode = _input_mode;
     if (_id != -1) {
+      Print(
+          "Setting data source by id is now obsolete. Please use SetDataSource(IndicatorBase*). Data source id given: ",
+          _id, ".");
+      DebugBreak();
       idstype = IDATA_INDICATOR;
     }
   }
