@@ -962,6 +962,11 @@ class IndicatorBase : public Object {
   virtual string GetSymbol() { return GetTick() PTR_DEREF GetSymbol(); }
 
   /**
+   * Gets symbol info for active symbol.
+   */
+  virtual SymbolInfo* GetSymbolInfo() { return GetTick() PTR_DEREF GetSymbolInfo(); }
+
+  /**
    * Gets indicator's time-frame.
    */
   virtual ENUM_TIMEFRAMES GetTf() { return GetCandle() PTR_DEREF GetTf(); }

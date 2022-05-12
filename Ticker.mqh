@@ -113,7 +113,7 @@ class Ticker {
    * @return
    * Returns true when tick should be parsed, otherwise ignored.
    */
-  bool Process(ChartBase *_chart, unsigned int _method) {
+  bool Process(IndicatorBase *_candle, unsigned int _method) {
     total_processed++;
     if (_method == 0 || total_processed == 1) {
       return true;
@@ -121,10 +121,10 @@ class Ticker {
     double _last_bid = symbol.GetLastBid();
     double _bid = symbol.GetBid();
     bool _res = _last_bid != _bid;
-    if (PROCESS_METHOD(_method, 0)) _res &= (_chart PTR_DEREF GetOpen() == _bid);              // 1
-    if (PROCESS_METHOD(_method, 1)) _res &= (_chart PTR_DEREF GetBarTime() == TimeCurrent());  // 2
+    if (PROCESS_METHOD(_method, 0)) _res &= (_candle PTR_DEREF GetOpen() == _bid);              // 1
+    if (PROCESS_METHOD(_method, 1)) _res &= (_candle PTR_DEREF GetBarTime() == TimeCurrent());  // 2
     if (PROCESS_METHOD(_method, 2))
-      _res &= (_bid >= _chart PTR_DEREF GetHigh()) || (_bid <= _chart PTR_DEREF GetLow());  // 4
+      _res &= (_bid >= _candle PTR_DEREF GetHigh()) || (_bid <= _candle PTR_DEREF GetLow());  // 4
     if (!_res) {
       total_ignored++;
     }

@@ -48,6 +48,7 @@ class IndicatorTick : public Indicator<TS> {
  protected:
   BufferTick<TV> itdata;
   TS itparams;
+  string symbol;
 
  protected:
   /* Protected methods */
@@ -75,16 +76,18 @@ class IndicatorTick : public Indicator<TS> {
   /**
    * Class constructor.
    */
-  IndicatorTick(const TS& _itparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
+  IndicatorTick(const TS& _itparams, string _symbol, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
       : Indicator(_itparams, _indi_src, _indi_mode) {
     itparams = _itparams;
     if (_indi_src != NULL) {
       SetDataSource(_indi_src, _indi_mode);
     }
+    symbol = _symbol;
     Init();
   }
-  IndicatorTick(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
+  IndicatorTick(string _symbol, ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
       : Indicator(_itype, _shift, _name) {
+    symbol = _symbol;
     Init();
   }
 
@@ -199,10 +202,15 @@ class IndicatorTick : public Indicator<TS> {
 
   /**
    * Gets symbol of the tick.
-   *
-   * @fixit Retrieve valid symbol.
    */
-  string GetSymbol() override { return "EURUSD"; }
+  string GetSymbol() override { return symbol; }
+
+  /**
+   * Gets symbol of the tick.
+   *
+   * @fixit Retrieve valid symbol info.
+   */
+  SymbolInfo* GetSymbolInfo() override { return symbol_info; }
 
   /**
    * Traverses source indicators' hierarchy and tries to find IndicatorTick object at the end.

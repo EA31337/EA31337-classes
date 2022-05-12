@@ -29,7 +29,7 @@
 #include "../Ticker.mqh"
 
 // Global variables.
-Ref<IndicatorTick> indi_tick;
+Ref<IndicatorBase> indi_tick;
 unsigned long total_ticks;
 Ticker *ticker_csv;
 Ticker *ticker01;
@@ -47,7 +47,7 @@ Ticker *ticker08;
 int OnInit() {
   // Initialize instances.
   // SymbolInfo symbol = new SymbolInfo();
-  chart = new ChartMt(_Symbol, Period());
+  indi_tick = new ChartMt(_Symbol, Period());
 
   // Print market details.
   Print("SYMBOL: ", symbol.ToString());

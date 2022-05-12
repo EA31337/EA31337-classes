@@ -43,7 +43,8 @@ struct IndicatorTickRealParams : IndicatorParams {
 // Real tick-based indicator.
 class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> {
  public:
-  IndicatorTickReal(int _shift = 0, string _name = "") : IndicatorTick(INDI_TICK, _shift, _name) {}
+  IndicatorTickReal(string _symbol, int _shift = 0, string _name = "")
+      : IndicatorTick(_symbol, INDI_TICK, _shift, _name) {}
 
   string GetName() override { return "IndicatorTickReal"; }
 

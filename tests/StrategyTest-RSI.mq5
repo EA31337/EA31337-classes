@@ -26,6 +26,8 @@
 
 // Includes.
 #include "../ChartMt.h"
+#include "../Indicator/tests/classes/IndicatorTfDummy.h"
+#include "../Indicator/tests/classes/IndicatorTickReal.h"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Strategy.mqh"
 #include "../Test.mqh"
@@ -78,20 +80,26 @@ class Stg_RSI : public Strategy {
 // Global variables.
 Ref<Strategy> stg_rsi;
 Ref<Trade> trade;
+Ref<IndicatorTickReal> _ticks;
+Ref<IndicatorTfDummy> _candles;
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
+  // Initialize ticker and candle indicators.
+  _ticks = new IndicatorTickReal(_Symbol);
+  _candles = new IndicatorTfDummy(PERIOD_M1);
+  _candles.Ptr().SetDataSource(_ticks.Ptr());
+
   // Initialize strategy instance.
   stg_rsi = Stg_RSI::Init(PERIOD_CURRENT);
   stg_rsi REF_DEREF SetName("Stg_RSI");
   stg_rsi REF_DEREF Set<long>(STRAT_PARAM_ID, 1234);
 
   // Initialize trade instance.
-  Ref<ChartBase> _chart = new ChartMt(_Symbol, (ENUM_TIMEFRAMES)_Period);
   TradeParams _tparams;
-  trade = new Trade(_tparams, _chart.Ptr());
+  trade = new Trade(_tparams, _candles.Ptr());
 
   assertTrueOrFail(stg_rsi REF_DEREF GetName() == "Stg_RSI", "Invalid Strategy name!");
   assertTrueOrFail(stg_rsi REF_DEREF IsValid(), "Fail on IsValid()!");
