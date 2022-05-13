@@ -34,9 +34,9 @@
 #define VALUE_STORAGE_H
 
 // Includes.
-#include "Objects.h"
 #include "../SerializerConversions.h"
 #include "../Util.h"
+#include "Objects.h"
 
 // Enumeration for iPeak().
 enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
@@ -144,7 +144,16 @@ class ValueStorage : public IValueStorage {
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
   virtual C Fetch(int _shift) {
-    Alert(__FUNCSIG__, " is not supported!");
+    Alert("Fetching data by shift is not supported from this value storage!");
+    DebugBreak();
+    return (C)0;
+  }
+
+  /**
+   * Fetches value from a given datetime. Takes into consideration as-series flag.
+   */
+  virtual C Fetch(datetime _dt) {
+    Alert("Fetching data by datetime is not supported from this value storage!");
     DebugBreak();
     return (C)0;
   }
@@ -171,8 +180,9 @@ class ValueStorage : public IValueStorage {
   }
 };
 
-template<typename C>
-string StringifyOHLC(ValueStorage<C> &_open, ValueStorage<C> &_high, ValueStorage<C> &_low, ValueStorage<C> &_close, int _shift = 0) {
+template <typename C>
+string StringifyOHLC(ValueStorage<C> &_open, ValueStorage<C> &_high, ValueStorage<C> &_low, ValueStorage<C> &_close,
+                     int _shift = 0) {
   C _o = _open[_shift].Get();
   C _h = _high[_shift].Get();
   C _l = _low[_shift].Get();
