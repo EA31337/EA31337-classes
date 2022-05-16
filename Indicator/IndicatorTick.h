@@ -49,6 +49,7 @@ class IndicatorTick : public Indicator<TS> {
   BufferTick<TV> itdata;
   TS itparams;
   string symbol;
+  SymbolInfoProp symbol_props;
 
  protected:
   /* Protected methods */
@@ -206,11 +207,9 @@ class IndicatorTick : public Indicator<TS> {
   string GetSymbol() override { return symbol; }
 
   /**
-   * Gets symbol of the tick.
-   *
-   * @fixit Retrieve valid symbol info.
+   * Gets symbol info for active symbol.
    */
-  SymbolInfo* GetSymbolInfo() override { return symbol_info; }
+  virtual SymbolInfoProp GetSymbolProps() { return symbol_props; }
 
   /**
    * Traverses source indicators' hierarchy and tries to find IndicatorTick object at the end.

@@ -72,12 +72,20 @@ struct SymbolInfoEntry
 // Defines structure for SymbolInfo properties.
 struct SymbolInfoProp {
   double pip_value;          // Pip value.
+  unsigned int digits;       // Currency digits? @fixit
   unsigned int pip_digits;   // Pip digits (precision).
   unsigned int pts_per_pip;  // Points per pip.
   unsigned int vol_digits;   // Volume digits.
   // Constructors.
   SymbolInfoProp() {}
   SymbolInfoProp(const SymbolInfoProp& _sip) {}
+  // Getters.
+  double GetPipValue() { return pip_value; }
+  unsigned int GetDigits() { return digits; }
+  unsigned int GetPipDigits() { return pip_digits; }
+  unsigned int GetPointsPerPip() { return pts_per_pip; }
+  unsigned int GetVolumeDigits() { return vol_digits; }
+
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer& _s);

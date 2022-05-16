@@ -355,6 +355,31 @@ class IndicatorBase : public Object {
   virtual BarOHLC GetOHLC(int _shift = 0) { return GetCandle() PTR_DEREF GetOHLC(_shift); }
 
   /**
+   * Gets ask price for a given, optional shift.
+   */
+  virtual double GetAsk(int _shift = 0) { return GetTick() PTR_DEREF GetAsk(_shift); }
+
+  /**
+   * Gets bid price for a given, optional shift.
+   */
+  virtual double GetBid(int _shift = 0) { return GetTick() PTR_DEREF GetBid(_shift); }
+
+  /**
+   * Get current open price depending on the operation type.
+   */
+  double GetOpenOffer(ENUM_ORDER_TYPE _cmd) {
+    // Use the right open price at opening of a market order. For example:
+    // - When selling, only the latest Bid prices can be used.
+    // - When buying, only the latest Ask prices can be used.
+    return _cmd == ORDER_TYPE_BUY ? GetAsk() : GetBid();
+  }
+
+  /**
+   * Get current close price depending on the operation type.
+   */
+  double GetCloseOffer(ENUM_ORDER_TYPE _cmd) { return _cmd == ORDER_TYPE_BUY ? GetBid() : GetAsk(); }
+
+  /**
    * Gets open price for a given, optional shift.
    */
   virtual double GetOpen(int _shift = 0) { return GetCandle() PTR_DEREF GetOpen(_shift); }
@@ -397,6 +422,13 @@ class IndicatorBase : public Object {
    * If local history is empty (not loaded), function returns 0.
    */
   virtual long GetSpread(int _shift = 0) { return GetCandle() PTR_DEREF GetSpread(_shift); }
+
+  /**
+   * Returns spread in pips.
+   */
+  virtual double GetSpreadInPips(int _shift = 0) {
+    return (GetAsk() - GetBid()) * pow(10, GetSymbolProps().GetPipDigits());
+  }
 
   /**
    * Returns tick volume value for the bar.
@@ -964,7 +996,7 @@ class IndicatorBase : public Object {
   /**
    * Gets symbol info for active symbol.
    */
-  virtual SymbolInfo* GetSymbolInfo() { return GetTick() PTR_DEREF GetSymbolInfo(); }
+  virtual SymbolInfoProp GetSymbolProps() { return GetTick() PTR_DEREF GetSymbolProps(); }
 
   /**
    * Gets indicator's time-frame.
