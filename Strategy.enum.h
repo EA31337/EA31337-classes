@@ -88,7 +88,6 @@ enum ENUM_STRATEGY_PARAM {
   STRAT_PARAM_SOFT,        // Signal open filter time
   STRAT_PARAM_SOL,         // Signal open level
   STRAT_PARAM_SOM,         // Signal open method
-  STRAT_PARAM_TF,          // Timeframe
   STRAT_PARAM_TFM,         // Tick filter method
   STRAT_PARAM_TYPE,        // Type
   STRAT_PARAM_WEIGHT,      // Weight

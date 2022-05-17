@@ -93,6 +93,16 @@ class IndicatorTick : public Indicator<TS> {
   }
 
   /**
+   * Gets ask price for a given, optional shift.
+   */
+  virtual double GetAsk(int _shift = 0) { return GetEntry(_shift).GetValue<double>(INDI_TICK_MODE_PRICE_ASK); }
+
+  /**
+   * Gets bid price for a given, optional shift.
+   */
+  virtual double GetBid(int _shift = 0) { return GetEntry(_shift).GetValue<double>(INDI_TICK_MODE_PRICE_BID); }
+
+  /**
    * Returns value storage of given kind.
    */
   IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {

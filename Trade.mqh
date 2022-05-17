@@ -195,9 +195,7 @@ class Trade : public Taskable<DataParamEntry> {
     _request.deviation = 10;
     _request.magic = _magic > 0 ? _magic : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
     _request.symbol = GetSource() PTR_DEREF GetSymbol();
-    DebugBreak();
-    // X _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _type);
-    // V _request.price = GetTickSource() PTR_DEREF GetSymbolInfo() PTR_DEREF GetOpenOffer(_request.symbol, _type);
+    _request.price = GetSource() PTR_DEREF GetOpenOffer(_type);
     _request.type = _type;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);

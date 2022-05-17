@@ -547,6 +547,16 @@ class IndicatorBase : public Object {
   int GetDataSourceMode() { return indi_src_mode; }
 
   /**
+   * Checks whether there is Candle-featured in the hierarchy.
+   */
+  bool HasCandleInHierarchy() { return GetCandle(false) != nullptr; }
+
+  /**
+   * Checks whether there is Tick-featured in the hierarchy.
+   */
+  bool HasTickInHierarchy() { return GetTick(false) != nullptr; }
+
+  /**
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
    * indicator. IndicatorCandle satisfies such requirements.
    */
@@ -618,6 +628,25 @@ class IndicatorBase : public Object {
    * Get more descriptive name of the indicator.
    */
   virtual string GetDescriptiveName() { return GetName(); }
+
+  /**
+   * Returns symbol and optionally TF to be used e.g., to identify
+   */
+  string GetSymbolTf(string _separator = "@") {
+    if (!HasCandleInHierarchy()) {
+      return "";
+    }
+
+    // Symbol is available throught Tick indicator at the end of the hierarchy.
+    string _res = GetSymbol();
+
+    if (HasCandleInHierarchy()) {
+      // TF is available throught Candle indicator at the end of the hierarchy.
+      _res += _separator + ChartTf::TfToString(GetTf());
+    }
+
+    return _res;
+  }
 
   /* Setters */
 

@@ -36,16 +36,17 @@
 class Stg_RSI : public Strategy {
  public:
   // Class constructor.
-  void Stg_RSI(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
-      : Strategy(_sparams, _tparams, chart_params_defaults, _name) {}
+  void Stg_RSI(StgParams &_sparams, TradeParams &_tparams, IndicatorBase *_indi_source, string _name = "")
+      : Strategy(_sparams, _tparams, _indi_source, _name) {}
 
-  static Stg_RSI *Init(ENUM_TIMEFRAMES _tf = NULL) {
-    ChartParams _cparams(_tf);
+  static Stg_RSI *Init(IndicatorBase *_indi_source) {
     IndiRSIParams _indi_params(12, PRICE_OPEN, 0);
     StgParams _stg_params;
     TradeParams _tparams;
-    Strategy *_strat = new Stg_RSI(_stg_params, _tparams, _cparams, "RSI");
-    _strat.SetIndicator(new Indi_RSI(_indi_params));
+    Strategy *_strat = new Stg_RSI(_stg_params, _tparams, _indi_source, "RSI");
+    IndicatorBase *_indi_rsi = new Indi_RSI(_indi_params);
+    _strat.SetIndicator(_indi_rsi);
+    _indi_rsi PTR_DEREF SetDataSource(_indi_source);
     return _strat;
   }
 
@@ -93,7 +94,7 @@ int OnInit() {
   _candles.Ptr().SetDataSource(_ticks.Ptr());
 
   // Initialize strategy instance.
-  stg_rsi = Stg_RSI::Init(PERIOD_CURRENT);
+  stg_rsi = Stg_RSI::Init(_candles.Ptr());
   stg_rsi REF_DEREF SetName("Stg_RSI");
   stg_rsi REF_DEREF Set<long>(STRAT_PARAM_ID, 1234);
 
@@ -124,6 +125,9 @@ int OnInit() {
  * Implements OnTick().
  */
 void OnTick() {
+  // Strategy will tick all attached indicators.
+  stg_rsi REF_DEREF Tick();
+
   static MqlTick _tick_last;
   MqlTick _tick_new = SymbolInfoStatic::GetTick(_Symbol);
   if (_tick_new.time % 60 < _tick_last.time % 60) {

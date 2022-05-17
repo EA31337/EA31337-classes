@@ -94,7 +94,7 @@ class Strategy : public Taskable<DataParamEntry> {
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
-  Ref<IndicatorBase> indi_candle;                  // Candle indicator to be a base for all indicators.
+  Ref<IndicatorBase> indi_source;                  // Candle or Tick indicator as a price source.
   DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list.
   Log logger;                                      // Log instance.
   MqlTick last_tick;
@@ -123,8 +123,8 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Class constructor.
    */
-  Strategy(StgParams &_sparams, TradeParams &_tparams, IndicatorBase *_indi_candle, string _name = "")
-      : sparams(_sparams), trade(new Trade(_tparams, _indi_candle)), indi_candle(_indi_candle) {
+  Strategy(StgParams &_sparams, TradeParams &_tparams, IndicatorBase *_indi_source, string _name = "")
+      : sparams(_sparams), trade(new Trade(_tparams, _indi_source)), indi_source(_indi_source) {
     // Initialize variables.
     name = _name;
     MqlTick _tick = {0};
@@ -277,6 +277,20 @@ class Strategy : public Taskable<DataParamEntry> {
   Strategy *GetStratTp() { return strat_tp; }
 
   /**
+   * Returns Candle or Tick indicator bound to this strategy.
+   */
+  IndicatorBase *GetSource() { return indi_source.Ptr(); }
+
+  /**
+   * Executes OnTick() on every attached indicator.
+   */
+  void Tick() {
+    for (DictIterator<int, Ref<IndicatorBase>> it = indicators.Begin(); it.IsValid(); ++it) {
+      it.Value() REF_DEREF Tick();
+    }
+  }
+
+  /**
    * Get strategy's name.
    */
   string GetName() { return name; }
@@ -324,8 +338,7 @@ class Strategy : public Taskable<DataParamEntry> {
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade REF_DEREF
     // chart.TfToString(), GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
 
-    return StringFormat("%s%s[%s]%s", _prefix, name,
-                        ChartTf::TfToString(trade REF_DEREF Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)), _suffix);
+    return StringFormat("%s%s[%s]%s", _prefix, name, trade REF_DEREF GetSource() PTR_DEREF GetSymbolTf(), _suffix);
   }
 
   /**
@@ -333,8 +346,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
     // @todo: Add spread.
-    return StringFormat("%s%s[%s]%s", _prefix, name,
-                        ChartTf::TfToString(trade REF_DEREF Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)), _suffix);
+    return StringFormat("%s%s[%s]%s", _prefix, name, trade REF_DEREF GetSource() PTR_DEREF GetSymbolTf(), _suffix);
   }
 
   /**
@@ -665,8 +677,14 @@ class Strategy : public Taskable<DataParamEntry> {
    *   _oparams Order parameters to update before the open.
    */
   virtual void OnOrderOpen(OrderParams &_oparams) {
+    if (!GetSource() PTR_DEREF HasCandleInHierarchy()) {
+      Print("In order this method to work, you have to pass Candle-featured indicator as source!");
+      DebugBreak();
+      return;
+    }
+
     int _index = 0;
-    ENUM_TIMEFRAMES _stf = Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
+    ENUM_TIMEFRAMES _stf = GetSource() PTR_DEREF GetTf();
     unsigned int _stf_secs = ChartTf::TfToSeconds(_stf);
     if (sparams.order_close_time != 0) {
       long _close_time_arg = sparams.order_close_time > 0 ? sparams.order_close_time * 60
@@ -740,6 +758,12 @@ class Strategy : public Taskable<DataParamEntry> {
    *   Returns true when tick should be processed, otherwise false.
    */
   virtual bool TickFilter(const MqlTick &_tick, const int _method) {
+    if (!GetSource() PTR_DEREF HasCandleInHierarchy()) {
+      Print("In order this method to work you have to pass Candle-featured indicator as source!");
+      DebugBreak();
+      return false;
+    }
+
     bool _res = _method >= 0;
     bool _val;
     int _method_abs = fabs(_method);
@@ -778,7 +802,7 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method_abs, 4)) {  // 16
         // Process ticks in the middle of the bar.
         _val = (trade REF_DEREF GetSource() PTR_DEREF GetBarTime() +
-                (ChartTf::TfToSeconds(trade REF_DEREF Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 2)) == TimeCurrent();
+                (ChartTf::TfToSeconds(trade REF_DEREF GetSource() PTR_DEREF GetTf()) / 2)) == TimeCurrent();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method_abs, 5)) {  // 32
@@ -788,8 +812,7 @@ class Strategy : public Taskable<DataParamEntry> {
       }
       if (METHOD(_method_abs, 6)) {  // 64
         // Process every 10th of the bar.
-        _val =
-            TimeCurrent() % (int)(ChartTf::TfToSeconds(trade REF_DEREF Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 10) == 0;
+        _val = TimeCurrent() % (int)(ChartTf::TfToSeconds(trade REF_DEREF GetSource() PTR_DEREF GetTf()) / 10) == 0;
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method_abs, 7)) {  // 128
