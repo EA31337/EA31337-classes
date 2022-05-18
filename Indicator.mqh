@@ -1133,7 +1133,7 @@ class Indicator : public IndicatorBase {
             break;
         }
       }
-      GetEntryAlter(_entry, _ishift);
+      GetEntryAlter(_entry);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
@@ -1156,7 +1156,7 @@ class Indicator : public IndicatorBase {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _timestamp = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry) {
     _entry.AddFlags(_entry.GetDataTypeFlags(iparams.GetDataValueType()));
   };
   /**

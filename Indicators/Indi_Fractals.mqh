@@ -121,7 +121,7 @@ class Indi_Fractals : public Indicator<IndiFractalsParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry) {
     Indicator<IndiFractalsParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // In MT4 line identifiers starts from 1, so populating also at 0.

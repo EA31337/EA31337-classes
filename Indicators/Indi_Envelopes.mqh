@@ -224,7 +224,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry) {
     Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // The LINE_MAIN only exists in MQL4 for Envelopes.

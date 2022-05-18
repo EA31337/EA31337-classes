@@ -24,6 +24,9 @@
  * Test functionality of Strategy class.
  */
 
+#define __debug__
+#define __debug_verbose__
+
 // Includes.
 #include "../ChartMt.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"

@@ -93,14 +93,26 @@ class IndicatorTick : public Indicator<TS> {
   }
 
   /**
+   * Returns time of the bar for a given shift.
+   */
+  datetime GetBarTime(int _shift = 0) override {
+    if (_shift != 0) {
+      Print("Error: IndicatorTick::GetBarTime() does not yet support getting entries by shift other than 0!");
+      DebugBreak();
+    }
+
+    return (datetime)itdata.GetMax();
+  }
+
+  /**
    * Gets ask price for a given, optional shift.
    */
-  virtual double GetAsk(int _shift = 0) { return GetEntry(_shift).GetValue<double>(INDI_TICK_MODE_PRICE_ASK); }
+  double GetAsk(int _shift = 0) override { return GetEntry(_shift).GetValue<double>(INDI_TICK_MODE_PRICE_ASK); }
 
   /**
    * Gets bid price for a given, optional shift.
    */
-  virtual double GetBid(int _shift = 0) { return GetEntry(_shift).GetValue<double>(INDI_TICK_MODE_PRICE_BID); }
+  double GetBid(int _shift = 0) override { return GetEntry(_shift).GetValue<double>(INDI_TICK_MODE_PRICE_BID); }
 
   /**
    * Returns value storage of given kind.
@@ -169,8 +181,16 @@ class IndicatorTick : public Indicator<TS> {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _timestamp = 0) override {
+  IndicatorDataEntry GetEntry(datetime _dt = 0) override {
     ResetLastError();
+    long _timestamp;
+
+    if ((long)_dt != 0) {
+      _timestamp = (long)_dt;
+    } else {
+      _timestamp = (long)TimeCurrent();
+    }
+
     if (itdata.KeyExists(_timestamp)) {
       TickAB<TV> _tick = itdata.GetByKey(_timestamp);
       return TickToEntry(_timestamp, _tick);
@@ -178,7 +198,7 @@ class IndicatorTick : public Indicator<TS> {
 
     // No tick at given timestamp. Returning invalid entry.
     IndicatorDataEntry _entry(itparams.GetMaxModes());
-    GetEntryAlter(_entry, _timestamp);
+    GetEntryAlter(_entry);
 
     for (int i = 0; i < itparams.GetMaxModes(); ++i) {
       _entry.values[i] = (double)0;
@@ -194,7 +214,7 @@ class IndicatorTick : public Indicator<TS> {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _timestamp = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry) {
     _entry.AddFlags(_entry.GetDataTypeFlags(itparams.GetDataValueType()));
   };
 
@@ -207,8 +227,16 @@ class IndicatorTick : public Indicator<TS> {
    *   Returns DataParamEntry struct filled with a single value.
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+    if (_shift != 0) {
+      Print("Error: IndicatorTick does not yet support getting entries by shift other than 0!");
+      DebugBreak();
+      IndicatorDataEntryValue _default(itparams.GetMaxModes());
+      return _default;
+    }
+
     int _ishift = _shift >= 0 ? _shift : itparams.GetShift();
-    return GetEntry(_ishift)[_mode];
+    // @todo Support for shift.
+    return GetEntry((datetime)0)[_mode];
   }
 
   /**
@@ -257,7 +285,7 @@ class IndicatorTick : public Indicator<TS> {
    *   Returns MqlTick struct with prices of the symbol.
    */
   virtual MqlTick GetTick(int _timestamp = 0) {
-    IndicatorDataEntry _entry = GetEntry(_timestamp);
+    IndicatorDataEntry _entry = GetEntry((datetime)_timestamp);
     MqlTick _tick;
     _tick.time = (datetime)_entry.GetTime();
     _tick.bid = _entry[0];

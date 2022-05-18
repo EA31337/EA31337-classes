@@ -112,7 +112,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = 0) {
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry) {
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
     Indicator<IndiPatternParams>::GetEntryAlter(_entry);
   }

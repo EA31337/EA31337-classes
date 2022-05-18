@@ -196,7 +196,7 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry) {
     Indicator<IndiGatorParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // @todo: Can we calculate upper and lower histogram color in MT4?

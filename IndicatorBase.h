@@ -879,7 +879,14 @@ class IndicatorBase : public Object {
   /**
    * Returns the indicator's struct value.
    */
-  virtual IndicatorDataEntry GetEntry(int _index = 0) = NULL;
+  virtual IndicatorDataEntry GetEntry(int _index = 0) {
+    Print(GetFullName(),
+          " must implement IndicatorDataEntry IndicatorBase::GetEntry(int _shift) in order to use GetEntry(int "
+          "_shift) or _indi[int _shift] subscript operator!");
+    DebugBreak();
+    IndicatorDataEntry _default;
+    return _default;
+  }
 
   /**
    * Returns the indicator's struct value.
@@ -887,7 +894,7 @@ class IndicatorBase : public Object {
   virtual IndicatorDataEntry GetEntry(datetime _dt) {
     Print(GetFullName(),
           " must implement IndicatorDataEntry IndicatorBase::GetEntry(datetime _dt) in order to use GetEntry(datetime "
-          "_dt) or _indi[datetime] subscript operator!");
+          "_dt) or _indi[datetime _dt] subscript operator!");
     DebugBreak();
     IndicatorDataEntry _default;
     return _default;
@@ -899,7 +906,7 @@ class IndicatorBase : public Object {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _index = -1) = NULL;
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry) {}
 
   // virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = NULL;
 
