@@ -138,6 +138,8 @@ class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> 
     long _time = TimeCurrent();
 #endif
     TickAB<double> _tick(_ask, _bid);
-    EmitEntry(TickToEntry(_time, _tick));
+    IndicatorDataEntry _entry(TickToEntry(_time, _tick));
+    StoreEntry(_entry);
+    EmitEntry(_entry);
   }
 };

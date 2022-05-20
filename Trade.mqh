@@ -198,10 +198,12 @@ class Trade : public Taskable<DataParamEntry> {
     _request.price = GetSource() PTR_DEREF GetOpenOffer(_type);
     _request.type = _type;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
-    _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
+    // _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
+    _request.volume = 0.01;
     // @todo: NormalizeLots().
-    DebugBreak();
+    //    DebugBreak();
     // _request.volume = NormalizeLots(fmax(_request.volume, SymbolInfoStatic::GetVolumeMin(_request.symbol)));
+    // _request.volume = GetSource() PTR_DEREF GetTickVolume();
     return _request;
   }
 

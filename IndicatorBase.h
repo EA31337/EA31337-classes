@@ -355,23 +355,23 @@ class IndicatorBase : public Object {
   virtual BarOHLC GetOHLC(int _shift = 0) { return GetCandle() PTR_DEREF GetOHLC(_shift); }
 
   /**
-   * Gets ask price for a given, optional shift.
+   * Gets ask price for a given date and time. Return current ask price if _dt wasn't passed or is 0.
    */
-  virtual double GetAsk(int _shift = 0) { return GetTick() PTR_DEREF GetAsk(_shift); }
+  virtual double GetAsk(datetime _dt = 0) { return GetTick() PTR_DEREF GetAsk(_dt); }
 
   /**
-   * Gets bid price for a given, optional shift.
+   * Gets bid price for a given date and time. Return current bid price if _dt wasn't passed or is 0.
    */
-  virtual double GetBid(int _shift = 0) { return GetTick() PTR_DEREF GetBid(_shift); }
+  virtual double GetBid(datetime _dt = 0) { return GetTick() PTR_DEREF GetBid(_dt); }
 
   /**
-   * Get current open price depending on the operation type.
+   * Get current (or by given date and time) open price depending on the operation type.
    */
-  double GetOpenOffer(ENUM_ORDER_TYPE _cmd) {
+  double GetOpenOffer(ENUM_ORDER_TYPE _cmd, datetime _dt = 0) {
     // Use the right open price at opening of a market order. For example:
     // - When selling, only the latest Bid prices can be used.
     // - When buying, only the latest Ask prices can be used.
-    return _cmd == ORDER_TYPE_BUY ? GetAsk() : GetBid();
+    return _cmd == ORDER_TYPE_BUY ? GetAsk(_dt) : GetBid(_dt);
   }
 
   /**
@@ -925,6 +925,11 @@ class IndicatorBase : public Object {
       }
     }
   }
+
+  /**
+   * Stores entry in the buffer for later rerieval.
+   */
+  virtual void StoreEntry(IndicatorDataEntry& entry) {}
 
   /**
    * Sends historic entries to listening indicators. May be overriden.

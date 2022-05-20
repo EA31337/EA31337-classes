@@ -65,7 +65,7 @@ class BufferTickValueStorage : ValueStorage<TV> {
         break;
     }
     Print("Not yet supported value storage to fetch: ", EnumToString(vs_type), ".");
-    return (TV)0;
+    return (RV)0;
   }
 
   /**

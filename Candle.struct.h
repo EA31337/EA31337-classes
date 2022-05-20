@@ -232,7 +232,11 @@ struct CandleOCTOHLC : CandleOHLC<T> {
       : CandleOHLC(_open, _high, _low, _close),
         open_timestamp(_open_timestamp),
         close_timestamp(_close_timestamp),
-        volume(_volume) {}
+        volume(_volume) {
+    if (_open != 0) {
+      volume = 1;
+    }
+  }
 
   // Updates OHLC values taking into consideration tick's timestamp.
   void Update(long _timestamp, T _price) {

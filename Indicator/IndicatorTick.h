@@ -32,6 +32,7 @@
 // Includes.
 #include "../Buffer/BufferTick.h"
 #include "../Indicator.mqh"
+#include "../Indicator.struct.h"
 
 // Indicator modes.
 enum ENUM_INDI_TICK_MODE {
@@ -105,14 +106,14 @@ class IndicatorTick : public Indicator<TS> {
   }
 
   /**
-   * Gets ask price for a given, optional shift.
+   * Gets ask price for a given date and time. Return current ask price if _dt wasn't passed or is 0.
    */
-  double GetAsk(int _shift = 0) override { return GetEntry(_shift).GetValue<double>(INDI_TICK_MODE_PRICE_ASK); }
+  virtual double GetAsk(datetime _dt = 0) { return GetEntry(_dt).GetValue<double>(INDI_TICK_MODE_PRICE_ASK); }
 
   /**
-   * Gets bid price for a given, optional shift.
+   * Gets bid price for a given date and time. Return current bid price if _dt wasn't passed or is 0.
    */
-  double GetBid(int _shift = 0) override { return GetEntry(_shift).GetValue<double>(INDI_TICK_MODE_PRICE_BID); }
+  virtual double GetBid(datetime _dt = 0) { return GetEntry(_dt).GetValue<double>(INDI_TICK_MODE_PRICE_BID); }
 
   /**
    * Returns value storage of given kind.
@@ -162,15 +163,30 @@ class IndicatorTick : public Indicator<TS> {
   }
 
   /**
+   * Stores entry in the buffer for later rerieval.
+   */
+  void StoreEntry(IndicatorDataEntry& _entry) override { itdata.Add(EntryToTick(_entry), _entry.timestamp); }
+
+  /**
    * @todo
    */
   IndicatorDataEntry TickToEntry(long _timestamp, TickAB<TV>& _tick) {
     IndicatorDataEntry _entry(2);
     _entry.timestamp = _timestamp;
-    _entry.values[0] = _tick.ask;
-    _entry.values[1] = _tick.bid;
+    _entry.values[INDI_TICK_MODE_PRICE_ASK] = _tick.ask;
+    _entry.values[INDI_TICK_MODE_PRICE_BID] = _tick.bid;
     _entry.SetFlags(INDI_ENTRY_FLAG_IS_VALID);
     return _entry;
+  }
+
+  /**
+   * @todo
+   */
+  TickAB<TV> EntryToTick(IndicatorDataEntry& _entry) {
+    TickAB<TV> _tick;
+    _tick.ask = _entry.GetValue<TV>(INDI_TICK_MODE_PRICE_ASK);
+    _tick.bid = _entry.GetValue<TV>(INDI_TICK_MODE_PRICE_BID);
+    return _tick;
   }
 
   /**
@@ -188,7 +204,7 @@ class IndicatorTick : public Indicator<TS> {
     if ((long)_dt != 0) {
       _timestamp = (long)_dt;
     } else {
-      _timestamp = (long)TimeCurrent();
+      _timestamp = itdata.GetMax();
     }
 
     if (itdata.KeyExists(_timestamp)) {
@@ -226,11 +242,11 @@ class IndicatorTick : public Indicator<TS> {
    * @return
    *   Returns DataParamEntry struct filled with a single value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) override {
     if (_shift != 0) {
       Print("Error: IndicatorTick does not yet support getting entries by shift other than 0!");
       DebugBreak();
-      IndicatorDataEntryValue _default(itparams.GetMaxModes());
+      IndicatorDataEntryValue _default;
       return _default;
     }
 
