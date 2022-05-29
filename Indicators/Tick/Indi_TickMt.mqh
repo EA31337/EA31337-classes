@@ -52,7 +52,7 @@ class Indi_TickMt : public IndicatorTick<IndiTickMtParams, double> {
   /**
    * Class constructor.
    */
-  Indi_TickMt(IndiTickMtParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_TickMt(IndiTickMtParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTick<IndiTickMtParams, double>(_p, _indi_src){};
   Indi_TickMt(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
       : IndicatorTick(INDI_TICK, _tf, _shift, _name) {}

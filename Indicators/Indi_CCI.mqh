@@ -63,7 +63,7 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
   /**
    * Class constructor.
    */
-  Indi_CCI(IndiCCIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
+  Indi_CCI(IndiCCIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
   Indi_CCI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_CCI, _tf, _shift) {}
 
   /**
@@ -74,7 +74,7 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
    * - https://www.mql5.com/en/docs/indicators/icci
    */
   static double iCCI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _applied_price,
-                     int _shift = 0, IndicatorBase *_obj = NULL) {
+                     int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iCCI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -82,7 +82,7 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
 #endif
   }
 
-  static double iCCIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+  static double iCCIOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                 int _mode, int _shift = 0) {
     _indi.ValidateDataSourceMode(_mode);
 

@@ -55,7 +55,7 @@ class Indi_FrAMA : public IndicatorTickOrCandleSource<IndiFrAIndiMAParams> {
   /**
    * Class constructor.
    */
-  Indi_FrAMA(IndiFrAIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_FrAMA(IndiFrAIndiMAParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_FrAMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_FRAMA, _tf, _shift){};
 
@@ -63,7 +63,7 @@ class Indi_FrAMA : public IndicatorTickOrCandleSource<IndiFrAIndiMAParams> {
    * Built-in version of FrAMA.
    */
   static double iFrAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                       int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                       int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
 #else
@@ -98,9 +98,9 @@ class Indi_FrAMA : public IndicatorTickOrCandleSource<IndiFrAIndiMAParams> {
   /**
    * On-indicator version of FrAMA.
    */
-  static double iFrAMAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+  static double iFrAMAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
                                   int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
-                                  IndicatorBase *_obj = NULL) {
+                                  IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf, Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ma_period, _ma_shift, (int)_ap));
     return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode, _shift, _cache);

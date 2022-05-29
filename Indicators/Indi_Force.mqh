@@ -71,7 +71,7 @@ class Indi_Force : public IndicatorTickOrCandleSource<IndiForceParams> {
   /**
    * Class constructor.
    */
-  Indi_Force(IndiForceParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Force(IndiForceParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_Force(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_FORCE, _tf, _shift) {}
 
@@ -83,7 +83,7 @@ class Indi_Force : public IndicatorTickOrCandleSource<IndiForceParams> {
    * - https://www.mql5.com/en/docs/indicators/iforce
    */
   static double iForce(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_MA_METHOD _ma_method,
-                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorBase *_obj = NULL) {
+                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iForce(_symbol, _tf, _period, _ma_method, _applied_price, _shift);
 #else  // __MQL5__

@@ -51,7 +51,7 @@ class Indi_Volumes : public IndicatorTickOrCandleSource<IndiVolumesParams> {
   /**
    * Class constructor.
    */
-  Indi_Volumes(IndiVolumesParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Volumes(IndiVolumesParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VOLUMES, _tf, _shift){};
 
@@ -59,7 +59,7 @@ class Indi_Volumes : public IndicatorTickOrCandleSource<IndiVolumesParams> {
    * Built-in version of Volumes.
    */
   static double iVolumes(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
-                         IndicatorBase *_obj = NULL) {
+                         IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_Volumes", (int)_av));
     return iVolumesOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
   }
@@ -88,8 +88,8 @@ class Indi_Volumes : public IndicatorTickOrCandleSource<IndiVolumesParams> {
   /**
    * On-indicator version of Volumes indicator.
    */
-  static double iVolumesOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av,
-                                    int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iVolumesOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av,
+                                    int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf, Util::MakeKey("Indi_Volumes_ON_" + _indi.GetFullName(), (int)_av));
     return iVolumesOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);

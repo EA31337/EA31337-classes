@@ -96,7 +96,7 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
   /**
    * Class constructor.
    */
-  Indi_RSI(IndiRSIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_RSI(IndiRSIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RSI, _tf, _shift) {}
 
   /**
@@ -107,7 +107,7 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
   static double iRSI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                     ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, IndicatorBase *_obj = NULL) {
+                     ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iRSI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -119,7 +119,7 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
    * Calculates non-SMMA version of RSI on another indicator (uses iRSIOnArray).
    */
   template <typename IT>
-  static double iRSIOnArrayOnIndicator(IndicatorBase *_indi, string _symbol = NULL,
+  static double iRSIOnArrayOnIndicator(IndicatorData *_indi, string _symbol = NULL,
                                        ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
                                        Indi_RSI *_obj = NULL) {
@@ -153,7 +153,7 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
    * RSI values. To exactly replicate our RSI numbers, a formula will need at
    * least 250 data points."
    */
-  static double iRSIOnIndicator(IndicatorBase *_indi, Indi_RSI *_obj, string _symbol = NULL,
+  static double iRSIOnIndicator(IndicatorData *_indi, Indi_RSI *_obj, string _symbol = NULL,
                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                 ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0) {
     long _bar_time_curr = _obj.GetBarTime(_shift);
@@ -314,7 +314,7 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+  virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
       IndiBandsParams bands_params;
       return new Indi_Bands(bands_params);
@@ -338,6 +338,6 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
       return new Indi_StdDev(stddev_params);
     }
 
-    return IndicatorBase::FetchDataSource(_id);
+    return IndicatorData::FetchDataSource(_id);
   }
 };

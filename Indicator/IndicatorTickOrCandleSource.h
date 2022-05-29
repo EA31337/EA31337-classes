@@ -57,7 +57,7 @@ class IndicatorTickOrCandleSource : public Indicator<TS> {
    * Called when user tries to set given data source. Could be used to check if indicator implements all required value
    * storages.
    */
-  bool OnValidateDataSource(IndicatorBase* _ds, string& _reason) override {
+  bool OnValidateDataSource(IndicatorData* _ds, string& _reason) override {
     // @todo Make use of this method.
     return true;
   }
@@ -72,9 +72,9 @@ class IndicatorTickOrCandleSource : public Indicator<TS> {
   /**
    * Creates default, tick based indicator for given applied price.
    */
-  IndicatorBase* DataSourceRequestReturnDefault(int _applied_price) override {
+  IndicatorData* DataSourceRequestReturnDefault(int _applied_price) override {
     // Returning real candle indicator. Thus way we can use SetAppliedPrice() and select Ask or Bid price.
-    IndicatorBase* _indi;
+    IndicatorData* _indi;
 
     switch (_applied_price) {
       case PRICE_ASK:

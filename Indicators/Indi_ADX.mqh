@@ -66,7 +66,7 @@ class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
   /**
    * Class constructor.
    */
-  Indi_ADX(IndiADXParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_ADX(IndiADXParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift) {}
 
   /**
@@ -80,7 +80,7 @@ class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
                      ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
                      int _mode = LINE_MAIN_ADX,          // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 -
                                                          // MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
-                     int _shift = 0, IndicatorBase *_obj = NULL) {
+                     int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
 #else  // __MQL5__

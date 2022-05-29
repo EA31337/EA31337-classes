@@ -21,8 +21,8 @@
 
 /**
  * @file
- * Test functionality of IndicatorData class.
+ * Test functionality of IndicatorBase class.
  */
 
 // Includes.
-#include "IndicatorDataTest.mq5"
+#include "IndicatorBaseTest.mq5"

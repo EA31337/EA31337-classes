@@ -56,7 +56,7 @@ class Indi_SAR : public IndicatorTickOrCandleSource<IndiSARParams> {
   /**
    * Class constructor.
    */
-  Indi_SAR(IndiSARParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_SAR(IndiSARParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_SAR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_SAR, _tf, _shift) {}
 
   /**
@@ -67,7 +67,7 @@ class Indi_SAR : public IndicatorTickOrCandleSource<IndiSARParams> {
    * - https://www.mql5.com/en/docs/indicators/isar
    */
   static double iSAR(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, double _step = 0.02,
-                     double _max = 0.2, int _shift = 0, IndicatorBase *_obj = NULL) {
+                     double _max = 0.2, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iSAR(_symbol, _tf, _step, _max, _shift);
 #else  // __MQL5__

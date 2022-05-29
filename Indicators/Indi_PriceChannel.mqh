@@ -50,7 +50,7 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
   /**
    * Class constructor.
    */
-  Indi_PriceChannel(IndiPriceChannelParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_PriceChannel(IndiPriceChannelParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_PriceChannel(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PRICE_CHANNEL, _tf, _shift){};
@@ -59,7 +59,7 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
    * Returns value for Price Channel indicator.
    */
   static double iPriceChannel(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _mode = 0, int _shift = 0,
-                              IndicatorBase *_obj = NULL) {
+                              IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_PriceChannel", _period));
     return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
@@ -89,8 +89,8 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
   /**
    * On-indicator version of Price Channel.
    */
-  static double iPriceChannelOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                         int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iPriceChannelOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                         int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf, Util::MakeKey("Indi_PriceChannel_ON_" + _indi.GetFullName(), _period));
     return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);

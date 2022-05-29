@@ -56,7 +56,7 @@ class Indi_BullsPower : public IndicatorTickOrCandleSource<IndiBullsPowerParams>
   /**
    * Class constructor.
    */
-  Indi_BullsPower(IndiBullsPowerParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_BullsPower(IndiBullsPowerParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_BullsPower(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_BULLS, _tf, _shift) {}
@@ -70,7 +70,7 @@ class Indi_BullsPower : public IndicatorTickOrCandleSource<IndiBullsPowerParams>
    */
   static double iBullsPower(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                             ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
-                            int _shift = 0, IndicatorBase *_obj = NULL) {
+                            int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBullsPower(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__

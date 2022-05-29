@@ -58,7 +58,7 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
   /**
    * Class constructor.
    */
-  Indi_VIDYA(IndiVIDYAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_VIDYA(IndiVIDYAParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VIDYA, _tf, _shift){};
 
@@ -66,7 +66,7 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
    * Built-in version of iVIDyA.
    */
   static double iVIDyA(string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period, int _ema_period, int _ma_shift,
-                       ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                       ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iVIDyA(_symbol, _tf, _cmo_period, _ema_period, _ma_shift, _ap), _mode, _shift);
 #else
@@ -102,9 +102,9 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
   /**
    * On-indicator version of VIDya indicator.
    */
-  static double iVIDyAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period,
+  static double iVIDyAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period,
                                   int _ema_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
-                                  IndicatorBase *_obj = NULL) {
+                                  IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
         _indi, _symbol, _tf, _ap,
         Util::MakeKey("Indi_VIDYA_ON_" + _indi.GetFullName(), _cmo_period, _ema_period, _ma_shift, (int)_ap));

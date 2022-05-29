@@ -51,7 +51,7 @@ class Indi_Pattern : public IndicatorTickOrCandleSource<IndiPatternParams> {
   /**
    * Class constructor.
    */
-  Indi_Pattern(IndiPatternParams& _p, IndicatorBase* _indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Pattern(IndiPatternParams& _p, IndicatorData* _indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PATTERN, _tf, _shift){};
 

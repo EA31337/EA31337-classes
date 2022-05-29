@@ -73,7 +73,7 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_HEIKENASHI, _tf, _shift) {}
@@ -82,7 +82,7 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
    * Returns value for iHeikenAshi indicator.
    */
   static double iCustomLegacyHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift = 0,
-                                        IndicatorBase *_obj = NULL) {
+                                        IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     // Low and High prices could be in reverse order when using MT4's built-in indicator, so we need to retrieve both
     // and return correct one.
@@ -161,8 +161,8 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
   /**
    * On-indicator version of Heiken Ashi.
    */
-  static double iHeikenAshiOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                       int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iHeikenAshiOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                       int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
                                                           Util::MakeKey("Indi_HeikenAshi_ON_" + _indi.GetFullName()));
     return iHeikenAshiOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);

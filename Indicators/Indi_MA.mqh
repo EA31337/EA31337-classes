@@ -79,7 +79,7 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
   /**
    * Class constructor.
    */
-  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
+  Indi_MA(IndiMAParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
   Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_MA, _tf, _shift) {}
 
   /**
@@ -91,7 +91,7 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
    */
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
                     ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_array, int _shift = 0,
-                    IndicatorBase *_obj = NULL) {
+                    IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array, _shift);
 #else  // __MQL5__
@@ -126,7 +126,7 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
   /**
    * Calculates MA on another indicator.
    */
-  static double iMAOnIndicator(IndicatorCalculateCache<double> *cache, IndicatorBase *_indi, int indi_mode,
+  static double iMAOnIndicator(IndicatorCalculateCache<double> *cache, IndicatorData *_indi, int indi_mode,
                                string symbol, ENUM_TIMEFRAMES tf, unsigned int ma_period, unsigned int ma_shift,
                                ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                int shift = 0) {

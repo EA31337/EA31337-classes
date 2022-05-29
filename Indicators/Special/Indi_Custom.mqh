@@ -79,7 +79,7 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
   /**
    * Class constructor.
    */
-  Indi_Custom(IndiCustomParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCustomParams>(_p, _indi_src) {}
+  Indi_Custom(IndiCustomParams &_p, IndicatorData *_indi_src = NULL) : Indicator<IndiCustomParams>(_p, _indi_src) {}
   Indi_Custom(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM, _tf){};
 
   /**

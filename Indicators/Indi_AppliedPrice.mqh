@@ -57,7 +57,7 @@ class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPricePar
   /**
    * Class constructor.
    */
-  Indi_AppliedPrice(IndiAppliedPriceParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_AppliedPrice(IndiAppliedPriceParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src) {
     OnInit();
   };
@@ -66,7 +66,7 @@ class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPricePar
     OnInit();
   };
 
-  static double iAppliedPriceOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
+  static double iAppliedPriceOnIndicator(IndicatorData *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];
     _indi[_shift].GetArray(_ohlc, 4);
     return BarOHLC::GetAppliedPrice(_applied_price, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);

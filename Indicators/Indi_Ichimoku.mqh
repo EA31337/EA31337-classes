@@ -91,7 +91,7 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_Ichimoku(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ICHIMOKU, _tf, _shift) {}
 
@@ -107,7 +107,7 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
    * - https://www.mql5.com/en/docs/indicators/iichimoku
    */
   static double iIchimoku(string _symbol, ENUM_TIMEFRAMES _tf, int _tenkan_sen, int _kijun_sen, int _senkou_span_b,
-                          int _mode, int _shift = 0, IndicatorBase *_obj = NULL) {
+                          int _mode, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
 #else  // __MQL5__

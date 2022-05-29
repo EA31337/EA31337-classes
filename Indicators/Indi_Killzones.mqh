@@ -99,7 +99,7 @@ class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
   /**
    * Class constructor.
    */
-  Indi_Killzones(IndiKillzonesParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_Killzones(IndiKillzonesParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_Killzones(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_KILLZONES, _tf, _shift) {}

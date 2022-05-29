@@ -51,14 +51,14 @@ class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
   /**
    * Class constructor.
    */
-  Indi_ASI(IndiASIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_ASI(IndiASIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ASI, _tf, _shift){};
 
   /**
    * Built-in version of ASI.
    */
   static double iASI(string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0, int _shift = 0,
-                     IndicatorBase *_obj = NULL) {
+                     IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_ASI", _mpc));
     return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
   }
@@ -87,8 +87,8 @@ class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
   /**
    * On-indicator version of ASI.
    */
-  static double iASIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0,
-                                int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iASIOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, double _mpc, int _mode = 0,
+                                int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
                                                           Util::MakeKey("Indi_ASI_ON_" + _indi.GetFullName(), _mpc));
     return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);

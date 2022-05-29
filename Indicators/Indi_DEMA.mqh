@@ -68,7 +68,7 @@ class Indi_DEMA : public IndicatorTickOrCandleSource<IndiDEIndiMAParams> {
   /**
    * Class constructor.
    */
-  Indi_DEMA(IndiDEIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_DEMA(IndiDEIndiMAParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_DEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_DEMA, _tf, _shift) {}
 
@@ -79,7 +79,7 @@ class Indi_DEMA : public IndicatorTickOrCandleSource<IndiDEIndiMAParams> {
    * - https://www.mql5.com/en/docs/indicators/IDEMA
    */
   static double iDEMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, unsigned int _ma_shift,
-                      ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0, IndicatorBase *_obj = NULL) {
+                      ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
@@ -113,7 +113,7 @@ class Indi_DEMA : public IndicatorTickOrCandleSource<IndiDEIndiMAParams> {
 #endif
   }
 
-  static double iDEMAOnIndicatorSlow(IndicatorCalculateCache<double> *cache, IndicatorBase *_indi, int indi_mode,
+  static double iDEMAOnIndicatorSlow(IndicatorCalculateCache<double> *cache, IndicatorData *_indi, int indi_mode,
                                      unsigned int ma_period, unsigned int ma_shift, int shift) {
     return iDEMAOnArray(_indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, shift, cache);
   }
@@ -148,8 +148,8 @@ class Indi_DEMA : public IndicatorTickOrCandleSource<IndiDEIndiMAParams> {
   /**
    * On-indicator version of DEMA.
    */
-  static double iDEMAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _ma_shift,
-                                 ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iDEMAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _ma_shift,
+                                 ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
         _indi, _symbol, _tf, (int)_ap, Util::MakeKey("Indi_CHV_ON_" + _indi.GetFullName(), _period, _ma_shift));
     return iDEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ma_shift, _mode, _shift, _cache);

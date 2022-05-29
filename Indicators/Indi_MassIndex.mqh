@@ -55,7 +55,7 @@ class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
   /**
    * Class constructor.
    */
-  Indi_MassIndex(IndiMassIndexParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_MassIndex(IndiMassIndexParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_MASS_INDEX, _tf, _shift){};
@@ -64,7 +64,7 @@ class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
    * Built-in version of Mass Index.
    */
   static double iMI(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _second_period, int _sum_period,
-                    int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                    int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _symbol, _tf, Util::MakeKey("Indi_MassIndex", _period, _second_period, _sum_period));
     return iMIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _second_period, _sum_period, _mode, _shift,
@@ -96,9 +96,9 @@ class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
   /**
    * On-indicator version of Mass Index.
    */
-  static double iMIOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+  static double iMIOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
                                int _second_period, int _sum_period, int _mode = 0, int _shift = 0,
-                               IndicatorBase *_obj = NULL) {
+                               IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf,
         Util::MakeKey("Indi_MassIndex_ON_" + _indi.GetFullName(), _period, _second_period, _sum_period));

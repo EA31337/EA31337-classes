@@ -28,7 +28,7 @@
 
 // Structs.
 struct IndiColorLineParams : IndicatorParams {
-  IndicatorBase *indi_ma;
+  IndicatorData *indi_ma;
   // Struct constructor.
   IndiColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE, 2, TYPE_DOUBLE) {
     indi_ma = NULL;
@@ -50,7 +50,7 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
   /**
    * Class constructor.
    */
-  Indi_ColorLine(IndiColorLineParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_ColorLine(IndiColorLineParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_COLOR_LINE, _tf, _shift){};
@@ -59,7 +59,7 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
    * "Built-in" version of Color Line.
    */
   static double iColorLine(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                           IndicatorBase *_obj = NULL) {
+                           IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorLine");
 
     Indi_MA *_indi_ma = Indi_MA::GetCached(_symbol, _tf, 10, 0, MODE_EMA, PRICE_CLOSE);
@@ -71,7 +71,7 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
    * Calculates Color Line on the array of values.
    */
   static double iColorLineOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
-                                  IndicatorCalculateCache<double> *_cache, IndicatorBase *_indi_ma,
+                                  IndicatorCalculateCache<double> *_cache, IndicatorData *_indi_ma,
                                   bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -92,8 +92,8 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
   /**
    * On-indicator version of Color Line.
    */
-  static double iColorLineOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                      int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iColorLineOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                      int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
                                                           Util::MakeKey("Indi_ColorLine_ON_" + _indi.GetFullName()));
 
@@ -105,7 +105,7 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
+  virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
     switch (_id) {
       case INDI_MA:
         return iparams.indi_ma;
@@ -117,7 +117,7 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
    * OnCalculate() method for Color Line indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtColorLineBuffer,
-                       ValueStorage<double> &ExtColorsBuffer, IndicatorBase *ExtMAHandle) {
+                       ValueStorage<double> &ExtColorsBuffer, IndicatorData *ExtMAHandle) {
     static int ticks = 0, modified = 0;
     // Check data.
     int i, calculated = BarsCalculated(ExtMAHandle);

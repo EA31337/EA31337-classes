@@ -69,7 +69,7 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
   /**
    * Class constructor.
    */
-  Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL, int _indi_mode = 0)
+  Indi_AMA(IndiAMAParams &_p, IndicatorData *_indi_src = NULL, int _indi_mode = 0)
       : IndicatorTickOrCandleSource(_p, _indi_src, _indi_mode) {
     iparams.SetIndicatorType(INDI_AMA);
   };
@@ -80,7 +80,7 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
    */
   static double iAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period, int _fast_ema_period, int _slow_ema_period,
                      int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
-                     IndicatorBase *_obj = NULL) {
+                     IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iAMA(_symbol, _tf, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap), _mode, _shift);
@@ -118,9 +118,9 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
   /**
    * On-indicator version of AMA.
    */
-  static double iAMAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period,
+  static double iAMAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period,
                                 int _fast_ema_period, int _slow_ema_period, int _ama_shift, ENUM_APPLIED_PRICE _ap,
-                                int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                                int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(
         _indi, _symbol, _tf, _ap,
         Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift,
@@ -258,7 +258,7 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
    * Called if data source is requested, but wasn't yet set. May be used to initialize indicators that must operate on
    * some data source.
    */
-  virtual IndicatorBase *OnDataSourceRequest() { return DataSourceRequestReturnDefault(GetAppliedPrice()); }
+  virtual IndicatorData *OnDataSourceRequest() { return DataSourceRequestReturnDefault(GetAppliedPrice()); }
 
   /* Getters */
 

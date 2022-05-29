@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -36,7 +36,7 @@
 
 // Global variables.
 Chart *chart;
-Dict<long, IndicatorBase *> indis;
+Dict<long, IndicatorData *> indis;
 int bar_processed;
 
 /**
@@ -64,8 +64,8 @@ void OnTick() {
   if (chart.IsNewBar()) {
     bar_processed++;
 
-    for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-      IndicatorBase *_indi = iter.Value();
+    for (DictIterator<long, IndicatorData *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+      IndicatorData *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
@@ -81,7 +81,7 @@ void OnTick() {
 void OnDeinit(const int reason) {
   delete chart;
 
-  for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictIterator<long, IndicatorData *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     delete iter.Value();
   }
 }
@@ -152,7 +152,7 @@ bool InitIndicators() {
  */
 bool PrintIndicators(string _prefix = "") {
   ResetLastError();
-  for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictIterator<long, IndicatorData *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     IndicatorBase *_indi = iter.Value();
     if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());

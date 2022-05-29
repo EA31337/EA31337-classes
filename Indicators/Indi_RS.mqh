@@ -53,7 +53,7 @@ class Indi_RS : public IndicatorTickOrCandleSource<IndiRSParams> {
   /**
    * Class constructor.
    */
-  Indi_RS(IndiRSParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) { Init(); };
+  Indi_RS(IndiRSParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) { Init(); };
   Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RS, _tf, _shift) {
     Init();
   };

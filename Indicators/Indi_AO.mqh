@@ -56,7 +56,7 @@ class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
   /**
    * Class constructor.
    */
-  Indi_AO(IndiAOParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_AO(IndiAOParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AO, _tf, _shift){};
 
   /**
@@ -67,7 +67,7 @@ class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
    * - https://www.mql5.com/en/docs/indicators/iao
    */
   static double iAO(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, int _mode = 0,
-                    IndicatorBase *_obj = NULL) {
+                    IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     // Note: In MQL4 _mode is not supported.
     return ::iAO(_symbol, _tf, _shift);

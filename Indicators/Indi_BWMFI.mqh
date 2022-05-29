@@ -67,7 +67,7 @@ class Indi_BWMFI : public IndicatorTickOrCandleSource<IndiBWIndiMFIParams> {
   /**
    * Class constructor.
    */
-  Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_BWMFI, _tf, _shift) {}
 
@@ -79,7 +79,7 @@ class Indi_BWMFI : public IndicatorTickOrCandleSource<IndiBWIndiMFIParams> {
    * - https://www.mql5.com/en/docs/indicators/ibwmfi
    */
   static double iBWMFI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                       ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, IndicatorBase *_obj = NULL) {
+                       ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBWMFI(_symbol, _tf, _shift);
 #else  // __MQL5__

@@ -55,7 +55,7 @@ class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
   /**
    * Class constructor.
    */
-  Indi_RVI(const IndiRVIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_RVI(const IndiRVIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RVI, _tf, _shift) {}
 
   /**
@@ -68,7 +68,7 @@ class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
   static double iRVI(
       string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 10,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,  // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0, IndicatorBase *_obj = NULL) {
+      int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iRVI(_symbol, _tf, _period, _mode, _shift);
 #else  // __MQL5__

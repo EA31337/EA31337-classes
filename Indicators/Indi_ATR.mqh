@@ -57,7 +57,7 @@ class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
   /**
    * Class constructor.
    */
-  Indi_ATR(IndiATRParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_ATR(IndiATRParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ATR, _tf, _shift){};
 
   /**
@@ -68,7 +68,7 @@ class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
    * - https://www.mql5.com/en/docs/indicators/iatr
    */
   static double iATR(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                     IndicatorBase *_obj = NULL) {
+                     IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iATR(_symbol, _tf, _period, _shift);
 #else  // __MQL5__

@@ -63,7 +63,7 @@ class Indi_OsMA : public IndicatorTickOrCandleSource<IndiOsMAParams> {
   /**
    * Class constructor.
    */
-  Indi_OsMA(IndiOsMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_OsMA(IndiOsMAParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_OsMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_OSMA, _tf, _shift) {}
 
@@ -76,7 +76,7 @@ class Indi_OsMA : public IndicatorTickOrCandleSource<IndiOsMAParams> {
    */
   static double iOsMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ema_fast_period, int _ema_slow_period,
                       int _signal_period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
-                      IndicatorBase *_obj = NULL) {
+                      IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _shift);
 #else  // __MQL5__

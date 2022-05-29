@@ -53,7 +53,7 @@ class Indi_DetrendedPrice : public IndicatorTickOrCandleSource<IndiDetrendedPric
   /**
    * Class constructor.
    */
-  Indi_DetrendedPrice(IndiDetrendedPriceParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_DetrendedPrice(IndiDetrendedPriceParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_DetrendedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_DETRENDED_PRICE, _tf, _shift){};
@@ -62,7 +62,7 @@ class Indi_DetrendedPrice : public IndicatorTickOrCandleSource<IndiDetrendedPric
    * Built-in version of AMA.
    */
   static double iDPO(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                     int _shift = 0, IndicatorBase *_obj = NULL) {
+                     int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
                                                         Util::MakeKey("Indi_DPO", _period, (int)_ap));
     return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode, _shift, _cache);
@@ -92,8 +92,8 @@ class Indi_DetrendedPrice : public IndicatorTickOrCandleSource<IndiDetrendedPric
   /**
    * On-indicator version of DPO.
    */
-  static double iDPOOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iDPOOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
         _indi, _symbol, _tf, _ap, Util::MakeKey("Indi_DPO_ON_" + _indi.GetFullName(), _period, (int)_ap));
     return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode, _shift, _cache);

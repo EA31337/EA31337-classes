@@ -50,7 +50,7 @@ class Indi_PriceVolumeTrend : public IndicatorTickOrCandleSource<IndiPriceVolume
   /**
    * Class constructor.
    */
-  Indi_PriceVolumeTrend(IndiPriceVolumeTrendParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_PriceVolumeTrend(IndiPriceVolumeTrendParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_PriceVolumeTrend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PRICE_VOLUME_TREND, _tf, _shift){};
@@ -59,7 +59,7 @@ class Indi_PriceVolumeTrend : public IndicatorTickOrCandleSource<IndiPriceVolume
    * Built-in version of Price Volume Trend.
    */
   static double iPVT(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
-                     IndicatorBase *_obj = NULL) {
+                     IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_PriceVolumeTrend", (int)_av));
     return iPVTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
   }
@@ -88,8 +88,8 @@ class Indi_PriceVolumeTrend : public IndicatorTickOrCandleSource<IndiPriceVolume
   /**
    * On-indicator version of Price Volume Trend.
    */
-  static double iPVTOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av,
-                                int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iPVTOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av,
+                                int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf, Util::MakeKey("Indi_PVT_ON_" + _indi.GetFullName(), (int)_av));
     return iPVTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);

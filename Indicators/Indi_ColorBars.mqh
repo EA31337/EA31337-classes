@@ -47,7 +47,7 @@ class Indi_ColorBars : public IndicatorTickOrCandleSource<IndiColorBarsParams> {
   /**
    * Class constructor.
    */
-  Indi_ColorBars(IndiColorBarsParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_ColorBars(IndiColorBarsParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_COLOR_BARS, _tf, _shift){};
@@ -56,7 +56,7 @@ class Indi_ColorBars : public IndicatorTickOrCandleSource<IndiColorBarsParams> {
    * "Built-in" version of Color Bars.
    */
   static double iColorBars(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                           IndicatorBase *_obj = NULL) {
+                           IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorBars");
     return iColorBarsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
@@ -86,8 +86,8 @@ class Indi_ColorBars : public IndicatorTickOrCandleSource<IndiColorBarsParams> {
   /**
    * On-indicator version of Color Bars.
    */
-  static double iColorBarsOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                      int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iColorBarsOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                      int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
                                                           Util::MakeKey("Indi_ColorBars_ON_" + _indi.GetFullName()));
     return iColorBarsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);

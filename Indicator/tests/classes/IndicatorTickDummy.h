@@ -46,7 +46,7 @@ class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double
 
   string GetName() override { return "IndicatorTickDummy"; }
 
-  void OnBecomeDataSourceFor(IndicatorBase* _base_indi) override {
+  void OnBecomeDataSourceFor(IndicatorData* _base_indi) override {
     // Feeding base indicator with historic entries of this indicator.
     Print(GetName(), " became a data source for ", _base_indi.GetName());
 

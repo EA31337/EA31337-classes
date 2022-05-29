@@ -29,9 +29,9 @@
 
 // Structs.
 struct IndiUltimateOscillatorParams : IndicatorParams {
-  Ref<IndicatorBase> indi_atr_fast;
-  Ref<IndicatorBase> indi_atr_middle;
-  Ref<IndicatorBase> indi_atr_slow;
+  Ref<IndicatorData> indi_atr_fast;
+  Ref<IndicatorData> indi_atr_middle;
+  Ref<IndicatorData> indi_atr_slow;
   int fast_period;
   int middle_period;
   int slow_period;
@@ -67,7 +67,7 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
   /**
    * Class constructor.
    */
-  Indi_UltimateOscillator(IndiUltimateOscillatorParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_UltimateOscillator(IndiUltimateOscillatorParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_UltimateOscillator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ULTIMATE_OSCILLATOR, _tf, _shift){};
@@ -77,15 +77,15 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
    */
   static double iUO(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period, int _middle_period, int _slow_period,
                     int _fast_k, int _middle_k, int _slow_k, int _mode = 0, int _shift = 0,
-                    IndicatorBase *_obj = NULL) {
+                    IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _symbol, _tf,
         Util::MakeKey("Indi_UltimateOscillator", _fast_period, _middle_period, _slow_period, _fast_k, _middle_k,
                       _slow_k));
 
-    IndicatorBase *_indi_atr_fast = Indi_ATR::GetCached(_symbol, _tf, _fast_period);
-    IndicatorBase *_indi_atr_middle = Indi_ATR::GetCached(_symbol, _tf, _middle_period);
-    IndicatorBase *_indi_atr_slow = Indi_ATR::GetCached(_symbol, _tf, _slow_period);
+    IndicatorData *_indi_atr_fast = Indi_ATR::GetCached(_symbol, _tf, _fast_period);
+    IndicatorData *_indi_atr_middle = Indi_ATR::GetCached(_symbol, _tf, _middle_period);
+    IndicatorData *_indi_atr_slow = Indi_ATR::GetCached(_symbol, _tf, _slow_period);
 
     return iUOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_period, _middle_period, _slow_period, _fast_k,
                       _middle_k, _slow_k, _mode, _shift, _cache, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow);
@@ -96,8 +96,8 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
    */
   static double iUOOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_period, int _middle_period, int _slow_period,
                            int _fast_k, int _middle_k, int _slow_k, int _mode, int _shift,
-                           IndicatorCalculateCache<double> *_cache, IndicatorBase *_indi_atr_fast,
-                           IndicatorBase *_indi_atr_middle, IndicatorBase *_indi_atr_slow, bool _recalculate = false) {
+                           IndicatorCalculateCache<double> *_cache, IndicatorData *_indi_atr_fast,
+                           IndicatorData *_indi_atr_middle, IndicatorData *_indi_atr_slow, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {
@@ -119,9 +119,9 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
   /**
    * On-indicator version of Ultimate Oscillator.
    */
-  static double iUOOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period,
+  static double iUOOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period,
                                int _middle_period, int _slow_period, int _fast_k, int _middle_k, int _slow_k,
-                               int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                               int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf,
         Util::MakeKey("Indi_UltimateOscillator_ON_" + _indi.GetFullName(), _fast_period, _middle_period, _slow_period,
@@ -139,7 +139,7 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
+  IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
     switch (_id) {
       case INDI_ULTIMATE_OSCILLATOR_ATR_FAST:
         return iparams.indi_atr_fast.Ptr();

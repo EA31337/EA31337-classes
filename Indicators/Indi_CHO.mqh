@@ -59,7 +59,7 @@ class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
   /**
    * Class constructor.
    */
-  Indi_CHO(IndiCHOParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_CHO(IndiCHOParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_CHAIKIN, _tf, _shift){};
 
@@ -68,7 +68,7 @@ class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
    */
   static double iChaikin(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period, int _slow_ma_period,
                          ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
-                         IndicatorBase *_obj = NULL) {
+                         IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iChaikin(_symbol, _tf, _fast_ma_period, _slow_ma_period, _ma_method, _av),
                                       _mode, _shift);
@@ -106,9 +106,9 @@ class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
   /**
    * On-indicator version of Chaikin Oscillator.
    */
-  static double iChaikinOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period,
+  static double iChaikinOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period,
                                     int _slow_ma_period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av,
-                                    int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                                    int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf,
         Util::MakeKey("Indi_CHO_ON_" + _indi.GetFullName(), _fast_ma_period, _slow_ma_period, (int)_ma_method,

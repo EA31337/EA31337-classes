@@ -78,7 +78,7 @@ class Indi_StdDev : public IndicatorTickSource<IndiStdDevParams> {
   /**
    * Class constructor.
    */
-  Indi_StdDev(IndiStdDevParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
+  Indi_StdDev(IndiStdDevParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
   Indi_StdDev(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_STDDEV, _tf, _shift) {}
 
   /**
@@ -89,7 +89,7 @@ class Indi_StdDev : public IndicatorTickSource<IndiStdDevParams> {
    * - https://www.mql5.com/en/docs/indicators/istddev
    */
   static double iStdDev(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method,
-                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorBase *_obj = NULL) {
+                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
@@ -124,7 +124,7 @@ class Indi_StdDev : public IndicatorTickSource<IndiStdDevParams> {
   /**
    * Note that this method operates on current price (set by _applied_price).
    */
-  static double iStdDevOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+  static double iStdDevOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
                                    int _ma_shift, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
                                    Indi_StdDev *_obj = NULL) {
     double _indi_value_buffer[];

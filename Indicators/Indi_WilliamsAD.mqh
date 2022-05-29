@@ -47,7 +47,7 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
   /**
    * Class constructor.
    */
-  Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_WILLIAMS_AD, _tf, _shift){};
@@ -55,7 +55,7 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
   /**
    * Built-in version of Williams' AD.
    */
-  static double iWAD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iWAD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_WilliamsAD");
     return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
@@ -84,8 +84,8 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
   /**
    * On-indicator version of Williams' AD.
    */
-  static double iWADOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iWADOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
                                                           Util::MakeKey("Indi_WilliamsAD_ON_" + _indi.GetFullName()));
     return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);

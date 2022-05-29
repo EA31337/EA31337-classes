@@ -91,7 +91,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
   /**
    * Class constructor.
    */
-  Indi_Bands(IndiBandsParams &_p, IndicatorBase *_indi_src = NULL, int _mode = 0)
+  Indi_Bands(IndiBandsParams &_p, IndicatorData *_indi_src = NULL, int _mode = 0)
       : IndicatorTickSource(_p, _indi_src, _mode) {}
   Indi_Bands(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_BANDS, _tf, _shift) {}
 
@@ -104,7 +104,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
    */
   static double iBands(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
                        ENUM_APPLIED_PRICE _applied_price, ENUM_BANDS_LINE _mode = BAND_BASE, int _shift = 0,
-                       IndicatorBase *_obj = NULL) {
+                       IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
 #else  // __MQL5__
@@ -141,7 +141,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
    *
    * When _applied_price is set to -1, method will
    */
-  static double iBandsOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+  static double iBandsOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                   double _deviation, int _bands_shift,
                                   ENUM_BANDS_LINE _mode,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
@@ -271,7 +271,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+  virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
       IndiBandsParams bands_params();
       return new Indi_Bands(bands_params);
@@ -295,7 +295,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
       return new Indi_StdDev(stddev_params);
     }
 
-    return IndicatorBase::FetchDataSource(_id);
+    return IndicatorData::FetchDataSource(_id);
   }
 
   /* Getters */

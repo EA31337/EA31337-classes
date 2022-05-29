@@ -58,7 +58,7 @@ class Indi_PriceFeeder : public IndicatorTickOrCandleSource<IndiPriceFeederParam
   /**
    * Class constructor.
    */
-  Indi_PriceFeeder(IndiPriceFeederParams& _p, IndicatorBase* _indi_src = NULL)
+  Indi_PriceFeeder(IndiPriceFeederParams& _p, IndicatorData* _indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_PriceFeeder(const double& _price_data[], int _total = 0) : IndicatorTickOrCandleSource(INDI_PRICE_FEEDER) {
     ArrayCopy(iparams.price_data, _price_data);

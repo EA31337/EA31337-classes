@@ -30,23 +30,23 @@
 #endif
 
 // Includes.
-#include "../../../IndicatorBase.h"
+#include "../../../IndicatorData.mqh"
 #include "../../../Refs.mqh"
 
 /**
  * Helper class to store all indicators and call OnTick() on them.
  */
 class Indicators {
-  Ref<IndicatorBase> _indis[];
+  Ref<IndicatorData> _indis[];
 
  public:
   void Add(IndicatorBase* _indi) {
-    Ref<IndicatorBase> _ref = _indi;
+    Ref<IndicatorData> _ref = _indi;
     ArrayPushObject(_indis, _ref);
   }
 
-  void Remove(IndicatorBase* _indi) {
-    Ref<IndicatorBase> _ref = _indi;
+  void Remove(IndicatorData* _indi) {
+    Ref<IndicatorData> _ref = _indi;
     Util::ArrayRemoveFirst(_indis, _ref);
   }
 

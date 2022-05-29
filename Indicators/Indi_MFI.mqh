@@ -56,7 +56,7 @@ class Indi_MFI : public IndicatorTickOrCandleSource<IndiMFIParams> {
   /**
    * Class constructor.
    */
-  Indi_MFI(IndiMFIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_MFI(IndiMFIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_MFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_MFI, _tf, _shift) {}
 
   /**
@@ -67,7 +67,7 @@ class Indi_MFI : public IndicatorTickOrCandleSource<IndiMFIParams> {
    * - https://www.mql5.com/en/docs/indicators/imfi
    */
   static double iMFI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                     IndicatorBase *_obj = NULL) {
+                     IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, _shift);
 #else  // __MQL5__

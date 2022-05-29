@@ -67,7 +67,7 @@ class Indi_OBV : public IndicatorTickOrCandleSource<IndiOBVParams> {
   /**
    * Class constructor.
    */
-  Indi_OBV(IndiOBVParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_OBV(IndiOBVParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_OBV, _tf, _shift) {}
 
   /**
@@ -83,7 +83,7 @@ class Indi_OBV : public IndicatorTickOrCandleSource<IndiOBVParams> {
 #else
                      ENUM_APPLIED_VOLUME _applied = VOLUME_TICK,  // MT5 only.
 #endif
-                     int _shift = 0, IndicatorBase *_obj = NULL) {
+                     int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, _applied, _shift);
 #else  // __MQL5__

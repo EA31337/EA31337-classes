@@ -44,15 +44,11 @@ class Chart;
 #include "Indicator.struct.cache.h"
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
-#include "Indicator.struct.signal.h"
 #include "Object.mqh"
 #include "Refs.mqh"
 #include "Serializer.mqh"
 #include "SerializerCsv.mqh"
 #include "SerializerJson.mqh"
-#include "Storage/ValueStorage.h"
-#include "Storage/ValueStorage.indicator.h"
-#include "Storage/ValueStorage.native.h"
 #include "Util.h"
 
 /**
@@ -62,17 +58,10 @@ class IndicatorBase : public Chart {
  protected:
   IndicatorState istate;
   void* mydata;
-  bool is_fed;                                     // Whether calc_start_bar is already calculated.
-  int calc_start_bar;                              // Index of the first valid bar (from 0).
-  DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list keyed by id.
+  int calc_start_bar;  // Index of the first valid bar (from 0).
   bool indicator_builtin;
-  ARRAY(ValueStorage<double>*, value_storages);
-  Ref<IndicatorBase> indi_src;  // // Indicator used as data source.
-  int indi_src_mode;            // Mode of source indicator
-  IndicatorCalculateCache<double> cache;
-  ARRAY(WeakRef<IndicatorBase>, listeners);  // List of indicators that listens for events from this one.
-  long last_tick_time;                       // Time of the last Tick() call.
-  int flags;                                 // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
+  long last_tick_time;  // Time of the last Tick() call.
+  int flags;            // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
 
  public:
   /* Indicator enumerations */
@@ -92,12 +81,10 @@ class IndicatorBase : public Chart {
   /**
    * Class constructor.
    */
-  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : indi_src(NULL), Chart(_tf, _symbol) {
+  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : Chart(_tf, _symbol) {
     // By default, indicator is indexable only by shift and data source must be also indexable by shift.
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
-    is_fed = false;
-    indi_src = NULL;
     last_tick_time = 0;
   }
 
@@ -108,53 +95,13 @@ class IndicatorBase : public Chart {
     // By default, indicator is indexable only by shift and data source must be also indexable by shift.
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
-    is_fed = false;
-    indi_src = NULL;
     last_tick_time = 0;
   }
 
   /**
    * Class deconstructor.
    */
-  virtual ~IndicatorBase() {
-    ReleaseHandle();
-
-    for (int i = 0; i < ArraySize(value_storages); ++i) {
-      if (value_storages[i] != NULL) {
-        delete value_storages[i];
-      }
-    }
-  }
-
-  /* Operator overloading methods */
-
-  /**
-   * Access indicator entry data using [] operator via shift.
-   */
-  IndicatorDataEntry operator[](int _index) {
-    if (!bool(flags | INDI_FLAG_INDEXABLE_BY_SHIFT)) {
-      Print(GetFullName(), " is not indexable by shift!");
-      DebugBreak();
-      IndicatorDataEntry _default;
-      return _default;
-    }
-    return GetEntry(_index);
-  }
-
-  /**
-   * Access indicator entry data using [] operator via datetime.
-   */
-  IndicatorDataEntry operator[](datetime _dt) {
-    if (!bool(flags | INDI_FLAG_INDEXABLE_BY_TIMESTAMP)) {
-      Print(GetFullName(), " is not indexable by timestamp!");
-      DebugBreak();
-      IndicatorDataEntry _default;
-      return _default;
-    }
-    return GetEntry(_dt);
-  }
-
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) { return GetEntry((int)_index); }
+  virtual ~IndicatorBase() { ReleaseHandle(); }
 
   /* Buffer methods */
 
@@ -231,131 +178,12 @@ class IndicatorBase : public Chart {
   }
   */
 
-  /**
-   * Gets indicator data from a buffer and copy into struct array.
-   *
-   * @return
-   * Returns true of successful copy.
-   * Returns false on invalid values.
-   */
-  bool CopyEntries(IndicatorDataEntry& _data[], int _count, int _start_shift = 0) {
-    bool _is_valid = true;
-    if (ArraySize(_data) < _count) {
-      _is_valid &= ArrayResize(_data, _count) > 0;
-    }
-    for (int i = 0; i < _count; i++) {
-      IndicatorDataEntry _entry = GetEntry(_start_shift + i);
-      _is_valid &= _entry.IsValid();
-      _data[i] = _entry;
-    }
-    return _is_valid;
-  }
-
-  /**
-   * Gets indicator data from a buffer and copy into array of values.
-   *
-   * @return
-   * Returns true of successful copy.
-   * Returns false on invalid values.
-   */
-  template <typename T>
-  bool CopyValues(T& _data[], int _count, int _start_shift = 0, int _mode = 0) {
-    bool _is_valid = true;
-    if (ArraySize(_data) < _count) {
-      _count = ArrayResize(_data, _count);
-      _count = _count > 0 ? _count : ArraySize(_data);
-    }
-    for (int i = 0; i < _count; i++) {
-      IndicatorDataEntry _entry = GetEntry(_start_shift + i);
-      _is_valid &= _entry.IsValid();
-      _data[i] = (T)_entry[_mode];
-    }
-    return _is_valid;
-  }
-
-  /**
-   * Validates currently selected indicator used as data source.
-   */
-  void ValidateSelectedDataSource() {
-    if (HasDataSource()) {
-      ValidateDataSource(THIS_PTR, GetDataSourceRaw());
-    }
-  }
-
-  /**
-   * Loads and validates built-in indicators whose can be used as data source.
-   */
-  virtual void ValidateDataSource(IndicatorBase* _target, IndicatorBase* _source) {}
-
-  /**
-   * Checks whether indicator have given mode index.
-   *
-   * If given mode is -1 (default one) and indicator has exactly one mode, then mode index will be replaced by 0.
-   */
-  virtual void ValidateDataSourceMode(int& _out_mode) {}
-
-  /**
-   * Provides built-in indicators whose can be used as data source.
-   */
-  virtual IndicatorBase* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return NULL; }
-
-  /**
-   * Returns currently selected data source without any validation.
-   */
-  IndicatorBase* GetDataSourceRaw() { return indi_src.Ptr(); }
-
-  /**
-   * Returns given data source type. Used by i*OnIndicator methods if indicator's Calculate() uses other indicators.
-   */
-  IndicatorBase* GetDataSource(ENUM_INDICATOR_TYPE _type) {
-    IndicatorBase* _result = NULL;
-    if (indicators.KeyExists((int)_type)) {
-      _result = indicators[(int)_type].Ptr();
-    } else {
-      Ref<IndicatorBase> _indi = FetchDataSource(_type);
-      if (!_indi.IsSet()) {
-        Alert(GetFullName(), " does not define required indicator type ", EnumToString(_type), " for symbol ",
-              GetSymbol(), ", and timeframe ", GetTf(), "!");
-        DebugBreak();
-      } else {
-        indicators.Set((int)_type, _indi);
-        _result = _indi.Ptr();
-      }
-    }
-    return _result;
-  }
-
-  /**
-   * Called if data source is requested, but wasn't yet set. May be used to initialize indicators that must operate on
-   * some data source.
-   */
-  virtual IndicatorBase* OnDataSourceRequest() {
-    Print("In order to use IDATA_INDICATOR mode for indicator ", GetFullName(),
-          " without explicitly selecting an indicator, ", GetFullName(),
-          " must override OnDataSourceRequest() method and return new instance of data source to be used by default.");
-    DebugBreak();
-    return NULL;
-  }
-
-  /**
-   * Creates default, tick based indicator for given applied price.
-   */
-  virtual IndicatorBase* DataSourceRequestReturnDefault(int _applied_price) {
-    DebugBreak();
-    return NULL;
-  }
-
   /* Getters */
 
   /**
    * Returns indicator's flags.
    */
   int GetFlags() { return flags; }
-
-  /**
-   * Returns buffers' cache.
-   */
-  IndicatorCalculateCache<double>* GetCache() { return &cache; }
 
   /**
    * Gets an indicator's chart parameter value.
@@ -389,8 +217,6 @@ class IndicatorBase : public Chart {
    * Returns currently selected data source doing validation.
    */
   virtual IndicatorBase* GetDataSource() { return NULL; }
-
-  int GetDataSourceMode() { return indi_src_mode; }
 
   /**
    * Get indicator type.
@@ -428,38 +254,12 @@ class IndicatorBase : public Chart {
   }
 
   /**
-   * Adds event listener.
-   */
-  void AddListener(IndicatorBase* _indi) {
-    WeakRef<IndicatorBase> _ref = _indi;
-    ArrayPushObject(listeners, _ref);
-  }
-
-  /**
-   * Removes event listener.
-   */
-  void RemoveListener(IndicatorBase* _indi) {
-    WeakRef<IndicatorBase> _ref = _indi;
-    Util::ArrayRemoveFirst(listeners, _ref);
-  }
-
-  /**
    * Sets an indicator's state property value.
    */
   template <typename T>
   void Set(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop, T _value) {
     istate.Set<T>(_prop, _value);
   }
-
-  /**
-   * Sets indicator data source.
-   */
-  virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) = NULL;
-
-  /**
-   * Sets data source's input mode.
-   */
-  void SetDataSourceMode(int _mode) { indi_src_mode = _mode; }
 
   /**
    * Sets name of the indicator.
@@ -495,225 +295,9 @@ class IndicatorBase : public Chart {
     istate.is_changed = true;
   }
 
-  ValueStorage<double>* GetValueStorage(int _mode = 0) {
-    if (_mode >= ArraySize(value_storages)) {
-      ArrayResize(value_storages, _mode + 1);
-    }
-
-    if (value_storages[_mode] == NULL) {
-      value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
-    }
-    return value_storages[_mode];
-  }
-
-  /**
-   * Returns value storage of given kind.
-   */
-  virtual IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
-    Print("Error: ", GetFullName(), " indicator has no storage type ", EnumToString(_type), "!");
-    DebugBreak();
-    return NULL;
-  }
-
-  virtual IValueStorage* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
-    switch (_ap) {
-      case PRICE_ASK:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
-      case PRICE_BID:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
-      case PRICE_OPEN:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
-      case PRICE_HIGH:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
-      case PRICE_LOW:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
-      case PRICE_CLOSE:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
-      case PRICE_MEDIAN:
-      case PRICE_TYPICAL:
-      case PRICE_WEIGHTED:
-      default:
-        Print("Error: Invalid applied price " + EnumToString(_ap) +
-              ", only PRICE_(OPEN|HIGH|LOW|CLOSE) are currently supported by "
-              "IndicatorBase::GetSpecificAppliedPriceValueStorage()!");
-        DebugBreak();
-        return NULL;
-    }
-  }
-
-  virtual bool HasSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
-    switch (_ap) {
-      case PRICE_ASK:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
-      case PRICE_BID:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
-      case PRICE_OPEN:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
-      case PRICE_HIGH:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
-      case PRICE_LOW:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
-      case PRICE_CLOSE:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
-      case PRICE_MEDIAN:
-      case PRICE_TYPICAL:
-      case PRICE_WEIGHTED:
-      default:
-        Print("Error: Invalid applied price " + EnumToString(_ap) +
-              ", only PRICE_(OPEN|HIGH|LOW|CLOSE) are currently supported by "
-              "IndicatorBase::HasSpecificAppliedPriceValueStorage()!");
-        DebugBreak();
-        return false;
-    }
-  }
-
-  /**
-   * Checks whether indicator support given value storage type.
-   */
-  virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) { return false; }
-
-  template <typename T>
-  T GetValue(int _mode = 0, int _index = 0) {
-    T _out;
-    GetEntryValue(_mode, _index).Get(_out);
-    return _out;
-  }
-
-  /**
-   * Returns values for a given shift.
-   *
-   * Note: Remember to check if shift exists by HasValidEntry(shift).
-   */
-  template <typename T>
-  bool GetValues(int _index, T& _out1, T& _out2) {
-    IndicatorDataEntry _entry = GetEntry(_index);
-    _out1 = _entry.values[0];
-    _out2 = _entry.values[1];
-    bool _result = GetLastError() != 4401;
-    ResetLastError();
-    return _result;
-  }
-
-  template <typename T>
-  bool GetValues(int _index, T& _out1, T& _out2, T& _out3) {
-    IndicatorDataEntry _entry = GetEntry(_index);
-    _out1 = _entry.values[0];
-    _out2 = _entry.values[1];
-    _out3 = _entry.values[2];
-    bool _result = GetLastError() != 4401;
-    ResetLastError();
-    return _result;
-  }
-
-  template <typename T>
-  bool GetValues(int _index, T& _out1, T& _out2, T& _out3, T& _out4) {
-    IndicatorDataEntry _entry = GetEntry(_index);
-    _out1 = _entry.values[0];
-    _out2 = _entry.values[1];
-    _out3 = _entry.values[2];
-    _out4 = _entry.values[3];
-    bool _result = GetLastError() != 4401;
-    ResetLastError();
-    return _result;
-  }
-
-  void Tick() {
-    long _current_time = TimeCurrent();
-
-    if (last_tick_time == _current_time) {
-      // We've already ticked.
-      return;
-    }
-
-    last_tick_time = _current_time;
-
-    // Checking and potentially initializing new data source.
-    if (HasDataSource(true) != NULL) {
-      // Ticking data source if not yet ticked.
-      GetDataSource().Tick();
-    }
-
-    // Also ticking all used indicators if they've not yet ticked.
-    for (DictStructIterator<int, Ref<IndicatorBase>> iter = indicators.Begin(); iter.IsValid(); ++iter) {
-      iter.Value().Ptr().Tick();
-    }
-
-    // Overridable OnTick() method.
-    OnTick();
-  }
-
-  virtual void OnTick() {}
-
   /* Data representation methods */
 
   /* Virtual methods */
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  virtual IndicatorDataEntry GetEntry(int _index = 0) = NULL;
-
-  /**
-   * Returns the indicator's struct value.
-   */
-  virtual IndicatorDataEntry GetEntry(datetime _dt) {
-    Print(GetFullName(),
-          " must implement IndicatorDataEntry IndicatorBase::GetEntry(datetime _dt) in order to use GetEntry(datetime "
-          "_dt) or _indi[datetime] subscript operator!");
-    DebugBreak();
-    IndicatorDataEntry _default;
-    return _default;
-  }
-
-  /**
-   * Alters indicator's struct value.
-   *
-   * This method allows user to modify the struct entry before it's added to cache.
-   * This method is called on GetEntry() right after values are set.
-   */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _index = -1) = NULL;
-
-  // virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = NULL;
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) = NULL;
-
-  /**
-   * Sends entry to listening indicators.
-   */
-  void EmitEntry(IndicatorDataEntry& entry) {
-    for (int i = 0; i < ArraySize(listeners); ++i) {
-      if (listeners[i].ObjectExists()) {
-        listeners[i].Ptr().OnDataSourceEntry(entry);
-      }
-    }
-  }
-
-  /**
-   * Sends historic entries to listening indicators. May be overriden.
-   */
-  virtual void EmitHistory() {}
-
-  /**
-   * Called when data source emits new entry (historic or future one).
-   */
-  virtual void OnDataSourceEntry(IndicatorDataEntry& entry){};
-
-  /**
-   * Called when indicator became a data source for other indicator.
-   */
-  virtual void OnBecomeDataSourceFor(IndicatorBase* _base_indi){};
-
-  /**
-   * Called when user tries to set given data source. Could be used to check if indicator implements all required value
-   * storages.
-   */
-  virtual bool OnValidateDataSource(IndicatorBase* _ds, string& _reason) {
-    _reason = "Indicator " + GetName() + " does not implement OnValidateDataSource()";
-    return false;
-  }
 
   /**
    * Returns indicator value for a given shift and mode.
@@ -735,59 +319,6 @@ class IndicatorBase : public Chart {
    * Returns stored data in human-readable format.
    */
   // virtual bool ToString() = NULL; // @fixme?
-
-  /**
-   * Whether we can and have to select mode when specifying data source.
-   */
-  virtual bool IsDataSourceModeSelectable() { return true; }
-
-  /**
-   * Update indicator.
-   */
-  virtual bool Update() {
-    // @todo
-    return false;
-  };
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  virtual string ToString(int _index = 0) {
-    IndicatorDataEntry _entry = GetEntry(_index);
-    int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT |
-                            SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE;
-
-    IndicatorDataEntry _stub_entry;
-    _stub_entry.AddFlags(_entry.GetFlags());
-    SerializerConverter _stub = SerializerConverter::MakeStubObject(_stub_entry, _serializer_flags, _entry.GetSize());
-    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub);
-  }
-
-  int GetBarsCalculated() {
-    int _bars = Bars(GetSymbol(), GetTf());
-
-    if (!is_fed) {
-      // Calculating start_bar.
-      for (; calc_start_bar < _bars; ++calc_start_bar) {
-        // Iterating from the oldest or previously iterated.
-        IndicatorDataEntry _entry = GetEntry(_bars - calc_start_bar - 1);
-
-        if (_entry.IsValid()) {
-          // From this point we assume that future entries will be all valid.
-          is_fed = true;
-          return _bars - calc_start_bar;
-        }
-      }
-    }
-
-    if (!is_fed) {
-      Print("Can't find valid bars for ", GetFullName());
-      return 0;
-    }
-
-    // Assuming all entries are calculated (even if have invalid values).
-    return _bars;
-  }
 
   /* Methods to get rid of */
 
@@ -933,41 +464,3 @@ class IndicatorBase : public Chart {
 #endif
   }
 };
-
-/**
- * CopyBuffer() method to be used on Indicator instance with ValueStorage buffer.
- *
- * Note that data will be copied so that the oldest element will be located at the start of the physical memory
- * allocated for the array
- */
-template <typename T>
-int CopyBuffer(IndicatorBase* _indi, int _mode, int _start, int _count, ValueStorage<T>& _buffer, int _rates_total) {
-  int _num_copied = 0;
-  int _buffer_size = ArraySize(_buffer);
-
-  if (_buffer_size < _rates_total) {
-    _buffer_size = ArrayResize(_buffer, _rates_total);
-  }
-
-  for (int i = _start; i < _count; ++i) {
-    IndicatorDataEntry _entry = _indi.GetEntry(i);
-
-    if (!_entry.IsValid()) {
-      break;
-    }
-
-    T _value = _entry.GetValue<T>(_mode);
-
-    //    Print(_value);
-
-    _buffer[_buffer_size - i - 1] = _value;
-    ++_num_copied;
-  }
-
-  return _num_copied;
-}
-
-/**
- * BarsCalculated()-compatible method to be used on Indicator instance.
- */
-int BarsCalculated(IndicatorBase* _indi) { return _indi.GetBarsCalculated(); }

@@ -87,7 +87,7 @@ class Indi_Math : public IndicatorTickOrCandleSource<IndiMathParams> {
   /**
    * Class constructor.
    */
-  Indi_Math(IndiMathParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Math(IndiMathParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_SPECIAL_MATH, _tf, _shift){};
 
@@ -130,7 +130,7 @@ class Indi_Math : public IndicatorTickOrCandleSource<IndiMathParams> {
     return _value;
   }
 
-  static double iMathOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_MATH_OP op,
+  static double iMathOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_MATH_OP op,
                                  unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
                                  unsigned int _shift_2, unsigned int _mode, int _shift, Indi_Math *_obj) {
     double _val_1 = _indi.GetValue<double>(_mode_1, _shift_1);
@@ -138,7 +138,7 @@ class Indi_Math : public IndicatorTickOrCandleSource<IndiMathParams> {
     return Math::Op(op, _val_1, _val_2);
   }
 
-  static double iMathOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, MathCustomOpFunction _op,
+  static double iMathOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, MathCustomOpFunction _op,
                                  unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
                                  unsigned int _shift_2, unsigned int _mode, int _shift, Indi_Math *_obj) {
     double _val_1 = _indi.GetValue<double>(_mode_1, _shift_1);

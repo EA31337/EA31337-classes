@@ -60,7 +60,7 @@ class Indi_ADXW : public IndicatorTickOrCandleSource<IndiADXWParams> {
   /**
    * Class constructor.
    */
-  Indi_ADXW(IndiADXWParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_ADXW(IndiADXWParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ADXW, _tf, _shift){};
 
@@ -68,7 +68,7 @@ class Indi_ADXW : public IndicatorTickOrCandleSource<IndiADXWParams> {
    * Built-in version of ADX Wilder.
    */
   static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = LINE_MAIN_ADX,
-                           int _shift = 0, IndicatorBase *_obj = NULL) {
+                           int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
 #else
@@ -106,8 +106,8 @@ class Indi_ADXW : public IndicatorTickOrCandleSource<IndiADXWParams> {
   /**
    * On-indicator version of ADX Wilder.
    */
-  static double iADXWilderOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                      int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iADXWilderOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                      int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf, Util::MakeKey("Indi_ADXW_ON_" + _indi.GetFullName(), _period));
     return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);

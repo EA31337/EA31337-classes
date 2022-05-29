@@ -100,7 +100,7 @@ class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
   /**
    * Class constructor.
    */
-  Indi_Alligator(IndiAlligatorParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_Alligator(IndiAlligatorParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift){};
@@ -126,7 +126,7 @@ class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
   static double iAlligator(string _symbol, ENUM_TIMEFRAMES _tf, int _jaw_period, int _jaw_shift, int _teeth_period,
                            int _teeth_shift, int _lips_period, int _lips_shift, ENUM_MA_METHOD _ma_method,
                            ENUM_APPLIED_PRICE _applied_price, ENUM_ALLIGATOR_LINE _mode, int _shift = 0,
-                           IndicatorBase *_obj = NULL) {
+                           IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                         _ma_method, _applied_price, _mode, _shift);

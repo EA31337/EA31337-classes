@@ -49,7 +49,7 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
   /**
    * Class constructor.
    */
-  Indi_Pivot(IndiPivotParams& _p, IndicatorBase* _indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Pivot(IndiPivotParams& _p, IndicatorData* _indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PIVOT, _tf, _shift) {
     iparams.tf = _tf;

@@ -54,7 +54,7 @@ class Indi_OHLC : public IndicatorTickOrCandleSource<IndiOHLCParams> {
   /**
    * Class constructor.
    */
-  Indi_OHLC(IndiOHLCParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_OHLC(IndiOHLCParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_OHLC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PRICE, _tf, _shift){};
 

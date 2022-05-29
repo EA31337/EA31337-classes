@@ -63,7 +63,7 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
   /**
    * Class constructor.
    */
-  Indi_ZigZag(IndiZigZagParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_ZigZag(IndiZigZagParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_ZigZag(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ZIGZAG, _tf, _shift) {}
 
@@ -71,7 +71,7 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
    * Returns value for ZigZag indicator.
    */
   static double iCustomZigZag(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _depth, int _deviation,
-                              int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                              int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
@@ -139,9 +139,9 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
   /**
    * On-indicator version of ZigZag indicator.
    */
-  static double iZigZagOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _depth,
+  static double iZigZagOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _depth,
                                    int _deviation, int _backstep, int _mode = 0, int _shift = 0,
-                                   IndicatorBase *_obj = NULL) {
+                                   IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf, Util::MakeKey("Indi_ZigZag_ON_" + _indi.GetFullName(), _depth, _deviation, _backstep));
     return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,

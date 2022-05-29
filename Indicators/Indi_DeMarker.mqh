@@ -55,7 +55,7 @@ class Indi_DeMarker : public IndicatorTickOrCandleSource<IndiDeMarkerParams> {
   /**
    * Class constructor.
    */
-  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_DeMarker(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_DEMARKER, _tf, _shift) {}
 
@@ -67,7 +67,7 @@ class Indi_DeMarker : public IndicatorTickOrCandleSource<IndiDeMarkerParams> {
    * - https://www.mql5.com/en/docs/indicators/idemarker
    */
   static double iDeMarker(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                          IndicatorBase *_obj = NULL) {
+                          IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iDeMarker(_symbol, _tf, _period, _shift);
 #else  // __MQL5__

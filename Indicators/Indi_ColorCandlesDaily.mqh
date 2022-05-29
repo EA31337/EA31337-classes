@@ -47,7 +47,7 @@ class Indi_ColorCandlesDaily : public IndicatorTickOrCandleSource<IndiColorCandl
   /**
    * Class constructor.
    */
-  Indi_ColorCandlesDaily(IndiColorCandlesDailyParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_ColorCandlesDaily(IndiColorCandlesDailyParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_ColorCandlesDaily(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_COLOR_CANDLES_DAILY, _tf, _shift){};
@@ -55,7 +55,7 @@ class Indi_ColorCandlesDaily : public IndicatorTickOrCandleSource<IndiColorCandl
   /**
    * "Built-in" version of Color Candles Daily.
    */
-  static double iCCD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iCCD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorCandlesDaily");
     return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
@@ -85,8 +85,8 @@ class Indi_ColorCandlesDaily : public IndicatorTickOrCandleSource<IndiColorCandl
   /**
    * On-indicator version of Color Candles Daily.
    */
-  static double iCCDOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iCCDOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf, Util::MakeKey("Indi_ColorCandlesDaily_ON_" + _indi.GetFullName()));
     return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);

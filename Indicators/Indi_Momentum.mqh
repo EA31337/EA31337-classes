@@ -66,7 +66,7 @@ class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
   /**
    * Class constructor.
    */
-  Indi_Momentum(IndiMomentumParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Momentum(IndiMomentumParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_Momentum(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_MOMENTUM, _tf, _shift) {}
 
@@ -78,7 +78,7 @@ class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
    * - https://www.mql5.com/en/docs/indicators/imomentum
    */
   static double iMomentum(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _ap,
-                          int _shift = 0, IndicatorBase *_obj = NULL) {
+                          int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMomentum(_symbol, _tf, _period, _ap, _shift);
 #else  // __MQL5__
@@ -110,7 +110,7 @@ class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
 #endif
   }
 
-  static double iMomentumOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+  static double iMomentumOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                      int _mode, int _shift = 0) {
     double _indi_value_buffer[];
     IndicatorDataEntry _entry(_indi.GetModeCount());

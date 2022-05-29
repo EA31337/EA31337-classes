@@ -40,8 +40,8 @@ enum ENUM_INDI_BWZT_MODE {
 
 // Structs.
 struct IndiBWZTParams : IndicatorParams {
-  Ref<IndicatorBase> indi_ac;
-  Ref<IndicatorBase> indi_ao;
+  Ref<IndicatorData> indi_ac;
+  Ref<IndicatorData> indi_ao;
   unsigned int period;
   unsigned int second_period;
   unsigned int sum_period;
@@ -67,14 +67,14 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
   /**
    * Class constructor.
    */
-  Indi_BWZT(IndiBWZTParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_BWZT(IndiBWZTParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_BWZT, _tf, _shift){};
 
   /**
    * Built-in version of BWZT.
    */
-  static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_BWZT");
 
     Indi_AC *_indi_ac = Indi_AC::GetCached(_symbol, _tf);
@@ -110,8 +110,8 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
   /**
    * On-indicator version of BWZT.
    */
-  static double iBWZTOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
-                                 IndicatorBase *_obj) {
+  static double iBWZTOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
+                                 IndicatorData *_obj) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
                                                           Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
 
@@ -124,7 +124,7 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
+  virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
     switch (_id) {
       case INDI_AC:
         return iparams.indi_ac.Ptr();
@@ -142,7 +142,7 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
                        ValueStorage<double> &ExtHBuffer, ValueStorage<double> &ExtLBuffer,
                        ValueStorage<double> &ExtCBuffer, ValueStorage<double> &ExtColorBuffer,
                        ValueStorage<double> &ExtAOBuffer, ValueStorage<double> &ExtACBuffer, int DATA_LIMIT,
-                       IndicatorBase *ExtACHandle, IndicatorBase *ExtAOHandle) {
+                       IndicatorData *ExtACHandle, IndicatorData *ExtAOHandle) {
     if (rates_total < DATA_LIMIT) return (0);
     // Not all data may be calculated.
     int calculated = BarsCalculated(ExtACHandle);

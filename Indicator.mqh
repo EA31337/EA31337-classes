@@ -38,8 +38,7 @@ class Chart;
 #include "Indicator.struct.cache.h"
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
-#include "Indicator.struct.signal.h"
-#include "IndicatorBase.h"
+#include "IndicatorData.mqh"
 #include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
@@ -80,10 +79,9 @@ double iCustom5(string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C
  * Class to deal with indicators.
  */
 template <typename TS>
-class Indicator : public IndicatorBase {
+class Indicator : public IndicatorData {
  protected:
   DrawIndicator* draw;
-  BufferStruct<IndicatorDataEntry> idata;
   TS iparams;
 
  protected:
@@ -144,8 +142,8 @@ class Indicator : public IndicatorBase {
   /**
    * Class constructor.
    */
-  Indicator(const TS& _iparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
-      : IndicatorBase(_iparams.GetTf(), NULL) {
+  Indicator(const TS& _iparams, IndicatorData* _indi_src = NULL, int _indi_mode = 0)
+      : IndicatorData(_iparams.GetTf(), NULL) {
     iparams = _iparams;
     if (_indi_src != NULL) {
       SetDataSource(_indi_src, _indi_mode);
@@ -153,12 +151,12 @@ class Indicator : public IndicatorBase {
     }
     Init();
   }
-  Indicator(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorBase(_tf) {
+  Indicator(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorData(_tf) {
     iparams = _iparams;
     Init();
   }
   Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
-      : IndicatorBase(_tf) {
+      : IndicatorData(_tf) {
     iparams.SetIndicatorType(_itype);
     iparams.SetShift(_shift);
     Init();
@@ -269,48 +267,6 @@ class Indicator : public IndicatorBase {
   }
 
   /**
-   * Gets indicator data from a buffer and copy into struct array.
-   *
-   * @return
-   * Returns true of successful copy.
-   * Returns false on invalid values.
-   */
-  bool CopyEntries(IndicatorDataEntry& _data[], int _count, int _start_shift = 0) {
-    bool _is_valid = true;
-    if (ArraySize(_data) < _count) {
-      _is_valid &= ArrayResize(_data, _count) > 0;
-    }
-    for (int i = 0; i < _count; i++) {
-      IndicatorDataEntry _entry = GetEntry(_start_shift + i);
-      _is_valid &= _entry.IsValid();
-      _data[i] = _entry;
-    }
-    return _is_valid;
-  }
-
-  /**
-   * Gets indicator data from a buffer and copy into array of values.
-   *
-   * @return
-   * Returns true of successful copy.
-   * Returns false on invalid values.
-   */
-  template <typename T>
-  bool CopyValues(T& _data[], int _count, int _start_shift = 0, int _mode = 0) {
-    bool _is_valid = true;
-    if (ArraySize(_data) < _count) {
-      _count = ArrayResize(_data, _count);
-      _count = _count > 0 ? _count : ArraySize(_data);
-    }
-    for (int i = 0; i < _count; i++) {
-      IndicatorDataEntry _entry = GetEntry(_start_shift + i);
-      _is_valid &= _entry.IsValid();
-      _data[i] = (T)_entry[_mode];
-    }
-    return _is_valid;
-  }
-
-  /**
    * CopyBuffer() method to be used on Indicator instance with ValueStorage buffer.
    *
    * Note that data will be copied so that the oldest element will be located at the start of the physical memory
@@ -339,52 +295,6 @@ class Indicator : public IndicatorBase {
     return _num_copied;
   }
   */
-
-  /**
-   * Validates currently selected indicator used as data source.
-   */
-  void ValidateSelectedDataSource() {
-    if (HasDataSource()) {
-      ValidateDataSource(THIS_PTR, GetDataSourceRaw());
-    }
-  }
-
-  /**
-   * Loads and validates built-in indicators whose can be used as data source.
-   */
-  void ValidateDataSource(IndicatorBase* _target, IndicatorBase* _source) {
-    if (_target == NULL) {
-      Alert("Internal Error! _target is NULL in ", __FUNCTION_LINE__, ".");
-      DebugBreak();
-      return;
-    }
-
-    if (_source == NULL) {
-      Alert("Error! You have to select source indicator's via SetDataSource().");
-      DebugBreak();
-      return;
-    }
-
-    if (!_target.IsDataSourceModeSelectable()) {
-      // We don't validate source mode as it will use all modes.
-      return;
-    }
-
-    if (_source.GetModeCount() > 1 && _target.GetDataSourceMode() == -1) {
-      // Mode must be selected if source indicator has more that one mode.
-      Alert("Warning! ", GetName(),
-            " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
-      _target.SetDataSourceMode(0);
-      DebugBreak();
-    } else if (_source.GetModeCount() == 1 && _target.GetDataSourceMode() == -1) {
-      _target.SetDataSourceMode(0);
-    } else if (_target.GetDataSourceMode() < 0 || _target.GetDataSourceMode() > _source.GetModeCount()) {
-      Alert("Error! ", _target.GetName(),
-            " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
-            _source.GetModeCount(), ".");
-      DebugBreak();
-    }
-  }
 
   /**
    * Checks whether indicator have given mode index.
@@ -534,11 +444,6 @@ class Indicator : public IndicatorBase {
   }
 
   /* Getters */
-
-  /**
-   * Get pointer to data of indicator.
-   */
-  BufferStruct<IndicatorDataEntry>* GetData() { return GetPointer(idata); }
 
   /**
    * Returns the highest bar's index (shift).
@@ -696,8 +601,8 @@ class Indicator : public IndicatorBase {
   /**
    * Returns currently selected data source doing validation.
    */
-  IndicatorBase* GetDataSource() {
-    IndicatorBase* _result = NULL;
+  IndicatorData* GetDataSource() {
+    IndicatorData* _result = NULL;
 
     if (GetDataSourceRaw() != NULL) {
       _result = GetDataSourceRaw();
@@ -707,7 +612,7 @@ class Indicator : public IndicatorBase {
       if (indicators.KeyExists(_source_id)) {
         _result = indicators[_source_id].Ptr();
       } else {
-        Ref<IndicatorBase> _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
+        Ref<IndicatorData> _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
 
         if (!_source.IsSet()) {
           Alert(GetName(), " has no built-in source indicator ", _source_id);
@@ -722,7 +627,7 @@ class Indicator : public IndicatorBase {
       // User sets data source's mode to On-Indicator, but not set data source via SetDataSource()!
 
       // Requesting potential data source.
-      IndicatorBase* _ds = OnDataSourceRequest();
+      IndicatorData* _ds = OnDataSourceRequest();
 
       if (_ds != NULL) {
         // Initializing with new data source.
@@ -980,7 +885,7 @@ class Indicator : public IndicatorBase {
   /**
    * Sets indicator data source.
    */
-  void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) override {
+  void SetDataSource(IndicatorData* _indi, int _input_mode = -1) override {
     if (indi_src.IsSet()) {
       if (bool(flags | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT) &&
           !bool(_indi.GetFlags() | INDI_FLAG_INDEXABLE_BY_SHIFT)) {

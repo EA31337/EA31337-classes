@@ -53,7 +53,7 @@ class Indi_AD : public IndicatorTickOrCandleSource<IndiADParams> {
   /**
    * Class constructor.
    */
-  Indi_AD(IndiADParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_AD(IndiADParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AD, _tf, _shift) {
     iparams.SetTf(_tf);
   };
@@ -66,7 +66,7 @@ class Indi_AD : public IndicatorTickOrCandleSource<IndiADParams> {
    * - https://www.mql5.com/en/docs/indicators/iad
    */
   static double iAD(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    IndicatorBase *_obj = NULL) {
+                    IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAD(_symbol, _tf, _shift);
 #else  // __MQL5__

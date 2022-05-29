@@ -41,7 +41,7 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
   /**
    * Class constructor.
    */
-  Indi_Drawer(const IndiDrawerParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_Drawer(const IndiDrawerParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src), redis(true) {
     Init();
   }
@@ -150,14 +150,14 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
   static double iDrawer(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                        IndicatorBase *_obj = NULL) {
+                        IndicatorData *_obj = NULL) {
     return 1.0;
   }
 
   /**
    * Performs drawing on data from other indicator.
    */
-  static double iDrawerOnIndicator(IndicatorBase *_indi, Indi_Drawer *_obj, string _symbol = NULL,
+  static double iDrawerOnIndicator(IndicatorData *_indi, Indi_Drawer *_obj, string _symbol = NULL,
                                    ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
     // This method is not yet implemented.
     return 1.0;
@@ -173,7 +173,7 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -217,4 +217,5 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
     istate.is_changed = true;
     iparams.applied_price = _applied_price;
   }
+
 };

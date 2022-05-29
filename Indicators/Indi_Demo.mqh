@@ -58,7 +58,7 @@ class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
   /**
    * Class constructor.
    */
-  Indi_Demo(IndiDemoParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Demo(IndiDemoParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_DEMO, _tf, _shift){};
 
@@ -66,7 +66,7 @@ class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
    * Returns the indicator value.
    */
   static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                      IndicatorBase *_obj = NULL) {
+                      IndicatorData *_obj = NULL) {
     return 0.1 + (0.1 * _obj.GetBarIndex());
   }
 

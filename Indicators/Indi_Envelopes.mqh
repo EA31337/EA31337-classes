@@ -81,7 +81,7 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
   /**
    * Class constructor.
    */
-  Indi_Envelopes(IndiEnvelopesParams &_p, IndicatorBase *_indi_src = NULL)
+  Indi_Envelopes(IndiEnvelopesParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_Envelopes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ENVELOPES, _tf, _shift) {}
@@ -97,7 +97,7 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
                            int _ma_shift, ENUM_APPLIED_PRICE _ap, double _deviation,
                            int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                                        // UPPER_LINE, 1 - LOWER_LINE
-                           int _shift = 0, IndicatorBase *_obj = NULL) {
+                           int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _ap, _deviation, _mode, _shift);
 #else  // __MQL5__
@@ -138,7 +138,7 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, IndicatorBase *_indi, string _symbol,
+  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, IndicatorData *_indi, string _symbol,
                                       ENUM_TIMEFRAMES _tf, int _ma_period,
                                       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                       int _indi_mode,  // Source indicator's mode index. May be -1 to use first buffer

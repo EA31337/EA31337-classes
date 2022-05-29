@@ -53,7 +53,7 @@ class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndiFractalsParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Fractals(IndiFractalsParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_FRACTALS, _tf, _shift) {}
 
@@ -67,7 +67,7 @@ class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
   static double iFractals(string _symbol, ENUM_TIMEFRAMES _tf,
                           ENUM_LO_UP_LINE _mode,  // (MT4 _mode): 1 - MODE_UPPER, 2 - MODE_LOWER
                           int _shift = 0,         // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
-                          IndicatorBase *_obj = NULL) {
+                          IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iFractals(_symbol, _tf, _mode, _shift);
 #else  // __MQL5__

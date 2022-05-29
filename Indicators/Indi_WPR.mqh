@@ -55,7 +55,7 @@ class Indi_WPR : public IndicatorTickOrCandleSource<IndiWPRParams> {
   /**
    * Class constructor.
    */
-  Indi_WPR(IndiWPRParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_WPR(IndiWPRParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
   Indi_WPR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_WPR, _tf, _shift) {}
 
   /**
@@ -66,7 +66,7 @@ class Indi_WPR : public IndicatorTickOrCandleSource<IndiWPRParams> {
    * - https://www.mql5.com/en/docs/indicators/iwpr
    */
   static double iWPR(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                     int _shift = 0, IndicatorBase *_obj = NULL) {
+                     int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iWPR(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
