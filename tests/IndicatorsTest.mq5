@@ -65,7 +65,7 @@ Ref<IndicatorTfDummy> _candles;
  */
 int OnInit() {
   bool _result = true;
-  _ticks = new IndicatorTickReal();
+  _ticks = new IndicatorTickReal(_Symbol);
   _candles = new IndicatorTfDummy(PERIOD_M1);
   _candles.Ptr().SetDataSource(_ticks.Ptr());
   Print("We have ", Bars(NULL, 0), " bars to analyze");
@@ -102,6 +102,10 @@ void OnTick() {
   }
 
   if (_candles REF_DEREF IsNewBar()) {
+    if (_candles REF_DEREF GetBarIndex() > 1000) {
+      ExpertRemove();
+    }
+
     if (indis.Size() == 0) {
       return;
     }

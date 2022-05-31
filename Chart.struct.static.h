@@ -26,6 +26,7 @@
  */
 
 // Includes.
+#include "Chart.define.h"
 #include "Chart.symboltf.h"
 
 /* Defines struct for chart static methods. */
@@ -287,8 +288,8 @@ struct ChartStatic {
    */
   static datetime GetBarTime(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
 #ifdef __MQL4__
-    return ::iTime(_tf, _shift);  // Same as: Time[_shift]
-#else                             // __MQL5__
+    return ::iTime(_symbol, _tf, _shift);  // Same as: Time[_shift]
+#else                                      // __MQL5__
     ARRAY(datetime, _arr);
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     // @todo: Improves performance by caching values.

@@ -119,7 +119,7 @@ class DateTime {
       _result |= DATETIME_WEEK;
     }
 
-#ifdef __debug__
+#ifdef __debug_verbose__
     string _passed =
         "time now " + (string)dt_curr.GetTimestamp() + ", time last " + (string)dt_last.GetTimestamp() + " ";
 

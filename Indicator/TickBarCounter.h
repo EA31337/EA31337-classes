@@ -81,7 +81,7 @@ struct TickBarCounter {
   /**
    * Sets current bar index.
    */
-  void SetBarIndex(int _bar_index) { _bar_index = _bar_index; }
+  void SetBarIndex(int _bar_index) { bar_index = _bar_index; }
 
   /**
    * Sets last bar time.

@@ -74,7 +74,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
       DebugBreak();
       return 0;
     }
-    return iADXWilderOnIndicator(_obj, _ma_period, _mode, _shift);
+    return iADXWilder(_obj, _ma_period, _mode, _shift);
 #endif
   }
 

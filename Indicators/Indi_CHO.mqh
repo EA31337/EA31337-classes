@@ -72,8 +72,15 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iChaikin(_symbol, _tf, _fast_ma_period, _slow_ma_period, _ma_method, _av),
                                       _mode, _shift);
 #else
+    if (_obj == nullptr) {
+      Print(
+          "Indi_CHO::iChaikin() can work without supplying pointer to IndicatorBase only in MQL5. In this platform the "
+          "pointer is required.");
+      DebugBreak();
+      return 0;
+    }
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
-        _symbol, _tf, Util::MakeKey("Indi_CHO", _fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
+        _obj, Util::MakeKey(_fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
                            _mode, _shift, _cache);
 #endif

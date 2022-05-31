@@ -92,17 +92,16 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
       case IDATA_ICUSTOM:
         switch (iparams.GetParamsSize()) {
           case 0:
-            _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                             iparams.custom_indi_name, _mode, _ishift);
+            _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, _mode, _ishift);
             break;
           case 1:
-            _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                             iparams.custom_indi_name, iparams.GetParam(1).ToValue<double>(), _mode, _ishift);
+            _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name,
+                             iparams.GetParam(1).ToValue<double>(), _mode, _ishift);
             break;
           case 2:
-            _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                             iparams.custom_indi_name, iparams.GetParam(1).ToValue<double>(),
-                             iparams.GetParam(2).ToValue<double>(), _mode, _ishift);
+            _value =
+                iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name,
+                        iparams.GetParam(1).ToValue<double>(), iparams.GetParam(2).ToValue<double>(), _mode, _ishift);
             break;
         }
         break;

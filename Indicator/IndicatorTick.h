@@ -214,7 +214,7 @@ class IndicatorTick : public Indicator<TS> {
 
     // No tick at given timestamp. Returning invalid entry.
     IndicatorDataEntry _entry(itparams.GetMaxModes());
-    GetEntryAlter(_entry);
+    GetEntryAlter(_entry, (datetime)_entry.timestamp);
 
     for (int i = 0; i < itparams.GetMaxModes(); ++i) {
       _entry.values[i] = (double)0;
@@ -230,7 +230,7 @@ class IndicatorTick : public Indicator<TS> {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry) {
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, datetime _time) {
     _entry.AddFlags(_entry.GetDataTypeFlags(itparams.GetDataValueType()));
   };
 

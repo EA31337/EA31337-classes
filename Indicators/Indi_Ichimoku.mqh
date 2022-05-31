@@ -163,8 +163,8 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry) {
-    Indicator<IndiIchimokuParams>::GetEntryAlter(_entry);
+  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
+    Indicator<IndiIchimokuParams>::GetEntryAlter(_entry, _shift);
 #ifdef __MQL4__
     // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
     // so we are duplicating it.

@@ -45,23 +45,23 @@ int OnInit() {
   Trade *trade1 = new Trade(trade_params_defaults, _chart_m1.Ptr());
 
   // Test market.
-  assertTrueOrFail(trade1.IsTradeAllowed(), "Trade not allowed!");
-  assertTrueOrFail(trade1.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF) == PERIOD_M1,
-                   StringFormat("Fail on GetTf() => [%s]!", trade1.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
-  assertTrueOrFail(trade1.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(trade1.GetChart().Get<string>(CHART_PARAM_SYMBOL) == _Symbol, "Fail on GetSymbol()!");
+  assertTrueOrFail(trade1 PTR_DEREF IsTradeAllowed(), "Trade not allowed!");
+  assertTrueOrFail(trade1 PTR_DEREF GetSource() PTR_DEREF GetTf() == PERIOD_M1,
+                   StringFormat("Fail on GetTf() => [%s]!", trade1 PTR_DEREF GetSource() PTR_DEREF GetTf()));
+  assertTrueOrFail(trade1 PTR_DEREF GetSource() PTR_DEREF GetOpen() > 0, "Fail on GetOpen()!");
+  assertTrueOrFail(trade1 PTR_DEREF GetSource() PTR_DEREF GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   // assertTrueOrFail(trade1.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
 
-  assertTrueOrFail(
-      trade1.GetTradeDistanceInPts() >= 0 && trade1.GetTradeDistanceInPts() == Trade::GetTradeDistanceInPts(_Symbol),
-      "Invalid GetTradeDistanceInPts()!");
-  assertTrueOrFail(
-      trade1.GetTradeDistanceInPips() >= 0 && trade1.GetTradeDistanceInPips() == Trade::GetTradeDistanceInPips(_Symbol),
-      "Invalid GetTradeDistanceInPips()!");
-  assertTrueOrFail(trade1.GetTradeDistanceInValue() >= 0 &&
-                       (float)trade1.GetTradeDistanceInValue() == (float)Trade::GetTradeDistanceInValue(_Symbol),
+  assertTrueOrFail(trade1 PTR_DEREF GetTradeDistanceInPts() >= 0 &&
+                       trade1 PTR_DEREF GetTradeDistanceInPts() == Trade::GetTradeDistanceInPts(_Symbol),
+                   "Invalid GetTradeDistanceInPts()!");
+  assertTrueOrFail(trade1 PTR_DEREF GetTradeDistanceInPips() >= 0 &&
+                       trade1 PTR_DEREF GetTradeDistanceInPips() == Trade::GetTradeDistanceInPips(_Symbol),
+                   "Invalid GetTradeDistanceInPips()!");
+  assertTrueOrFail(trade1.GetTradeDistanceInValue() >= 0 && (float)trade1 PTR_DEREF GetTradeDistanceInValue() ==
+                                                                (float)Trade::GetTradeDistanceInValue(_Symbol),
                    "Invalid GetTradeDistanceInValue()!");
-  Print("Trade1: ", trade1.ToString());
+  Print("Trade1: ", trade1 PTR_DEREF ToString());
   // Clean up.
   delete trade1;
 
@@ -70,12 +70,13 @@ int OnInit() {
   Trade *trade2 = new Trade(trade_params_defaults, _chart_m5.Ptr());
 
   // Test market.
-  assertTrueOrFail(trade2.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF) == PERIOD_M5,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade2.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF))));
-  assertTrueOrFail(trade2.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(trade2.GetChart().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  assertTrueOrFail(trade2.IsTradeAllowed(), "Fail on IsTradeAllowed()!");
-  Print("Trade2: ", trade2.ToString());
+  assertTrueOrFail(
+      trade2 PTR_DEREF GetSource() PTR_DEREF GetTf() == PERIOD_M5,
+      StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade2 PTR_DEREF GetSource() PTR_DEREF GetTf())));
+  assertTrueOrFail(trade2 PTR_DEREF GetSource() PTR_DEREF GetOpen() > 0, "Fail on GetOpen()!");
+  assertTrueOrFail(trade2 PTR_DEREF GetSource() PTR_DEREF GetSymbol() == _Symbol, "Fail on GetSymbol()!");
+  assertTrueOrFail(trade2 PTR_DEREF IsTradeAllowed(), "Fail on IsTradeAllowed()!");
+  Print("Trade2: ", trade2 PTR_DEREF ToString());
   // Clean up.
   delete trade2;
 

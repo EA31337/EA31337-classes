@@ -87,8 +87,8 @@ class Indi_TickMt : public IndicatorTick<IndiTickMtParams, double> {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry) {
-    IndicatorTick<IndiTickMtParams, double>::GetEntryAlter(_entry);
+  void GetEntryAlter(IndicatorDataEntry &_entry, datetime _time) override {
+    IndicatorTick<IndiTickMtParams, double>::GetEntryAlter(_entry, _time);
     _entry.timestamp = _entry.timestamp > 0 ? _entry.timestamp : tick.time;
   };
 };

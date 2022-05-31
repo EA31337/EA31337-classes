@@ -137,8 +137,8 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry) {
-    Indicator<IndiBWIndiMFIParams>::GetEntryAlter(_entry);
+  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
+    Indicator<IndiBWIndiMFIParams>::GetEntryAlter(_entry, _shift);
 #ifdef __MQL4__
     // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
     bool _vol_up = GetVolume(_shift) > GetVolume(_shift);

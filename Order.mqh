@@ -1104,6 +1104,49 @@ class Order : public SymbolInfo {
   }
 
   /**
+   * Converts MqlTradeRequest object into text representation.
+   */
+  static string ToString(const MqlTradeRequest &_request) {
+    string _text;
+    _text += "+ Order: " + IntegerToString(_request.order);
+    _text += "\n|-- Action: " + EnumToString(_request.action);
+    _text += "\n|-- Magic: " + IntegerToString(_request.magic);
+    _text += "\n|-- Symbol: " + _request.symbol;
+    _text += "\n|-- Volume: " + DoubleToString(_request.volume);
+    _text += "\n|-- Price: " + DoubleToString(_request.price);
+    _text += "\n|-- Stop Limit: " + DoubleToString(_request.stoplimit);
+    _text += "\n|-- Stop Loss: " + DoubleToString(_request.sl);
+    _text += "\n|-- Take Profit: " + DoubleToString(_request.tp);
+    _text += "\n|-- Deviation: " + IntegerToString(_request.deviation);
+    _text += "\n|-- Type: " + EnumToString(_request.type);
+    _text += "\n|-- Type Filling: " + EnumToString(_request.type_filling);
+    _text += "\n|-- Type Time: " + EnumToString(_request.type_time);
+    _text += "\n|-- Expiration: " + TimeToString(_request.expiration);
+    _text += "\n|-- Comment: " + _request.comment;
+    _text += "\n|-- Position: " + IntegerToString(_request.position);
+    _text += "\n|-- Position By: " + IntegerToString(_request.position_by);
+    return _text;
+  }
+
+  /**
+   * Converts MqlTradeResult object into text representation.
+   */
+  static string ToString(const MqlTradeResult &_result) {
+    string _text;
+    _text += "+ Order: " + IntegerToString(_result.order);
+    _text += "\n|-- Return Code: " + IntegerToString(_result.retcode);
+    _text += "\n|-- Deal: " + IntegerToString(_result.deal);
+    _text += "\n|-- Volume: " + DoubleToString(_result.volume);
+    _text += "\n|-- Price: " + DoubleToString(_result.price);
+    _text += "\n|-- Bid: " + DoubleToString(_result.bid);
+    _text += "\n|-- Ask: " + DoubleToString(_result.ask);
+    _text += "\n|-- Comment: " + _result.comment;
+    _text += "\n|-- Request Id: " + IntegerToString(_result.request_id);
+    _text += "\n|-- Return Code External: " + IntegerToString(_result.retcode_external);
+    return _text;
+  }
+
+  /**
    * Executes trade operations by sending the request to a trade server.
    *
    * The main function used to open market or place a pending order.
@@ -1157,6 +1200,9 @@ class Order : public SymbolInfo {
   }
   static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_result_check,
                         color _color = clrNONE) {
+#ifdef __debug__
+    Print("Sending request:\n", ToString(_request));
+#endif
 #ifdef __MQL4__
     // Convert Trade Request Structure to function parameters.
     _result.retcode = TRADE_RETCODE_ERROR;
@@ -1224,6 +1270,10 @@ class Order : public SymbolInfo {
       }
     }
 
+#ifdef __debug__
+    Print("Received result:\n", ToString(_result));
+#endif
+
     return _result.retcode == TRADE_RETCODE_DONE;
 #else
     // The trade requests go through several stages of checking on a trade server.
@@ -1255,7 +1305,13 @@ class Order : public SymbolInfo {
     // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
     // --
     // Sends trade requests to a server.
-    return ::OrderSend(_request, _result);
+    bool _success = ::OrderSend(_request, _result);
+
+#ifdef __debug__
+    Print("Received result:\n", ToString(_result));
+#endif
+
+    return _success;
     // The function execution result is placed to structure MqlTradeResult,
     // whose retcode field contains the trade server return code.
     // In order to obtain information about the error, call the GetLastError() function.

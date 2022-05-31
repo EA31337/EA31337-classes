@@ -78,7 +78,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
           _entry.values[i].SetDataType(TYPE_FLOAT);
         }
       }
-      GetEntryAlter(_entry);
+      GetEntryAlter(_entry, _shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);

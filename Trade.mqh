@@ -1408,7 +1408,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                            && Terminal::CheckPermissionToTrade()
                            // Check if auto trading is enabled.
                            && (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()));
-      /* Chart checks */
+/* Chart checks */
+#ifdef __debug__
+      Print("Trade: Bars in data source: ", GetSource().GetBars(), ", minimum required bars: ", tparams.GetBarsMin());
+#endif
       tstates.SetState(TRADE_STATE_BARS_NOT_ENOUGH, GetSource().GetBars() < tparams.GetBarsMin());
       /* Terminal checks */
       tstates.SetState(TRADE_STATE_TRADE_NOT_ALLOWED,
