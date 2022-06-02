@@ -737,12 +737,12 @@ class Indicator : public IndicatorBase {
   /**
    * Gets number of modes available to retrieve by GetValue().
    */
-  virtual int GetModeCount() override { return (int)iparams.max_modes; }
+  int GetModeCount() override { return (int)iparams.max_modes; }
 
   /**
    * Whether data source is selected.
    */
-  virtual bool HasDataSource(bool _try_initialize = false) {
+  bool HasDataSource(bool _try_initialize = false) override {
     if (iparams.GetDataSourceId() != -1) {
       return true;
     }

@@ -130,7 +130,8 @@ class Indi_MA : public Indicator<IndiMAParams> {
                                string symbol, ENUM_TIMEFRAMES tf, unsigned int ma_period, unsigned int ma_shift,
                                ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                int shift = 0) {
-    return iMAOnArray(_indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, ma_method, shift, cache);
+    return iMAOnArray((ValueStorage<double> *)_indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, ma_method,
+                      shift, cache);
   }
 
   /**

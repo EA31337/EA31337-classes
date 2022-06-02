@@ -25,8 +25,8 @@
  */
 
 // Defines.
-// #define __debug__  // Enables debug.
-// #define __debug_verbose__
+#define __debug__  // Enables debug.
+#define __debug_verbose__
 
 // Forward declaration.
 struct DataParamEntry;
@@ -72,19 +72,26 @@ int OnInit() {
   // Initialize indicators.
   _result &= InitIndicators();
 
+  Print("Indicators to test: ", indis.Size());
+
+  Print("Connecting candle and tick indicators to all indicators...");
+
   // Connecting all indicator to our single candle indicator (which is connected to tick indicator).
   for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    // Print("Setting outer data source for " + iter.Value().Ptr().GetName());
+    // Print("+ Setting outer data source for " + iter.Value().Ptr().GetFullName());
     if (!iter.Value() REF_DEREF GetCandle(false)) {
       iter.Value() REF_DEREF GetOuterDataSource() PTR_DEREF SetDataSource(_candles.Ptr());
     }
+    // Print("|- Now is: " + iter.Value().Ptr().GetFullName());
   }
 
-  Print("Indicators to test: ", indis.Size());
+  Print("Been here 1");
+
   // Check for any errors.
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
   // Print indicator values.
+
   _result &= PrintIndicators(__FUNCTION__);
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
@@ -102,7 +109,7 @@ void OnTick() {
   }
 
   if (_candles REF_DEREF IsNewBar()) {
-    if (_candles REF_DEREF GetBarIndex() > 1000) {
+    if (_candles REF_DEREF GetBarIndex() > 200) {
       ExpertRemove();
     }
 
@@ -144,7 +151,7 @@ void OnDeinit(const int reason) {
   int num_not_tested = 0;
   for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
     if (!tested.Contains(iter.Value())) {
-      PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, iter.Value().Ptr().GetName());
+      PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, iter.Value().Ptr().GetFullName());
       ++num_not_tested;
     }
   }
@@ -598,7 +605,8 @@ bool PrintIndicators(string _prefix = "") {
     }
 
     string _indi_name = _indi.GetFullName();
-    // Print("Trying to get value from " + _indi_name);
+    Print("Trying to get value from " + _indi_name);
+
     IndicatorDataEntry _entry = _indi.GetEntry();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
         GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {

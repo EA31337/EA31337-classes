@@ -79,7 +79,7 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
    */
   static double iDEMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, unsigned int _ma_shift,
                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0, IndicatorBase *_obj = NULL) {
-#ifdef __MQL5__
+#ifdef __MQL5__XX
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
@@ -106,7 +106,7 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
     }
     return _res[0];
 #else
-    Indi_Price *_indi_price = Indi_Price::GetCached(_symbol, _applied_price, _tf, _shift);
+    Indi_Price *_indi_price = Indi_Price::GetPlatformPrices(_symbol, _applied_price, _tf, _shift);
     // Note that _applied_price and Indi_Price mode indices are compatible.
     return Indi_DEMA::iDEMAOnIndicatorSlow(_indi_price.GetCache(), _indi_price, 0, _period, _ma_shift, _shift);
 #endif
@@ -114,7 +114,7 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
 
   static double iDEMAOnIndicatorSlow(IndicatorCalculateCache<double> *cache, IndicatorBase *_indi, int indi_mode,
                                      unsigned int ma_period, unsigned int ma_shift, int shift) {
-    return iDEMAOnArray(_indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, shift, cache);
+    return iDEMAOnArray((ValueStorage<double> *)_indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, shift, cache);
   }
 
   static double iDEMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, unsigned int _ma_period, unsigned int _ma_shift,

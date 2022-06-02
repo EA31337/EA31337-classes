@@ -23,6 +23,7 @@
 // Includes.
 #include "../../BufferStruct.mqh"
 #include "../../Indicator.mqh"
+#include "../../Platform.h"
 #include "../../Storage/Objects.h"
 
 // Structs.
@@ -55,6 +56,14 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   Indi_Price(int _shift = 0) : Indicator(INDI_PRICE, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  virtual unsigned int GetSuitableDataSourceTypes() {
+    // We can work only with Candle-based indicator attached.
+    return INDI_SUITABLE_DS_TYPE_CANDLE;
+  }
+
+  /**
    * Checks whether indicator has a valid value for a given shift.
    */
   virtual bool HasValidEntry(int _shift = 0) { return GetBarTime(_shift) != 0; }
@@ -64,13 +73,14 @@ class Indi_Price : public Indicator<PriceIndiParams> {
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    return ChartStatic::iPrice(iparams.GetAppliedPrice(), GetSymbol(), GetTf(), _ishift);
+    return GetCandle() PTR_DEREF GetSpecificAppliedPriceValueStorage(iparams.GetAppliedPrice())
+        PTR_DEREF Fetch(_ishift);
   }
 
   /**
    * Returns already cached version of Indi_Price for a given parameters.
    */
-  static Indi_Price *GetCached(string _symbol, ENUM_APPLIED_PRICE _ap, ENUM_TIMEFRAMES _tf, int _shift) {
+  static Indi_Price *GetPlatformPrices(string _symbol, ENUM_APPLIED_PRICE _ap, ENUM_TIMEFRAMES _tf, int _shift) {
     String _cache_key;
     _cache_key.Add(_symbol);
     _cache_key.Add((int)_ap);
@@ -80,9 +90,8 @@ class Indi_Price : public Indicator<PriceIndiParams> {
     Indi_Price *_indi_price;
     if (!Objects<Indi_Price>::TryGet(_key, _indi_price)) {
       PriceIndiParams _indi_price_params(_ap, _shift);
-      _indi_price_params.SetSymbol(_symbol);
-      _indi_price_params.SetTf(_tf);
       _indi_price = Objects<Indi_Price>::Set(_key, new Indi_Price(_indi_price_params));
+      Platform::BindDefaultDataSource(_indi_price, _symbol, _tf);
     }
     return _indi_price;
   }
@@ -95,21 +104,22 @@ class Indi_Price : public Indicator<PriceIndiParams> {
     switch (_type) {
       case INDI_VS_TYPE_PRICE_ASK:  // Tick.
       case INDI_VS_TYPE_PRICE_BID:  // Tick.
-        return GetCached(GetSymbol(), iparams.GetAppliedPrice(), GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), iparams.GetAppliedPrice(), GetTf(), iparams.GetShift())
+            .GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_OPEN:  // Candle.
-        return GetCached(GetSymbol(), PRICE_OPEN, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_OPEN, GetTf(), iparams.GetShift()).GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_HIGH:  // Candle.
-        return GetCached(GetSymbol(), PRICE_HIGH, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_HIGH, GetTf(), iparams.GetShift()).GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_LOW:  // Candle.
-        return GetCached(GetSymbol(), PRICE_LOW, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_LOW, GetTf(), iparams.GetShift()).GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_CLOSE:  // Candle.
-        return GetCached(GetSymbol(), PRICE_CLOSE, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_CLOSE, GetTf(), iparams.GetShift()).GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_MEDIAN:  // Candle.
-        return GetCached(GetSymbol(), PRICE_MEDIAN, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_MEDIAN, GetTf(), iparams.GetShift()).GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_TYPICAL:  // Candle.
-        return GetCached(GetSymbol(), PRICE_TYPICAL, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_TYPICAL, GetTf(), iparams.GetShift()).GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_WEIGHTED:  // Candle.
-        return GetCached(GetSymbol(), PRICE_WEIGHTED, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_WEIGHTED, GetTf(), iparams.GetShift()).GetValueStorage(0);
       default:
         // Trying in parent class.
         return Indicator<PriceIndiParams>::GetSpecificValueStorage(_type);

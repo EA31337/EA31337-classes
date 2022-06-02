@@ -459,6 +459,11 @@ class IndicatorBase : public Object {
   }
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  virtual unsigned int GetSuitableDataSourceTypes() { return 0; }
+
+  /**
    * Returns the number of bars on the chart.
    */
   virtual int GetBars() { return GetCandle() PTR_DEREF GetBars(); }
@@ -560,20 +565,25 @@ class IndicatorBase : public Object {
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
    * indicator. IndicatorCandle satisfies such requirements.
    */
-  virtual IndicatorBase* GetCandle(bool _warn_if_not_found = true) {
+  virtual IndicatorBase* GetCandle(bool _warn_if_not_found = true, IndicatorBase* _originator = nullptr) {
+    if (_originator == nullptr) {
+      _originator = THIS_PTR;
+    }
     if (HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN) && HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH) &&
         HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW) && HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE) &&
         HasSpecificValueStorage(INDI_VS_TYPE_SPREAD) && HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME) &&
         HasSpecificValueStorage(INDI_VS_TYPE_TIME) && HasSpecificValueStorage(INDI_VS_TYPE_VOLUME)) {
       return THIS_PTR;
     } else if (HasDataSource()) {
-      return GetDataSource() PTR_DEREF GetCandle(_warn_if_not_found);
+      return GetDataSource() PTR_DEREF GetCandle(_warn_if_not_found, _originator);
     } else {
       // _indi_src == NULL.
       if (_warn_if_not_found) {
         Print(
-            "Can't find Candle-compatible indicator (which have storage buffers for: Open, High, Low, Close) in the "
-            "hierarchy!");
+            "Can't find Candle-compatible indicator (which have storage buffers for: Open, High, Low, Close, Spread, "
+            "Tick Volume, Time, Volume) in the "
+            "hierarchy of ",
+            _originator PTR_DEREF GetFullName(), "!");
         DebugBreak();
       }
       return NULL;
@@ -708,7 +718,7 @@ class IndicatorBase : public Object {
   /**
    * Returns value storage for a given mode.
    */
-  ValueStorage<double>* GetValueStorage(int _mode = 0) {
+  virtual IValueStorage* GetValueStorage(int _mode = 0) {
     if (_mode >= ArraySize(value_storages)) {
       ArrayResize(value_storages, _mode + 1);
     }
@@ -743,26 +753,29 @@ class IndicatorBase : public Object {
     return NULL;
   }
 
-  virtual IValueStorage* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
+  virtual ValueStorage<double>* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
     switch (_ap) {
       case PRICE_ASK:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
       case PRICE_BID:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
       case PRICE_OPEN:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
       case PRICE_HIGH:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
       case PRICE_LOW:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
       case PRICE_CLOSE:
-        return GetSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
       case PRICE_MEDIAN:
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_MEDIAN);
       case PRICE_TYPICAL:
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_TYPICAL);
       case PRICE_WEIGHTED:
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_WEIGHTED);
       default:
         Print("Error: Invalid applied price " + EnumToString(_ap) +
-              ", only PRICE_(OPEN|HIGH|LOW|CLOSE) are currently supported by "
+              ", only PRICE_(OPEN|HIGH|LOW|CLOSE|MEDIAN|TYPICAL|WEIGHTED) are currently supported by "
               "IndicatorBase::GetSpecificAppliedPriceValueStorage()!");
         DebugBreak();
         return NULL;
@@ -784,11 +797,14 @@ class IndicatorBase : public Object {
       case PRICE_CLOSE:
         return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
       case PRICE_MEDIAN:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_MEDIAN);
       case PRICE_TYPICAL:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_TYPICAL);
       case PRICE_WEIGHTED:
+        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_WEIGHTED);
       default:
         Print("Error: Invalid applied price " + EnumToString(_ap) +
-              ", only PRICE_(OPEN|HIGH|LOW|CLOSE) are currently supported by "
+              ", only PRICE_(OPEN|HIGH|LOW|CLOSE|MEDIAN|TYPICAL|WEIGHTED) are currently supported by "
               "IndicatorBase::HasSpecificAppliedPriceValueStorage()!");
         DebugBreak();
         return false;

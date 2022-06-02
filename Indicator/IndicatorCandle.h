@@ -140,7 +140,7 @@ class IndicatorCandle : public Indicator<TS> {
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
    * indicator. IndicatorCandle satisfies such requirements.
    */
-  IndicatorBase* GetCandle(bool _warn_if_not_found = true) override {
+  IndicatorBase* GetCandle(bool _warn_if_not_found = true, IndicatorBase* _originator = nullptr) override {
     // We are the candle indicator!
     return THIS_PTR;
   }
@@ -228,7 +228,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Returns value storage for a given mode.
    */
-  IValueStorage* GetValueStorage(int _mode = 0) {
+  IValueStorage* GetValueStorage(int _mode = 0) override {
     if (_mode < GetModeCount()) {
       return Indicator<TS>::GetValueStorage(_mode);
     }

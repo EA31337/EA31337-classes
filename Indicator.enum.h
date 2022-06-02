@@ -257,3 +257,10 @@ enum ENUM_INDI_FLAGS {
   INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT,     // Source indicator must be indexable by shift.
   INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_TIMESTAMP  // Source indicator must be indexable by timestamp.
 };
+
+// Flags indicating which data sources are required to be provided in order indicator to work.
+enum ENUM_INDI_SUITABLE_DS_TYPE {
+  INDI_SUITABLE_DS_TYPE_TICK,    // Indicator requires Tick-based data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_CANDLE,  // Indicator requires Candle-based data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_CUSTOM   // Indicator requires parent data source to have custom set of buffers/modes.
+};
