@@ -54,7 +54,7 @@ class AppliedPriceValueStorage : public HistoryValueStorage<double> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual double Fetch(int _shift) {
+  double Fetch(int _shift) override {
     switch (ap) {
       case PRICE_OPEN:
       case PRICE_HIGH:

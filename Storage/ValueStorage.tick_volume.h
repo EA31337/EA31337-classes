@@ -46,5 +46,5 @@ class TickVolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual long Fetch(int _shift) { return indi_candle REF_DEREF GetVolume(RealShift(_shift)); }
+  long Fetch(int _shift) override { return indi_candle REF_DEREF GetVolume(RealShift(_shift)); }
 };

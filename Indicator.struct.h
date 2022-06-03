@@ -145,6 +145,7 @@ struct IndicatorDataEntryValue {
   void Get(unsigned int &_out) { _out = (unsigned int)value.vint; }
   void Get(long &_out) { _out = value.vlong; }
   void Get(unsigned long &_out) { _out = (unsigned long)value.vint; }
+  void Get(datetime &_out) { _out = (datetime)value.vlong; }
   // Setters.
   template <typename T>
   void Set(T _value) {
@@ -169,6 +170,10 @@ struct IndicatorDataEntryValue {
   void Set(long _value) {
     value.vlong = _value;
     SetDataType(TYPE_LONG);
+  }
+  void Set(datetime _value) {
+    value.vlong = _value;
+    SetDataType(TYPE_DATETIME);
   }
   void Set(unsigned long _value) {
     value.vlong = (long)_value;

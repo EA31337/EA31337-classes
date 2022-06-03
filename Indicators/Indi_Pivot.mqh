@@ -70,12 +70,12 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
       _entry.timestamp = GetCandle() PTR_DEREF GetBarTime(_ishift);
       if (_ohlc.IsValid()) {
         _entry.Resize(iparams.GetMaxModes());
-        _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vflt, _entry.values[1].value.vflt,
-                        _entry.values[2].value.vflt, _entry.values[3].value.vflt, _entry.values[4].value.vflt,
-                        _entry.values[5].value.vflt, _entry.values[6].value.vflt, _entry.values[7].value.vflt,
-                        _entry.values[8].value.vflt);
+        _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vdbl, _entry.values[1].value.vdbl,
+                        _entry.values[2].value.vdbl, _entry.values[3].value.vdbl, _entry.values[4].value.vdbl,
+                        _entry.values[5].value.vdbl, _entry.values[6].value.vdbl, _entry.values[7].value.vdbl,
+                        _entry.values[8].value.vdbl);
         for (int i = 0; i <= 8; ++i) {
-          _entry.values[i].SetDataType(TYPE_FLOAT);
+          _entry.values[i].SetDataType(TYPE_DOUBLE);
         }
       }
       GetEntryAlter(_entry, _shift);

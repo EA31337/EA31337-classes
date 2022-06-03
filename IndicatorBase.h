@@ -723,7 +723,7 @@ class IndicatorBase : public Object {
       ArrayResize(value_storages, _mode + 1);
     }
 
-    if (value_storages[_mode] == NULL) {
+    if (value_storages[_mode] == nullptr) {
       value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
     }
     return value_storages[_mode];

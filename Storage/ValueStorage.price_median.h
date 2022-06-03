@@ -21,31 +21,38 @@
 
 /**
  * @file
- * Spread getter version of ValueStorage.
+ * Median price version of ValueStorage.
  */
 
 // Includes.
-#include "../Chart.struct.h"
 #include "ObjectsCache.h"
 #include "ValueStorage.history.h"
 
 /**
- * Storage to retrieve spread.
+ * Storage to median price.
  */
-class SpreadValueStorage : public HistoryValueStorage<long> {
+class PriceMedianValueStorage : public HistoryValueStorage<double> {
  public:
   /**
    * Constructor.
    */
-  SpreadValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
+  PriceMedianValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  SpreadValueStorage(const SpreadValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  PriceMedianValueStorage(const PriceMedianValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  long Fetch(int _shift) override { return indi_candle REF_DEREF GetSpread(RealShift(_shift)); }
+  double Fetch(int _shift) override {
+    ResetLastError();
+    double _value = indi_candle REF_DEREF GetOHLC(RealShift(_shift)).GetMedian();
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Cannot fetch OHLC! Error: ", _LastError);
+      DebugBreak();
+    }
+    return _value;
+  }
 };

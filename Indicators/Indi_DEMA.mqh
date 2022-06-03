@@ -36,12 +36,12 @@
 #include "Price/Indi_Price.mqh"
 
 // Structs.
-struct IndiDEIndiMAParams : IndicatorParams {
+struct IndiDEMAParams : IndicatorParams {
   int ma_shift;
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  IndiDEIndiMAParams(unsigned int _period = 14, int _ma_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
+  IndiDEMAParams(unsigned int _period = 14, int _ma_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : period(_period), ma_shift(_ma_shift), applied_price(_ap), IndicatorParams(INDI_DEMA, 1, TYPE_DOUBLE) {
     SetCustomIndicatorName("Examples\\DEMA");
     SetDataValueRange(IDATA_RANGE_PRICE);
@@ -54,7 +54,7 @@ struct IndiDEIndiMAParams : IndicatorParams {
         break;
     }
   };
-  IndiDEIndiMAParams(IndiDEIndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
+  IndiDEMAParams(IndiDEMAParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
   };
@@ -63,12 +63,12 @@ struct IndiDEIndiMAParams : IndicatorParams {
 /**
  * Implements the Moving Average indicator.
  */
-class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
+class Indi_DEMA : public Indicator<IndiDEMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_DEMA(IndiDEIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
+  Indi_DEMA(IndiDEMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
   Indi_DEMA(int _shift = 0) : Indicator(INDI_DEMA, _shift) {}
 
   /**
@@ -108,19 +108,21 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
 #else
     Indi_Price *_indi_price = Indi_Price::GetPlatformPrices(_symbol, _applied_price, _tf, _shift);
     // Note that _applied_price and Indi_Price mode indices are compatible.
-    return Indi_DEMA::iDEMAOnIndicatorSlow(_indi_price.GetCache(), _indi_price, 0, _period, _ma_shift, _shift);
-#endif
+    return iDEMAOnIndicator(_indi_price, _period, _ma_shift, _applied_price, _mode, _shift);
   }
 
-  static double iDEMAOnIndicatorSlow(IndicatorCalculateCache<double> *cache, IndicatorBase *_indi, int indi_mode,
-                                     unsigned int ma_period, unsigned int ma_shift, int shift) {
-    return iDEMAOnArray((ValueStorage<double> *)_indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, shift, cache);
-  }
+  /*
+    static double iDEMAOnIndicator(IndicatorBase *_indi, unsigned int _ma_period, unsigned int _ma_shift,
+    ENUM_APPLIED_PRICE _ap, int _shift) { INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi,
+    Util::MakeKey(_ma_period, _ma_shift, (int)_ap)); return iDEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT,
+    _ma_period, _ma_shift, 0, _shift, cache);
+    }
+  */
 
   static double iDEMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, unsigned int _ma_period, unsigned int _ma_shift,
                              int _mode, int _shift, IndicatorCalculateCache<double> *_cache = NULL,
                              bool _recalculate = false) {
-    if (_cache == NULL) {
+    if (_cache == nullptr) {
       Print("iDEMAOnArray() cannot yet work without cache object!");
       DebugBreak();
       return 0.0f;
@@ -129,7 +131,7 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
     _cache.SetPriceBuffer(_price);
 
     if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(3);  // 3 buffers.
+      _cache.AddBuffer<NativeValueStorage<double> >(3);  // 3 buffers.
     }
 
     if (_recalculate) {
@@ -148,14 +150,18 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
    * On-indicator version of DEMA.
    */
   static double iDEMAOnIndicator(IndicatorBase *_indi, int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                                 int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                                 int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, _ma_shift));
     return iDEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ma_shift, _mode, _shift, _cache);
   }
 
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &DemaBuffer,
                        ValueStorage<double> &Ema, ValueStorage<double> &EmaOfEma, int InpPeriodEMA) {
-    if (rates_total < 2 * InpPeriodEMA - 2) return (0);
+    Print("rates_total: ", rates_total, " < ", 2 * InpPeriodEMA - 2, " ?");
+
+    if (rates_total < 2 * InpPeriodEMA - 2) {
+      return 0;
+    }
 
     int start;
     if (prev_calculated == 0)
@@ -167,7 +173,9 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
 
     Indi_MA::ExponentialMAOnBuffer(rates_total, prev_calculated, InpPeriodEMA - 1, InpPeriodEMA, Ema, EmaOfEma);
 
-    for (int i = start; i < rates_total && !IsStopped(); i++) DemaBuffer[i] = 2.0 * Ema[i].Get() - EmaOfEma[i].Get();
+    for (int i = start; i < rates_total && !IsStopped(); i++) {
+      DemaBuffer[i] = 2.0 * Ema[i].Get() - EmaOfEma[i].Get();
+    }
 
     return (rates_total);
   }
@@ -195,7 +203,7 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
         _value = Indi_DEMA::iDEMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/,
-                                             _mode, _ishift, THIS_PTR);
+                                             _mode, _ishift);
         break;
     }
     return _value;
@@ -205,8 +213,7 @@ class Indi_DEMA : public Indicator<IndiDEIndiMAParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<IndiDEIndiMAParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0) &&
-           _entry.IsLt<double>(DBL_MAX);
+    return Indicator<IndiDEMAParams>::IsValidEntry(_entry) && _entry.IsGt<double>(0) && _entry.IsLt<double>(DBL_MAX);
   }
 
   /* Getters */

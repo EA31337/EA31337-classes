@@ -33,6 +33,9 @@
 #include "../Buffer/BufferCandle.h"
 #include "../Candle.struct.h"
 #include "../Indicator.mqh"
+#include "../Storage/ValueStorage.price_median.h"
+#include "../Storage/ValueStorage.price_typical.h"
+#include "../Storage/ValueStorage.price_weighted.h"
 #include "../Storage/ValueStorage.spread.h"
 #include "../Storage/ValueStorage.tick_volume.h"
 #include "../Storage/ValueStorage.time.h"
@@ -50,6 +53,10 @@ enum ENUM_INDI_CANDLE_MODE {
   INDI_CANDLE_MODE_TIME,
   INDI_CANDLE_MODE_VOLUME,
   FINAL_INDI_CANDLE_MODE_ENTRY,
+  // Following modes are dynamically calculated.
+  INDI_CANDLE_MODE_PRICE_MEDIAN,
+  INDI_CANDLE_MODE_PRICE_TYPICAL,
+  INDI_CANDLE_MODE_PRICE_WEIGHTED,
 };
 
 /**
@@ -74,7 +81,7 @@ class IndicatorCandle : public Indicator<TS> {
     flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
     icdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     icdata.SetOverflowListener(IndicatorCandleOverflowListener, 10);
-    iparams.SetMaxModes(4);
+    iparams.SetMaxModes(FINAL_INDI_CANDLE_MODE_ENTRY);
   }
 
  public:
@@ -229,10 +236,6 @@ class IndicatorCandle : public Indicator<TS> {
    * Returns value storage for a given mode.
    */
   IValueStorage* GetValueStorage(int _mode = 0) override {
-    if (_mode < GetModeCount()) {
-      return Indicator<TS>::GetValueStorage(_mode);
-    }
-
     if (_mode >= ArraySize(value_storages)) {
       ArrayResize(value_storages, _mode + 1);
     }
@@ -240,20 +243,31 @@ class IndicatorCandle : public Indicator<TS> {
     if (value_storages[_mode] == nullptr) {
       // Buffer not yet created.
       switch (_mode) {
-        case INDI_CANDLE_MODE_SPREAD:
-          value_storages[_mode] = new SpreadValueStorage(THIS_PTR);
+        case INDI_CANDLE_MODE_PRICE_OPEN:
+        case INDI_CANDLE_MODE_PRICE_HIGH:
+        case INDI_CANDLE_MODE_PRICE_LOW:
+        case INDI_CANDLE_MODE_PRICE_CLOSE:
+          value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
           break;
+        case INDI_CANDLE_MODE_SPREAD:
         case INDI_CANDLE_MODE_TICK_VOLUME:
-          value_storages[_mode] = new TickVolumeValueStorage(THIS_PTR);
+        case INDI_CANDLE_MODE_VOLUME:
+          value_storages[_mode] = new IndicatorBufferValueStorage<long>(THIS_PTR, _mode);
           break;
         case INDI_CANDLE_MODE_TIME:
-          value_storages[_mode] = new TimeValueStorage(THIS_PTR);
+          value_storages[_mode] = new IndicatorBufferValueStorage<datetime>(THIS_PTR, _mode);
           break;
-        case INDI_CANDLE_MODE_VOLUME:
-          value_storages[_mode] = new VolumeValueStorage(THIS_PTR);
+        case INDI_CANDLE_MODE_PRICE_MEDIAN:
+          value_storages[_mode] = new PriceMedianValueStorage(THIS_PTR);
+          break;
+        case INDI_CANDLE_MODE_PRICE_TYPICAL:
+          value_storages[_mode] = new PriceTypicalValueStorage(THIS_PTR);
+          break;
+        case INDI_CANDLE_MODE_PRICE_WEIGHTED:
+          value_storages[_mode] = new PriceWeightedValueStorage(THIS_PTR);
           break;
         default:
-          Print("Unsupported mode to fetch: " + IntegerToString(_mode));
+          Print("ERROR: Unsupported value storage mode ", _mode);
           DebugBreak();
       }
     }
@@ -301,6 +315,13 @@ class IndicatorCandle : public Indicator<TS> {
     _entry.values[INDI_CANDLE_MODE_TICK_VOLUME] = _candle.volume;
     _entry.values[INDI_CANDLE_MODE_TIME] = _timestamp;
     _entry.values[INDI_CANDLE_MODE_VOLUME] = _candle.volume;
+
+    // @todo We may consider adding these three buffers directly.
+    // BarOHLC _ohlc(_candle.open, _candle.high, _candle.low, _candle.close);
+    // _entry.values[INDI_CANDLE_MODE_PRICE_MEDIAN] = _ohlc.GetMedian();
+    // _entry.values[INDI_CANDLE_MODE_PRICE_TYPICAL] = _ohlc.GetTypical();
+    // _entry.values[INDI_CANDLE_MODE_PRICE_WEIGHTED] = _ohlc.GetWeighted();
+
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _candle.IsValid());
     return _entry;
   }
@@ -367,6 +388,12 @@ class IndicatorCandle : public Indicator<TS> {
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_LOW);
       case INDI_VS_TYPE_PRICE_CLOSE:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_CLOSE);
+      case INDI_VS_TYPE_PRICE_MEDIAN:
+        return GetValueStorage(INDI_CANDLE_MODE_PRICE_MEDIAN);
+      case INDI_VS_TYPE_PRICE_TYPICAL:
+        return GetValueStorage(INDI_CANDLE_MODE_PRICE_TYPICAL);
+      case INDI_VS_TYPE_PRICE_WEIGHTED:
+        return GetValueStorage(INDI_CANDLE_MODE_PRICE_WEIGHTED);
       case INDI_VS_TYPE_SPREAD:
         return GetValueStorage(INDI_CANDLE_MODE_SPREAD);
       case INDI_VS_TYPE_TICK_VOLUME:
@@ -390,6 +417,9 @@ class IndicatorCandle : public Indicator<TS> {
       case INDI_VS_TYPE_PRICE_HIGH:
       case INDI_VS_TYPE_PRICE_LOW:
       case INDI_VS_TYPE_PRICE_CLOSE:
+      case INDI_VS_TYPE_PRICE_MEDIAN:
+      case INDI_VS_TYPE_PRICE_TYPICAL:
+      case INDI_VS_TYPE_PRICE_WEIGHTED:
       case INDI_VS_TYPE_SPREAD:
       case INDI_VS_TYPE_TICK_VOLUME:
       case INDI_VS_TYPE_TIME:

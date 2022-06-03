@@ -26,7 +26,7 @@
 
 // Defines.
 #define __debug__  // Enables debug.
-#define __debug_verbose__
+//#define __debug_verbose__
 
 // Forward declaration.
 struct DataParamEntry;
@@ -131,7 +131,7 @@ void OnTick() {
 
       IndicatorBase* _indi = iter.Value().Ptr();
       _indi.OnTick();
-      // Print("Getting value for " + _indi.GetFullName());
+      Print("Getting value for " + _indi.GetFullName());
       IndicatorDataEntry _entry(_indi.GetEntry());
 
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
@@ -254,7 +254,7 @@ bool InitIndicators() {
   indis.Push(indi_ma);
 
   // DEMA.
-  IndiDEIndiMAParams dema_params(13, 2, PRICE_OPEN);
+  IndiDEMAParams dema_params(13, 2, PRICE_OPEN);
   Ref<IndicatorBase> indi_dema = new Indi_DEMA(dema_params);
   indis.Push(indi_dema);
 
@@ -403,7 +403,7 @@ bool InitIndicators() {
   // DEMA over Price indicator.
   PriceIndiParams price_params_4_dema();
   Ref<IndicatorBase> indi_price_4_dema = new Indi_Price(price_params_4_dema);
-  IndiDEIndiMAParams dema_on_price_params(13, 2, PRICE_OPEN);
+  IndiDEMAParams dema_on_price_params(13, 2, PRICE_OPEN);
   dema_on_price_params.SetDraw(clrRed);
   Ref<Indi_DEMA> indi_dema_on_price = new Indi_DEMA(dema_on_price_params);
   indi_dema_on_price.Ptr().SetDataSource(indi_price_4_dema.Ptr());
