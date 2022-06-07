@@ -260,7 +260,18 @@ enum ENUM_INDI_FLAGS {
 
 // Flags indicating which data sources are required to be provided in order indicator to work.
 enum ENUM_INDI_SUITABLE_DS_TYPE {
-  INDI_SUITABLE_DS_TYPE_TICK,    // Indicator requires Tick-based data source in the hierarchy.
-  INDI_SUITABLE_DS_TYPE_CANDLE,  // Indicator requires Candle-based data source in the hierarchy.
-  INDI_SUITABLE_DS_TYPE_CUSTOM   // Indicator requires parent data source to have custom set of buffers/modes.
+  INDI_SUITABLE_DS_TYPE_NONE = 0,
+  INDI_SUITABLE_DS_TYPE_TICK = 1 << 0,    // Indicator requires Tick-based data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_CANDLE = 1 << 1,  // Indicator requires Candle-based data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_CUSTOM = 1 << 2,  // Indicator requires parent data source to have custom set of buffers/modes.
+  INDI_SUITABLE_DS_TYPE_AP =
+      1 << 3,  // Indicator requires single, targetted (by applied price) buffer from data source in the hierarchy.
+};
+
+// Type of data source mode. Required to determine what "mode" means for the user.
+enum ENUM_INDI_DS_MODE_KIND {
+  INDI_DS_MODE_KIND_INDEX,    // Mode is a buffer index.
+  INDI_DS_MODE_KIND_VS_TYPE,  // Mode is a value from ENUM_INDI_VS_TYPE enumeration, e.g., ENUM_INDI_VS_PRICE_OPEN.
+  INDI_DS_MODE_KIND_AP,  // Mode is a value from ENUM_APPLIED_PRICE enumeration. It is used to retrieve value storage
+                         // based on ENUM_INDI_VS_TYPE enumeration, e.g., PRICE_OPEN becomes ENUM_INDI_VS_PRICE_OPEN.
 };

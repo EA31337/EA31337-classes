@@ -25,7 +25,7 @@
  */
 
 // Defines.
-#define __debug__  // Enables debug.
+//#define __debug__  // Enables debug.
 //#define __debug_verbose__
 
 // Forward declaration.
@@ -131,7 +131,7 @@ void OnTick() {
 
       IndicatorBase* _indi = iter.Value().Ptr();
       _indi.OnTick();
-      Print("Getting value for " + _indi.GetFullName());
+      // Print("Getting value for " + _indi.GetFullName());
       IndicatorDataEntry _entry(_indi.GetEntry());
 
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {

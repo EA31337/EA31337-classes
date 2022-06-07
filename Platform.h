@@ -56,6 +56,8 @@ class Platform {
       DebugBreak();
     }
 
+    // @fixit @todo We should cache Candle indicator per TF!
+
     if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_CANDLE)) {
       _indi PTR_DEREF GetOuterDataSource() PTR_DEREF SetDataSource(new IndicatorTfDummy(_tf));
     }

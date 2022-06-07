@@ -80,7 +80,8 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Returns already cached version of Indi_Price for a given parameters.
    */
-  static Indi_Price *GetPlatformPrices(string _symbol, ENUM_APPLIED_PRICE _ap, ENUM_TIMEFRAMES _tf, int _shift) {
+  static Indi_Price *GetPlatformPrices(string _symbol, ENUM_APPLIED_PRICE _ap, ENUM_TIMEFRAMES _tf, int _shift,
+                                       IndicatorBase *_base_indi = nullptr) {
     String _cache_key;
     _cache_key.Add(_symbol);
     _cache_key.Add((int)_ap);
@@ -91,7 +92,12 @@ class Indi_Price : public Indicator<PriceIndiParams> {
     if (!Objects<Indi_Price>::TryGet(_key, _indi_price)) {
       PriceIndiParams _indi_price_params(_ap, _shift);
       _indi_price = Objects<Indi_Price>::Set(_key, new Indi_Price(_indi_price_params));
-      Platform::BindDefaultDataSource(_indi_price, _symbol, _tf);
+
+      if (_base_indi == nullptr) {
+        Platform::BindDefaultDataSource(_indi_price, _symbol, _tf);
+      } else {
+        _indi_price PTR_DEREF SetDataSource(_base_indi PTR_DEREF GetCandle());
+      }
     }
     return _indi_price;
   }

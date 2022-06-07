@@ -106,18 +106,22 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
     }
     return _res[0];
 #else
-    Indi_Price *_indi_price = Indi_Price::GetPlatformPrices(_symbol, _applied_price, _tf, _shift);
-    // Note that _applied_price and Indi_Price mode indices are compatible.
-    return iDEMAOnIndicator(_indi_price, _period, _ma_shift, _applied_price, _mode, _shift);
-  }
 
-  /*
-    static double iDEMAOnIndicator(IndicatorBase *_indi, unsigned int _ma_period, unsigned int _ma_shift,
-    ENUM_APPLIED_PRICE _ap, int _shift) { INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi,
-    Util::MakeKey(_ma_period, _ma_shift, (int)_ap)); return iDEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT,
-    _ma_period, _ma_shift, 0, _shift, cache);
+    if (_obj == nullptr) {
+      Print(
+          "Indi_DEMA::iDEMA() can work without supplying pointer to IndicatorBase only in MQL5. In this platform the "
+          "pointer is required.");
+      DebugBreak();
+      return 0;
     }
-  */
+
+    // @todo Change to the following line.
+    // IndicatorBase *_source = _obj PTR_DEREF GetSuitableDataSource(_applied_price);
+    IndicatorBase *_source = _obj PTR_DEREF GetCandle();
+
+    // Note that _applied_price and Indi_Price mode indices are compatible.
+    return iDEMAOnIndicator(_obj, _period, _ma_shift, _applied_price, _mode, _shift);
+  }
 
   static double iDEMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, unsigned int _ma_period, unsigned int _ma_shift,
                              int _mode, int _shift, IndicatorCalculateCache<double> *_cache = NULL,
@@ -157,9 +161,7 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
 
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &DemaBuffer,
                        ValueStorage<double> &Ema, ValueStorage<double> &EmaOfEma, int InpPeriodEMA) {
-    Print("rates_total: ", rates_total, " < ", 2 * InpPeriodEMA - 2, " ?");
-
-    if (rates_total < 2 * InpPeriodEMA - 2) {
+    if (rates_total < 2 * InpPeriodEMA - 1) {
       return 0;
     }
 

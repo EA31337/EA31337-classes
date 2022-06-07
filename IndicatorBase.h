@@ -103,6 +103,7 @@ class IndicatorBase : public Object {
     calc_start_bar = 0;
     is_fed = false;
     indi_src = NULL;
+    indi_src_mode = -1;
     last_tick_time = 0;
   }
 
@@ -464,6 +465,60 @@ class IndicatorBase : public Object {
   virtual unsigned int GetSuitableDataSourceTypes() { return 0; }
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  virtual bool OnCheckIfSuitableDataSource(IndicatorBase* _ds) { return false; }
+
+  /**
+   * Returns best suited data source for given applied price for this indicator.
+   */
+  virtual IndicatorBase* GetSuitableDataSource(ENUM_APPLIED_PRICE _ap = (ENUM_APPLIED_PRICE)0,
+                                               bool _fallback_with_indi_mode = true) {
+    Flags<unsigned int> _suitable_types = GetSuitableDataSourceTypes();
+    IndicatorBase* _curr_indi;
+
+    // Custom set of required buffers. Will invoke virtual OnCheckIfSuitableDataSource().
+    if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_CUSTOM)) {
+      // Searching suitable data source in hierarchy.
+      for (_curr_indi = GetDataSource(true); _curr_indi != nullptr;
+           _curr_indi = _curr_indi PTR_DEREF GetDataSource(true)) {
+        if (OnCheckIfSuitableDataSource(_curr_indi)) return _curr_indi;
+      }
+
+      Print("Error: ", GetFullName(),
+            " requested custom type of indicator as data source, but there is none in the hierarchy which satisfies "
+            "the requirements!");
+      DebugBreak();
+    }
+
+    // Requires Candle-compatible indicator in the hierarchy.
+    if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_CANDLE)) {
+      _curr_indi = GetCandle(false);
+      if (_curr_indi != nullptr) return _curr_indi;
+
+      if (!_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_TICK)) {
+        Print("Error: ", GetFullName(),
+              " requested Candle-compatible type of indicator as data source, but there is none in the hierarchy!");
+      }
+    }
+
+    // Requires Tick-compatible indicator in the hierarchy.
+    if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_TICK)) {
+      _curr_indi = GetTick(false);
+      if (_curr_indi != nullptr) return _curr_indi;
+    }
+
+    // Requires a single buffered or OHLC-compatible indicator (targetted via applied price) in the hierarchy.
+    if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
+    }
+  }
+
+  /**
+   * Returns best suited data source for this indicator.
+   */
+  virtual IndicatorBase* GetSuitableDataSource() {}
+
+  /**
    * Returns the number of bars on the chart.
    */
   virtual int GetBars() { return GetCandle() PTR_DEREF GetBars(); }
@@ -682,9 +737,25 @@ class IndicatorBase : public Object {
   virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) = NULL;
 
   /**
+   * Injects data source between this indicator and its data source.
+   */
+  void InjectDataSource(IndicatorBase* _indi, int _input_mode = -1) {
+    IndicatorBase* _previous_ds = GetDataSource(true);
+
+    SetDataSource(_indi, _input_mode);
+
+    if (_previous_ds != nullptr) {
+      _indi PTR_DEREF SetDataSource(_previous_ds);
+    }
+  }
+
+  /**
    * Sets data source's input mode.
    */
-  void SetDataSourceMode(int _mode) { indi_src_mode = _mode; }
+  void SetDataSourceMode(int _mode, ENUM_INDI_DS_MODE_KIND _mode_kind = INDI_DS_MODE_KIND_INDEX) {
+    indi_src_mode = _mode;
+    indi_src_mode_kind = _mode_kind;
+  }
 
   /**
    * Sets name of the indicator.

@@ -47,9 +47,6 @@ class HistoryValueStorage : public ValueStorage<C> {
   // Indicator used as an OHLC source, e.g. IndicatorCandle.
   Ref<IndicatorBase> indi_candle;
 
-  // Time of the first bar possible to fetch.
-  datetime start_bar_time;
-
   // Whether storage operates in as-series mode.
   bool is_series;
 
@@ -63,7 +60,6 @@ class HistoryValueStorage : public ValueStorage<C> {
       Print("You have to pass IndicatorCandle-compatible indicator as parameter to HistoryValueStorage!");
       DebugBreak();
     }
-    start_bar_time = indi_candle REF_DEREF GetBarTime(BarsFromStart() - 1);
   }
 
   /**
@@ -93,7 +89,7 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  virtual int Size() const { return BarsFromStart(); }
+  int Size() const override { return BarsFromStart(); }
 
   /**
    * Resizes storage to given size.
