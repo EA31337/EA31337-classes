@@ -172,7 +172,7 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

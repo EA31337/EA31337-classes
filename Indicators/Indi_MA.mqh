@@ -723,7 +723,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_array; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_array; }
 
   /* Setters */
 

@@ -63,7 +63,7 @@ struct IndiRSIParams : IndicatorParams {
     tf = _tf;
   };
   // Getters.
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return applied_price; }
   int GetPeriod() { return period; }
   // Setters.
   void SetPeriod(int _period) { period = _period; }

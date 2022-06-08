@@ -114,7 +114,7 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

@@ -140,7 +140,7 @@ class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /**
    * Get period.

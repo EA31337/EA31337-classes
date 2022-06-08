@@ -39,7 +39,7 @@ struct PriceIndiParams : IndicatorParams {
     tf = _tf;
   };
   // Getters.
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return ap; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return ap; }
   // Setters.
   void SetAppliedPrice(ENUM_APPLIED_PRICE _ap) { ap = _ap; }
 };

@@ -266,6 +266,7 @@ enum ENUM_INDI_SUITABLE_DS_TYPE {
   INDI_SUITABLE_DS_TYPE_CUSTOM = 1 << 2,  // Indicator requires parent data source to have custom set of buffers/modes.
   INDI_SUITABLE_DS_TYPE_AP =
       1 << 3,  // Indicator requires single, targetted (by applied price) buffer from data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_BASE_ONLY = 1 << 4,  // Required data source must be directly connected to this data source.
 };
 
 // Type of data source mode. Required to determine what "mode" means for the user.

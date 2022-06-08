@@ -239,7 +239,7 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

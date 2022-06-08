@@ -147,7 +147,7 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /**
    * Get applied volume type (MT5 only).

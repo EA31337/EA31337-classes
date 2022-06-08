@@ -279,7 +279,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

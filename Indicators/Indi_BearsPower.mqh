@@ -133,7 +133,7 @@ class Indi_BearsPower : public Indicator<IndiBearsPowerParams> {
    *
    * Note: Not used in MT5.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

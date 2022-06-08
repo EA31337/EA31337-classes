@@ -259,7 +259,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /**
    * Get deviation value.
