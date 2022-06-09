@@ -85,6 +85,18 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   Indi_Envelopes(int _shift = 0) : Indicator(INDI_ENVELOPES, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
+
+  /**
    * Returns the indicator value.
    *
    * @docs
@@ -204,6 +216,12 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
                                             GetAppliedPrice(), GetDeviation(), _mode, _ishift, THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        // @todo Is cache needed here?
+        _value = Indi_Envelopes::iEnvelopesOnIndicator(GetCache(), THIS_PTR, GetSymbol(), GetTf(), GetMAPeriod(),
+                                                       GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(),
+                                                       _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/ GetMAPeriod(),

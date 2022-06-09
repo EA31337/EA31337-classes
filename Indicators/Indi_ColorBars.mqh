@@ -51,6 +51,11 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
   Indi_ColorBars(int _shift = 0) : Indicator(INDI_COLOR_BARS, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
    * OnCalculate-based version of Color Bars as there is no built-in one.
    */
   static double iColorBars(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {

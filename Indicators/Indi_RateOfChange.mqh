@@ -55,7 +55,17 @@ class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
   Indi_RateOfChange(int _shift = 0) : Indicator(INDI_RATE_OF_CHANGE, _shift){};
 
   /**
-   * OnCalculate-based version of Rate of Change as there is no built-in one.
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
    */
   double iROC(IndicatorBase *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, (int)_ap));

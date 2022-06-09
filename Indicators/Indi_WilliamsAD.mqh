@@ -51,6 +51,25 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   Indi_WilliamsAD(int _shift = 0) : Indicator(INDI_WILLIAMS_AD, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // WAD use only high, low and close price.
+    return HasSpecificAppliedPriceValueStorage(PRICE_HIGH) && HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
+  /**
    * OnCalculate-based version of Williams' AD as there is no built-in one.
    */
   static double iWAD(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {

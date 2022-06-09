@@ -61,6 +61,18 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
   Indi_VIDYA(int _shift = 0) : Indicator(INDI_VIDYA, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
+
+  /**
    * Built-in version of iVIDyA.
    */
   static double iVIDyA(string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period, int _ema_period, int _ma_shift,
@@ -170,6 +182,10 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
       case IDATA_BUILTIN:
         _value = Indi_VIDYA::iVIDyA(GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(), GetVIDYAShift(),
                                     GetAppliedPrice() /*]*/, 0, _ishift, THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        _value = Indi_VIDYA::iVIDyAOnIndicator(THIS_PTR, GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(),
+                                               GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/

@@ -82,6 +82,18 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   Indi_StdDev(int _shift = 0) : Indicator(INDI_STDDEV, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
+
+  /**
    * Calculates the Standard Deviation indicator and returns its value.
    *
    * @docs
@@ -240,6 +252,10 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),
                                       GetAppliedPrice(), _ishift, THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        _value = Indi_StdDev::iStdDevOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
+                                                 GetAppliedPrice(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetMAPeriod(),

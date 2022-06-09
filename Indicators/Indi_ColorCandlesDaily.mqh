@@ -51,6 +51,25 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   Indi_ColorCandlesDaily(int _shift = 0) : Indicator(INDI_COLOR_CANDLES_DAILY, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // Volume uses volume only.
+    return HasSpecificAppliedPriceValueStorage(PRICE_OPEN) && HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           HasSpecificAppliedPriceValueStorage(PRICE_LOW) && HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
+  /**
    * OnCalculate-based version of Color Candles Daily as there is no built-in one.
    */
   static double iCCD(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {

@@ -56,6 +56,24 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
   Indi_DetrendedPrice(int _shift = 0) : Indicator(INDI_DETRENDED_PRICE, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // Volume uses volume only.
+    return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+  }
+
+  /**
    * Built-in version of DPO.
    */
   static double iDPO(IndicatorBase *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
@@ -116,6 +134,7 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
+      case IDATA_ONCALCULATE:
         _value = iDPO(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:

@@ -54,6 +54,24 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   Indi_PriceChannel(int _shift = 0) : Indicator(INDI_PRICE_CHANNEL, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // PC uses high and low prices only.
+    return HasSpecificAppliedPriceValueStorage(PRICE_HIGH | PRICE_LOW);
+  }
+
+  /**
    * OnCalculate-based version of Price Channel indicator as there is no built-in one.
    */
   static double iPriceChannel(IndicatorBase *_indi, int _period, int _mode = 0, int _shift = 0) {

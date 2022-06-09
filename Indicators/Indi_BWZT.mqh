@@ -71,6 +71,11 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   Indi_BWZT(int _shift = 0) : Indicator(INDI_BWZT, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
    * OnCalculate-based version of BWZT as there is no built-in one.
    */
   static double iBWZT(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {

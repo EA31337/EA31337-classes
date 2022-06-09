@@ -50,6 +50,11 @@ class Indi_ASI : public Indicator<IndiASIParams> {
   Indi_ASI(int _shift = 0) : Indicator(INDI_ASI, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
    * OnCalculate-based version of ASI as there is no built-in one.
    */
   static double iASI(IndicatorBase *_indi, double _mpc, int _mode = 0, int _shift = 0) {

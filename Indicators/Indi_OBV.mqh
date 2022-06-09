@@ -71,6 +71,30 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
   Indi_OBV(int _shift = 0) : Indicator(INDI_OBV, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+#ifdef __MQL4__
+    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+#else
+    return INDI_SUITABLE_DS_TYPE_AV | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+#endif
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // Volume uses volume only.
+    return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+  }
+
+  /**
    * Returns the indicator value.
    *
    * @docs

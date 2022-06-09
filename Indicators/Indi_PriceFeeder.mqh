@@ -64,6 +64,16 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
   };
   Indi_PriceFeeder(int _shift = 0) : Indicator(INDI_PRICE_FEEDER, _shift) {}
 
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN; }
+
   void SetPrices(const double& _price_data[], int _total = 0) { iparams = IndiPriceFeederParams(_price_data, _total); }
 
   /**

@@ -67,6 +67,19 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   Indi_ZigZag(int _shift = 0) : Indicator(INDI_ZIGZAG, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // ZigZag uses only high and low prices.
+    return HasSpecificAppliedPriceValueStorage(PRICE_HIGH) && HasSpecificAppliedPriceValueStorage(PRICE_LOW);
+  }
+
+  /**
    * Returns value for ZigZag indicator.
    */
   static double iCustomZigZag(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _depth, int _deviation,

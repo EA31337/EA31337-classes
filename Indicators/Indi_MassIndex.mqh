@@ -59,6 +59,24 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
   Indi_MassIndex(int _shift = 0) : Indicator(INDI_MASS_INDEX, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // MI uses high and low prices only.
+    return HasSpecificAppliedPriceValueStorage(PRICE_HIGH) && HasSpecificAppliedPriceValueStorage(PRICE_LOW);
+  }
+
+  /**
    * OnCalculate-based version of Mass Index as there is no built-in one.
    */
   static double iMI(IndicatorBase *_indi, int _period, int _second_period, int _sum_period, int _mode = 0,

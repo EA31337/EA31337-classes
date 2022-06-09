@@ -58,6 +58,18 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
   Indi_TEMA(int _shift = 0) : Indicator(INDI_TEMA, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
+
+  /**
    * Built-in version of TEMA.
    */
   static double iTEMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
@@ -148,6 +160,8 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
         _value = Indi_TEMA::iTEMA(GetSymbol(), GetTf(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), 0, _ishift,
                                   THIS_PTR);
         break;
+      case IDATA_ONCALCULATE:
+        _value = iTEMAOnIndicator(THIS_PTR, GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetTEMAShift() /*]*/, 0, _ishift);

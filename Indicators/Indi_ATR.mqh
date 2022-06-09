@@ -61,6 +61,11 @@ class Indi_ATR : public Indicator<IndiATRParams> {
   Indi_ATR(int _shift = 0) : Indicator(INDI_ATR, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
    * Returns the indicator value.
    *
    * @docs

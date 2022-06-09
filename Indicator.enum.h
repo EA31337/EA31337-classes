@@ -132,15 +132,15 @@ enum ENUM_INDICATOR_TYPE {
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
-/* Defines type of source data for */
+/* Defines type of source data for. Also acts as flags for Indicator::GetPossibleDataModes(). */
 enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILTIN = 0,     // Platform built-in
-  IDATA_CHART,           // Chart calculation
-  IDATA_ICUSTOM,         // iCustom: Custom indicator file
-  IDATA_ICUSTOM_LEGACY,  // iCustom: Custom, legacy, provided by MT indicator file
-  IDATA_INDICATOR,       // OnIndicator: Another indicator as a source of data
-  IDATA_ONCALCULATE,     // OnCalculate: Custom calculation function
-  IDATA_MATH             // Math-based indicator
+  IDATA_BUILTIN = 1 << 0,         // Platform built-in
+  IDATA_CHART = 1 << 1,           // Chart calculation
+  IDATA_ICUSTOM = 1 << 2,         // iCustom: Custom indicator file
+  IDATA_ICUSTOM_LEGACY = 1 << 3,  // iCustom: Custom, legacy, provided by MT indicator file
+  IDATA_INDICATOR = 1 << 4,       // OnIndicator: Another indicator as a source of data
+  IDATA_ONCALCULATE = 1 << 5,     // OnCalculate: Custom calculation function
+  IDATA_MATH = 1 << 6             // Math-based indicator
 };
 
 /* Defines range value data type for indicator storage. */
@@ -260,13 +260,16 @@ enum ENUM_INDI_FLAGS {
 
 // Flags indicating which data sources are required to be provided in order indicator to work.
 enum ENUM_INDI_SUITABLE_DS_TYPE {
-  INDI_SUITABLE_DS_TYPE_NONE = 0,
-  INDI_SUITABLE_DS_TYPE_TICK = 1 << 0,    // Indicator requires Tick-based data source in the hierarchy.
-  INDI_SUITABLE_DS_TYPE_CANDLE = 1 << 1,  // Indicator requires Candle-based data source in the hierarchy.
-  INDI_SUITABLE_DS_TYPE_CUSTOM = 1 << 2,  // Indicator requires parent data source to have custom set of buffers/modes.
+  INDI_SUITABLE_DS_TYPE_EXPECT_NONE = 1 << 0,
+  INDI_SUITABLE_DS_TYPE_TICK = 1 << 1,    // Indicator requires Tick-based data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_CANDLE = 1 << 2,  // Indicator requires Candle-based data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_CUSTOM = 1 << 3,  // Indicator requires parent data source to have custom set of buffers/modes.
   INDI_SUITABLE_DS_TYPE_AP =
-      1 << 3,  // Indicator requires single, targetted (by applied price) buffer from data source in the hierarchy.
-  INDI_SUITABLE_DS_TYPE_BASE_ONLY = 1 << 4,  // Required data source must be directly connected to this data source.
+      1 << 4,  // Indicator requires single, targetted (by applied price) buffer from data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_AV =
+      1 << 5,  // Indicator requires single, targetted (by applied volume) buffer from data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_BASE_ONLY = 1 << 6,   // Required data source must be directly connected to this data source.
+  INDI_SUITABLE_DS_TYPE_EXPECT_ANY = 1 << 7,  // Requires data source of any kind.
 };
 
 // Type of data source mode. Required to determine what "mode" means for the user.

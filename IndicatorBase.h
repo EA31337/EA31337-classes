@@ -467,6 +467,11 @@ class IndicatorBase : public Object {
   virtual unsigned int GetSuitableDataSourceTypes() { return 0; }
 
   /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  virtual unsigned int GetPossibleDataModes() { return 0; }
+
+  /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
   virtual bool OnCheckIfSuitableDataSource(IndicatorBase* _ds) { return false; }
@@ -478,6 +483,15 @@ class IndicatorBase : public Object {
     Print("Error: GetAppliedPrice() was requesed by ", GetFullName(), ", but it does not implement it!");
     DebugBreak();
     return (ENUM_APPLIED_PRICE)-1;
+  }
+
+  /**
+   * Returns applied volume as set by the indicator's params.
+   */
+  virtual ENUM_APPLIED_VOLUME GetAppliedVolume() {
+    Print("Error: GetAppliedVolume() was requesed by ", GetFullName(), ", but it does not implement it!");
+    DebugBreak();
+    return (ENUM_APPLIED_VOLUME)-1;
   }
 
   /**
@@ -517,6 +531,8 @@ class IndicatorBase : public Object {
   virtual IndicatorBase* GetSuitableDataSource(bool _warn_if_not_found = true) {
     Flags<unsigned int> _suitable_types = GetSuitableDataSourceTypes();
     IndicatorBase* _curr_indi;
+
+    // @todo support EXPECT_ANY.
 
     // Custom set of required buffers. Will invoke virtual OnCheckIfSuitableDataSource().
     if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_CUSTOM)) {

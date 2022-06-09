@@ -83,6 +83,26 @@ class Indi_MA : public Indicator<IndiMAParams> {
   Indi_MA(int _shift = 0) : Indicator(INDI_MA, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // Volume uses volume only.
+    return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+  }
+
+  /**
    * Returns the indicator value.
    *
    * @docs
@@ -90,15 +110,15 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * - https://www.mql5.com/en/docs/indicators/ima
    */
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
-                    ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_array, int _shift = 0,
+                    ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
                     IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
-    return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array, _shift);
+    return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array)) == INVALID_HANDLE) {
+      if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
       } else if (Object::IsValid(_obj)) {
@@ -637,6 +657,11 @@ class Indi_MA : public Indicator<IndiMAParams> {
         _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
                               _ishift, THIS_PTR);
         break;
+      case IDATA_ONCALCULATE:
+        // @todo Is cache needed here?
+        _value = Indi_MA::iMAOnIndicator(GetCache(), THIS_PTR, GetDataSourceMode(), GetSymbol(), GetTf(), GetPeriod(),
+                                         GetMAShift(), GetMAMethod(), _ishift);
+        break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
@@ -763,9 +788,9 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
    * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
    */
-  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_array) {
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    iparams.applied_array = _applied_array;
+    iparams.applied_array = _applied_price;
   }
 };
 #endif  // INDI_MA_MQH

@@ -71,6 +71,16 @@ class Indi_Stochastic : public Indicator<IndiStochParams> {
   Indi_Stochastic(int _shift = 0) : Indicator(INDI_STOCHASTIC, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
+
+  /**
    * Calculates the Stochastic Oscillator and returns its value.
    *
    * @docs

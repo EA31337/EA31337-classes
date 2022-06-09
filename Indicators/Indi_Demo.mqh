@@ -62,6 +62,16 @@ class Indi_Demo : public Indicator<IndiDemoParams> {
   Indi_Demo(int _shift = 0) : Indicator(INDI_DEMO, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CANDLE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN; }
+
+  /**
    * Returns the indicator value.
    */
   static double iDemo(IndicatorBase *_obj, int _shift = 0) {

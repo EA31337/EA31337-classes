@@ -54,11 +54,32 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
   Indi_ColorLine(int _shift = 0) : Indicator(INDI_COLOR_LINE, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   *
+   * @fixit Should require Candle data source?
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CANDLE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // Volume uses volume only.
+    return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+  }
+
+  /**
    * OnCalculate-based version of Color Line as there is no built-in one.
    */
   static double iColorLine(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     // Will return Indi_MA with the same candles source as _indi's.
+    // @fixit There should be Candle attached to MA!
     Indi_MA *_indi_ma = Indi_MA::GetCached(_indi, 10, 0, MODE_EMA, PRICE_CLOSE);
     return iColorLineOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ma);
   }

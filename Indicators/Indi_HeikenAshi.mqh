@@ -77,6 +77,27 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   Indi_HeikenAshi(int _shift = 0) : Indicator(INDI_HEIKENASHI, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // HA uses OHLC only.
+    return HasSpecificAppliedPriceValueStorage(PRICE_OPEN) && HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           HasSpecificAppliedPriceValueStorage(PRICE_LOW) && HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
+  /**
    * Returns value for iHeikenAshi indicator.
    */
   static double iCustomLegacyHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift = 0,

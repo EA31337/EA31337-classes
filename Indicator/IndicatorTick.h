@@ -94,6 +94,11 @@ class IndicatorTick : public Indicator<TS> {
   }
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
    * Returns time of the bar for a given shift.
    */
   datetime GetBarTime(int _shift = 0) override {

@@ -99,6 +99,13 @@ class IndicatorCandle : public Indicator<TS> {
     Init();
   }
 
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_TICK | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
   /* Getters */
 
   /**

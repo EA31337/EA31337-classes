@@ -60,6 +60,11 @@ class Indi_BullsPower : public Indicator<IndiBullsPowerParams> {
   Indi_BullsPower(int _shift = 0) : Indicator(INDI_BULLS, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
    * Returns the indicator value.
    *
    * @docs

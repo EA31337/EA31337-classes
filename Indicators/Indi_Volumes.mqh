@@ -55,6 +55,26 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
   Indi_Volumes(int _shift = 0) : Indicator(INDI_VOLUMES, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // Volume uses volume only.
+    return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
    * OnCalculate-based version of Volumes as there is no built-in one.
    */
   static double iVolumes(IndicatorBase *_indi, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {

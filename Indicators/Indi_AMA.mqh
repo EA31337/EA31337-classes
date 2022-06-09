@@ -69,6 +69,11 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   Indi_AMA(int _shift = 0) : Indicator(INDI_AMA, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
    * Built-in version of AMA.
    */
   static double iAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period, int _fast_ema_period, int _slow_ema_period,

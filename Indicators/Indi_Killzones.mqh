@@ -103,6 +103,24 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   Indi_Killzones(int _shift = 0) : Indicator(INDI_KILLZONES, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_CHART; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // Killzones uses high and low prices only.
+    return HasSpecificAppliedPriceValueStorage(PRICE_HIGH) && HasSpecificAppliedPriceValueStorage(PRICE_LOW);
+  }
+
+  /**
    * Returns the indicator's value.
    */
   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {

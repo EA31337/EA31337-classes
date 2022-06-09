@@ -70,6 +70,20 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
   Indi_Momentum(int _shift = 0) : Indicator(INDI_MOMENTUM, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
+
+  /**
    * Returns the indicator value.
    *
    * @docs
@@ -149,6 +163,14 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), iparams.shift + _ishift,
                                           THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        // @fixit Somehow shift isn't used neither in MT4 nor MT5.
+        _value = Indi_Momentum::iMomentumOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetPeriod(), GetDataSourceMode(),
+                                                     iparams.shift + _shift);
+        if (iparams.is_draw) {
+          draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + _shift), _value, 1);
+        }
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,

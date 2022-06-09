@@ -60,6 +60,11 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   Indi_ADXW(int _shift = 0) : Indicator(INDI_ADXW, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
    * Built-in or OnCalculate-based version of ADX Wilder.
    */
   static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = LINE_MAIN_ADX,

@@ -30,9 +30,7 @@
 struct IndiRSParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  IndiRSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_RS, 2, TYPE_DOUBLE) {
-    applied_volume = _applied_volume;
+  IndiRSParams(int _shift = 0) : IndicatorParams(INDI_RS, 2, TYPE_DOUBLE) {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_MATH);
     shift = _shift;
@@ -56,20 +54,38 @@ class Indi_RS : public Indicator<IndiRSParams> {
   Indi_RS(IndiRSParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) { Init(); };
   Indi_RS(int _shift = 0) : Indicator(INDI_RS, _shift) { Init(); };
 
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_MATH; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // RS uses OHLC.
+    return HasSpecificAppliedPriceValueStorage(PRICE_OPEN) && HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           HasSpecificAppliedPriceValueStorage(PRICE_LOW) && HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
   void Init() {
     if (iparams.GetDataSourceType() == IDATA_MATH) {
       IndiOHLCParams _iohlc_params();
-      // @todo Symbol should be already defined for a chart.
-      // @todo If it's not, move initialization to GetValue()/GetEntry() method.
-      Indi_OHLC *_iohlc = Indi_OHLC::GetCached(GetSymbol(), GetTf(), 0);
       IndiMathParams _imath0_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 0, INDI_OHLC_CLOSE, 1);
       IndiMathParams _imath1_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 1, INDI_OHLC_CLOSE, 0);
       _imath0_p.SetTf(GetTf());
       _imath1_p.SetTf(GetTf());
       Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_p);
       Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_p);
-      _imath0.Ptr().SetDataSource(_iohlc, 0);
-      _imath1.Ptr().SetDataSource(_iohlc, 0);
+      _imath0.Ptr().SetDataSource(GetDataSource(true), 0);
+      _imath1.Ptr().SetDataSource(GetDataSource(true), 0);
       imath.Set(0, _imath0);
       imath.Set(1, _imath1);
     }
@@ -95,21 +111,4 @@ class Indi_RS : public Indicator<IndiRSParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return true; }
-
-  /* Getters */
-
-  /**
-   * Get applied volume.
-   */
-  ENUM_APPLIED_VOLUME GetAppliedVolume() { return iparams.applied_volume; }
-
-  /* Setters */
-
-  /**
-   * Set applied volume.
-   */
-  void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
-    istate.is_changed = true;
-    iparams.applied_volume = _applied_volume;
-  }
 };

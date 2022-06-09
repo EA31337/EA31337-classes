@@ -72,6 +72,11 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
   Indi_DEMA(int _shift = 0) : Indicator(INDI_DEMA, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
    * Updates the indicator value.
    *
    * @docs

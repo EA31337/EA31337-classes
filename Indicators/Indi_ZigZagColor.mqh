@@ -61,6 +61,19 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   Indi_ZigZagColor(int _shift = 0) : Indicator(INDI_VROC, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // ZigZagColor uses only high and low prices.
+    return HasSpecificAppliedPriceValueStorage(PRICE_HIGH) && HasSpecificAppliedPriceValueStorage(PRICE_LOW);
+  }
+
+  /**
    * Returns value for ZigZag Color indicator.
    */
   static double iZigZagColor(IndicatorBase *_indi, int _depth, int _deviation, int _backstep,

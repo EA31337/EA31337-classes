@@ -72,6 +72,24 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
   Indi_UltimateOscillator(int _shift = 0) : Indicator(INDI_ULTIMATE_OSCILLATOR, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // UO uses only low and close prices.
+    return HasSpecificAppliedPriceValueStorage(PRICE_LOW) && HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
+  /**
    * OnCalculate-based version of Ultimate Oscillator as there is no built-in one.
    */
   static double iUO(IndicatorBase *_indi, int _fast_period, int _middle_period, int _slow_period, int _fast_k,

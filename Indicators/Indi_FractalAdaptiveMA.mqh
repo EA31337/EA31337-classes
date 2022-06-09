@@ -59,6 +59,27 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
   Indi_FrAMA(int _shift = 0) : Indicator(INDI_FRAMA, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // FrAMA uses OHLC only.
+    return HasSpecificAppliedPriceValueStorage(PRICE_OPEN) && HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           HasSpecificAppliedPriceValueStorage(PRICE_LOW) && HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
+  /**
    * Built-in version of FrAMA.
    */
   static double iFrAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
@@ -155,6 +176,9 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
       case IDATA_BUILTIN:
         _value =
             iFrAMA(GetSymbol(), GetTf(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift, THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        _value = iFrAMAOnIndicator(THIS_PTR, GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),

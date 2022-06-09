@@ -64,6 +64,11 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
   Indi_CHV(int _shift = 0) : Indicator(INDI_CHAIKIN_V, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
    * OnCalculate-based version of Chaikin Volatility as there is no built-in one.
    */
   double iCHV(IndicatorBase *_indi, int _smooth_period, int _chv_period, ENUM_CHV_SMOOTH_METHOD _smooth_method,

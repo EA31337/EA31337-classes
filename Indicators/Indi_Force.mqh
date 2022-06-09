@@ -75,6 +75,16 @@ class Indi_Force : public Indicator<IndiForceParams> {
   Indi_Force(int _shift = 0) : Indicator(INDI_FORCE, _shift) {}
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
+
+  /**
    * Returns the indicator value.
    *
    * @docs

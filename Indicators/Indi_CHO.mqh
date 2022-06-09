@@ -63,6 +63,11 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
   Indi_CHO(int _shift = 0) : Indicator(INDI_CHAIKIN, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+
+  /**
    * Built-in version of Chaikin Oscillator.
    */
   static double iChaikin(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period, int _slow_ma_period,
