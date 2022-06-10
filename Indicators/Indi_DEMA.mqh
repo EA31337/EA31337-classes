@@ -74,7 +74,16 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
 
   /**
    * Updates the indicator value.
@@ -201,6 +210,10 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_DEMA::iDEMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/,
                                   _ishift, _mode, THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        _value = Indi_DEMA::iDEMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/, _mode,
+                                             _ishift);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;

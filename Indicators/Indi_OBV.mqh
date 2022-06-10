@@ -73,13 +73,7 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  unsigned int GetSuitableDataSourceTypes() override {
-#ifdef __MQL4__
-    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
-#else
-    return INDI_SUITABLE_DS_TYPE_AV | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
-#endif
-  }
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
 
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.

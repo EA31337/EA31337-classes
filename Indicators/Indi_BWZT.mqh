@@ -73,7 +73,23 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    // RS uses OHLC.
+    return HasSpecificAppliedPriceValueStorage(PRICE_OPEN) && HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           HasSpecificAppliedPriceValueStorage(PRICE_LOW) && HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
 
   /**
    * OnCalculate-based version of BWZT as there is no built-in one.

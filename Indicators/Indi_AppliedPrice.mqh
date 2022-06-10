@@ -65,7 +65,14 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_INDICATOR; }
 
   static double iAppliedPriceOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];

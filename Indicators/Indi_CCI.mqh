@@ -69,7 +69,16 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
 
   /**
    * Returns the indicator value.
@@ -159,6 +168,11 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _ishift /* + iparams.shift*/,
                                 THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        // @fixit Somehow shift isn't used neither in MT4 nor MT5.
+        _value = Indi_CCI::iCCIOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetPeriod(), GetDataSourceMode(),
+                                           _ishift /* + iparams.shift*/);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),

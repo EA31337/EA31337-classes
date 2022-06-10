@@ -112,7 +112,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
   /**
    * Returns applied price as set by the indicator's params.
    */
-  virtual ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.GetAppliedPrice(); }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.GetAppliedPrice(); }
 
   /**
    * Returns the indicator value.

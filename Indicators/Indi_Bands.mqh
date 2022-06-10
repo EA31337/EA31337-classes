@@ -97,7 +97,16 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
 
   /**
    * Returns the indicator value.
@@ -261,7 +270,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
         // prevent infinite loop we have to make sure that bands works on
         // Candle indicator, because it is not using OHLCs, but a single,
         // generic buffer from source indicator. Giving Candle indicator to it, we enforce
-        _value = Indi_Bands::iBandsOnIndicator(GetCandle(), GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
+        _value = Indi_Bands::iBandsOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
                                                GetBandsShift(), GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift);
         break;
       case IDATA_ICUSTOM:
