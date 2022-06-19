@@ -32,7 +32,6 @@ struct IndiPivotParams : IndicatorParams {
   // Struct constructor.
   IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0) : IndicatorParams(INDI_PIVOT) {
     method = _method;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
   };
   IndiPivotParams(IndiPivotParams& _params, ENUM_TIMEFRAMES _tf) {
@@ -58,7 +57,8 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
    * Class constructor.
    */
   Indi_Pivot(IndiPivotParams& _p, IndicatorData* _indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(9, TYPE_FLOAT), _indi_src) {
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(9, TYPE_FLOAT, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {
     Init();
   };
   Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)

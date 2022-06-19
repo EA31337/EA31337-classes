@@ -32,7 +32,6 @@ struct IndiColorLineParams : IndicatorParams {
   // Struct constructor.
   IndiColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE) {
     indi_ma = NULL;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorLine");
     shift = _shift;
   };
@@ -51,7 +50,8 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
    * Class constructor.
    */
   Indi_ColorLine(IndiColorLineParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_COLOR_LINE, _tf, _shift){};
 

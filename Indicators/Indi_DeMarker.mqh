@@ -37,7 +37,6 @@ struct IndiDeMarkerParams : IndicatorParams {
   // Struct constructors.
   IndiDeMarkerParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_DEMARKER) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\DeMarker");
   };
   IndiDeMarkerParams(IndiDeMarkerParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -55,7 +54,8 @@ class Indi_DeMarker : public IndicatorTickOrCandleSource<IndiDeMarkerParams> {
    * Class constructor.
    */
   Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_RANGE), _indi_src) {}
   Indi_DeMarker(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_DEMARKER, _tf, _shift) {}
 

@@ -60,7 +60,6 @@ struct IndiEnvelopesParams : IndicatorParams {
         deviation(_deviation),
         IndicatorParams(INDI_ENVELOPES) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Envelopes");
   };
   IndiEnvelopesParams(IndiEnvelopesParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -93,7 +92,8 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
    * Class constructor.
    */
   Indi_Envelopes(IndiEnvelopesParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE), _indi_src) {
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE), _indi_src) {
     Init();
   }
   Indi_Envelopes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)

@@ -32,7 +32,6 @@ struct IndiRSParams : IndicatorParams {
   // Struct constructor.
   IndiRSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) : IndicatorParams(INDI_RS) {
     applied_volume = _applied_volume;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
   };
   IndiRSParams(IndiRSParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -52,7 +51,8 @@ class Indi_RS : public IndicatorTickOrCandleSource<IndiRSParams> {
    * Class constructor.
    */
   Indi_RS(IndiRSParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, IDATA_MATH), _indi_src) {
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, IDATA_MATH, IDATA_RANGE_PRICE_DIFF), _indi_src) {
     Init();
   };
   Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RS, _tf, _shift) {

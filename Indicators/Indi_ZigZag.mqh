@@ -38,7 +38,6 @@ struct IndiZigZagParams : IndicatorParams {
       : depth(_depth), deviation(_deviation), backstep(_backstep), IndicatorParams(INDI_ZIGZAG) {
     shift = _shift;
     SetCustomIndicatorName("Examples\\ZigZag");
-    // SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
   };
   IndiZigZagParams(IndiZigZagParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
@@ -61,7 +60,9 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
    * Class constructor.
    */
   Indi_ZigZag(IndiZigZagParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE),
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE,
+                                                                     IDATA_BUILTIN, IDATA_RANGE_PRICE_ON_SIGNAL),
                                     _indi_src) {}
   Indi_ZigZag(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ZIGZAG, _tf, _shift) {}

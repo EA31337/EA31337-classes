@@ -36,7 +36,6 @@ double iAC(string _symbol, int _tf, int _shift) {
 struct IndiACParams : IndicatorParams {
   // Struct constructor.
   IndiACParams(int _shift = 0) : IndicatorParams(INDI_AC) {
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
   };
@@ -69,7 +68,8 @@ class Indi_AC : public IndicatorTickOrCandleSource<IndiACParams> {
    * Class constructor.
    */
   Indi_AC(IndiACParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {
     Init();
   };
   Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AC, _tf, _shift) {

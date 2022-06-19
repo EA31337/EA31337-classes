@@ -39,7 +39,6 @@ struct IndiMFIParams : IndicatorParams {
   IndiMFIParams(unsigned int _ma_period = 14, ENUM_APPLIED_VOLUME _av = VOLUME_TICK, int _shift = 0)
       : ma_period(_ma_period), applied_volume(_av), IndicatorParams(INDI_MFI) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MFI");
   };
   IndiMFIParams(IndiMFIParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -57,7 +56,8 @@ class Indi_MFI : public IndicatorTickOrCandleSource<IndiMFIParams> {
    * Class constructor.
    */
   Indi_MFI(IndiMFIParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_RANGE), _indi_src) {}
   Indi_MFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_MFI, _tf, _shift) {}
 
   /**

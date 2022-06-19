@@ -35,7 +35,6 @@ struct IndiFrAIndiMAParams : IndicatorParams {
   IndiFrAIndiMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_FRAMA) {
     frama_shift = _frama_shift;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\FrAMA");
     applied_price = _ap;
     period = _period;
@@ -56,7 +55,8 @@ class Indi_FrAMA : public IndicatorTickOrCandleSource<IndiFrAIndiMAParams> {
    * Class constructor.
    */
   Indi_FrAMA(IndiFrAIndiMAParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_FrAMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_FRAMA, _tf, _shift){};
 

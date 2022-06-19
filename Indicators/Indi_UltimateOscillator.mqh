@@ -47,7 +47,6 @@ struct IndiUltimateOscillatorParams : IndicatorParams {
     fast_period = _fast_period;
     middle_k = _middle_k;
     middle_period = _middle_period;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Ultimate_Oscillator");
     shift = _shift;
     slow_k = _slow_k;
@@ -68,7 +67,8 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
    * Class constructor.
    */
   Indi_UltimateOscillator(IndiUltimateOscillatorParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_UltimateOscillator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ULTIMATE_OSCILLATOR, _tf, _shift){};
 

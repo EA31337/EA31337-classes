@@ -29,7 +29,6 @@
 struct IndiWilliamsADParams : IndicatorParams {
   // Struct constructor.
   IndiWilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD) {
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\W_AD");
     shift = _shift;
   };
@@ -48,7 +47,8 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
    * Class constructor.
    */
   Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_WILLIAMS_AD, _tf, _shift){};
 

@@ -32,7 +32,6 @@ struct IndiPriceVolumeTrendParams : IndicatorParams {
   IndiPriceVolumeTrendParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
       : IndicatorParams(INDI_PRICE_VOLUME_TREND) {
     applied_volume = _applied_volume;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\PVT");
     shift = _shift;
   };
@@ -51,7 +50,8 @@ class Indi_PriceVolumeTrend : public IndicatorTickOrCandleSource<IndiPriceVolume
    * Class constructor.
    */
   Indi_PriceVolumeTrend(IndiPriceVolumeTrendParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_PriceVolumeTrend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PRICE_VOLUME_TREND, _tf, _shift){};
 

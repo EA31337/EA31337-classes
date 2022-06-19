@@ -31,7 +31,6 @@ struct IndiAppliedPriceParams : IndicatorParams {
   // Struct constructor.
   IndiAppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
       : applied_price(_applied_price), IndicatorParams(INDI_APPLIED_PRICE) {
-    // SetDataValueRange(IDATA_RANGE_PRICE);
     shift = _shift;
   };
   IndiAppliedPriceParams(IndiAppliedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -57,7 +56,8 @@ class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPricePar
    * Class constructor.
    */
   Indi_AppliedPrice(IndiAppliedPriceParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_INDICATOR), _indi_src) {
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_INDICATOR, IDATA_RANGE_PRICE), _indi_src) {
     OnInit();
   };
   Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)

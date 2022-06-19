@@ -39,7 +39,6 @@ struct IndiSARParams : IndicatorParams {
   IndiSARParams(double _step = 0.02, double _max = 0.2, int _shift = 0)
       : step(_step), max(_max), IndicatorParams(INDI_SAR) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit It draws single dot for each bar!
     SetCustomIndicatorName("Examples\\ParabolicSAR");
   };
   IndiSARParams(IndiSARParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -57,7 +56,8 @@ class Indi_SAR : public IndicatorTickOrCandleSource<IndiSARParams> {
    * Class constructor.
    */
   Indi_SAR(IndiSARParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE), _indi_src) {}
   Indi_SAR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_SAR, _tf, _shift) {}
 
   /**

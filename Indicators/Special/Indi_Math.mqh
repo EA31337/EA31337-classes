@@ -48,7 +48,6 @@ struct IndiMathParams : IndicatorParams {
     mode_2 = _mode_2;
     op_builtin = _op;
     op_mode = MATH_OP_MODE_BUILTIN;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
     shift_1 = _shift_1;
     shift_2 = _shift_2;
@@ -64,7 +63,6 @@ struct IndiMathParams : IndicatorParams {
     mode_2 = _mode_2;
     op_fn = _op;
     op_mode = MATH_OP_MODE_CUSTOM_FUNCTION;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
     shift_1 = _shift_1;
     shift_2 = _shift_2;
@@ -85,7 +83,8 @@ class Indi_Math : public IndicatorTickOrCandleSource<IndiMathParams> {
    * Class constructor.
    */
   Indi_Math(IndiMathParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_INDICATOR), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_INDICATOR, IDATA_RANGE_MIXED), _indi_src){};
   Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_SPECIAL_MATH, _tf, _shift){};
 

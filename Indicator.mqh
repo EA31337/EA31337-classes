@@ -585,34 +585,6 @@ class Indicator : public IndicatorData {
   }
 
   /**
-   * Returns price corresponding to indicator value for a given shift and mode.
-   *
-   * Can be useful for calculating trailing stops based on the indicator.
-   *
-   * @return
-   * Returns price value of the corresponding indicator values.
-   */
-  template <typename T>
-  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL) {
-    float _price = 0;
-    if (GetIDataValueRange() != IDATA_RANGE_PRICE) {
-      _price = (float)GetPrice(_ap, _shift);
-    } else if (GetIDataValueRange() == IDATA_RANGE_PRICE) {
-      // When indicator values are the actual prices.
-      T _values[4];
-      if (!CopyValues(_values, 4, _shift, _mode)) {
-        // When values aren't valid, return 0.
-        return _price;
-      }
-      datetime _bar_time = GetBarTime(_shift);
-      float _value = 0;
-      BarOHLC _ohlc(_values, _bar_time);
-      _price = _ohlc.GetAppliedPrice(_ap);
-    }
-    return _price;
-  }
-
-  /**
    * Returns currently selected data source doing validation.
    */
   IndicatorData* GetDataSource() {

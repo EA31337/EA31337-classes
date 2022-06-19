@@ -83,7 +83,6 @@ struct IndiAlligatorParams : IndicatorParams {
         applied_price(_ap),
         IndicatorParams(INDI_ALLIGATOR) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Alligator");
   };
   IndiAlligatorParams(IndiAlligatorParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -101,8 +100,10 @@ class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
    * Class constructor.
    */
   Indi_Alligator(IndiAlligatorParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE),
-                                    _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p,
+            IndicatorDataParams::GetInstance(FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE),
+            _indi_src) {}
   Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift){};
 

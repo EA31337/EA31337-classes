@@ -41,8 +41,8 @@ class IndicatorData : public IndicatorBase {
   BufferStruct<IndicatorDataEntry> idata;
   DictStruct<int, Ref<IndicatorData>> indicators;  // Indicators list keyed by id.
   IndicatorCalculateCache<double> cache;
-  IndicatorDataParams idparams; // Indicator data params.
-  Ref<IndicatorData> indi_src;  // Indicator used as data source.
+  IndicatorDataParams idparams;  // Indicator data params.
+  Ref<IndicatorData> indi_src;   // Indicator used as data source.
 
  protected:
   /* Protected methods */
@@ -75,11 +75,9 @@ class IndicatorData : public IndicatorBase {
    * Class constructor.
    */
   IndicatorData(const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL, int _indi_mode = 0)
-    : idparams(_idparams), indi_src(_indi_src) {
-  }
+      : idparams(_idparams), indi_src(_indi_src) {}
   IndicatorData(const IndicatorDataParams& _idparams, ENUM_TIMEFRAMES _tf, string _symbol = NULL)
-    : idparams(_idparams), IndicatorBase(_tf, _symbol) {
-  }
+      : idparams(_idparams), IndicatorBase(_tf, _symbol) {}
 
   /**
    * Class deconstructor.
@@ -138,6 +136,36 @@ class IndicatorData : public IndicatorBase {
   template <typename T>
   T Get(STRUCT_ENUM_INDICATOR_STATE_PROP _prop) {
     return istate.Get<T>(_prop);
+  }
+
+  /**
+   * Returns price corresponding to indicator value for a given shift and mode.
+   *
+   * Can be useful for calculating trailing stops based on the indicator.
+   *
+   * @return
+   * Returns price value of the corresponding indicator values.
+   */
+  template <typename T>
+  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL) {
+    float _price = 0;
+    ENUM_IDATA_VALUE_RANGE _idvrange =
+        Get<ENUM_IDATA_VALUE_RANGE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDVRANGE));
+    if (_idvrange != IDATA_RANGE_PRICE) {
+      _price = (float)GetPrice(_ap, _shift);
+    } else if (_idvrange == IDATA_RANGE_PRICE) {
+      // When indicator values are the actual prices.
+      T _values[4];
+      if (!CopyValues(_values, 4, _shift, _mode)) {
+        // When values aren't valid, return 0.
+        return _price;
+      }
+      datetime _bar_time = GetBarTime(_shift);
+      float _value = 0;
+      BarOHLC _ohlc(_values, _bar_time);
+      _price = _ohlc.GetAppliedPrice(_ap);
+    }
+    return _price;
   }
 
   /* Data methods */
@@ -452,15 +480,19 @@ class IndicatorData : public IndicatorBase {
       return;
     }
 
-    if (_source.GetModeCount() > 1 && _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
+    if (_source.GetModeCount() > 1 &&
+        _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
       // Mode must be selected if source indicator has more that one mode.
       Alert("Warning! ", GetName(),
             " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
       _target.idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE), 0);
       DebugBreak();
-    } else if (_source.GetModeCount() == 1 && _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
+    } else if (_source.GetModeCount() == 1 &&
+               _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
       _target.idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE), 0);
-    } else if (_target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) < 0 || _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) > _source.GetModeCount()) {
+    } else if (_target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) < 0 ||
+               _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) >
+                   _source.GetModeCount()) {
       Alert("Error! ", _target.GetName(),
             " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
             _source.GetModeCount(), ".");

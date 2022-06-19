@@ -34,7 +34,6 @@ struct IndiDetrendedPriceParams : IndicatorParams {
   IndiDetrendedPriceParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_DETRENDED_PRICE) {
     applied_price = _ap;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\DPO");
     period = _period;
     shift = _shift;
@@ -54,7 +53,8 @@ class Indi_DetrendedPrice : public IndicatorTickOrCandleSource<IndiDetrendedPric
    * Class constructor.
    */
   Indi_DetrendedPrice(IndiDetrendedPriceParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_DetrendedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_DETRENDED_PRICE, _tf, _shift){};
 

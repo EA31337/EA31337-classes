@@ -50,7 +50,6 @@ struct IndiStochParams : IndicatorParams {
         price_field(_pf),
         IndicatorParams(INDI_STOCHASTIC) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\Stochastic");
   };
   IndiStochParams(IndiStochParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -68,8 +67,10 @@ class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
    * Class constructor.
    */
   Indi_Stochastic(IndiStochParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE),
-                                    _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p,
+            IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_RANGE),
+            _indi_src) {}
   Indi_Stochastic(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_STOCHASTIC, _tf, _shift) {}
 

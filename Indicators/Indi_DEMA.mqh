@@ -44,7 +44,6 @@ struct IndiDEIndiMAParams : IndicatorParams {
   IndiDEIndiMAParams(unsigned int _period = 14, int _ma_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : period(_period), ma_shift(_ma_shift), applied_price(_ap), IndicatorParams(INDI_DEMA) {
     SetCustomIndicatorName("Examples\\DEMA");
-    // SetDataValueRange(IDATA_RANGE_PRICE);
     SetShift(_shift);
     if (custom_indi_name == "") {
       SetCustomIndicatorName("Examples\\DEMA");
@@ -65,7 +64,8 @@ class Indi_DEMA : public IndicatorTickOrCandleSource<IndiDEIndiMAParams> {
    * Class constructor.
    */
   Indi_DEMA(IndiDEIndiMAParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE), _indi_src) {}
   Indi_DEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_DEMA, _tf, _shift) {}
 

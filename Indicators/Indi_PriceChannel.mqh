@@ -31,7 +31,6 @@ struct IndiPriceChannelParams : IndicatorParams {
   // Struct constructor.
   IndiPriceChannelParams(unsigned int _period = 22, int _shift = 0) : IndicatorParams(INDI_PRICE_CHANNEL) {
     period = _period;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Price_Channel");
     shift = _shift;
   };
@@ -50,7 +49,8 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
    * Class constructor.
    */
   Indi_PriceChannel(IndiPriceChannelParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_PriceChannel(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PRICE_CHANNEL, _tf, _shift){};
 

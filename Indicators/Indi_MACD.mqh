@@ -47,7 +47,6 @@ struct IndiMACDParams : IndicatorParams {
         applied_price(_ap),
         IndicatorParams(INDI_MACD) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };
   IndiMACDParams(IndiMACDParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -65,8 +64,10 @@ class Indi_MACD : public IndicatorTickOrCandleSource<IndiMACDParams> {
    * Class constructor.
    */
   Indi_MACD(IndiMACDParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE),
-                                    _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p,
+            IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_RANGE),
+            _indi_src) {}
   Indi_MACD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_MACD, _tf, _shift) {}
 

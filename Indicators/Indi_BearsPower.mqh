@@ -39,7 +39,6 @@ struct IndiBearsPowerParams : IndicatorParams {
   IndiBearsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_BEARS) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Bears");
   };
   IndiBearsPowerParams(IndiBearsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -57,7 +56,8 @@ class Indi_BearsPower : public IndicatorTickOrCandleSource<IndiBearsPowerParams>
    * Class constructor.
    */
   Indi_BearsPower(IndiBearsPowerParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {}
   Indi_BearsPower(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_BEARS, _tf, _shift) {}
 

@@ -70,7 +70,6 @@ struct IndiBandsParams : IndicatorParams {
                   ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), deviation(_deviation), bshift(_bshift), applied_price(_ap), IndicatorParams(INDI_BANDS) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\BB");
   };
   IndiBandsParams(IndiBandsParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -96,7 +95,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
    * Class constructor.
    */
   Indi_Bands(IndiBandsParams &_p, IndicatorData *_indi_src = NULL, int _mode = 0)
-      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(FINAL_BANDS_LINE_ENTRY, TYPE_DOUBLE), _indi_src,
+      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(FINAL_BANDS_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE), _indi_src,
                             _mode) {
     Init();
   }

@@ -39,7 +39,6 @@ struct IndiVIDYAParams : IndicatorParams {
     applied_price = _ap;
     cmo_period = _cmo_period;
     ma_period = _ma_period;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VIDYA");
     shift = _shift;
     vidya_shift = _vidya_shift;
@@ -59,7 +58,8 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
    * Class constructor.
    */
   Indi_VIDYA(IndiVIDYAParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VIDYA, _tf, _shift){};
 

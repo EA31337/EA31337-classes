@@ -39,7 +39,6 @@ struct IndiZigZagColorParams : IndicatorParams {
     backstep = _backstep;
     depth = _depth;
     deviation = _deviation;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ZigZagColor");
     shift = _shift;
   };
@@ -58,7 +57,9 @@ class Indi_ZigZagColor : public IndicatorTickOrCandleSource<IndiZigZagColorParam
    * Class constructor.
    */
   Indi_ZigZagColor(IndiZigZagColorParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE_ON_SIGNAL),
+            _indi_src){};
   Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VROC, _tf, _shift){};
 

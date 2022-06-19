@@ -37,7 +37,6 @@ struct IndiATRParams : IndicatorParams {
   // Struct constructors.
   IndiATRParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_ATR) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ATR");
   };
   IndiATRParams(IndiATRParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -57,7 +56,8 @@ class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
    * Class constructor.
    */
   Indi_ATR(IndiATRParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {}
   Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ATR, _tf, _shift){};
 
   /**

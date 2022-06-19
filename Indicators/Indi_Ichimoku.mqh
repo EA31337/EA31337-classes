@@ -71,7 +71,6 @@ struct IndiIchimokuParams : IndicatorParams {
   IndiIchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
       : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b), IndicatorParams(INDI_ICHIMOKU) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Not sure if not mixed.
     SetCustomIndicatorName("Examples\\Ichimoku");
   };
   IndiIchimokuParams(IndiIchimokuParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -97,7 +96,7 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
    * Class constructor.
    */
   Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE),
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE),
                                     _indi_src) {
     Init();
   }

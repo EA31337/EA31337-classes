@@ -38,7 +38,6 @@ struct IndiOBVParams : IndicatorParams {
   // Struct constructors.
   IndiOBVParams(int _shift = 0) : IndicatorParams(INDI_OBV) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OBV");
     applied_price = PRICE_CLOSE;
     applied_volume = VOLUME_TICK;
@@ -64,7 +63,8 @@ class Indi_OBV : public IndicatorTickOrCandleSource<IndiOBVParams> {
    * Class constructor.
    */
   Indi_OBV(IndiOBVParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {}
   Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_OBV, _tf, _shift) {}
 
   /**

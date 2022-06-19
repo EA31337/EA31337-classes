@@ -41,7 +41,6 @@ struct IndiADXParams : IndicatorParams {
   IndiADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX) {
-    // SetDataValueRange(IDATA_RANGE_RANGE);
     SetShift(_shift);
     if (custom_indi_name == "") {
       SetCustomIndicatorName("Examples\\ADX");
@@ -68,7 +67,9 @@ class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
    */
   Indi_ADX(IndiADXParams &_p, IndicatorData *_indi_src = NULL)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN), _indi_src) {
+            _p,
+            IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_RANGE),
+            _indi_src) {
     Init();
   }
   Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift) {

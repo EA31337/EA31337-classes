@@ -53,8 +53,6 @@ struct IndiRSIParams : IndicatorParams {
   IndiRSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : applied_price(_ap), IndicatorParams(INDI_RSI) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_RANGE);
-    //    SetDataSourceType(IDATA_ICUSTOM);
     SetCustomIndicatorName("Examples\\RSI");
     SetPeriod(_period);
   };
@@ -97,7 +95,8 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
    * Class constructor.
    */
   Indi_RSI(IndiRSIParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_RANGE), _indi_src) {}
   Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RSI, _tf, _shift) {}
 
   /**

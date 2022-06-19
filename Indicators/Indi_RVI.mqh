@@ -37,7 +37,6 @@ struct IndiRVIParams : IndicatorParams {
   // Struct constructors.
   IndiRVIParams(unsigned int _period = 10, int _shift = 0) : period(_period), IndicatorParams(INDI_RVI) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\RVI");
   };
   IndiRVIParams(IndiRVIParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -55,8 +54,10 @@ class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
    * Class constructor.
    */
   Indi_RVI(const IndiRVIParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE),
-                                    _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p,
+            IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED),
+            _indi_src) {}
   Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RVI, _tf, _shift) {}
 
   /**

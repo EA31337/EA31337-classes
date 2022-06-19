@@ -46,7 +46,6 @@ struct IndiCCIParams : IndicatorParams {
   IndiCCIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
       : period(_period), applied_price(_applied_price), IndicatorParams(INDI_CCI) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CCI");
   };
   IndiCCIParams(IndiCCIParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -64,7 +63,8 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
    * Class constructor.
    */
   Indi_CCI(IndiCCIParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED),
+                            _indi_src) {}
   Indi_CCI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_CCI, _tf, _shift) {}
 
   /**

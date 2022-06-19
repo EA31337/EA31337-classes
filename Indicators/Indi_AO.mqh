@@ -35,7 +35,6 @@ double iAO(string _symbol, int _tf, int _shift) {
 struct IndiAOParams : IndicatorParams {
   // Struct constructor.
   IndiAOParams(int _shift = 0) : IndicatorParams(INDI_AO) {
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
   };
@@ -68,7 +67,8 @@ class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
    * Class constructor.
    */
   Indi_AO(IndiAOParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE), _indi_src) {
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {
     Init();
   };
   Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AO, _tf, _shift) {

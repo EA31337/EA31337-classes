@@ -34,7 +34,6 @@
 struct IndiDemoParams : IndicatorParams {
   // Struct constructors.
   IndiDemoParams(int _shift = 0) : IndicatorParams(INDI_DEMO) {
-    //// SetDataValueRange(IDATA_RANGE_MIXED);
     SetShift(_shift);
     if (custom_indi_name == "") {
       SetCustomIndicatorName("Examples\\Demo");
@@ -55,7 +54,8 @@ class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
    * Class constructor.
    */
   Indi_Demo(IndiDemoParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_DEMO, _tf, _shift){};
 

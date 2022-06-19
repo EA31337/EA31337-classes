@@ -53,7 +53,6 @@ struct IndiForceParams : IndicatorParams {
                   int _shift = 0)
       : period(_period), ma_method(_ma_method), applied_price(_ap), IndicatorParams(INDI_FORCE) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Force_Index");
   };
   IndiForceParams(IndiForceParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -72,7 +71,8 @@ class Indi_Force : public IndicatorTickOrCandleSource<IndiForceParams> {
    * Class constructor.
    */
   Indi_Force(IndiForceParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {}
   Indi_Force(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_FORCE, _tf, _shift) {}
 

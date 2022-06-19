@@ -61,7 +61,6 @@ struct IndiStdDevParams : IndicatorParams {
         applied_price(_ap),
         IndicatorParams(INDI_STDDEV) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\StdDev");
   };
   IndiStdDevParams(IndiStdDevParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -79,7 +78,8 @@ class Indi_StdDev : public IndicatorTickSource<IndiStdDevParams> {
    * Class constructor.
    */
   Indi_StdDev(IndiStdDevParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED),
+                            _indi_src) {}
   Indi_StdDev(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_STDDEV, _tf, _shift) {}
 
   /**

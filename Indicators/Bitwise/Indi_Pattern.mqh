@@ -32,10 +32,7 @@
 // Structs.
 struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
-  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN) {
-    // SetDataValueRange(IDATA_RANGE_BITWISE);
-    shift = _shift;
-  };
+  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN) { shift = _shift; };
   IndiPatternParams(IndiPatternParams& _params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
@@ -51,7 +48,8 @@ class Indi_Pattern : public IndicatorTickOrCandleSource<IndiPatternParams> {
    * Class constructor.
    */
   Indi_Pattern(IndiPatternParams& _p, IndicatorData* _indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(5, TYPE_UINT), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(5, TYPE_UINT, IDATA_BUILTIN, IDATA_RANGE_BITWISE), _indi_src){};
   Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PATTERN, _tf, _shift){};
 

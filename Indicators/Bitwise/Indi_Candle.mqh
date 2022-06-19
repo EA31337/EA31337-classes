@@ -33,7 +33,6 @@
 struct CandleParams : IndicatorParams {
   // Struct constructor.
   CandleParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_CANDLE) {
-    // SetDataValueRange(IDATA_RANGE_RANGE);
     shift = _shift;
     tf = _tf;
   };
@@ -52,7 +51,9 @@ class Indi_Candle : public IndicatorTickOrCandleSource<CandleParams> {
    * Class constructor.
    */
   Indi_Candle(CandleParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_INT, IDATA_BUILTIN), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_INT, IDATA_BUILTIN, IDATA_RANGE_RANGE),
+            _indi_src){};
   Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_CANDLE, _tf, _shift){};
 

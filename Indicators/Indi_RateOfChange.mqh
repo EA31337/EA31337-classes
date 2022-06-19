@@ -33,7 +33,6 @@ struct IndiRateOfChangeParams : IndicatorParams {
   IndiRateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
       : IndicatorParams(INDI_RATE_OF_CHANGE) {
     applied_price = _ap;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ROC");
     period = _period;
     shift = _shift;
@@ -53,7 +52,8 @@ class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangePar
    * Class constructor.
    */
   Indi_RateOfChange(IndiRateOfChangeParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_RATE_OF_CHANGE, _tf, _shift){};
 

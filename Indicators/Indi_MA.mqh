@@ -58,7 +58,6 @@ struct IndiMAParams : IndicatorParams {
                ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap), IndicatorParams(INDI_MA) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Moving Average");
   };
   IndiMAParams(IndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -76,7 +75,8 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
    * Class constructor.
    */
   Indi_MA(IndiMAParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE),
+                            _indi_src) {}
   Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_MA, _tf, _shift) {}
 
   /**

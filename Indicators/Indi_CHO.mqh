@@ -39,7 +39,6 @@ struct IndiCHOParams : IndicatorParams {
       : IndicatorParams(INDI_CHAIKIN) {
     fast_ma = _fast_ma;
     input_volume = _input_volume;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHO");
     shift = _shift;
     slow_ma = _slow_ma;
@@ -60,7 +59,8 @@ class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
    * Class constructor.
    */
   Indi_CHO(IndiCHOParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_CHAIKIN, _tf, _shift){};
 

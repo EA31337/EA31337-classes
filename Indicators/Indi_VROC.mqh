@@ -34,7 +34,6 @@ struct IndiVROCParams : IndicatorParams {
       : IndicatorParams(INDI_VROC) {
     applied_volume = _applied_volume;
     period = _period;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VROC");
     shift = _shift;
   };
@@ -53,7 +52,8 @@ class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
    * Class constructor.
    */
   Indi_VROC(IndiVROCParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VROC, _tf, _shift){};
 

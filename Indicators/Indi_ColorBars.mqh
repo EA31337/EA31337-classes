@@ -29,7 +29,6 @@
 struct IndiColorBarsParams : IndicatorParams {
   // Struct constructor.
   IndiColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS) {
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorBars");
     shift = _shift;
   };
@@ -48,7 +47,8 @@ class Indi_ColorBars : public IndicatorTickOrCandleSource<IndiColorBarsParams> {
    * Class constructor.
    */
   Indi_ColorBars(IndiColorBarsParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(5, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(5, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_COLOR_BARS, _tf, _shift){};
 

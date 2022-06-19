@@ -40,7 +40,6 @@ struct IndiCHVParams : IndicatorParams {
                 ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0)
       : IndicatorParams(INDI_CHAIKIN_V) {
     chv_period = _chv_period;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHV");
     shift = _shift;
     smooth_method = _smooth_method;
@@ -61,7 +60,8 @@ class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
    * Class constructor.
    */
   Indi_CHV(IndiCHVParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_CHAIKIN_V, _tf, _shift){};
 

@@ -33,7 +33,6 @@ struct IndiCustomMovingAverageParams : IndicatorParams {
   IndiCustomMovingAverageParams(int _smooth_period = 13, int _smooth_shift = 0,
                                 ENUM_MA_METHOD _smooth_method = MODE_SMMA, int _shift = 0)
       : IndicatorParams(INDI_CUSTOM_MOVING_AVG) {
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     if (custom_indi_name == "") {
 #ifdef __MQL5__
       SetCustomIndicatorName("Examples\\Custom Moving Average");
@@ -61,7 +60,8 @@ class Indi_CustomMovingAverage : public IndicatorTickOrCandleSource<IndiCustomMo
    * Class constructor.
    */
   Indi_CustomMovingAverage(IndiCustomMovingAverageParams& _p, IndicatorData* _indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_ICUSTOM), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_ICUSTOM, IDATA_RANGE_MIXED), _indi_src){};
   Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_CUSTOM_MOVING_AVG, _tf, _shift){};
 

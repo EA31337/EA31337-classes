@@ -36,7 +36,6 @@ struct IndiMassIndexParams : IndicatorParams {
       : IndicatorParams(INDI_MASS_INDEX) {
     period = _period;
     second_period = _second_period;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\MI");
     shift = _shift;
     sum_period = _sum_period;
@@ -56,7 +55,8 @@ class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
    * Class constructor.
    */
   Indi_MassIndex(IndiMassIndexParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_MASS_INDEX, _tf, _shift){};
 

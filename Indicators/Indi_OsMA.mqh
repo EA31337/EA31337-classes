@@ -46,7 +46,6 @@ struct IndiOsMAParams : IndicatorParams {
         applied_price(_ap),
         IndicatorParams(INDI_OSMA) {
     shift = _shift;
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OsMA");
   };
   IndiOsMAParams(IndiOsMAParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -64,7 +63,8 @@ class Indi_OsMA : public IndicatorTickOrCandleSource<IndiOsMAParams> {
    * Class constructor.
    */
   Indi_OsMA(IndiOsMAParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {}
   Indi_OsMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_OSMA, _tf, _shift) {}
 

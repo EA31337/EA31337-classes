@@ -43,7 +43,6 @@ struct IndiAMAParams : IndicatorParams {
         slow_period(_slow_period),
         ama_shift(_ama_shift),
         applied_price(_ap) {
-    // SetDataValueRange(IDATA_RANGE_PRICE);
     // Defaulting to on-indicator mode (will use real ticks from platform via IndicatorTickReal).
     SetShift(_shift);
     if (custom_indi_name == "") {
@@ -65,8 +64,9 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
    * Class constructor.
    */
   Indi_AMA(IndiAMAParams &_p, IndicatorData *_indi_src = NULL, int _indi_mode = 0)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN), _indi_src,
-                                    _indi_mode) {
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE),
+                                    _indi_src, _indi_mode) {
     iparams.SetIndicatorType(INDI_AMA);
   };
   Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AMA, _tf, _shift){};

@@ -29,7 +29,6 @@
 struct IndiColorCandlesDailyParams : IndicatorParams {
   // Struct constructor.
   IndiColorCandlesDailyParams(int _shift = 0) : IndicatorParams(INDI_COLOR_CANDLES_DAILY) {
-    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorCandlesDaily");
     shift = _shift;
   };
@@ -48,7 +47,8 @@ class Indi_ColorCandlesDaily : public IndicatorTickOrCandleSource<IndiColorCandl
    * Class constructor.
    */
   Indi_ColorCandlesDaily(IndiColorCandlesDailyParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(5, TYPE_DOUBLE), _indi_src){};
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(5, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
   Indi_ColorCandlesDaily(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_COLOR_CANDLES_DAILY, _tf, _shift){};
 
