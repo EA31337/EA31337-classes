@@ -37,9 +37,7 @@ enum ENUM_INDI_OHLC_MODE {
 // Structs.
 struct IndiOHLCParams : IndicatorParams {
   // Struct constructor.
-  IndiOHLCParams(int _shift = 0) : IndicatorParams(INDI_OHLC, FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE) {
-    SetShift(_shift);
-  };
+  IndiOHLCParams(int _shift = 0) : IndicatorParams(INDI_OHLC) { SetShift(_shift); };
   IndiOHLCParams(IndiOHLCParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
@@ -54,7 +52,9 @@ class Indi_OHLC : public IndicatorTickOrCandleSource<IndiOHLCParams> {
   /**
    * Class constructor.
    */
-  Indi_OHLC(IndiOHLCParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_OHLC(IndiOHLCParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE),
+                                    _indi_src){};
   Indi_OHLC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PRICE, _tf, _shift){};
 

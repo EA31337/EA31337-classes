@@ -153,7 +153,7 @@ bool InitIndicators() {
 bool PrintIndicators(string _prefix = "") {
   ResetLastError();
   for (DictIterator<long, IndicatorData *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    IndicatorBase *_indi = iter.Value();
+    IndicatorData *_indi = iter.Value();
     if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
     }

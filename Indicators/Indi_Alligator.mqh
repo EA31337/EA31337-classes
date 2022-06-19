@@ -81,9 +81,9 @@ struct IndiAlligatorParams : IndicatorParams {
         lips_shift(_ls),
         ma_method(_mm),
         applied_price(_ap),
-        IndicatorParams(INDI_ALLIGATOR, FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE) {
+        IndicatorParams(INDI_ALLIGATOR) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_PRICE);
+    // SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Alligator");
   };
   IndiAlligatorParams(IndiAlligatorParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -101,7 +101,8 @@ class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
    * Class constructor.
    */
   Indi_Alligator(IndiAlligatorParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {}
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE),
+                                    _indi_src) {}
   Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift){};
 
@@ -172,7 +173,7 @@ class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
       return GetEntryValue((ENUM_ALLIGATOR_LINE)1, _ishift);
     }
 #endif
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
                                             GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),

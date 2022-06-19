@@ -42,7 +42,7 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
    * Class constructor.
    */
   Indi_Drawer(const IndiDrawerParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src), redis(true) {
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(0, TYPE_DOUBLE), _indi_src), redis(true) {
     Init();
   }
   Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
@@ -71,15 +71,16 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
 
   virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry &_args[]) {
     int num_args = ArraySize(_args), i;
+    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     IndicatorDataEntry entry(num_args - 1);
     // @fixit Not sure if we should enforce double.
     // entry.AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
 
     if (_action == INDI_ACTION_SET_VALUE) {
-      iparams.SetMaxModes(num_args - 1);
+      Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), num_args - 1);
 
-      if (num_args - 1 > iparams.GetMaxModes()) {
+      if (num_args - 1 > _max_modes) {
         GetLogger().Error(
             StringFormat("Too many data for buffers for action %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
@@ -176,7 +177,7 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Drawer::iDrawer(GetSymbol(), GetTf(), _ishift, THIS_PTR);
         break;
@@ -217,5 +218,4 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
     istate.is_changed = true;
     iparams.applied_price = _applied_price;
   }
-
 };

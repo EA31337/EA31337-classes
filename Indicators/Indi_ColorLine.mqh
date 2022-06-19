@@ -30,9 +30,9 @@
 struct IndiColorLineParams : IndicatorParams {
   IndicatorData *indi_ma;
   // Struct constructor.
-  IndiColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE, 2, TYPE_DOUBLE) {
+  IndiColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE) {
     indi_ma = NULL;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorLine");
     shift = _shift;
   };
@@ -51,7 +51,7 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
    * Class constructor.
    */
   Indi_ColorLine(IndiColorLineParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE), _indi_src){};
   Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_COLOR_LINE, _tf, _shift){};
 
@@ -202,7 +202,7 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_ColorLine::iColorLine(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
         break;

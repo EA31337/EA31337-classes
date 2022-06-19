@@ -37,13 +37,11 @@
 struct IndiADXWParams : IndiADXParams {
   // Struct constructor.
   IndiADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : IndiADXParams(_period, _ap, _shift, _tf, _idstype) {
+                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : IndiADXParams(_period, _ap, _shift, _tf) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        SetCustomIndicatorName("Examples\\ADXW");
-        break;
+    if (custom_indi_name == "") {
+      SetCustomIndicatorName("Examples\\ADXW");
     }
   };
   IndiADXWParams(IndiADXWParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -60,7 +58,8 @@ class Indi_ADXW : public IndicatorTickOrCandleSource<IndiADXWParams> {
   /**
    * Class constructor.
    */
-  Indi_ADXW(IndiADXWParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_ADXW(IndiADXWParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN), _indi_src){};
   Indi_ADXW(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ADXW, _tf, _shift){};
 
@@ -229,7 +228,7 @@ class Indi_ADXW : public IndicatorTickOrCandleSource<IndiADXWParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_ADXW::iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
         break;

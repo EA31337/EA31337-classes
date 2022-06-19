@@ -25,6 +25,9 @@
  * Includes IndicatorData's structs.
  */
 
+// Defines.
+#define STRUCT_ENUM_IDATA_PARAM STRUCT_ENUM(IndicatorDataParams, ENUM_IDATA_PARAM)
+
 // Includes.
 #include "SerializerNode.enum.h"
 
@@ -381,5 +384,120 @@ struct IndicatorDataEntry {
   template <typename T>
   string ToString() {
     return ToCSV<T>();
+  }
+};
+
+/* Structure for indicator data parameters. */
+struct IndicatorDataParams {
+ protected:
+  /* Struct protected variables */
+  bool is_fed;                      // Whether calc_start_bar is already calculated.
+  int data_src_mode;                // Mode used as input from data source.
+  int src_id;                       // Id of the indicator to be used as data source.
+  int src_mode;                     // Mode of source indicator
+  unsigned int max_buffers;         // Max buffers to store.
+  unsigned int max_modes;           // Max supported indicator modes (values per entry).
+  ENUM_DATATYPE dtype;              // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
+  ENUM_IDATA_SOURCE_TYPE idstype;   // Indicator's data source type (e.g. IDATA_BUILTIN, IDATA_ICUSTOM).
+  ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
+ public:
+  /* Struct enumerations */
+  enum ENUM_IDATA_PARAM {
+    IDATA_PARAM_IS_FED = 0,
+    IDATA_PARAM_DATA_SRC_MODE,
+    IDATA_PARAM_DTYPE,
+    IDATA_PARAM_IDSTYPE,
+    IDATA_PARAM_IDVRANGE,
+    IDATA_PARAM_MAX_BUFFERS,
+    IDATA_PARAM_MAX_MODES,
+    IDATA_PARAM_SRC_ID,
+    IDATA_PARAM_SRC_MODE,
+  };
+
+ public:
+  /* Special methods */
+  // Constructor.
+  IndicatorDataParams(unsigned int _max_modes = 1, ENUM_DATATYPE _dtype = TYPE_DOUBLE,
+                      ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                      ENUM_IDATA_VALUE_RANGE _idvrange = IDATA_RANGE_UNKNOWN, int _data_src_mode = 0)
+      : data_src_mode(_data_src_mode),
+        dtype(_dtype),
+        max_modes(_max_modes),
+        max_buffers(10),
+        idstype(_idstype),
+        idvrange(_idvrange),
+        is_fed(false),
+        src_id(-1),
+        src_mode(-1){};
+  // Copy constructor.
+  IndicatorDataParams(const IndicatorDataParams &_idp) { THIS_REF = _idp; }
+  // Deconstructor.
+  ~IndicatorDataParams(){};
+  /* Getters */
+  template <typename T>
+  T Get(STRUCT_ENUM_IDATA_PARAM _param) {
+    switch (_param) {
+      case IDATA_PARAM_IS_FED:
+        return (T)is_fed;
+      case IDATA_PARAM_DATA_SRC_MODE:
+        return (T)data_src_mode;
+      case IDATA_PARAM_DTYPE:
+        return (T)dtype;
+      case IDATA_PARAM_IDSTYPE:
+        return (T)idstype;
+      case IDATA_PARAM_IDVRANGE:
+        return (T)idvrange;
+      case IDATA_PARAM_MAX_BUFFERS:
+        return (T)max_buffers;
+      case IDATA_PARAM_MAX_MODES:
+        return (T)max_modes;
+      case IDATA_PARAM_SRC_ID:
+        return (T)src_id;
+      case IDATA_PARAM_SRC_MODE:
+        return (T)src_mode;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return (T)WRONG_VALUE;
+  }
+  static IndicatorDataParams GetInstance(unsigned int _max_modes = 1, ENUM_DATATYPE _dtype = TYPE_DOUBLE,
+                                         ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                                         ENUM_IDATA_VALUE_RANGE _idvrange = IDATA_RANGE_UNKNOWN,
+                                         int _data_src_mode = 0) {
+    IndicatorDataParams _instance(_max_modes, _dtype, _idstype, _idvrange, _data_src_mode);
+    return _instance;
+  }
+  /* Setters */
+  template <typename T>
+  void Set(STRUCT_ENUM_IDATA_PARAM _param, T _value) {
+    switch (_param) {
+      case IDATA_PARAM_IS_FED:
+        is_fed = (bool)_value;
+        return;
+      case IDATA_PARAM_DATA_SRC_MODE:
+        data_src_mode = (int)_value;
+        return;
+      case IDATA_PARAM_DTYPE:
+        dtype = (ENUM_DATATYPE)_value;
+        return;
+      case IDATA_PARAM_IDSTYPE:
+        idstype = (ENUM_IDATA_SOURCE_TYPE)_value;
+        return;
+      case IDATA_PARAM_IDVRANGE:
+        idvrange = (ENUM_IDATA_VALUE_RANGE)_value;
+        return;
+      case IDATA_PARAM_MAX_BUFFERS:
+        max_buffers = (unsigned int)_value;
+        return;
+      case IDATA_PARAM_MAX_MODES:
+        max_modes = (unsigned int)_value;
+        return;
+      case IDATA_PARAM_SRC_ID:
+        src_id = (int)_value;
+        return;
+      case IDATA_PARAM_SRC_MODE:
+        src_mode = (int)_value;
+        return;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
   }
 };

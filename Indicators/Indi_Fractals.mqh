@@ -34,8 +34,7 @@ double iFractals(string _symbol, int _tf, int _mode, int _shift) {
 // Structs.
 struct IndiFractalsParams : IndicatorParams {
   // Struct constructors.
-  IndiFractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS, FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_ARROW);
+  IndiFractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS) {
     SetCustomIndicatorName("Examples\\Fractals");
     shift = _shift;
   };
@@ -49,13 +48,29 @@ struct IndiFractalsParams : IndicatorParams {
  * Implements the Fractals indicator.
  */
 class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_LO_UP_LINE_ENTRY); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndiFractalsParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Fractals(IndiFractalsParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN,
+                                                                     IDATA_RANGE_PRICE_ON_SIGNAL),
+                                    _indi_src) {
+    Init();
+  }
   Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_FRACTALS, _tf, _shift) {}
+      : IndicatorTickOrCandleSource(INDI_FRACTALS, _tf, _shift) {
+    Init();
+  }
 
   /**
    * Returns the indicator value.
@@ -105,7 +120,7 @@ class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), (ENUM_LO_UP_LINE)_mode, _ishift, THIS_PTR);
         break;

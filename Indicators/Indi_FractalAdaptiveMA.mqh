@@ -33,9 +33,9 @@ struct IndiFrAIndiMAParams : IndicatorParams {
 
   // Struct constructor.
   IndiFrAIndiMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_FRAMA, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_FRAMA) {
     frama_shift = _frama_shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\FrAMA");
     applied_price = _ap;
     period = _period;
@@ -55,7 +55,8 @@ class Indi_FrAMA : public IndicatorTickOrCandleSource<IndiFrAIndiMAParams> {
   /**
    * Class constructor.
    */
-  Indi_FrAMA(IndiFrAIndiMAParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_FrAMA(IndiFrAIndiMAParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
   Indi_FrAMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_FRAMA, _tf, _shift){};
 
@@ -148,7 +149,7 @@ class Indi_FrAMA : public IndicatorTickOrCandleSource<IndiFrAIndiMAParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_FrAMA::iFrAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFRAMAShift(), GetAppliedPrice() /*]*/,
                                     _mode, _ishift, THIS_PTR);

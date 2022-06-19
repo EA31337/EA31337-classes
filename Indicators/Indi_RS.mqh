@@ -30,11 +30,9 @@
 struct IndiRSParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  IndiRSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_RS, 2, TYPE_DOUBLE) {
+  IndiRSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) : IndicatorParams(INDI_RS) {
     applied_volume = _applied_volume;
-    SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_MATH);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
   };
   IndiRSParams(IndiRSParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -53,13 +51,16 @@ class Indi_RS : public IndicatorTickOrCandleSource<IndiRSParams> {
   /**
    * Class constructor.
    */
-  Indi_RS(IndiRSParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) { Init(); };
+  Indi_RS(IndiRSParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, IDATA_MATH), _indi_src) {
+    Init();
+  };
   Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RS, _tf, _shift) {
     Init();
   };
 
   void Init() {
-    if (iparams.GetDataSourceType() == IDATA_MATH) {
+    if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_MATH) {
       IndiOHLCParams _iohlc_params();
       // @todo Symbol should be already defined for a chart.
       // @todo If it's not, move initialization to GetValue()/GetEntry() method.
@@ -82,7 +83,7 @@ class Indi_RS : public IndicatorTickOrCandleSource<IndiRSParams> {
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_MATH:
         return imath[_mode].Ptr().GetEntryValue();
         break;

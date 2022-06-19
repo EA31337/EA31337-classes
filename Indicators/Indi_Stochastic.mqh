@@ -48,9 +48,9 @@ struct IndiStochParams : IndicatorParams {
         slowing(_slowing),
         ma_method(_ma_method),
         price_field(_pf),
-        IndicatorParams(INDI_STOCHASTIC, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
+        IndicatorParams(INDI_STOCHASTIC) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
+    // SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\Stochastic");
   };
   IndiStochParams(IndiStochParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -67,7 +67,9 @@ class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
   /**
    * Class constructor.
    */
-  Indi_Stochastic(IndiStochParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Stochastic(IndiStochParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE),
+                                    _indi_src) {}
   Indi_Stochastic(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_STOCHASTIC, _tf, _shift) {}
 
@@ -123,7 +125,7 @@ class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(),
                                               GetMAMethod(), GetPriceField(), _mode, _ishift, THIS_PTR);

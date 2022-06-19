@@ -35,10 +35,9 @@ double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
 struct IndiRVIParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  IndiRVIParams(unsigned int _period = 10, int _shift = 0)
-      : period(_period), IndicatorParams(INDI_RVI, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
+  IndiRVIParams(unsigned int _period = 10, int _shift = 0) : period(_period), IndicatorParams(INDI_RVI) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\RVI");
   };
   IndiRVIParams(IndiRVIParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -55,7 +54,9 @@ class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
   /**
    * Class constructor.
    */
-  Indi_RVI(const IndiRVIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_RVI(const IndiRVIParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE),
+                                    _indi_src) {}
   Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RVI, _tf, _shift) {}
 
   /**
@@ -106,7 +107,7 @@ class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_RVI::iRVI(GetSymbol(), GetTf(), GetPeriod(), (ENUM_SIGNAL_LINE)_mode, _ishift, THIS_PTR);
         break;

@@ -66,7 +66,7 @@ class IndicatorTick : public Indicator<TS> {
     itdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     itdata.SetOverflowListener(IndicatorTickOverflowListener, 10);
     // Ask and Bid price.
-    itparams.SetMaxModes(2);
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
   }
 
  public:
@@ -75,8 +75,9 @@ class IndicatorTick : public Indicator<TS> {
   /**
    * Class constructor.
    */
-  IndicatorTick(const TS& _itparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
-      : Indicator(_itparams, _indi_src, _indi_mode) {
+  IndicatorTick(const TS& _itparams, const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = NULL,
+                int _indi_mode = 0)
+      : Indicator(_itparams, _idparams, _indi_src, _indi_mode) {
     itparams = _itparams;
     if (_indi_src != NULL) {
       SetDataSource(_indi_src, _indi_mode);
@@ -153,12 +154,13 @@ class IndicatorTick : public Indicator<TS> {
       TickAB<TV> _tick = itdata.GetByKey(_timestamp);
       return TickToEntry(_timestamp, _tick);
     }
+    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     // No tick at given timestamp. Returning invalid entry.
-    IndicatorDataEntry _entry(itparams.GetMaxModes());
+    IndicatorDataEntry _entry(_max_modes);
     GetEntryAlter(_entry, _timestamp);
 
-    for (int i = 0; i < itparams.GetMaxModes(); ++i) {
+    for (int i = 0; i < _max_modes; ++i) {
       _entry.values[i] = (double)0;
     }
 
@@ -173,7 +175,8 @@ class IndicatorTick : public Indicator<TS> {
    * This method is called on GetEntry() right after values are set.
    */
   virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _timestamp = -1) {
-    _entry.AddFlags(_entry.GetDataTypeFlags(itparams.GetDataValueType()));
+    ENUM_DATATYPE _dtype = Get<ENUM_DATATYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DTYPE));
+    _entry.AddFlags(_entry.GetDataTypeFlags(_dtype));
   };
 
   /**
@@ -206,7 +209,8 @@ class IndicatorTick : public Indicator<TS> {
    */
   void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) {
     indi_src = _indi;
-    itparams.SetDataSource(-1, _input_mode);
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID), -1);
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE), _input_mode);
   }
 
   /* Virtual methods */

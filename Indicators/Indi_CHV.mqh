@@ -38,9 +38,9 @@ struct IndiCHVParams : IndicatorParams {
   // Struct constructor.
   IndiCHVParams(int _smooth_period = 10, int _chv_period = 10,
                 ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0)
-      : IndicatorParams(INDI_CHAIKIN_V, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_CHAIKIN_V) {
     chv_period = _chv_period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHV");
     shift = _shift;
     smooth_method = _smooth_method;
@@ -60,7 +60,8 @@ class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
   /**
    * Class constructor.
    */
-  Indi_CHV(IndiCHVParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_CHV(IndiCHVParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
   Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_CHAIKIN_V, _tf, _shift){};
 
@@ -179,7 +180,7 @@ class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_CHV::iCHV(GetSymbol(), GetTf(), /*[*/ GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod() /*]*/,
                                 _mode, _ishift, THIS_PTR);

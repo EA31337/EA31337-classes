@@ -37,9 +37,9 @@ struct IndiMFIParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;  // Ignored in MT4.
   // Struct constructors.
   IndiMFIParams(unsigned int _ma_period = 14, ENUM_APPLIED_VOLUME _av = VOLUME_TICK, int _shift = 0)
-      : ma_period(_ma_period), applied_volume(_av), IndicatorParams(INDI_MFI, 1, TYPE_DOUBLE) {
+      : ma_period(_ma_period), applied_volume(_av), IndicatorParams(INDI_MFI) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
+    // SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MFI");
   };
   IndiMFIParams(IndiMFIParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -56,7 +56,8 @@ class Indi_MFI : public IndicatorTickOrCandleSource<IndiMFIParams> {
   /**
    * Class constructor.
    */
-  Indi_MFI(IndiMFIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_MFI(IndiMFIParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
   Indi_MFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_MFI, _tf, _shift) {}
 
   /**
@@ -114,7 +115,7 @@ class Indi_MFI : public IndicatorTickOrCandleSource<IndiMFIParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
 #ifdef __MQL4__
         _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _ishift);

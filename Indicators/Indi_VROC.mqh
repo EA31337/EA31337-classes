@@ -31,10 +31,10 @@ struct IndiVROCParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
   IndiVROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_VROC, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_VROC) {
     applied_volume = _applied_volume;
     period = _period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VROC");
     shift = _shift;
   };
@@ -52,7 +52,8 @@ class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
   /**
    * Class constructor.
    */
-  Indi_VROC(IndiVROCParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_VROC(IndiVROCParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
   Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VROC, _tf, _shift){};
 
@@ -144,7 +145,7 @@ class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_VROC::iVROC(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, _ishift,
                                   THIS_PTR);

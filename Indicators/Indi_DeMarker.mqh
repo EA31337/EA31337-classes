@@ -35,10 +35,9 @@ double iDeMarker(string _symbol, int _tf, int _period, int _shift) {
 struct IndiDeMarkerParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  IndiDeMarkerParams(unsigned int _period = 14, int _shift = 0)
-      : period(_period), IndicatorParams(INDI_DEMARKER, 1, TYPE_DOUBLE) {
+  IndiDeMarkerParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_DEMARKER) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
+    // SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\DeMarker");
   };
   IndiDeMarkerParams(IndiDeMarkerParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -55,7 +54,8 @@ class Indi_DeMarker : public IndicatorTickOrCandleSource<IndiDeMarkerParams> {
   /**
    * Class constructor.
    */
-  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
   Indi_DeMarker(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_DEMARKER, _tf, _shift) {}
 
@@ -105,7 +105,7 @@ class Indi_DeMarker : public IndicatorTickOrCandleSource<IndiDeMarkerParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = _value = Indi_DeMarker::iDeMarker(GetSymbol(), GetTf(), GetPeriod(), _ishift, THIS_PTR);
         break;

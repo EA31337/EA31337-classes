@@ -35,14 +35,16 @@
 
 // Params for real tick-based indicator.
 struct IndicatorTickRealParams : IndicatorParams {
-  IndicatorTickRealParams() : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {}
+  IndicatorTickRealParams() : IndicatorParams(INDI_TICK) {}
 };
 
 // Real tick-based indicator.
 class IndicatorTickReal : public IndicatorTick<IndicatorTickRealParams, double> {
  public:
   IndicatorTickReal(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
-      : IndicatorTick(INDI_TICK, _tf, _shift, _name) {}
+      : IndicatorTick(INDI_TICK, _tf, _shift, _name) {
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 3);
+  }
 
   string GetName() override { return "IndicatorTickReal"; }
 

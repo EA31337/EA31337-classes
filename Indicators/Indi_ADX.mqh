@@ -39,17 +39,12 @@ struct IndiADXParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
   IndiADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-                ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX, FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE) {
-    SetDataSourceType(_idstype);
-    SetDataValueRange(IDATA_RANGE_RANGE);
+                ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX) {
+    // SetDataValueRange(IDATA_RANGE_RANGE);
     SetShift(_shift);
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        if (custom_indi_name == "") {
-          SetCustomIndicatorName("Examples\\ADX");
-        }
-        break;
+    if (custom_indi_name == "") {
+      SetCustomIndicatorName("Examples\\ADX");
     }
   };
   IndiADXParams(IndiADXParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -62,12 +57,23 @@ struct IndiADXParams : IndicatorParams {
  * Implements the Average Directional Movement Index indicator.
  */
 class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
+ protected:
+  /* Protected methods */
+
+  void Init() {}
+
  public:
   /**
    * Class constructor.
    */
-  Indi_ADX(IndiADXParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
-  Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift) {}
+  Indi_ADX(IndiADXParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN), _indi_src) {
+    Init();
+  }
+  Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift) {
+    Init();
+  }
 
   /**
    * Returns the indicator value.
@@ -118,7 +124,7 @@ class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_ADX::iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _ishift, THIS_PTR);
         break;

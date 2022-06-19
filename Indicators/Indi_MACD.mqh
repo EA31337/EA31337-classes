@@ -45,9 +45,9 @@ struct IndiMACDParams : IndicatorParams {
         ema_slow_period(_esp),
         signal_period(_sp),
         applied_price(_ap),
-        IndicatorParams(INDI_MACD, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
+        IndicatorParams(INDI_MACD) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
+    // SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };
   IndiMACDParams(IndiMACDParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -64,7 +64,9 @@ class Indi_MACD : public IndicatorTickOrCandleSource<IndiMACDParams> {
   /**
    * Class constructor.
    */
-  Indi_MACD(IndiMACDParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_MACD(IndiMACDParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE),
+                                    _indi_src) {}
   Indi_MACD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_MACD, _tf, _shift) {}
 
@@ -118,7 +120,7 @@ class Indi_MACD : public IndicatorTickOrCandleSource<IndiMACDParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
                                   GetAppliedPrice(), (ENUM_SIGNAL_LINE)_mode, _ishift, THIS_PTR);

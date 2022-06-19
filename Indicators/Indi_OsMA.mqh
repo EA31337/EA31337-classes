@@ -44,9 +44,9 @@ struct IndiOsMAParams : IndicatorParams {
         ema_slow_period(_esp),
         signal_period(_sp),
         applied_price(_ap),
-        IndicatorParams(INDI_OSMA, 1, TYPE_DOUBLE) {
+        IndicatorParams(INDI_OSMA) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OsMA");
   };
   IndiOsMAParams(IndiOsMAParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -63,7 +63,8 @@ class Indi_OsMA : public IndicatorTickOrCandleSource<IndiOsMAParams> {
   /**
    * Class constructor.
    */
-  Indi_OsMA(IndiOsMAParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_OsMA(IndiOsMAParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
   Indi_OsMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_OSMA, _tf, _shift) {}
 
@@ -115,7 +116,7 @@ class Indi_OsMA : public IndicatorTickOrCandleSource<IndiOsMAParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     double _value = EMPTY_VALUE;
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_OsMA::iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
                                   GetAppliedPrice(), _ishift, THIS_PTR);

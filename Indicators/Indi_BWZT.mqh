@@ -46,10 +46,9 @@ struct IndiBWZTParams : IndicatorParams {
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
-  IndiBWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE) {
+  IndiBWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT) {
     indi_ac = NULL;
     indi_ao = NULL;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
     shift = _shift;
   };
@@ -63,13 +62,29 @@ struct IndiBWZTParams : IndicatorParams {
  * Implements the Bill Williams' Zone Trade.
  */
 class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_INDI_BWZT_MODE_ENTRY); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_BWZT(IndiBWZTParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_BWZT(IndiBWZTParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(
+            _p,
+            IndicatorDataParams::GetInstance(FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED),
+            _indi_src) {
+    Init();
+  };
   Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_BWZT, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_BWZT, _tf, _shift) {
+    Init();
+  };
 
   /**
    * Built-in version of BWZT.
@@ -208,7 +223,7 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_BWZT::iBWZT(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
         break;

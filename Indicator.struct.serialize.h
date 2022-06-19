@@ -34,11 +34,12 @@ class Serializer;
 SerializerNodeType IndicatorParams::Serialize(Serializer &s) {
   s.Pass(THIS_REF, "name", name);
   s.Pass(THIS_REF, "shift", shift);
-  s.Pass(THIS_REF, "max_modes", max_modes);
-  s.Pass(THIS_REF, "max_buffers", max_buffers);
+  // s.Pass(THIS_REF, "max_modes", max_modes);
+  // s.Pass(THIS_REF, "max_buffers", max_buffers);
   s.PassEnum(THIS_REF, "itype", itype);
-  s.PassEnum(THIS_REF, "idstype", idstype);
-  s.PassEnum(THIS_REF, "dtype", dtype);
+  // s.PassEnum(THIS_REF, "idstype", idstype);
+  // s.PassEnum(THIS_REF, "dtype", dtype);
+
   // s.PassObject(this, "indicator", indi_data); // @todo
   // s.Pass(THIS_REF, "indi_data_ownership", indi_data_ownership);
   s.Pass(THIS_REF, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);

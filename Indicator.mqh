@@ -88,19 +88,6 @@ class Indicator : public IndicatorData {
   /* Protected methods */
 
   bool Init() {
-    ArrayResize(value_storages, iparams.GetMaxModes());
-    switch (iparams.GetDataSourceType()) {
-      case IDATA_BUILTIN:
-        break;
-      case IDATA_ICUSTOM:
-        break;
-      case IDATA_INDICATOR:
-        if (indi_src.IsSet() == NULL) {
-          // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
-          // SetDataSource(_indi_price, true, PRICE_OPEN);
-        }
-        break;
-    }
     return InitDraw();
   }
 
@@ -142,21 +129,18 @@ class Indicator : public IndicatorData {
   /**
    * Class constructor.
    */
-  Indicator(const TS& _iparams, IndicatorData* _indi_src = NULL, int _indi_mode = 0)
-      : IndicatorData(_iparams.GetTf(), NULL) {
+  Indicator(const TS& _iparams, const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL, int _indi_mode = 0)
+      : IndicatorData(_idparams) {
     iparams = _iparams;
-    if (_indi_src != NULL) {
-      SetDataSource(_indi_src, _indi_mode);
-      iparams.SetDataSourceType(IDATA_INDICATOR);
-    }
     Init();
   }
-  Indicator(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorData(_tf) {
+  Indicator(const TS& _iparams, const IndicatorDataParams& _idparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : IndicatorData(_idparams) {
     iparams = _iparams;
     Init();
   }
   Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
-      : IndicatorData(_tf) {
+      : IndicatorData(IndicatorDataParams::GetInstance()) {
     iparams.SetIndicatorType(_itype);
     iparams.SetShift(_shift);
     Init();
@@ -170,11 +154,37 @@ class Indicator : public IndicatorData {
   /* Getters */
 
   /**
+   * Gets a value from IndicatorDataParams struct.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM_IDATA_PARAM _param) {
+    return idparams.Get<T>(_param);
+  }
+
+  /**
+   * Gets a value from IndicatorState struct.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM_INDICATOR_STATE_PROP _param) {
+    return istate.Get<T>(_param);
+  }
+
+  /**
    * Gets an indicator property flag.
    */
   bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift >= 0 ? _shift : iparams.GetShift());
     return _entry.CheckFlag(_prop);
+  }
+
+  /* Setters */
+
+  /**
+   * Sets the value for IndicatorDataParams struct.
+   */
+  template <typename T>
+  void Set(STRUCT_ENUM_IDATA_PARAM _param, T _value) {
+    idparams.Set<T>(_param, _value);
   }
 
   /* Buffer methods */
@@ -304,13 +314,13 @@ class Indicator : public IndicatorData {
   void ValidateDataSourceMode(int& _out_mode) {
     if (_out_mode == -1) {
       // First mode will be used by default, or, if selected indicator has more than one mode, error will happen.
-      if (iparams.GetMaxModes() != 1) {
+      if (Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)) != 1) {
         Alert("Error: ", GetName(), " must have exactly one possible mode in order to skip using SetDataSourceMode()!");
         DebugBreak();
       }
       _out_mode = 0;
-    } else if (_out_mode + 1 > (int)iparams.GetMaxModes()) {
-      Alert("Error: ", GetName(), " have ", iparams.GetMaxModes(),
+    } else if (_out_mode + 1 > Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES))) {
+      Alert("Error: ", GetName(), " have ", Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)),
             " mode(s) buy you tried to reference mode with index ", _out_mode,
             "! Ensure that you properly set mode via SetDataSourceMode().");
       DebugBreak();
@@ -492,9 +502,10 @@ class Indicator : public IndicatorData {
   double GetMax(int start_bar = 0, int count = WHOLE_ARRAY) {
     double max = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).GetMax<T>(iparams.GetMaxModes());
+      double value = GetEntry(shift).GetMax<T>(_max_modes);
       if (max == NULL || value > max) {
         max = value;
       }
@@ -510,9 +521,10 @@ class Indicator : public IndicatorData {
   double GetMin(int start_bar, int count = WHOLE_ARRAY) {
     double min = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).GetMin<T>(iparams.GetMaxModes());
+      double value = GetEntry(shift).GetMin<T>(_max_modes);
       if (min == NULL || value < min) {
         min = value;
       }
@@ -529,10 +541,11 @@ class Indicator : public IndicatorData {
     int num_values = 0;
     double sum = 0;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value_min = GetEntry(shift).GetMin<T>(iparams.GetMaxModes());
-      double value_max = GetEntry(shift).GetMax<T>(iparams.GetMaxModes());
+      double value_min = GetEntry(shift).GetMin<T>(_max_modes);
+      double value_max = GetEntry(shift).GetMax<T>(_max_modes);
 
       sum += value_min + value_max;
       num_values += 2;
@@ -551,11 +564,12 @@ class Indicator : public IndicatorData {
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int num_bars = last_bar - start_bar + 1;
     int index = 0;
+    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     ArrayResize(array, num_bars);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      array[index++] = GetEntry(shift).GetAvg<T>(iparams.GetMaxModes());
+      array[index++] = GetEntry(shift).GetAvg<T>(_max_modes);
     }
 
     ArraySort(array);
@@ -606,8 +620,8 @@ class Indicator : public IndicatorData {
 
     if (GetDataSourceRaw() != NULL) {
       _result = GetDataSourceRaw();
-    } else if (iparams.GetDataSourceId() != -1) {
-      int _source_id = iparams.GetDataSourceId();
+    } else if (Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID)) != -1) {
+      int _source_id = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID));
 
       if (indicators.KeyExists(_source_id)) {
         _result = indicators[_source_id].Ptr();
@@ -623,7 +637,7 @@ class Indicator : public IndicatorData {
           _result = _source.Ptr();
         }
       }
-    } else if (iparams.GetDataSourceType() == IDATA_INDICATOR) {
+    } else if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_INDICATOR) {
       // User sets data source's mode to On-Indicator, but not set data source via SetDataSource()!
 
       // Requesting potential data source.
@@ -632,7 +646,7 @@ class Indicator : public IndicatorData {
       if (_ds != NULL) {
         // Initializing with new data source.
         SetDataSource(_ds);
-        iparams.SetDataSourceType(IDATA_INDICATOR);
+        Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_INDICATOR);
       }
     }
 
@@ -650,11 +664,11 @@ class Indicator : public IndicatorData {
    * Whether data source is selected.
    */
   virtual bool HasDataSource(bool _try_initialize = false) {
-    if (iparams.GetDataSourceId() != -1) {
+    if (Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID)) != -1) {
       return true;
     }
 
-    if (iparams.GetDataSourceType() == IDATA_INDICATOR && GetDataSourceRaw() == NULL && _try_initialize) {
+    if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_INDICATOR && GetDataSourceRaw() == NULL && _try_initialize) {
       SetDataSource(OnDataSourceRequest());
     }
 
@@ -669,12 +683,12 @@ class Indicator : public IndicatorData {
   /**
    * Gets indicator's symbol.
    */
-  string GetSymbol() { return Get<string>(CHART_PARAM_SYMBOL); }
+  // string GetSymbol() { return Get<string>(CHART_PARAM_SYMBOL); }
 
   /**
    * Gets indicator's time-frame.
    */
-  ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
+  // ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
 
   /**
    * Gets indicator's signals.
@@ -690,7 +704,7 @@ class Indicator : public IndicatorData {
       return _signals;
     }
     // Returns signals.
-    IndicatorSignal _signals(_data, iparams, cparams, _mode1, _mode2);
+    IndicatorSignal _signals(_data, idparams, cparams, _mode1, _mode2);
     return _signals;
   }
 
@@ -705,9 +719,10 @@ class Indicator : public IndicatorData {
    * Get more descriptive name of the indicator.
    */
   string GetDescriptiveName() {
+    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
     string name = iparams.name + " (";
 
-    switch (iparams.GetDataSourceType()) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         name += "built-in, ";
         break;
@@ -719,7 +734,7 @@ class Indicator : public IndicatorData {
         break;
     }
 
-    name += IntegerToString(iparams.GetMaxModes()) + (iparams.GetMaxModes() == 1 ? " mode" : " modes");
+    name += IntegerToString(_max_modes) + (_max_modes == 1 ? " mode" : " modes");
 
     return name + ")";
   }
@@ -875,9 +890,10 @@ class Indicator : public IndicatorData {
     Chart::OnTick();
 
     if (iparams.is_draw) {
+      int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
       // Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
-      for (int i = 0; i < (int)iparams.GetMaxModes(); ++i)
-        draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.GetDataSourceMode()),
+      for (int i = 0; i < _max_modes; ++i)
+        draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + Get<string>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)),
                         GetBarTime(0), GetEntry(0)[i], iparams.draw_window);
     }
   }
@@ -909,7 +925,8 @@ class Indicator : public IndicatorData {
     indi_src = _indi;
     if (_indi != NULL) {
       indi_src.Ptr().AddListener(THIS_PTR);
-      iparams.SetDataSource(-1, _input_mode);
+      Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID), -1);
+      Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE), _input_mode);
       indi_src.Ptr().OnBecomeDataSourceFor(THIS_PTR);
     }
   }
@@ -972,7 +989,7 @@ class Indicator : public IndicatorData {
    * Get full name of the indicator (with "over ..." part).
    */
   string GetFullName() override {
-    return GetName() + "[" + IntegerToString(iparams.GetMaxModes()) + "]" +
+    return GetName() + "[" + Get<string>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)) + "]" +
            (HasDataSource() ? (" (over " + GetDataSource().GetFullName() + ")") : "");
   }
 
@@ -1003,7 +1020,8 @@ class Indicator : public IndicatorData {
     long _bar_time = GetBarTime(_ishift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
-      _entry.Resize(iparams.GetMaxModes());
+      int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
+      _entry.Resize(_max_modes);
       _entry.timestamp = GetBarTime(_ishift);
 #ifndef __MQL4__
       if (IndicatorBase::Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED))) {
@@ -1012,8 +1030,8 @@ class Indicator : public IndicatorData {
         IndicatorBase::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED), false);
       }
 #endif
-      for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
-        switch (iparams.GetDataValueType()) {
+      for (int _mode = 0; _mode < _max_modes; _mode++) {
+        switch (Get<ENUM_DATATYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DTYPE))) {
           case TYPE_BOOL:
           case TYPE_CHAR:
           case TYPE_INT:
@@ -1065,8 +1083,10 @@ class Indicator : public IndicatorData {
    * This method is called on GetEntry() right after values are set.
    */
   virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _timestamp = -1) {
-    _entry.AddFlags(_entry.GetDataTypeFlags(iparams.GetDataValueType()));
+    ENUM_DATATYPE _dtype = Get<ENUM_DATATYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DTYPE));
+    _entry.AddFlags(_entry.GetDataTypeFlags(_dtype));
   };
+
   /**
    * Returns the indicator's entry value for the given shift and mode.
    *

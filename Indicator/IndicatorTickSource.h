@@ -37,9 +37,11 @@ class IndicatorTickSource : public Indicator<TS> {
   /**
    * Class constructor.
    */
-  IndicatorTickSource(const TS& _iparams, IndicatorData* _indi_src = NULL, int _indi_mode = 0)
-      : Indicator(_iparams, _indi_src, _indi_mode) {}
-  IndicatorTickSource(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(_iparams, _tf) {}
+  IndicatorTickSource(const TS& _iparams, const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL,
+                      int _indi_mode = 0)
+      : Indicator(_iparams, _idparams, _indi_src, _indi_mode) {}
+  IndicatorTickSource(const TS& _iparams, const IndicatorDataParams& _idparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator(_iparams, _idparams, _tf) {}
   IndicatorTickSource(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                       string _name = "")
       : Indicator(_itype, _tf, _shift, _name) {}

@@ -22,6 +22,7 @@
 
 // Includes.
 #include "IndicatorBase.h"
+#include "IndicatorData.enum.h"
 #include "IndicatorData.struct.h"
 #include "IndicatorData.struct.serialize.h"
 #include "IndicatorData.struct.signal.h"
@@ -40,9 +41,32 @@ class IndicatorData : public IndicatorBase {
   BufferStruct<IndicatorDataEntry> idata;
   DictStruct<int, Ref<IndicatorData>> indicators;  // Indicators list keyed by id.
   IndicatorCalculateCache<double> cache;
-  Ref<IndicatorData> indi_src;  // // Indicator used as data source.
-  bool is_fed;                  // Whether calc_start_bar is already calculated.
-  int indi_src_mode;            // Mode of source indicator
+  IndicatorDataParams idparams; // Indicator data params.
+  Ref<IndicatorData> indi_src;  // Indicator used as data source.
+
+ protected:
+  /* Protected methods */
+
+  bool Init() {
+    ArrayResize(value_storages, idparams.Get<unsigned int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)));
+    if (indi_src.IsSet()) {
+      // SetDataSource(_indi_src, _indi_mode);
+      idparams.Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_INDICATOR);
+    }
+    switch (idparams.Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
+      case IDATA_BUILTIN:
+        break;
+      case IDATA_ICUSTOM:
+        break;
+      case IDATA_INDICATOR:
+        if (indi_src.IsSet() == NULL) {
+          // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
+          // SetDataSource(_indi_price, true, PRICE_OPEN);
+        }
+        break;
+    }
+    return true;
+  }
 
  public:
   /* Special methods */
@@ -50,13 +74,12 @@ class IndicatorData : public IndicatorBase {
   /**
    * Class constructor.
    */
-  IndicatorData(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
-      : indi_src(NULL), is_fed(false), IndicatorBase(_tf, _symbol) {}
-
-  /**
-   * Class constructor.
-   */
-  IndicatorData(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : IndicatorBase(_tfi, _symbol) {}
+  IndicatorData(const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL, int _indi_mode = 0)
+    : idparams(_idparams), indi_src(_indi_src) {
+  }
+  IndicatorData(const IndicatorDataParams& _idparams, ENUM_TIMEFRAMES _tf, string _symbol = NULL)
+    : idparams(_idparams), IndicatorBase(_tf, _symbol) {
+  }
 
   /**
    * Class deconstructor.
@@ -98,6 +121,24 @@ class IndicatorData : public IndicatorBase {
   }
 
   IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) { return GetEntry((int)_index); }
+
+  /* Getters */
+
+  /**
+   * Gets a value from IndicatorDataParams struct.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM_IDATA_PARAM _param) {
+    return idparams.Get<T>(_param);
+  }
+
+  /**
+   * Gets an indicator's state property value.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM_INDICATOR_STATE_PROP _prop) {
+    return istate.Get<T>(_prop);
+  }
 
   /* Data methods */
 
@@ -148,7 +189,7 @@ class IndicatorData : public IndicatorBase {
   int GetBarsCalculated() {
     int _bars = Bars(GetSymbol(), GetTf());
 
-    if (!is_fed) {
+    if (!idparams.Get<bool>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IS_FED))) {
       // Calculating start_bar.
       for (; calc_start_bar < _bars; ++calc_start_bar) {
         // Iterating from the oldest or previously iterated.
@@ -156,13 +197,13 @@ class IndicatorData : public IndicatorBase {
 
         if (_entry.IsValid()) {
           // From this point we assume that future entries will be all valid.
-          is_fed = true;
+          idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IS_FED), true);
           return _bars - calc_start_bar;
         }
       }
     }
 
-    if (!is_fed) {
+    if (!idparams.Get<bool>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IS_FED))) {
       Print("Can't find valid bars for ", GetFullName());
       return 0;
     }
@@ -202,7 +243,7 @@ class IndicatorData : public IndicatorBase {
     return _result;
   }
 
-  int GetDataSourceMode() { return indi_src_mode; }
+  // int GetDataSourceMode() { return indi_src_mode; }
 
   /**
    * Returns currently selected data source without any validation.
@@ -280,7 +321,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Sets data source's input mode.
    */
-  void SetDataSourceMode(int _mode) { indi_src_mode = _mode; }
+  // void SetDataSourceMode(int _mode) { indi_src_mode = _mode; }
 
   /* Storage methods */
 
@@ -411,15 +452,15 @@ class IndicatorData : public IndicatorBase {
       return;
     }
 
-    if (_source.GetModeCount() > 1 && _target.GetDataSourceMode() == -1) {
+    if (_source.GetModeCount() > 1 && _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
       // Mode must be selected if source indicator has more that one mode.
       Alert("Warning! ", GetName(),
             " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
-      _target.SetDataSourceMode(0);
+      _target.idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE), 0);
       DebugBreak();
-    } else if (_source.GetModeCount() == 1 && _target.GetDataSourceMode() == -1) {
-      _target.SetDataSourceMode(0);
-    } else if (_target.GetDataSourceMode() < 0 || _target.GetDataSourceMode() > _source.GetModeCount()) {
+    } else if (_source.GetModeCount() == 1 && _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
+      _target.idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE), 0);
+    } else if (_target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) < 0 || _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) > _source.GetModeCount()) {
       Alert("Error! ", _target.GetName(),
             " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
             _source.GetModeCount(), ".");

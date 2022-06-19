@@ -35,13 +35,10 @@ struct IndiZigZagParams : IndicatorParams {
   unsigned int backstep;
   // Struct constructors.
   IndiZigZagParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
-      : depth(_depth),
-        deviation(_deviation),
-        backstep(_backstep),
-        IndicatorParams(INDI_ZIGZAG, FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE) {
+      : depth(_depth), deviation(_deviation), backstep(_backstep), IndicatorParams(INDI_ZIGZAG) {
     shift = _shift;
     SetCustomIndicatorName("Examples\\ZigZag");
-    SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
+    // SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
   };
   IndiZigZagParams(IndiZigZagParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
@@ -63,7 +60,9 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
   /**
    * Class constructor.
    */
-  Indi_ZigZag(IndiZigZagParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_ZigZag(IndiZigZagParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE),
+                                    _indi_src) {}
   Indi_ZigZag(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ZIGZAG, _tf, _shift) {}
 
@@ -350,7 +349,7 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/,
                                       (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);

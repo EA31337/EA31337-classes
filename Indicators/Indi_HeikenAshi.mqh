@@ -50,13 +50,14 @@ enum ENUM_HA_MODE {
 // Structs.
 struct IndiHeikenAshiParams : IndicatorParams {
   // Struct constructors.
-  IndiHeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI, FINAL_HA_MODE_ENTRY, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);  // @fixit It draws candles!
+  IndiHeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI) {
+    if (custom_indi_name == "") {
 #ifdef __MQL4__
-    SetCustomIndicatorName("Heiken Ashi");
+      SetCustomIndicatorName("Heiken Ashi");
 #else
-    SetCustomIndicatorName("Examples\\Heiken_Ashi");
+      SetCustomIndicatorName("Examples\\Heiken_Ashi");
 #endif
+    }
     shift = _shift;
   };
   IndiHeikenAshiParams(IndiHeikenAshiParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -69,14 +70,28 @@ struct IndiHeikenAshiParams : IndicatorParams {
  * Implements the Heiken-Ashi indicator.
  */
 class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_HA_MODE_ENTRY); }
+
  public:
   /**
    * Class constructor.
    */
   Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {}
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(FINAL_HA_MODE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE),
+            _indi_src) {
+    Init();
+  }
   Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_HEIKENASHI, _tf, _shift) {}
+      : IndicatorTickOrCandleSource(INDI_HEIKENASHI, _tf, _shift) {
+    Init();
+  }
 
   /**
    * Returns value for iHeikenAshi indicator.
@@ -209,7 +224,7 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = HA_OPEN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
 #ifdef __MQL4__
         // Converting MQL4's enum into MQL5 one, as OnCalculate uses further one.

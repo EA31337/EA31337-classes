@@ -164,7 +164,8 @@ bool InitIndicators() {
   indis.Push(new Indi_AO());
 
   // Accumulation Swing Index (ASI).
-  indis.Push(new Indi_ASI());
+  IndiASIParams _asi_params;
+  indis.Push(new Indi_ASI(_asi_params));
 
   // Average True Range (ATR).
   IndiATRParams atr_params(14);
@@ -177,7 +178,7 @@ bool InitIndicators() {
 
   // Bollinger Bands over RSI.
   IndiBandsParams bands_over_rsi_params(20, 2, 0, PRICE_OPEN);
-  bands_over_rsi_params.SetDataSource(INDI_RSI);
+  // bands_over_rsi_params.SetDataSource(INDI_RSI);
   indis.Push(new Indi_Bands(bands_over_rsi_params));
 
   // Bears Power.
@@ -220,7 +221,8 @@ bool InitIndicators() {
   indis.Push(new Indi_Gator(gator_params));
 
   // Heiken Ashi.
-  indis.Push(new Indi_HeikenAshi());
+  IndiHeikenAshiParams _ha_params();
+  indis.Push(new Indi_HeikenAshi(_ha_params));
 
   // Ichimoku Kinko Hyo.
   IndiIchimokuParams ichi_params(9, 26, 52);
@@ -262,7 +264,7 @@ bool InitIndicators() {
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_over_blt_stddev_params();
-  rsi_over_blt_stddev_params.SetDataSource(INDI_STDDEV);
+  // rsi_over_blt_stddev_params.SetDataSource(INDI_STDDEV);
   indis.Push(new Indi_RSI(rsi_over_blt_stddev_params));
 
   // Relative Vigor Index (RVI).
@@ -396,12 +398,14 @@ bool InitIndicators() {
   indis.Push(indi_rsi_on_price.Ptr());
 
   // Drawer (socket-based) indicator over RSI over Price.
+#ifndef __MQL4__ // @fixme: Fix it for MQL4.
   IndiDrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
   drawer_params.SetDraw(clrBisque, 0);
-  drawer_params.SetMaxModes(rsi_on_price_params.GetMaxModes());
+  // drawer_params.SetMaxModes(rsi_on_price_params.GetMaxModes());
   Ref<Indi_Drawer> indi_drawer_on_rsi = new Indi_Drawer(drawer_params);
   indi_drawer_on_rsi.Ptr().SetDataSource(indi_rsi_on_price.Ptr(), PRICE_OPEN);
   indis.Push(indi_drawer_on_rsi.Ptr());
+#endif
 
   // Applied Price over OHCL indicator.
   IndiAppliedPriceParams applied_price_params();
@@ -429,7 +433,6 @@ bool InitIndicators() {
   // Original AMA.
   IndiAMAParams ama_params_orig();
   ama_params_orig.SetName("Original AMA to compare");
-  ama_params_orig.SetDataSourceType(IDATA_BUILTIN);
   indis.Push(new Indi_AMA(ama_params_orig));
 
   // Chaikin Oscillator.

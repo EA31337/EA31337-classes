@@ -44,9 +44,9 @@ struct IndiCCIParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
   IndiCCIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
-      : period(_period), applied_price(_applied_price), IndicatorParams(INDI_CCI, 1, TYPE_DOUBLE) {
+      : period(_period), applied_price(_applied_price), IndicatorParams(INDI_CCI) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CCI");
   };
   IndiCCIParams(IndiCCIParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -63,7 +63,8 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
   /**
    * Class constructor.
    */
-  Indi_CCI(IndiCCIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
+  Indi_CCI(IndiCCIParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
   Indi_CCI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_CCI, _tf, _shift) {}
 
   /**
@@ -148,7 +149,7 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     double _value = EMPTY_VALUE;
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _ishift /* + iparams.shift*/,
@@ -162,7 +163,8 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
         ValidateSelectedDataSource();
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDataSourceMode(),
+        _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
+                                           Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)),
                                            _ishift /* + iparams.shift*/);
         break;
     }

@@ -30,9 +30,8 @@ struct IndiASIParams : IndicatorParams {
   unsigned int period;
   double mpc;
   // Struct constructor.
-  IndiASIParams(double _mpc = 300.0, int _shift = 0)
-      : IndicatorParams(INDI_ASI, 1, TYPE_DOUBLE, PERIOD_CURRENT, IDATA_ONCALCULATE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
+  IndiASIParams(double _mpc = 300.0, int _shift = 0) : IndicatorParams(INDI_ASI, PERIOD_CURRENT) {
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ASI");
     mpc = _mpc;
     shift = _shift;
@@ -47,12 +46,30 @@ struct IndiASIParams : IndicatorParams {
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
 class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() {
+    if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_BUILTIN) {
+      Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_ONCALCULATE);
+    }
+  }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_ASI(IndiASIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
-  Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ASI, _tf, _shift){};
+  Indi_ASI(IndiASIParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_ONCALCULATE),
+                                    _indi_src) {
+    Init();
+  };
+  Indi_ASI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ASI, _tf, _shift) {
+    Init();
+  };
 
   /**
    * Built-in version of ASI.
@@ -168,7 +185,7 @@ class Indi_ASI : public IndicatorTickOrCandleSource<IndiASIParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetMaximumPriceChanging() /*]*/, 0, _ishift);

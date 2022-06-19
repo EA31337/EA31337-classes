@@ -41,9 +41,8 @@
 struct IndiCustomParams : public IndicatorParams {
   DataParamEntry iargs[];
   // Struct constructors.
-  IndiCustomParams(string _filepath = INDI_CUSTOM_PATH, int _shift = 0) : IndicatorParams(INDI_CUSTOM, 1, TYPE_DOUBLE) {
+  IndiCustomParams(string _filepath = INDI_CUSTOM_PATH, int _shift = 0) : IndicatorParams(INDI_CUSTOM) {
     custom_indi_name = _filepath;
-    SetDataSourceType(IDATA_ICUSTOM);
   }
   IndiCustomParams(IndiCustomParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
@@ -79,7 +78,8 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
   /**
    * Class constructor.
    */
-  Indi_Custom(IndiCustomParams &_p, IndicatorData *_indi_src = NULL) : Indicator<IndiCustomParams>(_p, _indi_src) {}
+  Indi_Custom(IndiCustomParams &_p, IndicatorData *_indi_src = NULL)
+      : Indicator<IndiCustomParams>(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_ICUSTOM), _indi_src) {}
   Indi_Custom(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM, _tf){};
 
   /**
@@ -88,19 +88,19 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_ICUSTOM:
         switch (iparams.GetParamsSize()) {
           case 0:
-            _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+            _value = iCustom(istate.handle, GetSymbol(), GetTf(),
                              iparams.custom_indi_name, _mode, _ishift);
             break;
           case 1:
-            _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+            _value = iCustom(istate.handle, GetSymbol(), GetTf(),
                              iparams.custom_indi_name, iparams.GetParam(1).ToValue<double>(), _mode, _ishift);
             break;
           case 2:
-            _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+            _value = iCustom(istate.handle, GetSymbol(), GetTf(),
                              iparams.custom_indi_name, iparams.GetParam(1).ToValue<double>(),
                              iparams.GetParam(2).ToValue<double>(), _mode, _ishift);
             break;

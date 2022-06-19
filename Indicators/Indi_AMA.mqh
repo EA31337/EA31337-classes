@@ -43,16 +43,11 @@ struct IndiAMAParams : IndicatorParams {
         slow_period(_slow_period),
         ama_shift(_ama_shift),
         applied_price(_ap) {
-    SetDataValueRange(IDATA_RANGE_PRICE);
+    // SetDataValueRange(IDATA_RANGE_PRICE);
     // Defaulting to on-indicator mode (will use real ticks from platform via IndicatorTickReal).
-    SetDataSourceMode(IDATA_INDICATOR);
     SetShift(_shift);
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        if (custom_indi_name == "") {
-          SetCustomIndicatorName("Examples\\AMA");
-        }
-        break;
+    if (custom_indi_name == "") {
+      SetCustomIndicatorName("Examples\\AMA");
     }
   };
   IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -70,7 +65,8 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
    * Class constructor.
    */
   Indi_AMA(IndiAMAParams &_p, IndicatorData *_indi_src = NULL, int _indi_mode = 0)
-      : IndicatorTickOrCandleSource(_p, _indi_src, _indi_mode) {
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN), _indi_src,
+                                    _indi_mode) {
     iparams.SetIndicatorType(INDI_AMA);
   };
   Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AMA, _tf, _shift){};
@@ -178,7 +174,8 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
                   ExtSlowPeriodEMA, ExtFastPeriodEMA);
 
     for (int x = prev_calculated; x < rates_total; ++x) {
-      Print("price[", x, "] = ", price[x].Get(), ", O = ", iOpen(Symbol(), PERIOD_CURRENT, Bars(Symbol(), PERIOD_CURRENT) - x - 1));
+      Print("price[", x, "] = ", price[x].Get(),
+            ", O = ", iOpen(Symbol(), PERIOD_CURRENT, Bars(Symbol(), PERIOD_CURRENT) - x - 1));
     }
 
     int i;
@@ -225,7 +222,7 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_AMA::iAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
                                 GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);

@@ -197,7 +197,7 @@ class IndicatorBase : public Chart {
    * Gets an indicator's state property value.
    */
   template <typename T>
-  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
+  T Get(STRUCT_ENUM_INDICATOR_STATE_PROP _prop) {
     return istate.Get<T>(_prop);
   }
 

@@ -36,10 +36,10 @@ struct IndiCHOParams : IndicatorParams {
   // Struct constructor.
   IndiCHOParams(int _fast_ma = 3, int _slow_ma = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
                 ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_CHAIKIN, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_CHAIKIN) {
     fast_ma = _fast_ma;
     input_volume = _input_volume;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHO");
     shift = _shift;
     slow_ma = _slow_ma;
@@ -59,7 +59,8 @@ class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
   /**
    * Class constructor.
    */
-  Indi_CHO(IndiCHOParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_CHO(IndiCHOParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
   Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_CHAIKIN, _tf, _shift){};
 
@@ -184,7 +185,7 @@ class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_CHO::iChaikin(GetSymbol(), GetTf(), /*[*/ GetSlowMA(), GetFastMA(), GetSmoothMethod(),
                                     GetInputVolume() /*]*/, _mode, _ishift, THIS_PTR);

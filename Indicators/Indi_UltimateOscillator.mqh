@@ -42,12 +42,12 @@ struct IndiUltimateOscillatorParams : IndicatorParams {
   // Struct constructor.
   IndiUltimateOscillatorParams(int _fast_period = 7, int _middle_period = 14, int _slow_period = 28, int _fast_k = 4,
                                int _middle_k = 2, int _slow_k = 1, int _shift = 0)
-      : IndicatorParams(INDI_ULTIMATE_OSCILLATOR, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_ULTIMATE_OSCILLATOR) {
     fast_k = _fast_k;
     fast_period = _fast_period;
     middle_k = _middle_k;
     middle_period = _middle_period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Ultimate_Oscillator");
     shift = _shift;
     slow_k = _slow_k;
@@ -68,7 +68,7 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
    * Class constructor.
    */
   Indi_UltimateOscillator(IndiUltimateOscillatorParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
   Indi_UltimateOscillator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ULTIMATE_OSCILLATOR, _tf, _shift){};
 
@@ -250,7 +250,7 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_UltimateOscillator::iUO(GetSymbol(), GetTf(), /*[*/ GetFastPeriod(), GetMiddlePeriod(),
                                               GetSlowPeriod(), GetFastK(), GetMiddleK(), GetSlowK() /*]*/, _mode,

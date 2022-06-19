@@ -33,10 +33,10 @@ struct IndiMassIndexParams : IndicatorParams {
   int sum_period;
   // Struct constructor.
   IndiMassIndexParams(int _period = 9, int _second_period = 9, int _sum_period = 25, int _shift = 0)
-      : IndicatorParams(INDI_MASS_INDEX, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_MASS_INDEX) {
     period = _period;
     second_period = _second_period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\MI");
     shift = _shift;
     sum_period = _sum_period;
@@ -56,7 +56,7 @@ class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
    * Class constructor.
    */
   Indi_MassIndex(IndiMassIndexParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
   Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_MASS_INDEX, _tf, _shift){};
 
@@ -170,7 +170,7 @@ class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_MassIndex::iMI(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetSecondPeriod(), GetSumPeriod() /*]*/,
                                      _mode, _ishift, THIS_PTR);

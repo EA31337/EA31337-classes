@@ -56,13 +56,9 @@ struct IndiMAParams : IndicatorParams {
   // Struct constructors.
   IndiMAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
                ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : period(_period),
-        ma_shift(_ma_shift),
-        ma_method(_ma_method),
-        applied_array(_ap),
-        IndicatorParams(INDI_MA, 1, TYPE_DOUBLE) {
+      : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap), IndicatorParams(INDI_MA) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_PRICE);
+    // SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Moving Average");
   };
   IndiMAParams(IndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -79,7 +75,8 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
   /**
    * Class constructor.
    */
-  Indi_MA(IndiMAParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
+  Indi_MA(IndiMAParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
   Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_MA, _tf, _shift) {}
 
   /**
@@ -630,7 +627,7 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
                               _ishift, THIS_PTR);
@@ -641,10 +638,12 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetSymbol(), GetTf(),
-                                         GetPeriod(), GetMAShift(), GetMAMethod(), _ishift);
+        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(),
+                                         Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)), GetSymbol(),
+                                         GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), _ishift);
         break;
     }
+
     return _value;
   }
 

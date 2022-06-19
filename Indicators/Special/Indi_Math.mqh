@@ -43,13 +43,12 @@ struct IndiMathParams : IndicatorParams {
   IndiMathParams(ENUM_MATH_OP _op = MATH_OP_SUB, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
                  unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_SPECIAL_MATH) {
     mode_1 = _mode_1;
     mode_2 = _mode_2;
     op_builtin = _op;
     op_mode = MATH_OP_MODE_BUILTIN;
-    SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_INDICATOR);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
     shift_1 = _shift_1;
     shift_2 = _shift_2;
@@ -60,14 +59,12 @@ struct IndiMathParams : IndicatorParams {
   IndiMathParams(MathCustomOpFunction _op, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
                  unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
-    max_modes = 1;
+      : IndicatorParams(INDI_SPECIAL_MATH) {
     mode_1 = _mode_1;
     mode_2 = _mode_2;
     op_fn = _op;
     op_mode = MATH_OP_MODE_CUSTOM_FUNCTION;
-    SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_INDICATOR);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
     shift_1 = _shift_1;
     shift_2 = _shift_2;
@@ -87,7 +84,8 @@ class Indi_Math : public IndicatorTickOrCandleSource<IndiMathParams> {
   /**
    * Class constructor.
    */
-  Indi_Math(IndiMathParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Math(IndiMathParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_INDICATOR), _indi_src){};
   Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_SPECIAL_MATH, _tf, _shift){};
 
@@ -97,7 +95,7 @@ class Indi_Math : public IndicatorTickOrCandleSource<IndiMathParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_INDICATOR:
         if (!indi_src.IsSet()) {
           GetLogger().Error(

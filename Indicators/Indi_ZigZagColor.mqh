@@ -35,11 +35,11 @@ struct IndiZigZagColorParams : IndicatorParams {
   // Struct constructor.
   IndiZigZagColorParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3,
                         int _shift = 0)
-      : IndicatorParams(INDI_ZIGZAG_COLOR, 3, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_ZIGZAG_COLOR) {
     backstep = _backstep;
     depth = _depth;
     deviation = _deviation;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ZigZagColor");
     shift = _shift;
   };
@@ -58,7 +58,7 @@ class Indi_ZigZagColor : public IndicatorTickOrCandleSource<IndiZigZagColorParam
    * Class constructor.
    */
   Indi_ZigZagColor(IndiZigZagColorParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE), _indi_src){};
   Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VROC, _tf, _shift){};
 
@@ -285,7 +285,7 @@ class Indi_ZigZagColor : public IndicatorTickOrCandleSource<IndiZigZagColorParam
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_ZigZagColor::iZigZagColor(GetSymbol(), GetTf(), /*[*/ GetDepth(), GetDeviation(),
                                                 GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);

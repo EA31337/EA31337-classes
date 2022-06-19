@@ -58,13 +58,9 @@ struct IndiEnvelopesParams : IndicatorParams {
         ma_method(_ma_method),
         applied_price(_ap),
         deviation(_deviation),
-        IndicatorParams(INDI_ENVELOPES, 2, TYPE_DOUBLE) {
-#ifdef __MQL4__
-    // There is extra LINE_MAIN in MQL4 for Envelopes.
-    max_modes = 3;
-#endif
+        IndicatorParams(INDI_ENVELOPES) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_PRICE);
+    // SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Envelopes");
   };
   IndiEnvelopesParams(IndiEnvelopesParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -77,14 +73,33 @@ struct IndiEnvelopesParams : IndicatorParams {
  * Implements the Envelopes indicator.
  */
 class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() {
+#ifdef __MQL4__
+    // There is extra LINE_MAIN in MQL4 for Envelopes.
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 3);
+#else
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
+#endif
+  }
+
  public:
   /**
    * Class constructor.
    */
   Indi_Envelopes(IndiEnvelopesParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {}
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE), _indi_src) {
+    Init();
+  }
   Indi_Envelopes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_ENVELOPES, _tf, _shift) {}
+      : IndicatorTickOrCandleSource(INDI_ENVELOPES, _tf, _shift) {
+    Init();
+  };
 
   /**
    * Returns the indicator value.
@@ -201,7 +216,7 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
                                             GetAppliedPrice(), GetDeviation(), _mode, _ishift, THIS_PTR);
@@ -212,8 +227,9 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
         break;
       case IDATA_INDICATOR:
         _value = Indi_Envelopes::iEnvelopesOnIndicator(GetCache(), GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
-                                                       GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(),
-                                                       _mode, _ishift);
+                                                       GetMAMethod(),
+                                                       Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)),
+                                                       GetMAShift(), GetDeviation(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

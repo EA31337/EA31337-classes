@@ -35,11 +35,11 @@ struct IndiVIDYAParams : IndicatorParams {
   // Struct constructor.
   IndiVIDYAParams(unsigned int _cmo_period = 9, unsigned int _ma_period = 14, unsigned int _vidya_shift = 0,
                   ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_VIDYA, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_VIDYA) {
     applied_price = _ap;
     cmo_period = _cmo_period;
     ma_period = _ma_period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VIDYA");
     shift = _shift;
     vidya_shift = _vidya_shift;
@@ -58,7 +58,8 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
   /**
    * Class constructor.
    */
-  Indi_VIDYA(IndiVIDYAParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_VIDYA(IndiVIDYAParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
   Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VIDYA, _tf, _shift){};
 
@@ -164,7 +165,7 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_VIDYA::iVIDyA(GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(), GetVIDYAShift(),
                                     GetAppliedPrice() /*]*/, 0, _ishift, THIS_PTR);

@@ -29,12 +29,10 @@
 struct IndiVolumesParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  IndiVolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_VOLUMES, 2, TYPE_DOUBLE) {
+  IndiVolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) : IndicatorParams(INDI_VOLUMES) {
     applied_volume = _applied_volume;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Volumes");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
   };
   IndiVolumesParams(IndiVolumesParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -51,7 +49,8 @@ class Indi_Volumes : public IndicatorTickOrCandleSource<IndiVolumesParams> {
   /**
    * Class constructor.
    */
-  Indi_Volumes(IndiVolumesParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Volumes(IndiVolumesParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, IDATA_BUILTIN), _indi_src){};
   Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VOLUMES, _tf, _shift){};
 
@@ -138,7 +137,7 @@ class Indi_Volumes : public IndicatorTickOrCandleSource<IndiVolumesParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Volumes::iVolumes(GetSymbol(), GetTf(), /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift, THIS_PTR);
         break;

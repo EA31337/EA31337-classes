@@ -34,8 +34,8 @@ double iAD(string _symbol, int _tf, int _shift) {
 // Structs.
 struct IndiADParams : IndicatorParams {
   // Struct constructor.
-  IndiADParams(int _shift = 0) : IndicatorParams(INDI_AD, 1, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
+  IndiADParams(int _shift = 0) : IndicatorParams(INDI_AD) {
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\AD");
     shift = _shift;
   };
@@ -53,7 +53,8 @@ class Indi_AD : public IndicatorTickOrCandleSource<IndiADParams> {
   /**
    * Class constructor.
    */
-  Indi_AD(IndiADParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_AD(IndiADParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
   Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AD, _tf, _shift) {
     iparams.SetTf(_tf);
   };
@@ -104,7 +105,7 @@ class Indi_AD : public IndicatorTickOrCandleSource<IndiADParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_AD::iAD(GetSymbol(), GetTf(), _ishift, THIS_PTR);
         break;

@@ -29,10 +29,9 @@
 struct IndiPriceChannelParams : IndicatorParams {
   unsigned int period;
   // Struct constructor.
-  IndiPriceChannelParams(unsigned int _period = 22, int _shift = 0)
-      : IndicatorParams(INDI_PRICE_CHANNEL, 3, TYPE_DOUBLE) {
+  IndiPriceChannelParams(unsigned int _period = 22, int _shift = 0) : IndicatorParams(INDI_PRICE_CHANNEL) {
     period = _period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Price_Channel");
     shift = _shift;
   };
@@ -51,7 +50,7 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
    * Class constructor.
    */
   Indi_PriceChannel(IndiPriceChannelParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE), _indi_src){};
   Indi_PriceChannel(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PRICE_CHANNEL, _tf, _shift){};
 
@@ -119,7 +118,7 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_PriceChannel::iPriceChannel(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
         break;

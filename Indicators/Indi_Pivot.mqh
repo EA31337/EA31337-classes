@@ -30,9 +30,9 @@
 struct IndiPivotParams : IndicatorParams {
   ENUM_PP_TYPE method;  // Pivot point calculation method.
   // Struct constructor.
-  IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0) : IndicatorParams(INDI_PIVOT, 9, TYPE_FLOAT) {
+  IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0) : IndicatorParams(INDI_PIVOT) {
     method = _method;
-    SetDataValueRange(IDATA_RANGE_MIXED);
+    // SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
   };
   IndiPivotParams(IndiPivotParams& _params, ENUM_TIMEFRAMES _tf) {
@@ -45,14 +45,26 @@ struct IndiPivotParams : IndicatorParams {
  * Implements Pivot Detector.
  */
 class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 9); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_Pivot(IndiPivotParams& _p, IndicatorData* _indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Pivot(IndiPivotParams& _p, IndicatorData* _indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(9, TYPE_FLOAT), _indi_src) {
+    Init();
+  };
   Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PIVOT, _tf, _shift) {
     iparams.tf = _tf;
+    Init();
   };
 
   /**
@@ -72,7 +84,7 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
       BarOHLC _ohlc = GetOHLC(_ishift);
       _entry.timestamp = GetBarTime(_ishift);
       if (_ohlc.IsValid()) {
-        _entry.Resize(iparams.GetMaxModes());
+        _entry.Resize(Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)));
         _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vflt, _entry.values[1].value.vflt,
                         _entry.values[2].value.vflt, _entry.values[3].value.vflt, _entry.values[4].value.vflt,
                         _entry.values[5].value.vflt, _entry.values[6].value.vflt, _entry.values[7].value.vflt,
@@ -111,7 +123,7 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
    */
   virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
     bool _is_valid = Indicator<IndiPivotParams>::IsValidEntry(_entry);
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         break;
       case IDATA_INDICATOR:
@@ -139,7 +151,7 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
    */
   BarOHLC GetOHLC(int _shift = 0) {
     BarOHLC _ohlc;
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
         _ohlc = Chart::GetOHLC(_shift);

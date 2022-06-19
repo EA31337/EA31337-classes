@@ -30,9 +30,8 @@ struct IndiAppliedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   IndiAppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
-      : applied_price(_applied_price), IndicatorParams(INDI_APPLIED_PRICE, 1, TYPE_DOUBLE) {
-    SetDataSourceType(IDATA_INDICATOR);
-    SetDataValueRange(IDATA_RANGE_PRICE);
+      : applied_price(_applied_price), IndicatorParams(INDI_APPLIED_PRICE) {
+    // SetDataValueRange(IDATA_RANGE_PRICE);
     shift = _shift;
   };
   IndiAppliedPriceParams(IndiAppliedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -58,7 +57,7 @@ class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPricePar
    * Class constructor.
    */
   Indi_AppliedPrice(IndiAppliedPriceParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_INDICATOR), _indi_src) {
     OnInit();
   };
   Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
@@ -78,12 +77,12 @@ class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPricePar
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_INDICATOR:
         if (HasDataSource()) {
           // Future validation of indi_src will check if we set mode for source indicator
           // (e.g. for applied price of Indi_Price).
-          iparams.SetDataSourceMode(GetAppliedPrice());
+          Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE), GetAppliedPrice());
           _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _ishift);
         }
         break;
@@ -102,7 +101,7 @@ class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPricePar
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
     bool _is_valid = Indicator<IndiAppliedPriceParams>::IsValidEntry(_entry);
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_INDICATOR:
         if (!HasDataSource()) {
           GetLogger().Error("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");

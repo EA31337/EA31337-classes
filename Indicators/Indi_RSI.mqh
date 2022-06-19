@@ -51,9 +51,9 @@ struct IndiRSIParams : IndicatorParams {
 
  public:
   IndiRSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : applied_price(_ap), IndicatorParams(INDI_RSI, 1, TYPE_DOUBLE) {
+      : applied_price(_ap), IndicatorParams(INDI_RSI) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
+    // SetDataValueRange(IDATA_RANGE_RANGE);
     //    SetDataSourceType(IDATA_ICUSTOM);
     SetCustomIndicatorName("Examples\\RSI");
     SetPeriod(_period);
@@ -96,7 +96,8 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
   /**
    * Class constructor.
    */
-  Indi_RSI(IndiRSIParams &_p, IndicatorData *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_RSI(IndiRSIParams &_p, IndicatorData *_indi_src = NULL)
+      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src) {}
   Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RSI, _tf, _shift) {}
 
   /**
@@ -173,7 +174,7 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
     RSIGainLossData last_data, new_data;
     unsigned int data_position;
     double diff;
-    int _mode = _obj.GetDataSourceMode();
+    int _mode = _obj.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE));
 
     if (!_obj.aux_data.KeyExists(_bar_time_prev, data_position)) {
       // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
@@ -293,7 +294,7 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
     double _value = EMPTY_VALUE;
     double _res[];
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value =
             Indi_RSI::iRSI(GetSymbol(), GetTf(), iparams.GetPeriod(), iparams.GetAppliedPrice(), _ishift, THIS_PTR);
