@@ -64,6 +64,10 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiVROCParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
     // VROC uses volume only.
     return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
   }

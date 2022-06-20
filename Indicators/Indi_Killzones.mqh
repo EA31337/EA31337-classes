@@ -116,8 +116,13 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiKillzonesParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
     // Killzones uses high and low prices only.
-    return HasSpecificAppliedPriceValueStorage(PRICE_HIGH) && HasSpecificAppliedPriceValueStorage(PRICE_LOW);
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW);
   }
 
   /**

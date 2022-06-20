@@ -70,9 +70,15 @@ class Indi_RS : public Indicator<IndiRSParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiRSParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
     // RS uses OHLC.
-    return HasSpecificAppliedPriceValueStorage(PRICE_OPEN) && HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
-           HasSpecificAppliedPriceValueStorage(PRICE_LOW) && HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_OPEN) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
   }
 
   void Init() {
@@ -84,8 +90,8 @@ class Indi_RS : public Indicator<IndiRSParams> {
       _imath1_p.SetTf(GetTf());
       Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_p);
       Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_p);
-      _imath0.Ptr().SetDataSource(GetDataSource(true), 0);
-      _imath1.Ptr().SetDataSource(GetDataSource(true), 0);
+      _imath0.Ptr().SetDataSource(GetDataSource(), 0);
+      _imath1.Ptr().SetDataSource(GetDataSource(), 0);
       imath.Set(0, _imath0);
       imath.Set(1, _imath1);
     }

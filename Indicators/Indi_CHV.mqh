@@ -79,8 +79,13 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiCHVParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
     // CHV uses high and low prices only.
-    return HasSpecificAppliedPriceValueStorage(PRICE_HIGH) && HasSpecificAppliedPriceValueStorage(PRICE_LOW);
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW);
   }
 
   /**

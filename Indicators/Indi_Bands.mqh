@@ -266,10 +266,6 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
                                     GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        // Note that Bands takes prices from the given indicator. In order to
-        // prevent infinite loop we have to make sure that bands works on
-        // Candle indicator, because it is not using OHLCs, but a single,
-        // generic buffer from source indicator. Giving Candle indicator to it, we enforce
         _value = Indi_Bands::iBandsOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
                                                GetBandsShift(), GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift);
         break;

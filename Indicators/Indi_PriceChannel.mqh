@@ -56,7 +56,7 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
 
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
@@ -67,8 +67,12 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiPriceChannelParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
     // PC uses high and low prices only.
-    return HasSpecificAppliedPriceValueStorage(PRICE_HIGH | PRICE_LOW);
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH | PRICE_LOW);
   }
 
   /**

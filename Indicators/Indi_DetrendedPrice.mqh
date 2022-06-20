@@ -69,6 +69,10 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiDetrendedPriceParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
     // Volume uses volume only.
     return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
   }

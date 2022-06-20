@@ -79,6 +79,7 @@ class IndicatorBase : public Object {
   long last_tick_time;                       // Time of the last Tick() call.
   int flags;                                 // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
   Ref<Log> logger;
+  ENUM_INDI_VS_TYPE retarget_ap_av;  // Value storage type to be used as applied price/volume.
 
  public:
   /* Indicator enumerations */
@@ -107,6 +108,7 @@ class IndicatorBase : public Object {
     indi_src_mode = -1;
     indi_src_mode_kind = (ENUM_INDI_DS_MODE_KIND)-1;
     last_tick_time = 0;
+    retarget_ap_av = INDI_VS_TYPE_NONE;
   }
 
   /**
@@ -346,7 +348,7 @@ class IndicatorBase : public Object {
    * Creates default, tick based indicator for given applied price.
    */
   virtual IndicatorBase* DataSourceRequestReturnDefault(int _applied_price) {
-    DebugBreak();
+    //    DebugBreak();
     return NULL;
   }
 
@@ -474,13 +476,31 @@ class IndicatorBase : public Object {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  virtual bool OnCheckIfSuitableDataSource(IndicatorBase* _ds) { return false; }
+  virtual bool OnCheckIfSuitableDataSource(IndicatorBase* _ds) {
+    Flags<unsigned int> _suitable_types = GetSuitableDataSourceTypes();
+
+    if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_EXPECT_NONE)) {
+      return false;
+    }
+
+    if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
+      ENUM_INDI_VS_TYPE _requested_vs_type = GetAppliedPriceValueStorageType();
+      return _ds PTR_DEREF HasSpecificValueStorage(_requested_vs_type);
+    }
+
+    if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AV)) {
+      ENUM_INDI_VS_TYPE _requested_vs_type = GetAppliedVolumeValueStorageType();
+      return _ds PTR_DEREF HasSpecificValueStorage(_requested_vs_type);
+    }
+
+    return false;
+  }
 
   /**
    * Returns applied price as set by the indicator's params.
    */
   virtual ENUM_APPLIED_PRICE GetAppliedPrice() {
-    Print("Error: GetAppliedPrice() was requesed by ", GetFullName(), ", but it does not implement it!");
+    Print("Error: GetAppliedPrice() was requested by ", GetFullName(), ", but it does not implement it!");
     DebugBreak();
     return (ENUM_APPLIED_PRICE)-1;
   }
@@ -489,7 +509,7 @@ class IndicatorBase : public Object {
    * Returns applied volume as set by the indicator's params.
    */
   virtual ENUM_APPLIED_VOLUME GetAppliedVolume() {
-    Print("Error: GetAppliedVolume() was requesed by ", GetFullName(), ", but it does not implement it!");
+    Print("Error: GetAppliedVolume() was requested by ", GetFullName(), ", but it does not implement it!");
     DebugBreak();
     return (ENUM_APPLIED_VOLUME)-1;
   }
@@ -498,7 +518,12 @@ class IndicatorBase : public Object {
    * Returns value storage's buffer type from this indicator's applied price (indicator must override GetAppliedPrice()
    * method!).
    */
-  virtual ENUM_INDI_VS_TYPE GetAppliedValueStorageType() {
+  virtual ENUM_INDI_VS_TYPE GetAppliedPriceValueStorageType() {
+    if (retarget_ap_av != INDI_VS_TYPE_NONE) {
+      // User wants to use custom value storage type as applied price.
+      return retarget_ap_av;
+    }
+
     switch (GetAppliedPrice()) {
       case PRICE_ASK:
         return INDI_VS_TYPE_PRICE_ASK;
@@ -526,35 +551,92 @@ class IndicatorBase : public Object {
   }
 
   /**
-   * Returns best suited data source for given applied price for this indicator.
+   * Returns value storage's buffer type from this indicator's applied volume (indicator must override
+   * GetAppliedVolume() method!).
+   */
+  virtual ENUM_INDI_VS_TYPE GetAppliedVolumeValueStorageType() {
+    if (retarget_ap_av != INDI_VS_TYPE_NONE) {
+      // User wants to use custom value storage type as applied volume.
+      return retarget_ap_av;
+    }
+
+    switch (GetAppliedVolume()) {
+      case VOLUME_TICK:
+        return INDI_VS_TYPE_TICK_VOLUME;
+      case VOLUME_REAL:
+        return INDI_VS_TYPE_VOLUME;
+    }
+
+    Print("Error: ", GetFullName(), " has not supported applied volume set: ", EnumToString(GetAppliedVolume()), "!");
+    DebugBreak();
+    return (ENUM_INDI_VS_TYPE)-1;
+  }
+
+  /**
+   * Uses custom value storage type as applied price.
+   */
+  void SetDataSourceAppliedPrice(ENUM_INDI_VS_TYPE _vs_type) {
+    // @todo Check if given value storage is of compatible type (double)!
+    retarget_ap_av = _vs_type;
+  }
+
+  /**
+   * Uses custom value storage type as applied volume.
+   */
+  void SetDataSourceAppliedVolume(ENUM_INDI_VS_TYPE _vs_type) {
+    // @todo Check if given value storage is of compatible type (long)!
+    retarget_ap_av = _vs_type;
+  }
+
+  /**
+   * Checks whether there is attached suitable data source (if required).
+   */
+  bool HasSuitableDataSource() {
+    Flags<unsigned int> _flags = GetSuitableDataSourceTypes();
+    return !_flags.HasFlag(INDI_SUITABLE_DS_TYPE_EXPECT_NONE) && GetSuitableDataSource(false) != nullptr;
+  }
+
+  /**
+   * Returns best suited data source for this indicator.
    */
   virtual IndicatorBase* GetSuitableDataSource(bool _warn_if_not_found = true) {
     Flags<unsigned int> _suitable_types = GetSuitableDataSourceTypes();
     IndicatorBase* _curr_indi;
 
-    // @todo support EXPECT_ANY.
+    // There shouldn't be any attached data source.
+    if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_EXPECT_NONE) && GetDataSource() != nullptr) {
+      if (_warn_if_not_found) {
+        Print("Error: ", GetFullName(), " doesn't support attaching data source, but has one attached!");
+        DebugBreak();
+      }
+      return nullptr;
+    }
 
     // Custom set of required buffers. Will invoke virtual OnCheckIfSuitableDataSource().
     if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_CUSTOM)) {
       // Searching suitable data source in hierarchy.
-      for (_curr_indi = GetDataSource(true); _curr_indi != nullptr;
-           _curr_indi = _curr_indi PTR_DEREF GetDataSource(true)) {
+      for (_curr_indi = GetDataSource(false); _curr_indi != nullptr;
+           _curr_indi = _curr_indi PTR_DEREF GetDataSource(false)) {
         if (OnCheckIfSuitableDataSource(_curr_indi)) return _curr_indi;
 
         if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_BASE_ONLY)) {
           // Directly connected data source must be suitable, so we stops for loop.
-          Print("Error: ", GetFullName(),
-                " requested custom type of data source to be directly connected to this indicator, and data source "
-                "desn't satisfy the requirements!");
-          DebugBreak();
+          if (_warn_if_not_found) {
+            Print("Error: ", GetFullName(),
+                  " requested custom type of data source to be directly connected to this indicator, and data source "
+                  "desn't satisfy the requirements!");
+            DebugBreak();
+          }
           return nullptr;
         }
       }
 
-      Print("Error: ", GetFullName(),
-            " requested custom type of indicator as data source, but there is none in the hierarchy which satisfies "
-            "the requirements!");
-      DebugBreak();
+      if (_warn_if_not_found) {
+        Print("Error: ", GetFullName(),
+              " requested custom type of indicator as data source, but there is none in the hierarchy which satisfies "
+              "the requirements!");
+        DebugBreak();
+      }
       return nullptr;
     }
 
@@ -562,13 +644,15 @@ class IndicatorBase : public Object {
     if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_CANDLE)) {
       if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_BASE_ONLY)) {
         // Candle indicator must be directly connected to this indicator as its data source.
-        _curr_indi = GetDataSource(true);
+        _curr_indi = GetDataSource(false);
 
         if (_curr_indi == nullptr || !_curr_indi PTR_DEREF IsCandleIndicator()) {
-          Print("Error: ", GetFullName(),
-                " must have Candle-compatible indicator directly conected as a data source! We don't search for it "
-                "further in the hierarchy.");
-          DebugBreak();
+          if (_warn_if_not_found) {
+            Print("Error: ", GetFullName(),
+                  " must have Candle-compatible indicator directly conected as a data source! We don't search for it "
+                  "further in the hierarchy.");
+            DebugBreak();
+          }
           return nullptr;
         }
 
@@ -580,9 +664,11 @@ class IndicatorBase : public Object {
         if (_curr_indi != nullptr) return _curr_indi;
 
         if (!_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_TICK)) {
-          Print("Error: ", GetFullName(),
-                " requested Candle-compatible type of indicator as data source, but there is none in the hierarchy!");
-          DebugBreak();
+          if (_warn_if_not_found) {
+            Print("Error: ", GetFullName(),
+                  " requested Candle-compatible type of indicator as data source, but there is none in the hierarchy!");
+            DebugBreak();
+          }
           return nullptr;
         }
       }
@@ -592,13 +678,15 @@ class IndicatorBase : public Object {
     if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_TICK)) {
       if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_BASE_ONLY)) {
         // Tick indicator must be directly connected to this indicator as its data source.
-        _curr_indi = GetDataSource(true);
+        _curr_indi = GetDataSource(false);
 
         if (_curr_indi == nullptr || !_curr_indi PTR_DEREF IsTickIndicator()) {
-          Print("Error: ", GetFullName(),
-                " must have Tick-compatible indicator directly conected as a data source! We don't search for it "
-                "further in the hierarchy.");
-          DebugBreak();
+          if (_warn_if_not_found) {
+            Print("Error: ", GetFullName(),
+                  " must have Tick-compatible indicator directly conected as a data source! We don't search for it "
+                  "further in the hierarchy.");
+            DebugBreak();
+          }
         }
 
         return _curr_indi;
@@ -606,8 +694,10 @@ class IndicatorBase : public Object {
         _curr_indi = GetTick(false);
         if (_curr_indi != nullptr) return _curr_indi;
 
-        Print("Error: ", GetFullName(), " must have Tick-compatible indicator in the data source hierarchy!");
-        DebugBreak();
+        if (_warn_if_not_found) {
+          Print("Error: ", GetFullName(), " must have Tick-compatible indicator in the data source hierarchy!");
+          DebugBreak();
+        }
         return nullptr;
       }
     }
@@ -615,27 +705,71 @@ class IndicatorBase : public Object {
     // Requires a single buffered or OHLC-compatible indicator (targetted via applied price) in the hierarchy.
     if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
       // Applied price is defined by this indicator, so it must override GetAppliedPrice().
-      ENUM_INDI_VS_TYPE _requested_vs_type = GetAppliedValueStorageType();
+      ENUM_INDI_VS_TYPE _requested_vs_type = GetAppliedPriceValueStorageType();
 
       // Searching for given buffer type in the hierarchy.
-      for (_curr_indi = GetDataSource(true); _curr_indi != nullptr;
-           _curr_indi = _curr_indi PTR_DEREF GetDataSource(true)) {
+      for (_curr_indi = GetDataSource(false); _curr_indi != nullptr;
+           _curr_indi = _curr_indi PTR_DEREF GetDataSource(false)) {
         if (_curr_indi PTR_DEREF HasSpecificValueStorage(_requested_vs_type)) {
           return _curr_indi;
         }
 
         if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_BASE_ONLY)) {
           // Directly connected data source must have given data storage buffer, so we stops for loop.
-          Print("Error: ", GetFullName(), " requested directly connected data source to contain value storage of type ",
-                EnumToString(_requested_vs_type), ", but there is no such data storage!");
-          DebugBreak();
+          if (_warn_if_not_found) {
+            Print("Error: ", GetFullName(),
+                  " requested directly connected data source to contain value storage of type ",
+                  EnumToString(_requested_vs_type), ", but there is no such data storage!");
+            DebugBreak();
+          }
           return nullptr;
         }
       }
 
-      Print("Error: ", GetFullName(), " requested that there is data source that contain value storage of type ",
-            EnumToString(_requested_vs_type), " in the hierarchy, but there is no such data source!");
-      DebugBreak();
+      if (_warn_if_not_found) {
+        Print("Error: ", GetFullName(), " requested that there is data source that contain value storage of type ",
+              EnumToString(_requested_vs_type), " in the hierarchy, but there is no such data source!");
+        DebugBreak();
+      }
+      return nullptr;
+    }
+
+    // Requires a single buffered or OHLC-compatible indicator (targetted via applied price or volume) in the hierarchy.
+    if (_suitable_types.HasAnyFlag(INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_AV)) {
+      ENUM_INDI_VS_TYPE _requested_vs_type = (ENUM_INDI_VS_TYPE)-1;
+
+      if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
+        // Applied price is defined by this indicator, so it must override GetAppliedPrice().
+        _requested_vs_type = GetAppliedPriceValueStorageType();
+      } else if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AV)) {
+        // Applied volume is defined by this indicator, so it must override GetAppliedVolume().
+        _requested_vs_type = GetAppliedVolumeValueStorageType();
+      }
+
+      // Searching for given buffer type in the hierarchy.
+      for (_curr_indi = GetDataSource(false); _curr_indi != nullptr;
+           _curr_indi = _curr_indi PTR_DEREF GetDataSource(false)) {
+        if (_curr_indi PTR_DEREF HasSpecificValueStorage(_requested_vs_type)) {
+          return _curr_indi;
+        }
+
+        if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_BASE_ONLY)) {
+          // Directly connected data source must have given data storage buffer, so we stops for loop.
+          if (_warn_if_not_found) {
+            Print("Error: ", GetFullName(),
+                  " requested directly connected data source to contain value storage of type ",
+                  EnumToString(_requested_vs_type), ", but there is no such data storage!");
+            DebugBreak();
+          }
+          return nullptr;
+        }
+      }
+
+      if (_warn_if_not_found) {
+        Print("Error: ", GetFullName(), " requested that there is data source that contain value storage of type ",
+              EnumToString(_requested_vs_type), " in the hierarchy, but there is no such data source!");
+        DebugBreak();
+      }
       return nullptr;
     }
 
@@ -728,9 +862,22 @@ class IndicatorBase : public Object {
   virtual bool HasDataSource(bool _try_initialize = false) { return false; }
 
   /**
+   * Whether given data source is in the hierarchy.
+   */
+  bool HasDataSource(IndicatorBase* _indi) {
+    if (THIS_PTR == _indi) return true;
+
+    if (HasDataSource(true)) {
+      return GetDataSourceRaw() PTR_DEREF HasDataSource(_indi);
+    }
+
+    return false;
+  }
+
+  /**
    * Returns currently selected data source doing validation.
    */
-  virtual IndicatorBase* GetDataSource() { return NULL; }
+  virtual IndicatorBase* GetDataSource(bool _validate = true) { return NULL; }
 
   /**
    * Returns mode (buffer index) to be used by source's indicator.
@@ -932,6 +1079,11 @@ class IndicatorBase : public Object {
   }
 
   /**
+   * Checks whether indicator have given mode (max_modes is greater that given mode).
+   */
+  bool HasValueStorage(int _mode = 0) { return _mode < GetModeCount(); }
+
+  /**
    * Returns value storage for a given mode.
    */
   virtual IValueStorage* GetValueStorage(int _mode = 0) {
@@ -964,12 +1116,26 @@ class IndicatorBase : public Object {
    * Returns value storage of given kind.
    */
   virtual IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
+    // Maybe indexed value storage? E.g., INDI_VS_TYPE_INDEX_0.
+    if ((int)_type >= INDI_VS_TYPE_INDEX_FIRST && (int)_type <= INDI_VS_TYPE_INDEX_LAST) {
+      if (HasValueStorage((int)_type - INDI_VS_TYPE_INDEX_FIRST)) {
+        return GetValueStorage((int)_type - INDI_VS_TYPE_INDEX_FIRST);
+      }
+    }
+
     Print("Error: ", GetFullName(), " indicator has no storage type ", EnumToString(_type), "!");
     DebugBreak();
     return NULL;
   }
 
   virtual ValueStorage<double>* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
+    if (retarget_ap_av != INDI_VS_TYPE_NONE) {
+      // User wants to use custom value storage type as applied price, so we forcefully override AP given as the
+      // parameter.
+      // @todo Check for value storage compatibility (double).
+      return (ValueStorage<double>*)GetSpecificValueStorage(retarget_ap_av);
+    }
+
     switch (_ap) {
       case PRICE_ASK:
         return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
@@ -999,6 +1165,13 @@ class IndicatorBase : public Object {
   }
 
   virtual bool HasSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
+    if (retarget_ap_av != INDI_VS_TYPE_NONE) {
+      // User wants to use custom value storage type as applied price, so we forcefully override AP given as the
+      // parameter.
+      // @todo Check for value storage compatibility (double).
+      return HasSpecificValueStorage(retarget_ap_av);
+    }
+
     switch (_ap) {
       case PRICE_ASK:
         return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
@@ -1030,7 +1203,13 @@ class IndicatorBase : public Object {
   /**
    * Checks whether indicator support given value storage type.
    */
-  virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) { return false; }
+  virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
+    // Maybe indexed value storage? E.g., INDI_VS_TYPE_INDEX_0.
+    if ((int)_type >= INDI_VS_TYPE_INDEX_FIRST && (int)_type <= INDI_VS_TYPE_INDEX_LAST) {
+      return HasValueStorage((int)_type - INDI_VS_TYPE_INDEX_FIRST);
+    }
+    return false;
+  }
 
   template <typename T>
   T GetValue(int _mode = 0, int _index = 0) {

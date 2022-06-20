@@ -29,6 +29,7 @@
 #include "BufferStruct.mqh"
 #include "DateTime.mqh"
 #include "DrawIndicator.mqh"
+#include "Flags.h"
 #include "Indicator.define.h"
 #include "Indicator.enum.h"
 #include "Indicator.struct.cache.h"
@@ -354,29 +355,13 @@ class Indicator : public IndicatorBase {
     }
 
     if (_source == NULL) {
-      Alert("Error! " + _target.GetFullName() + " have to select source indicator's via SetDataSource().");
-      DebugBreak();
-      return;
-    }
-
-    if (!_target.IsDataSourceModeSelectable()) {
-      // We don't validate source mode as it will use all modes.
-      return;
-    }
-
-    if (_source.GetModeCount() > 1 && _target.GetDataSourceMode() == -1) {
-      // Mode must be selected if source indicator has more that one mode.
-      Alert("Warning! ", GetName(),
-            " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
-      _target.SetDataSourceMode(0);
-      DebugBreak();
-    } else if (_source.GetModeCount() == 1 && _target.GetDataSourceMode() == -1) {
-      _target.SetDataSourceMode(0);
-    } else if (_target.GetDataSourceMode() < 0 || _target.GetDataSourceMode() > _source.GetModeCount()) {
-      Alert("Error! ", _target.GetName(),
-            " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
-            _source.GetModeCount(), ".");
-      DebugBreak();
+      Flags<unsigned int> _target_flags = _target PTR_DEREF GetSuitableDataSourceTypes();
+      if (!_target_flags.HasFlag(INDI_SUITABLE_DS_TYPE_EXPECT_NONE)) {
+        // Warns only if data source is required by target.
+        Alert("Error! " + _target.GetFullName() + " have to select source indicator's via SetDataSource().");
+        DebugBreak();
+        return;
+      }
     }
   }
 
@@ -690,7 +675,7 @@ class Indicator : public IndicatorBase {
   /**
    * Returns currently selected data source doing validation.
    */
-  IndicatorBase* GetDataSource() {
+  IndicatorBase* GetDataSource(bool _validate = true) override {
     IndicatorBase* _result = NULL;
 
     if (GetDataSourceRaw() != NULL) {
@@ -729,7 +714,9 @@ class Indicator : public IndicatorBase {
       }
     }
 
-    ValidateDataSource(&this, _result);
+    if (_validate) {
+      ValidateDataSource(&this, _result);
+    }
 
     return _result;
   }
@@ -1069,8 +1056,8 @@ class Indicator : public IndicatorBase {
         break;
     }
 
-    return GetName() + "-" + _mode + "[" + IntegerToString(iparams.GetMaxModes()) + "]" +
-           (HasDataSource() ? (" (over " + GetDataSource().GetFullName() + ")") : "");
+    return GetName() + "#" + IntegerToString(GetId()) + "-" + _mode + "[" + IntegerToString(iparams.GetMaxModes()) +
+           "]" + (HasDataSource() ? (" (over " + GetDataSource().GetFullName() + ")") : "");
   }
 
   /**

@@ -75,8 +75,13 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiZigZagParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
     // ZigZag uses only high and low prices.
-    return HasSpecificAppliedPriceValueStorage(PRICE_HIGH) && HasSpecificAppliedPriceValueStorage(PRICE_LOW);
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW);
   }
 
   /**

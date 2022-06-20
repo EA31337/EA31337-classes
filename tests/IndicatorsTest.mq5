@@ -78,11 +78,35 @@ int OnInit() {
 
   // Connecting all indicator to our single candle indicator (which is connected to tick indicator).
   for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    // Print("+ Setting outer data source for " + iter.Value().Ptr().GetFullName());
-    if (!iter.Value() REF_DEREF GetCandle(false)) {
+    Print("+ Setting outer data source for " + iter.Value() REF_DEREF GetFullName());
+    Flags<unsigned int> _flags = iter.Value() REF_DEREF GetSuitableDataSourceTypes();
+
+    // @fixit Any way to get rid of Candle indicator if it's not used? Looks like it is required in order to invoke
+    // GetBarTime().
+    if (!iter.Value() REF_DEREF HasDataSource(_candles.Ptr())) {
       iter.Value() REF_DEREF GetOuterDataSource() PTR_DEREF SetDataSource(_candles.Ptr());
     }
-    // Print("|- Now is: " + iter.Value().Ptr().GetFullName());
+
+    if (iter.Value() REF_DEREF HasSuitableDataSource()) {
+      Print("|- Already have proper data source.");
+      continue;
+    }
+
+    if (iter.Value() REF_DEREF OnCheckIfSuitableDataSource(_ticks.Ptr())) {
+      iter.Value() REF_DEREF GetOuterDataSource() PTR_DEREF SetDataSource(_ticks.Ptr());
+    }
+
+    if (!iter.Value() REF_DEREF HasSuitableDataSource()) {
+      if (_flags.HasAnyFlag(INDI_SUITABLE_DS_TYPE_AV | INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_CUSTOM)) {
+        Print(
+            "|- Expected AV, AP or Custom indicator. " +
+            ((iter.Value() REF_DEREF GetSuitableDataSource(false) != nullptr) ? "OK." : "NO SUITABLE ONE CONNECTED!") +
+            " You may use SetDataSourceAppliedPrice/SetDataSourceAppliedVolume(ENUM_INDI_VS_TYPE) method to use custom "
+            "value storage from data source as required applied price/volume.");
+      }
+    }
+
+    Print("|- Now is: " + iter.Value() REF_DEREF GetFullName());
   }
 
   Print("Been here 1");
@@ -286,7 +310,9 @@ bool InitIndicators() {
   // Bollinger Bands over RSI.
   IndiBandsParams indi_bands_over_rsi_params(20, 2, 0, PRICE_OPEN);
   Ref<IndicatorBase> indi_bands_over_rsi = new Indi_Bands(indi_bands_over_rsi_params);
-  indi_bands_over_rsi.Ptr().SetDataSource(indi_rsi.Ptr());
+  // Using RSI's mode 0 as applied price.
+  indi_bands_over_rsi REF_DEREF SetDataSourceAppliedPrice(INDI_VS_TYPE_INDEX_0);
+  indi_bands_over_rsi REF_DEREF SetDataSource(indi_rsi.Ptr());
   indis.Push(indi_bands_over_rsi);
 
   // Standard Deviation (StdDev).

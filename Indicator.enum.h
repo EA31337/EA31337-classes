@@ -235,6 +235,7 @@ enum INDICATOR_ENTRY_FLAGS {
 
 // Storage type for IndicatorBase::GetSpecificValueStorage().
 enum ENUM_INDI_VS_TYPE {
+  INDI_VS_TYPE_NONE,            // Not set.
   INDI_VS_TYPE_TIME,            // Candle.
   INDI_VS_TYPE_TICK_VOLUME,     // Candle.
   INDI_VS_TYPE_VOLUME,          // Candle.
@@ -248,6 +249,18 @@ enum ENUM_INDI_VS_TYPE {
   INDI_VS_TYPE_PRICE_WEIGHTED,  // Candle.
   INDI_VS_TYPE_PRICE_BID,       // Tick.
   INDI_VS_TYPE_PRICE_ASK,       // Tick.
+                                // Indexed value storages, available if indicator have buffer at this index:
+  INDI_VS_TYPE_INDEX_0,
+  INDI_VS_TYPE_INDEX_1,
+  INDI_VS_TYPE_INDEX_2,
+  INDI_VS_TYPE_INDEX_4,
+  INDI_VS_TYPE_INDEX_5,
+  INDI_VS_TYPE_INDEX_6,
+  INDI_VS_TYPE_INDEX_7,
+  INDI_VS_TYPE_INDEX_8,
+  INDI_VS_TYPE_INDEX_9,
+  INDI_VS_TYPE_INDEX_FIRST = INDI_VS_TYPE_INDEX_0,
+  INDI_VS_TYPE_INDEX_LAST = INDI_VS_TYPE_INDEX_9
 };
 
 // Indicator flags.
@@ -279,3 +292,4 @@ enum ENUM_INDI_DS_MODE_KIND {
   INDI_DS_MODE_KIND_AP,  // Mode is a value from ENUM_APPLIED_PRICE enumeration. It is used to retrieve value storage
                          // based on ENUM_INDI_VS_TYPE enumeration, e.g., PRICE_OPEN becomes ENUM_INDI_VS_PRICE_OPEN.
 };
+//+------------------------------------------------------------------+

@@ -98,6 +98,10 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiMAParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
     // Volume uses volume only.
     return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
   }

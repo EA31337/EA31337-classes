@@ -85,8 +85,13 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiUltimateOscillatorParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
     // UO uses only low and close prices.
-    return HasSpecificAppliedPriceValueStorage(PRICE_LOW) && HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
   }
 
   /**

@@ -84,6 +84,10 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiOBVParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
     // Volume uses volume only.
     return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
   }
