@@ -152,11 +152,9 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
 
   /**
    * Calculates Bands on another indicator.
-   *
-   * When _applied_price is set to -1, method will
    */
-  static double iBandsOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-                                  double _deviation, int _bands_shift, ENUM_APPLIED_PRICE _ap,
+  static double iBandsOnIndicator(IndicatorBase *_target, IndicatorBase *_source, string _symbol, ENUM_TIMEFRAMES _tf,
+                                  unsigned int _period, double _deviation, int _bands_shift, ENUM_APPLIED_PRICE _ap,
                                   ENUM_BANDS_LINE _mode,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
                                   int _shift, IndicatorBase *_indi_source = NULL) {
@@ -164,7 +162,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
     double _std_dev;
     double _line_value;
 
-    ValueStorage<double> *_indi_applied_price = _indi PTR_DEREF GetSpecificAppliedPriceValueStorage(_ap);
+    ValueStorage<double> *_indi_applied_price = _source PTR_DEREF GetSpecificAppliedPriceValueStorage(_ap, _target);
 
     // Period can't be higher than number of available bars.
     _period = MathMin(_period, ArraySize(_indi_applied_price));
@@ -200,9 +198,13 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
 #ifdef __MQL4__
     return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
 #else  // __MQL5__
-    Indi_PriceFeeder price_feeder(array);
-    return iBandsOnIndicator(&price_feeder, NULL, NULL, period, deviation, bands_shift, (ENUM_APPLIED_PRICE)0,
-                             (ENUM_BANDS_LINE)mode, shift);
+    static Ref<Indi_PriceFeeder> price_feeder = new Indi_PriceFeeder();
+    price_feeder REF_DEREF SetPrices(array);
+    price_feeder REF_DEREF SetDataSourceAppliedPrice(INDI_VS_TYPE_INDEX_0);
+    // First parameter is a pointer to target indicator. It is used to override applied price, so we configure it on the
+    // price feeder itself and pass it as both, target and source indicator.
+    return iBandsOnIndicator(price_feeder.Ptr(), price_feeder.Ptr(), NULL, NULL, period, deviation, bands_shift,
+                             (ENUM_APPLIED_PRICE)0 /* unused */, (ENUM_BANDS_LINE)mode, shift);
 #endif
   }
 
@@ -266,8 +268,9 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
                                     GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_Bands::iBandsOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
-                                               GetBandsShift(), GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift);
+        _value =
+            Indi_Bands::iBandsOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
+                                          GetBandsShift(), GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
@@ -275,9 +278,9 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
         break;
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
-        _value = Indi_Bands::iBandsOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
-                                               GetBandsShift(), GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift,
-                                               THIS_PTR);
+        _value = Indi_Bands::iBandsOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
+                                               GetDeviation(), GetBandsShift(), GetAppliedPrice(),
+                                               (ENUM_BANDS_LINE)_mode, _ishift, THIS_PTR);
         break;
     }
     return _value;

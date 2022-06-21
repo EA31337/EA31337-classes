@@ -167,7 +167,7 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
                          GetTEMAShift() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iTEMAOnIndicator(GetDataSource(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
+        _value = iTEMAOnIndicator(THIS_PTR, GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

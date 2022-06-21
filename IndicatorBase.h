@@ -589,6 +589,11 @@ class IndicatorBase : public Object {
   }
 
   /**
+   * Gets value storage type previously set by SetDataSourceAppliedPrice() or SetDataSourceAppliedVolume().
+   */
+  ENUM_INDI_VS_TYPE GetDataSourceAppliedType() { return retarget_ap_av; }
+
+  /**
    * Checks whether there is attached suitable data source (if required).
    */
   bool HasSuitableDataSource() {
@@ -623,8 +628,8 @@ class IndicatorBase : public Object {
           // Directly connected data source must be suitable, so we stops for loop.
           if (_warn_if_not_found) {
             Print("Error: ", GetFullName(),
-                  " requested custom type of data source to be directly connected to this indicator, and data source "
-                  "desn't satisfy the requirements!");
+                  " requested custom type of data source to be directly connected to this indicator, but none "
+                  "satisfies the requirements!");
             DebugBreak();
           }
           return nullptr;
@@ -1128,12 +1133,19 @@ class IndicatorBase : public Object {
     return NULL;
   }
 
-  virtual ValueStorage<double>* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
-    if (retarget_ap_av != INDI_VS_TYPE_NONE) {
-      // User wants to use custom value storage type as applied price, so we forcefully override AP given as the
-      // parameter.
-      // @todo Check for value storage compatibility (double).
-      return (ValueStorage<double>*)GetSpecificValueStorage(retarget_ap_av);
+  /**
+   * Returns value storage to be used for given applied price or applied price overriden by target indicator via
+   * SetDataSourceAppliedPrice().
+   */
+  virtual ValueStorage<double>* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap,
+                                                                    IndicatorBase* _target = nullptr) {
+    if (_target != nullptr) {
+      if (_target PTR_DEREF GetDataSourceAppliedType() != INDI_VS_TYPE_NONE) {
+        // User wants to use custom value storage type as applied price, so we forcefully override AP given as the
+        // parameter.
+        // @todo Check for value storage compatibility (double).
+        return (ValueStorage<double>*)GetSpecificValueStorage(_target PTR_DEREF GetDataSourceAppliedType());
+      }
     }
 
     switch (_ap) {
@@ -1164,12 +1176,14 @@ class IndicatorBase : public Object {
     }
   }
 
-  virtual bool HasSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap) {
-    if (retarget_ap_av != INDI_VS_TYPE_NONE) {
-      // User wants to use custom value storage type as applied price, so we forcefully override AP given as the
-      // parameter.
-      // @todo Check for value storage compatibility (double).
-      return HasSpecificValueStorage(retarget_ap_av);
+  virtual bool HasSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap, IndicatorBase* _target = nullptr) {
+    if (_target != nullptr) {
+      if (_target PTR_DEREF GetDataSourceAppliedType() != INDI_VS_TYPE_NONE) {
+        // User wants to use custom value storage type as applied price, so we forcefully override AP given as the
+        // parameter.
+        // @todo Check for value storage compatibility (double).
+        return HasSpecificValueStorage(_target PTR_DEREF GetDataSourceAppliedType());
+      }
     }
 
     switch (_ap) {

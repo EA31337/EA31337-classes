@@ -197,7 +197,7 @@ class Indi_ASI : public Indicator<IndiASIParams> {
         _value = iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iASI(GetDataSource(), GetMaximumPriceChanging(), _mode, _ishift);
+        _value = iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

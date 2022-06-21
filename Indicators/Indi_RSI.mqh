@@ -324,7 +324,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
         Print(_value);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_RSI::iRSIOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), iparams.GetPeriod(),
+        _value = Indi_RSI::iRSIOnIndicator(THIS_PTR, THIS_PTR, GetSymbol(), GetTf(), iparams.GetPeriod(),
                                            iparams.GetAppliedPrice(), _ishift);
         break;
     }

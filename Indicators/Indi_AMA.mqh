@@ -242,8 +242,8 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
                                            GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_AMA::iAMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
-                                           GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift);
+        _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift(),
+                                           GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

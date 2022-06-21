@@ -191,7 +191,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
                          GetFRAMAShift() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iFrAMAOnIndicator(GetDataSource(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift);
+        _value = iFrAMAOnIndicator(THIS_PTR, GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

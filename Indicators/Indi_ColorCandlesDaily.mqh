@@ -145,7 +145,7 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iCCD(GetDataSource(), _mode, _ishift);
+        _value = iCCD(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

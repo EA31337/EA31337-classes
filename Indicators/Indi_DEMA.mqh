@@ -222,8 +222,8 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
-        _value = Indi_DEMA::iDEMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/,
-                                             _mode, _ishift);
+        _value = Indi_DEMA::iDEMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/, _mode,
+                                             _ishift);
         break;
     }
     return _value;

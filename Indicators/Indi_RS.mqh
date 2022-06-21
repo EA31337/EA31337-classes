@@ -90,8 +90,8 @@ class Indi_RS : public Indicator<IndiRSParams> {
       _imath1_p.SetTf(GetTf());
       Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_p);
       Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_p);
-      _imath0.Ptr().SetDataSource(GetDataSource(), 0);
-      _imath1.Ptr().SetDataSource(GetDataSource(), 0);
+      _imath0.Ptr().SetDataSource(THIS_PTR, 0);
+      _imath1.Ptr().SetDataSource(THIS_PTR, 0);
       imath.Set(0, _imath0);
       imath.Set(1, _imath1);
     }

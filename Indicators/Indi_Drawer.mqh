@@ -191,7 +191,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
         _value = Indi_Drawer::iDrawer(GetSymbol(), GetTf(), _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), _ishift);
+        _value = Indi_Drawer::iDrawerOnIndicator(THIS_PTR, THIS_PTR, GetSymbol(), GetTf(), _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

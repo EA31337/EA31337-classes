@@ -245,7 +245,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iBWZT(GetDataSource(), _mode, _ishift);
+        _value = iBWZT(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

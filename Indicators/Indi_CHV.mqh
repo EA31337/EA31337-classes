@@ -200,7 +200,7 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
                          GetCHVPeriod(), GetSmoothMethod() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iCHV(GetDataSource(), GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod(), _mode, _ishift);
+        _value = iCHV(THIS_PTR, GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

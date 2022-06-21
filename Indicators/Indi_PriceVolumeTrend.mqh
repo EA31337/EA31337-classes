@@ -151,7 +151,7 @@ class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
                          /*[*/ GetAppliedVolume() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iPVT(GetDataSource(), GetAppliedVolume(), _mode, _ishift);
+        _value = iPVT(THIS_PTR, GetAppliedVolume(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

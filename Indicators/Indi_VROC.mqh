@@ -164,7 +164,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
                          /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iVROC(GetDataSource(), GetPeriod(), GetAppliedVolume(), _mode, _ishift);
+        _value = iVROC(THIS_PTR, GetPeriod(), GetAppliedVolume(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

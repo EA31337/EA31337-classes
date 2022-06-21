@@ -182,7 +182,7 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
         ValidateSelectedDataSource();
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDataSourceMode(),
+        _value = Indi_CCI::iCCIOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetPeriod(), GetDataSourceMode(),
                                            _ishift /* + iparams.shift*/);
         break;
     }

@@ -264,7 +264,7 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iUO(GetDataSource(), GetFastPeriod(), GetMiddlePeriod(), GetSlowPeriod(), GetFastK(), GetMiddleK(),
+        _value = iUO(THIS_PTR, GetFastPeriod(), GetMiddlePeriod(), GetSlowPeriod(), GetFastK(), GetMiddleK(),
                      GetSlowK(), _mode, _ishift);
         break;
       default:

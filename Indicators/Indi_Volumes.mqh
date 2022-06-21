@@ -171,7 +171,7 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
                          /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iVolumes(GetDataSource(), GetAppliedVolume(), _mode, _ishift);
+        _value = iVolumes(THIS_PTR, GetAppliedVolume(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

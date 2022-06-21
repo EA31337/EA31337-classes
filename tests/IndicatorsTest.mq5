@@ -129,7 +129,8 @@ int OnInit() {
 void OnTick() {
   // All indicators should execute its OnTick() method for every platform tick.
   for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    iter.Value().Ptr().Tick();
+    Print("Ticking " + iter.Value() REF_DEREF GetFullName());
+    iter.Value() REF_DEREF Tick();
   }
 
   if (_candles REF_DEREF IsNewBar()) {
@@ -460,12 +461,14 @@ bool InitIndicators() {
   indis.Push(indi_drawer_on_rsi.Ptr());
 
   // Applied Price over OHCL indicator.
+  /*
   IndiAppliedPriceParams applied_price_params();
   applied_price_params.SetDraw(clrAquamarine, 0);
   IndiOHLCParams applied_price_ohlc_params;
   Ref<Indi_AppliedPrice> indi_applied_price_on_price = new Indi_AppliedPrice(applied_price_params);
-  indi_applied_price_on_price.Ptr().SetDataSource(new Indi_OHLC(applied_price_ohlc_params), PRICE_TYPICAL);
+  indi_applied_price_on_price REF_DEREF SetAppliedPrice(PRICE_TYPICAL);
   indis.Push(indi_applied_price_on_price.Ptr());
+  */
 
   // ADXW.
   IndiADXWParams adxw_params(14);

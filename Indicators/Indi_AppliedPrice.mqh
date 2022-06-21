@@ -89,10 +89,7 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
     switch (iparams.idstype) {
       case IDATA_INDICATOR:
         if (HasDataSource()) {
-          // Future validation of indi_src will check if we set mode for source indicator
-          // (e.g. for applied price of Indi_Price).
-          iparams.SetDataSourceMode(GetAppliedPrice());
-          _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _ishift);
+          _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(THIS_PTR, GetAppliedPrice(), _ishift);
         }
         break;
       default:

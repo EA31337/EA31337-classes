@@ -138,7 +138,7 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iPriceChannel(GetDataSource(), GetPeriod(), _mode, _ishift);
+        _value = iPriceChannel(THIS_PTR, GetPeriod(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

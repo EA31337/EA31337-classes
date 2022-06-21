@@ -210,7 +210,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
                          GetSlowMA(), GetSmoothMethod(), GetInputVolume() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_CHO::iChaikinOnIndicator(GetDataSource(), /*[*/ GetFastMA(), GetSlowMA(), GetSmoothMethod(),
+        _value = Indi_CHO::iChaikinOnIndicator(THIS_PTR, /*[*/ GetFastMA(), GetSlowMA(), GetSmoothMethod(),
                                                GetInputVolume() /*]*/, _mode, _ishift);
         break;
       default:

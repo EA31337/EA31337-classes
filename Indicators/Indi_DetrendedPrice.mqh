@@ -146,7 +146,7 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iDPO(GetDataSource(), GetPeriod(), GetAppliedPrice(), _mode, _ishift);
+        _value = iDPO(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

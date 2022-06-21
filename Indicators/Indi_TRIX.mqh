@@ -169,7 +169,7 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_TRIX::iTriXOnIndicator(GetDataSource(), GetPeriod(), GetAppliedPrice(), _mode, _ishift);
+        _value = Indi_TRIX::iTriXOnIndicator(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

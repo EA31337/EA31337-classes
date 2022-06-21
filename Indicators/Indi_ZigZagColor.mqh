@@ -63,7 +63,9 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
 
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
@@ -297,7 +299,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
                          /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ZigZagColor::iZigZagColor(GetDataSource(), GetDepth(), GetDeviation(), GetBackstep(),
+        _value = Indi_ZigZagColor::iZigZagColor(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(),
                                                 (ENUM_ZIGZAG_LINE)_mode, _ishift);
         break;
       default:

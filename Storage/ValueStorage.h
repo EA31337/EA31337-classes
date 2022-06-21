@@ -74,16 +74,23 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
     _cache = Objects<IndicatorCalculateCache<double>>::Set(_key, new IndicatorCalculateCache<double>()); \
   }
 
+/**
+ * Note that INDI is used as target indicator and source indicator is searched
+ * by GetSuitableDataSource(). Would be better to differentiate target and
+ * source indicator in order user wanted to run INDI on custom data source
+ * (the one that doesn't exist in the hierarchy).
+ */
 #define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(INDI, APPLIED_PRICE, KEY)                                 \
   ValueStorage<double> *_price;                                                                                       \
-  if (INDI PTR_DEREF GetSuitableDataSource(APPLIED_PRICE)                                                             \
-          PTR_DEREF HasSpecificAppliedPriceValueStorage(APPLIED_PRICE)) {                                             \
-    _price = INDI PTR_DEREF GetSuitableDataSource(APPLIED_PRICE)                                                      \
-        PTR_DEREF GetSpecificAppliedPriceValueStorage(APPLIED_PRICE);                                                 \
+  if (INDI PTR_DEREF GetSuitableDataSource() PTR_DEREF HasSpecificAppliedPriceValueStorage(APPLIED_PRICE, INDI)) {    \
+    _price =                                                                                                          \
+        INDI PTR_DEREF GetSuitableDataSource() PTR_DEREF GetSpecificAppliedPriceValueStorage(APPLIED_PRICE, INDI);    \
   } else {                                                                                                            \
     Print("Source indicator ", INDI PTR_DEREF GetFullName(),                                                          \
           " cannot be used as it doesn't provide a single buffer to be used by target indicator! You may try to set " \
-          "applied price/data source mode and try again.");                                                           \
+          "applied price/data source mode and try again. AP passed by params: ",                                      \
+          EnumToString(INDI PTR_DEREF GetAppliedPrice()),                                                             \
+          ", AP overriden: ", EnumToString(INDI PTR_DEREF GetDataSourceAppliedType()));                               \
     DebugBreak();                                                                                                     \
   }                                                                                                                   \
   INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)

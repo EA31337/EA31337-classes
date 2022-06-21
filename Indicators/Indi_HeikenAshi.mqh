@@ -254,7 +254,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
             iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = iHeikenAshi(GetDataSource(), _mode, _ishift);
+        _value = iHeikenAshi(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

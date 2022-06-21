@@ -187,7 +187,7 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
                          GetSecondPeriod(), GetSumPeriod() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iMI(GetDataSource(), GetPeriod(), GetSecondPeriod(), GetSumPeriod(), _mode, _ishift);
+        _value = iMI(THIS_PTR, GetPeriod(), GetSecondPeriod(), GetSumPeriod(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

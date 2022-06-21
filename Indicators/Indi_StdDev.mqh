@@ -262,7 +262,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
                          GetMAShift(), GetMAMethod() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_StdDev::iStdDevOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
+        _value = Indi_StdDev::iStdDevOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
                                                  GetAppliedPrice(), _ishift, THIS_PTR);
         break;
     }

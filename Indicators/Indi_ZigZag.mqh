@@ -69,7 +69,9 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
 
   /**
    * Checks whether given data source satisfies our requirements.
@@ -366,7 +368,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
                                        GetDeviation(), GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = iZigZag(GetDataSource(), GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);
+        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

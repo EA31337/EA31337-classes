@@ -135,7 +135,7 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iColorBars(GetDataSource(), _mode, _ishift);
+        _value = iColorBars(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

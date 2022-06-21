@@ -137,7 +137,7 @@ class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iROC(GetDataSource(), GetPeriod(), GetAppliedPrice(), _mode, _ishift);
+        _value = iROC(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
