@@ -148,16 +148,15 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, IndicatorBase *_indi, string _symbol,
+  static double iEnvelopesOnIndicator(IndicatorBase *_target, IndicatorBase *_source, string _symbol,
                                       ENUM_TIMEFRAMES _tf, int _ma_period,
                                       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                                      int _indi_mode,  // Source indicator's mode index. May be -1 to use first buffer
-                                      int _ma_shift, double _deviation,
+                                      ENUM_APPLIED_PRICE _ap, int _ma_shift, double _deviation,
                                       int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5
                                                   // _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
                                       int _shift = 0) {
-    return iEnvelopesOnArray(_indi.GetValueStorage(_indi_mode), 0, _ma_period, _ma_method, _ma_shift, _deviation, _mode,
-                             _shift, _cache);
+    return iEnvelopesOnArray(_source.GetSpecificAppliedPriceValueStorage(_ap, _target), 0, _ma_period, _ma_method,
+                             _ma_shift, _deviation, _mode, _shift, _target PTR_DEREF GetCache());
   }
 
   static double iEnvelopesOnArray(double &price[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
@@ -219,8 +218,8 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
         break;
       case IDATA_ONCALCULATE:
         // @todo Is cache needed here?
-        _value = Indi_Envelopes::iEnvelopesOnIndicator(GetCache(), THIS_PTR, GetSymbol(), GetTf(), GetMAPeriod(),
-                                                       GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(),
+        _value = Indi_Envelopes::iEnvelopesOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
+                                                       GetMAMethod(), GetAppliedPrice(), GetMAShift(), GetDeviation(),
                                                        _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
@@ -228,8 +227,8 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
                          GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation() /**/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Envelopes::iEnvelopesOnIndicator(GetCache(), GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
-                                                       GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(),
+        _value = Indi_Envelopes::iEnvelopesOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
+                                                       GetMAMethod(), GetAppliedPrice(), GetMAShift(), GetDeviation(),
                                                        _mode, _ishift);
         break;
       default:

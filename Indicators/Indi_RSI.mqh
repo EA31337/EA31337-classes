@@ -168,11 +168,11 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * RSI values. To exactly replicate our RSI numbers, a formula will need at
    * least 250 data points."
    */
-  static double iRSIOnIndicator(IndicatorBase *_indi, Indi_RSI *_obj, string _symbol = NULL,
+  static double iRSIOnIndicator(Indi_RSI *_target, IndicatorBase *_source, string _symbol = NULL,
                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                                ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0) {
-    long _bar_time_curr = _obj PTR_DEREF GetBarTime(_shift);
-    long _bar_time_prev = _obj PTR_DEREF GetBarTime(_shift + 1);
+                                ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
+    long _bar_time_curr = _source PTR_DEREF GetBarTime(_shift);
+    long _bar_time_prev = _source PTR_DEREF GetBarTime(_shift + 1);
     if (fmin(_bar_time_curr, _bar_time_prev) < 0) {
       // Return empty value on invalid bar time.
       return EMPTY_VALUE;
@@ -188,16 +188,17 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
     RSIGainLossData last_data, new_data;
     unsigned int data_position;
     double diff;
-    int _mode = _obj.GetDataSourceMode();
 
-    if (!_obj.aux_data.KeyExists(_bar_time_prev, data_position)) {
+    ValueStorage<double> *_data = _source PTR_DEREF GetSpecificAppliedPriceValueStorage(_ap, _target);
+
+    if (!_target PTR_DEREF aux_data.KeyExists(_bar_time_prev, data_position)) {
       // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
       double sum_gain = 0;
       double sum_loss = 0;
 
       for (i = 1; i < (int)_period; i++) {
-        double price_new = _indi[(_shift + 1) + i - 1][_mode];
-        double price_old = _indi[(_shift + 1) + i][_mode];
+        double price_new = PTR_TO_REF(_data)[(_shift + 1) + i - 1].Get();
+        double price_old = PTR_TO_REF(_data)[(_shift + 1) + i].Get();
 
         if (price_new == 0.0 || price_old == 0.0) {
           // Missing history price data, skipping calculations.
@@ -218,10 +219,10 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
       last_data.avg_loss = sum_loss / _period;
     } else {
       // Data already exists, retrieving it by position got by KeyExists().
-      last_data = _obj.aux_data.GetByPos(data_position);
+      last_data = _target PTR_DEREF aux_data.GetByPos(data_position);
     }
 
-    diff = _indi[_shift][_mode] - _indi[_shift + 1][_mode];
+    diff = PTR_TO_REF(_data)[_shift].Get() - PTR_TO_REF(_data)[_shift + 1].Get();
 
     double curr_gain = 0;
     double curr_loss = 0;
@@ -234,7 +235,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
     new_data.avg_gain = (last_data.avg_gain * (_period - 1) + curr_gain) / _period;
     new_data.avg_loss = (last_data.avg_loss * (_period - 1) + curr_loss) / _period;
 
-    _obj.aux_data.Set(_bar_time_curr, new_data);
+    _target.aux_data.Set(_bar_time_curr, new_data);
 
     if (new_data.avg_loss == 0.0) {
       // @fixme Why 0 loss?

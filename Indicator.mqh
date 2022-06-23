@@ -941,6 +941,22 @@ class Indicator : public IndicatorBase {
    * Sets indicator data source.
    */
   void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) override {
+    // Detecting circular dependency.
+    IndicatorBase* _curr;
+    int _iterations_left = 50;
+
+    // If _indi or any of the _indi's data source points to this indicator then this would create circular dependency.
+    for (_curr = _indi; _curr != nullptr && _iterations_left != 0;
+         _curr = _curr.GetDataSource(false), --_iterations_left) {
+      if (_curr == THIS_PTR) {
+        // Circular dependency found.
+        Print("Error: Circular dependency found when trying to attach to " + GetFullName() + " data so " +
+              _indi.GetFullName() + " data source!");
+        DebugBreak();
+        return;
+      }
+    }
+
     if (indi_src.IsSet()) {
       if (bool(flags | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT) &&
           !bool(_indi.GetFlags() | INDI_FLAG_INDEXABLE_BY_SHIFT)) {
@@ -1057,7 +1073,7 @@ class Indicator : public IndicatorBase {
     }
 
     return GetName() + "#" + IntegerToString(GetId()) + "-" + _mode + "[" + IntegerToString(iparams.GetMaxModes()) +
-           "]" + (HasDataSource() ? (" (over " + GetDataSource().GetFullName() + ")") : "");
+           "]" + (HasDataSource() ? (" (over " + GetDataSource(false).GetFullName() + ")") : "");
   }
 
   /**

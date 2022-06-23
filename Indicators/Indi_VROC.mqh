@@ -58,7 +58,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  unsigned int GetSuitableDataSourceTypes() override { return 0; }
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
 
   /**
    * Checks whether given data source satisfies our requirements.
@@ -69,7 +69,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
     }
 
     // VROC uses volume only.
-    return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
   }
 
   /**

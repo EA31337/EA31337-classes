@@ -71,9 +71,7 @@ class IndicatorBase : public Object {
   DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
   ARRAY(IValueStorage*, value_storages);
-  Ref<IndicatorBase> indi_src;                // // Indicator used as data source.
-  int indi_src_mode;                          // Mode of source indicator.
-  ENUM_INDI_DS_MODE_KIND indi_src_mode_kind;  // Kind of source indicator's mode.
+  Ref<IndicatorBase> indi_src;  // // Indicator used as data source.
   IndicatorCalculateCache<double> cache;
   ARRAY(WeakRef<IndicatorBase>, listeners);  // List of indicators that listens for events from this one.
   long last_tick_time;                       // Time of the last Tick() call.
@@ -105,8 +103,6 @@ class IndicatorBase : public Object {
     calc_start_bar = 0;
     is_fed = false;
     indi_src = NULL;
-    indi_src_mode = -1;
-    indi_src_mode_kind = (ENUM_INDI_DS_MODE_KIND)-1;
     last_tick_time = 0;
     retarget_ap_av = INDI_VS_TYPE_NONE;
   }
@@ -885,11 +881,6 @@ class IndicatorBase : public Object {
   virtual IndicatorBase* GetDataSource(bool _validate = true) { return NULL; }
 
   /**
-   * Returns mode (buffer index) to be used by source's indicator.
-   */
-  int GetDataSourceMode() { return indi_src_mode; }
-
-  /**
    * Checks whether there is Candle-featured in the hierarchy.
    */
   bool HasCandleInHierarchy() { return GetCandle(false) != nullptr; }
@@ -1036,22 +1027,19 @@ class IndicatorBase : public Object {
   /**
    * Injects data source between this indicator and its data source.
    */
-  void InjectDataSource(IndicatorBase* _indi, int _input_mode = -1) {
+  void InjectDataSource(IndicatorBase* _indi) {
+    if (_indi == THIS_PTR) {
+      // Indicator already injected.
+      return;
+    }
+
     IndicatorBase* _previous_ds = GetDataSource(true);
 
-    SetDataSource(_indi, _input_mode);
+    SetDataSource(_indi);
 
     if (_previous_ds != nullptr) {
       _indi PTR_DEREF SetDataSource(_previous_ds);
     }
-  }
-
-  /**
-   * Sets data source's input mode.
-   */
-  void SetDataSourceMode(int _mode, ENUM_INDI_DS_MODE_KIND _mode_kind = INDI_DS_MODE_KIND_INDEX) {
-    indi_src_mode = _mode;
-    indi_src_mode_kind = _mode_kind;
   }
 
   /**

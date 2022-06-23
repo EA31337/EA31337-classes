@@ -136,20 +136,21 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   /**
    * Note that this method operates on current price (set by _applied_price).
    */
-  static double iStdDevOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
-                                   int _ma_shift, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
+  static double iStdDevOnIndicator(IndicatorBase *_target, IndicatorBase *_source, string _symbol, ENUM_TIMEFRAMES _tf,
+                                   int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _shift = 0,
                                    Indi_StdDev *_obj = NULL) {
     double _indi_value_buffer[];
     double _std_dev;
     int i;
-    int _mode = _obj != NULL ? _obj.GetDataSourceMode() : 0;
+
+    ValueStorage<double> *_data = _source PTR_DEREF GetSpecificAppliedPriceValueStorage(_ap, _target);
 
     ArrayResize(_indi_value_buffer, _ma_period);
 
     for (i = _shift; i < (int)_shift + (int)_ma_period; i++) {
       // Getting current indicator value. Input data may be shifted on
       // the graph, so we need to take that shift into consideration.
-      _indi_value_buffer[i - _shift] = _indi[i + _ma_shift][_mode];
+      _indi_value_buffer[i - _shift] = PTR_TO_REF(_data)[i + _ma_shift].Get();
     }
 
     double _ma = Indi_MA::SimpleMA(_shift, _ma_period, _indi_value_buffer);
@@ -254,16 +255,16 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
                                       GetAppliedPrice(), _ishift, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_StdDev::iStdDevOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
-                                                 GetAppliedPrice(), _ishift, THIS_PTR);
+        _value = Indi_StdDev::iStdDevOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
+                                                 GetMAShift(), GetAppliedPrice(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetMAPeriod(),
                          GetMAShift(), GetMAMethod() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_StdDev::iStdDevOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
-                                                 GetAppliedPrice(), _ishift, THIS_PTR);
+        _value = Indi_StdDev::iStdDevOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
+                                                 GetMAShift(), GetAppliedPrice(), _ishift, THIS_PTR);
         break;
     }
     return _value;

@@ -89,7 +89,7 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
     }
 
     // Volume uses volume only.
-    return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
   }
 
   /**
@@ -174,7 +174,7 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
   /**
    * Get applied volume type (MT5 only).
    */
-  ENUM_APPLIED_VOLUME GetAppliedVolume() { return iparams.applied_volume; }
+  ENUM_APPLIED_VOLUME GetAppliedVolume() override { return iparams.applied_volume; }
 
   /* Setters */
 

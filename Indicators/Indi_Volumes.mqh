@@ -70,7 +70,7 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
     }
 
     // Volume uses volume only.
-    return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
   }
 
   /**

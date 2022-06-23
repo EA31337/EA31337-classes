@@ -129,11 +129,6 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
       return 0;
     }
 
-    // @todo Change to the following line.
-    // IndicatorBase *_source = _obj PTR_DEREF GetSuitableDataSource(_applied_price);
-    IndicatorBase *_source = _obj PTR_DEREF GetCandle();
-
-    // Note that _applied_price and Indi_Price mode indices are compatible.
     return iDEMAOnIndicator(_obj, _period, _ma_shift, _applied_price, _mode, _shift);
   }
 
@@ -169,6 +164,8 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
    */
   static double iDEMAOnIndicator(IndicatorBase *_indi, int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                                  int _mode = 0, int _shift = 0) {
+    Print("iDEMAOnIndicator @ " + _indi PTR_DEREF GetFullName());
+
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, _ma_shift));
     return iDEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ma_shift, _mode, _shift, _cache);
   }

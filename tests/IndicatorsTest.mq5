@@ -81,6 +81,10 @@ int OnInit() {
     Print("+ Setting outer data source for " + iter.Value() REF_DEREF GetFullName());
     Flags<unsigned int> _flags = iter.Value() REF_DEREF GetSuitableDataSourceTypes();
 
+    if (iter.Value() REF_DEREF GetType() == INDI_OBV) {
+      // DebugBreak();
+    }
+
     // @fixit Any way to get rid of Candle indicator if it's not used? Looks like it is required in order to invoke
     // GetBarTime().
     if (!iter.Value() REF_DEREF HasDataSource(_candles.Ptr())) {
@@ -93,7 +97,10 @@ int OnInit() {
     }
 
     if (iter.Value() REF_DEREF OnCheckIfSuitableDataSource(_ticks.Ptr())) {
-      iter.Value() REF_DEREF GetOuterDataSource() PTR_DEREF SetDataSource(_ticks.Ptr());
+      // Indicator requires tick-based data source.
+      if (!iter.Value() REF_DEREF HasDataSource(_ticks.Ptr())) {
+        iter.Value() REF_DEREF InjectDataSource(_ticks.Ptr());
+      }
     }
 
     if (!iter.Value() REF_DEREF HasSuitableDataSource()) {
@@ -129,7 +136,7 @@ int OnInit() {
 void OnTick() {
   // All indicators should execute its OnTick() method for every platform tick.
   for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    Print("Ticking " + iter.Value() REF_DEREF GetFullName());
+    // Print("Ticking " + iter.Value() REF_DEREF GetFullName());
     iter.Value() REF_DEREF Tick();
   }
 

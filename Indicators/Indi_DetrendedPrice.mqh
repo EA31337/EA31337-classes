@@ -74,7 +74,7 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
     }
 
     // Volume uses volume only.
-    return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
   }
 
   /**

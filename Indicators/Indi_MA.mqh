@@ -103,7 +103,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
     }
 
     // Volume uses volume only.
-    return HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
   }
 
   /**
@@ -150,12 +150,12 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Calculates MA on another indicator.
    */
-  static double iMAOnIndicator(IndicatorCalculateCache<double> *cache, IndicatorBase *_indi, int indi_mode,
-                               string symbol, ENUM_TIMEFRAMES tf, unsigned int ma_period, unsigned int ma_shift,
+  static double iMAOnIndicator(IndicatorBase *_target, IndicatorBase *_source, string symbol, ENUM_TIMEFRAMES tf,
+                               unsigned int ma_period, unsigned int ma_shift,
                                ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                               int shift = 0) {
-    return iMAOnArray((ValueStorage<double> *)_indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, ma_method,
-                      shift, cache);
+                               ENUM_APPLIED_PRICE _ap, int shift = 0) {
+    ValueStorage<double> *_data = (ValueStorage<double> *)_source.GetSpecificAppliedPriceValueStorage(_ap, _target);
+    return iMAOnArray(_data, 0, ma_period, ma_shift, ma_method, shift, _target PTR_DEREF GetCache());
   }
 
   /**
@@ -662,9 +662,8 @@ class Indi_MA : public Indicator<IndiMAParams> {
                               _ishift, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        // @todo Is cache needed here?
-        _value = Indi_MA::iMAOnIndicator(GetCache(), THIS_PTR, GetDataSourceMode(), GetSymbol(), GetTf(), GetPeriod(),
-                                         GetMAShift(), GetMAMethod(), _ishift);
+        _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+                                         GetMAMethod(), GetAppliedPrice(), _ishift);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
@@ -673,8 +672,8 @@ class Indi_MA : public Indicator<IndiMAParams> {
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), GetSymbol(), GetTf(),
-                                         GetPeriod(), GetMAShift(), GetMAMethod(), _ishift);
+        _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+                                         GetMAMethod(), GetAppliedPrice(), _ishift);
         break;
     }
     return _value;
