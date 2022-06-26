@@ -130,7 +130,7 @@ class Indicator : public IndicatorData {
    * Class constructor.
    */
   Indicator(const TS& _iparams, const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL, int _indi_mode = 0)
-      : IndicatorData(_idparams) {
+      : IndicatorData(_idparams, _indi_src, _indi_mode) {
     iparams = _iparams;
     Init();
   }

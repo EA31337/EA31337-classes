@@ -59,9 +59,11 @@ class Indi_CustomMovingAverage : public IndicatorTickOrCandleSource<IndiCustomMo
   /**
    * Class constructor.
    */
-  Indi_CustomMovingAverage(IndiCustomMovingAverageParams& _p, IndicatorData* _indi_src = NULL)
+  Indi_CustomMovingAverage(IndiCustomMovingAverageParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_ICUSTOM,
+                           IndicatorData* _indi_src = NULL, int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_ICUSTOM, IDATA_RANGE_MIXED), _indi_src){};
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+            _indi_src){};
   Indi_CustomMovingAverage(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_CUSTOM_MOVING_AVG, _tf, _shift){};
 

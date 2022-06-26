@@ -94,9 +94,11 @@ class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
   /**
    * Class constructor.
    */
-  Indi_RSI(IndiRSIParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_RSI(IndiRSIParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_RANGE), _indi_src) {}
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+            _indi_src) {}
   Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RSI, _tf, _shift) {}
 
   /**

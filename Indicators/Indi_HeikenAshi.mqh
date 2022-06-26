@@ -82,10 +82,12 @@ class Indi_HeikenAshi : public IndicatorTickOrCandleSource<IndiHeikenAshiParams>
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(FINAL_HA_MODE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE),
-            _indi_src) {
+  Indi_HeikenAshi(IndiHeikenAshiParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                  IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_HA_MODE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_PRICE, _indi_src_mode),
+                                    _indi_src) {
     Init();
   }
   Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)

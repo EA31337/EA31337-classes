@@ -96,10 +96,11 @@ class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
   /**
    * Class constructor.
    */
-  Indi_Killzones(IndiKillzonesParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_Killzones(IndiKillzonesParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_CHART,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(_p,
                                     IndicatorDataParams::GetInstance(FINAL_INDI_KILLZONES_MODE_ENTRY, TYPE_FLOAT,
-                                                                     IDATA_CHART, IDATA_RANGE_PRICE),
+                                                                     _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
                                     _indi_src) {}
   Indi_Killzones(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_KILLZONES, _tf, _shift) {}

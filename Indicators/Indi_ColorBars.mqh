@@ -46,9 +46,11 @@ class Indi_ColorBars : public IndicatorTickOrCandleSource<IndiColorBarsParams> {
   /**
    * Class constructor.
    */
-  Indi_ColorBars(IndiColorBarsParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_ColorBars(IndiColorBarsParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(5, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
+            _p, IndicatorDataParams::GetInstance(5, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
   Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_COLOR_BARS, _tf, _shift){};
 

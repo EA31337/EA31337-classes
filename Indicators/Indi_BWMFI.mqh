@@ -74,11 +74,12 @@ class Indi_BWMFI : public IndicatorTickOrCandleSource<IndiBWIndiMFIParams> {
   /**
    * Class constructor.
    */
-  Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(
-            _p,
-            IndicatorDataParams::GetInstance(FINAL_BWMFI_BUFFER_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED),
-            _indi_src) {
+  Indi_BWMFI(IndiBWIndiMFIParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_BWMFI_BUFFER_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_MIXED, _indi_src_mode),
+                                    _indi_src) {
     Init();
   }
   Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)

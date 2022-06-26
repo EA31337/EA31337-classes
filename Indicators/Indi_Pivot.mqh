@@ -56,9 +56,11 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
   /**
    * Class constructor.
    */
-  Indi_Pivot(IndiPivotParams& _p, IndicatorData* _indi_src = NULL)
+  Indi_Pivot(IndiPivotParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData* _indi_src = NULL,
+             int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(9, TYPE_FLOAT, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {
+            _p, IndicatorDataParams::GetInstance(9, TYPE_FLOAT, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {
     Init();
   };
   Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)

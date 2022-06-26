@@ -747,15 +747,15 @@ class IndicatorData : public IndicatorBase {
             " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
       _target.idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE), 0);
       DebugBreak();
-    } else if (_source.GetModeCount() == 1 &&
+    } else if (_source.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == 1 &&
                _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
       _target.idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE), 0);
     } else if (_target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) < 0 ||
                _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) >
-                   _source.GetModeCount()) {
+                   _source.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES))) {
       Alert("Error! ", _target.GetName(),
             " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
-            _source.GetModeCount(), ".");
+            _source.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)), ".");
       DebugBreak();
     }
   }

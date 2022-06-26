@@ -99,11 +99,11 @@ class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
   /**
    * Class constructor.
    */
-  Indi_Alligator(IndiAlligatorParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_Alligator(IndiAlligatorParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p,
-            IndicatorDataParams::GetInstance(FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE),
-            _indi_src) {}
+            _p, IndicatorDataParams::GetInstance(FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE),
+            _indi_src, _indi_src_mode) {}
   Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift){};
 

@@ -74,11 +74,12 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
   /**
    * Class constructor.
    */
-  Indi_BWZT(IndiBWZTParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(
-            _p,
-            IndicatorDataParams::GetInstance(FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED),
-            _indi_src) {
+  Indi_BWZT(IndiBWZTParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_MIXED, _indi_src_mode),
+                                    _indi_src) {
     Init();
   };
   Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)

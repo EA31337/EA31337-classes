@@ -49,9 +49,11 @@ class Indi_PriceVolumeTrend : public IndicatorTickOrCandleSource<IndiPriceVolume
   /**
    * Class constructor.
    */
-  Indi_PriceVolumeTrend(IndiPriceVolumeTrendParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_PriceVolumeTrend(IndiPriceVolumeTrendParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                        IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
   Indi_PriceVolumeTrend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PRICE_VOLUME_TREND, _tf, _shift){};
 

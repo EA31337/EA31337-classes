@@ -66,9 +66,11 @@ class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
   /**
    * Class constructor.
    */
-  Indi_AO(IndiAOParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_AO(IndiAOParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {
+            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {
     Init();
   };
   Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AO, _tf, _shift) {

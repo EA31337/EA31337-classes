@@ -47,9 +47,11 @@ class Indi_Pattern : public IndicatorTickOrCandleSource<IndiPatternParams> {
   /**
    * Class constructor.
    */
-  Indi_Pattern(IndiPatternParams& _p, IndicatorData* _indi_src = NULL)
+  Indi_Pattern(IndiPatternParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData* _indi_src = NULL,
+               int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(5, TYPE_UINT, IDATA_BUILTIN, IDATA_RANGE_BITWISE), _indi_src){};
+            _p, IndicatorDataParams::GetInstance(5, TYPE_UINT, _idstype, IDATA_RANGE_BITWISE, _indi_src_mode),
+            _indi_src){};
   Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PATTERN, _tf, _shift){};
 

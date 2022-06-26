@@ -56,9 +56,10 @@ class Indi_ZigZagColor : public IndicatorTickOrCandleSource<IndiZigZagColorParam
   /**
    * Class constructor.
    */
-  Indi_ZigZagColor(IndiZigZagColorParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_ZigZagColor(IndiZigZagColorParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                   IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE_ON_SIGNAL),
+            _p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
             _indi_src){};
   Indi_ZigZagColor(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VROC, _tf, _shift){};

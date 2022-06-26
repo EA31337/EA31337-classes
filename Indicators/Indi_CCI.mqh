@@ -62,9 +62,11 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
   /**
    * Class constructor.
    */
-  Indi_CCI(IndiCCIParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED),
-                            _indi_src) {}
+  Indi_CCI(IndiCCIParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : IndicatorTickSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {}
   Indi_CCI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_CCI, _tf, _shift) {}
 
   /**

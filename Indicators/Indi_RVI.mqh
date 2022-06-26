@@ -53,11 +53,12 @@ class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
   /**
    * Class constructor.
    */
-  Indi_RVI(const IndiRVIParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(
-            _p,
-            IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED),
-            _indi_src) {}
+  Indi_RVI(const IndiRVIParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_MIXED, _indi_src_mode),
+                                    _indi_src) {}
   Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RVI, _tf, _shift) {}
 
   /**

@@ -95,8 +95,11 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_PRICE),
+  Indi_Ichimoku(IndiIchimokuParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_PRICE, _indi_src_mode),
                                     _indi_src) {
     Init();
   }

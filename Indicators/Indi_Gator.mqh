@@ -115,10 +115,11 @@ class Indi_Gator : public IndicatorTickOrCandleSource<IndiGatorParams> {
   /**
    * Class constructor.
    */
-  Indi_Gator(IndiGatorParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_Gator(IndiGatorParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(_p,
                                     IndicatorDataParams::GetInstance(FINAL_GATOR_LINE_HISTOGRAM_ENTRY, TYPE_DOUBLE,
-                                                                     IDATA_BUILTIN, IDATA_RANGE_MIXED),
+                                                                     _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
                                     _indi_src) {
     Init();
   }

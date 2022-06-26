@@ -59,10 +59,11 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
   /**
    * Class constructor.
    */
-  Indi_ZigZag(IndiZigZagParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_ZigZag(IndiZigZagParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE,
-                                                                     IDATA_BUILTIN, IDATA_RANGE_PRICE_ON_SIGNAL),
+                                    IndicatorDataParams::GetInstance(FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_PRICE_ON_SIGNAL),
                                     _indi_src) {}
   Indi_ZigZag(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_ZIGZAG, _tf, _shift) {}

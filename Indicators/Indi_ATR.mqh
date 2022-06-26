@@ -55,9 +55,11 @@ class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
   /**
    * Class constructor.
    */
-  Indi_ATR(IndiATRParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_ATR(IndiATRParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src) {}
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {}
   Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ATR, _tf, _shift){};
 
   /**

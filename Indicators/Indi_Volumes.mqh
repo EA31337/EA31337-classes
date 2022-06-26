@@ -48,9 +48,11 @@ class Indi_Volumes : public IndicatorTickOrCandleSource<IndiVolumesParams> {
   /**
    * Class constructor.
    */
-  Indi_Volumes(IndiVolumesParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_Volumes(IndiVolumesParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+               int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, IDATA_BUILTIN, IDATA_RANGE_MIXED), _indi_src){};
+            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
   Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VOLUMES, _tf, _shift){};
 

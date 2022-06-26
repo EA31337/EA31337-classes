@@ -60,10 +60,11 @@ class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndiFractalsParams &_p, IndicatorData *_indi_src = NULL)
+  Indi_Fractals(IndiFractalsParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE, IDATA_BUILTIN,
-                                                                     IDATA_RANGE_PRICE_ON_SIGNAL),
+                                    IndicatorDataParams::GetInstance(FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
                                     _indi_src) {
     Init();
   }

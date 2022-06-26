@@ -33,7 +33,7 @@
 #endif
 
 // Includes.
-#include "../../Indicator.mqh"
+#include "../../Indicator/IndicatorTickOrCandleSource.h"
 
 // Structs.
 
@@ -73,14 +73,18 @@ struct IndiCustomParams : public IndicatorParams {
 /**
  * Implements indicator class.
  */
-class Indi_Custom : public Indicator<IndiCustomParams> {
+class Indi_Custom : public IndicatorTickOrCandleSource<IndiCustomParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Custom(IndiCustomParams &_p, IndicatorData *_indi_src = NULL)
-      : Indicator<IndiCustomParams>(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, IDATA_ICUSTOM), _indi_src) {}
-  Indi_Custom(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM, _tf){};
+  Indi_Custom(IndiCustomParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_ICUSTOM, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_UNKNOWN, _indi_src_mode),
+            _indi_src) {}
+  Indi_Custom(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_CUSTOM, _tf, _shift){};
 
   /**
    * Returns the indicator's value.

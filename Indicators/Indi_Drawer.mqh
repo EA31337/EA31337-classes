@@ -41,8 +41,12 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
   /**
    * Class constructor.
    */
-  Indi_Drawer(const IndiDrawerParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(0, TYPE_DOUBLE), _indi_src), redis(true) {
+  Indi_Drawer(const IndiDrawerParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+              IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(0, TYPE_DOUBLE, _idstype, IDATA_RANGE_UNKNOWN, _indi_src_mode),
+            _indi_src),
+        redis(true) {
     Init();
   }
   Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)

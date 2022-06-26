@@ -50,8 +50,11 @@ class Indi_Price : public IndicatorTickOrCandleSource<PriceIndiParams> {
   /**
    * Class constructor.
    */
-  Indi_Price(PriceIndiParams &_p, IndicatorData *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE), _indi_src){};
+  Indi_Price(PriceIndiParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+            _indi_src){};
   Indi_Price(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PRICE, _tf, _shift){};
 
