@@ -320,17 +320,10 @@ class IndicatorBase : public Chart {
    */
   // virtual bool ToString() = NULL; // @fixme?
 
-  /* Methods to get rid of */
-
   /**
    * Gets indicator's symbol.
    */
   string GetSymbol() { return Get<string>(CHART_PARAM_SYMBOL); }
-
-  /**
-   * Gets indicator's time-frame.
-   */
-  ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
 
   /* Defines MQL backward compatible methods */
 

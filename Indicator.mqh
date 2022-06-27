@@ -73,6 +73,17 @@ double iCustom5(string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C
   ICUSTOM_DEF(_handlers.Set(_key, _handle),
               COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
 }
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+          typename J, typename K, typename L, typename M>
+double iCustom5(string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i,
+                J _j, K _k, L _l, M _m, int _mode, int _shift) {
+  ResetLastError();
+  static Dict<string, int> _handlers;
+  string _key = Util::MakeKey(_symbol, (string)_tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m);
+  int _handle = _handlers.GetByKey(_key);
+  ICUSTOM_DEF(_handlers.Set(_key, _handle), COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h
+                                                COMMA _i COMMA _j COMMA _k COMMA _l COMMA _m);
+}
 #endif
 
 /**
@@ -87,9 +98,7 @@ class Indicator : public IndicatorData {
  protected:
   /* Protected methods */
 
-  bool Init() {
-    return InitDraw();
-  }
+  bool Init() { return InitDraw(); }
 
   /**
    * Initialize indicator data drawing on custom data.
@@ -129,7 +138,8 @@ class Indicator : public IndicatorData {
   /**
    * Class constructor.
    */
-  Indicator(const TS& _iparams, const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL, int _indi_mode = 0)
+  Indicator(const TS& _iparams, const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL,
+            int _indi_mode = 0)
       : IndicatorData(_idparams, _indi_src, _indi_mode) {
     iparams = _iparams;
     Init();
@@ -380,7 +390,8 @@ class Indicator : public IndicatorData {
       return true;
     }
 
-    if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_INDICATOR && GetDataSourceRaw() == NULL && _try_initialize) {
+    if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_INDICATOR &&
+        GetDataSourceRaw() == NULL && _try_initialize) {
       SetDataSource(OnDataSourceRequest());
     }
 
@@ -401,6 +412,11 @@ class Indicator : public IndicatorData {
    * Gets indicator's time-frame.
    */
   // ENUM_TIMEFRAMES GetTf() { return Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF); }
+
+  /**
+   * Gets indicator's time-frame.
+   */
+  ENUM_TIMEFRAMES GetTf() { return iparams.tf.GetTf(); }
 
   /**
    * Gets indicator's signals.
@@ -605,7 +621,8 @@ class Indicator : public IndicatorData {
       int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
       // Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
       for (int i = 0; i < _max_modes; ++i)
-        draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + Get<string>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)),
+        draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" +
+                            Get<string>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)),
                         GetBarTime(0), GetEntry(0)[i], iparams.draw_window);
     }
   }

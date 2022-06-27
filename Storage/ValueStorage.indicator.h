@@ -51,8 +51,8 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   /**
    * Constructor.
    */
-  IndicatorBufferValueStorage(IndicatorData *_indi, int _mode = 0, bool _is_series = false)
-      : indicator(_indi), mode(_mode), HistoryValueStorage(_indi.GetSymbol(), _indi.GetTf()) {}
+  IndicatorBufferValueStorage(IndicatorData *_indi, int _mode = 0, ENUM_TIMEFRAMES _tf = NULL, bool _is_series = false)
+      : indicator(_indi), mode(_mode), HistoryValueStorage(_indi.GetSymbol(), _tf) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.

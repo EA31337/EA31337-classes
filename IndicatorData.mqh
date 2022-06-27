@@ -474,8 +474,8 @@ class IndicatorData : public IndicatorBase {
 
   /* Getters */
 
-  int GetBarsCalculated() {
-    int _bars = Bars(GetSymbol(), GetTf());
+  int GetBarsCalculated(ENUM_TIMEFRAMES _tf = NULL) {
+    int _bars = Bars(GetSymbol(), _tf);
 
     if (!idparams.Get<bool>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IS_FED))) {
       // Calculating start_bar.
@@ -521,7 +521,7 @@ class IndicatorData : public IndicatorBase {
       Ref<IndicatorData> _indi = FetchDataSource(_type);
       if (!_indi.IsSet()) {
         Alert(GetFullName(), " does not define required indicator type ", EnumToString(_type), " for symbol ",
-              GetSymbol(), ", and timeframe ", GetTf(), "!");
+              GetSymbol(), "!");
         DebugBreak();
       } else {
         indicators.Set((int)_type, _indi);
