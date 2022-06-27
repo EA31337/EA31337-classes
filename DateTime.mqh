@@ -62,6 +62,7 @@ class DateTime {
    * Class constructor.
    */
   DateTime() { TimeToStruct(TimeCurrent(), dt_curr); }
+  DateTime(DateTime &r) : dt_curr(r.dt_curr), dt_last(r.dt_last) {}
   DateTime(DateTimeEntry &_dt) { dt_curr = _dt; }
   DateTime(MqlDateTime &_dt) { dt_curr = _dt; }
   DateTime(datetime _dt) { dt_curr.Set(_dt); }
@@ -183,22 +184,13 @@ class DateTime {
 
   /**
    * Checks if new minute started.
-   *
-   * @return bool
-   * Returns true when new minute started.
    */
-  bool IsNewMinute(bool _update = true) {
-    bool _result = false;
-    if (_update) {
-      dt_last = dt_curr;
-      Update();
-    }
-    if (dt_curr.GetSeconds() < dt_last.GetSeconds()) {
-      _result = true;
-    }
-    dt_last = dt_curr;
-    return _result;
-  }
+  bool IsNewMinute() { return (GetStartedPeriods(false, false) & DATETIME_MINUTE) != 0; }
+
+  /**
+   * Checks if new hour started.
+   */
+  bool IsNewHour() { return (GetStartedPeriods(false, false) & DATETIME_HOUR) != 0; }
 
   /**
    * Updates datetime to the current one.

@@ -1033,7 +1033,7 @@ class IndicatorBase : public Object {
       return;
     }
 
-    IndicatorBase* _previous_ds = GetDataSource(true);
+    IndicatorBase* _previous_ds = GetDataSource(false);
 
     SetDataSource(_indi);
 

@@ -58,7 +58,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
    * Class constructor.
    */
   Indi_ZigZagColor(IndiZigZagColorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_ZigZagColor(int _shift = 0) : Indicator(INDI_VROC, _shift){};
+  Indi_ZigZagColor(int _shift = 0) : Indicator(INDI_ZIGZAG_COLOR, _shift){};
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.

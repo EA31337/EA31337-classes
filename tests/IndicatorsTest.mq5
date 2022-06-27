@@ -343,13 +343,14 @@ bool InitIndicators() {
   indis.Push(new Indi_SAR(sar_params));
 
   // Standard Deviation (StdDev).
+  /*
   Ref<IndicatorBase> indi_price_for_stdev = new Indi_Price(PriceIndiParams());
-
   IndiStdDevParams stddev_on_price_params();
   stddev_on_price_params.SetDraw(clrBlue, 1);
   Ref<Indi_StdDev> indi_stddev_on_price = new Indi_StdDev(stddev_on_price_params);
   indi_stddev_on_price.Ptr().SetDataSource(indi_price_for_stdev.Ptr(), PRICE_OPEN);
   indis.Push(indi_stddev_on_price.Ptr());
+  */
 
   // Stochastic Oscillator.
   IndiStochParams stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
@@ -369,12 +370,15 @@ bool InitIndicators() {
   indis.Push(new Indi_Demo());
 
   // Current Price.
+  /*
   PriceIndiParams price_params();
   // price_params.SetDraw(clrAzure);
   Ref<IndicatorBase> indi_price = new Indi_Price(price_params);
   indis.Push(indi_price);
+  */
 
   // Bollinger Bands over Price indicator.
+  /*
   PriceIndiParams price_params_4_bands();
   Ref<IndicatorBase> indi_price_4_bands = new Indi_Price(price_params_4_bands);
   IndiBandsParams bands_on_price_params();
@@ -382,6 +386,7 @@ bool InitIndicators() {
   Ref<Indi_Bands> indi_bands_on_price = new Indi_Bands(bands_on_price_params);
   indi_bands_on_price.Ptr().SetDataSource(indi_price_4_bands.Ptr());
   indis.Push(indi_bands_on_price.Ptr());
+  */
 
   // Standard Deviation (StdDev) over MA(SMA).
   // NOTE: If you set ma_shift parameter for MA, then StdDev will no longer
@@ -397,16 +402,18 @@ bool InitIndicators() {
   indis.Push(indi_stddev_on_ma_sma.Ptr());
 
   // Standard Deviation (StdDev) in SMA mode over Price.
+  /*
   PriceIndiParams price_params_for_stddev_sma();
   Ref<IndicatorBase> indi_price_for_stddev_sma = new Indi_Price(price_params_for_stddev_sma);
-
   IndiStdDevParams stddev_sma_on_price_params();
   stddev_sma_on_price_params.SetDraw(true, 1);
   Ref<Indi_StdDev> indi_stddev_on_sma = new Indi_StdDev(stddev_sma_on_price_params);
   indi_stddev_on_sma.Ptr().SetDataSource(indi_price_for_stddev_sma.Ptr());
   indis.Push(indi_stddev_on_sma.Ptr());
+  */
 
   // Moving Average (MA) over Price indicator.
+  /*
   PriceIndiParams price_params_4_ma();
   Ref<IndicatorBase> indi_price_4_ma = new Indi_Price(price_params_4_ma);
   IndiMAParams ma_on_price_params(13, 0, MODE_SMA, PRICE_OPEN, 0);
@@ -415,8 +422,10 @@ bool InitIndicators() {
   Ref<Indi_MA> indi_ma_on_price = new Indi_MA(ma_on_price_params);
   indi_ma_on_price.Ptr().SetDataSource(indi_price_4_ma.Ptr());
   indis.Push(indi_ma_on_price.Ptr());
+  */
 
   // Commodity Channel Index (CCI) over Price indicator.
+  /*
   PriceIndiParams price_params_4_cci();
   Ref<IndicatorBase> indi_price_4_cci = new Indi_Price(price_params_4_cci);
   IndiCCIParams cci_on_price_params();
@@ -424,8 +433,10 @@ bool InitIndicators() {
   Ref<IndicatorBase> indi_cci_on_price = new Indi_CCI(cci_on_price_params);
   indi_cci_on_price.Ptr().SetDataSource(indi_price_4_cci.Ptr());
   indis.Push(indi_cci_on_price.Ptr());
+  */
 
   // Envelopes over Price indicator.
+  /*
   PriceIndiParams price_params_4_envelopes();
   Ref<IndicatorBase> indi_price_4_envelopes = new Indi_Price(price_params_4_envelopes);
   IndiEnvelopesParams env_on_price_params();
@@ -433,8 +444,10 @@ bool InitIndicators() {
   Ref<Indi_Envelopes> indi_envelopes_on_price = new Indi_Envelopes(env_on_price_params);
   indi_envelopes_on_price.Ptr().SetDataSource(indi_price_4_envelopes.Ptr());
   indis.Push(indi_envelopes_on_price.Ptr());
+  */
 
   // DEMA over Price indicator.
+  /*
   PriceIndiParams price_params_4_dema();
   Ref<IndicatorBase> indi_price_4_dema = new Indi_Price(price_params_4_dema);
   IndiDEMAParams dema_on_price_params(13, 2, PRICE_OPEN);
@@ -442,16 +455,20 @@ bool InitIndicators() {
   Ref<Indi_DEMA> indi_dema_on_price = new Indi_DEMA(dema_on_price_params);
   indi_dema_on_price.Ptr().SetDataSource(indi_price_4_dema.Ptr());
   indis.Push(indi_dema_on_price.Ptr());
+  */
 
   // Momentum over Price indicator.
+  /*
   Ref<IndicatorBase> indi_price_4_momentum = new Indi_Price();
   IndiMomentumParams mom_on_price_params();
   mom_on_price_params.SetDraw(clrDarkCyan);
   Ref<Indi_Momentum> indi_momentum_on_price = new Indi_Momentum(mom_on_price_params);
   indi_momentum_on_price.Ptr().SetDataSource(indi_price_4_momentum.Ptr(), 0);
   indis.Push(indi_momentum_on_price.Ptr());
+  */
 
   // Relative Strength Index (RSI) over Price indicator.
+  /*
   PriceIndiParams price_params_4_rsi();
   Ref<IndicatorBase> indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
   IndiRSIParams rsi_on_price_params();
@@ -459,13 +476,16 @@ bool InitIndicators() {
   Ref<Indi_RSI> indi_rsi_on_price = new Indi_RSI(rsi_on_price_params);
   indi_rsi_on_price.Ptr().SetDataSource(indi_price_4_rsi.Ptr());
   indis.Push(indi_rsi_on_price.Ptr());
+  */
 
   // Drawer (socket-based) indicator over RSI over Price.
-  IndiDrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
+  /*
+  IndiDrawerParams drawer_params(14, PRICE_OPEN);
   drawer_params.SetDraw(clrBisque, 0);
   Ref<Indi_Drawer> indi_drawer_on_rsi = new Indi_Drawer(drawer_params);
   indi_drawer_on_rsi.Ptr().SetDataSource(indi_rsi_on_price.Ptr(), PRICE_OPEN);
   indis.Push(indi_drawer_on_rsi.Ptr());
+  */
 
   // Applied Price over OHCL indicator.
   /*
