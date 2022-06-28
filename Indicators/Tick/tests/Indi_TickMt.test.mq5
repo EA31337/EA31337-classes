@@ -20,6 +20,7 @@
  */
 
 // Includes.
+#include "../../../Platform.h"
 #include "../../../Test.mqh"
 #include "../Indi_TickMt.mqh"
 
@@ -27,33 +28,4 @@
  * @file
  * Test functionality of Indi_TickMt indicator class.
  */
-
-Indi_TickMt indi(PERIOD_CURRENT);
-
-/**
- * Implements Init event handler.
- */
-int OnInit() {
-  bool _result = true;
-  assertTrueOrFail(indi.IsValid(), "Error on IsValid!");
-  return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
-}
-
-/**
- * Implements Tick event handler.
- */
-void OnTick() {
-  static MqlTick _tick_last;
-  MqlTick _tick_new = indi.GetTick();
-  if (_tick_new.time % 60 < _tick_last.time % 60) {
-    // Process ticks each minute.
-    if (_tick_new.time % 3600 < _tick_last.time % 3600) {
-      // Print indicator values every hour.
-      Print(indi.ToString());
-      if (indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
-        assertTrueOrExit(indi.GetEntry().IsValid(), "Invalid entry!");
-      }
-    }
-  }
-  _tick_last = _tick_new;
-}
+TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(Indi_TickMt, _Symbol);

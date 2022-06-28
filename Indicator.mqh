@@ -950,8 +950,8 @@ class Indicator : public IndicatorBase {
          _curr = _curr.GetDataSource(false), --_iterations_left) {
       if (_curr == THIS_PTR) {
         // Circular dependency found.
-        Print("Error: Circular dependency found when trying to attach to " + GetFullName() + " data so " +
-              _indi.GetFullName() + " data source!");
+        Print("Error: Circular dependency found when trying to attach " + _indi PTR_DEREF GetFullName() + " into " +
+              GetFullName() + "!");
         DebugBreak();
         return;
       }

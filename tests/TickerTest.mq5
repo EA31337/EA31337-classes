@@ -25,6 +25,7 @@
  */
 
 // Includes.
+#include "../Indicators/Tick/Indi_TickMt.mqh"
 #include "../Test.mqh"
 #include "../Ticker.mqh"
 
@@ -45,41 +46,42 @@ Ticker *ticker08;
  * Implements initialization function.
  */
 int OnInit() {
-  // Initialize instances.
-  // SymbolInfo symbol = new SymbolInfo();
-  indi_tick = new ChartMt(_Symbol, Period());
+  /*
+    // Initialize instances.
+    // SymbolInfo symbol = new SymbolInfo();
+    indi_tick = new Indi_TickMt(_Symbol);
 
-  // Print market details.
-  Print("SYMBOL: ", symbol.ToString());
-  Print("CHART: ", chart.ToString());
+    // Print market details.
+    Print("SYMBOL: ", symbol.ToString());
+    Print("CHART: ", chart.ToString());
 
-  // Initialize Ticker instances.
-  ticker_csv = new Ticker(symbol);
-  ticker01 = new Ticker(symbol);
-  ticker02 = new Ticker(symbol);
-  ticker03 = new Ticker(symbol);
-  ticker04 = new Ticker(symbol);
-  ticker05 = new Ticker(symbol);
-  ticker06 = new Ticker(symbol);
-  ticker07 = new Ticker(symbol);
-  ticker08 = new Ticker(symbol);
+    // Initialize Ticker instances.
+    ticker_csv = new Ticker(symbol);
+    ticker01 = new Ticker(symbol);
+    ticker02 = new Ticker(symbol);
+    ticker03 = new Ticker(symbol);
+    ticker04 = new Ticker(symbol);
+    ticker05 = new Ticker(symbol);
+    ticker06 = new Ticker(symbol);
+    ticker07 = new Ticker(symbol);
+    ticker08 = new Ticker(symbol);
 
-  // Test adding ticks using local scope class.
-  Ticker *ticker_test = new Ticker();
-  assertTrueOrFail(ticker_test.GetTotalAdded() == 0, "Incorrect number of ticks added");
-  assertTrueOrFail(ticker_test.GetTotalIgnored() == 0, "Incorrect number of ticks ignored");
-  assertTrueOrFail(ticker_test.GetTotalProcessed() == 0, "Incorrect number of ticks processed");
-  assertTrueOrFail(ticker_test.GetTotalSaved() == 0, "Incorrect number of ticks saved");
-  ticker_test.Add();
-  assertTrueOrFail(ticker_test.GetTotalAdded() == 1, "Incorrect number of ticks added");
-  ticker_test.Add();
-  assertTrueOrFail(ticker_test.GetTotalAdded() == 2, "Incorrect number of ticks added");
-  ticker_test.Reset();
-  assertTrueOrFail(ticker_test.GetTotalAdded() == 0, "Incorrect number of ticks after reset");
-  ticker_test.Add();
-  assertTrueOrFail(ticker_test.GetTotalAdded() == 1, "Incorrect number of ticks added");
-  delete ticker_test;
-
+    // Test adding ticks using local scope class.
+    Ticker *ticker_test = new Ticker();
+    assertTrueOrFail(ticker_test.GetTotalAdded() == 0, "Incorrect number of ticks added");
+    assertTrueOrFail(ticker_test.GetTotalIgnored() == 0, "Incorrect number of ticks ignored");
+    assertTrueOrFail(ticker_test.GetTotalProcessed() == 0, "Incorrect number of ticks processed");
+    assertTrueOrFail(ticker_test.GetTotalSaved() == 0, "Incorrect number of ticks saved");
+    ticker_test.Add();
+    assertTrueOrFail(ticker_test.GetTotalAdded() == 1, "Incorrect number of ticks added");
+    ticker_test.Add();
+    assertTrueOrFail(ticker_test.GetTotalAdded() == 2, "Incorrect number of ticks added");
+    ticker_test.Reset();
+    assertTrueOrFail(ticker_test.GetTotalAdded() == 0, "Incorrect number of ticks after reset");
+    ticker_test.Add();
+    assertTrueOrFail(ticker_test.GetTotalAdded() == 1, "Incorrect number of ticks added");
+    delete ticker_test;
+   */
   return (INIT_SUCCEEDED);
 }
 
@@ -87,50 +89,54 @@ int OnInit() {
  * Implements OnTick().
  */
 void OnTick() {
-  total_ticks++;
+  /*
+    total_ticks++;
 
-  // Process the ticks using different methods.
-  ticker01.Process(chart, 1);
-  ticker02.Process(chart, 2);
-  ticker03.Process(chart, 3);
-  ticker04.Process(chart, 4);
-  ticker05.Process(chart, 5);
-  ticker06.Process(chart, 6);
-  ticker07.Process(chart, 7);
-  ticker08.Process(chart, 8);
-  ticker_csv.Add();
+    // Process the ticks using different methods.
+    ticker01.Process(chart, 1);
+    ticker02.Process(chart, 2);
+    ticker03.Process(chart, 3);
+    ticker04.Process(chart, 4);
+    ticker05.Process(chart, 5);
+    ticker06.Process(chart, 6);
+    ticker07.Process(chart, 7);
+    ticker08.Process(chart, 8);
+    ticker_csv.Add();
+  */
 }
 
 /**
  * Implements deinitialization function.
  */
 void OnDeinit(const int reason) {
-  // Save ticks into CSV.
-  ticker_csv.SaveToCSV(StringFormat("ticks_%s.csv", _Symbol));
-  // @fixme
-  // assertTrueOrExit(ticker_csv.GetTotalSaved() == ticker_csv.GetTotalAdded(), "Incorrect number of ticks added");
+  /*
+    // Save ticks into CSV.
+    ticker_csv.SaveToCSV(StringFormat("ticks_%s.csv", _Symbol));
+    // @fixme
+    // assertTrueOrExit(ticker_csv.GetTotalSaved() == ticker_csv.GetTotalAdded(), "Incorrect number of ticks added");
 
-  // Print final details.
-  Print("TICKER01: ", ticker01.ToString());
-  Print("TICKER02: ", ticker02.ToString());
-  Print("TICKER03: ", ticker03.ToString());
-  Print("TICKER04: ", ticker04.ToString());
-  Print("TICKER05: ", ticker05.ToString());
-  Print("TICKER06: ", ticker06.ToString());
-  Print("TICKER07: ", ticker07.ToString());
-  Print("TICKER08: ", ticker08.ToString());
-  Print("TICKER CSV: ", ticker_csv.ToString());
+    // Print final details.
+    Print("TICKER01: ", ticker01.ToString());
+    Print("TICKER02: ", ticker02.ToString());
+    Print("TICKER03: ", ticker03.ToString());
+    Print("TICKER04: ", ticker04.ToString());
+    Print("TICKER05: ", ticker05.ToString());
+    Print("TICKER06: ", ticker06.ToString());
+    Print("TICKER07: ", ticker07.ToString());
+    Print("TICKER08: ", ticker08.ToString());
+    Print("TICKER CSV: ", ticker_csv.ToString());
 
-  // Deinitialize objects.
-  delete chart;
-  delete symbol;
-  delete ticker_csv;
-  delete ticker01;
-  delete ticker02;
-  delete ticker03;
-  delete ticker04;
-  delete ticker05;
-  delete ticker06;
-  delete ticker07;
-  delete ticker08;
+    // Deinitialize objects.
+    delete chart;
+    delete symbol;
+    delete ticker_csv;
+    delete ticker01;
+    delete ticker02;
+    delete ticker03;
+    delete ticker04;
+    delete ticker05;
+    delete ticker06;
+    delete ticker07;
+    delete ticker08;
+  */
 }

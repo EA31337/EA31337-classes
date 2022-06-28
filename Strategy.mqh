@@ -1083,10 +1083,10 @@ class Strategy : public Taskable<DataParamEntry> {
       return 0;
     }
 
-    float _range = _bar1.GetRange();
+    float _range = (float)_bar1.GetRange();
     if (_range > 0) {
       float _open = (float)_data_source.GetOpen(_tf);
-      float _pp = _bar1.GetPivot();
+      float _pp = (float)_bar1.GetPivot();
       _result = 1 / _range * (_open - _pp);
       _result = fmin(1, fmax(-1, _result));
     }

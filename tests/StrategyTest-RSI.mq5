@@ -24,14 +24,14 @@
  * Test functionality of Strategy class.
  */
 
-#define __debug__
+//#define __debug__
 //#define __debug_verbose__
 
 // Includes.
 #include "../ChartMt.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
-#include "../Indicator/tests/classes/IndicatorTickReal.h"
 #include "../Indicators/Indi_RSI.mqh"
+#include "../Indicators/Tick/Indi_TickMt.mqh"
 #include "../Strategy.mqh"
 #include "../Test.mqh"
 
@@ -84,20 +84,16 @@ class Stg_RSI : public Strategy {
 // Global variables.
 Ref<Strategy> stg_rsi;
 Ref<Trade> trade;
-Ref<IndicatorTickReal> _ticks;
-Ref<IndicatorTfDummy> _candles;
+Ref<IndicatorBase> _candles;
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
-  // Initialize ticker and candle indicators.
-  _ticks = new IndicatorTickReal(_Symbol);
-  _candles = new IndicatorTfDummy(PERIOD_M1);
-  _candles.Ptr().SetDataSource(_ticks.Ptr());
+  Platform::Init();
 
   // Initialize strategy instance.
-  stg_rsi = Stg_RSI::Init(_candles.Ptr());
+  stg_rsi = Stg_RSI::Init(_candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M5));
   stg_rsi REF_DEREF SetName("Stg_RSI");
   stg_rsi REF_DEREF Set<long>(STRAT_PARAM_ID, 1234);
 
@@ -128,12 +124,9 @@ int OnInit() {
  * Implements OnTick().
  */
 void OnTick() {
-  // Strategy will tick all attached indicators.
-  stg_rsi REF_DEREF Tick();
+  Platform::Tick();
 
-  static MqlTick _tick_last;
-  MqlTick _tick_new = SymbolInfoStatic::GetTick(_Symbol);
-  if (_tick_new.time % 60 < _tick_last.time % 60) {
+  if (Platform::IsNewMinute()) {
     if (stg_rsi REF_DEREF SignalOpen(ORDER_TYPE_BUY)) {
       MqlTradeRequest _request = trade REF_DEREF GetTradeOpenRequest(
           ORDER_TYPE_BUY, 0, stg_rsi REF_DEREF Get<long>(STRAT_PARAM_ID), stg_rsi REF_DEREF GetName());
@@ -156,7 +149,7 @@ void OnTick() {
             ORDER_REASON_CLOSED_BY_SIGNAL, stg_rsi REF_DEREF GetOrderCloseComment());
       }
     }
-    if (_tick_new.time % 3600 < _tick_last.time % 3600) {
+    if (Platform::IsNewHour()) {
       stg_rsi REF_DEREF ProcessTasks();
       trade REF_DEREF UpdateStates();
       // Print strategy values every hour.
@@ -167,7 +160,6 @@ void OnTick() {
       assertTrueOrExit(_last_error == ERR_NO_ERROR, StringFormat("Error occured! Code: %d", _last_error));
     }
   }
-  _tick_last = _tick_new;
 }
 
 /**

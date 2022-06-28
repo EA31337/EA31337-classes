@@ -32,8 +32,8 @@
 
 #ifdef __MQLBUILD__
 #include "Indicator/tests/classes/IndicatorTfDummy.h"
-#include "Indicator/tests/classes/IndicatorTickReal.h"
-#define PLATFORM_DEFAULT_INDICATOR_TICK IndicatorTickReal
+#include "Indicators/Tick/Indi_TickMt.mqh"
+#define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
 #else
 #error "Platform not supported!
 #endif
@@ -85,7 +85,7 @@ class Platform {
    * Performs tick on every added indicator.
    */
   static void Tick() {
-    for (DictStructIterator<int, Ref<IndicatorBase>> _iter; _iter.IsValid(); ++_iter) {
+    for (DictStructIterator<long, Ref<IndicatorBase>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
       _iter.Value() REF_DEREF Tick();
     }
     // Will check for new time periods in consecutive Platform::UpdateTime().
@@ -162,24 +162,28 @@ class Platform {
     IndicatorBase *_default_indi_candle = FetchDefaultCandleIndicator(_symbol, _tf);
     IndicatorBase *_default_indi_tick = FetchDefaultTickIndicator(_symbol);
 
-    if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_CUSTOM)) {
-      if (_indi PTR_DEREF OnCheckIfSuitableDataSource(_default_indi_tick)) {
-        _indi PTR_DEREF InjectDataSource(_default_indi_tick);
-      } else if (_indi PTR_DEREF OnCheckIfSuitableDataSource(_default_indi_candle)) {
-        _indi PTR_DEREF InjectDataSource(_default_indi_candle);
+    if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_EXPECT_NONE)) {
+      // There should be no data source, but we have to attach at least a Candle indicator in order to use GetBarTime()
+      // and similar methods.
+      _indi PTR_DEREF SetDataSource(_default_indi_candle);
+    } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_CUSTOM)) {
+      if (_indi PTR_DEREF OnCheckIfSuitableDataSource(_default_indi_candle))
+        _indi PTR_DEREF SetDataSource(_default_indi_candle);
+      else if (_indi PTR_DEREF OnCheckIfSuitableDataSource(_default_indi_tick)) {
+        _indi PTR_DEREF SetDataSource(_default_indi_tick);
       } else {
         // We can't attach any default data source as we don't know what type of indicator to create.
         Print("ERROR: Cannot bind default data source for ", _indi PTR_DEREF GetFullName(),
               " as we don't know what type of indicator to create!");
         DebugBreak();
       }
-    } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_CANDLE) &&
-               !_indi PTR_DEREF HasDataSource(_default_indi_candle)) {
-      // Will inject Candle indicator before Tick indicator (if already attached).
-      _indi PTR_DEREF InjectDataSource(_default_indi_candle);
-    } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_TICK) &&
-               !_indi PTR_DEREF HasDataSource(_default_indi_tick)) {
-      _indi PTR_DEREF InjectDataSource(_default_indi_tick);
+    } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
+      // Indicator requires OHLC-compatible data source, Candle indicator would fulfill such requirement.
+      _indi PTR_DEREF SetDataSource(_default_indi_candle);
+    } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_CANDLE)) {
+      _indi PTR_DEREF SetDataSource(_default_indi_candle);
+    } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_TICK)) {
+      _indi PTR_DEREF SetDataSource(_default_indi_tick);
     } else {
       Print(
           "Error: Could not bind platform's default data source as neither Candle nor Tick-based indicator are "
@@ -192,8 +196,12 @@ class Platform {
    * Returns default Candle-compatible indicator for current platform for given symbol and TF.
    */
   static IndicatorBase *FetchDefaultCandleIndicator(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+    if (_tf == PERIOD_CURRENT) {
+      _tf = Period();
+    }
+
     // Candle is per symbol and TF. Single Candle indicator can't handle multiple TFs.
-    string _key = Util::MakeKey("PlatformIndicatorCandle", _symbol, _tf);
+    string _key = Util::MakeKey("PlatformIndicatorCandle", _symbol, (int)_tf);
     IndicatorBase *_indi_candle;
     if (!Objects<IndicatorBase>::TryGet(_key, _indi_candle)) {
       _indi_candle = Objects<IndicatorBase>::Set(_key, new IndicatorTfDummy(_tf));
@@ -218,6 +226,18 @@ class Platform {
     }
     return _indi_tick;
   }
+
+  /**
+   * Prints indicators' values at the given shift.
+   */
+  static string IndicatorsToString(int _shift = 0) {
+    string _result;
+    for (DictStructIterator<long, Ref<IndicatorBase>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
+      IndicatorDataEntry _entry = _iter.Value() REF_DEREF GetEntry(_shift);
+      _result += _iter.Value() REF_DEREF GetFullName() + " = " + _entry.ToString<double>() + "\n";
+    }
+    return _result;
+  }
 };
 
 DateTime Platform::time;
@@ -230,9 +250,9 @@ void OnTimer() { Platform::OnTimer(); }
 /**
  * Will test given indicator class with platform-default data source bindings.
  */
-#define TEST_INDICATOR_DEFAULT_BINDINGS(C)                                                        \
-                                                                                                  \
-  Ref<C> indi = new C();                                                                          \
+
+#define TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, PARAMS)                                         \
+  Ref<C> indi = new C(PARAMS);                                                                    \
                                                                                                   \
   int OnInit() {                                                                                  \
     Platform::Init();                                                                             \
@@ -251,3 +271,5 @@ void OnTimer() { Platform::OnTimer(); }
       }                                                                                           \
     }                                                                                             \
   }
+
+#define TEST_INDICATOR_DEFAULT_BINDINGS(C) TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, )

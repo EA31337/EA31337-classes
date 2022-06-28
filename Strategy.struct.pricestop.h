@@ -65,7 +65,7 @@ struct StrategyPriceStop {
   // Main methods.
   // Calculate price stop value.
   float GetValue(int _shift = 0, int _direction = -1, float _min_trade_dist = 0.0f) {
-    float _result = ivalue, _trail = _min_trade_dist;
+    double _result = ivalue, _trail = _min_trade_dist;
     BarOHLC _ohlc0 = GetCandleSource() PTR_DEREF GetOHLC(0);
     BarOHLC _ohlc1 = GetCandleSource() PTR_DEREF GetOHLC(_shift);
     if (CheckMethod(STRATEGY_PRICE_STOP_INDI_PRICE)) {
@@ -83,8 +83,8 @@ struct StrategyPriceStop {
       _result = _direction > 0 ? fmax(_price, _result) : fmin(_price, _result);
     }
     if (CheckMethod(STRATEGY_PRICE_STOP_PRICE_PP)) {
-      float _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
-      float _prices[4];
+      double _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
+      double _prices[4];
       _prices[0] = _ohlc0.GetClose();
       _prices[1] = _direction > 0 ? _ohlc0.GetHigh() : _ohlc0.GetLow();
       _prices[2] = _direction > 0 ? _ohlc1.GetHigh() : _ohlc1.GetLow();
@@ -100,7 +100,7 @@ struct StrategyPriceStop {
       _trail += _ohlc1.GetRange();
     }
     _result = _result > 0 ? (_direction > 0 ? _result + _trail : _result - _trail) : 0;
-    return _result;
+    return (float)_result;
   }
   /* Setters */
   void SetCandleSource(IndicatorBase* _indi_candle) { indi_candle = _indi_candle; }

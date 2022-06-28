@@ -29,7 +29,8 @@ struct DataParamEntry;
 
 // Includes.
 #include "../ChartMt.h"
-#include "../Indicator/tests/classes/IndicatorTickReal.h"
+#include "../Indicators/Tick/Indi_TickMt.mqh"
+#include "../Platform.h"
 #include "../Test.mqh"
 #include "../Trade.mqh"
 
@@ -37,11 +38,20 @@ struct DataParamEntry;
  * Implements OnInit().
  */
 int OnInit() {
+  Platform::Init();
+  Ref<IndicatorBase> _chart_m1 = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M1);
+  Ref<IndicatorBase> _chart_m5 = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M5);
+  Platform::Add(_chart_m1.Ptr());
+  Platform::Add(_chart_m5.Ptr());
+
+  // We're testing OHLCs in OnInit(), so we have to ensure that Tick() happened.
+  Platform::Tick();
+
   // Initial market tests.
   assertTrueOrFail(SymbolInfoStatic::GetAsk(_Symbol) > 0, "Invalid Ask price!");
 
   // Test 1.
-  Ref<IndicatorBase> _chart_m1 = new IndicatorTickReal(_Symbol, PERIOD_M1);
+
   Trade *trade1 = new Trade(trade_params_defaults, _chart_m1.Ptr());
 
   // Test market.
@@ -66,7 +76,6 @@ int OnInit() {
   delete trade1;
 
   // Test 2.
-  Ref<IndicatorBase> _chart_m5 = new IndicatorTickReal(_Symbol, PERIOD_M5);
   Trade *trade2 = new Trade(trade_params_defaults, _chart_m5.Ptr());
 
   // Test market.

@@ -55,6 +55,31 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   Indi_Pattern(int _shift = 0) : Indicator(INDI_PATTERN, _shift){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase* _ds) override {
+    if (Indicator<IndiPatternParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // Patter uses OHLC.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_OPEN) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
+  /**
    * Returns the indicator's value.
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {

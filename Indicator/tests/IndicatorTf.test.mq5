@@ -31,16 +31,16 @@
 
 // Includes.
 #include "../../Indicators/Indi_AMA.mqh"
+#include "../../Indicators/Tick/Indi_TickMt.mqh"
+#include "../../Platform.h"
 #include "../../Test.mqh"
 #include "../../Util.h"
 #include "../IndicatorTf.h"
 #include "../IndicatorTick.h"
 #include "classes/IndicatorTfDummy.h"
-#include "classes/IndicatorTickReal.h"
 #include "classes/Indicators.h"
 
-Indicators indicators;
-Ref<IndicatorTickReal> indi_tick;
+Ref<Indi_TickMt> indi_tick;
 Ref<IndicatorTfDummy> indi_tf;
 Ref<IndicatorTfDummy> indi_tf_real;
 Ref<Indi_AMA> indi_ama;
@@ -53,14 +53,15 @@ Ref<Indi_AMA> indi_ama_custom;
  * Implements OnInit().
  */
 int OnInit() {
+  Platform::Init();
   // Platform ticks.
-  indicators.Add(indi_tick = new IndicatorTickReal(PERIOD_CURRENT));
+  Platform::Add(indi_tick = new Indi_TickMt(_Symbol));
 
   // 1-second candles.
   // indicators.Add(indi_tf = new IndicatorTfDummy(1));
 
   // 1:1 candles from platform using current timeframe.
-  indicators.Add(indi_tf_real = new IndicatorTfDummy(ChartTf::TfToSeconds(PERIOD_CURRENT)));
+  Platform::Add(indi_tf_real = new IndicatorTfDummy(ChartTf::TfToSeconds(PERIOD_CURRENT)));
 
   // 1-second candles.
   // indicators.Add(indi_ama = new Indi_AMA());
@@ -69,21 +70,21 @@ int OnInit() {
   _ama_params.applied_price = PRICE_OPEN;
 
   // AMA on platform candles.
-  indicators.Add(indi_ama_orig_sim = new Indi_AMA(_ama_params));
+  Platform::Add(indi_ama_orig_sim = new Indi_AMA(_ama_params));
 
   // Original built-in AMA indicator on platform OHLCs.
   _ama_params.SetDataSourceType(IDATA_BUILTIN);
-  indicators.Add(indi_ama_orig = new Indi_AMA(_ama_params));
+  Platform::Add(indi_ama_orig = new Indi_AMA(_ama_params));
   indi_ama_orig.Ptr().SetDataSource(indi_tf_real.Ptr());
 
   // OnCalculate()-based version of AMA indicator on platform OHLCs.
   _ama_params.SetDataSourceType(IDATA_ONCALCULATE);
-  indicators.Add(indi_ama_oncalculate = new Indi_AMA(_ama_params));
+  Platform::Add(indi_ama_oncalculate = new Indi_AMA(_ama_params));
   indi_ama_oncalculate.Ptr().SetDataSource(indi_tf_real.Ptr());
 
   // iCustom()-based version of AMA indicator on platform OHLCs.
   _ama_params.SetDataSourceType(IDATA_ICUSTOM);
-  indicators.Add(indi_ama_custom = new Indi_AMA(_ama_params));
+  Platform::Add(indi_ama_custom = new Indi_AMA(_ama_params));
   indi_ama_custom.Ptr().SetDataSource(indi_tf_real.Ptr());
 
   // Candles will be initialized from tick's history.
@@ -106,7 +107,7 @@ int OnInit() {
  * Implements OnTick().
  */
 void OnTick() {
-  indicators.Tick();
+  Platform::Tick();
 
   if (indi_tf_real.Ptr().IsNewBar()) {
     Print("New bar: ", indi_tf_real.Ptr().GetBarIndex());
@@ -129,7 +130,7 @@ void OnTick() {
   Util::Print("Tick: " + IntegerToString(indi_tf_real.Ptr().GetBarTime(0)) + " (" + time + "), candle = " + c_o + ", " +
               c_h + ", " + c_l + ", " + c_c);
 
-  Util::Print(indicators.ToString(0));
+  Util::Print(Platform::IndicatorsToString(0));
 }
 
 /**

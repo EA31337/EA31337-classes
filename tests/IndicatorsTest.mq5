@@ -37,9 +37,10 @@ struct DataParamEntry;
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
-#include "../Indicator/tests/classes/IndicatorTickReal.h"
 #include "../Indicators/Bitwise/indicators.h"
+#include "../Indicators/Tick/Indi_TickMt.mqh"
 #include "../Indicators/indicators.h"
+#include "../Platform.h"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
 #include "../Std.h"
@@ -57,17 +58,13 @@ double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
 Ref<Indi_Drawer> _indi_drawer;
 Ref<IndicatorBase> _indi_test;
-Ref<IndicatorTickReal> _ticks;
-Ref<IndicatorTfDummy> _candles;
 
 /**
  * Implements Init event handler.
  */
 int OnInit() {
+  Platform::Init();
   bool _result = true;
-  _ticks = new IndicatorTickReal(_Symbol);
-  _candles = new IndicatorTfDummy(PERIOD_M1);
-  _candles.Ptr().SetDataSource(_ticks.Ptr());
   Print("We have ", Bars(NULL, 0), " bars to analyze");
   // Initialize indicators.
   _result &= InitIndicators();
@@ -75,48 +72,10 @@ int OnInit() {
   Print("Indicators to test: ", indis.Size());
 
   Print("Connecting candle and tick indicators to all indicators...");
-
-  // Connecting all indicator to our single candle indicator (which is connected to tick indicator).
+  // Connecting all indicators to default candle indicator (which is connected to default tick indicator).
   for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    Print("+ Setting outer data source for " + iter.Value() REF_DEREF GetFullName());
-    Flags<unsigned int> _flags = iter.Value() REF_DEREF GetSuitableDataSourceTypes();
-
-    if (iter.Value() REF_DEREF GetType() == INDI_OBV) {
-      // DebugBreak();
-    }
-
-    // @fixit Any way to get rid of Candle indicator if it's not used? Looks like it is required in order to invoke
-    // GetBarTime().
-    if (!iter.Value() REF_DEREF HasDataSource(_candles.Ptr())) {
-      iter.Value() REF_DEREF GetOuterDataSource() PTR_DEREF SetDataSource(_candles.Ptr());
-    }
-
-    if (iter.Value() REF_DEREF HasSuitableDataSource()) {
-      Print("|- Already have proper data source.");
-      continue;
-    }
-
-    if (iter.Value() REF_DEREF OnCheckIfSuitableDataSource(_ticks.Ptr())) {
-      // Indicator requires tick-based data source.
-      if (!iter.Value() REF_DEREF HasDataSource(_ticks.Ptr())) {
-        iter.Value() REF_DEREF InjectDataSource(_ticks.Ptr());
-      }
-    }
-
-    if (!iter.Value() REF_DEREF HasSuitableDataSource()) {
-      if (_flags.HasAnyFlag(INDI_SUITABLE_DS_TYPE_AV | INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_CUSTOM)) {
-        Print(
-            "|- Expected AV, AP or Custom indicator. " +
-            ((iter.Value() REF_DEREF GetSuitableDataSource(false) != nullptr) ? "OK." : "NO SUITABLE ONE CONNECTED!") +
-            " You may use SetDataSourceAppliedPrice/SetDataSourceAppliedVolume(ENUM_INDI_VS_TYPE) method to use custom "
-            "value storage from data source as required applied price/volume.");
-      }
-    }
-
-    Print("|- Now is: " + iter.Value() REF_DEREF GetFullName());
+    Platform::AddWithDefaultBindings(iter.Value().Ptr(), _Symbol, PERIOD_CURRENT);
   }
-
-  Print("Been here 1");
 
   // Check for any errors.
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
@@ -134,14 +93,11 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-  // All indicators should execute its OnTick() method for every platform tick.
-  for (DictStructIterator<int, Ref<IndicatorBase>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    // Print("Ticking " + iter.Value() REF_DEREF GetFullName());
-    iter.Value() REF_DEREF Tick();
-  }
+  Platform::Tick();
+  IndicatorBase* _candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
 
-  if (_candles REF_DEREF IsNewBar()) {
-    if (_candles REF_DEREF GetBarIndex() > 200) {
+  if (_candles PTR_DEREF IsNewBar()) {
+    if (_candles PTR_DEREF GetBarIndex() > 200) {
       ExpertRemove();
     }
 
@@ -162,13 +118,12 @@ void OnTick() {
       }
 
       IndicatorBase* _indi = iter.Value().Ptr();
-      _indi.OnTick();
-      // Print("Getting value for " + _indi.GetFullName());
-      IndicatorDataEntry _entry(_indi.GetEntry());
+      IndicatorDataEntry _entry(_indi PTR_DEREF GetEntry());
 
-      if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
+      if (_indi PTR_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
         if (_entry.IsValid()) {
-          PrintFormat("%s: bar %d: %s", _indi.GetFullName(), _candles REF_DEREF GetBars(), _indi.ToString());
+          PrintFormat("%s: bar %d: %s", _indi PTR_DEREF GetFullName(), _candles PTR_DEREF GetBars(),
+                      _indi PTR_DEREF ToString());
           tested.Push(iter.Value());  // Mark as tested.
         }
       }
@@ -545,8 +500,10 @@ bool InitIndicators() {
   indis.Push(new Indi_MassIndex(mass_index_params));
 
   // OHLC.
+  /*
   IndiOHLCParams ohlc_params();
   indis.Push(new Indi_OHLC(ohlc_params));
+  */
 
   // Price Channel.
   IndiPriceChannelParams price_channel_params();
@@ -641,8 +598,6 @@ bool InitIndicators() {
   return GetLastError() == ERR_NO_ERROR;
 }
 
-double MathCustomOp(double a, double b) { return 1.11 + (b - a) * 2.0; }
-
 /**
  * Print indicators.
  */
@@ -661,7 +616,7 @@ bool PrintIndicators(string _prefix = "") {
     }
 
     string _indi_name = _indi.GetFullName();
-    Print("Trying to get value from " + _indi_name);
+    // Print("Trying to get value from " + _indi_name);
 
     IndicatorDataEntry _entry = _indi.GetEntry();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||

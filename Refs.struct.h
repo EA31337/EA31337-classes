@@ -292,7 +292,7 @@ struct WeakRef {
 
   bool ObjectExists() { return ptr_ref_counter != NULL && !PTR_ATTRIB(ptr_ref_counter, deleted); }
 
-  X* Ptr() { return ObjectExists() ? (X*)PTR_ATTRIB(ptr_ref_counter, ptr_object) : NULL; }
+  X* Ptr() { return ObjectExists() ? (X*)(PTR_ATTRIB(ptr_ref_counter, ptr_object)) : NULL; }
 
   /**
    * Makes a weak reference to the given object.

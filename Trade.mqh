@@ -34,6 +34,7 @@ class Trade;
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
+#include "IndicatorBase.h"
 #include "Math.h"
 #include "Object.mqh"
 #include "Order.mqh"
@@ -65,7 +66,7 @@ class Trade : public Taskable<DataParamEntry> {
   /**
    * Class constructor.
    */
-  Trade() : order_last(NULL) {
+  Trade(IndicatorBase *_indi_candle) : indi_candle(_indi_candle), order_last(NULL) {
     SetName();
     OrdersLoadByMagic(tparams.magic_no);
   };
