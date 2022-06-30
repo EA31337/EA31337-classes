@@ -268,7 +268,23 @@ class IndicatorTick : public Indicator<TS> {
   /**
    * Gets symbol info for active symbol.
    */
-  virtual SymbolInfoProp GetSymbolProps() { return symbol_props; }
+  SymbolInfoProp GetSymbolProps() override {
+    if (!symbol_props.initialized) {
+      Print(
+          "Error: Tried to fetch symbol properties, but they're not yet initialized! Please call "
+          "SetSymbolProps(SymbolInfoProp) before trying to use symbol-related information.");
+      DebugBreak();
+    }
+    return symbol_props;
+  }
+
+  /**
+   * Sets symbol info for symbol attached to the indicator.
+   */
+  void SetSymbolProps(const SymbolInfoProp& _props) override {
+    symbol_props = _props;
+    symbol_props.initialized = true;
+  }
 
   /**
    * Traverses source indicators' hierarchy and tries to find IndicatorTick object at the end.

@@ -71,20 +71,34 @@ struct SymbolInfoEntry
 
 // Defines structure for SymbolInfo properties.
 struct SymbolInfoProp {
+  bool initialized;
   double pip_value;          // Pip value.
   unsigned int digits;       // Currency digits? @fixit
   unsigned int pip_digits;   // Pip digits (precision).
   unsigned int pts_per_pip;  // Points per pip.
   unsigned int vol_digits;   // Volume digits.
+  double vol_min;            // Minimum volume for a deal.
+  double vol_max;            // Maximum volume for a deal.
   // Constructors.
-  SymbolInfoProp() {}
-  SymbolInfoProp(const SymbolInfoProp& _sip) {}
+  SymbolInfoProp() : initialized(false) {}
+  SymbolInfoProp(const SymbolInfoProp& _sip) {
+    initialized = _sip.initialized;
+    pip_value = _sip.pip_value;
+    digits = _sip.digits;
+    pip_digits = _sip.pip_digits;
+    pts_per_pip = _sip.pts_per_pip;
+    vol_digits = _sip.vol_digits;
+    vol_min = _sip.vol_min;
+    vol_max = _sip.vol_max;
+  }
   // Getters.
   double GetPipValue() { return pip_value; }
   unsigned int GetDigits() { return digits; }
   unsigned int GetPipDigits() { return pip_digits; }
   unsigned int GetPointsPerPip() { return pts_per_pip; }
   unsigned int GetVolumeDigits() { return vol_digits; }
+  double GetVolumeMin() { return vol_min; }
+  double GetVolumeMax() { return vol_max; }
 
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
@@ -107,5 +121,7 @@ SerializerNodeType SymbolInfoProp::Serialize(Serializer& _s) {
   _s.Pass(THIS_REF, "pip_digits", pip_digits);
   _s.Pass(THIS_REF, "pts_per_pip", pts_per_pip);
   _s.Pass(THIS_REF, "vol_digits", vol_digits);
+  _s.Pass(THIS_REF, "vol_min", vol_min);
+  _s.Pass(THIS_REF, "vol_max", vol_max);
   return SerializerNodeObject;
 }

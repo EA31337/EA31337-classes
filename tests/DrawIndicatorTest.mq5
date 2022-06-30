@@ -35,7 +35,7 @@
 #include "../Test.mqh"
 
 // Global variables.
-Chart *chart;
+Ref<IndicatorBase> candles;
 Dict<long, IndicatorBase *> indis;
 int bar_processed;
 
@@ -43,9 +43,9 @@ int bar_processed;
  * Implements Init event handler.
  */
 int OnInit() {
+  Platform::Init();
+  candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
   bool _result = true;
-  // Initialize chart.
-  chart = new Chart();
   // Initialize indicators.
   _result &= InitIndicators();
   Print("Indicators to test: ", indis.Size());
@@ -59,9 +59,9 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-  chart.OnTick();
+  Platform::Tick();
 
-  if (chart.IsNewBar()) {
+  if (candles REF_DEREF IsNewBar()) {
     bar_processed++;
 
     for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
@@ -79,8 +79,6 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
-  delete chart;
-
   for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     delete iter.Value();
   }

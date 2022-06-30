@@ -39,6 +39,13 @@
     return (INIT_FAILED);                                                     \
   }
 
+#define assertEqualOrReturn(current, expected, msg, ret)                      \
+  if ((current) != (expected)) {                                              \
+    Alert(msg + " - Assert fail. Expected ", expected, ", but got ", current, \
+          " in " + __FILE__ + ":" + (string)__LINE__);                        \
+    return (ret);                                                             \
+  }
+
 #define assertFalseOrFail(cond, msg)                                                        \
   if ((cond)) {                                                                             \
     Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string)__LINE__); \

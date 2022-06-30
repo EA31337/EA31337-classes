@@ -1395,6 +1395,7 @@ class Order : public SymbolInfo {
     } else {
       odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR,
                               fmax(odata.Get<unsigned int>(ORDER_PROP_LAST_ERROR), GetLastError()));
+      oresult.retcode = odata.Get<unsigned int>(ORDER_PROP_LAST_ERROR);
     }
     return _result;
   }

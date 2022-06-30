@@ -77,7 +77,12 @@ class Trade : public Taskable<DataParamEntry> {
   };
 
   /**
-   * Class copy constructor.
+   * Default constructor.
+   */
+  Trade() {}
+
+  /**
+   * Copy constructor.
    */
   Trade(const Trade &_trade) {
     tparams = _trade.tparams;

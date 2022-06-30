@@ -37,8 +37,12 @@
 #else
 #error "Platform not supported!
 #endif
+#include "SymbolInfo.struct.static.h"
 
 class Platform {
+  // Whether Init() was already called.
+  static bool initialized;
+
   // Date and time used to determine periods that passed.
   static DateTime time;
 
@@ -51,11 +55,21 @@ class Platform {
   // List of added indicators.
   static DictStruct<long, Ref<IndicatorBase>> indis;
 
+  // List of default Candle/Tick indicators.
+  static DictStruct<long, Ref<IndicatorBase>> indis_dflt;
+
  public:
   /**
    * Initializes platform. Sets event timer and so on.
    */
   static void Init() {
+    if (initialized) {
+      // Already initialized.
+      return;
+    }
+
+    initialized = true;
+
     // OnTimer() every second.
     EventSetTimer(1);
   }
@@ -85,9 +99,16 @@ class Platform {
    * Performs tick on every added indicator.
    */
   static void Tick() {
-    for (DictStructIterator<long, Ref<IndicatorBase>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
+    DictStructIterator<long, Ref<IndicatorBase>> _iter;
+
+    for (_iter = indis.Begin(); _iter.IsValid(); ++_iter) {
       _iter.Value() REF_DEREF Tick();
     }
+
+    for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
+      _iter.Value() REF_DEREF Tick();
+    }
+
     // Will check for new time periods in consecutive Platform::UpdateTime().
     time_clear_flags = true;
   }
@@ -96,6 +117,11 @@ class Platform {
    * Returns date and time used to determine periods that passed.
    */
   static DateTime Time() { return time; }
+
+  /**
+   * Returns number of seconds passed from the Unix epoch.
+   */
+  static datetime Timestamp() { return TimeCurrent(); }
 
   /**
    * Checks whether it's a new second.
@@ -205,6 +231,10 @@ class Platform {
     IndicatorBase *_indi_candle;
     if (!Objects<IndicatorBase>::TryGet(_key, _indi_candle)) {
       _indi_candle = Objects<IndicatorBase>::Set(_key, new IndicatorTfDummy(_tf));
+
+      // Adding indicator to list of default indicators in order to tick it on every Tick() call.
+      Ref<IndicatorBase> _ref = _indi_candle;
+      indis_dflt.Set(_indi_candle PTR_DEREF GetId(), _ref);
     }
 
     if (!_indi_candle PTR_DEREF HasDataSource()) {
@@ -223,8 +253,30 @@ class Platform {
     IndicatorBase *_indi_tick;
     if (!Objects<IndicatorBase>::TryGet(_key, _indi_tick)) {
       _indi_tick = Objects<IndicatorBase>::Set(_key, new PLATFORM_DEFAULT_INDICATOR_TICK(_symbol));
+      _indi_tick PTR_DEREF SetSymbolProps(Platform::FetchDefaultSymbolProps(_symbol));
+
+      // Adding indicator to list of default indicators in order to tick it on every Tick() call.
+      Ref<IndicatorBase> _ref = _indi_tick;
+      indis_dflt.Set(_indi_tick PTR_DEREF GetId(), _ref);
     }
     return _indi_tick;
+  }
+
+  /**
+   * Returns default properties for given symbol for current platform.
+   */
+  static SymbolInfoProp FetchDefaultSymbolProps(CONST_REF_TO(string) _symbol) {
+    SymbolInfoProp props;
+#ifdef __MQLBUILD__
+    props.pip_value = SymbolInfoStatic::GetPipValue(_symbol);
+    props.digits = SymbolInfoStatic::GetDigits(_symbol);
+    props.pip_digits = SymbolInfoStatic::GetPipDigits(_symbol);
+    props.pts_per_pip = SymbolInfoStatic::GetPointsPerPip(_symbol);
+    props.vol_digits = SymbolInfoStatic::GetVolumeDigits(_symbol);
+    props.vol_min = SymbolInfoStatic::GetVolumeMin(_symbol);
+    props.vol_max = SymbolInfoStatic::GetVolumeMax(_symbol);
+#endif
+    return props;
   }
 
   /**
@@ -240,10 +292,12 @@ class Platform {
   }
 };
 
+bool Platform::initialized = false;
 DateTime Platform::time;
 unsigned int Platform::time_flags = 0;
 bool Platform::time_clear_flags = true;
 DictStruct<long, Ref<IndicatorBase>> Platform::indis;
+DictStruct<long, Ref<IndicatorBase>> Platform::indis_dflt;
 
 void OnTimer() { Platform::OnTimer(); }
 

@@ -37,6 +37,7 @@
 #include "EA.enum.h"
 #include "EA.struct.h"
 #include "Market.mqh"
+#include "Platform.h"
 #include "Refs.struct.h"
 #include "SerializerConverter.mqh"
 #include "SerializerCsv.mqh"
@@ -79,7 +80,12 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Init code (called on constructor).
    */
-  void Init() { InitTask(); }
+  void Init() {
+    // Ensuring Platform singleton is already initialized.
+    Platform::Init();
+
+    InitTask();
+  }
 
   /**
    * Process initial task (called on constructor).
@@ -103,9 +109,9 @@ class EA : public Taskable<DataParamEntry> {
     // Add and process tasks.
     Init();
     // Initialize a trade instance for the current chart and symbol.
-    ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
+    Ref<IndicatorBase> _source = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
     TradeParams _tparams;
-    Trade _trade(_tparams, _cparams);
+    Trade _trade(_tparams, _source.Ptr());
     trade.Set(_Symbol, _trade);
     logger.Link(_trade.GetLogger());
   }
@@ -196,7 +202,7 @@ class EA : public Taskable<DataParamEntry> {
     _signals |= _strat.SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss) ? SIGNAL_CLOSE_SELL_MAIN : 0;
     _signals |= !_strat.SignalCloseFilter(ORDER_TYPE_SELL, _scfm) ? SIGNAL_CLOSE_SELL_FILTER : 0;
     _signals |= !_strat.SignalCloseFilterTime(_scft) ? SIGNAL_CLOSE_TIME_FILTER : 0;
-    TradeSignalEntry _sentry(_signals, _strat.Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF), _strat.Get<long>(STRAT_PARAM_ID));
+    TradeSignalEntry _sentry(_signals, _strat.GetSource() PTR_DEREF GetTf(), _strat.Get<long>(STRAT_PARAM_ID));
     _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_STRENGTH), _strat.SignalOpen(_sofm, _sol, _ss));
     _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME), ::TimeGMT());
     return _sentry;
@@ -353,7 +359,10 @@ class EA : public Taskable<DataParamEntry> {
     _request.magic = _strat.Get<long>(STRAT_PARAM_ID);
     _request.price = SymbolInfoStatic::GetOpenOffer(_symbol, _cmd);
     _request.volume = fmax(_strat.Get<float>(STRAT_PARAM_LS), SymbolInfoStatic::GetVolumeMin(_symbol));
-    _request.volume = _trade.NormalizeLots(_request.volume);
+
+    // @fixit Uncomment
+    // _request.volume = _trade.NormalizeLots(_request.volume);
+
     // Prepare an order parameters.
     OrderParams _oparams;
     _strat.OnOrderOpen(_oparams);
@@ -442,7 +451,7 @@ class EA : public Taskable<DataParamEntry> {
         Strategy *_strati = iter.Value().Ptr();
         IndicatorBase *_indi = _strati.GetIndicator();
         if (_indi != NULL) {
-          ENUM_TIMEFRAMES _itf = _indi.GetParams().tf.GetTf();
+          ENUM_TIMEFRAMES _itf = _indi PTR_DEREF GetTf();
           IndicatorDataEntry _ientry = _indi.GetEntry();
           if (!data_indi.KeyExists(_itf)) {
             // Create new timeframe buffer if does not exist.

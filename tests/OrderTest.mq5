@@ -27,6 +27,7 @@
 // Includes.
 #include "../Chart.mqh"
 #include "../Order.mqh"
+#include "../Platform.h"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
 #include "../Test.mqh"
@@ -35,10 +36,10 @@
 #define MAX_ORDERS 10
 
 // Global variables.
+Ref<IndicatorBase> _candles;
 int bar_processed = 0;
 bool stop = false;
 
-Chart *chart;
 Order *orders[MAX_ORDERS];
 Order *orders_dummy[MAX_ORDERS];
 
@@ -46,8 +47,9 @@ Order *orders_dummy[MAX_ORDERS];
  * Implements Init event handler.
  */
 int OnInit() {
+  Platform::Init();
+  _candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
   bool _result = true;
-  chart = new Chart(PERIOD_M1);
   bar_processed = 0;
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d!", GetLastError()));
   return _result ? INIT_SUCCEEDED : INIT_FAILED;
@@ -57,7 +59,9 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-  if (chart.IsNewBar()) {
+  Platform::Tick();
+
+  if (_candles REF_DEREF IsNewBar()) {
     bool _order_result;
 
     if (bar_processed < MAX_ORDERS) {
@@ -99,10 +103,10 @@ bool OpenOrder(int _index, int _order_no) {
   _request.deviation = 50;
   _request.magic = _order_no;
   _request.type = bar_processed % 2 == 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL;
-  _request.price = chart.GetOpenOffer(_request.type);
-  _request.symbol = chart.GetSymbol();
+  _request.price = _candles REF_DEREF GetOpenOffer(_request.type);
+  _request.symbol = _candles REF_DEREF GetSymbol();
   _request.type_filling = Order::GetOrderFilling(_request.symbol);
-  _request.volume = chart.GetVolumeMin();
+  _request.volume = _candles REF_DEREF GetSymbolProps().GetVolumeMin();
   // New order params.
   OrderParams _oparams;
   if (_request.type == ORDER_TYPE_SELL) {
@@ -118,7 +122,7 @@ bool OpenOrder(int _index, int _order_no) {
   Order *_order;
   _order = orders[_index] = new Order(_request, _oparams);
   _result = _order.GetResult();
-  assertTrueOrReturn(_result.retcode == TRADE_RETCODE_DONE, "Request not completed!", false);
+  assertEqualOrReturn(_result.retcode, TRADE_RETCODE_DONE, "Request not completed!", false);
   // assertTrueOrReturn(_order.GetData().price_current > 0, "Order's symbol price not correct!", false); // @fixme
   // Assign the closing condition for the buy orders.
   // Make a dummy order.
@@ -128,7 +132,7 @@ bool OpenOrder(int _index, int _order_no) {
   _request.comment = StringFormat("Order dummy: %d", _order_no);
   _order_dummy = orders_dummy[_index] = new Order(_request, oparams_dummy);
   _result_dummy = _order_dummy.GetResult();
-  assertTrueOrReturn(_result.retcode == _result.retcode, "Dummy order not completed!", false);
+  assertEqualOrReturn(_result.retcode, TRADE_RETCODE_DONE, "Dummy order not completed!", false);
 
   /* @todo
   Print("Request:  ", SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
@@ -160,7 +164,6 @@ bool CloseOrder(int _index, int _order_no) {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
-  delete chart;
   for (int i = 0; i < fmin(bar_processed, MAX_ORDERS); i++) {
     if (CheckPointer(orders[i]) == POINTER_DYNAMIC) {
       delete orders[i];

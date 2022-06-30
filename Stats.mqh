@@ -22,6 +22,7 @@
 
 // Includes.
 #include "Chart.mqh"
+#include "Platform.h"
 
 /**
  * Class to collect ticks, bars and other data for statistical purposes.
@@ -56,8 +57,8 @@ class Stats {
   void OnTick() {
     static long _last_bar_time = 0;
     total_ticks++;
-    if (_last_bar_time != ChartStatic::iTime(_Symbol, 0, 0)) {
-      _last_bar_time = ChartStatic::iTime(_Symbol, 0, 0);
+    if (_last_bar_time != Platform::Timestamp()) {
+      _last_bar_time = Platform::Timestamp();
       total_bars++;
     }
   }

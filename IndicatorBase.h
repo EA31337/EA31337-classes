@@ -1454,6 +1454,11 @@ class IndicatorBase : public Object {
   virtual SymbolInfoProp GetSymbolProps() { return GetTick() PTR_DEREF GetSymbolProps(); }
 
   /**
+   * Sets symbol info for symbol attached to the indicator.
+   */
+  virtual void SetSymbolProps(const SymbolInfoProp& _props) {}
+
+  /**
    * Gets indicator's time-frame.
    */
   virtual ENUM_TIMEFRAMES GetTf() { return GetCandle() PTR_DEREF GetTf(); }

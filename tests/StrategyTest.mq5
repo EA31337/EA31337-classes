@@ -36,9 +36,9 @@ struct DataParamEntry;
 class Stg1 : public Strategy {
  public:
   // Class constructor.
-  void Stg1(StgParams &_params, string _name = "")
-      : Strategy(_params, trade_params_defaults, chart_params_defaults, _name) {}
-  void OnInit() { trade.tparams.SetMagicNo(1234); }
+  void Stg1(StgParams &_params, IndicatorBase *_source, string _name = "")
+      : Strategy(_params, trade_params_defaults, _source, _name) {}
+  void OnInit() { trade REF_DEREF tparams.SetMagicNo(1234); }
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return _method % 2 == 0; }
 
@@ -56,8 +56,8 @@ class Stg1 : public Strategy {
 class Stg2 : public Strategy {
  public:
   // Class constructor.
-  void Stg2(StgParams &_params, string _name = "")
-      : Strategy(_params, trade_params_defaults, chart_params_defaults, _name) {}
+  void Stg2(StgParams &_params, IndicatorBase *_source, string _name = "")
+      : Strategy(_params, trade_params_defaults, _source, _name) {}
   void OnInit() {
     ddata.Set(1, 1.1);
     fdata.Set(1, 1.1f);
@@ -85,6 +85,9 @@ Strategy *strat2;
  * Implements OnInit().
  */
 int OnInit() {
+  Platform::Init();
+  Ref<IndicatorBase> _source = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
+
   // Initial market tests.
   assertTrueOrFail(SymbolInfoStatic::GetAsk(_Symbol) > 0, "Invalid Ask price!");
 
@@ -92,7 +95,7 @@ int OnInit() {
 
   // Initialize strategy.
   StgParams stg1_params;
-  strat1 = new Stg1(stg1_params, "Stg1");
+  strat1 = new Stg1(stg1_params, _source.Ptr(), "Stg1");
   assertTrueOrFail(strat1.GetName() == "Stg1", "Invalid Strategy name!");
   assertTrueOrFail(strat1.IsValid(), "Fail on IsValid()!");
   // assertTrueOrFail(strat1.GetMagicNo() == 1234, "Invalid magic number!");
@@ -112,7 +115,7 @@ int OnInit() {
   StgParams stg2_params;
   stg2_params.Enabled(false);
   stg2_params.Suspended(true);
-  strat2 = new Stg2(stg2_params);
+  strat2 = new Stg2(stg2_params, _source.Ptr());
   strat2.SetIndicator(new Indi_Demo(iparams));
   strat2.SetName("Stg2");
   assertTrueOrFail(strat2.GetName() == "Stg2", "Invalid Strategy name!");
