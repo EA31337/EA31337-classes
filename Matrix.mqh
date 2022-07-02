@@ -1494,8 +1494,9 @@ class Matrix {
       return NULL;
     }
 
-    if (_weights != NULL && _weights.GetDimensions() > this.GetDimensions()) {
-      Print("MeanAbsolute(): Shape ", Repr(), ": Weights must be a tensor level <= ", this.GetDimensions(), "!");
+    if (_weights != NULL && _weights.GetDimensions() > this PTR_DEREF GetDimensions()) {
+      Print("MeanAbsolute(): Shape ", Repr(), ": Weights must be a tensor level <= ", this PTR_DEREF GetDimensions(),
+            "!");
       return NULL;
     }
 

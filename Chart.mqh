@@ -224,7 +224,7 @@ class Chart : public Market {
    * @return
    *   Returns ChartEntry struct.
    */
-  ChartEntry GetEntry(unsigned int _shift = 0) {
+  ChartEntry GetEntry(int _shift = 0) {
     ChartEntry _chart_entry;
     BarOHLC _ohlc = GetOHLC(_shift);
     if (_ohlc.open > 0) {

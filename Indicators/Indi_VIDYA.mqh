@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.price.h"
 
 // Structs.
@@ -35,11 +35,10 @@ struct IndiVIDYAParams : IndicatorParams {
   // Struct constructor.
   IndiVIDYAParams(unsigned int _cmo_period = 9, unsigned int _ma_period = 14, unsigned int _vidya_shift = 0,
                   ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_VIDYA, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_VIDYA) {
     applied_price = _ap;
     cmo_period = _cmo_period;
     ma_period = _ma_period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VIDYA");
     shift = _shift;
     vidya_shift = _vidya_shift;
@@ -53,19 +52,24 @@ struct IndiVIDYAParams : IndicatorParams {
 /**
  * Implements the Variable Index Dynamic Average indicator.
  */
-class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
+class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_VIDYA(IndiVIDYAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiVIDYAParams>(_p, _indi_src){};
-  Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_VIDYA, _tf, _shift){};
+  Indi_VIDYA(IndiVIDYAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
+  Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_VIDYA, _tf, _shift){};
 
   /**
    * Built-in version of iVIDyA.
    */
   static double iVIDyA(string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period, int _ema_period, int _ma_shift,
-                       ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                       ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iVIDyA(_symbol, _tf, _cmo_period, _ema_period, _ma_shift, _ap), _mode, _shift);
 #else
@@ -96,6 +100,19 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
                                                    _cmo_period, _ema_period, _ma_shift));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of VIDya indicator.
+   */
+  static double iVIDyAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period,
+                                  int _ema_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
+                                  IndicatorData *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
+        _indi, _symbol, _tf, _ap,
+        Util::MakeKey("Indi_VIDYA_ON_" + _indi.GetFullName(), _cmo_period, _ema_period, _ma_shift, (int)_ap));
+    return iVIDyAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _cmo_period, _ema_period, _ma_shift, _mode, _shift,
+                         _cache);
   }
 
   /**
@@ -147,10 +164,10 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_VIDYA::iVIDyA(GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(), GetVIDYAShift(),
                                     GetAppliedPrice() /*]*/, 0, _ishift, THIS_PTR);
@@ -161,6 +178,11 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
                          GetVIDYAShift()
                          /*]*/,
                          0, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value =
+            Indi_VIDYA::iVIDyAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(),
+                                          GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

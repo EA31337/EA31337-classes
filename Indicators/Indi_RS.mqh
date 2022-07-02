@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "OHLC/Indi_OHLC.mqh"
 #include "Special/Indi_Math.mqh"
 
@@ -30,11 +30,8 @@
 struct IndiRSParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  IndiRSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_RS, 2, TYPE_DOUBLE) {
+  IndiRSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) : IndicatorParams(INDI_RS) {
     applied_volume = _applied_volume;
-    SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_MATH);
     shift = _shift;
   };
   IndiRSParams(IndiRSParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -46,18 +43,26 @@ struct IndiRSParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_RS : public Indicator<IndiRSParams> {
+class Indi_RS : public IndicatorTickOrCandleSource<IndiRSParams> {
   DictStruct<int, Ref<Indi_Math>> imath;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_RS(IndiRSParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRSParams>(_p, _indi_src) { Init(); };
-  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RS, _tf, _shift) { Init(); };
+  Indi_RS(IndiRSParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_MATH, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_DIFF, _indi_src_mode),
+            _indi_src) {
+    Init();
+  };
+  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RS, _tf, _shift) {
+    Init();
+  };
 
   void Init() {
-    if (iparams.GetDataSourceType() == IDATA_MATH) {
+    if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_MATH) {
       IndiOHLCParams _iohlc_params();
       // @todo Symbol should be already defined for a chart.
       // @todo If it's not, move initialization to GetValue()/GetEntry() method.
@@ -78,9 +83,9 @@ class Indi_RS : public Indicator<IndiRSParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_MATH:
         return imath[_mode].Ptr().GetEntryValue();
         break;

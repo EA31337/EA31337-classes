@@ -40,6 +40,7 @@ struct DataParamEntry;
 #include "Array.mqh"
 #include "Data.struct.h"
 #include "DateTime.enum.h"
+#include "DateTime.extern.h"
 #include "DateTime.struct.h"
 
 #ifndef __MQL4__

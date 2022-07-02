@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -34,8 +34,7 @@ double iFractals(string _symbol, int _tf, int _mode, int _shift) {
 // Structs.
 struct IndiFractalsParams : IndicatorParams {
   // Struct constructors.
-  IndiFractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS, FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_ARROW);
+  IndiFractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS) {
     SetCustomIndicatorName("Examples\\Fractals");
     shift = _shift;
   };
@@ -48,14 +47,31 @@ struct IndiFractalsParams : IndicatorParams {
 /**
  * Implements the Fractals indicator.
  */
-class Indi_Fractals : public Indicator<IndiFractalsParams> {
+class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_LO_UP_LINE_ENTRY); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndiFractalsParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiFractalsParams>(_p, _indi_src) {}
-  Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_FRACTALS, _tf, _shift) {}
+  Indi_Fractals(IndiFractalsParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
+                                    _indi_src) {
+    Init();
+  }
+  Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_FRACTALS, _tf, _shift) {
+    Init();
+  }
 
   /**
    * Returns the indicator value.
@@ -67,7 +83,7 @@ class Indi_Fractals : public Indicator<IndiFractalsParams> {
   static double iFractals(string _symbol, ENUM_TIMEFRAMES _tf,
                           ENUM_LO_UP_LINE _mode,  // (MT4 _mode): 1 - MODE_UPPER, 2 - MODE_LOWER
                           int _shift = 0,         // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
-                          IndicatorBase *_obj = NULL) {
+                          IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iFractals(_symbol, _tf, _mode, _shift);
 #else  // __MQL5__
@@ -102,10 +118,10 @@ class Indi_Fractals : public Indicator<IndiFractalsParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), (ENUM_LO_UP_LINE)_mode, _ishift, THIS_PTR);
         break;
@@ -121,7 +137,7 @@ class Indi_Fractals : public Indicator<IndiFractalsParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
     Indicator<IndiFractalsParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // In MT4 line identifiers starts from 1, so populating also at 0.

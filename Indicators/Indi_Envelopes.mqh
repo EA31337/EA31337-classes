@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/Singleton.h"
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
@@ -58,13 +58,8 @@ struct IndiEnvelopesParams : IndicatorParams {
         ma_method(_ma_method),
         applied_price(_ap),
         deviation(_deviation),
-        IndicatorParams(INDI_ENVELOPES, 2, TYPE_DOUBLE) {
-#ifdef __MQL4__
-    // There is extra LINE_MAIN in MQL4 for Envelopes.
-    max_modes = 3;
-#endif
+        IndicatorParams(INDI_ENVELOPES) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Envelopes");
   };
   IndiEnvelopesParams(IndiEnvelopesParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -76,14 +71,37 @@ struct IndiEnvelopesParams : IndicatorParams {
 /**
  * Implements the Envelopes indicator.
  */
-class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
+class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() {
+#ifdef __MQL4__
+    // There is extra LINE_MAIN in MQL4 for Envelopes.
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 3);
+#else
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
+#endif
+  }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_Envelopes(IndiEnvelopesParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiEnvelopesParams>(_p, _indi_src) {}
-  Indi_Envelopes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ENVELOPES, _tf, _shift) {}
+  Indi_Envelopes(IndiEnvelopesParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+            _indi_src) {
+    Init();
+  }
+  Indi_Envelopes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_ENVELOPES, _tf, _shift) {
+    Init();
+  };
 
   /**
    * Returns the indicator value.
@@ -96,7 +114,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
                            int _ma_shift, ENUM_APPLIED_PRICE _ap, double _deviation,
                            int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                                        // UPPER_LINE, 1 - LOWER_LINE
-                           int _shift = 0, IndicatorBase *_obj = NULL) {
+                           int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _ap, _deviation, _mode, _shift);
 #else  // __MQL5__
@@ -137,7 +155,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, IndicatorBase *_indi, string _symbol,
+  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, IndicatorData *_indi, string _symbol,
                                       ENUM_TIMEFRAMES _tf, int _ma_period,
                                       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                       int _indi_mode,  // Source indicator's mode index. May be -1 to use first buffer
@@ -197,10 +215,10 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
                                             GetAppliedPrice(), GetDeviation(), _mode, _ishift, THIS_PTR);
@@ -211,8 +229,9 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
         break;
       case IDATA_INDICATOR:
         _value = Indi_Envelopes::iEnvelopesOnIndicator(GetCache(), GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
-                                                       GetMAMethod(), GetDataSourceMode(), GetMAShift(), GetDeviation(),
-                                                       _mode, _ishift);
+                                                       GetMAMethod(),
+                                                       Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)),
+                                                       GetMAShift(), GetDeviation(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -224,7 +243,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
     Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // The LINE_MAIN only exists in MQL4 for Envelopes.

@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -34,11 +34,7 @@ double iAO(string _symbol, int _tf, int _shift) {
 // Structs.
 struct IndiAOParams : IndicatorParams {
   // Struct constructor.
-  IndiAOParams(int _shift = 0) : IndicatorParams(INDI_AO, 2, TYPE_DOUBLE) {
-#ifdef __MQL4__
-    max_modes = 1;
-#endif
-    SetDataValueRange(IDATA_RANGE_MIXED);
+  IndiAOParams(int _shift = 0) : IndicatorParams(INDI_AO) {
     SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
   };
@@ -51,13 +47,35 @@ struct IndiAOParams : IndicatorParams {
 /**
  * Implements the Awesome oscillator.
  */
-class Indi_AO : public Indicator<IndiAOParams> {
+class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() {
+#ifdef __MQL4__
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 1);
+#else
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
+#endif
+  }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_AO(IndiAOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiAOParams>(_p, _indi_src){};
-  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_AO, _tf, _shift){};
+  Indi_AO(IndiAOParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {
+    Init();
+  };
+  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AO, _tf, _shift) {
+    Init();
+  };
 
   /**
    * Returns the indicator value.
@@ -67,7 +85,7 @@ class Indi_AO : public Indicator<IndiAOParams> {
    * - https://www.mql5.com/en/docs/indicators/iao
    */
   static double iAO(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, int _mode = 0,
-                    IndicatorBase *_obj = NULL) {
+                    IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     // Note: In MQL4 _mode is not supported.
     return ::iAO(_symbol, _tf, _shift);
@@ -103,10 +121,10 @@ class Indi_AO : public Indicator<IndiAOParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_AO::iAO(GetSymbol(), GetTf(), _ishift, _mode, THIS_PTR);
         break;

@@ -22,17 +22,15 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "Indi_ZigZag.mqh"
 
 // Structs.
 struct IndiPriceChannelParams : IndicatorParams {
   unsigned int period;
   // Struct constructor.
-  IndiPriceChannelParams(unsigned int _period = 22, int _shift = 0)
-      : IndicatorParams(INDI_PRICE_CHANNEL, 3, TYPE_DOUBLE) {
+  IndiPriceChannelParams(unsigned int _period = 22, int _shift = 0) : IndicatorParams(INDI_PRICE_CHANNEL) {
     period = _period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Price_Channel");
     shift = _shift;
   };
@@ -43,23 +41,26 @@ struct IndiPriceChannelParams : IndicatorParams {
 };
 
 /**
- * Implements the Bill Williams' Accelerator/Decelerator oscillator.
+ * Implements Price Channel indicator.
  */
-class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
+class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_PriceChannel(IndiPriceChannelParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiPriceChannelParams>(_p, _indi_src){};
+  Indi_PriceChannel(IndiPriceChannelParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                    IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
   Indi_PriceChannel(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_PRICE_CHANNEL, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_PRICE_CHANNEL, _tf, _shift){};
 
   /**
    * Returns value for Price Channel indicator.
    */
   static double iPriceChannel(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _mode = 0, int _shift = 0,
-                              IndicatorBase *_obj = NULL) {
+                              IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_PriceChannel", _period));
     return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
@@ -87,6 +88,16 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   }
 
   /**
+   * On-indicator version of Price Channel.
+   */
+  static double iPriceChannelOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                         int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_PriceChannel_ON_" + _indi.GetFullName(), _period));
+    return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
+  }
+
+  /**
    * OnCalculate() method for Price Channel indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtHighBuffer,
@@ -106,16 +117,20 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_PriceChannel::iPriceChannel(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_PriceChannel::iPriceChannelOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
+                                                             /*[*/ GetPeriod() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

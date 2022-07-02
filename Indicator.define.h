@@ -44,7 +44,7 @@
     SET_HANDLE;                                                                \
   }                                                                            \
   if (Terminal::IsVisualMode()) {                                              \
-    int _bars_calc = BarsCalculated(_handle);                                  \
+    int _bars_calc = ::BarsCalculated(_handle);                                \
     if (GetLastError() > 0) {                                                  \
       return EMPTY_VALUE;                                                      \
     } else if (_bars_calc <= 2) {                                              \

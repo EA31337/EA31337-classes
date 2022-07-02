@@ -22,14 +22,13 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
 struct IndiColorBarsParams : IndicatorParams {
   // Struct constructor.
-  IndiColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS, 5, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
+  IndiColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS) {
     SetCustomIndicatorName("Examples\\ColorBars");
     shift = _shift;
   };
@@ -42,21 +41,25 @@ struct IndiColorBarsParams : IndicatorParams {
 /**
  * Implements Color Bars
  */
-class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
+class Indi_ColorBars : public IndicatorTickOrCandleSource<IndiColorBarsParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ColorBars(IndiColorBarsParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiColorBarsParams>(_p, _indi_src){};
-  Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_COLOR_BARS, _tf, _shift){};
+  Indi_ColorBars(IndiColorBarsParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(5, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
+  Indi_ColorBars(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_COLOR_BARS, _tf, _shift){};
 
   /**
    * "Built-in" version of Color Bars.
    */
   static double iColorBars(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                           IndicatorBase *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorCandlesDaily");
+                           IndicatorData *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorBars");
     return iColorBarsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
@@ -80,6 +83,16 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
                                                        _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4)));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of Color Bars.
+   */
+  static double iColorBarsOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                      int _shift = 0, IndicatorData *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
+                                                          Util::MakeKey("Indi_ColorBars_ON_" + _indi.GetFullName()));
+    return iColorBarsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
   /**
@@ -113,15 +126,18 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_ColorBars::iColorBars(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_ColorBars::iColorBarsOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

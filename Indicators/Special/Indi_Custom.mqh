@@ -33,7 +33,7 @@
 #endif
 
 // Includes.
-#include "../../Indicator.mqh"
+#include "../../Indicator/IndicatorTickOrCandleSource.h"
 
 // Structs.
 
@@ -41,9 +41,8 @@
 struct IndiCustomParams : public IndicatorParams {
   DataParamEntry iargs[];
   // Struct constructors.
-  IndiCustomParams(string _filepath = INDI_CUSTOM_PATH, int _shift = 0) : IndicatorParams(INDI_CUSTOM, 1, TYPE_DOUBLE) {
+  IndiCustomParams(string _filepath = INDI_CUSTOM_PATH, int _shift = 0) : IndicatorParams(INDI_CUSTOM) {
     custom_indi_name = _filepath;
-    SetDataSourceType(IDATA_ICUSTOM);
   }
   IndiCustomParams(IndiCustomParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
@@ -74,13 +73,18 @@ struct IndiCustomParams : public IndicatorParams {
 /**
  * Implements indicator class.
  */
-class Indi_Custom : public Indicator<IndiCustomParams> {
+class Indi_Custom : public IndicatorTickOrCandleSource<IndiCustomParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Custom(IndiCustomParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCustomParams>(_p, _indi_src) {}
-  Indi_Custom(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM, _tf){};
+  Indi_Custom(IndiCustomParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_ICUSTOM, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_UNKNOWN, _indi_src_mode),
+            _indi_src) {}
+  Indi_Custom(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_CUSTOM, _tf, _shift){};
 
   /**
    * Returns the indicator's value.
@@ -88,21 +92,20 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_ICUSTOM:
         switch (iparams.GetParamsSize()) {
           case 0:
-            _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                             iparams.custom_indi_name, _mode, _ishift);
+            _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, _mode, _ishift);
             break;
           case 1:
-            _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                             iparams.custom_indi_name, iparams.GetParam(1).ToValue<double>(), _mode, _ishift);
+            _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name,
+                             iparams.GetParam(1).ToValue<double>(), _mode, _ishift);
             break;
           case 2:
-            _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                             iparams.custom_indi_name, iparams.GetParam(1).ToValue<double>(),
-                             iparams.GetParam(2).ToValue<double>(), _mode, _ishift);
+            _value =
+                iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name,
+                        iparams.GetParam(1).ToValue<double>(), iparams.GetParam(2).ToValue<double>(), _mode, _ishift);
             break;
         }
         break;

@@ -22,19 +22,16 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
 struct IndiVolumesParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  IndiVolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_VOLUMES, 2, TYPE_DOUBLE) {
+  IndiVolumesParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) : IndicatorParams(INDI_VOLUMES) {
     applied_volume = _applied_volume;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Volumes");
-    SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
   };
   IndiVolumesParams(IndiVolumesParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -44,21 +41,26 @@ struct IndiVolumesParams : IndicatorParams {
 };
 
 /**
- * Implements the Bill Williams' Accelerator/Decelerator oscillator.
+ * Implements the Volumes indicator.
  */
-class Indi_Volumes : public Indicator<IndiVolumesParams> {
+class Indi_Volumes : public IndicatorTickOrCandleSource<IndiVolumesParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Volumes(IndiVolumesParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiVolumesParams>(_p, _indi_src){};
-  Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_VOLUMES, _tf, _shift){};
+  Indi_Volumes(IndiVolumesParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+               int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
+  Indi_Volumes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_VOLUMES, _tf, _shift){};
 
   /**
    * Built-in version of Volumes.
    */
   static double iVolumes(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
-                         IndicatorBase *_obj = NULL) {
+                         IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_Volumes", (int)_av));
     return iVolumesOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
   }
@@ -82,6 +84,16 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
                                                      _cache.GetBuffer<double>(1), _av));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of Volumes indicator.
+   */
+  static double iVolumesOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_VOLUME _av,
+                                    int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_Volumes_ON_" + _indi.GetFullName(), (int)_av));
+    return iVolumesOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
   }
 
   /**
@@ -124,16 +136,20 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Volumes::iVolumes(GetSymbol(), GetTf(), /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_Volumes::iVolumesOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
+                                                   /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

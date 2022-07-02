@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_MA.mqh"
 
@@ -33,10 +33,9 @@ struct IndiMassIndexParams : IndicatorParams {
   int sum_period;
   // Struct constructor.
   IndiMassIndexParams(int _period = 9, int _second_period = 9, int _sum_period = 25, int _shift = 0)
-      : IndicatorParams(INDI_MASS_INDEX, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_MASS_INDEX) {
     period = _period;
     second_period = _second_period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\MI");
     shift = _shift;
     sum_period = _sum_period;
@@ -50,20 +49,24 @@ struct IndiMassIndexParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
+class Indi_MassIndex : public IndicatorTickOrCandleSource<IndiMassIndexParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MassIndex(IndiMassIndexParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiMassIndexParams>(_p, _indi_src){};
-  Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MASS_INDEX, _tf, _shift){};
+  Indi_MassIndex(IndiMassIndexParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
+  Indi_MassIndex(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_MASS_INDEX, _tf, _shift){};
 
   /**
    * Built-in version of Mass Index.
    */
   static double iMI(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _second_period, int _sum_period,
-                    int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                    int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _symbol, _tf, Util::MakeKey("Indi_MassIndex", _period, _second_period, _sum_period));
     return iMIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _second_period, _sum_period, _mode, _shift,
@@ -90,6 +93,19 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _period, _second_period, _sum_period));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of Mass Index.
+   */
+  static double iMIOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                               int _second_period, int _sum_period, int _mode = 0, int _shift = 0,
+                               IndicatorData *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf,
+        Util::MakeKey("Indi_MassIndex_ON_" + _indi.GetFullName(), _period, _second_period, _sum_period));
+    return iMIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _second_period, _sum_period, _mode, _shift,
+                      _cache);
   }
 
   /**
@@ -153,10 +169,10 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_MassIndex::iMI(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetSecondPeriod(), GetSumPeriod() /*]*/,
                                      _mode, _ishift, THIS_PTR);
@@ -164,6 +180,10 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetSecondPeriod(), GetSumPeriod() /*]*/, _mode, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_MassIndex::iMIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(),
+                                                GetSecondPeriod(), GetSumPeriod() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -45,9 +45,8 @@ struct IndiMACDParams : IndicatorParams {
         ema_slow_period(_esp),
         signal_period(_sp),
         applied_price(_ap),
-        IndicatorParams(INDI_MACD, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
+        IndicatorParams(INDI_MACD) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };
   IndiMACDParams(IndiMACDParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -59,13 +58,19 @@ struct IndiMACDParams : IndicatorParams {
 /**
  * Implements the Moving Averages Convergence/Divergence indicator.
  */
-class Indi_MACD : public Indicator<IndiMACDParams> {
+class Indi_MACD : public IndicatorTickOrCandleSource<IndiMACDParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MACD(IndiMACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMACDParams>(_p, _indi_src) {}
-  Indi_MACD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MACD, _tf, _shift) {}
+  Indi_MACD(IndiMACDParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_RANGE, _indi_src_mode),
+                                    _indi_src) {}
+  Indi_MACD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_MACD, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -78,7 +83,7 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
       string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ema_fast_period, unsigned int _ema_slow_period,
       unsigned int _signal_period, ENUM_APPLIED_PRICE _applied_price,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,  // (MT4/MT5 _mode): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0, IndicatorBase *_obj = NULL) {
+      int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _mode, _shift);
 #else  // __MQL5__
@@ -114,10 +119,10 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
                                   GetAppliedPrice(), (ENUM_SIGNAL_LINE)_mode, _ishift, THIS_PTR);

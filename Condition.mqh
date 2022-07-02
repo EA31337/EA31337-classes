@@ -109,13 +109,13 @@ class Condition {
       if (_entry.IsActive()) {
         switch (_entry.next_statement) {
           case COND_AND:
-            _curr_result = _prev_result && this.Test(_entry);
+            _curr_result = _prev_result && this PTR_DEREF Test(_entry);
             break;
           case COND_OR:
-            _curr_result = _prev_result || this.Test(_entry);
+            _curr_result = _prev_result || this PTR_DEREF Test(_entry);
             break;
           case COND_SEQ:
-            _curr_result = this.Test(_entry);
+            _curr_result = this PTR_DEREF Test(_entry);
             if (!_curr_result) {
               // Do not check further conditions when the current condition is false.
               return false;
@@ -165,15 +165,17 @@ class Condition {
         }
         break;
 #ifdef INDICATOR_MQH
-      case COND_TYPE_INDICATOR:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((IndicatorBase *)_entry.obj).CheckCondition((ENUM_INDICATOR_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          // Static method not supported.
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
-        break;
+        /*
+        case COND_TYPE_INDICATOR:
+          if (Object::IsValid(_entry.obj)) {
+            _result = ((IndicatorBase *)_entry.obj).CheckCondition((ENUM_INDICATOR_CONDITION)_entry.cond_id,
+        _entry.args); } else {
+            // Static method not supported.
+            _result = false;
+            _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
+          }
+          break;
+        */
 #endif
       case COND_TYPE_MARKET:
         if (Object::IsValid(_entry.obj)) {

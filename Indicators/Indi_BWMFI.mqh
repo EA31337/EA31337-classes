@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -48,8 +48,7 @@ enum ENUM_MFI_COLOR {
 struct IndiBWIndiMFIParams : IndicatorParams {
   ENUM_APPLIED_VOLUME ap;  // @todo
   // Struct constructors.
-  IndiBWIndiMFIParams(int _shift = 0) : IndicatorParams(INDI_BWMFI, FINAL_BWMFI_BUFFER_ENTRY, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
+  IndiBWIndiMFIParams(int _shift = 0) : IndicatorParams(INDI_BWMFI) {
     shift = _shift;
     SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
   };
@@ -62,14 +61,31 @@ struct IndiBWIndiMFIParams : IndicatorParams {
 /**
  * Implements the Market Facilitation Index by Bill Williams indicator.
  */
-class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
+class Indi_BWMFI : public IndicatorTickOrCandleSource<IndiBWIndiMFIParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_BWMFI_BUFFER_ENTRY); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_BWMFI(IndiBWIndiMFIParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiBWIndiMFIParams>(_p, _indi_src) {}
-  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_BWMFI, _tf, _shift) {}
+  Indi_BWMFI(IndiBWIndiMFIParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_BWMFI_BUFFER_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_MIXED, _indi_src_mode),
+                                    _indi_src) {
+    Init();
+  }
+  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_BWMFI, _tf, _shift) {
+    Init();
+  }
 
   /**
    * Returns the indicator value.
@@ -79,7 +95,7 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
    * - https://www.mql5.com/en/docs/indicators/ibwmfi
    */
   static double iBWMFI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                       ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, IndicatorBase *_obj = NULL) {
+                       ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBWMFI(_symbol, _tf, _shift);
 #else  // __MQL5__
@@ -114,10 +130,12 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BWMFI_BUFFER, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BWMFI_BUFFER, int _shift = 0) {
+    int _ishift = iparams.GetShift() + _shift;
+
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_BWMFI::iBWMFI(GetSymbol(), GetTf(), _ishift, (ENUM_BWMFI_BUFFER)_mode, THIS_PTR);
         break;
@@ -135,7 +153,7 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
     Indicator<IndiBWIndiMFIParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // @see: https://en.wikipedia.org/wiki/Market_facilitation_index

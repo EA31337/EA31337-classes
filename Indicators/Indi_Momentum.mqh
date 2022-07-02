@@ -30,7 +30,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "Indi_PriceFeeder.mqh"
 
 #ifndef __MQL4__
@@ -47,9 +47,8 @@ struct IndiMomentumParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
   IndiMomentumParams(unsigned int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : period(_period), applied_price(_ap), IndicatorParams(INDI_MOMENTUM, 1, TYPE_DOUBLE) {
+      : period(_period), applied_price(_ap), IndicatorParams(INDI_MOMENTUM) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Momentum");
   };
   IndiMomentumParams(IndiMomentumParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -61,14 +60,18 @@ struct IndiMomentumParams : IndicatorParams {
 /**
  * Implements the Momentum indicator.
  */
-class Indi_Momentum : public Indicator<IndiMomentumParams> {
+class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Momentum(IndiMomentumParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiMomentumParams>(_p, _indi_src) {}
-  Indi_Momentum(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MOMENTUM, _tf, _shift) {}
+  Indi_Momentum(IndiMomentumParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {}
+  Indi_Momentum(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_MOMENTUM, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -78,7 +81,7 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
    * - https://www.mql5.com/en/docs/indicators/imomentum
    */
   static double iMomentum(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _ap,
-                          int _shift = 0, IndicatorBase *_obj = NULL) {
+                          int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMomentum(_symbol, _tf, _period, _ap, _shift);
 #else  // __MQL5__
@@ -110,7 +113,7 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
 #endif
   }
 
-  static double iMomentumOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+  static double iMomentumOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                      int _mode, int _shift = 0) {
     double _indi_value_buffer[];
     IndicatorDataEntry _entry(_indi.GetModeCount());
@@ -141,10 +144,10 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), iparams.shift + _ishift,
@@ -159,7 +162,8 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
-                                                     GetDataSourceMode(), iparams.shift + _shift);
+                                                     Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)),
+                                                     iparams.shift + _shift);
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + _shift), _value, 1);
         }

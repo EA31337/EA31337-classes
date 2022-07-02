@@ -32,7 +32,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -51,9 +51,8 @@ struct IndiForceParams : IndicatorParams {
   // Struct constructors.
   IndiForceParams(unsigned int _period = 13, ENUM_MA_METHOD _ma_method = MODE_SMA, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE,
                   int _shift = 0)
-      : period(_period), ma_method(_ma_method), applied_price(_ap), IndicatorParams(INDI_FORCE, 1, TYPE_DOUBLE) {
+      : period(_period), ma_method(_ma_method), applied_price(_ap), IndicatorParams(INDI_FORCE) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Force_Index");
   };
   IndiForceParams(IndiForceParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -65,14 +64,19 @@ struct IndiForceParams : IndicatorParams {
 /**
  * Implements the Force Index indicator.
  */
-class Indi_Force : public Indicator<IndiForceParams> {
+class Indi_Force : public IndicatorTickOrCandleSource<IndiForceParams> {
  protected:
  public:
   /**
    * Class constructor.
    */
-  Indi_Force(IndiForceParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiForceParams>(_p, _indi_src) {}
-  Indi_Force(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_FORCE, _tf, _shift) {}
+  Indi_Force(IndiForceParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {}
+  Indi_Force(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_FORCE, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -82,7 +86,7 @@ class Indi_Force : public Indicator<IndiForceParams> {
    * - https://www.mql5.com/en/docs/indicators/iforce
    */
   static double iForce(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_MA_METHOD _ma_method,
-                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorBase *_obj = NULL) {
+                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iForce(_symbol, _tf, _period, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
@@ -117,10 +121,10 @@ class Indi_Force : public Indicator<IndiForceParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value =
             Indi_Force::iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _ishift, THIS_PTR);
