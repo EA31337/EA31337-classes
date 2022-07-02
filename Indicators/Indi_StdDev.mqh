@@ -59,9 +59,8 @@ struct IndiStdDevParams : IndicatorParams {
         ma_shift(_ma_shift),
         ma_method(_ma_method),
         applied_price(_ap),
-        IndicatorParams(INDI_STDDEV, 1, TYPE_DOUBLE) {
+        IndicatorParams(INDI_STDDEV) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\StdDev");
   };
   IndiStdDevParams(IndiStdDevParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -78,7 +77,11 @@ class Indi_StdDev : public IndicatorTickSource<IndiStdDevParams> {
   /**
    * Class constructor.
    */
-  Indi_StdDev(IndiStdDevParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
+  Indi_StdDev(IndiStdDevParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : IndicatorTickSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {}
   Indi_StdDev(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_STDDEV, _tf, _shift) {}
 
   /**
@@ -89,7 +92,7 @@ class Indi_StdDev : public IndicatorTickSource<IndiStdDevParams> {
    * - https://www.mql5.com/en/docs/indicators/istddev
    */
   static double iStdDev(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method,
-                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorBase *_obj = NULL) {
+                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
@@ -124,13 +127,13 @@ class Indi_StdDev : public IndicatorTickSource<IndiStdDevParams> {
   /**
    * Note that this method operates on current price (set by _applied_price).
    */
-  static double iStdDevOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+  static double iStdDevOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
                                    int _ma_shift, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
                                    Indi_StdDev *_obj = NULL) {
     double _indi_value_buffer[];
     double _std_dev;
     int i;
-    int _mode = _obj != NULL ? _obj.GetDataSourceMode() : 0;
+    int _mode = _obj != NULL ? _obj.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)) : 0;
 
     ArrayResize(_indi_value_buffer, _ma_period);
 
@@ -229,16 +232,14 @@ class Indi_StdDev : public IndicatorTickSource<IndiStdDevParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),
                                       GetAppliedPrice(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         iparams.GetCustomIndicatorName(), /*[*/ GetMAPeriod(), GetMAShift(), GetMAMethod() /*]*/, 0,
-                         _ishift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetMAPeriod(),
+                         GetMAShift(), GetMAMethod() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
         _value = Indi_StdDev::iStdDevOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),

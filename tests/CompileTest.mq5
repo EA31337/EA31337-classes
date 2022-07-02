@@ -61,6 +61,7 @@
 #include "../ISerializable.h"
 #include "../Indicator.define.h"
 #include "../Indicator.mqh"
+#include "../IndicatorBase.h"
 #include "../IndicatorData.mqh"
 #include "../Inet.mqh"
 #include "../Log.mqh"

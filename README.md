@@ -6,6 +6,7 @@
 [![Status][gha-image-lint-master]][gha-link-lint-master]
 [![Status][gha-image-test-master]][gha-link-test-master]
 [![Channel][tg-channel-image]][tg-channel-link]
+[![Twitter][twitter-image]][twitter-link]
 
 EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 platforms.
 It can be also used to convert your MQL4 code into MQL5 with minimum code changes.
@@ -449,3 +450,6 @@ Multiple measurements:
 
 [tg-channel-image]: https://img.shields.io/badge/Telegram-join-0088CC.svg?logo=telegram
 [tg-channel-link]: https://t.me/EA31337
+
+[twitter-image]: https://img.shields.io/badge/EA31337-Follow-1DA1F2.svg?logo=Twitter
+[twitter-link]: https://twitter.com/EA31337

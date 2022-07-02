@@ -187,12 +187,9 @@ class Market : public SymbolInfo {
    * Get delta value per lot in account currency of a point of symbol.
    *
    * @see
-   * - https://forum.mql4.com/33975
-   * - https://forum.mql4.com/43064#515262
-   * - https://forum.mql4.com/41259/page3#512466
    * - https://www.mql5.com/en/forum/127584
-   * - https://www.mql5.com/en/forum/135345
    * - https://www.mql5.com/en/forum/133792/page3#512466
+   * - https://www.mql5.com/en/forum/135345#515262
    */
   static double GetDeltaValue(string _symbol) {
     // Return tick value in the deposit currency divided by tick size in points.
@@ -217,8 +214,9 @@ class Market : public SymbolInfo {
    * Make sure that the price is a multiple of ticksize.
    */
   static double NormalizePrice(string _symbol, double p) {
-    // See: http://forum.mql4.com/47988
-    // http://forum.mql4.com/43064#515262 zzuegg reports for non-currency DE30:
+    // See:
+    // - https://www.mql5.com/en/forum/135345 (for non-currency DE30)
+    // - https://www.mql5.com/en/forum/139338
     // - MarketInfo(chart.symbol,MODE_TICKSIZE) returns 0.5
     // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
     // - Point = 0.1

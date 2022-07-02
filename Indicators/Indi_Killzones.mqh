@@ -49,10 +49,7 @@ enum ENUM_INDI_KILLZONES_MODE {
 struct IndiKillzonesParams : IndicatorParams {
   ENUM_PP_TYPE method;  // Pivot point calculation method.
   // Struct constructor.
-  IndiKillzonesParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : IndicatorParams(INDI_PIVOT, FINAL_INDI_KILLZONES_MODE_ENTRY, TYPE_FLOAT) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_CHART);
+  IndiKillzonesParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_PIVOT) {
     SetShift(_shift);
     tf = _tf;
   };
@@ -99,8 +96,12 @@ class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
   /**
    * Class constructor.
    */
-  Indi_Killzones(IndiKillzonesParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Killzones(IndiKillzonesParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_CHART,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_INDI_KILLZONES_MODE_ENTRY, TYPE_FLOAT,
+                                                                     _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                                    _indi_src) {}
   Indi_Killzones(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_KILLZONES, _tf, _shift) {}
 
@@ -111,7 +112,7 @@ class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
     float _value = FLT_MAX;
     int _index = (int)_mode / 2;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // Builtin mode not supported.
         SetUserError(ERR_INVALID_PARAMETER);

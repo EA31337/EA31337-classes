@@ -28,6 +28,19 @@ For example, to format file inplace, run:
 
     clang-format -i File.mqh
 
+### Syntax
+
+To improve code compatibility, please use the following syntax:
+
+| MQL               | C++                     | Syntax to use              |
+|:------------------|:------------------------|:---------------------------|
+| `T name[]`        | `_cpp_array<T> name`    | `ARRAY(T, name)`           |
+| `T<A, B> N[]`     | `_cpp_array<T<A, B>> N` | `ARRAY(T<A, B>, N)`        |
+| `obj.Method()`    | `obj->Method()`         | `obj PTR_DEREF Method()`   |
+| `obj.a1.a2`       | `obj->a1->a2`           | `PTR_ATTRIB2(obj, a1, a2)` |
+| `obj.attr`        | `obj->attr`             | `PTR_ATTRIB(obj, attr)`    |
+| `str == NULL`     | `str == NULL`           | `IsNull(str)`              |
+
 ## Proposing changes
 
 To propose a code change on GitHub,
