@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 #include "../Util.h"
 #include "Indi_MA.mqh"
@@ -36,10 +36,9 @@ struct IndiCHOParams : IndicatorParams {
   // Struct constructor.
   IndiCHOParams(int _fast_ma = 3, int _slow_ma = 10, ENUM_MA_METHOD _smooth_method = MODE_EMA,
                 ENUM_APPLIED_VOLUME _input_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_CHAIKIN, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_CHAIKIN) {
     fast_ma = _fast_ma;
     input_volume = _input_volume;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHO");
     shift = _shift;
     slow_ma = _slow_ma;
@@ -54,26 +53,31 @@ struct IndiCHOParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_CHO : public Indicator<IndiCHOParams> {
+class Indi_CHO : public IndicatorTickOrCandleSource<IndiCHOParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_CHO(IndiCHOParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCHOParams>(_p, _indi_src){};
-  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_CHAIKIN, _tf, _shift){};
+  Indi_CHO(IndiCHOParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
+  Indi_CHO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_CHAIKIN, _tf, _shift){};
 
   /**
    * Built-in version of Chaikin Oscillator.
    */
   static double iChaikin(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period, int _slow_ma_period,
                          ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
-                         IndicatorBase *_obj = NULL) {
+                         IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iChaikin(_symbol, _tf, _fast_ma_period, _slow_ma_period, _ma_method, _av),
                                       _mode, _shift);
 #else
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
-        _symbol, _tf, Util::MakeKey("INDI_CHO", _fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
+        _symbol, _tf, Util::MakeKey("Indi_CHO", _fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
                            _mode, _shift, _cache);
 #endif
@@ -100,6 +104,20 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _fast_ma_period, _slow_ma_period, _ma_method, _av));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of Chaikin Oscillator.
+   */
+  static double iChaikinOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period,
+                                    int _slow_ma_period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av,
+                                    int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf,
+        Util::MakeKey("Indi_CHO_ON_" + _indi.GetFullName(), _fast_ma_period, _slow_ma_period, (int)_ma_method,
+                      (int)_av));
+    return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
+                           _mode, _shift, _cache);
   }
 
   /**
@@ -166,10 +184,10 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_CHO::iChaikin(GetSymbol(), GetTf(), /*[*/ GetSlowMA(), GetFastMA(), GetSmoothMethod(),
                                     GetInputVolume() /*]*/, _mode, _ishift, THIS_PTR);
@@ -177,6 +195,10 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetFastMA(),
                          GetSlowMA(), GetSmoothMethod(), GetInputVolume() /*]*/, 0, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_CHO::iChaikinOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetFastMA(), GetSlowMA(),
+                                               GetSmoothMethod(), GetInputVolume() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

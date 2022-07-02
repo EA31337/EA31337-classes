@@ -23,7 +23,7 @@
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/IndicatorTickOrCandleSource.h"
 #include "../../Pattern.struct.h"
 #include "../../Serializer.mqh"
 #include "../Price/Indi_Price.mqh"
@@ -32,11 +32,7 @@
 // Structs.
 struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
-  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN, 5, TYPE_UINT) {
-    SetDataValueType(TYPE_UINT);
-    SetDataValueRange(IDATA_RANGE_BITWISE);
-    shift = _shift;
-  };
+  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN) { shift = _shift; };
   IndiPatternParams(IndiPatternParams& _params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
@@ -46,26 +42,32 @@ struct IndiPatternParams : IndicatorParams {
 /**
  * Implements Pattern Detector.
  */
-class Indi_Pattern : public Indicator<IndiPatternParams> {
+class Indi_Pattern : public IndicatorTickOrCandleSource<IndiPatternParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Pattern(IndiPatternParams& _p, IndicatorBase* _indi_src = NULL) : Indicator<IndiPatternParams>(_p, _indi_src){};
-  Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PATTERN, _tf, _shift){};
+  Indi_Pattern(IndiPatternParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData* _indi_src = NULL,
+               int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(5, TYPE_UINT, _idstype, IDATA_RANGE_BITWISE, _indi_src_mode),
+            _indi_src){};
+  Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_PATTERN, _tf, _shift){};
 
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int i;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
     BarOHLC _ohlcs[8];
 
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
-        for (i = 0; i < iparams.GetMaxModes(); ++i) {
+        for (i = 0; i < _max_modes; ++i) {
           _ohlcs[i] = Chart::GetOHLC(_ishift + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
@@ -90,11 +92,11 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
           return WRONG_VALUE;
         }
 
-        for (i = 0; i < iparams.GetMaxModes(); ++i) {
-          _ohlcs[i].open = GetDataSource().GetValue<float>(_ishift + i, PRICE_OPEN);
-          _ohlcs[i].high = GetDataSource().GetValue<float>(_ishift + i, PRICE_HIGH);
-          _ohlcs[i].low = GetDataSource().GetValue<float>(_ishift + i, PRICE_LOW);
-          _ohlcs[i].close = GetDataSource().GetValue<float>(_ishift + i, PRICE_CLOSE);
+        for (i = 0; i < _max_modes; ++i) {
+          _ohlcs[i].open = GetDataSource().GetValue<float>(PRICE_OPEN, _ishift + i);
+          _ohlcs[i].high = GetDataSource().GetValue<float>(PRICE_HIGH, _ishift + i);
+          _ohlcs[i].low = GetDataSource().GetValue<float>(PRICE_LOW, _ishift + i);
+          _ohlcs[i].close = GetDataSource().GetValue<float>(PRICE_CLOSE, _ishift + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
             return WRONG_VALUE;
@@ -112,7 +114,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = 0) {
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
     Indicator<IndiPatternParams>::GetEntryAlter(_entry);
   }

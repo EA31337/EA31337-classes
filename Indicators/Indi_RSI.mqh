@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../DictStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "Indi_Bands.mqh"
 #include "Indi_CCI.mqh"
 #include "Indi_Envelopes.mqh"
@@ -51,10 +51,8 @@ struct IndiRSIParams : IndicatorParams {
 
  public:
   IndiRSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : applied_price(_ap), IndicatorParams(INDI_RSI, 1, TYPE_DOUBLE) {
+      : applied_price(_ap), IndicatorParams(INDI_RSI) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
-    //    SetDataSourceType(IDATA_ICUSTOM);
     SetCustomIndicatorName("Examples\\RSI");
     SetPeriod(_period);
   };
@@ -89,15 +87,19 @@ struct RSIGainLossData {
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_RSI : public Indicator<IndiRSIParams> {
+class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
   DictStruct<long, RSIGainLossData> aux_data;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_RSI(IndiRSIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRSIParams>(_p, _indi_src) {}
-  Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RSI, _tf, _shift) {}
+  Indi_RSI(IndiRSIParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+            _indi_src) {}
+  Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RSI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -107,7 +109,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
   static double iRSI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                     ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, IndicatorBase *_obj = NULL) {
+                     ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iRSI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -119,7 +121,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * Calculates non-SMMA version of RSI on another indicator (uses iRSIOnArray).
    */
   template <typename IT>
-  static double iRSIOnArrayOnIndicator(IndicatorBase *_indi, string _symbol = NULL,
+  static double iRSIOnArrayOnIndicator(IndicatorData *_indi, string _symbol = NULL,
                                        ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
                                        Indi_RSI *_obj = NULL) {
@@ -153,7 +155,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * RSI values. To exactly replicate our RSI numbers, a formula will need at
    * least 250 data points."
    */
-  static double iRSIOnIndicator(IndicatorBase *_indi, Indi_RSI *_obj, string _symbol = NULL,
+  static double iRSIOnIndicator(IndicatorData *_indi, Indi_RSI *_obj, string _symbol = NULL,
                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                 ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0) {
     long _bar_time_curr = _obj.GetBarTime(_shift);
@@ -173,7 +175,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
     RSIGainLossData last_data, new_data;
     unsigned int data_position;
     double diff;
-    int _mode = _obj.GetDataSourceMode();
+    int _mode = _obj.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE));
 
     if (!_obj.aux_data.KeyExists(_bar_time_prev, data_position)) {
       // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
@@ -289,11 +291,11 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     double _res[];
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value =
             Indi_RSI::iRSI(GetSymbol(), GetTf(), iparams.GetPeriod(), iparams.GetAppliedPrice(), _ishift, THIS_PTR);
@@ -314,7 +316,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+  virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
       IndiBandsParams bands_params;
       return new Indi_Bands(bands_params);
@@ -338,6 +340,6 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
       return new Indi_StdDev(stddev_params);
     }
 
-    return IndicatorBase::FetchDataSource(_id);
+    return IndicatorData::FetchDataSource(_id);
   }
 };

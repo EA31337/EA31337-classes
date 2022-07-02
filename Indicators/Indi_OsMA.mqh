@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -44,9 +44,8 @@ struct IndiOsMAParams : IndicatorParams {
         ema_slow_period(_esp),
         signal_period(_sp),
         applied_price(_ap),
-        IndicatorParams(INDI_OSMA, 1, TYPE_DOUBLE) {
+        IndicatorParams(INDI_OSMA) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OsMA");
   };
   IndiOsMAParams(IndiOsMAParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -58,13 +57,18 @@ struct IndiOsMAParams : IndicatorParams {
 /**
  * Implements the Moving Average of Oscillator indicator.
  */
-class Indi_OsMA : public Indicator<IndiOsMAParams> {
+class Indi_OsMA : public IndicatorTickOrCandleSource<IndiOsMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OsMA(IndiOsMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiOsMAParams>(_p, _indi_src) {}
-  Indi_OsMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_OSMA, _tf, _shift) {}
+  Indi_OsMA(IndiOsMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {}
+  Indi_OsMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_OSMA, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -75,7 +79,7 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
    */
   static double iOsMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ema_fast_period, int _ema_slow_period,
                       int _signal_period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
-                      IndicatorBase *_obj = NULL) {
+                      IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _shift);
 #else  // __MQL5__
@@ -111,10 +115,10 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     double _value = EMPTY_VALUE;
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_OsMA::iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
                                   GetAppliedPrice(), _ishift, THIS_PTR);

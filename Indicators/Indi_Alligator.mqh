@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -81,9 +81,8 @@ struct IndiAlligatorParams : IndicatorParams {
         lips_shift(_ls),
         ma_method(_mm),
         applied_price(_ap),
-        IndicatorParams(INDI_ALLIGATOR, FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE) {
+        IndicatorParams(INDI_ALLIGATOR) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Alligator");
   };
   IndiAlligatorParams(IndiAlligatorParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -95,14 +94,18 @@ struct IndiAlligatorParams : IndicatorParams {
 /**
  * Implements the Alligator indicator.
  */
-class Indi_Alligator : public Indicator<IndiAlligatorParams> {
+class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Alligator(IndiAlligatorParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiAlligatorParams>(_p, _indi_src) {}
-  Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ADX, _tf, _shift){};
+  Indi_Alligator(IndiAlligatorParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE),
+            _indi_src, _indi_src_mode) {}
+  Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift){};
 
   /**
    * Returns the indicator value.
@@ -125,7 +128,7 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
   static double iAlligator(string _symbol, ENUM_TIMEFRAMES _tf, int _jaw_period, int _jaw_shift, int _teeth_period,
                            int _teeth_shift, int _lips_period, int _lips_shift, ENUM_MA_METHOD _ma_method,
                            ENUM_APPLIED_PRICE _applied_price, ENUM_ALLIGATOR_LINE _mode, int _shift = 0,
-                           IndicatorBase *_obj = NULL) {
+                           IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                         _ma_method, _applied_price, _mode, _shift);
@@ -162,7 +165,7 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
 #ifdef __MQL4__
@@ -171,7 +174,7 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
       return GetEntryValue((ENUM_ALLIGATOR_LINE)1, _ishift);
     }
 #endif
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
                                             GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),

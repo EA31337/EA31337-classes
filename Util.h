@@ -65,6 +65,36 @@ class Util {
     return _result;
   }
 
+  /**
+   * Removes value from the array.
+   */
+  template <typename T>
+  static bool ArrayRemove(T& _array[], int index) {
+    if (index < 0 || index >= ArraySize(_array)) {
+      // Index out of array bounds.
+      return false;
+    }
+    for (int i = index; i < ArraySize(_array) - 1; ++i) {
+      _array[i] = _array[i + 1];
+    }
+    Util::ArrayResize(_array, ArraySize(_array) - 1);
+    return true;
+  }
+
+  /**
+   * Removes value from the array.
+   */
+  template <typename T>
+  static bool ArrayRemoveFirst(T& _array[], T& value) {
+    for (int i = 0; i < ArraySize(_array); ++i) {
+      if (_array[i] == value) {
+        Util::ArrayRemove(_array, i);
+        return true;
+      }
+    }
+    return false;
+  }
+
   template <typename T>
   static T Print(T& _array[]) {
     string _result;
@@ -72,6 +102,21 @@ class Util {
       _result += IntegerToString(i) + ": " + (string)_array[i];
     }
     return _result;
+  }
+
+  /**
+   * Splits prints by newlines on MT4.
+   */
+  static void Print(string _value) {
+#ifdef __MQL4__
+    string _segments[];
+    StringSplit(_value, '\n', _segments);
+    for (int i = 0; i < ArraySize(_segments); ++i) {
+      ::Print(_segments[i]);
+    }
+#else
+    ::Print(_value);
+#endif
   }
 
   /**
@@ -257,6 +302,65 @@ class Util {
            SerializerConversions::ValueToString(_h) + SerializerConversions::ValueToString(_i) +
            SerializerConversions::ValueToString(_j) + SerializerConversions::ValueToString(_k) +
            SerializerConversions::ValueToString(_l) + SerializerConversions::ValueToString(_m);
+  }
+
+  /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K, typename L, typename M, typename N>
+  static string MakeKey(const A _a, const B _b, const C _c, const D _d, const E _e, const F _f, const G _g, const H _h,
+                        const I _i, const J _j, const K _k, const L _l, const M _m, const N _n) {
+    return SeparatedMaybe(SerializerConversions::ValueToString(_a)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_b)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_c)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_d)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_e)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_f)) + SerializerConversions::ValueToString(_g) +
+           SerializerConversions::ValueToString(_h) + SerializerConversions::ValueToString(_i) +
+           SerializerConversions::ValueToString(_j) + SerializerConversions::ValueToString(_k) +
+           SerializerConversions::ValueToString(_l) + SerializerConversions::ValueToString(_m) +
+           SerializerConversions::ValueToString(_n);
+  }
+
+  /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K, typename L, typename M, typename N, typename O>
+  static string MakeKey(const A _a, const B _b, const C _c, const D _d, const E _e, const F _f, const G _g, const H _h,
+                        const I _i, const J _j, const K _k, const L _l, const M _m, const N _n, const O _o) {
+    return SeparatedMaybe(SerializerConversions::ValueToString(_a)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_b)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_c)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_d)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_e)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_f)) + SerializerConversions::ValueToString(_g) +
+           SerializerConversions::ValueToString(_h) + SerializerConversions::ValueToString(_i) +
+           SerializerConversions::ValueToString(_j) + SerializerConversions::ValueToString(_k) +
+           SerializerConversions::ValueToString(_l) + SerializerConversions::ValueToString(_m) +
+           SerializerConversions::ValueToString(_n) + SerializerConversions::ValueToString(_o);
+  }
+
+  /**
+   * Creates string-based key using given variables.
+   */
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K, typename L, typename M, typename N, typename O, typename P>
+  static string MakeKey(const A _a, const B _b, const C _c, const D _d, const E _e, const F _f, const G _g, const H _h,
+                        const I _i, const J _j, const K _k, const L _l, const M _m, const N _n, const O _o,
+                        const P _p) {
+    return SeparatedMaybe(SerializerConversions::ValueToString(_a)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_b)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_c)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_d)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_e)) +
+           SeparatedMaybe(SerializerConversions::ValueToString(_f)) + SerializerConversions::ValueToString(_g) +
+           SerializerConversions::ValueToString(_h) + SerializerConversions::ValueToString(_i) +
+           SerializerConversions::ValueToString(_j) + SerializerConversions::ValueToString(_k) +
+           SerializerConversions::ValueToString(_l) + SerializerConversions::ValueToString(_m) +
+           SerializerConversions::ValueToString(_n) + SerializerConversions::ValueToString(_o) +
+           SerializerConversions::ValueToString(_p);
   }
 
   /**

@@ -32,7 +32,6 @@
 // Includes.
 #include "DictObject.mqh"
 #include "Draw.mqh"
-#include "Indicator.mqh"
 #include "Object.mqh"
 
 // Forward declaration.

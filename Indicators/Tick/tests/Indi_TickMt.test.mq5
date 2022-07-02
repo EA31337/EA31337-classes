@@ -36,7 +36,6 @@ Indi_TickMt indi(PERIOD_CURRENT);
 int OnInit() {
   bool _result = true;
   assertTrueOrFail(indi.IsValid(), "Error on IsValid!");
-  // assertTrueOrFail(indi.IsValidEntry(), "Error on IsValidEntry!");
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -45,7 +44,7 @@ int OnInit() {
  */
 void OnTick() {
   static MqlTick _tick_last;
-  MqlTick _tick_new = SymbolInfoStatic::GetTick(_Symbol);
+  MqlTick _tick_new = indi.GetTick();
   if (_tick_new.time % 60 < _tick_last.time % 60) {
     // Process ticks each minute.
     if (_tick_new.time % 3600 < _tick_last.time % 3600) {

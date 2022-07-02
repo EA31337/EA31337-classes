@@ -23,7 +23,7 @@
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/IndicatorTickOrCandleSource.h"
 #include "../../Pattern.struct.h"
 #include "../../Serializer.mqh"
 #include "../Price/Indi_Price.mqh"
@@ -32,9 +32,7 @@
 // Structs.
 struct CandleParams : IndicatorParams {
   // Struct constructor.
-  CandleParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_CANDLE, 1, TYPE_INT) {
-    SetDataValueRange(IDATA_RANGE_RANGE);
-    SetDataSourceType(IDATA_BUILTIN);
+  CandleParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_CANDLE) {
     shift = _shift;
     tf = _tf;
   };
@@ -47,13 +45,18 @@ struct CandleParams : IndicatorParams {
 /**
  * Implements Candle Pattern Detector.
  */
-class Indi_Candle : public Indicator<CandleParams> {
+class Indi_Candle : public IndicatorTickOrCandleSource<CandleParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Candle(CandleParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<CandleParams>(_p, _indi_src){};
-  Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_CANDLE, _tf, _shift){};
+  Indi_Candle(CandleParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_INT, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+            _indi_src){};
+  Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_CANDLE, _tf, _shift){};
 
   /**
    * Alters indicator's struct value.
@@ -66,12 +69,12 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     BarOHLC _ohlcs[1];
 
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
         _ohlcs[0] = Chart::GetOHLC(_ishift);
@@ -93,10 +96,10 @@ class Indi_Candle : public Indicator<CandleParams> {
           break;
         }
 
-        _ohlcs[0].open = GetDataSource().GetValue<float>(_ishift, PRICE_OPEN);
-        _ohlcs[0].high = GetDataSource().GetValue<float>(_ishift, PRICE_HIGH);
-        _ohlcs[0].low = GetDataSource().GetValue<float>(_ishift, PRICE_LOW);
-        _ohlcs[0].close = GetDataSource().GetValue<float>(_ishift, PRICE_CLOSE);
+        _ohlcs[0].open = GetDataSource().GetValue<float>(PRICE_OPEN, _ishift);
+        _ohlcs[0].high = GetDataSource().GetValue<float>(PRICE_HIGH, _ishift);
+        _ohlcs[0].low = GetDataSource().GetValue<float>(PRICE_LOW, _ishift);
+        _ohlcs[0].close = GetDataSource().GetValue<float>(PRICE_CLOSE, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

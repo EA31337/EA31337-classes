@@ -26,7 +26,12 @@
 #endif
 
 // Includes.
+#include "Array.extern.h"
+#include "Common.extern.h"
+#include "Convert.extern.h"
+#include "Math.extern.h"
 #include "Std.h"
+#include "String.extern.h"
 
 // Defines.
 #ifndef MODE_ASCEND
@@ -529,7 +534,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
    */
   template <typename T>
   void ArrayPrint(ARRAY_REF(T, _arr),         // Printed array.
-                  int _digits = NULL,         // Number of decimal places.
+                  int _digits = 0,            // Number of decimal places.
                   const string _dlm = NULL,   // Separator of the structure field values.
                   long _start = 0,            // First printed element index.
                   long _count = WHOLE_ARRAY,  // Number of printed elements.
@@ -539,7 +544,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
 #else
     int i;
     string output = "";
-    for (i = _start; i < _count == WHOLE_ARRAY ? ArraySize(_arr) : _count; i++) {
+    for (i = _start; i < (_count == WHOLE_ARRAY ? ArraySize(_arr) : _count); i++) {
       output += (string)_arr[i] + _dlm;
     }
     Print(output);
@@ -635,7 +640,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
    * if error occured).
    */
   template <typename X, typename Y>
-  static int ArrayResizeFill(ARRAY_REF(X, array), int new_size, int reserve_size = 0, Y fill_value = EMPTY_VALUE) {
+  static int ArrayResizeFill(ARRAY_REF(X, array), int new_size, int reserve_size = 0, Y fill_value = NULL) {
     const int old_size = ArrayRange(array, 0);
 
     if (new_size <= old_size) return old_size;

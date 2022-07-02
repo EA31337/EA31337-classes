@@ -26,7 +26,7 @@ struct IndicatorParams;
 // Includes.
 #include "../Action.mqh"
 #include "../DictStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Redis.mqh"
 #include "Indi_Drawer.struct.h"
 #include "Price/Indi_Price.mqh"
@@ -34,18 +34,23 @@ struct IndicatorParams;
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_Drawer : public Indicator<IndiDrawerParams> {
+class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
   Redis redis;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Drawer(const IndiDrawerParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiDrawerParams>(_p, _indi_src), redis(true) {
+  Indi_Drawer(const IndiDrawerParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+              IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(0, TYPE_DOUBLE, _idstype, IDATA_RANGE_UNKNOWN, _indi_src_mode),
+            _indi_src),
+        redis(true) {
     Init();
   }
-  Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DRAWER, _tf, _shift), redis(true) {
+  Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_DRAWER, _tf, _shift), redis(true) {
     Init();
   }
 
@@ -70,15 +75,16 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
 
   virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry &_args[]) {
     int num_args = ArraySize(_args), i;
+    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     IndicatorDataEntry entry(num_args - 1);
     // @fixit Not sure if we should enforce double.
     // entry.AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
 
     if (_action == INDI_ACTION_SET_VALUE) {
-      iparams.SetMaxModes(num_args - 1);
+      Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), num_args - 1);
 
-      if (num_args - 1 > iparams.GetMaxModes()) {
+      if (num_args - 1 > _max_modes) {
         GetLogger().Error(
             StringFormat("Too many data for buffers for action %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
@@ -149,14 +155,14 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
   static double iDrawer(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                        IndicatorBase *_obj = NULL) {
+                        IndicatorData *_obj = NULL) {
     return 1.0;
   }
 
   /**
    * Performs drawing on data from other indicator.
    */
-  static double iDrawerOnIndicator(IndicatorBase *_indi, Indi_Drawer *_obj, string _symbol = NULL,
+  static double iDrawerOnIndicator(IndicatorData *_indi, Indi_Drawer *_obj, string _symbol = NULL,
                                    ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
     // This method is not yet implemented.
     return 1.0;
@@ -175,7 +181,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Drawer::iDrawer(GetSymbol(), GetTf(), _ishift, THIS_PTR);
         break;

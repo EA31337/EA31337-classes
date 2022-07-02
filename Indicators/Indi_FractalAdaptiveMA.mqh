@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -33,9 +33,8 @@ struct IndiFrAIndiMAParams : IndicatorParams {
 
   // Struct constructor.
   IndiFrAIndiMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_FRAMA, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_FRAMA) {
     frama_shift = _frama_shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\FrAMA");
     applied_price = _ap;
     period = _period;
@@ -50,34 +49,38 @@ struct IndiFrAIndiMAParams : IndicatorParams {
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
+class Indi_FrAMA : public IndicatorTickOrCandleSource<IndiFrAIndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_FrAMA(IndiFrAIndiMAParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiFrAIndiMAParams>(_p, _indi_src){};
-  Indi_FrAMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_FRAMA, _tf, _shift){};
+  Indi_FrAMA(IndiFrAIndiMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
+  Indi_FrAMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_FRAMA, _tf, _shift){};
 
   /**
    * Built-in version of FrAMA.
    */
   static double iFrAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                       int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                       int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
 #else
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf,
                                                        Util::MakeKey("Indi_FrAMA", _ma_period, _ma_shift, (int)_ap));
-    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _mode, _shift, _ap, _cache);
+    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode, _shift, _cache);
 #endif
   }
 
   /**
    * Calculates FrAMA on the array of values.
    */
-  static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _ma_period, int _ma_shift, int _mode, int _shift,
-                              ENUM_APPLIED_PRICE _ap, IndicatorCalculateCache<double> *_cache,
+  static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
+                              int _mode, int _shift, IndicatorCalculateCache<double> *_cache,
                               bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -93,6 +96,17 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
                                                    _ma_period, _ma_shift, _ap));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of FrAMA.
+   */
+  static double iFrAMAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+                                  int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
+                                  IndicatorData *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ma_period, _ma_shift, (int)_ap));
+    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode, _shift, _cache);
   }
 
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &FrAmaBuffer, int InpPeriodFrAMA,
@@ -134,10 +148,10 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_FrAMA::iFrAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFRAMAShift(), GetAppliedPrice() /*]*/,
                                     _mode, _ishift, THIS_PTR);
@@ -145,6 +159,10 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetFRAMAShift() /*]*/, 0, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_FrAMA::iFrAMAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(),
+                                               GetFRAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

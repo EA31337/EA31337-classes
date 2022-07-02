@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -37,9 +37,8 @@ struct IndiMFIParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;  // Ignored in MT4.
   // Struct constructors.
   IndiMFIParams(unsigned int _ma_period = 14, ENUM_APPLIED_VOLUME _av = VOLUME_TICK, int _shift = 0)
-      : ma_period(_ma_period), applied_volume(_av), IndicatorParams(INDI_MFI, 1, TYPE_DOUBLE) {
+      : ma_period(_ma_period), applied_volume(_av), IndicatorParams(INDI_MFI) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MFI");
   };
   IndiMFIParams(IndiMFIParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -51,13 +50,17 @@ struct IndiMFIParams : IndicatorParams {
 /**
  * Implements the Money Flow Index indicator.
  */
-class Indi_MFI : public Indicator<IndiMFIParams> {
+class Indi_MFI : public IndicatorTickOrCandleSource<IndiMFIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MFI(IndiMFIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMFIParams>(_p, _indi_src) {}
-  Indi_MFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MFI, _tf, _shift) {}
+  Indi_MFI(IndiMFIParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+            _indi_src) {}
+  Indi_MFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_MFI, _tf, _shift) {}
 
   /**
    * Calculates the Money Flow Index indicator and returns its value.
@@ -67,7 +70,7 @@ class Indi_MFI : public Indicator<IndiMFIParams> {
    * - https://www.mql5.com/en/docs/indicators/imfi
    */
   static double iMFI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                     IndicatorBase *_obj = NULL) {
+                     IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
@@ -111,10 +114,10 @@ class Indi_MFI : public Indicator<IndiMFIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
 #ifdef __MQL4__
         _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _ishift);

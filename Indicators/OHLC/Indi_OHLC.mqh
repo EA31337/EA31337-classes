@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/IndicatorTickOrCandleSource.h"
 #include "../../Storage/Objects.h"
 
 // Enums.
@@ -37,9 +37,7 @@ enum ENUM_INDI_OHLC_MODE {
 // Structs.
 struct IndiOHLCParams : IndicatorParams {
   // Struct constructor.
-  IndiOHLCParams(int _shift = 0) : IndicatorParams(INDI_OHLC, FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE) {
-    SetShift(_shift);
-  };
+  IndiOHLCParams(int _shift = 0) : IndicatorParams(INDI_OHLC) { SetShift(_shift); };
   IndiOHLCParams(IndiOHLCParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;
     tf = _tf;
@@ -49,18 +47,24 @@ struct IndiOHLCParams : IndicatorParams {
 /**
  * OHLC Indicator.
  */
-class Indi_OHLC : public Indicator<IndiOHLCParams> {
+class Indi_OHLC : public IndicatorTickOrCandleSource<IndiOHLCParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OHLC(IndiOHLCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiOHLCParams>(_p, _indi_src){};
-  Indi_OHLC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PRICE, _tf, _shift){};
+  Indi_OHLC(IndiOHLCParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_PRICE, _indi_src_mode),
+                                    _indi_src){};
+  Indi_OHLC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_PRICE, _tf, _shift){};
 
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     ENUM_APPLIED_PRICE _ap = PRICE_OPEN;
     switch (_mode) {

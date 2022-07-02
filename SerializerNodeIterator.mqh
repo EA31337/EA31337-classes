@@ -24,6 +24,7 @@
 #ifndef JSON_ITERATOR_MQH
 #define JSON_ITERATOR_MQH
 
+#include "Serializer.mqh"
 #include "SerializerNode.mqh"
 
 class SerializerNode;
@@ -54,8 +55,7 @@ class SerializerNodeIterator {
   /**
    * Returns current node or NULL.
    */
-  SerializerNode* Node() { return !IsValid() ? NULL : PTR_ATTRIB(_collection, GetChild(_index));
-  }
+  SerializerNode* Node() { return !IsValid() ? NULL : PTR_ATTRIB(_collection, GetChild(_index)); }
 
   /**
    * Returns current node index.
@@ -70,25 +70,23 @@ class SerializerNodeIterator {
   /**
    * Checks whether iterator is still valid.
    */
-  bool IsValid() { return _index < PTR_ATTRIB(_collection, NumChildren());
-  }
+  bool IsValid() { return _index < PTR_ATTRIB(_collection, NumChildren()); }
 
   /**
    * Returns current's child key or empty string.
    */
-  const string Key() { return !IsValid() ? "" : PTR_ATTRIB(PTR_ATTRIB(_collection, GetChild(_index)), Key());
-  }
+  const string Key() { return !IsValid() ? "" : PTR_ATTRIB(PTR_ATTRIB(_collection, GetChild(_index)), Key()); }
 
   /**
    * Checks whether current child has key.
    */
-  bool HasKey() { return !IsValid() ? false : PTR_ATTRIB(PTR_ATTRIB(_collection, GetChild(_index)), HasKey());
-  }
+  bool HasKey() { return !IsValid() ? false : PTR_ATTRIB(PTR_ATTRIB(_collection, GetChild(_index)), HasKey()); }
 
   /**
    * Checks whether current child is a container.
    */
-  bool IsContainer() { return !IsValid() ? false : PTR_ATTRIB(PTR_ATTRIB(_collection, GetChild(_index)), IsContainer());
+  bool IsContainer() {
+    return !IsValid() ? false : PTR_ATTRIB(PTR_ATTRIB(_collection, GetChild(_index)), IsContainer());
   }
 };
 
@@ -114,17 +112,21 @@ class SerializerIterator : public SerializerNodeIterator {
   /**
    * Returns next value or value by given key.
    */
+#ifdef __MQL__
   template <>
+#endif
   X Value(string key = "") {
     X value;
-    _serializer.Pass(_serializer, key, value);
+    _serializer PTR_DEREF Pass(PTR_TO_REF(_serializer), key, value);
     return value;
   }
 
   /**
    * Returns next object or object by given key.
    */
+#ifdef __MQL__
   template <>
+#endif
   X Object(string key = "") {
     return Struct(key);
   }
@@ -132,14 +134,16 @@ class SerializerIterator : public SerializerNodeIterator {
   /**
    * Returns next structure or structure by given key.
    */
+#ifdef __MQL__
   template <>
+#endif
   X Struct(string key = "") {
     X value;
-    _serializer.PassStruct(_serializer, key, value);
+    _serializer PTR_DEREF PassStruct(PTR_TO_REF(_serializer), key, value);
     return value;
   }
 
-  SerializerNodeType ParentNodeType() { return _collection.GetType(); }
+  SerializerNodeType ParentNodeType() { return _collection PTR_DEREF GetType(); }
 };
 
 #endif

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,28 +21,8 @@
 
 /**
  * @file
- * MqlTick structure.
+ * Test functionality of IndicatorBase class.
  */
 
-#ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
-#endif
-
-#ifndef __MQL__
-/**
- * Structure for storing the latest prices of the symbol.
- * @docs
- * https://www.mql5.com/en/docs/constants/structures/mqltick
- */
-struct MqlTick {
-  datetime time;         // Time of the last prices update.
-  double ask;            // Current Ask price.
-  double bid;            // Current Bid price.
-  double last;           // Price of the last deal (last).
-  double volume_real;    // Volume for the current last price with greater accuracy.
-  long time_msc;         // Time of a price last update in milliseconds.
-  unsigned int flags;    // Tick flags.
-  unsigned long volume;  // Volume for the current last price.
-};
-#endif
+// Includes.
+#include "IndicatorBaseTest.mq5"
