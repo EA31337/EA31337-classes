@@ -59,7 +59,7 @@ jobs:
           - ChartTest
           - CompileIndicatorsTest
           - DatabaseTest
-          # - DrawIndicatorTest
+          - DrawIndicatorTest
           - EATest
           - IndicatorDataTest
           - IndicatorTest
