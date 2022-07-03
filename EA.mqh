@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -54,7 +54,7 @@
 class EA : public Taskable<DataParamEntry> {
  protected:
   // Class variables.
-  Account *account;
+  AccountMt *account;
   DictStruct<long, Ref<Strategy>> strats;
   Log logger;
   Terminal terminal;
@@ -97,7 +97,7 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Class constructor.
    */
-  EA(EAParams &_params) : account(new Account) {
+  EA(EAParams &_params) : account(new AccountMt) {
     eparams = _params;
     UpdateStateFlags();
     // Add and process tasks.
@@ -440,7 +440,7 @@ class EA : public Taskable<DataParamEntry> {
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
       for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
         Strategy *_strati = iter.Value().Ptr();
-        IndicatorBase *_indi = _strati.GetIndicator();
+        IndicatorData *_indi = _strati.GetIndicator();
         if (_indi != NULL) {
           ENUM_TIMEFRAMES _itf = _indi.GetParams().tf.GetTf();
           IndicatorDataEntry _ientry = _indi.GetEntry();
@@ -767,19 +767,29 @@ class EA : public Taskable<DataParamEntry> {
           Strategy *_strat = strats.GetByKey(_order.Get<unsigned long>(ORDER_MAGIC)).Ptr();
           Strategy *_strat_sl = _strat.GetStratSl();
           Strategy *_strat_tp = _strat.GetStratTp();
-          if (_strat_sl != NULL) {
-            float _psl = _strat_sl.Get<float>(STRAT_PARAM_PSL);
-            int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
-            _sl_new = _trade.NormalizeSL(_strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl), _otype);
-            _sl_valid = _trade.IsValidOrderSL(_sl_new, _otype, _order.Get<double>(ORDER_SL), _psm > 0);
-            _sl_new = _sl_valid ? _sl_new : _order.Get<double>(ORDER_SL);
-          }
-          if (_strat_tp != NULL) {
-            float _ppl = _strat_tp.Get<float>(STRAT_PARAM_PPL);
-            int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
-            _tp_new = _trade.NormalizeTP(_strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl), _otype);
-            _tp_valid = _trade.IsValidOrderTP(_tp_new, _otype, _order.Get<double>(ORDER_TP), _ppm > 0);
-            _tp_new = _tp_valid ? _tp_new : _order.Get<double>(ORDER_TP);
+          if (_strat_sl != NULL || _strat_tp != NULL) {
+            float _olots = _order.Get<float>(ORDER_VOLUME_CURRENT);
+            float _trisk = _trade.Get<float>(TRADE_PARAM_RISK_MARGIN);
+            if (_strat_sl != NULL) {
+              float _psl = _strat_sl.Get<float>(STRAT_PARAM_PSL);
+              float _sl_max = _trade.GetMaxSLTP(_otype, _olots, ORDER_TYPE_SL, _trisk);
+              int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
+              _sl_new = _strat_sl.PriceStop(_otype, ORDER_TYPE_SL, _psm, _psl);
+              _sl_new = _trade.GetSaferSLTP(_sl_new, _sl_max, _otype, ORDER_TYPE_SL);
+              _sl_new = _trade.NormalizeSL(_sl_new, _otype);
+              _sl_valid = _trade.IsValidOrderSL(_sl_new, _otype, _order.Get<double>(ORDER_SL), _psm > 0);
+              _sl_new = _sl_valid ? _sl_new : _order.Get<double>(ORDER_SL);
+            }
+            if (_strat_tp != NULL) {
+              float _ppl = _strat_tp.Get<float>(STRAT_PARAM_PPL);
+              float _tp_max = _trade.GetMaxSLTP(_otype, _olots, ORDER_TYPE_TP, _trisk);
+              int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
+              _tp_new = _strat_tp.PriceStop(_otype, ORDER_TYPE_TP, _ppm, _ppl);
+              _tp_new = _trade.GetSaferSLTP(_tp_new, _tp_max, _otype, ORDER_TYPE_TP);
+              _tp_new = _trade.NormalizeTP(_tp_new, _otype);
+              _tp_valid = _trade.IsValidOrderTP(_tp_new, _otype, _order.Get<double>(ORDER_TP), _ppm > 0);
+              _tp_new = _tp_valid ? _tp_new : _order.Get<double>(ORDER_TP);
+            }
           }
           if (_sl_valid || _tp_valid) {
             _result &= _order.OrderModify(_sl_new, _tp_new);
@@ -1024,7 +1034,7 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Gets pointer to account details.
    */
-  Account *Account() { return account; }
+  AccountMt *Account() { return account; }
 
   /**
    * Gets pointer to log instance.

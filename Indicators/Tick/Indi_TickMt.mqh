@@ -27,7 +27,7 @@
 struct IndiTickMtParams : IndicatorParams {
   string symbol;
   // Struct constructor.
-  IndiTickMtParams(string _symbol = NULL, int _shift = 0) : IndicatorParams(INDI_TICK, 3, TYPE_DOUBLE) {
+  IndiTickMtParams(string _symbol = NULL, int _shift = 0) : IndicatorParams(INDI_TICK) {
     SetShift(_shift);
     SetSymbol(_symbol);
   };
@@ -52,8 +52,10 @@ class Indi_TickMt : public IndicatorTick<IndiTickMtParams, double> {
   /**
    * Class constructor.
    */
-  Indi_TickMt(IndiTickMtParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTick<IndiTickMtParams, double>(_p, _indi_src){};
+  Indi_TickMt(IndiTickMtParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : IndicatorTick<IndiTickMtParams, double>(_p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype),
+                                                _indi_src){};
   Indi_TickMt(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
       : IndicatorTick(INDI_TICK, _tf, _shift, _name) {}
 

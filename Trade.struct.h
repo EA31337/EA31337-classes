@@ -84,14 +84,14 @@ struct TradeParams {
   }
   float GetRiskMargin() { return risk_margin; }
   unsigned int GetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) {
-    return limits_stats[_type][_period];
+    return limits_stats[(int)_type][(int)_period];
   }
   unsigned short GetBarsMin() { return bars_min; }
   // State checkers.
   bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, ARRAY_REF(unsigned int, _value)) {
     // Is limit greater or equal than given value for given array of types.
-    for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-      if (_value[p] > 0 && IsLimitGe(_type, p, _value[p])) {
+    for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+      if (_value[p] > 0 && IsLimitGe(_type, (ENUM_TRADE_STAT_PERIOD)p, _value[p])) {
         return true;
       }
     }
@@ -103,7 +103,7 @@ struct TradeParams {
     Print("Checking for trade limit. Limit for type ", EnumToString(_type), " and period ", EnumToString(_period),
           " is ", limits_stats[_type][_period], ". Current trades = ", _value);
 #endif
-    return limits_stats[_type][_period] > 0 && _value >= limits_stats[_type][_period];
+    return limits_stats[(int)_type][(int)_period] > 0 && _value >= limits_stats[(int)_type][(int)_period];
   }
   bool IsLimitGe(TradeStats &_stats) {
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
@@ -154,7 +154,7 @@ struct TradeParams {
 #ifdef __debug__
     Print("Setting trade limit for type ", EnumToString(_type), " and period ", EnumToString(_period), " to ", _value);
 #endif
-    limits_stats[_type][_period] = _value;
+    limits_stats[(int)_type][(int)_period] = _value;
   }
   void SetLimits(ENUM_TRADE_STAT_PERIOD _period, unsigned int _value = 0) {
     // Set new trading limits for the given period.
@@ -163,13 +163,13 @@ struct TradeParams {
       Print("Setting trade limit for type ", EnumToString((ENUM_TRADE_STAT_TYPE)t), " and period ",
             EnumToString(_period), " to ", _value);
 #endif
-      limits_stats[t][_period] = _value;
+      limits_stats[(int)t][(int)_period] = _value;
     }
   }
   void SetLimits(ENUM_TRADE_STAT_TYPE _type, unsigned int _value = 0) {
     // Set new trading limits for the given type.
     for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-      limits_stats[_type][p] = _value;
+      limits_stats[(int)_type][(int)p] = _value;
     }
   }
   void SetLimits(unsigned int _value = 0) {
@@ -177,7 +177,7 @@ struct TradeParams {
     // Zero value is for no limits.
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-        limits_stats[t][p] = _value;
+        limits_stats[(int)t][(int)p] = _value;
       }
     }
   }
@@ -210,7 +210,7 @@ struct TradeStats {
     Print("GetOrderStats: type ", EnumToString(_type), ", period ", EnumToString(_period), ", reset = ", _reset);
 #endif
     if (_reset && _period > TRADE_STAT_ALL) {
-      unsigned int _periods_started = dt[_type][_period].GetStartedPeriods(true, false);
+      unsigned int _periods_started = dt[(int)_type][(int)_period].GetStartedPeriods(true, false);
 #ifdef __debug__
       Print("GetOrderStats: _periods_started = ", _periods_started);
 #endif
@@ -218,13 +218,13 @@ struct TradeStats {
         ResetStats(_type, _period, _periods_started);
       }
     }
-    return order_stats[_type][_period];
+    return order_stats[(int)_type][(int)_period];
   }
   /* Setters */
   // Add value for the given type and period.
   void Add(ENUM_TRADE_STAT_TYPE _type, int _value = 1) {
     for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-      order_stats[_type][p] += _value;
+      order_stats[(int)_type][(int)p] += _value;
     }
   }
   /* Reset stats for the given periods. */
@@ -246,36 +246,38 @@ struct TradeStats {
     }
   }
   /* Reset stats for the given type and period. */
-  void ResetStats(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) { order_stats[_type][_period] = 0; }
+  void ResetStats(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) {
+    order_stats[(int)_type][(int)_period] = 0;
+  }
   /* Reset stats for the given period. */
   void ResetStats(ENUM_TRADE_STAT_PERIOD _period) {
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
-      order_stats[t][_period] = 0;
+      order_stats[(int)t][(int)_period] = 0;
 #ifdef __debug__
       Print("Resetting trade counter for type ", EnumToString(t), " and  period ", EnumToString(_period));
 #endif
-      dt[t][_period].GetStartedPeriods(true, true);
+      dt[(int)t][(int)_period].GetStartedPeriods(true, true);
     }
   }
   /* Reset stats for the given type. */
   void ResetStats(ENUM_TRADE_STAT_TYPE _type) {
     for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-      order_stats[_type][p] = 0;
+      order_stats[(int)_type][(int)p] = 0;
 #ifdef __debug__
       Print("Resetting trade counter for type ", EnumToString(_type), " and  period ", EnumToString(p));
 #endif
-      dt[_type][p].GetStartedPeriods(true, true);
+      dt[(int)_type][(int)p].GetStartedPeriods(true, true);
     }
   }
   /* Reset all stats. */
   void ResetStats() {
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-        order_stats[t][p] = 0;
+        order_stats[(int)t][(int)p] = 0;
 #ifdef __debug__
         Print("Resetting trade counter for type ", EnumToString(t), " and  period ", EnumToString(p));
 #endif
-        dt[t][p].GetStartedPeriods(true, true);
+        dt[(int)t][(int)p].GetStartedPeriods(true, true);
       }
     }
   }

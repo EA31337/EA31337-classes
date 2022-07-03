@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -22,10 +22,10 @@
 
 // Includes.
 #include "Array.mqh"
-#include "Collection.mqh"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
 #include "Object.mqh"
+#include "Storage/Collection.mqh"
 
 // Prevents processing this includes file for the second time.
 #ifndef LOG_MQH

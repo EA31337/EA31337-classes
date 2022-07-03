@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -36,7 +36,7 @@
 
 // Global variables.
 Chart *chart;
-Dict<long, IndicatorBase *> indis;
+DictStruct<long, Ref<IndicatorData>> indis;
 int bar_processed;
 
 /**
@@ -64,8 +64,8 @@ void OnTick() {
   if (chart.IsNewBar()) {
     bar_processed++;
 
-    for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-      IndicatorBase *_indi = iter.Value();
+    for (DictStructIterator<long, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+      IndicatorData *_indi = iter.Value().Ptr();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
@@ -78,13 +78,7 @@ void OnTick() {
 /**
  * Implements Deinit event handler.
  */
-void OnDeinit(const int reason) {
-  delete chart;
-
-  for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    delete iter.Value();
-  }
-}
+void OnDeinit(const int reason) { delete chart; }
 
 /**
  * Initialize indicators.
@@ -94,55 +88,57 @@ bool InitIndicators() {
 
   // Bollinger Bands.
   IndiBandsParams bands_params(20, 2, 0, PRICE_MEDIAN);
-  indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
+  Ref<IndicatorData> indi_bands = new Indi_Bands(bands_params);
+  indis.Set(INDI_BANDS, indi_bands);
 
   // Moving Average.
   IndiMAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
-  IndicatorBase *indi_ma = new Indi_MA(ma_params);
+  Ref<IndicatorData> indi_ma = new Indi_MA(ma_params);
   indis.Set(INDI_MA, indi_ma);
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_params(14, PRICE_OPEN);
-  indis.Set(INDI_RSI, new Indi_RSI(rsi_params));
+  Ref<IndicatorData> indi_rsi = new Indi_RSI(rsi_params);
+  indis.Set(INDI_RSI, indi_rsi);
 
   /* Special indicators */
 
   // Demo/Dummy Indicator.
   IndiDemoParams demo_params;
-  IndicatorBase *indi_demo = new Indi_Demo(demo_params);
+  Ref<IndicatorData> indi_demo = new Indi_Demo(demo_params);
   indis.Set(INDI_DEMO, indi_demo);
 
   // Current Price (used by custom indicators)  .
   PriceIndiParams price_params();
   price_params.SetDraw(clrGreenYellow);
-  IndicatorBase *indi_price = new Indi_Price(price_params);
+  Ref<IndicatorData> indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
+  /* @fixme: Convert to new syntax. Array out of range.
   // Bollinger Bands over Price indicator.
   PriceIndiParams price_params_4_bands();
-  IndicatorBase *indi_price_4_bands = new Indi_Price(price_params_4_bands);
+  IndicatorData *indi_price_4_bands = new Indi_Price(price_params_4_bands);
   IndiBandsParams bands_on_price_params();
   bands_on_price_params.SetDraw(clrCadetBlue);
-  // bands_on_price_params.SetDataSource(indi_price_4_bands, true, INDI_PRICE_MODE_OPEN);
-  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params, indi_price_4_bands, true));
+  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params, IDATA_INDICATOR, indi_price_4_bands));
 
   // Moving Average (MA) over Price indicator.
   PriceIndiParams price_params_4_ma();
-  IndicatorBase *indi_price_4_ma = new Indi_Price(price_params_4_ma);
+  IndicatorData *indi_price_4_ma = new Indi_Price(price_params_4_ma);
   IndiMAParams ma_on_price_params();
   ma_on_price_params.SetDraw(clrYellowGreen);
-  // ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
-  IndicatorBase *indi_ma_on_price = new Indi_MA(ma_on_price_params, indi_price_4_ma);
+  IndicatorData *indi_ma_on_price = new Indi_MA(ma_on_price_params, IDATA_INDICATOR, indi_price_4_ma);
   indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
 
   // Relative Strength Index (RSI) over Price indicator.
   PriceIndiParams price_params_4_rsi();
-  IndicatorBase *indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
+  IndicatorData *indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
   IndiRSIParams rsi_on_price_params();
-  // rsi_on_price_params.SetDataSource(indi_price_4_rsi, true, INDI_PRICE_MODE_OPEN);
   rsi_on_price_params.SetDraw(clrBisque, 1);
-  indis.Set(INDI_RSI_ON_PRICE, indi_price_4_rsi);
+  IndicatorBase *indi_rsi_on_price = new Indi_RSI(rsi_on_price_params, IDATA_INDICATOR, indi_price_4_rsi);
+  indis.Set(INDI_RSI_ON_PRICE, indi_rsi_on_price);
+  */
 
   return _LastError == ERR_NO_ERROR;
 }
@@ -152,8 +148,8 @@ bool InitIndicators() {
  */
 bool PrintIndicators(string _prefix = "") {
   ResetLastError();
-  for (DictIterator<long, IndicatorBase *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    IndicatorBase *_indi = iter.Value();
+  for (DictStructIterator<long, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    IndicatorData *_indi = iter.Value().Ptr();
     if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
     }

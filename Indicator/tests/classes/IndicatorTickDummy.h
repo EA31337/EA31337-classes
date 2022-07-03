@@ -35,18 +35,20 @@
 
 // Params for dummy tick-based indicator.
 struct IndicatorTickDummyParams : IndicatorParams {
-  IndicatorTickDummyParams() : IndicatorParams(INDI_TICK, 2, TYPE_DOUBLE) {}
+  IndicatorTickDummyParams() : IndicatorParams(INDI_TICK) {}
 };
 
 // Dummy tick-based indicator.
 class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double> {
  public:
   IndicatorTickDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
-      : IndicatorTick(INDI_TICK, _tf, _shift, _name) {}
+      : IndicatorTick(INDI_TICK, _tf, _shift, _name) {
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
+  }
 
   string GetName() override { return "IndicatorTickDummy"; }
 
-  void OnBecomeDataSourceFor(IndicatorBase* _base_indi) override {
+  void OnBecomeDataSourceFor(IndicatorData* _base_indi) override {
     // Feeding base indicator with historic entries of this indicator.
     Print(GetName(), " became a data source for ", _base_indi.GetName());
 

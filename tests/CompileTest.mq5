@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -36,14 +36,14 @@
 #endif
 
 // Includes.
-#include "../Account.mqh"
+#include "../Account/AccountMt.h"
 #include "../Array.mqh"
 #include "../Task/TaskAction.h"
 //#include "../BasicTrade.mqh" // @removeme
 #include "../Buffer.mqh"
+#include "../BufferFXT.mqh"
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
-#include "../Collection.mqh"
 #include "../Config.mqh"
 #include "../Convert.mqh"
 #include "../Database.mqh"
@@ -61,10 +61,12 @@
 #include "../ISerializable.h"
 #include "../Indicator.define.h"
 #include "../Indicator.mqh"
+#include "../IndicatorBase.h"
 #include "../IndicatorData.mqh"
 #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
+#include "../Storage/Collection.mqh"
 #include "../Storage/IValueStorage.h"
 #include "../Task/TaskCondition.h"
 //#include "../MQL4.mqh" // @removeme

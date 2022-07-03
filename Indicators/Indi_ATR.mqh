@@ -35,10 +35,8 @@ double iATR(string _symbol, int _tf, int _period, int _shift) {
 struct IndiATRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  IndiATRParams(unsigned int _period = 14, int _shift = 0)
-      : period(_period), IndicatorParams(INDI_ATR, 1, TYPE_DOUBLE) {
+  IndiATRParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_ATR) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ATR");
   };
   IndiATRParams(IndiATRParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -57,7 +55,11 @@ class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
   /**
    * Class constructor.
    */
-  Indi_ATR(IndiATRParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_ATR(IndiATRParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {}
   Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ATR, _tf, _shift){};
 
   /**
@@ -68,7 +70,7 @@ class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
    * - https://www.mql5.com/en/docs/indicators/iatr
    */
   static double iATR(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                     IndicatorBase *_obj = NULL) {
+                     IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iATR(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
@@ -106,9 +108,8 @@ class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_ATR::iATR(GetSymbol(), GetTf(), GetPeriod(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:

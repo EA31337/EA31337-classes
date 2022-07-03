@@ -6,6 +6,7 @@
 [![Status][gha-image-lint-master]][gha-link-lint-master]
 [![Status][gha-image-test-master]][gha-link-test-master]
 [![Channel][tg-channel-image]][tg-channel-link]
+[![Twitter][twitter-image]][twitter-link]
 
 EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 platforms.
 It can be also used to convert your MQL4 code into MQL5 with minimum code changes.
@@ -23,7 +24,6 @@ It can be also used to convert your MQL4 code into MQL5 with minimum code change
     - [`Account` class](#account-class)
       - [Example 1 - Managing account (dynamic calls)](#example-1---managing-account-dynamic-calls)
       - [Example 2 - Managing account (static calls)](#example-2---managing-account-static-calls)
-    - [`Collection` class](#collection-class)
     - [`Dict` class](#dict-class)
       - [Example 1 - Storing string-int data structures](#example-1---storing-string-int-data-structures)
     - [`Mail` class](#mail-class)
@@ -178,49 +178,6 @@ The class for managing the current trading account.
     double _margin_used = Account::AccountMargin();
     if (Account::IsExpertEnabled() && Account::IsTradeAllowed()) {
       // Some trade code.
-    }
-
-### `Collection` class
-
-This class is for storing various type of objects. Here is the example usage:
-
-    // Define custom classes of Object type.
-    class Stack : Object {
-      public:
-        virtual string GetName() = NULL;
-    };
-    class Foo : Stack {
-      public:
-        string GetName() { return "Foo"; };
-        double Weight() { return 0; };
-    };
-    class Bar : Stack {
-      public:
-        string GetName() { return "Bar"; };
-        double Weight() { return 1; };
-    };
-    class Baz : Stack {
-      public:
-        string GetName() { return "Baz"; };
-        double Weight() { return 2; };
-    };
-
-    int OnInit() {
-      // Define and add items.
-      Collection *stack = new Collection();
-      stack.Add(new Foo);
-      stack.Add(new Bar);
-      stack.Add(new Baz);
-      // Print the lowest and the highest items.
-      Print("Lowest: ", ((Stack *)stack.GetLowest()).GetName());
-      Print("Highest: ", ((Stack *)stack.GetHighest()).GetName());
-      // Print all the items.
-      for (uint i = 0; i < stack.GetSize(); i++) {
-        Print(i, ": ", ((Stack *)stack.GetByIndex(i)).GetName());
-      }
-      // Clean up.
-      Object::Delete(stack);
-      return (INIT_SUCCEEDED);
     }
 
 ### `Dict` class
@@ -449,3 +406,6 @@ Multiple measurements:
 
 [tg-channel-image]: https://img.shields.io/badge/Telegram-join-0088CC.svg?logo=telegram
 [tg-channel-link]: https://t.me/EA31337
+
+[twitter-image]: https://img.shields.io/badge/EA31337-Follow-1DA1F2.svg?logo=Twitter
+[twitter-link]: https://twitter.com/EA31337

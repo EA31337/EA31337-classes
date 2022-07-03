@@ -53,7 +53,6 @@ jobs:
     strategy:
       matrix:
         test:
-          - AccountTest
           - BufferStructTest
           - BufferTest
           - ChartTest
@@ -101,7 +100,6 @@ jobs:
       matrix:
         test:
           #  - 3DTest
-          - CollectionTest
           - ConfigTest
           - ConvertTest
           - DateTimeTest

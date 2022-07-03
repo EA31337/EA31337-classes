@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -30,7 +30,7 @@ class Trade;
 #define TRADE_MQH
 
 // Includes.
-#include "Account.mqh"
+#include "Account/AccountMt.h"
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
@@ -45,7 +45,7 @@ class Trade;
 
 class Trade : public Taskable<DataParamEntry> {
  public:
-  Account account;
+  AccountMt account;
   Ref<Chart> chart;
   DictStruct<long, Ref<Order>> orders_active;
   DictStruct<long, Ref<Order>> orders_history;
@@ -1377,7 +1377,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                        // Check if real trading is allowed.
                        (Terminal::IsRealtime() && !Terminal::IsTradeAllowed())
                            // Check the permission to trade for the current account.
-                           && !Account::IsTradeAllowed());
+                           && !AccountMt::IsTradeAllowed());
       tstates.SetState(TRADE_STATE_TRADE_TERMINAL_BUSY, Terminal::IsTradeContextBusy());
       _last_check = TimeCurrent();
       /* Terminal checks */
@@ -1408,7 +1408,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     double _vol_min = GetChart().GetVolumeMin();
     double _vol_step = GetChart().GetVolumeStep() > 0.0 ? GetChart().GetVolumeStep() : _vol_min;
     if (_vol_step > 0) {
-      // Related: http://forum.mql4.com/47988
+      // Related: https://www.mql5.com/en/forum/139338
       double _precision = 1 / _vol_step;
       // Edge case when step is higher than minimum.
       _lot_size = _ceil ? ceil(_lots * _precision) / _precision : floor(_lots * _precision) / _precision;

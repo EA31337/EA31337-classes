@@ -29,8 +29,7 @@
 struct PriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE ap;
   // Struct constructor.
-  PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
-      : ap(_ap), IndicatorParams(INDI_PRICE, 1, TYPE_DOUBLE) {
+  PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0) : ap(_ap), IndicatorParams(INDI_PRICE) {
     SetShift(_shift);
   };
   PriceIndiParams(PriceIndiParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -51,7 +50,11 @@ class Indi_Price : public IndicatorTickOrCandleSource<PriceIndiParams> {
   /**
    * Class constructor.
    */
-  Indi_Price(PriceIndiParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Price(PriceIndiParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+            _indi_src){};
   Indi_Price(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_PRICE, _tf, _shift){};
 

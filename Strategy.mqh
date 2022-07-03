@@ -260,7 +260,7 @@ class Strategy : public Taskable<DataParamEntry> {
   StgEntry GetEntry() {
     StgEntry _entry = {};
     for (ENUM_STRATEGY_STATS_PERIOD _p = EA_STATS_DAILY; _p < FINAL_ENUM_STRATEGY_STATS_PERIOD; _p++) {
-      _entry.SetStats(stats_period[_p], _p);
+      _entry.SetStats(stats_period[(int)_p], _p);
     }
     return _entry;
   }
@@ -364,7 +364,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   unsigned int GetOrdersTotal(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].orders_total;
+    return stats_period[(int)_period].orders_total;
   }
 
   /**
@@ -372,7 +372,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   unsigned int GetOrdersWon(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].orders_won;
+    return stats_period[(int)_period].orders_won;
   }
 
   /**
@@ -380,7 +380,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   unsigned int GetOrdersLost(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].orders_lost;
+    return stats_period[(int)_period].orders_lost;
   }
 
   /**
@@ -388,7 +388,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   double GetNetProfit(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].net_profit;
+    return stats_period[(int)_period].net_profit;
   }
 
   /**
@@ -396,7 +396,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   double GetGrossProfit(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].gross_profit;
+    return stats_period[(int)_period].gross_profit;
   }
 
   /**
@@ -404,7 +404,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   double GetGrossLoss(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].gross_loss;
+    return stats_period[(int)_period].gross_loss;
   }
 
   /**
@@ -412,7 +412,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   double GetAvgSpread(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     // UpdateOrderStats(_period);
-    return stats_period[_period].avg_spread;
+    return stats_period[(int)_period].avg_spread;
   }
 
   /* Setters */
@@ -737,7 +737,8 @@ class Strategy : public Taskable<DataParamEntry> {
    * Filters strategy's market tick.
    *
    * @param
-   *   _method - signal method to filter a tick (bitwise AND operation)
+   *   _tick Tick to use for filtering.
+   *   _method Signal method to filter a tick (bitwise AND operation).
    *
    * @result bool
    *   Returns true when tick should be processed, otherwise false.
@@ -810,9 +811,10 @@ class Strategy : public Taskable<DataParamEntry> {
    * Checks strategy's trade open signal.
    *
    * @param
-   *   _cmd    - type of trade order command
-   *   _method - signal method to open a trade (bitwise AND operation)
-   *   _level  - signal level to open a trade (bitwise AND operation)
+   *   _cmd Ttype of trade order command.
+   *   _method Signal method to open a trade (bitwise AND operation).
+   *   _level Signal level to open a trade.
+   *   _shift Signal shift relative to the current bar.
    *
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
@@ -823,8 +825,9 @@ class Strategy : public Taskable<DataParamEntry> {
    * Returns strength of strategy's open signal.
    *
    * @param
-   *   _method - signal method to open a trade (bitwise AND operation)
-   *   _level  - signal level to open a trade (bitwise AND operation)
+   *   _method Signal method to open a trade (bitwise AND operation).
+   *   _level Signal level to open a trade.
+   *   _shift Signal shift relative to the current bar.
    *
    * @result float
    *   Returns value strength of strategy's open signal ranging from -1 to 1.
@@ -1001,13 +1004,12 @@ class Strategy : public Taskable<DataParamEntry> {
     int _count = (int)fmax(fabs(_level), fabs(_method));
     int _direction = Order::OrderDirection(_cmd, _mode);
     Chart *_chart = trade.GetChart();
-    IndicatorBase *_indi = GetIndicators().Begin().Value().Ptr();
+    IndicatorData *_indi = GetIndicators().Begin().Value().Ptr();
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {
-      int _ishift = 12;     // @todo: Make it dynamic or as variable.
-      float _value = 0.0f;  // @todo
-      // float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
+      int _ishift = 12;  // @todo: Make it dynamic or as variable.
+      float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
       _value = _value + (float)Math::ChangeByPct(fabs(_value - _chart.GetCloseOffer(0)), _level) * _direction;
       _psm.SetIndicatorPriceValue(_value);
       /*
