@@ -391,11 +391,13 @@ bool InitIndicators() {
   Ref<Indi_RSI> indi_rsi_on_price = new Indi_RSI(rsi_on_price_params, IDATA_BUILTIN, indi_price_4_rsi.Ptr());
   indis.Push(indi_rsi_on_price.Ptr());
 
+#ifndef __MQL4__ // @fixme: Fix it for MQL4.
   // Drawer (socket-based) indicator over RSI over Price.
   IndiDrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
   drawer_params.SetDraw(clrBisque, 0);
   Ref<Indi_Drawer> indi_drawer_on_rsi = new Indi_Drawer(drawer_params, IDATA_BUILTIN, indi_rsi_on_price.Ptr());
   indis.Push(indi_drawer_on_rsi.Ptr());
+#endif
 
   // Applied Price over OHCL indicator.
   IndiAppliedPriceParams applied_price_params();
@@ -409,12 +411,14 @@ bool InitIndicators() {
   indis.Push(new Indi_ADXW(adxw_params));
 
   // AMA.
+  /* @fixme
   IndiAMAParams ama_params();
   // Will use Candle indicator by default.
-  // However, in that case we need to specifiy applied price (excluding ASK and BID).
+  // However, in that case we need to specify applied price (excluding ASK and BID).
   Indi_AMA* _indi_ama = new Indi_AMA(ama_params, IDATA_INDICATOR, indi_applied_price_on_price.Ptr());
   _indi_ama.SetAppliedPrice(PRICE_OPEN);
-  // indis.Push(_indi_ama); // @fixme
+  indis.Push(_indi_ama); // @fixme
+  */
 
   // Original AMA.
   IndiAMAParams ama_params_orig();
