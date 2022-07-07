@@ -129,7 +129,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_WPR,                             // Williams' Percent Range
   INDI_ZIGZAG,                          // ZigZag
   INDI_ZIGZAG_COLOR,                    // ZigZag Color
-  FINAL_INDICATOR_TYPE_ENTRY
+  FINAL_INDICATOR_TYPE_ENTRY            // (None)
 };
 
 // Indicator line identifiers used in ADX and ADXW
