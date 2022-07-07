@@ -75,6 +75,11 @@ class Platform {
   }
 
   /**
+   * Returns dictionary of added indicators (keyed by unique id).
+   */
+  static DictStruct<long, Ref<IndicatorBase>> *GetIndicators() { return &indis; }
+
+  /**
    * Adds indicator to be processed by platform.
    */
   static void Add(IndicatorBase *_indi) {
@@ -85,7 +90,8 @@ class Platform {
   /**
    * Adds indicator to be processed by platform and tries to initialize its data source(s).
    */
-  static void AddWithDefaultBindings(IndicatorBase *_indi, CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+  static void AddWithDefaultBindings(IndicatorBase *_indi, CONST_REF_TO(string) _symbol = "",
+                                     ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     Add(_indi);
     BindDefaultDataSource(_indi, _symbol, _tf);
   }
@@ -221,7 +227,11 @@ class Platform {
   /**
    * Returns default Candle-compatible indicator for current platform for given symbol and TF.
    */
-  static IndicatorBase *FetchDefaultCandleIndicator(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+  static IndicatorBase *FetchDefaultCandleIndicator(string _symbol = "", ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    if (_symbol == "") {
+      _symbol = _Symbol;
+    }
+
     if (_tf == PERIOD_CURRENT) {
       _tf = Period();
     }
@@ -248,7 +258,11 @@ class Platform {
   /**
    * Returns default Tick-compatible indicator for current platform for given symbol.
    */
-  static IndicatorBase *FetchDefaultTickIndicator(CONST_REF_TO(string) _symbol) {
+  static IndicatorBase *FetchDefaultTickIndicator(string _symbol = "") {
+    if (_symbol == "") {
+      _symbol = _Symbol;
+    }
+
     string _key = Util::MakeKey("PlatformIndicatorTick", _symbol);
     IndicatorBase *_indi_tick;
     if (!Objects<IndicatorBase>::TryGet(_key, _indi_tick)) {

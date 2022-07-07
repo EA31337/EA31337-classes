@@ -79,6 +79,8 @@ class IndicatorBase : public Object {
   int flags;                                 // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
   Ref<Log> logger;
   ENUM_INDI_VS_TYPE retarget_ap_av;  // Value storage type to be used as applied price/volume.
+  DrawIndicator draw;
+  bool do_draw;
 
  public:
   /* Indicator enumerations */
@@ -98,7 +100,7 @@ class IndicatorBase : public Object {
   /**
    * Class constructor.
    */
-  IndicatorBase() : indi_src(NULL) {
+  IndicatorBase() : indi_src(NULL), draw(THIS_PTR) {
     // By default, indicator is indexable only by shift and data source must be also indexable by shift.
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
@@ -106,6 +108,7 @@ class IndicatorBase : public Object {
     indi_src = NULL;
     last_tick_time = 0;
     retarget_ap_av = INDI_VS_TYPE_NONE;
+    do_draw = false;
   }
 
   /**
@@ -1005,6 +1008,15 @@ class IndicatorBase : public Object {
   /* Setters */
 
   /**
+   * Sets whether indicator's buffers should be drawn on the chart.
+   */
+  void SetDraw(bool _value, color _color = clrAquamarine, int _window = 0) {
+    draw.SetEnabled(_value);
+    draw.SetColorLine(_color);
+    draw.SetWindow(_window);
+  }
+
+  /**
    * Adds event listener.
    */
   void AddListener(IndicatorBase* _indi) {
@@ -1278,6 +1290,13 @@ class IndicatorBase : public Object {
     // Also ticking all used indicators if they've not yet ticked.
     for (DictStructIterator<int, Ref<IndicatorBase>> iter = indicators.Begin(); iter.IsValid(); ++iter) {
       iter.Value().Ptr().Tick();
+    }
+
+    // Drawing maybe?
+    if (draw.GetEnabled()) {
+      for (int i = 0; i < GetModeCount(); ++i) {
+        draw.DrawLineTo(GetFullName() + "_" + IntegerToString(i), GetBarTime(0), GetEntry(0)[i]);
+      }
     }
 
     // Overridable OnTick() method.

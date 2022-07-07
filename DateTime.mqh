@@ -178,7 +178,10 @@ class DateTime {
   /**
    * Sets the new DateTimeEntry struct.
    */
-  void SetEntry(DateTimeEntry &_dt) { dt_curr = _dt; }
+  void SetEntry(DateTimeEntry &_dt) {
+    dt_last = dt_curr;
+    dt_curr = _dt;
+  }
 
   /* Dynamic methods */
 

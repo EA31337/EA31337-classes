@@ -79,7 +79,6 @@ double iCustom5(string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C
 template <typename TS>
 class Indicator : public IndicatorBase {
  protected:
-  DrawIndicator* draw;
   BufferStruct<IndicatorDataEntry> idata;
   TS iparams;
 
@@ -88,39 +87,7 @@ class Indicator : public IndicatorBase {
 
   bool Init() {
     ArrayResize(value_storages, iparams.GetMaxModes());
-    switch (iparams.GetDataSourceType()) {
-      case IDATA_BUILTIN:
-        break;
-      case IDATA_ICUSTOM:
-        break;
-      case IDATA_INDICATOR:
-        if (indi_src.IsSet() == NULL) {
-          // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
-          // SetDataSource(_indi_price, true, PRICE_OPEN);
-        }
-        break;
-    }
-    return InitDraw();
-  }
-
-  /**
-   * Initialize indicator data drawing on custom data.
-   */
-  bool InitDraw() {
-    if (iparams.is_draw && !Object::IsValid(draw)) {
-      draw = new DrawIndicator(THIS_PTR);
-      draw.SetColorLine(iparams.indi_color);
-    }
-    return iparams.is_draw;
-  }
-
-  /**
-   * Deinitialize drawing.
-   */
-  void DeinitDraw() {
-    if (draw) {
-      delete draw;
-    }
+    return true;
   }
 
  public:
@@ -162,7 +129,7 @@ class Indicator : public IndicatorBase {
   /**
    * Class deconstructor.
    */
-  ~Indicator() { DeinitDraw(); }
+  virtual ~Indicator() {}
 
   /* Getters */
 
@@ -926,15 +893,6 @@ class Indicator : public IndicatorBase {
     idata.Add(entry, timestamp);
 
     return true;
-  }
-
-  void OnTick() override {
-    if (iparams.is_draw) {
-      // Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
-      for (int i = 0; i < (int)iparams.GetMaxModes(); ++i)
-        draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.GetDataSourceMode()),
-                        GetBarTime(0), GetEntry(0)[i], iparams.draw_window);
-    }
   }
 
   /**

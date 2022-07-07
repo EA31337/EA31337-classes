@@ -1511,16 +1511,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
     return NULL;
   }
-  /*
+
   double NormalizeSL(double _value, ENUM_ORDER_TYPE _cmd) {
-    return _value > 0 ? GetSource().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL)) : 0;
+    return _value > 0 ? GetSource() PTR_DEREF NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL)) : 0;
   }
-  */
-  /*
+
   double NormalizeTP(double _value, ENUM_ORDER_TYPE _cmd) {
-    return _value > 0 ? GetSource().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP)) : 0;
+    return _value > 0 ? GetSource() PTR_DEREF NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP)) : 0;
   }
-  */
 
   /* Validation methods */
 

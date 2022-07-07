@@ -56,6 +56,8 @@ class DrawIndicator {
   color color_line;
   Draw* draw;
   IndicatorBase* indi;
+  bool enabled;
+  int window;
 
  public:
   // Object variables.
@@ -66,7 +68,7 @@ class DrawIndicator {
   /**
    * Class constructor.
    */
-  DrawIndicator(IndicatorBase* _indi) : indi(_indi) {
+  DrawIndicator(IndicatorBase* _indi) : indi(_indi), enabled(false), window(0) {
     // color_line = Object::IsValid(_indi) ? _indi.GetParams().indi_color : clrRed; // @fixme
     draw = new Draw();
   }
@@ -90,14 +92,37 @@ class DrawIndicator {
   /* Class methods */
 
   /**
+   * Sets whether drawing is enabled.
+   */
+  void SetEnabled(bool _value) { enabled = _value; }
+
+  /**
+   * Checks whether drawing is enabled.
+   */
+  bool GetEnabled() { return enabled; }
+
+  /**
    * Sets color of line.
    */
   void SetColorLine(color _clr) { color_line = _clr; }
 
   /**
+   * Sets chart's window index.
+   */
+  void SetWindow(int _window) { window = _window; }
+
+  /**
    * Draw line from the last point.
    */
-  void DrawLineTo(string _name, datetime _time, double _value, int _window = WINDOW_MAIN) {
+  void DrawLineTo(string _name, datetime _time, double _value, int _window = -1) {
+    if (!enabled) {
+      return;
+    }
+
+    if (_window == -1) {
+      _window = window;
+    }
+
     if (!last_points.KeyExists(_name)) {
       last_points.Set(_name, DrawPoint(_time, _value));
     } else {
