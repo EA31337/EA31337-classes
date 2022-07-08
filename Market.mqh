@@ -245,7 +245,7 @@ class Market : public SymbolInfo {
   /**
    * Returns Market data in textual representation.
    */
-  string const ToString() {
+  string ToString() override {
     return StringFormat(string("Pip digits/value: %d/%g, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, ") +
                             "Volume digits: %d, " + "Delta: %g, Last change: %g pips",
                         GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(),

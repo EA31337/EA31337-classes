@@ -24,6 +24,9 @@
  * Test functionality of Trade class.
  */
 
+// #define __debug__
+// #define __debug_verbose__
+
 // Forward declaration.
 struct DataParamEntry;
 
@@ -34,19 +37,37 @@ struct DataParamEntry;
 #include "../Test.mqh"
 #include "../Trade.mqh"
 
+Ref<IndicatorBase> _chart_m1;
+Ref<IndicatorBase> _chart_m5;
+
 /**
  * Implements OnInit().
  */
 int OnInit() {
   Platform::Init();
-  Ref<IndicatorBase> _chart_m1 = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M1);
-  Ref<IndicatorBase> _chart_m5 = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M5);
+  _chart_m1 = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M1);
+  _chart_m5 = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M5);
   Platform::Add(_chart_m1.Ptr());
   Platform::Add(_chart_m5.Ptr());
+  return INIT_SUCCEEDED;
+}
 
-  // We're testing OHLCs in OnInit(), so we have to ensure that Tick() happened.
+void OnTick() {
   Platform::Tick();
+  // We need some bars in order to make trades.
+  if (_chart_m5 REF_DEREF GetBarIndex() > trade_params_defaults.GetBarsMin()) {
+    if (Test() == INIT_FAILED) {
+      Print("ERROR: Test failed!");
+    }
+    // We only want to test on first tick.
+    ExpertRemove();
+  }
+}
 
+/**
+ * Testing Trade class. Returns INIT_FAILED on failure.
+ */
+int Test() {
   // Initial market tests.
   assertTrueOrFail(SymbolInfoStatic::GetAsk(_Symbol) > 0, "Invalid Ask price!");
 

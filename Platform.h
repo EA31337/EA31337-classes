@@ -289,6 +289,8 @@ class Platform {
     props.vol_digits = SymbolInfoStatic::GetVolumeDigits(_symbol);
     props.vol_min = SymbolInfoStatic::GetVolumeMin(_symbol);
     props.vol_max = SymbolInfoStatic::GetVolumeMax(_symbol);
+    props.vol_step = SymbolInfoStatic::GetVolumeStep(_symbol);
+    props.point_size = SymbolInfoStatic::GetPointSize(_symbol);
 #endif
     return props;
   }

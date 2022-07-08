@@ -513,7 +513,7 @@ class SymbolInfo : public Object {
   /**
    * Returns symbol information in string format.
    */
-  const string ToString() {
+  string ToString() override {
     return StringFormat(
         string("Symbol: %s, Last Ask/Bid: %g/%g, Last Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, ") +
             "Tick size: %g (%g pts), Tick value: %g (%g/%g), " + "Digits: %d, Spread: %d pts, Trade stops level: %d, " +

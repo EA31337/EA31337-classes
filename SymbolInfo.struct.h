@@ -79,6 +79,10 @@ struct SymbolInfoProp {
   unsigned int vol_digits;   // Volume digits.
   double vol_min;            // Minimum volume for a deal.
   double vol_max;            // Maximum volume for a deal.
+  double vol_step;           // Volume step.
+  double point_size;         // Point size.
+  double tick_size;          // Minimal price change.
+
   // Constructors.
   SymbolInfoProp() : initialized(false) {}
   SymbolInfoProp(const SymbolInfoProp& _sip) {
@@ -90,6 +94,9 @@ struct SymbolInfoProp {
     vol_digits = _sip.vol_digits;
     vol_min = _sip.vol_min;
     vol_max = _sip.vol_max;
+    vol_step = _sip.vol_step;
+    point_size = _sip.point_size;
+    tick_size = _sip.tick_size;
   }
   // Getters.
   double GetPipValue() { return pip_value; }
@@ -99,6 +106,26 @@ struct SymbolInfoProp {
   unsigned int GetVolumeDigits() { return vol_digits; }
   double GetVolumeMin() { return vol_min; }
   double GetVolumeMax() { return vol_max; }
+  double GetVolumeStep() { return vol_step; }
+  double GetPointSize() { return point_size; }
+  double GetTickSize() { return tick_size; }
+
+  /**
+   * Normalize price value.
+   *
+   * Make sure that the price is a multiple of ticksize.
+   */
+  double NormalizePrice(double p) {
+    // See: http://forum.mql4.com/47988
+    // http://forum.mql4.com/43064#515262 zzuegg reports for non-currency DE30:
+    // - MarketInfo(chart.symbol,MODE_TICKSIZE) returns 0.5
+    // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
+    // - Point = 0.1
+    // Rare fix when a change in tick size leads to a change in tick value.
+    double _result = round(p / GetPointSize()) * GetTickSize();
+    _result = NormalizeDouble(_result, GetDigits());
+    return _result;
+  }
 
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
@@ -123,5 +150,8 @@ SerializerNodeType SymbolInfoProp::Serialize(Serializer& _s) {
   _s.Pass(THIS_REF, "vol_digits", vol_digits);
   _s.Pass(THIS_REF, "vol_min", vol_min);
   _s.Pass(THIS_REF, "vol_max", vol_max);
+  _s.Pass(THIS_REF, "vol_step", vol_step);
+  _s.Pass(THIS_REF, "point_size", point_size);
+  _s.Pass(THIS_REF, "tick_size", tick_size);
   return SerializerNodeObject;
 }
