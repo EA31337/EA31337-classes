@@ -82,6 +82,7 @@ struct SymbolInfoProp {
   double vol_step;           // Volume step.
   double point_size;         // Point size.
   double tick_size;          // Minimal price change.
+  double tick_value;         // Tick value.
 
   // Constructors.
   SymbolInfoProp() : initialized(false) {}
@@ -97,6 +98,7 @@ struct SymbolInfoProp {
     vol_step = _sip.vol_step;
     point_size = _sip.point_size;
     tick_size = _sip.tick_size;
+    tick_value = _sip.tick_value;
   }
   // Getters.
   double GetPipValue() { return pip_value; }
@@ -109,6 +111,7 @@ struct SymbolInfoProp {
   double GetVolumeStep() { return vol_step; }
   double GetPointSize() { return point_size; }
   double GetTickSize() { return tick_size; }
+  double GetTickValue() { return tick_value; }
 
   /**
    * Normalize price value.
@@ -153,5 +156,6 @@ SerializerNodeType SymbolInfoProp::Serialize(Serializer& _s) {
   _s.Pass(THIS_REF, "vol_step", vol_step);
   _s.Pass(THIS_REF, "point_size", point_size);
   _s.Pass(THIS_REF, "tick_size", tick_size);
+  _s.Pass(THIS_REF, "tick_value", tick_value);
   return SerializerNodeObject;
 }

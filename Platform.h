@@ -291,6 +291,8 @@ class Platform {
     props.vol_max = SymbolInfoStatic::GetVolumeMax(_symbol);
     props.vol_step = SymbolInfoStatic::GetVolumeStep(_symbol);
     props.point_size = SymbolInfoStatic::GetPointSize(_symbol);
+    props.tick_size = SymbolInfoStatic::GetTickSize(_symbol);
+    props.tick_value = SymbolInfoStatic::GetTickValue(_symbol);
 #endif
     return props;
   }

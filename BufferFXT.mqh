@@ -27,6 +27,7 @@
 #include "Account/AccountMt.h"
 #include "Chart.mqh"
 #include "DictStruct.mqh"
+#include "IndicatorBase.h"
 #include "Object.mqh"
 
 // Defines.
@@ -169,31 +170,31 @@ struct BufferFXTHeader {
   //----
   int reserved[60];  // Reserved - space for future use.
   // Struct constructor.
-  BufferFXTHeader(Chart *_c, AccountMt *_a)
+  BufferFXTHeader(IndicatorBase *_source, AccountMt *_a)
       : version(405),
-        period(_c.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
+        period(_source PTR_DEREF GetTick() PTR_DEREF GetTf()),
         model(0),
         bars(0),
         fromdate(0),
         todate(0),
         totalTicks(0),
         modelquality(0),
-        spread((int)_c.GetSpread()),
-        digits((int)_c.GetDigits()),
-        point(_c.GetPointSize()),
-        lot_min(int(_c.GetVolumeMin() * 100)),
-        lot_max(int(_c.GetVolumeMax() * 100)),
-        lot_step(int(_c.GetVolumeStep() * 100)),
+        spread((int)_source PTR_DEREF GetSpread()),
+        digits((int)_source PTR_DEREF GetSymbolProps().GetDigits()),
+        point(_source PTR_DEREF GetSymbolProps().GetPointSize()),
+        lot_min(int(_source PTR_DEREF GetSymbolProps().GetVolumeMin() * 100)),
+        lot_max(int(_source PTR_DEREF GetSymbolProps().GetVolumeMax() * 100)),
+        lot_step(int(_source PTR_DEREF GetSymbolProps().GetVolumeStep() * 100)),
         stops_level(0),  // @todo: Add MODE_STOPLEVEL to Account.
         gtc_pendings(false),
         contract_size(10000),
-        tick_value(_c.GetTickValue()),
-        tick_size(_c.GetTickSize()),
+        tick_value(_source PTR_DEREF GetSymbolProps().GetTickValue()),
+        tick_size(_source PTR_DEREF GetSymbolProps().GetTickSize()),
         profit_mode(PROFIT_CALC_FOREX),
         swap_enable(true),
         swap_type(SWAP_BY_POINTS),  // @todo: Add _c.GetSwapType() to SymbolInfo.
-        swap_long(_c.GetSwapLong()),
-        swap_short(_c.GetSwapShort()),
+        swap_long(_source PTR_DEREF GetSymbolProps().GetSwapLong()),
+        swap_short(_source PTR_DEREF GetSymbolProps().GetSwapShort()),
         swap_rollover3days(3),
         leverage((int)_a.GetLeverage()),
         free_margin_mode(MARGIN_DONT_USE),

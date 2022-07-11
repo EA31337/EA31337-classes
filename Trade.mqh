@@ -205,10 +205,7 @@ class Trade : public Taskable<DataParamEntry> {
     _request.type = _type;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
-    // @fixit Revert previous code.
-    //    DebugBreak();
-    // _request.volume = NormalizeLots(fmax(_request.volume, SymbolInfoStatic::GetVolumeMin(_request.symbol)));
-    // _request.volume = GetSource() PTR_DEREF GetTickVolume();
+    _request.volume = NormalizeLots(fmax(_request.volume, GetSource() PTR_DEREF GetSymbolProps().GetVolumeMin()));
     return _request;
   }
 
@@ -607,10 +604,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
     lotsize = twins > 1 ? lotsize + (lotsize / 100 * win_factor * twins) : lotsize;
     lotsize = tlosses > 1 ? lotsize + (lotsize / 100 * loss_factor * tlosses) : lotsize;
-    // @todo: NormalizeLots().
-    DebugBreak();
-    return 0;
-    // return NormalizeLots(lotsize);
+    return NormalizeLots(lotsize);
   }
 
   /**
@@ -1811,10 +1805,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_COND_IS_PEAK:
         // @fixit IsPeak requires refactoring.
         // return IsPeak(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>());
+        Alert("Functionality not yet implemented!");
+        DebugBreak();
         return false;
       case TRADE_COND_IS_PIVOT:
         // @fixit IsPivot requires refactoring.
         // return IsPivot(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>());
+        Alert("Functionality not yet implemented!");
+        DebugBreak();
         return false;
       case TRADE_COND_ORDERS_PROFIT_GT_01PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
@@ -1895,6 +1893,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_CALC_LOT_SIZE:
         // @fixit CalcLotSize requires refactoring.
         // tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
+        Alert("Functionality not yet implemented!");
+        DebugBreak();
         return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
       case TRADE_ACTION_ORDER_CLOSE_LEAST_LOSS:
         // @todo
@@ -1950,6 +1950,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           // @fixit GetTrendOp requires refactoring.
           // _result = OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          Alert("Functionality not yet implemented!");
+          DebugBreak();
           RefreshActiveOrders(true);
         }
         break;
@@ -1957,6 +1959,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           // @fixit GetTrendOp requires refactoring.
           // _result = OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          Alert("Functionality not yet implemented!");
+          DebugBreak();
+
           RefreshActiveOrders(true);
         }
         break;

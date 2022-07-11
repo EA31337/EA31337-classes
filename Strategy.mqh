@@ -653,7 +653,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Prints strategy's details.
    */
-  string const ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
+  string ToString() override { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
 
   /* Virtual methods */
 

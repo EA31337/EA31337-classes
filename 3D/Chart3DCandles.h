@@ -59,11 +59,11 @@ class Chart3DCandles : public Chart3DType {
     for (int _shift = chart3d.GetBarsVisibleShiftStart(); _shift != chart3d.GetBarsVisibleShiftEnd(); --_shift) {
       BarOHLC _ohlc = chart3d.GetPrice(PERIOD_CURRENT, _shift);
 
-      float _height = chart3d.GetPriceScale(_ohlc.GetMaxOC()) - chart3d.GetPriceScale(_ohlc.GetMinOC());
+      float _height = chart3d.GetPriceScale((float)_ohlc.GetMaxOC()) - chart3d.GetPriceScale((float)_ohlc.GetMinOC());
       float higher = _ohlc.IsBear();
 
       cube1.Ptr().GetTSR().translation.x = chart3d.GetBarPositionX(_shift);
-      cube1.Ptr().GetTSR().translation.y = chart3d.GetPriceScale(_ohlc.GetMinOC()) + _height / 2;
+      cube1.Ptr().GetTSR().translation.y = chart3d.GetPriceScale((float)_ohlc.GetMinOC()) + _height / 2;
       cube1.Ptr().GetTSR().scale.y = _height;
 
       // Print(cube1.Ptr().GetTSR().translation.y);
@@ -72,8 +72,8 @@ class Chart3DCandles : public Chart3DType {
       _device.Render(cube1.Ptr());
 
       cube2.Ptr().GetTSR().translation.x = chart3d.GetBarPositionX(_shift);
-      float _line_height = chart3d.GetPriceScale(_ohlc.GetHigh()) - chart3d.GetPriceScale(_ohlc.GetLow());
-      cube2.Ptr().GetTSR().translation.y = chart3d.GetPriceScale(_ohlc.GetLow()) + _line_height / 2;
+      float _line_height = chart3d.GetPriceScale((float)_ohlc.GetHigh()) - chart3d.GetPriceScale((float)_ohlc.GetLow());
+      cube2.Ptr().GetTSR().translation.y = chart3d.GetPriceScale((float)_ohlc.GetLow()) + _line_height / 2;
       cube2.Ptr().GetTSR().scale.y = _line_height;
       cube2.Ptr().GetMaterial().SetColor(higher ? 0x22FF11 : 0xFF1122);
       _device.Render(cube2.Ptr());
