@@ -251,11 +251,7 @@ class IndicatorTick : public Indicator<TS> {
     if (_shift != 0) {
       Print("Error: IndicatorTick does not yet support getting entries by shift other than 0!");
       DebugBreak();
-#ifdef __MQL4__
-      IndicatorDataEntryValue _default();
-#else
       IndicatorDataEntryValue _default;
-#endif
       return _default;
     }
 

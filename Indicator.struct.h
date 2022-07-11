@@ -58,6 +58,8 @@ struct IndicatorDataEntryValue {
   unsigned char flags;
   IndicatorDataEntryTypelessValue value;
 
+  IndicatorDataEntryValue() : flags(TYPE_INT) { value.vint = 0; }
+
   // Returns type of the value.
   ENUM_DATATYPE GetDataType() { return (ENUM_DATATYPE)((flags & 0xF0) >> 4); }
 
