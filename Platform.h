@@ -233,7 +233,7 @@ class Platform {
     }
 
     if (_tf == PERIOD_CURRENT) {
-      _tf = Period();
+      _tf = (ENUM_TIMEFRAMES)Period();
     }
 
     // Candle is per symbol and TF. Single Candle indicator can't handle multiple TFs.
@@ -293,6 +293,11 @@ class Platform {
     props.point_size = SymbolInfoStatic::GetPointSize(_symbol);
     props.tick_size = SymbolInfoStatic::GetTickSize(_symbol);
     props.tick_value = SymbolInfoStatic::GetTickValue(_symbol);
+    props.swap_long = SymbolInfoStatic::GetSwapLong(_symbol);
+    props.swap_short = SymbolInfoStatic::GetSwapShort(_symbol);
+    props.margin_initial = SymbolInfoStatic::GetMarginInit(_symbol);
+    props.margin_maintenance = SymbolInfoStatic::GetMarginMaintenance(_symbol);
+    props.freeze_level = SymbolInfoStatic::GetFreezeLevel(_symbol);
 #endif
     return props;
   }

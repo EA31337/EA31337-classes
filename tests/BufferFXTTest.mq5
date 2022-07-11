@@ -26,6 +26,7 @@
 
 // Includes
 #include "../BufferFXT.mqh"
+#include "../Platform.h"
 #include "../Test.mqh"
 
 BufferFXT *ticks;
@@ -34,7 +35,8 @@ BufferFXT *ticks;
  * Implements OnInit().
  */
 int OnInit() {
-  ticks = new BufferFXT();
+  Platform::Init();
+  ticks = new BufferFXT(Platform::FetchDefaultCandleIndicator());
   // Test 1.
   // @todo
   return (GetLastError() > 0 ? INIT_FAILED : INIT_SUCCEEDED);
@@ -43,7 +45,7 @@ int OnInit() {
 /**
  * Implements OnTick().
  */
-void OnTick() {}
+void OnTick() { Platform::Tick(); }
 
 /**
  * Implements OnDeinit().

@@ -403,7 +403,7 @@ class SymbolInfo : public Object {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  unsigned int GetFreezeLevel() { return SymbolInfoStatic::GetFreezeLevel(symbol); }
+  int GetFreezeLevel() { return SymbolInfoStatic::GetFreezeLevel(symbol); }
 
   /**
    * Gets flags of allowed order filling modes.

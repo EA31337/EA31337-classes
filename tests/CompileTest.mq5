@@ -62,7 +62,7 @@
 #include "../ISerializable.h"
 #include "../Indicator.define.h"
 #include "../Indicator.mqh"
-#include "../IndicatorData.mqh"
+//#include "../IndicatorData.mqh" // @removeme
 #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
@@ -122,7 +122,7 @@
 #include "../Terminal.mqh"
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"
-#include "../Tests.mqh"
+// #include "../Tests.mqh" // @removeme
 #include "../Ticker.mqh"
 #include "../Timer.mqh"
 #include "../Trade.mqh"

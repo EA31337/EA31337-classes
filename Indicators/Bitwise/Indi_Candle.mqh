@@ -69,7 +69,7 @@ class Indi_Candle : public Indicator<CandleParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
-    if (Indicator<IndiPatternParams>::OnCheckIfSuitableDataSource(_ds)) {
+    if (Indicator<CandleParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
 

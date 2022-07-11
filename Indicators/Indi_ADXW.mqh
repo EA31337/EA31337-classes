@@ -77,7 +77,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
-    if (Indicator<IndiADXParams>::OnCheckIfSuitableDataSource(_ds)) {
+    if (Indicator<IndiADXWParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
 

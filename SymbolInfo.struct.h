@@ -79,10 +79,17 @@ struct SymbolInfoProp {
   unsigned int vol_digits;   // Volume digits.
   double vol_min;            // Minimum volume for a deal.
   double vol_max;            // Maximum volume for a deal.
-  double vol_step;           // Volume step.
-  double point_size;         // Point size.
+  double vol_step;           // Minimal volume change step for deal execution.
+  double point_size;         // Symbol point value.
   double tick_size;          // Minimal price change.
-  double tick_value;         // Tick value.
+  double tick_value;         // Calculated tick price for a profitable position.
+  double swap_long;          // Swap of the buy order.
+  double swap_short;         // Swap of the sell order.
+  double margin_initial;  // Initial margin means the amount in the margin currency required for opening an order with
+                          // the volume of one lot.
+  double margin_maintenance;  // If it is set, it sets the margin amount in the margin currency of the symbol, charged
+                              // from one lot.
+  int freeze_level;           // Distance to freeze trade operations in points.
 
   // Constructors.
   SymbolInfoProp() : initialized(false) {}
@@ -99,6 +106,11 @@ struct SymbolInfoProp {
     point_size = _sip.point_size;
     tick_size = _sip.tick_size;
     tick_value = _sip.tick_value;
+    swap_long = _sip.swap_long;
+    swap_short = _sip.swap_short;
+    margin_initial = _sip.margin_initial;
+    margin_maintenance = _sip.margin_maintenance;
+    freeze_level = _sip.freeze_level;
   }
   // Getters.
   double GetPipValue() { return pip_value; }
@@ -112,6 +124,11 @@ struct SymbolInfoProp {
   double GetPointSize() { return point_size; }
   double GetTickSize() { return tick_size; }
   double GetTickValue() { return tick_value; }
+  double GetSwapLong() { return swap_long; }
+  double GetSwapShort() { return swap_short; }
+  double GetMarginInit() { return margin_initial; }
+  double GetMarginMaintenance() { return margin_maintenance; }
+  int GetFreezeLevel() { return freeze_level; }
 
   /**
    * Normalize price value.
@@ -157,5 +174,10 @@ SerializerNodeType SymbolInfoProp::Serialize(Serializer& _s) {
   _s.Pass(THIS_REF, "point_size", point_size);
   _s.Pass(THIS_REF, "tick_size", tick_size);
   _s.Pass(THIS_REF, "tick_value", tick_value);
+  _s.Pass(THIS_REF, "swap_long", swap_long);
+  _s.Pass(THIS_REF, "swap_short", swap_short);
+  _s.Pass(THIS_REF, "margin_initial", margin_initial);
+  _s.Pass(THIS_REF, "margin_maintenance", margin_maintenance);
+  _s.Pass(THIS_REF, "freeze_level", freeze_level);
   return SerializerNodeObject;
 }

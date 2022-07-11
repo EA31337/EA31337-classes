@@ -483,13 +483,15 @@ class IndicatorBase : public Object {
       return false;
     }
 
+    ENUM_INDI_VS_TYPE _requested_vs_type;
+
     if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
-      ENUM_INDI_VS_TYPE _requested_vs_type = GetAppliedPriceValueStorageType();
+      _requested_vs_type = GetAppliedPriceValueStorageType();
       return _ds PTR_DEREF HasSpecificValueStorage(_requested_vs_type);
     }
 
     if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AV)) {
-      ENUM_INDI_VS_TYPE _requested_vs_type = GetAppliedVolumeValueStorageType();
+      _requested_vs_type = GetAppliedVolumeValueStorageType();
       return _ds PTR_DEREF HasSpecificValueStorage(_requested_vs_type);
     }
 
@@ -707,10 +709,12 @@ class IndicatorBase : public Object {
       }
     }
 
+    ENUM_INDI_VS_TYPE _requested_vs_type;
+
     // Requires a single buffered or OHLC-compatible indicator (targetted via applied price) in the hierarchy.
     if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
       // Applied price is defined by this indicator, so it must override GetAppliedPrice().
-      ENUM_INDI_VS_TYPE _requested_vs_type = GetAppliedPriceValueStorageType();
+      _requested_vs_type = GetAppliedPriceValueStorageType();
 
       // Searching for given buffer type in the hierarchy.
       for (_curr_indi = GetDataSource(false); _curr_indi != nullptr;
@@ -741,7 +745,7 @@ class IndicatorBase : public Object {
 
     // Requires a single buffered or OHLC-compatible indicator (targetted via applied price or volume) in the hierarchy.
     if (_suitable_types.HasAnyFlag(INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_AV)) {
-      ENUM_INDI_VS_TYPE _requested_vs_type = (ENUM_INDI_VS_TYPE)-1;
+      _requested_vs_type = (ENUM_INDI_VS_TYPE)-1;
 
       if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
         // Applied price is defined by this indicator, so it must override GetAppliedPrice().

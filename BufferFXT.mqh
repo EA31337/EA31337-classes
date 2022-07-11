@@ -201,8 +201,8 @@ struct BufferFXTHeader {
         margin_mode(MARGIN_CALC_FOREX),
         margin_stopout(30),  // @fixme: _a.GetStopoutLevel() based on ACCOUNT_MARGIN_SO_CALL.
         margin_stopout_mode(_a.GetStopoutMode()),
-        margin_initial(_c.GetMarginInit()),
-        margin_maintenance(_c.GetMarginMaintenance()),
+        margin_initial(_source PTR_DEREF GetSymbolProps().GetMarginInit()),
+        margin_maintenance(_source PTR_DEREF GetSymbolProps().GetMarginMaintenance()),
         margin_hedged(0),
         margin_divider(0),
         comm_base(0.0),
@@ -218,7 +218,7 @@ struct BufferFXTHeader {
         start_period_h4(0),
         set_from(0),
         set_to(0),
-        freeze_level((int)_c.GetFreezeLevel()),
+        freeze_level((int)_source PTR_DEREF GetSymbolProps().GetFreezeLevel()),
         generating_errors(0) {
     ArrayInitialize(copyright, 0);
     // currency = StringSubstr(_m.GetSymbol(), 0, 3); // @fixme
@@ -231,16 +231,16 @@ struct BufferFXTHeader {
 
 struct BufferFXTParams {
   AccountMt *account;
-  Chart *chart;
+  Ref<IndicatorBase> source;
   // Struct constructor.
-  void BufferFXTParams(Chart *_chart = NULL, AccountMt *_account = NULL)
-      : account(Object::IsValid(_account) ? _account : new AccountMt),
-        chart(Object::IsValid(_chart) ? _chart : new Chart) {}
-  // Struct deconstructor.
-  void ~BufferFXTParams() {
-    delete account;
-    delete chart;
+  BufferFXTParams(IndicatorBase *_source, AccountMt *_account = NULL)
+      : account(Object::IsValid(_account) ? _account : new AccountMt), source(_source) {}
+  BufferFXTParams(BufferFXTParams &r) {
+    account = r.account;
+    source = r.source;
   }
+  // Struct deconstructor.
+  void ~BufferFXTParams() { delete account; }
 };
 
 string ToJSON(BufferFXTEntry &_value, const bool, const unsigned int) { return _value.ToJSON(); };
@@ -256,8 +256,8 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
   /**
    * Class constructor.
    */
-  BufferFXT() {}
-  BufferFXT(const BufferFXTParams &_params) { params = _params; }
+  BufferFXT(IndicatorBase *_source) : params(_source) {}
+  BufferFXT(BufferFXTParams &_params) : params(_params) {}
 
   /**
    * Class deconstructor.
@@ -284,7 +284,7 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
    * Save data into file.
    */
   void SaveToFile() {
-    BufferFXTHeader header(params.chart, params.account);
+    BufferFXTHeader header(params.source.Ptr(), params.account);
     // @todo: Save BufferFXTHeader, then foreach BufferFXTEntry.
     // @see: https://docs.mql4.com/files/filewritestruct
   }
