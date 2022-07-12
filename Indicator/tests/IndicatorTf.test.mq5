@@ -26,9 +26,6 @@
  * Idea is to check if ticks from IndicatorTick will be properly grouped by given timespan/timeframe.
  */
 
-#define __debug__
-#define __debug_verbose__
-
 // Includes.
 #include "../../Indicators/Indi_AMA.mqh"
 #include "../../Indicators/Tick/Indi_TickMt.mqh"
