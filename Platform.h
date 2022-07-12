@@ -212,7 +212,7 @@ class Platform {
     } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
       // Indicator requires OHLC-compatible data source, Candle indicator would fulfill such requirement.
       _indi PTR_DEREF SetDataSource(_default_indi_candle);
-    } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_CANDLE)) {
+    } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_CANDLE) || _suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_EXPECT_ANY)) {
       _indi PTR_DEREF SetDataSource(_default_indi_candle);
     } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_TICK)) {
       _indi PTR_DEREF SetDataSource(_default_indi_tick);
