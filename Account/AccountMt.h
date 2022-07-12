@@ -321,7 +321,7 @@ class AccountMt {
 
   /*
     @TODO Still used?
-    
+
     double UpdateStats(ENUM_ACC_STAT_VALUE _type, double _value) {
       static datetime _last_check = TimeCurrent();
       bool _stats_rotate = false;

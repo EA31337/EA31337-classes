@@ -450,11 +450,6 @@ class ChartBase : public Dynamic {
            (HistoryTotal - StartBar)) *
           100;
     }
-    
-
-
-
-
     */
 
     return (ModellingQuality);
@@ -712,9 +707,6 @@ class ChartBase : public Dynamic {
   SerializerNodeType Serialize(Serializer& _s) {
     /**
     TODO
-    
-
-
 
     ChartEntry _centry = GetEntry();
     _s.PassStruct(THIS_REF, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
