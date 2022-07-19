@@ -274,7 +274,7 @@ class Order : public SymbolInfo {
   bool IsClosed(bool _refresh = false) {
     if (odata.Get<long>(ORDER_PROP_TIME_CLOSED) == 0) {
       if (_refresh || ShouldRefresh()) {
-        if (Order::TryOrderSelect(odata.Get<long>(ORDER_PROP_TICKET), SELECT_BY_TICKET, MODE_HISTORY)) {
+        if (Order::TryOrderSelect(Order::OrderTicket(), SELECT_BY_TICKET, MODE_HISTORY)) {
           odata.Set<long>(ORDER_PROP_TIME_CLOSED, Order::OrderCloseTime());
           odata.Set<int>(ORDER_PROP_REASON_CLOSE, ORDER_REASON_CLOSED_UNKNOWN);
         }
@@ -421,8 +421,7 @@ class Order : public SymbolInfo {
 #else  // __MQL5__
     // @docs https://www.mql5.com/en/docs/trading/HistoryDealGetDouble
     double _result = 0;
-    unsigned long _ticket = Order::OrderTicket();
-    if (HistorySelectByPosition(_ticket)) {
+    if (Order::TryOrderSelect(Order::OrderTicket(), SELECT_BY_TICKET, MODE_HISTORY)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
@@ -451,8 +450,7 @@ class Order : public SymbolInfo {
     return (datetime)Order::OrderGetInteger(ORDER_TIME_SETUP);
 #else
     long _result = 0;
-    unsigned long _ticket = Order::OrderTicket();
-    if (HistorySelectByPosition(_ticket)) {
+    if (Order::TryOrderSelect(Order::OrderTicket(), SELECT_BY_TICKET, MODE_HISTORY)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
@@ -486,8 +484,7 @@ class Order : public SymbolInfo {
 #else  // __MQL5__
     // @docs https://www.mql5.com/en/docs/trading/historydealgetinteger
     long _result = 0;
-    unsigned long _ticket = Order::OrderTicket();
-    if (HistorySelectByPosition(_ticket)) {
+    if (Order::TryOrderSelect(Order::OrderTicket(), SELECT_BY_TICKET, MODE_HISTORY)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
@@ -524,8 +521,7 @@ class Order : public SymbolInfo {
     return ::OrderCommission();
 #else  // __MQL5__
     double _result = 0;
-    unsigned long _ticket = Order::OrderTicket();
-    if (HistorySelectByPosition(_ticket)) {
+    if (Order::TryOrderSelect(Order::OrderTicket(), SELECT_BY_TICKET, MODE_HISTORY)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
@@ -553,8 +549,7 @@ class Order : public SymbolInfo {
     return Order::OrderCommission() - Order::OrderSwap();
 #else  // __MQL5__
     double _result = 0;
-    unsigned long _ticket = Order::OrderTicket();
-    if (HistorySelectByPosition(_ticket)) {
+    if (Order::TryOrderSelect(Order::OrderTicket(), SELECT_BY_TICKET, MODE_HISTORY)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
@@ -641,8 +636,7 @@ class Order : public SymbolInfo {
     return ::OrderProfit();
 #else
     double _result = 0;
-    unsigned long _ticket = Order::OrderTicket();
-    if (HistorySelectByPosition(_ticket)) {
+    if (Order::TryOrderSelect(Order::OrderTicket(), SELECT_BY_TICKET, MODE_HISTORY)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
@@ -708,8 +702,7 @@ class Order : public SymbolInfo {
     return ::OrderSwap();
 #else
     double _result = 0;
-    unsigned long _ticket = Order::OrderTicket();
-    if (HistorySelectByPosition(_ticket)) {
+    if (Order::TryOrderSelect(Order::OrderTicket(), SELECT_BY_TICKET, MODE_HISTORY)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
@@ -1517,7 +1510,6 @@ class Order : public SymbolInfo {
           selected_ticket_type = ORDER_SELECT_TYPE_HISTORY;
         } else {
           selected_ticket_type = ORDER_SELECT_TYPE_NONE;
-          selected_ticket_id = 0;
         }
 
         selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _ticket_id;
@@ -1528,8 +1520,10 @@ class Order : public SymbolInfo {
         selected_ticket_type = ORDER_SELECT_TYPE_ACTIVE;
       } else {
         ResetLastError();
-        if (::PositionSelectByTicket(_index) && GetLastError() == ERR_SUCCESS) {
+        if (pool == MODE_TRADES && ::PositionSelectByTicket(_index) && GetLastError() == ERR_SUCCESS) {
           selected_ticket_type = ORDER_SELECT_TYPE_POSITION;
+        } else if (pool == MODE_HISTORY && HistorySelectByPosition(_index) && GetLastError() == ERR_SUCCESS) {
+          selected_ticket_type = ORDER_SELECT_TYPE_HISTORY;
         } else {
           ResetLastError();
           if (::HistoryOrderSelect(_index) && GetLastError() == ERR_SUCCESS) {

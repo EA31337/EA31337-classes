@@ -48,7 +48,7 @@ Order *orders_dummy[MAX_ORDERS];
  */
 int OnInit() {
   Platform::Init();
-  _candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
+  _candles = Platform::FetchDefaultCandleIndicator();
   bool _result = true;
   bar_processed = 0;
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d!", GetLastError()));
@@ -74,9 +74,10 @@ void OnTick() {
       switch (_order.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)) {
         case ORDER_TYPE_BUY:
           if (_order.IsOpen()) {
-            string order_comment = StringFormat("Closing order: %d", _index + 1);
+            string order_comment = StringFormat("Closing order %d at index %d", _order.OrderTicket(), _index + 1);
             _order_result = _order.OrderClose(ORDER_REASON_CLOSED_BY_TEST, order_comment);
-            assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
+            assertTrueOrExit(_order_result, StringFormat("Order %d not closed (last error: %d)!", _order.OrderTicket(),
+                                                         GetLastError()));
           }
           break;
         case ORDER_TYPE_SELL:
@@ -84,8 +85,9 @@ void OnTick() {
           _order.Refresh();
           break;
       }
-      assertFalseOrExit(_order.IsOpen(), "Order not closed!");
-      assertTrueOrExit(_order.Get<long>(ORDER_PROP_TIME_CLOSED) > 0, "Order close time not correct!");
+      assertFalseOrExit(_order.IsOpen(true), StringFormat("Order %d not closed!", _order.OrderTicket()));
+      assertTrueOrExit(_order.Get<long>(ORDER_PROP_TIME_CLOSED) > 0,
+                       StringFormat("Order %d close time not correct!", _order.OrderTicket()));
     }
     bar_processed++;
   }
