@@ -416,7 +416,6 @@ struct IndicatorParams {
   unsigned int max_buffers;         // Max buffers to store.
   unsigned int max_modes;           // Max supported indicator modes (values per entry).
   unsigned int max_params;          // Max supported input params.
-  ChartTf tf;                       // Chart's timeframe.
   ENUM_INDICATOR_TYPE itype;        // Indicator type (e.g. INDI_RSI).
   ENUM_IDATA_SOURCE_TYPE idstype;   // Indicator's data source type (e.g. IDATA_BUILTIN, IDATA_ICUSTOM).
   ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
@@ -480,7 +479,6 @@ struct IndicatorParams {
   ENUM_DATATYPE GetDataValueType() const { return dtype; }
   ENUM_IDATA_SOURCE_TYPE GetDataSourceType() const { return idstype; }
   ENUM_IDATA_VALUE_RANGE GetIDataValueRange() const { return idvrange; }
-  ENUM_TIMEFRAMES GetTf() const { return tf.GetTf(); }
   template <typename T>
   T GetInputParam(int _index, T _default) const {
     DataParamEntry _param = input_params[_index];
@@ -550,7 +548,6 @@ struct IndicatorParams {
   void SetShift(int _shift) { shift = _shift; }
   void SetSize(int _size) { max_buffers = _size; };
   void SetSymbol(string _symbol) { symbol = _symbol; }
-  void SetTf(ENUM_TIMEFRAMES _tf) { tf.SetTf(_tf); }
   // Serializers.
   // SERIALIZER_EMPTY_STUB;
   // template <>

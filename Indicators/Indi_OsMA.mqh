@@ -49,10 +49,7 @@ struct IndiOsMAParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OsMA");
   };
-  IndiOsMAParams(IndiOsMAParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiOsMAParams(IndiOsMAParams &_params) { THIS_REF = _params; };
 };
 
 /**

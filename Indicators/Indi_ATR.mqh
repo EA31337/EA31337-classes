@@ -41,10 +41,7 @@ struct IndiATRParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ATR");
   };
-  IndiATRParams(IndiATRParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiATRParams(IndiATRParams &_params) { THIS_REF = _params; };
 };
 
 /**

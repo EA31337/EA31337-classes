@@ -40,10 +40,7 @@ struct IndiOHLCParams : IndicatorParams {
   IndiOHLCParams(int _shift = 0) : IndicatorParams(INDI_OHLC, FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE) {
     SetShift(_shift);
   };
-  IndiOHLCParams(IndiOHLCParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiOHLCParams(IndiOHLCParams &_params) { THIS_REF = _params; };
 };
 
 /**

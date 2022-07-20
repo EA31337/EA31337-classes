@@ -53,10 +53,7 @@ struct IndiBWIndiMFIParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
   };
-  IndiBWIndiMFIParams(IndiBWIndiMFIParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiBWIndiMFIParams(IndiBWIndiMFIParams &_params) { THIS_REF = _params; };
 };
 
 /**

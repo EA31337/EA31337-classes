@@ -52,10 +52,7 @@ struct IndiMomentumParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Momentum");
   };
-  IndiMomentumParams(IndiMomentumParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiMomentumParams(IndiMomentumParams &_params) { THIS_REF = _params; };
 };
 
 /**

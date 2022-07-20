@@ -39,10 +39,7 @@ struct IndiADParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\AD");
     shift = _shift;
   };
-  IndiADParams(IndiADParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiADParams(IndiADParams &_params) { THIS_REF = _params; };
 };
 
 /**

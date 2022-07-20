@@ -65,10 +65,7 @@ struct IndiMAParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Moving Average");
   };
-  IndiMAParams(IndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiMAParams(IndiMAParams &_params) { THIS_REF = _params; };
 };
 
 /**

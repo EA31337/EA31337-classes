@@ -86,10 +86,7 @@ struct IndiAlligatorParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Alligator");
   };
-  IndiAlligatorParams(IndiAlligatorParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiAlligatorParams(IndiAlligatorParams &_params) { THIS_REF = _params; };
 };
 
 /**

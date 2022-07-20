@@ -41,10 +41,7 @@ struct IndiWPRParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\WPR");
   };
-  IndiWPRParams(IndiWPRParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiWPRParams(IndiWPRParams &_params) { THIS_REF = _params; };
 };
 
 /**

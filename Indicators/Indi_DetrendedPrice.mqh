@@ -38,10 +38,7 @@ struct IndiDetrendedPriceParams : IndicatorParams {
     period = _period;
     shift = _shift;
   };
-  IndiDetrendedPriceParams(IndiDetrendedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiDetrendedPriceParams(IndiDetrendedPriceParams &_params) { THIS_REF = _params; };
 };
 
 /**

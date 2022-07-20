@@ -42,10 +42,7 @@ struct IndiBullsPowerParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Bulls");
   };
-  IndiBullsPowerParams(IndiBullsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiBullsPowerParams(IndiBullsPowerParams &_params) { THIS_REF = _params; };
 };
 
 /**

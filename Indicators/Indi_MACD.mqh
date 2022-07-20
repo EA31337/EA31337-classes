@@ -50,10 +50,7 @@ struct IndiMACDParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };
-  IndiMACDParams(IndiMACDParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiMACDParams(IndiMACDParams &_params) { THIS_REF = _params; };
 };
 
 /**

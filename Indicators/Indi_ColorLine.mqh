@@ -36,10 +36,7 @@ struct IndiColorLineParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\ColorLine");
     shift = _shift;
   };
-  IndiColorLineParams(IndiColorLineParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiColorLineParams(IndiColorLineParams &_params) { THIS_REF = _params; };
 };
 
 /**

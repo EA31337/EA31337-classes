@@ -41,13 +41,9 @@ struct IndiPriceFeederParams : IndicatorParams {
    */
   IndiPriceFeederParams(const double& _price_data[], int _total = 0)
       : IndicatorParams(INDI_PRICE_FEEDER, 1, TYPE_DOUBLE) {
-    tf = PERIOD_CURRENT;
     ArrayCopy(price_data, _price_data, 0, 0, _total == 0 ? WHOLE_ARRAY : _total);
   };
-  IndiPriceFeederParams(IndiPriceFeederParams& _params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiPriceFeederParams(IndiPriceFeederParams& _params) { THIS_REF = _params; };
 };
 
 /**

@@ -59,10 +59,7 @@ struct IndiHeikenAshiParams : IndicatorParams {
 #endif
     shift = _shift;
   };
-  IndiHeikenAshiParams(IndiHeikenAshiParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiHeikenAshiParams(IndiHeikenAshiParams &_params) { THIS_REF = _params; };
 };
 
 /**

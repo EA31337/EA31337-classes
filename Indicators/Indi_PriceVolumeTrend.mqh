@@ -36,10 +36,7 @@ struct IndiPriceVolumeTrendParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\PVT");
     shift = _shift;
   };
-  IndiPriceVolumeTrendParams(IndiPriceVolumeTrendParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiPriceVolumeTrendParams(IndiPriceVolumeTrendParams &_params) { THIS_REF = _params; };
 };
 
 /**

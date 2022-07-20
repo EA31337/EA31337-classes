@@ -42,10 +42,7 @@ struct IndiSARParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit It draws single dot for each bar!
     SetCustomIndicatorName("Examples\\ParabolicSAR");
   };
-  IndiSARParams(IndiSARParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiSARParams(IndiSARParams &_params) { THIS_REF = _params; };
 };
 
 /**

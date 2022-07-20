@@ -41,10 +41,7 @@ struct IndiDeMarkerParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\DeMarker");
   };
-  IndiDeMarkerParams(IndiDeMarkerParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiDeMarkerParams(IndiDeMarkerParams &_params) { THIS_REF = _params; };
 };
 
 /**

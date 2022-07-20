@@ -56,10 +56,7 @@ struct IndiForceParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Force_Index");
   };
-  IndiForceParams(IndiForceParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiForceParams(IndiForceParams &_params) { THIS_REF = _params; };
 };
 
 /**

@@ -42,10 +42,7 @@ struct IndiDrawerParams : IndicatorParams {
     // Simulating a single, valid buffer.
     max_modes = 1;
   };
-  IndiDrawerParams(IndiDrawerParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiDrawerParams(IndiDrawerParams &_params) { THIS_REF = _params; };
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &s);

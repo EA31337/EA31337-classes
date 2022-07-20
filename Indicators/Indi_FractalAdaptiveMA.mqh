@@ -41,10 +41,7 @@ struct IndiFrAIndiMAParams : IndicatorParams {
     period = _period;
     shift = _shift;
   };
-  IndiFrAIndiMAParams(IndiFrAIndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiFrAIndiMAParams(IndiFrAIndiMAParams &_params) { THIS_REF = _params; };
 };
 
 /**

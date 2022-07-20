@@ -45,10 +45,7 @@ struct IndiACParams : IndicatorParams {
         break;
     }
   };
-  IndiACParams(IndiACParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiACParams(IndiACParams &_params) { THIS_REF = _params; };
 };
 
 /**

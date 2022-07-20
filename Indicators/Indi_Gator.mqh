@@ -94,10 +94,7 @@ struct IndiGatorParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Gator");
   };
-  IndiGatorParams(IndiGatorParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiGatorParams(IndiGatorParams &_params) { THIS_REF = _params; };
 };
 
 /**

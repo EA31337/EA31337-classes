@@ -49,10 +49,7 @@ struct IndiCCIParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CCI");
   };
-  IndiCCIParams(IndiCCIParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiCCIParams(IndiCCIParams &_params) { THIS_REF = _params; };
 };
 
 /**

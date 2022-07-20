@@ -58,10 +58,7 @@ struct IndiRSIParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\RSI");
     SetPeriod(_period);
   };
-  IndiRSIParams(IndiRSIParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiRSIParams(IndiRSIParams &_params) { THIS_REF = _params; };
   // Getters.
   ENUM_APPLIED_PRICE GetAppliedPrice() override { return applied_price; }
   int GetPeriod() { return period; }

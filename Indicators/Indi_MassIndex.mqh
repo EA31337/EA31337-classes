@@ -41,10 +41,7 @@ struct IndiMassIndexParams : IndicatorParams {
     shift = _shift;
     sum_period = _sum_period;
   };
-  IndiMassIndexParams(IndiMassIndexParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiMassIndexParams(IndiMassIndexParams &_params) { THIS_REF = _params; };
 };
 
 /**

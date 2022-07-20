@@ -53,10 +53,7 @@ struct IndiUltimateOscillatorParams : IndicatorParams {
     slow_k = _slow_k;
     slow_period = _slow_period;
   };
-  IndiUltimateOscillatorParams(IndiUltimateOscillatorParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiUltimateOscillatorParams(IndiUltimateOscillatorParams &_params) { THIS_REF = _params; };
 };
 
 /**

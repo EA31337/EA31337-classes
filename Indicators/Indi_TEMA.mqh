@@ -40,10 +40,7 @@ struct IndiTEMAParams : IndicatorParams {
     shift = _shift;
     tema_shift = _tema_shift;
   };
-  IndiTEMAParams(IndiTEMAParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiTEMAParams(IndiTEMAParams &_params) { THIS_REF = _params; };
 };
 
 /**

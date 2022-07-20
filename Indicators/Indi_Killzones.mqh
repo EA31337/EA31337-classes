@@ -54,12 +54,8 @@ struct IndiKillzonesParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetDataSourceType(IDATA_CHART);
     SetShift(_shift);
-    tf = _tf;
   };
-  IndiKillzonesParams(IndiKillzonesParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiKillzonesParams(IndiKillzonesParams &_params) { THIS_REF = _params; };
 };
 
 struct Indi_Killzones_Time : MarketTimeForex {

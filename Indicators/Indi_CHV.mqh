@@ -46,10 +46,7 @@ struct IndiCHVParams : IndicatorParams {
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;
   };
-  IndiCHVParams(IndiCHVParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiCHVParams(IndiCHVParams &_params) { THIS_REF = _params; };
 };
 
 /**

@@ -43,10 +43,7 @@ struct IndiZigZagParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\ZigZag");
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
   };
-  IndiZigZagParams(IndiZigZagParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiZigZagParams(IndiZigZagParams &_params) { THIS_REF = _params; };
 };
 
 enum EnSearchMode {

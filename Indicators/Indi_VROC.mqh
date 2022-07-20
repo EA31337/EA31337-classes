@@ -38,10 +38,7 @@ struct IndiVROCParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\VROC");
     shift = _shift;
   };
-  IndiVROCParams(IndiVROCParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiVROCParams(IndiVROCParams &_params) { THIS_REF = _params; };
 };
 
 /**

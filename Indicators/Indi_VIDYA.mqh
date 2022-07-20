@@ -43,10 +43,7 @@ struct IndiVIDYAParams : IndicatorParams {
     shift = _shift;
     vidya_shift = _vidya_shift;
   };
-  IndiVIDYAParams(IndiVIDYAParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiVIDYAParams(IndiVIDYAParams &_params) { THIS_REF = _params; };
 };
 
 /**

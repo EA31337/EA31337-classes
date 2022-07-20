@@ -42,10 +42,7 @@ struct IndiMFIParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MFI");
   };
-  IndiMFIParams(IndiMFIParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiMFIParams(IndiMFIParams &_params) { THIS_REF = _params; };
 };
 
 /**

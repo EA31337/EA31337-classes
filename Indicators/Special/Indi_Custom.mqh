@@ -45,10 +45,7 @@ struct IndiCustomParams : public IndicatorParams {
     custom_indi_name = _filepath;
     SetDataSourceType(IDATA_ICUSTOM);
   }
-  IndiCustomParams(IndiCustomParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  }
+  IndiCustomParams(IndiCustomParams &_params) { THIS_REF = _params; }
   // Getters.
   DataParamEntry GetParam(int _index) const { return iargs[_index - 1]; }
   int GetParamsSize() const { return ArraySize(iargs); }

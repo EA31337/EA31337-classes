@@ -48,10 +48,7 @@ struct IndiAMAParams : IndicatorParams {
     SetShift(_shift);
     SetCustomIndicatorName("Examples\\AMA");
   };
-  IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  }
+  IndiAMAParams(IndiAMAParams &_params) { THIS_REF = _params; }
 };
 
 /**

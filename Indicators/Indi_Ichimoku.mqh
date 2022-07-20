@@ -77,10 +77,7 @@ struct IndiIchimokuParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Not sure if not mixed.
     SetCustomIndicatorName("Examples\\Ichimoku");
   };
-  IndiIchimokuParams(IndiIchimokuParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiIchimokuParams(IndiIchimokuParams &_params) { THIS_REF = _params; };
 };
 
 /**

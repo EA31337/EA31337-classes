@@ -42,10 +42,7 @@ struct IndiAOParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
   };
-  IndiAOParams(IndiAOParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiAOParams(IndiAOParams &_params) { THIS_REF = _params; };
 };
 
 /**

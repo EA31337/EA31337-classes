@@ -45,10 +45,7 @@ struct IndiCustomMovingAverageParams : IndicatorParams {
     smooth_period = _smooth_period;
     smooth_shift = _smooth_shift;
   };
-  IndiCustomMovingAverageParams(IndiCustomMovingAverageParams& _params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiCustomMovingAverageParams(IndiCustomMovingAverageParams& _params) { THIS_REF = _params; };
 };
 
 /**

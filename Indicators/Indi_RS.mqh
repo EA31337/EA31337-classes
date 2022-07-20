@@ -35,10 +35,7 @@ struct IndiRSParams : IndicatorParams {
     SetDataSourceType(IDATA_MATH);
     shift = _shift;
   };
-  IndiRSParams(IndiRSParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiRSParams(IndiRSParams &_params) { THIS_REF = _params; };
 };
 
 /**
@@ -86,12 +83,8 @@ class Indi_RS : public Indicator<IndiRSParams> {
       IndiOHLCParams _iohlc_params();
       IndiMathParams _imath0_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 0, INDI_OHLC_CLOSE, 1);
       IndiMathParams _imath1_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 1, INDI_OHLC_CLOSE, 0);
-      _imath0_p.SetTf(GetTf());
-      _imath1_p.SetTf(GetTf());
       Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_p);
       Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_p);
-      _imath0.Ptr().SetDataSource(THIS_PTR, 0);
-      _imath1.Ptr().SetDataSource(THIS_PTR, 0);
       imath.Set(0, _imath0);
       imath.Set(1, _imath1);
     }
@@ -104,6 +97,9 @@ class Indi_RS : public Indicator<IndiRSParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_MATH:
+        // Updating Maths' data sources to be the same as RS data source.
+        imath.GetByKey(0) REF_DEREF SetDataSource(GetDataSource());
+        imath.GetByKey(1) REF_DEREF SetDataSource(GetDataSource());
         return imath[_mode].Ptr().GetEntryValue();
         break;
       default:

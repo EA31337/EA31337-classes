@@ -37,10 +37,7 @@ struct IndiRateOfChangeParams : IndicatorParams {
     period = _period;
     shift = _shift;
   };
-  IndiRateOfChangeParams(IndiRateOfChangeParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiRateOfChangeParams(IndiRateOfChangeParams &_params) { THIS_REF = _params; };
 };
 
 /**

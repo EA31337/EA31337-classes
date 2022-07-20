@@ -44,10 +44,7 @@ struct IndiDemoParams : IndicatorParams {
         break;
     }
   };
-  IndiDemoParams(IndiDemoParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiDemoParams(IndiDemoParams &_params) { THIS_REF = _params; };
 };
 
 /**

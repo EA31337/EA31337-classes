@@ -35,10 +35,7 @@ struct IndiPivotParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
   };
-  IndiPivotParams(IndiPivotParams& _params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiPivotParams(IndiPivotParams& _params) { THIS_REF = _params; };
 };
 
 /**

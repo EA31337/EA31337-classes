@@ -37,10 +37,7 @@ struct IndiVolumesParams : IndicatorParams {
     SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
   };
-  IndiVolumesParams(IndiVolumesParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiVolumesParams(IndiVolumesParams &_params) { THIS_REF = _params; };
 };
 
 /**

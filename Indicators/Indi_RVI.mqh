@@ -41,10 +41,7 @@ struct IndiRVIParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\RVI");
   };
-  IndiRVIParams(IndiRVIParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiRVIParams(IndiRVIParams &_params) { THIS_REF = _params; };
 };
 
 /**

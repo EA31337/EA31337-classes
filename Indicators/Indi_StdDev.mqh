@@ -64,10 +64,7 @@ struct IndiStdDevParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\StdDev");
   };
-  IndiStdDevParams(IndiStdDevParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiStdDevParams(IndiStdDevParams &_params) { THIS_REF = _params; };
 };
 
 /**

@@ -45,10 +45,7 @@ struct IndiCHOParams : IndicatorParams {
     slow_ma = _slow_ma;
     smooth_method = _smooth_method;
   };
-  IndiCHOParams(IndiCHOParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiCHOParams(IndiCHOParams &_params) { THIS_REF = _params; };
 };
 
 /**

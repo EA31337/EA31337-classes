@@ -41,8 +41,7 @@ struct IndiMathParams : IndicatorParams {
 
   // Struct constructor.
   IndiMathParams(ENUM_MATH_OP _op = MATH_OP_SUB, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
-                 unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
-                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+                 unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0)
       : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
     mode_1 = _mode_1;
     mode_2 = _mode_2;
@@ -53,13 +52,11 @@ struct IndiMathParams : IndicatorParams {
     shift = _shift;
     shift_1 = _shift_1;
     shift_2 = _shift_2;
-    tf = _tf;
   };
 
   // Struct constructor.
   IndiMathParams(MathCustomOpFunction _op, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
-                 unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
-                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+                 unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0)
       : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
     max_modes = 1;
     mode_1 = _mode_1;
@@ -71,12 +68,8 @@ struct IndiMathParams : IndicatorParams {
     shift = _shift;
     shift_1 = _shift_1;
     shift_2 = _shift_2;
-    tf = _tf;
   };
-  IndiMathParams(IndiMathParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiMathParams(IndiMathParams &_params) { THIS_REF = _params; };
 };
 
 /**
@@ -89,6 +82,33 @@ class Indi_Math : public Indicator<IndiMathParams> {
    */
   Indi_Math(IndiMathParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
   Indi_Math(int _shift = 0) : Indicator(INDI_SPECIAL_MATH, _shift){};
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiMathParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // RS uses OHLC.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_OPEN) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
 
   /**
    * Returns the indicator's value.
@@ -111,12 +131,12 @@ class Indi_Math : public Indicator<IndiMathParams> {
         }
         switch (iparams.op_mode) {
           case MATH_OP_MODE_BUILTIN:
-            _value = Indi_Math::iMathOnIndicator(THIS_PTR, GetSymbol(), GetTf(),
+            _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
                                                  /*[*/ GetOpBuiltIn(), GetMode1(), GetMode2(), GetShift1(),
                                                  GetShift2() /*]*/, 0, _ishift, &this);
             break;
           case MATH_OP_MODE_CUSTOM_FUNCTION:
-            _value = Indi_Math::iMathOnIndicator(THIS_PTR, GetSymbol(), GetTf(),
+            _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
                                                  /*[*/ GetOpFunction(), GetMode1(), GetMode2(), GetShift1(),
                                                  GetShift2() /*]*/, 0, _ishift, &this);
             break;

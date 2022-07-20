@@ -36,10 +36,7 @@ struct IndiPriceChannelParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Price_Channel");
     shift = _shift;
   };
-  IndiPriceChannelParams(IndiPriceChannelParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiPriceChannelParams(IndiPriceChannelParams &_params) { THIS_REF = _params; };
 };
 
 /**

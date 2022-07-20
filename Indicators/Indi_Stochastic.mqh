@@ -53,10 +53,7 @@ struct IndiStochParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\Stochastic");
   };
-  IndiStochParams(IndiStochParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiStochParams(IndiStochParams &_params) { THIS_REF = _params; };
 };
 
 /**

@@ -42,10 +42,7 @@ struct IndiBearsPowerParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Bears");
   };
-  IndiBearsPowerParams(IndiBearsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiBearsPowerParams(IndiBearsPowerParams &_params) { THIS_REF = _params; };
 };
 
 /**

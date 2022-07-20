@@ -43,10 +43,7 @@ struct IndiZigZagColorParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\ZigZagColor");
     shift = _shift;
   };
-  IndiZigZagColorParams(IndiZigZagColorParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiZigZagColorParams(IndiZigZagColorParams &_params) { THIS_REF = _params; };
 };
 
 /**

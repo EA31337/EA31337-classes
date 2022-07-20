@@ -53,10 +53,7 @@ struct IndiOBVParams : IndicatorParams {
     max_modes = 1;
     shift = _shift;
   };
-  IndiOBVParams(IndiOBVParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiOBVParams(IndiOBVParams &_params) { THIS_REF = _params; };
 };
 
 /**

@@ -77,10 +77,7 @@ struct IndiBandsParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\BB");
   };
-  IndiBandsParams(IndiBandsParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiBandsParams(IndiBandsParams &_params) { THIS_REF = _params; };
 };
 
 /**

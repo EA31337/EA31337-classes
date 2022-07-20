@@ -37,10 +37,7 @@ struct IndiPatternParams : IndicatorParams {
     SetDataValueRange(IDATA_RANGE_BITWISE);
     shift = _shift;
   };
-  IndiPatternParams(IndiPatternParams& _params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiPatternParams(IndiPatternParams& _params) { THIS_REF = _params; };
 };
 
 /**

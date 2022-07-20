@@ -53,10 +53,7 @@ struct IndiBWZTParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
     shift = _shift;
   };
-  IndiBWZTParams(IndiBWZTParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiBWZTParams(IndiBWZTParams &_params) { THIS_REF = _params; };
 };
 
 /**

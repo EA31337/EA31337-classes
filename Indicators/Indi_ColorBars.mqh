@@ -33,10 +33,7 @@ struct IndiColorBarsParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\ColorBars");
     shift = _shift;
   };
-  IndiColorBarsParams(IndiColorBarsParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiColorBarsParams(IndiColorBarsParams &_params) { THIS_REF = _params; };
 };
 
 /**

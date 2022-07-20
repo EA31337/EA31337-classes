@@ -39,10 +39,7 @@ struct IndiFractalsParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Fractals");
     shift = _shift;
   };
-  IndiFractalsParams(IndiFractalsParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiFractalsParams(IndiFractalsParams &_params) { THIS_REF = _params; };
 };
 
 /**

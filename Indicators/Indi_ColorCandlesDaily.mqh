@@ -33,10 +33,7 @@ struct IndiColorCandlesDailyParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\ColorCandlesDaily");
     shift = _shift;
   };
-  IndiColorCandlesDailyParams(IndiColorCandlesDailyParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiColorCandlesDailyParams(IndiColorCandlesDailyParams &_params) { THIS_REF = _params; };
 };
 
 /**

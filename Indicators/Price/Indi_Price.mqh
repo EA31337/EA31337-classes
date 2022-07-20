@@ -34,10 +34,7 @@ struct PriceIndiParams : IndicatorParams {
       : ap(_ap), IndicatorParams(INDI_PRICE, 1, TYPE_DOUBLE) {
     SetShift(_shift);
   };
-  PriceIndiParams(PriceIndiParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  PriceIndiParams(PriceIndiParams &_params) { THIS_REF = _params; };
   // Getters.
   ENUM_APPLIED_PRICE GetAppliedPrice() override { return ap; }
   // Setters.
