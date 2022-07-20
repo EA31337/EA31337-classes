@@ -74,6 +74,11 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   }
 
   /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
    * Checks whether given data source satisfies our requirements.
    */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {

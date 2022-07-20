@@ -1067,7 +1067,8 @@ class Indicator : public IndicatorBase {
         // Indicator supports OnCalculate() mode.
         iparams.SetDataSourceType(IDATA_ONCALCULATE);
       } else {
-        Print("Error: Indicator does not support built-in mode and there is no other mode that it can use.");
+        Print("Error: Indicator ", GetFullName(),
+              " does not support built-in mode and there is no other mode that it can use.");
         DebugBreak();
       }
     }
