@@ -29,7 +29,9 @@
 #pragma once
 #endif
 
-class IValueStorage {
+#include "../Refs.mqh"
+
+class IValueStorage : public Dynamic {
  public:
   /**
    * Destructor.

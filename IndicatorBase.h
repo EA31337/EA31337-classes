@@ -71,7 +71,7 @@ class IndicatorBase : public Object {
   int calc_start_bar;                              // Index of the first valid bar (from 0).
   DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
-  ARRAY(IValueStorage*, value_storages);
+  ARRAY(Ref<IValueStorage>, value_storages);
   Ref<IndicatorBase> indi_src;  // // Indicator used as data source.
   IndicatorCalculateCache<double> cache;
   ARRAY(WeakRef<IndicatorBase>, listeners);  // List of indicators that listens for events from this one.
@@ -114,15 +114,7 @@ class IndicatorBase : public Object {
   /**
    * Class deconstructor.
    */
-  virtual ~IndicatorBase() {
-    ReleaseHandle();
-
-    for (int i = 0; i < ArraySize(value_storages); ++i) {
-      if (value_storages[i] != NULL) {
-        delete value_storages[i];
-      }
-    }
-  }
+  virtual ~IndicatorBase() { ReleaseHandle(); }
 
   /* Operator overloading methods */
 
@@ -1101,10 +1093,10 @@ class IndicatorBase : public Object {
       ArrayResize(value_storages, _mode + 1);
     }
 
-    if (value_storages[_mode] == nullptr) {
+    if (!value_storages[_mode].IsSet()) {
       value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
     }
-    return value_storages[_mode];
+    return value_storages[_mode].Ptr();
   }
 
   /**
@@ -1113,10 +1105,6 @@ class IndicatorBase : public Object {
   void SetValueStorage(int _mode, IValueStorage* _storage) {
     if (_mode >= ArraySize(value_storages)) {
       ArrayResize(value_storages, _mode + 1);
-    }
-
-    if (value_storages[_mode] != NULL) {
-      delete value_storages[_mode];
     }
 
     value_storages[_mode] = _storage;

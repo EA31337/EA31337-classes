@@ -252,7 +252,7 @@ class IndicatorCandle : public Indicator<TS> {
       ArrayResize(value_storages, _mode + 1);
     }
 
-    if (value_storages[_mode] == nullptr) {
+    if (!value_storages[_mode].IsSet()) {
       // Buffer not yet created.
       switch (_mode) {
         case INDI_CANDLE_MODE_PRICE_OPEN:
@@ -284,7 +284,7 @@ class IndicatorCandle : public Indicator<TS> {
       }
     }
 
-    return value_storages[_mode];
+    return value_storages[_mode].Ptr();
   }
 
   /**
