@@ -1061,6 +1061,17 @@ class Indicator : public IndicatorBase {
     long _bar_time;
     _bar_time = GetBarTime(_ishift);
 
+    if (iparams.GetDataSourceType() == IDATA_BUILTIN && (GetPossibleDataModes() & IDATA_BUILTIN) == 0) {
+      // Indicator is set to use built-in mode, but it doesn't support it.
+      if ((GetPossibleDataModes() & IDATA_ONCALCULATE) != 0) {
+        // Indicator supports OnCalculate() mode.
+        iparams.SetDataSourceType(IDATA_ONCALCULATE);
+      } else {
+        Print("Error: Indicator does not support built-in mode and there is no other mode that it can use.");
+        DebugBreak();
+      }
+    }
+
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(iparams.GetMaxModes());

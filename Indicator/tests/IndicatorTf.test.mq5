@@ -52,13 +52,13 @@ Ref<Indi_AMA> indi_ama_custom;
 int OnInit() {
   Platform::Init();
   // Platform ticks.
-  Platform::Add(indi_tick = new Indi_TickMt(_Symbol));
+  indi_tick = Platform::FetchDefaultTickIndicator();
 
   // 1-second candles.
   // indicators.Add(indi_tf = new IndicatorTfDummy(1));
 
   // 1:1 candles from platform using current timeframe.
-  Platform::Add(indi_tf_real = new IndicatorTfDummy(ChartTf::TfToSeconds(PERIOD_CURRENT)));
+  indi_tf_real = Platform::FetchDefaultCandleIndicator();
 
   // 1-second candles.
   // indicators.Add(indi_ama = new Indi_AMA());
@@ -106,6 +106,7 @@ int OnInit() {
 void OnTick() {
   Platform::Tick();
 
+#ifdef __debug__
   if (indi_tf_real.Ptr().IsNewBar()) {
     Print("New bar: ", indi_tf_real.Ptr().GetBarIndex());
   }
@@ -128,6 +129,7 @@ void OnTick() {
               c_h + ", " + c_l + ", " + c_c);
 
   Util::Print(Platform::IndicatorsToString(0));
+#endif
 }
 
 /**

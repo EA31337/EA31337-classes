@@ -55,7 +55,32 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
    * Class constructor.
    */
   Indi_OHLC(IndiOHLCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_OHLC(int _shift = 0) : Indicator(INDI_PRICE, _shift){};
+  Indi_OHLC(int _shift = 0) : Indicator(INDI_OHLC, _shift){};
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+    if (Indicator<IndiOHLCParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // OHLC are required from data source.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_OPEN) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
 
   /**
    * Returns the indicator's value.
@@ -77,25 +102,6 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
         _ap = PRICE_LOW;
         break;
     }
-    return ChartStatic::iPrice(_ap, GetSymbol(), GetTf(), _ishift);
-  }
-
-  /**
-   * Returns already cached version of Indi_OHLC for a given parameters.
-   */
-  static Indi_OHLC *GetCached(string _symbol, ENUM_TIMEFRAMES _tf, int _shift) {
-    String _cache_key;
-    _cache_key.Add(_symbol);
-    _cache_key.Add((int)_tf);
-    _cache_key.Add(_shift);
-    string _key = _cache_key.ToString();
-    Indi_OHLC *_indi_ohlc;
-    if (!Objects<Indi_OHLC>::TryGet(_key, _indi_ohlc)) {
-      IndiOHLCParams _indi_ohlc_params(_shift);
-      _indi_ohlc_params.SetTf(_tf);
-      _indi_ohlc_params.SetSymbol(_symbol);
-      _indi_ohlc = Objects<Indi_OHLC>::Set(_key, new Indi_OHLC(_indi_ohlc_params));
-    }
-    return _indi_ohlc;
+    return GetDataSource() PTR_DEREF GetPrice(_ap, _shift);
   }
 };

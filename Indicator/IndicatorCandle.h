@@ -129,6 +129,11 @@ class IndicatorCandle : public Indicator<TS> {
   double GetClose(int _shift = 0) override { return GetOHLC(_shift).close; }
 
   /**
+   * Returns the current price value given applied price type, symbol and timeframe.
+   */
+  double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) override { return GetOHLC(_shift).GetAppliedPrice(_ap); }
+
+  /**
    * Returns current bar index (incremented every OnTick() if IsNewBar() is true).
    */
   int GetBarIndex() override { return counter.GetBarIndex(); }

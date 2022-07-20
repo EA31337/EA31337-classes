@@ -83,6 +83,16 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
   Indi_Custom(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM, _tf){};
 
   /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ICUSTOM; }
+
+  /**
    * Returns the indicator's value.
    */
   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
