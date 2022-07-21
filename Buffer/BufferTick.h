@@ -71,7 +71,7 @@ class BufferTickValueStorage : ValueStorage<TV> {
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  int Size() const override { return (int)buffer_tick.Size(); }
+  int Size() override { return (int)buffer_tick.Size(); }
 };
 
 /**

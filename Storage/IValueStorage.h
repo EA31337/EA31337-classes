@@ -41,7 +41,7 @@ class IValueStorage : public Dynamic {
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  virtual int Size() const {
+  virtual int Size() {
     Alert(__FUNCSIG__, " does not implement Size()!");
     DebugBreak();
     return 0;
@@ -95,4 +95,4 @@ int ArrayResize(IValueStorage& _storage, int _size, int _reserve = 100) {
 /**
  * ValueStorage-compatible wrapper for ArraySize.
  */
-int ArraySize(const IValueStorage& _storage) { return _storage.Size(); }
+int ArraySize(IValueStorage& _storage) { return _storage.Size(); }

@@ -126,7 +126,7 @@ struct Ref {
   /**
    * Returns pointer to target object.
    */
-  X* Ptr() const { return ptr_object; }
+  X* Ptr() { return ptr_object; }
 
   /**
    * Checks whether any object is referenced.
