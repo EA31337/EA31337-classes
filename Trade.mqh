@@ -192,7 +192,7 @@ class Trade : public Taskable<DataParamEntry> {
     MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
-    _request.deviation = 10;
+    _request.deviation = tparams.Get<uint>(TRADE_PARAM_SLIPPAGE);  // The maximal price deviation, specified in points.
     _request.magic = _magic > 0 ? _magic : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
     _request.symbol = GetChart().Get<string>(CHART_PARAM_SYMBOL);
     _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _type);
@@ -1363,6 +1363,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
       tstates.SetState(TRADE_STATE_ORDERS_MAX_HARD, OrdersTotal() == account.GetLimitOrders());
       // @todo: TRADE_STATE_ORDERS_MAX_SOFT
+      // ...
+      /* Market checks */
+      tstates.SetState(TRADE_STATE_SPREAD_TOO_HIGH, GetChart().GetSpread() > tparams.Get<uint>(TRADE_PARAM_SLIPPAGE));
+      /* Terminal checks */
       tstates.SetState(TRADE_STATE_TRADE_NOT_POSSIBLE,
                        // Check if the EA trading is enabled.
                        (account.IsExpertEnabled() || !Terminal::IsRealtime())

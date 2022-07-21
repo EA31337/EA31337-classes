@@ -659,6 +659,9 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual void OnInit() {
     SetStops(GetPointer(this), GetPointer(this));
     // trade.SetStrategy(&this); // @fixme
+    // Sets trade spread limits.
+    trade.Set<uint>(TRADE_PARAM_SLIPPAGE,
+                    int(sparams.Get<double>(STRAT_PARAM_MAX_SPREAD) * trade.GetChart().GetPointsPerPip()));
   }
 
   /**
