@@ -276,8 +276,8 @@ class Trade : public Taskable<DataParamEntry> {
   /**
    * Check if trading is allowed.
    */
-  bool IsTradeAllowed() {
-    UpdateStates();
+  bool IsTradeAllowed(bool _force = false) {
+    UpdateStates(_force);
     return !tstates.CheckState(TRADE_STATE_TRADE_CANNOT);
   }
 
@@ -1365,7 +1365,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // @todo: TRADE_STATE_ORDERS_MAX_SOFT
       // ...
       /* Market checks */
-      uint _tspread = tparams.Get<uint>(TRADE_PARAM_SLIPPAGE);
+      uint _tspread = tparams.Get<uint>(TRADE_PARAM_MAX_SPREAD);
       tstates.SetState(TRADE_STATE_SPREAD_TOO_HIGH, _tspread > 0 && GetChart().GetSpread() > _tspread);
       /* Terminal checks */
       tstates.SetState(TRADE_STATE_TRADE_NOT_POSSIBLE,

@@ -357,6 +357,11 @@ class Strategy : public Taskable<DataParamEntry> {
   Dict<int, float> *GetDataF() { return &fdata; }
   Dict<int, int> *GetDataI() { return &idata; }
 
+  /**
+   * Get strategy's trade instance.
+   */
+  Trade *GetTrade() { return GetPointer(trade); }
+
   /* Statistics */
 
   /**
@@ -659,8 +664,8 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual void OnInit() {
     SetStops(GetPointer(this), GetPointer(this));
     // trade.SetStrategy(&this); // @fixme
-    // Sets strategy's trade spread limits.
-    trade.Set<uint>(TRADE_PARAM_SLIPPAGE,
+    // Sets strategy's trade spread limit.
+    trade.Set<uint>(TRADE_PARAM_MAX_SPREAD,
                     int(sparams.Get<double>(STRAT_PARAM_MAX_SPREAD) * trade.GetChart().GetPointsPerPip()));
   }
 

@@ -281,6 +281,7 @@ class EA : public Taskable<DataParamEntry> {
         }
       }
       _trade_allowed &= _trade.IsTradeAllowed();
+      _trade_allowed &= _strat.GetTrade().IsTradeAllowed(true);
       _trade_allowed &= !_strat.IsSuspended();
       if (_trade_allowed) {
         float _sig_open = _signal.GetSignalOpen();
@@ -346,7 +347,7 @@ class EA : public Taskable<DataParamEntry> {
    */
   virtual bool TradeRequest(ENUM_ORDER_TYPE _cmd, string _symbol = NULL, Strategy *_strat = NULL) {
     bool _result = false;
-    Trade *_trade = trade.GetByKey(_symbol);
+    Trade *_trade = _strat.GetTrade();
     // Prepare a request.
     MqlTradeRequest _request = _trade.GetTradeOpenRequest(_cmd);
     _request.comment = _strat.GetOrderOpenComment();
