@@ -67,6 +67,7 @@ enum ENUM_STRATEGY_CONDITION {
 // Defines enumeration for strategy parameters.
 enum ENUM_STRATEGY_PARAM {
   STRAT_PARAM_ID,          // ID (magic number)
+  STRAT_PARAM_LOG_LEVEL,   // Log level
   STRAT_PARAM_LS,          // Lot size
   STRAT_PARAM_LSF,         // Lot size factor
   STRAT_PARAM_MAX_RISK,    // Max risk

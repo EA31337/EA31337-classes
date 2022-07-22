@@ -69,6 +69,8 @@ struct TradeParams {
     switch (_param) {
       case TRADE_PARAM_BARS_MIN:
         return (T)bars_min;
+      case TRADE_PARAM_LOG_LEVEL:
+        return (T)log_level;
       case TRADE_PARAM_LOT_SIZE:
         return (T)lot_size;
       case TRADE_PARAM_MAGIC_NO:
@@ -125,6 +127,9 @@ struct TradeParams {
     switch (_param) {
       case TRADE_PARAM_BARS_MIN:
         bars_min = (unsigned short)_value;
+        return;
+      case TRADE_PARAM_LOG_LEVEL:
+        log_level = (ENUM_LOG_LEVEL)_value;
         return;
       case TRADE_PARAM_LOT_SIZE:
         lot_size = (float)_value;

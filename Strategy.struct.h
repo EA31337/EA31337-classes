@@ -76,6 +76,7 @@ struct StgParams {
   datetime refresh_time;           // Order refresh frequency (in sec).
   short shift;                     // Shift (relative to the current bar, 0 - default)
   ChartTf tf;                      // Main timeframe where strategy operates on.
+  ENUM_LOG_LEVEL log_level;        // Log verbosity level.
   // Constructor.
   StgParams()
       : id(rand()),
@@ -152,6 +153,8 @@ struct StgParams {
     switch (_param) {
       case STRAT_PARAM_ID:
         return (T)id;
+      case STRAT_PARAM_LOG_LEVEL:
+        return (T)log_level;
       case STRAT_PARAM_LS:
         return (T)lot_size;
       case STRAT_PARAM_LSF:
@@ -215,6 +218,9 @@ struct StgParams {
     switch (_param) {
       case STRAT_PARAM_ID:  // ID (magic number).
         id = (long)_value;
+        return;
+      case STRAT_PARAM_LOG_LEVEL:  // Log level.
+        log_level = (ENUM_LOG_LEVEL)_value;
         return;
       case STRAT_PARAM_LS:  // Lot size
         lot_size = (float)_value;
