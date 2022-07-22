@@ -131,6 +131,7 @@ class Strategy : public Taskable<DataParamEntry> {
 
     // Link log instances.
     logger.Link(trade.GetLogger());
+    trade.GetLogger().SetLevel(sparams.Get<ENUM_LOG_LEVEL>(STRAT_PARAM_LOG_LEVEL));
 
     // Statistics variables.
     // UpdateOrderStats(EA_STATS_DAILY);

@@ -108,6 +108,8 @@ class EA : public Taskable<DataParamEntry> {
     Trade _trade(_tparams, _cparams);
     trade.Set(_Symbol, _trade);
     logger.Link(_trade.GetLogger());
+    logger.SetLevel(eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
+    _trade.GetLogger().SetLevel(eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
   }
 
   /**

@@ -239,7 +239,7 @@ class Log : public Object {
     for (DictStructIterator<int, Ref<Log>> _li = logs.Begin(); _li.IsValid(); ++_li) {
       Log *_log = _li.Value().Ptr();
       if (Object::IsValid(_log)) {
-        PTR_ATTRIB(_log, Flush());
+        PTR_ATTRIB(_log, Flush(_freq, _dt));
       }
     }
 
