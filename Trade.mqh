@@ -1365,7 +1365,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // @todo: TRADE_STATE_ORDERS_MAX_SOFT
       // ...
       /* Market checks */
-      tstates.SetState(TRADE_STATE_SPREAD_TOO_HIGH, GetChart().GetSpread() > tparams.Get<uint>(TRADE_PARAM_SLIPPAGE));
+      uint _tspread = tparams.Get<uint>(TRADE_PARAM_SLIPPAGE);
+      tstates.SetState(TRADE_STATE_SPREAD_TOO_HIGH, _tspread > 0 && GetChart().GetSpread() > _tspread);
       /* Terminal checks */
       tstates.SetState(TRADE_STATE_TRADE_NOT_POSSIBLE,
                        // Check if the EA trading is enabled.
