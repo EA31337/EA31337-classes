@@ -40,6 +40,7 @@ struct TradeStats;
 /* Structure for trade parameters. */
 struct TradeParams {
   float lot_size;        // Default lot size.
+  float max_spread;      // Maximum spread to trade (in pips).
   float risk_margin;     // Maximum account margin to risk (in %).
   string order_comment;  // Order comment.
   unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
@@ -72,6 +73,8 @@ struct TradeParams {
         return (T)lot_size;
       case TRADE_PARAM_MAGIC_NO:
         return (T)magic_no;
+      case TRADE_PARAM_MAX_SPREAD:
+        return (T)max_spread;
       case TRADE_PARAM_ORDER_COMMENT:
         return (T)order_comment;
       case TRADE_PARAM_RISK_MARGIN:
@@ -129,6 +132,9 @@ struct TradeParams {
         return;
       case TRADE_PARAM_MAGIC_NO:
         magic_no = (unsigned long)_value;
+        return;
+      case TRADE_PARAM_MAX_SPREAD:
+        max_spread = (float)_value;
         return;
       case TRADE_PARAM_ORDER_COMMENT:
         order_comment = (string)_value;
