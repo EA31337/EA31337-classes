@@ -102,6 +102,7 @@ struct StgParams {
         price_stop_level(0),
         tick_filter_method(0),
         trend_threshold(0.4f),
+        log_level(V_INFO),
         lot_size(0),
         lot_size_factor(1.0),
         max_risk(1.0),
@@ -114,6 +115,7 @@ struct StgParams {
   StgParams(int _som, int _sofm, float _sol, int _sob, int _scm, int _scfm, float _scl, int _psm, float _psl, int _tfm,
             float _ms, short _s = 0)
       : id(rand()),
+        log_level(V_INFO),
         order_close_loss(0.0f),
         order_close_profit(0.0f),
         order_close_time(0),
