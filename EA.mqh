@@ -349,19 +349,31 @@ class EA : public Taskable<DataParamEntry> {
    */
   virtual bool TradeRequest(ENUM_ORDER_TYPE _cmd, string _symbol = NULL, Strategy *_strat = NULL) {
     bool _result = false;
-    Trade *_trade = trade.GetByKey(_symbol);
+    Trade *_etrade = trade.GetByKey(_symbol);
+    Trade *_strade = _strat.GetTrade();
     // Prepare a request.
-    MqlTradeRequest _request = _trade.GetTradeOpenRequest(_cmd);
+    MqlTradeRequest _request = _etrade.GetTradeOpenRequest(_cmd);
     _request.comment = _strat.GetOrderOpenComment();
     _request.magic = _strat.Get<long>(STRAT_PARAM_ID);
     _request.price = SymbolInfoStatic::GetOpenOffer(_symbol, _cmd);
     _request.volume = fmax(_strat.Get<float>(STRAT_PARAM_LS), SymbolInfoStatic::GetVolumeMin(_symbol));
-    _request.volume = _trade.NormalizeLots(_request.volume);
+    _request.volume = _etrade.NormalizeLots(_request.volume);
+    // Check strategy's trade states.
+    switch (_request.action) {
+      case TRADE_ACTION_DEAL:
+        if (!_strade.IsTradeRecommended()) {
+          logger.Debug(
+              StringFormat("Trade not opened due to strategy trading states (%d).", _strade.GetStates().GetStates()),
+              __FUNCTION_LINE__);
+          return _result;
+        }
+        break;
+    }
     // Prepare an order parameters.
     OrderParams _oparams;
     _strat.OnOrderOpen(_oparams);
     // Send the request.
-    _result = _trade.RequestSend(_request, _oparams);
+    _result = _etrade.RequestSend(_request, _oparams);
     if (!_result) {
       logger.Debug(
           StringFormat("Error while sending a trade request! Entry: %s",
@@ -389,7 +401,7 @@ class EA : public Taskable<DataParamEntry> {
         for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
           bool _can_trade = true;
           Strategy *_strat = iter.Value().Ptr();
-          Trade *_trade = trade.GetByKey(_Symbol);
+          Trade *_trade = _strat.GetTrade();
           if (_strat.IsEnabled()) {
             if (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
               // Process when new periods started.

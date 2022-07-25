@@ -745,7 +745,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       case TRADE_ACTION_DEAL:
         if (!IsTradeRecommended()) {
-          // logger.Warning("Trade not recommended!", __FUNCTION_LINE__, (string)tstates.GetStates());
+          logger.Debug("Trade not opened due to trading states.", __FUNCTION_LINE__, (string)tstates.GetStates());
           return _result;
         } else if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) == 0) {
           logger.Error("No free margin to open a new trade!", __FUNCTION_LINE__);
