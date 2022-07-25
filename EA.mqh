@@ -349,7 +349,7 @@ class EA : public Taskable<DataParamEntry> {
    */
   virtual bool TradeRequest(ENUM_ORDER_TYPE _cmd, string _symbol = NULL, Strategy *_strat = NULL) {
     bool _result = false;
-    Trade *_trade = _strat.GetTrade();
+    Trade *_trade = trade.GetByKey(_symbol);
     // Prepare a request.
     MqlTradeRequest _request = _trade.GetTradeOpenRequest(_cmd);
     _request.comment = _strat.GetOrderOpenComment();
@@ -362,6 +362,12 @@ class EA : public Taskable<DataParamEntry> {
     _strat.OnOrderOpen(_oparams);
     // Send the request.
     _result = _trade.RequestSend(_request, _oparams);
+    if (!_result) {
+      logger.Debug(
+          StringFormat("Error while sending a trade request! Entry: %s",
+                       SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
+          __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
+    }
     return _result;
   }
 
