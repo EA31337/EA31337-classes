@@ -196,7 +196,10 @@ class Trade {
     _request.symbol = GetChart().Get<string>(CHART_PARAM_SYMBOL);
     _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _type);
     _request.type = _type;
+#ifndef __MQL4__
+    // Filling modes not supported under MQL4.
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
+#endif
     _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
     _request.volume = NormalizeLots(fmax(_request.volume, SymbolInfoStatic::GetVolumeMin(_request.symbol)));
     return _request;
