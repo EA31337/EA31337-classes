@@ -204,6 +204,11 @@ class EA : public Taskable<DataParamEntry> {
     return _sentry;
   }
 
+  /**
+   * Gets EA's trade instance.
+   */
+  Trade *GetTrade(string _symbol) { return trade.GetByKey(_symbol); }
+
   /* Setters */
 
   /**
@@ -884,6 +889,14 @@ class EA : public Taskable<DataParamEntry> {
   }
 
   /**
+   * Add task object.
+   */
+  template <typename TA, typename TC>
+  bool AddTaskObject(TaskObject<TA, TC> *_tobj) {
+    return EA::tasks.Add<TA, TC>(_tobj);
+  }
+
+  /**
    * Process tasks.
    */
   void ProcessTasks() { tasks.Process(); }
@@ -968,10 +981,8 @@ class EA : public Taskable<DataParamEntry> {
         return _result;
       }
       case EA_ACTION_TASKS_CLEAN:
-        // @todo
-        // return tasks.Size() == 0;
-        SetUserError(ERR_INVALID_PARAMETER);
-        return false;
+        tasks.GetTasks().Clear();
+        return tasks.GetTasks().Size() == 0;
       default:
         GetLogger().Error(StringFormat("Invalid EA action: %d!", _entry.GetId(), __FUNCTION_LINE__));
         SetUserError(ERR_INVALID_PARAMETER);

@@ -1076,6 +1076,14 @@ class Strategy : public Taskable<DataParamEntry> {
   }
 
   /**
+   * Add task object.
+   */
+  template <typename TA, typename TC>
+  bool AddTaskObject(TaskObject<TA, TC> *_tobj) {
+    return tasks.Add<TA, TC>(_tobj);
+  }
+
+  /**
    * Process tasks.
    */
   void ProcessTasks() { tasks.Process(); }
