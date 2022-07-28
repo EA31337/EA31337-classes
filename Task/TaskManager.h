@@ -44,8 +44,6 @@
 class TaskManager {
  protected:
   DictStruct<int, Ref<Task>> tasks;
-  // DictObject<int, TaskObject<Task, Task>> tasks;
-  // DictObject<int, TaskObject<Taskable, Taskable>> tasks; // @todo: Which one?
 
   /* Protected methods */
 
@@ -93,6 +91,15 @@ class TaskManager {
   template <typename TA, typename TC>
   bool Add(TaskObject<TA, TC> *_task_obj) {
     return Add((Task *)_task_obj);
+  }
+
+  /* Getters */
+
+  /**
+   * Returns instance of tasks' object.
+   */
+  DictStruct<int, Ref<Task>> *GetTasks() {
+    return &tasks;
   }
 
   /* Processing methods */
