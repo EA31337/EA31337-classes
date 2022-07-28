@@ -1070,8 +1070,7 @@ class Strategy : public Taskable<DataParamEntry> {
   bool AddTask(TaskEntry &_tentry) {
     bool _is_valid = _tentry.IsValid();
     if (_is_valid) {
-      TaskObject<Strategy, Strategy> _taskobj(_tentry, THIS_PTR, THIS_PTR);
-      tasks.Add(&_taskobj);
+      tasks.Add(new TaskObject<Strategy, Strategy>(_tentry, THIS_PTR, THIS_PTR));
     }
     return _is_valid;
   }

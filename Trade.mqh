@@ -1733,8 +1733,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool AddTask(TaskEntry &_tentry) {
     bool _is_valid = _tentry.IsValid();
     if (_is_valid) {
-      TaskObject<Trade, Trade> _taskobj(_tentry, THIS_PTR, THIS_PTR);
-      tasks.Add(&_taskobj);
+      tasks.Add(new TaskObject<Trade, Trade>(_tentry, THIS_PTR, THIS_PTR));
     }
     return _is_valid;
   }
