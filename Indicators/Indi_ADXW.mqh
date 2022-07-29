@@ -40,6 +40,8 @@ struct IndiADXWParams : IndiADXParams {
                  ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : IndiADXParams(_period, _ap, _shift, _idstype) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
+    SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_RANGE);
     switch (idstype) {
       case IDATA_ICUSTOM:
         SetCustomIndicatorName("Examples\\ADXW");
@@ -86,6 +88,13 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
            _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
            _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
            _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return Indicator<IndiADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
   }
 
   /**

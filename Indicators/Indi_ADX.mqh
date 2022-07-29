@@ -42,6 +42,7 @@ struct IndiADXParams : IndicatorParams {
                 ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX, FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE) {
     SetDataSourceType(_idstype);
+    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetShift(_shift);
     switch (idstype) {
@@ -74,6 +75,13 @@ class Indi_ADX : public Indicator<IndiADXParams> {
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
   unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return Indicator<IndiADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
+  }
 
   /**
    * Returns the indicator value.
@@ -138,13 +146,6 @@ class Indi_ADX : public Indicator<IndiADXParams> {
         break;
     }
     return _value;
-  }
-
-  /**
-   * Checks if indicator entry values are valid.
-   */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<IndiADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
   }
 
   /* Getters */
