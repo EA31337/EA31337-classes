@@ -24,4 +24,6 @@
  * Test functionality of Indi_AD indicator class.
  */
 
+#define __debug__
+
 #include "Indi_AD.test.mq5"
