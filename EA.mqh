@@ -244,6 +244,10 @@ class EA : public Taskable<DataParamEntry> {
       Trade *_trade = iter.Value();
       _trade.Set<T>(_param, _value);
     }
+    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+      Strategy *_strat = iter.Value().Ptr();
+      _strat.Set<T>(_param, _value);
+    }
   }
 
   /* Processing methods */

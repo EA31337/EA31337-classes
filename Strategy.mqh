@@ -666,8 +666,7 @@ class Strategy : public Taskable<DataParamEntry> {
     SetStops(GetPointer(this), GetPointer(this));
     // trade.SetStrategy(&this); // @fixme
     // Sets strategy's trade spread limit.
-    trade.Set<uint>(TRADE_PARAM_MAX_SPREAD,
-                    int(sparams.Get<float>(STRAT_PARAM_MAX_SPREAD) * trade.GetChart().GetPointsPerPip()));
+    trade.Set<float>(TRADE_PARAM_MAX_SPREAD, sparams.Get<float>(STRAT_PARAM_MAX_SPREAD));
   }
 
   /**

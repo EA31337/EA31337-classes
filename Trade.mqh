@@ -287,8 +287,8 @@ class Trade : public Taskable<DataParamEntry> {
   /**
    * Check if trading is recommended.
    */
-  bool IsTradeRecommended() {
-    UpdateStates();
+  bool IsTradeRecommended(bool _force = false) {
+    UpdateStates(_force);
     return !tstates.CheckState(TRADE_STATE_TRADE_WONT);
   }
 
@@ -747,7 +747,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_CLOSE_BY:
         break;
       case TRADE_ACTION_DEAL:
-        if (!IsTradeRecommended()) {
+        if (!IsTradeRecommended(true)) {
           logger.Debug("Trade not opened due to trading states.", __FUNCTION_LINE__, (string)tstates.GetStates());
           return _result;
         } else if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) == 0) {
@@ -1348,7 +1348,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *
    */
   void UpdateStates(bool _force = false) {
-    static datetime _last_check = 0;
+    static datetime _last_check = 0;  // @fixme: Do not use static variable.
     if (_force || _last_check + 60 < TimeCurrent()) {
       static unsigned int _states_prev = tstates.GetStates();
       // Infrequent checks (each minute).
@@ -1368,7 +1368,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // @todo: TRADE_STATE_ORDERS_MAX_SOFT
       // ...
       /* Market checks */
-      uint _tspread = tparams.Get<uint>(TRADE_PARAM_MAX_SPREAD);
+      uint _tspread = int(tparams.Get<float>(TRADE_PARAM_MAX_SPREAD) * GetChart().GetPointsPerPip());
       tstates.SetState(TRADE_STATE_SPREAD_TOO_HIGH, _tspread > 0 && GetChart().GetSpread() > _tspread);
       /* Terminal checks */
       tstates.SetState(TRADE_STATE_TRADE_NOT_POSSIBLE,
