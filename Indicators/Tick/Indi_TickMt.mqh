@@ -33,7 +33,7 @@
 #include "../../Chart.struct.static.h"
 #include "../../Indicator/IndicatorTick.h"
 
-#define INDICATOR_TICK_REAL_FETCH_HISTORY 0
+#define INDICATOR_TICK_REAL_FETCH_HISTORY 1000
 
 // Params for MT patform's tick-based indicator.
 struct Indi_TickMtParams : IndicatorParams {
@@ -42,8 +42,12 @@ struct Indi_TickMtParams : IndicatorParams {
 
 // MT platform's tick-based indicator.
 class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
+  bool _fetch_history_on_first_tick;
+
  public:
-  Indi_TickMt(string _symbol, int _shift = 0, string _name = "") : IndicatorTick(_symbol, INDI_TICK, _shift, _name) {}
+  Indi_TickMt(string _symbol, int _shift = 0, string _name = "") : IndicatorTick(_symbol, INDI_TICK, _shift, _name) {
+    _fetch_history_on_first_tick = false;
+  }
 
   string GetName() override { return "Indi_TickMt"; }
 
@@ -53,6 +57,10 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
     Print(GetFullName(), " became a data source for ", _base_indi.GetFullName());
 #endif
 
+    _fetch_history_on_first_tick = true;
+  }
+
+  void FetchHistory() {
     if (INDICATOR_TICK_REAL_FETCH_HISTORY == 0) {
       // No history requested.
       return;
@@ -69,41 +77,70 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
     static MqlTick _tmp_ticks[];
     ArrayResize(_tmp_ticks, 0);
 
+    // Number of retries for CopyTicksRange().
     int _tries = 10;
+
+    // Number of ticks copied by CopyTicksRange().
     int _num_copied = -1;
 
-    while (_tries-- > 0) {
-      _num_copied = CopyTicks(GetSymbol(), _tmp_ticks, COPY_TICKS_ALL);
+    // Number of ticks remaining to copy in order to fulfill number of minimum required ticks (_ticks_to_emit).
+    int _num_yet_to_copy = _ticks_to_emit;
+
+    // In ms, the period we will be retrieving ticks for.
+    int _period_msc = 1000 * 60 * 60;    // 1 hour distance.
+    int _max_periods_to_check = 24 * 7;  // Two weeks should be enough.
+    int _periods_checked = 0;
+
+    unsigned long _range_from = TimeCurrent() * 1000 - _period_msc;
+    unsigned long _range_to = TimeCurrent() * 1000 - 1;
+
+    while (_tries > 0) {
+      _num_copied = CopyTicksRange(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, _range_from, _range_to);
 
       if (_num_copied == -1) {
         Sleep(1000);
+        --_tries;
       } else {
-        break;
+        _num_yet_to_copy -= _num_copied;
+
+        for (int i = 0; i < _num_copied; ++i) {
+          TickAB<double> _tick(_tmp_ticks[i].ask, _tmp_ticks[i].bid);
+          // We can't call EmitEntry() here, as tick would go to multiple sources at the same time!
+#ifdef __debug_verbose__
+          Print("Tick at ", TimeToString(_tmp_ticks[i].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), ": ",
+                _tmp_ticks[i].ask, ", ", _tmp_ticks[i].bid);
+#endif
+
+          EmitEntry(TickToEntry(_tmp_ticks[i].time, _tick));
+
+          if (_num_yet_to_copy <= 0) {
+            break;
+          }
+        }
+
+        _range_from -= _period_msc;
+        _range_to -= _period_msc;
+        if (++_periods_checked > _max_periods_to_check) {
+          break;
+        }
       }
     }
 
 #ifdef __debug_verbose__
-    Print(_base_indi.GetFullName(), " was filled with ", (_num_copied < 0 ? 0 : _num_copied), " out of ",
+    Print(_base_indi.GetFullName(), " was filled with ", (_ticks_to_emit - _num_yet_to_copy), " out of ",
           _ticks_to_emit, " historical entries requested");
 #endif
 
-    // Clearing possible error 4004.
-    ResetLastError();
-
-    for (int i = 0; i < _num_copied; ++i) {
-      TickAB<double> _tick(_tmp_ticks[i].ask, _tmp_ticks[i].bid);
-      // We can't call EmitEntry() here, as tick would go to multiple sources at the same time!
-#ifdef __debug_verbose__
-      Print("Tick at ", TimeToString(_tmp_ticks[i].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), ": ",
-            _tmp_ticks[i].ask, ", ", _tmp_ticks[i].bid);
-#endif
-
-      _base_indi.OnDataSourceEntry(TickToEntry(_tmp_ticks[i].time, _tick));
-    }
 #endif
   }
 
   void OnTick() override {
+    if (_fetch_history_on_first_tick) {
+      // We wait for fetching the history for the first tick, as it won't work in OnInit().
+      _fetch_history_on_first_tick = false;
+      FetchHistory();
+    }
+
 #ifdef __MQL4__
     // Refreshes Ask/Bid constants.
     RefreshRates();
