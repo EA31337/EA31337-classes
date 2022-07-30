@@ -218,7 +218,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
         if ((low[shift] - val) > InpDeviation * _Point) {
           val = 0.0;
         } else {
-          for (back = 1; back <= InpBackstep; back++) {
+          for (back = InpBackstep; back >= 1 && shift >= back; back--) {
             res = LowMapBuffer[shift - back].Get();
             if ((res != 0) && (res > val)) LowMapBuffer[shift - back] = 0.0;
           }
@@ -234,7 +234,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
         if ((val - high[shift].Get()) > InpDeviation * _Point) {
           val = 0.0;
         } else {
-          for (back = 1; back <= InpBackstep; back++) {
+          for (back = InpBackstep; back >= 1 && shift >= back; back--) {
             res = HighMapBuffer[shift - back].Get();
             if ((res != 0) && (res < val)) HighMapBuffer[shift - back] = 0.0;
           }

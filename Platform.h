@@ -314,25 +314,29 @@ DictStruct<long, Ref<IndicatorBase>> Platform::indis_dflt;
 /**
  * Will test given indicator class with platform-default data source bindings.
  */
-#define TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, PARAMS)                                         \
-  Ref<C> indi = new C(PARAMS);                                                                    \
-                                                                                                  \
-  int OnInit() {                                                                                  \
-    Platform::Init();                                                                             \
-    Platform::AddWithDefaultBindings(indi.Ptr());                                                 \
-    bool _result = true;                                                                          \
-    assertTrueOrFail(indi REF_DEREF IsValid(), "Error on IsValid!");                              \
-    return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);                \
-  }                                                                                               \
-                                                                                                  \
-  void OnTick() {                                                                                 \
-    Platform::Tick();                                                                             \
-    if (Platform::IsNewHour()) {                                                                  \
-      Print(indi REF_DEREF ToString());                                                           \
-      if (indi REF_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) { \
-        assertTrueOrExit(indi REF_DEREF GetEntry().IsValid(), "Invalid entry!");                  \
-      }                                                                                           \
-    }                                                                                             \
+#define TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, PARAMS)                                                    \
+  Ref<C> indi = new C(PARAMS);                                                                               \
+                                                                                                             \
+  int OnInit() {                                                                                             \
+    Platform::Init();                                                                                        \
+    Platform::AddWithDefaultBindings(indi.Ptr());                                                            \
+    bool _result = true;                                                                                     \
+    assertTrueOrFail(indi REF_DEREF IsValid(), "Error on IsValid!");                                         \
+    return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);                           \
+  }                                                                                                          \
+                                                                                                             \
+  void OnTick() {                                                                                            \
+    Platform::Tick();                                                                                        \
+    if (Platform::IsNewHour()) {                                                                             \
+      IndicatorDataEntry _entry = indi REF_DEREF GetEntry();                                                 \
+      bool _is_ready = indi REF_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)); \
+      bool _is_valid = _entry.IsValid();                                                                     \
+      Print(indi REF_DEREF ToString(), _is_ready ? "" : " (Not yet ready)");                                 \
+      if (_is_ready && !_is_valid) {                                                                         \
+        Print(indi REF_DEREF ToString(), " (Invalid entry!)");                                               \
+        assertTrueOrExit(_entry.IsValid(), "Invalid entry!");                                                \
+      }                                                                                                      \
+    }                                                                                                        \
   }
 
 #define TEST_INDICATOR_DEFAULT_BINDINGS(C) TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, )

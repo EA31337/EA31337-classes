@@ -93,9 +93,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<IndiADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
-  }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.IsWithinRange(0.0, 100.0); }
 
   /**
    * Built-in or OnCalculate-based version of ADX Wilder.
