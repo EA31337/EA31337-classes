@@ -42,10 +42,10 @@ class Market;
 #include "Chart.enum.h"
 #include "Chart.struct.h"
 #include "Chart.struct.serialize.h"
-#include "Condition.enum.h"
 #include "Convert.mqh"
 #include "Market.mqh"
 #include "Serializer.mqh"
+#include "Task/TaskCondition.enum.h"
 
 #ifndef __MQL4__
 // Defines structs (for MQL4 backward compatibility).
@@ -199,7 +199,7 @@ class Chart : public Market {
    *
    * @param
    *   _tf ENUM_TIMEFRAMES Timeframe to use.
-   *   _shift uint _shift Shift to use.
+   *   _shift unsigned int _shift Shift to use.
    *   _symbol string Symbol to use.
    *
    * @return
@@ -219,7 +219,7 @@ class Chart : public Market {
    * Gets chart entry.
    *
    * @param
-   *   _shift uint _shift Shift to use.
+   *   _shift unsigned int _shift Shift to use.
    *
    * @return
    *   Returns ChartEntry struct.
@@ -287,7 +287,7 @@ class Chart : public Market {
   /* Timeseries */
   /* @see: https://docs.mql4.com/series */
 
-  datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iTime(symbol, _tf, _shift); }
+  datetime GetBarTime(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) { return ChartStatic::iTime(symbol, _tf, _shift); }
   datetime GetBarTime(unsigned int _shift = 0) {
     return ChartStatic::iTime(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift);
   }
@@ -298,8 +298,10 @@ class Chart : public Market {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetOpen(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iOpen(symbol, _tf, _shift); }
-  double GetOpen(uint _shift = 0) { return ChartStatic::iOpen(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  double GetOpen(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) { return ChartStatic::iOpen(symbol, _tf, _shift); }
+  double GetOpen(unsigned int _shift = 0) {
+    return ChartStatic::iOpen(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift);
+  }
 
   /**
    * Returns close price value for the bar of indicated symbol.
@@ -316,16 +318,20 @@ class Chart : public Market {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetLow(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iLow(symbol, _tf, _shift); }
-  double GetLow(uint _shift = 0) { return ChartStatic::iLow(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  double GetLow(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) { return ChartStatic::iLow(symbol, _tf, _shift); }
+  double GetLow(unsigned int _shift = 0) {
+    return ChartStatic::iLow(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift);
+  }
 
   /**
    * Returns low price value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetHigh(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iHigh(symbol, _tf, _shift); }
-  double GetHigh(uint _shift = 0) { return ChartStatic::iHigh(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  double GetHigh(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) { return ChartStatic::iHigh(symbol, _tf, _shift); }
+  double GetHigh(unsigned int _shift = 0) {
+    return ChartStatic::iHigh(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift);
+  }
 
   /**
    * Returns the current price value given applied price type.
@@ -339,8 +345,10 @@ class Chart : public Market {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iVolume(symbol, _tf, _shift); }
-  long GetVolume(uint _shift = 0) { return ChartStatic::iVolume(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  long GetVolume(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) { return ChartStatic::iVolume(symbol, _tf, _shift); }
+  long GetVolume(unsigned int _shift = 0) {
+    return ChartStatic::iVolume(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift);
+  }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -849,7 +857,7 @@ class Chart : public Market {
    */
   bool SaveChartEntry() {
     // @todo: Use MqlRates.
-    uint _last = ArraySize(chart_saves);
+    unsigned int _last = ArraySize(chart_saves);
     if (ArrayResize(chart_saves, _last + 1, 100)) {
       chart_saves[_last].bar.ohlc.time = ChartStatic::iTime();
       chart_saves[_last].bar.ohlc.open = (float)Chart::GetOpen();
@@ -866,16 +874,16 @@ class Chart : public Market {
    * Load stored BarOHLC values.
    *
    * @param
-   *   _index uint Index of the element in BarOHLC array.
+   *   _index unsigned int Index of the element in BarOHLC array.
    * @return
    *   Returns BarOHLC struct element.
    */
-  ChartEntry LoadChartEntry(uint _index = 0) { return chart_saves[_index]; }
+  ChartEntry LoadChartEntry(unsigned int _index = 0) { return chart_saves[_index]; }
 
   /**
    * Return size of BarOHLC array.
    */
-  ulong SizeChartEntry() { return ArraySize(chart_saves); }
+  unsigned long SizeChartEntry() { return ArraySize(chart_saves); }
 
   /* Serializers */
 

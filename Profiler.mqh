@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "Collection.mqh"
+#include "Storage/Collection.mqh"
 #include "Timer.mqh"
 
 // Defines macros.
@@ -43,7 +43,7 @@ class Profiler {
  public:
   // Variables.
   static Collection<Timer> *timers;
-  static ulong min_time;
+  static unsigned long min_time;
 
   /* Class methods */
 
@@ -57,4 +57,4 @@ class Profiler {
 
 // Initialize static global variables.
 Collection<Timer> *Profiler::timers = new Collection<Timer>(MQLInfoString(MQL_PROGRAM_NAME));
-ulong Profiler::min_time = 1;
+unsigned long Profiler::min_time = 1;

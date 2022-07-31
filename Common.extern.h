@@ -28,7 +28,7 @@
 
 extern void DebugBreak();
 // Errors.
-extern void SetUserError(ushort user_error);
+extern void SetUserError(unsigned short user_error);
 // Exceptions.
 extern int NotImplementedException();
 // Print-related functions.

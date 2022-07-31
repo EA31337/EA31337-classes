@@ -89,7 +89,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static double iHigh(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+  static double iHigh(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
 #ifdef __MQL4__
     return ::iHigh(_symbol, _tf, _shift);  // Same as: High[_shift]
 #else                                      // __MQL5__
@@ -103,7 +103,7 @@ struct ChartStatic {
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
   static int iHighest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_HIGH,
-                      uint _count = WHOLE_ARRAY, int _start = 0) {
+                      unsigned int _count = WHOLE_ARRAY, int _start = 0) {
 #ifdef __MQL4__
     return ::iHighest(_symbol, _tf, _type, _count, _start);
 #else  // __MQL5__
@@ -146,7 +146,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static double iLow(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+  static double iLow(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
 #ifdef __MQL4__
     return ::iLow(_symbol, _tf, _shift);  // Same as: Low[_shift]
 #else                                     // __MQL5__
@@ -203,7 +203,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static double iOpen(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+  static double iOpen(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
 #ifdef __MQL4__
     return ::iOpen(_symbol, _tf, _shift);  // Same as: Open[_shift]
 #else                                      // __MQL5__
@@ -261,7 +261,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+  static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
 #ifdef __MQL4__
     return ::iTime(_symbol, _tf, _shift);  // Same as: Time[_shift]
 #else                                      // __MQL5__

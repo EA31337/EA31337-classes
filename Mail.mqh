@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "Account.mqh"
+#include "Account/AccountMt.h"
 #include "Convert.mqh"
 #include "Order.mqh"
 
@@ -76,10 +76,10 @@ class Mail {
     _body += string_nl + StringFormat("Price: %s", DoubleToStr(Order::OrderOpenPrice(), Digits));
     _body += string_nl + StringFormat("Lot size: %g", Order::OrderLots());
     _body += string_nl + StringFormat("Comment: %s", Order::OrderComment());
-    _body += string_nl + StringFormat("Account Balance: %s", Convert::ValueWithCurrency(Account::AccountBalance()));
-    _body += string_nl + StringFormat("Account Equity: %s", Convert::ValueWithCurrency(Account::AccountEquity()));
-    if (Account::AccountCredit() > 0) {
-      _body += string_nl + StringFormat("Account Credit: %s", Convert::ValueWithCurrency(Account::AccountCredit()));
+    _body += string_nl + StringFormat("Account Balance: %s", Convert::ValueWithCurrency(AccountMt::AccountBalance()));
+    _body += string_nl + StringFormat("Account Equity: %s", Convert::ValueWithCurrency(AccountMt::AccountEquity()));
+    if (AccountMt::AccountCredit() > 0) {
+      _body += string_nl + StringFormat("Account Credit: %s", Convert::ValueWithCurrency(AccountMt::AccountCredit()));
     }
     return _body;
   }

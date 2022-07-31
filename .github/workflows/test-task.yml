@@ -1,0 +1,67 @@
+---
+name: Test Task
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Task/**'
+      - '.github/workflows/test-task.yml'
+  push:
+    paths:
+      - 'Task/**'
+      - '.github/workflows/test-task.yml'
+
+jobs:
+
+  Compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
+        with:
+          init-platform: true
+          path: 'Task/tests'
+          verbose: true
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload artifacts (MQL4)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex4
+          path: '**/*.ex4'
+      - name: Upload artifacts (MQL5)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex5
+          path: '**/*.ex5'
+
+  Task-Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Task/tests
+    needs: Compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - Task.test
+          - TaskAction.test
+          - TaskCondition.test
+          - TaskGetter.test
+          - TaskManager.test
+          - TaskObject.test
+          - TaskSetter.test
+          - Taskable.car.test
+          - Taskable.test
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: ${{ matrix.test }}

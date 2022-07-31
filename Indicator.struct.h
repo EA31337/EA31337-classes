@@ -44,9 +44,7 @@ struct ChartParams;
 #include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
-#include "Indicator.struct.cache.h"
 #include "SerializerNode.enum.h"
-#include "Storage/ValueStorage.indicator.h"
 
 /* Structure for indicator parameters. */
 struct IndicatorParams {

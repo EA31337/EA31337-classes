@@ -29,8 +29,8 @@
 extern bool FileIsEnding(int file_handle);
 extern bool FileIsExist(const string file_name, int common_flag = 0);
 extern int FileClose(int file_handle);
-extern int FileOpen(string file_name, int open_flags, short delimiter = '\t', uint codepage = CP_ACP);
+extern int FileOpen(string file_name, int open_flags, short delimiter = '\t', unsigned int codepage = CP_ACP);
 extern int FileReadInteger(int file_handle, int size = INT_VALUE);
 extern string FileReadString(int file_handle, int length = -1);
-extern uint FileWriteString(int file_handle, const string text_string, int length = -1);
+extern unsigned int FileWriteString(int file_handle, const string text_string, int length = -1);
 #endif

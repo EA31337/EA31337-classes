@@ -28,8 +28,8 @@
  */
 class Stats {
  public:
-  ulong total_bars;
-  ulong total_ticks;
+  unsigned long total_bars;
+  unsigned long total_ticks;
   int curr_period;
   // int custom_int[];
   // double custom_dbl[];
@@ -72,22 +72,22 @@ class Stats {
   /**
    * Get number of counted bars.
    */
-  ulong GetTotalBars() { return (total_bars); }
+  unsigned long GetTotalBars() { return (total_bars); }
 
   /**
    * Get number of counted ticks.
    */
-  ulong GetTotalTicks() { return (total_ticks); }
+  unsigned long GetTotalTicks() { return (total_ticks); }
 
   /**
    * Get number of ticks per bar.
    */
-  ulong GetTicksPerBar() { return (total_bars > 0 ? (total_ticks / total_bars) : 0); }
+  unsigned long GetTicksPerBar() { return (total_bars > 0 ? (total_ticks / total_bars) : 0); }
 
   /**
    * Get number of ticks per minute.
    */
-  ulong GetTicksPerMin() { return (total_bars > 0 ? (total_ticks / total_bars / curr_period) : 0); }
+  unsigned long GetTicksPerMin() { return (total_bars > 0 ? (total_ticks / total_bars / curr_period) : 0); }
 
   /**
    * Get number of ticks per second.
@@ -97,10 +97,10 @@ class Stats {
   /**
    * Get number of ticks per given time period.
    */
-  ulong GetTicksPerPeriod(int period = PERIOD_H1) { return (GetTicksPerMin() * period); }
+  unsigned long GetTicksPerPeriod(int period = PERIOD_H1) { return (GetTicksPerMin() * period); }
 
   /**
    * Get number of bars per given time period.
    */
-  ulong GetBarsPerPeriod(int period = PERIOD_H1) { return (total_bars / period); }
+  unsigned long GetBarsPerPeriod(int period = PERIOD_H1) { return (total_bars / period); }
 };

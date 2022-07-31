@@ -40,6 +40,7 @@ struct TradeStats;
 /* Structure for trade parameters. */
 struct TradeParams {
   float lot_size;        // Default lot size.
+  float max_spread;      // Maximum spread to trade (in pips).
   float risk_margin;     // Maximum account margin to risk (in %).
   string order_comment;  // Order comment.
   unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
@@ -48,9 +49,10 @@ struct TradeParams {
   unsigned short bars_min;   // Minimum bars to trade.
   ENUM_LOG_LEVEL log_level;  // Log verbosity level.
   // Constructors.
-  TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50)
+  TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 0, ENUM_LOG_LEVEL _ll = V_INFO)
       : bars_min(100),
         order_comment(""),
+        log_level(_ll),
         lot_size(_lot_size),
         magic_no(rand()),
         risk_margin(_risk_margin),
@@ -68,10 +70,14 @@ struct TradeParams {
     switch (_param) {
       case TRADE_PARAM_BARS_MIN:
         return (T)bars_min;
+      case TRADE_PARAM_LOG_LEVEL:
+        return (T)log_level;
       case TRADE_PARAM_LOT_SIZE:
         return (T)lot_size;
       case TRADE_PARAM_MAGIC_NO:
         return (T)magic_no;
+      case TRADE_PARAM_MAX_SPREAD:
+        return (T)max_spread;
       case TRADE_PARAM_ORDER_COMMENT:
         return (T)order_comment;
       case TRADE_PARAM_RISK_MARGIN:
@@ -123,11 +129,17 @@ struct TradeParams {
       case TRADE_PARAM_BARS_MIN:
         bars_min = (unsigned short)_value;
         return;
+      case TRADE_PARAM_LOG_LEVEL:
+        log_level = (ENUM_LOG_LEVEL)_value;
+        return;
       case TRADE_PARAM_LOT_SIZE:
         lot_size = (float)_value;
         return;
       case TRADE_PARAM_MAGIC_NO:
         magic_no = (unsigned long)_value;
+        return;
+      case TRADE_PARAM_MAX_SPREAD:
+        max_spread = (float)_value;
         return;
       case TRADE_PARAM_ORDER_COMMENT:
         order_comment = (string)_value;
@@ -149,14 +161,14 @@ struct TradeParams {
     }
   }
   void SetBarsMin(unsigned short _value) { bars_min = _value; }
-  void SetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, uint _value = 0) {
+  void SetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, unsigned int _value = 0) {
     // Set new trading limits for the given type and period.
 #ifdef __debug__
     Print("Setting trade limit for type ", EnumToString(_type), " and period ", EnumToString(_period), " to ", _value);
 #endif
     limits_stats[(int)_type][(int)_period] = _value;
   }
-  void SetLimits(ENUM_TRADE_STAT_PERIOD _period, uint _value = 0) {
+  void SetLimits(ENUM_TRADE_STAT_PERIOD _period, unsigned int _value = 0) {
     // Set new trading limits for the given period.
     for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
 #ifdef __debug__
@@ -166,13 +178,13 @@ struct TradeParams {
       limits_stats[(int)t][(int)_period] = _value;
     }
   }
-  void SetLimits(ENUM_TRADE_STAT_TYPE _type, uint _value = 0) {
+  void SetLimits(ENUM_TRADE_STAT_TYPE _type, unsigned int _value = 0) {
     // Set new trading limits for the given type.
     for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
       limits_stats[(int)_type][(int)p] = _value;
     }
   }
-  void SetLimits(uint _value = 0) {
+  void SetLimits(unsigned int _value = 0) {
     // Set new trading limits for all types and periods.
     // Zero value is for no limits.
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {

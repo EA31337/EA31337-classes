@@ -75,8 +75,10 @@ enum ENUM_TRADE_CONDITION {
 // Defines enumeration for trade parameters.
 enum ENUM_TRADE_PARAM {
   TRADE_PARAM_BARS_MIN = 0,   // Bars minimum
+  TRADE_PARAM_LOG_LEVEL,      // Log level
   TRADE_PARAM_LOT_SIZE,       // Lot size
   TRADE_PARAM_MAGIC_NO,       // Magic number
+  TRADE_PARAM_MAX_SPREAD,     // Maximum spread
   TRADE_PARAM_ORDER_COMMENT,  // Order comment
   TRADE_PARAM_RISK_MARGIN,    // Risk margin
   TRADE_PARAM_SLIPPAGE,       // Slippage

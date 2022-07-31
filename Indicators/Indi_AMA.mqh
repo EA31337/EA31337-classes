@@ -63,11 +63,11 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
   /**
    * Class constructor.
    */
-  Indi_AMA(IndiAMAParams &_p, int _indi_mode = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
-           IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+  Indi_AMA(IndiAMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
       : IndicatorTickOrCandleSource(
             _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
-            _indi_src, _indi_mode) {
+            _indi_src) {
     iparams.SetIndicatorType(INDI_AMA);
   };
   Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AMA, _tf, _shift){};

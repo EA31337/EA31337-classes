@@ -69,7 +69,7 @@ struct SymbolInfoStatic {
    *
    * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  static ulong GetVolume(string _symbol) { return GetTick(_symbol).volume; }
+  static unsigned long GetVolume(string _symbol) { return GetTick(_symbol).volume; }
 
   /**
    * Get summary volume of current session deals.
@@ -136,6 +136,8 @@ struct SymbolInfoStatic {
    *
    */
   static unsigned int GetPointsPerPip(string _symbol) {
+    // To be used to replace Point for trade parameters calculations.
+    // See: https://www.mql5.com/en/forum/124692
     return (unsigned int)pow((unsigned int)10,
                              SymbolInfoStatic::GetDigits(_symbol) - SymbolInfoStatic::GetPipDigits(_symbol));
   }
@@ -242,9 +244,10 @@ struct SymbolInfoStatic {
    * For the current symbol, it is stored in the predefined variable Digits.
    *
    */
-  static uint GetDigits(string _symbol) {
-    return (uint)SymbolInfoStatic::SymbolInfoInteger(_symbol,
-                                                     SYMBOL_DIGITS);  // Same as: MarketInfo(symbol, MODE_DIGITS);
+  static unsigned int GetDigits(string _symbol) {
+    return (unsigned int)SymbolInfoStatic::SymbolInfoInteger(
+        _symbol,
+        SYMBOL_DIGITS);  // Same as: MarketInfo(symbol, MODE_DIGITS);
   }
 
   /**
@@ -257,7 +260,9 @@ struct SymbolInfoStatic {
    * @return
    *   Return symbol trade spread level in points.
    */
-  static uint GetSpread(string _symbol) { return (uint)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_SPREAD); }
+  static unsigned int GetSpread(string _symbol) {
+    return (unsigned int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_SPREAD);
+  }
 
   /**
    * Get real spread based on the ask and bid price (in points).
@@ -346,8 +351,8 @@ struct SymbolInfoStatic {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  static uint GetFreezeLevel(string _symbol) {
-    return (uint)SymbolInfoStatic::SymbolInfoInteger(
+  static unsigned int GetFreezeLevel(string _symbol) {
+    return (unsigned int)SymbolInfoStatic::SymbolInfoInteger(
         _symbol, SYMBOL_TRADE_FREEZE_LEVEL);  // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
   }
 

@@ -373,7 +373,9 @@ class Dict : public DictBase<K, V> {
   }
 
  public:
+#ifdef __cplusplus
   template <>
+#endif
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i) {
@@ -393,9 +395,9 @@ class Dict : public DictBase<K, V> {
 
           // Note that we're retrieving value by a key (as we are in an
           // object!).
-          Set(key, i.Value(i.Key()));
+          Set(key, s.Value<V>(i.Key()));
         } else {
-          Push(i.Value());
+          Push(s.Value<V>());
         }
       }
       return i.ParentNodeType();

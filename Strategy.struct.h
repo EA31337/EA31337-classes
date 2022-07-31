@@ -34,7 +34,7 @@
 #include "Serializer.mqh"
 #include "Strategy.enum.h"
 #include "Strategy.struct.pricestop.h"
-#include "Task.struct.h"
+#include "Task/Task.struct.h"
 
 // Forward class declaration.
 class Strategy;
@@ -76,6 +76,7 @@ struct StgParams {
   datetime refresh_time;           // Order refresh frequency (in sec).
   short shift;                     // Shift (relative to the current bar, 0 - default)
   ChartTf tf;                      // Main timeframe where strategy operates on.
+  ENUM_LOG_LEVEL log_level;        // Log verbosity level.
   // Constructor.
   StgParams()
       : id(rand()),
@@ -101,6 +102,7 @@ struct StgParams {
         price_stop_level(0),
         tick_filter_method(0),
         trend_threshold(0.4f),
+        log_level(V_INFO),
         lot_size(0),
         lot_size_factor(1.0),
         max_risk(1.0),
@@ -113,6 +115,7 @@ struct StgParams {
   StgParams(int _som, int _sofm, float _sol, int _sob, int _scm, int _scfm, float _scl, int _psm, float _psl, int _tfm,
             float _ms, short _s = 0)
       : id(rand()),
+        log_level(V_INFO),
         order_close_loss(0.0f),
         order_close_profit(0.0f),
         order_close_time(0),
@@ -137,7 +140,7 @@ struct StgParams {
         lot_size(0),
         lot_size_factor(1.0),
         max_risk(1.0),
-        max_spread(0.0),
+        max_spread(_ms),
         tp_max(0),
         sl_max(0),
         type(0),
@@ -152,6 +155,8 @@ struct StgParams {
     switch (_param) {
       case STRAT_PARAM_ID:
         return (T)id;
+      case STRAT_PARAM_LOG_LEVEL:
+        return (T)log_level;
       case STRAT_PARAM_LS:
         return (T)lot_size;
       case STRAT_PARAM_LSF:
@@ -215,6 +220,9 @@ struct StgParams {
     switch (_param) {
       case STRAT_PARAM_ID:  // ID (magic number).
         id = (long)_value;
+        return;
+      case STRAT_PARAM_LOG_LEVEL:  // Log level.
+        log_level = (ENUM_LOG_LEVEL)_value;
         return;
       case STRAT_PARAM_LS:  // Lot size
         lot_size = (float)_value;
@@ -416,21 +424,21 @@ struct StgProcessResult {
 
 /* Struture for strategy statistics */
 struct StgStats {
-  uint orders_open;  // Number of current opened orders.
-  uint errors;       // Count reported errors.
+  unsigned int orders_open;  // Number of current opened orders.
+  unsigned int errors;       // Count reported errors.
 };
 
 /* Structure for strategy's statistical periods. */
 struct StgStatsPeriod {
   // Statistics variables.
-  uint orders_total;     // Number of total opened orders.
-  uint orders_won;       // Number of total won orders.
-  uint orders_lost;      // Number of total lost orders.
-  double avg_spread;     // Average spread.
-  double net_profit;     // Total net profit.
-  double gross_profit;   // Total gross profit.
-  double gross_loss;     // Total gross loss.
-  double profit_factor;  // Profit factor.
+  unsigned int orders_total;  // Number of total opened orders.
+  unsigned int orders_won;    // Number of total won orders.
+  unsigned int orders_lost;   // Number of total lost orders.
+  double avg_spread;          // Average spread.
+  double net_profit;          // Total net profit.
+  double gross_profit;        // Total gross profit.
+  double gross_loss;          // Total gross loss.
+  double profit_factor;       // Profit factor.
   // Getters.
   string ToCSV() {
     return StringFormat("%d,%d,%d,%g,%g,%g,%g,%g", orders_total, orders_won, orders_lost, avg_spread, net_profit,

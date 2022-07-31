@@ -30,7 +30,6 @@
 #define ORDER_MQH
 
 // Includes.
-#include "Action.enum.h"
 #include "Convert.mqh"
 #include "Data.define.h"
 #include "Data.struct.h"
@@ -44,6 +43,7 @@
 #include "Std.h"
 #include "String.mqh"
 #include "SymbolInfo.mqh"
+#include "Task/TaskAction.enum.h"
 
 /* Defines for backward compatibility. */
 
@@ -315,7 +315,7 @@ class Order : public SymbolInfo {
    *   Returns true when order values can be refreshed, otherwise false.
    */
   bool ShouldRefresh() {
-    return odata.Get<long>(ORDER_PROP_TIME_LAST_REFRESH) + oparams.Get<ushort>(ORDER_PARAM_REFRESH_FREQ) <=
+    return odata.Get<long>(ORDER_PROP_TIME_LAST_REFRESH) + oparams.Get<unsigned short>(ORDER_PARAM_REFRESH_FREQ) <=
            TimeCurrent();
   }
 
@@ -326,7 +326,8 @@ class Order : public SymbolInfo {
    *   Returns true when order stops can be updated, otherwise false.
    */
   bool ShouldUpdate() {
-    return odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATE) + oparams.Get<ushort>(ORDER_PARAM_UPDATE_FREQ) <= TimeCurrent();
+    return odata.Get<long>(ORDER_PROP_TIME_LAST_UPDATE) + oparams.Get<unsigned short>(ORDER_PARAM_UPDATE_FREQ) <=
+           TimeCurrent();
   }
 
   /* State checking */
@@ -2572,7 +2573,7 @@ class Order : public SymbolInfo {
     return NULL;
 #else
     return OrderGetValue(_prop_id, _type, _out);
-#endif;
+#endif
   }
 
 #endif
@@ -2802,4 +2803,4 @@ ENUM_ORDER_SELECT_TYPE Order::selected_ticket_type = ORDER_SELECT_TYPE_NONE;
 unsigned long Order::selected_ticket_id = 0;
 #endif
 
-#endif ORDER_MQH
+#endif  // ORDER_MQH

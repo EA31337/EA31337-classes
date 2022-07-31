@@ -23,6 +23,7 @@
 // Prevents processing this includes file for the second time.
 #ifndef __MQL__
 #pragma once
+#include "Std.h"
 #include "Terminal.define.h"
 #endif
 
@@ -33,10 +34,10 @@ extern int StringFind(string string_value, string match_substring, int start_pos
 extern int StringLen(string string_value);
 extern int StringSplit(const string& string_value, const unsigned short separator, ARRAY_REF(string, result));
 extern long StringToInteger(string value);
-extern string IntegerToString(long number, int str_len = 0, ushort fill_symbol = ' ');
+extern string IntegerToString(long number, int str_len = 0, unsigned short fill_symbol = ' ');
 extern string StringFormat(string format, ...);
 extern string StringSubstr(string string_value, int start_pos, int length = -1);
-extern ushort StringGetCharacter(string string_value, int pos);
-int StringToCharArray(string text_string, ARRAY_REF(uchar, array), int start = 0, int count = -1,
-                      uint codepage = CP_ACP);
+extern unsigned short StringGetCharacter(string string_value, int pos);
+int StringToCharArray(string text_string, ARRAY_REF(unsigned char, array), int start = 0, int count = -1,
+                      unsigned int codepage = CP_ACP);
 #endif
