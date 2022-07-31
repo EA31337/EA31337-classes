@@ -86,6 +86,7 @@ jobs:
           BtYears: 2020
           MtVersion: 4.0.0.1349
           TestExpert: ${{ matrix.test }}
+          RunOnError: show_logs 200
     timeout-minutes: 10
 
   Scripts-MQL4:

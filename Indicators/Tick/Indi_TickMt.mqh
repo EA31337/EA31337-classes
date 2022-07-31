@@ -98,6 +98,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
       _num_copied = CopyTicksRange(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, _range_from, _range_to);
 
       if (_num_copied == -1) {
+        ResetLastError();
         Sleep(1000);
         --_tries;
       } else {
