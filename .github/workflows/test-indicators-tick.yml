@@ -58,8 +58,9 @@ jobs:
       - name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 4-8
+          BtDays: 4-12
           BtMonths: 1
           BtYears: 2020
           TestExpert: ${{ matrix.test }}
+          RunOnError: show_logs 200
     timeout-minutes: 10

@@ -81,11 +81,12 @@ jobs:
       - name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 1-8
+          BtDays: 4-16
           BtMonths: 1
           BtYears: 2020
           MtVersion: 4.0.0.1349
           TestExpert: ${{ matrix.test }}
+          RunOnError: show_logs 200
     timeout-minutes: 10
 
   Scripts-MQL4:

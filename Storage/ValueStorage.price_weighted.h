@@ -41,7 +41,7 @@ class PriceWeightedValueStorage : public HistoryValueStorage<double> {
   /**
    * Copy constructor.
    */
-  PriceWeightedValueStorage(const PriceWeightedValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  PriceWeightedValueStorage(PriceWeightedValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.

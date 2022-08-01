@@ -41,7 +41,7 @@ class TickVolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Copy constructor.
    */
-  TickVolumeValueStorage(const TickVolumeValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  TickVolumeValueStorage(TickVolumeValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.

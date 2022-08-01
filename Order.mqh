@@ -1165,6 +1165,20 @@ class Order : public SymbolInfo {
                         color _arrow_color = clrNONE  // Color.
   ) {
 #ifdef __MQL4__
+#ifdef __debug__
+    Print("Sending request:");
+    PrintFormat("Symbol: %s", _symbol);
+    PrintFormat("Cmd: %d", _cmd);
+    PrintFormat("Volume: %f", _volume);
+    PrintFormat("Price: %f", _price);
+    PrintFormat("Deviation: %d", _deviation);
+    PrintFormat("StopLoss: %f", _stoploss);
+    PrintFormat("TakeProfit: %f", _takeprofit);
+    PrintFormat("Comment: %s", _comment);
+    PrintFormat("Magic: %d", _magic);
+    PrintFormat("Expiration: %s", TimeToStr(_symbol, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+#endif
+
     return ::OrderSend(_symbol, _cmd, _volume, _price, (int)_deviation, _stoploss, _takeprofit, _comment,
                        (unsigned int)_magic, _expiration, _arrow_color);
 #else

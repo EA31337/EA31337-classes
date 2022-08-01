@@ -66,6 +66,11 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
   unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.IsWithinRange(-100.0, 0.0); }
+
+  /**
    * Calculates the Larry Williams' Percent Range and returns its value.
    *
    * @docs

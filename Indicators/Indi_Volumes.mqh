@@ -142,17 +142,6 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
   }
 
   /**
-   * Alters indicator's struct value.
-   *
-   * This method allows user to modify the struct entry before it's added to cache.
-   * This method is called on GetEntry() right after values are set.
-   */
-  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
-    Indicator<IndiVolumesParams>::GetEntryAlter(_entry, _shift);
-    _entry.SetFlag(INDI_ENTRY_FLAG_ACCEPT_ZEROES, true);
-  }
-
-  /**
    * Returns the indicator's value.
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {

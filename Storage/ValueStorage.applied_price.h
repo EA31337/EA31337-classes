@@ -49,7 +49,7 @@ class AppliedPriceValueStorage : public HistoryValueStorage<double> {
   /**
    * Copy constructor.
    */
-  AppliedPriceValueStorage(const AppliedPriceValueStorage &_r) : ap(_r.ap), HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  AppliedPriceValueStorage(AppliedPriceValueStorage &_r) : ap(_r.ap), HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.

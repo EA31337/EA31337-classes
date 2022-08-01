@@ -60,7 +60,7 @@ class Platform {
 
  public:
   /**
-   * Initializes platform. Sets event timer and so on.
+   * Initializes platform.
    */
   static void Init() {
     if (initialized) {
@@ -70,8 +70,30 @@ class Platform {
 
     initialized = true;
 
-    // OnTimer() every second.
-    EventSetTimer(1);
+    // Starting from current timestamp.
+    time.Update();
+  }
+
+  /**
+   * Performs tick on every added indicator.
+   */
+  static void Tick() {
+    // Checking starting periods and updating time to current one.
+    time_flags = time.GetStartedPeriods();
+    time.Update();
+
+    DictStructIterator<long, Ref<IndicatorBase>> _iter;
+
+    for (_iter = indis.Begin(); _iter.IsValid(); ++_iter) {
+      _iter.Value() REF_DEREF Tick();
+    }
+
+    for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
+      _iter.Value() REF_DEREF Tick();
+    }
+
+    // Will check for new time periods in consecutive Platform::UpdateTime().
+    time_clear_flags = true;
   }
 
   /**
@@ -100,24 +122,6 @@ class Platform {
    * Removes indicator from being processed by platform.
    */
   static void Remove(IndicatorBase *_indi) { indis.Unset(_indi PTR_DEREF GetId()); }
-
-  /**
-   * Performs tick on every added indicator.
-   */
-  static void Tick() {
-    DictStructIterator<long, Ref<IndicatorBase>> _iter;
-
-    for (_iter = indis.Begin(); _iter.IsValid(); ++_iter) {
-      _iter.Value() REF_DEREF Tick();
-    }
-
-    for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
-      _iter.Value() REF_DEREF Tick();
-    }
-
-    // Will check for new time periods in consecutive Platform::UpdateTime().
-    time_clear_flags = true;
-  }
 
   /**
    * Returns date and time used to determine periods that passed.
@@ -165,24 +169,6 @@ class Platform {
   static bool IsNewYear() { return (time_flags & DATETIME_YEAR) != 0; }
 
   /**
-   * Updates date and time used to determine periods that passed.
-   */
-  static void UpdateTime() {
-    if (time_clear_flags) {
-      time_flags = 0;
-      time_clear_flags = false;
-    }
-    // In each second we merge flags returned by DateTime::GetStartedPeriods().
-    time_flags |= time.GetStartedPeriods();
-    // time_flags |= DATETIME_SECOND;
-  }
-
-  /**
-   * Processes platform logic every one second.
-   */
-  static void OnTimer() { UpdateTime(); }
-
-  /**
    * Binds Candle and/or Tick indicator as a source of prices or data for given indicator.
    *
    * Note that some indicators may work on custom set of buffers required from data source and not on Candle or Tick
@@ -212,7 +198,8 @@ class Platform {
     } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
       // Indicator requires OHLC-compatible data source, Candle indicator would fulfill such requirement.
       _indi PTR_DEREF SetDataSource(_default_indi_candle);
-    } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_CANDLE) || _suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_EXPECT_ANY)) {
+    } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_CANDLE) ||
+               _suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_EXPECT_ANY)) {
       _indi PTR_DEREF SetDataSource(_default_indi_candle);
     } else if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_TICK)) {
       _indi PTR_DEREF SetDataSource(_default_indi_tick);
@@ -316,37 +303,40 @@ class Platform {
 };
 
 bool Platform::initialized = false;
-DateTime Platform::time;
+DateTime Platform::time = 0;
 unsigned int Platform::time_flags = 0;
 bool Platform::time_clear_flags = true;
 DictStruct<long, Ref<IndicatorBase>> Platform::indis;
 DictStruct<long, Ref<IndicatorBase>> Platform::indis_dflt;
 
-void OnTimer() { Platform::OnTimer(); }
+// void OnTimer() { Print("Timer"); Platform::OnTimer(); }
 
 /**
  * Will test given indicator class with platform-default data source bindings.
  */
-
-#define TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, PARAMS)                                         \
-  Ref<C> indi = new C(PARAMS);                                                                    \
-                                                                                                  \
-  int OnInit() {                                                                                  \
-    Platform::Init();                                                                             \
-    Platform::AddWithDefaultBindings(indi.Ptr(), _Symbol, PERIOD_CURRENT);                        \
-    bool _result = true;                                                                          \
-    assertTrueOrFail(indi REF_DEREF IsValid(), "Error on IsValid!");                              \
-    return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);                \
-  }                                                                                               \
-                                                                                                  \
-  void OnTick() {                                                                                 \
-    Platform::Tick();                                                                             \
-    if (Platform::IsNewHour()) {                                                                  \
-      Print(indi REF_DEREF ToString());                                                           \
-      if (indi REF_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) { \
-        assertTrueOrExit(indi REF_DEREF GetEntry().IsValid(), "Invalid entry!");                  \
-      }                                                                                           \
-    }                                                                                             \
+#define TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, PARAMS)                                                    \
+  Ref<C> indi = new C(PARAMS);                                                                               \
+                                                                                                             \
+  int OnInit() {                                                                                             \
+    Platform::Init();                                                                                        \
+    Platform::AddWithDefaultBindings(indi.Ptr());                                                            \
+    bool _result = true;                                                                                     \
+    assertTrueOrFail(indi REF_DEREF IsValid(), "Error on IsValid!");                                         \
+    return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);                           \
+  }                                                                                                          \
+                                                                                                             \
+  void OnTick() {                                                                                            \
+    Platform::Tick();                                                                                        \
+    if (Platform::IsNewHour()) {                                                                             \
+      IndicatorDataEntry _entry = indi REF_DEREF GetEntry();                                                 \
+      bool _is_ready = indi REF_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)); \
+      bool _is_valid = _entry.IsValid();                                                                     \
+      Print(indi REF_DEREF ToString(), _is_ready ? "" : " (Not yet ready)");                                 \
+      if (_is_ready && !_is_valid) {                                                                         \
+        Print(indi REF_DEREF ToString(), " (Invalid entry!)");                                               \
+        assertTrueOrExit(_entry.IsValid(), "Invalid entry!");                                                \
+      }                                                                                                      \
+    }                                                                                                        \
   }
 
 #define TEST_INDICATOR_DEFAULT_BINDINGS(C) TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, )

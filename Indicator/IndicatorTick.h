@@ -180,7 +180,7 @@ class IndicatorTick : public Indicator<TS> {
     _entry.timestamp = _timestamp;
     _entry.values[INDI_TICK_MODE_PRICE_ASK] = _tick.ask;
     _entry.values[INDI_TICK_MODE_PRICE_BID] = _tick.bid;
-    _entry.SetFlags(INDI_ENTRY_FLAG_IS_VALID);
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _tick.ask != 0 && _tick.bid != 0);
     return _entry;
   }
 

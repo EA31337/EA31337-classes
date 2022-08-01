@@ -67,6 +67,11 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
+  unsigned int GetPossibleDataModes() override { return IDATA_ICUSTOM | IDATA_ONCALCULATE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
   bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
     if (Indicator<IndiZigZagColorParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
@@ -173,7 +178,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
         if ((low[shift] - val) > (InpDeviation * _Point))
           val = 0.0;
         else {
-          for (back = InpBackstep; back >= 1; back--) {
+          for (back = InpBackstep; back >= 1 && shift >= back; back--) {
             res = LowMapBuffer[shift - back].Get();
             //---
             if ((res != 0) && (res > val)) LowMapBuffer[shift - back] = 0.0;
@@ -193,7 +198,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
         if ((val - high[shift].Get()) > (InpDeviation * _Point))
           val = 0.0;
         else {
-          for (back = InpBackstep; back >= 1; back--) {
+          for (back = InpBackstep; back >= 1 && shift >= back; back--) {
             res = HighMapBuffer[shift - back].Get();
             //---
             if ((res != 0) && (res < val)) HighMapBuffer[shift - back] = 0.0;
@@ -287,17 +292,13 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
-      case IDATA_BUILTIN:
+      case IDATA_ONCALCULATE:
         _value = Indi_ZigZagColor::iZigZagColor(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(),
                                                 (ENUM_ZIGZAG_LINE)_mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
                          /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/, _mode, _ishift);
-        break;
-      case IDATA_INDICATOR:
-        _value = Indi_ZigZagColor::iZigZagColor(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(),
-                                                (ENUM_ZIGZAG_LINE)_mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

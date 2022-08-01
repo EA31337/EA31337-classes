@@ -32,6 +32,7 @@
 
 // Includes.
 #include "Chart.symboltf.h"
+#include "Terminal.define.h"
 
 #ifdef __DISABLED
 
@@ -65,7 +66,16 @@ class ChartMt : public ChartBase {
   /**
    * Returns time of the bar with a given shift.
    */
-  virtual datetime GetBarTime(int _shift = 0) override { return ::iTime(GetSymbol(), GetTf(), _shift); }
+  virtual datetime GetBarTime(int _shift = 0) override {
+    datetime _time = ::iTime(GetSymbol(), GetTf(), _shift);
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing ::iTime() in ChartMt::GetBarTime(", _shift, ")");
+      DebugBreak();
+    }
+
+    return _time;
+  }
 
   /**
    * Returns the number of bars on the chart.
@@ -85,39 +95,77 @@ class ChartMt : public ChartBase {
    * Returns the index of the bar which covers the specified time.
    */
   virtual int GetBarShift(datetime _time, bool _exact = false) override {
+    int _bar_shift;
 #ifdef __MQL4__
-    return ::iBarShift(GetTf(), _time, _exact);
+    _bar_shift = ::iBarShift(GetTf(), _time, _exact);
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing ::iBarShift() in ChartMt::GetBarShift(", TimeToString(_time), ", ",
+            _exact, ")");
+      DebugBreak();
+    }
 #else  // __MQL5__
     if (_time < 0) return (-1);
     ARRAY(datetime, arr);
     datetime _time0;
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     CopyTime(GetSymbol(), GetTf(), 0, 1, arr);
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing 1st CopyTime() in ChartMt::GetBarShift(", TimeToString(_time), ", ",
+            _exact, ")");
+      DebugBreak();
+    }
+
     _time0 = arr[0];
     if (CopyTime(GetSymbol(), GetTf(), _time, _time0, arr) > 0) {
       if (ArraySize(arr) > 2) {
-        return ArraySize(arr) - 1;
+        _bar_shift = ArraySize(arr) - 1;
       } else {
-        return _time < _time0 ? 1 : 0;
+        _bar_shift = _time < _time0 ? 1 : 0;
       }
     } else {
-      return -1;
+      _bar_shift = -1;
+    }
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing 2nd CopyTime() in ChartMt::GetBarShift(", TimeToString(_time), ", ",
+            _exact, ")");
+      DebugBreak();
     }
 #endif
+
+    return _bar_shift;
   }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
   virtual int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) override {
-    return ::iHighest(GetSymbol(), GetTf(), (ENUM_SERIESMODE)type, _count, _start);
+    int _highest = ::iHighest(GetSymbol(), GetTf(), (ENUM_SERIESMODE)type, _count, _start);
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing ::iHighest() in ChartMt::GetHighest(", type, ", ", _exact, ", ",
+            _start, ")");
+      DebugBreak();
+    }
+
+    return _highest;
   }
 
   /**
    * Returns the shift of the minimum value over a specific number of periods depending on type.
    */
   virtual int GetLowest(int type, int _count = WHOLE_ARRAY, int _start = 0) override {
-    return ::iLowest(GetSymbol(), GetTf(), (ENUM_SERIESMODE)type, _count, _start);
+    int _lowest = ::iLowest(GetSymbol(), GetTf(), (ENUM_SERIESMODE)type, _count, _start);
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing ::iLowest() in ChartMt::GetHighest(", type, ", ", _exact, ", ", _start,
+            ")");
+      DebugBreak();
+    }
+
+    return _lowest;
   }
 
   /**

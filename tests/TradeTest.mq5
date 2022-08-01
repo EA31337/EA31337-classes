@@ -39,6 +39,7 @@ struct DataParamEntry;
 
 Ref<IndicatorBase> _chart_m1;
 Ref<IndicatorBase> _chart_m5;
+bool _finish_test = false;
 
 /**
  * Implements OnInit().
@@ -53,14 +54,18 @@ int OnInit() {
 }
 
 void OnTick() {
+  if (_finish_test) {
+    // We don't need to process further ticks.
+    return;
+  }
   Platform::Tick();
   // We need some bars in order to make trades.
   if (_chart_m5 REF_DEREF GetBarIndex() > trade_params_defaults.GetBarsMin()) {
     if (Test() == INIT_FAILED) {
       Print("ERROR: Test failed!");
     }
-    // We only want to test on first tick.
-    ExpertRemove();
+    // We only want to test on a single (late) bar.
+    _finish_test = true;
   }
 }
 
@@ -143,5 +148,10 @@ int Test() {
   // assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_CLOSED, TRADE_STAT_PER_DAY) == 0, __FUNCTION_LINE__);
   // assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_PER_DAY) == 0, __FUNCTION_LINE__);
 
-  return GetLastError() == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED;
+  if (_LastError != ERR_NO_ERROR) {
+    Print("Error: ", _LastError);
+    return INIT_FAILED;
+  }
+
+  return INIT_SUCCEEDED;
 }

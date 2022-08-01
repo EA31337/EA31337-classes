@@ -41,7 +41,7 @@ class VolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Copy constructor.
    */
-  VolumeValueStorage(const VolumeValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  VolumeValueStorage(VolumeValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.

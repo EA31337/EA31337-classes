@@ -206,6 +206,20 @@ class Trade : public Taskable<DataParamEntry> {
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
     _request.volume = NormalizeLots(fmax(_request.volume, GetSource() PTR_DEREF GetSymbolProps().GetVolumeMin()));
+
+#ifdef __debug__
+    MqlTick _tick;  // Structure to get the latest prices.
+    SymbolInfoTick(GetSource() PTR_DEREF GetSymbol(), _tick);
+
+    Print("------------------------");
+    Print("C Price: ", GetSource() PTR_DEREF GetOpenOffer(_type));
+    Print("C   Ask: ", GetSource() PTR_DEREF GetTick() PTR_DEREF GetAsk());
+    Print("C   Bid: ", GetSource() PTR_DEREF GetTick() PTR_DEREF GetBid());
+
+    Print("R   Ask: ", _tick.ask);
+    Print("R   Bid: ", _tick.bid);
+#endif
+
     return _request;
   }
 

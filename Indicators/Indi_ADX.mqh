@@ -42,6 +42,7 @@ struct IndiADXParams : IndicatorParams {
                 ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX, FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE) {
     SetDataSourceType(_idstype);
+    SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_RANGE);
     SetShift(_shift);
     switch (idstype) {
@@ -76,6 +77,13 @@ class Indi_ADX : public Indicator<IndiADXParams> {
   unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return Indicator<IndiADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
+  }
+
+  /**
    * Returns the indicator value.
    *
    * @docs
@@ -88,7 +96,10 @@ class Indi_ADX : public Indicator<IndiADXParams> {
                                                          // MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
                      int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
-    return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
+    Print("We'll now retrieve value from ::iADX(", _symbol, ", ", EnumToString(_tf), ", ", _shift, ")...");
+    double _value = ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
+    Print("value = \"", _value, "\", LastError: ", _LastError);
+    return _value;
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
@@ -138,13 +149,6 @@ class Indi_ADX : public Indicator<IndiADXParams> {
         break;
     }
     return _value;
-  }
-
-  /**
-   * Checks if indicator entry values are valid.
-   */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<IndiADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
   }
 
   /* Getters */
