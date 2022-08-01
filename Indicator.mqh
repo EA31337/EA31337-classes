@@ -969,40 +969,23 @@ class Indicator : public IndicatorBase {
     _result &= _entry.GetSize() > 0;
     if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_REAL)) {
       if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
+        _result &= !_entry.HasValue<double>(INT_MAX);  // Empty value from indicator.
         _result &= !_entry.HasValue<double>(DBL_MAX);
-        if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
-          _result &= !_entry.HasValue<double>(0);
-        }
       } else {
         _result &= !_entry.HasValue<float>(FLT_MAX);
-        if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
-          _result &= !_entry.HasValue<float>(0);
-        }
       }
     } else {
       if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_UNSIGNED)) {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
           _result &= !_entry.HasValue<unsigned long>(ULONG_MAX);
-          if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
-            _result &= !_entry.HasValue<unsigned long>(0);
-          }
         } else {
           _result &= !_entry.HasValue<unsigned int>(UINT_MAX);
-          if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
-            _result &= !_entry.HasValue<unsigned int>(0);
-          }
         }
       } else {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
           _result &= !_entry.HasValue<long>(LONG_MAX);
-          if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
-            _result &= !_entry.HasValue<long>(0);
-          }
         } else {
           _result &= !_entry.HasValue<int>(INT_MAX);
-          if (!_entry.CheckFlags(INDI_ENTRY_FLAG_ACCEPT_ZEROES)) {
-            _result &= !_entry.HasValue<int>(0);
-          }
         }
       }
     }
@@ -1104,6 +1087,13 @@ class Indicator : public IndicatorBase {
           default:
             SetUserError(ERR_INVALID_PARAMETER);
             break;
+        }
+
+        if (_LastError != ERR_SUCCESS) {
+          datetime _bar_dt = (datetime)_bar_time;
+          Print("Error: Code ", _LastError, " while trying to retrieve entry at shift ", _ishift, ", mode ", _mode,
+                ", time ", _bar_dt);
+          DebugBreak();
         }
       }
       GetEntryAlter(_entry, _index);

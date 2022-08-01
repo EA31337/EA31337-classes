@@ -230,7 +230,6 @@ enum INDICATOR_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_IS_UNSIGNED = 1 << 5,  // Type is unsigned (unsigned int or unsigned long).
   INDI_ENTRY_FLAG_IS_VALID = 1 << 6,
   INDI_ENTRY_FLAG_INSUFFICIENT_DATA = 1 << 7,  // Entry has missing value for that shift and probably won't ever have.
-  INDI_ENTRY_FLAG_ACCEPT_ZEROES = 1 << 8,      // Entry accepts zeroed values.
 };
 
 // Storage type for IndicatorBase::GetSpecificValueStorage().

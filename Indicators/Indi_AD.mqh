@@ -64,6 +64,11 @@ class Indi_AD : public Indicator<IndiADParams> {
   unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return true; }
+
+  /**
    * Returns the indicator value.
    *
    * @docs
@@ -73,33 +78,12 @@ class Indi_AD : public Indicator<IndiADParams> {
   static double iAD(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                     IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
-    return ::iAD(_symbol, _tf, _shift);
+    Print("We'll now retrieve value from ::iAD(", _symbol, ", ", EnumToString(_tf), ", ", _shift, ")...");
+    double _value = ::iAD(_symbol, _tf, _shift);
+    Print("value = \"", _value, "\", LastError: ", _LastError);
+    return _value;
 #else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iAD(_symbol, _tf, VOLUME_TICK)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
-    }
-    return _res[0];
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iAD(_symbol, _tf, VOLUME_TICK), 0, _shift);
 #endif
   }
 

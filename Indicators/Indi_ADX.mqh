@@ -96,7 +96,10 @@ class Indi_ADX : public Indicator<IndiADXParams> {
                                                          // MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
                      int _shift = 0, IndicatorBase *_obj = NULL) {
 #ifdef __MQL4__
-    return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
+    Print("We'll now retrieve value from ::iADX(", _symbol, ", ", EnumToString(_tf), ", ", _shift, ")...");
+    double _value = ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
+    Print("value = \"", _value, "\", LastError: ", _LastError);
+    return _value;
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
