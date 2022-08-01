@@ -68,12 +68,10 @@ jobs:
           - MatrixTest
           - OrderTest
           - OrdersTest
-          - StatsTest
           - StrategyTest
           - StrategyTest-RSI
           - SymbolInfoTest
           - SummaryReportTest
-          - TickerTest
           - TradeTest
     steps:
       - uses: actions/download-artifact@v2
