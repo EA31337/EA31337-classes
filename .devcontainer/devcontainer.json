@@ -20,7 +20,9 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"nicholishen.mql-over-cpp"
+				"ms-vscode.cpptools-extension-pack",
+				"nicholishen.mql-over-cpp",
+				"xaver.clang-format"
 			]
 		}
 	}
