@@ -22,6 +22,7 @@
       "extensions": [
         "ms-vscode.cpptools-extension-pack",
         "nicholishen.mql-over-cpp",
+        "vscodevim.vim",
         "xaver.clang-format"
       ]
     }
