@@ -63,6 +63,7 @@ jobs:
           BtDays: 4-12
           BtMonths: 1
           BtYears: 2020
-          TestExpert: ${{ matrix.test }}
+          MtVersion: 4.0.0.1359
           RunOnError: show_logs 200
+          TestExpert: ${{ matrix.test }}
     timeout-minutes: 10
