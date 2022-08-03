@@ -93,6 +93,20 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
     datetime _curr = ::iTime(GetSymbol(), GetTf(), 0);
     datetime _last_valid = 0;
 
+#ifdef __MQL4__
+    if (GetLastError() == ERR_HISTORY_WILL_UPDATED) {
+      // Workaround for MT4 history data issues.
+      // See: https://www.mql5.com/en/forum/155707
+      for (int i = 0; i < 10; i++) {
+        Sleep(1000);
+        _curr = ::iTime(GetSymbol(), GetTf(), 0);
+        if (GetLastError() != ERR_HISTORY_WILL_UPDATED) {
+          break;
+        }
+        SetUserError(ERR_HISTORY_WILL_UPDATED);
+      }
+    }
+#endif
     while (_curr >= icdata.GetMin()) {
       if (icdata.KeyExists(_curr)) {
         _last_valid = _curr;
