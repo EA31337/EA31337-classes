@@ -90,7 +90,8 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    * Returns time of the bar for a given shift (MT-compatible shift).
    */
   datetime GetBarTimeLegacy(int _shift = 0) {
-    datetime _curr = ::iTime(GetSymbol(), GetTf(), 0);
+    // Note: iTime() in MT4 build can return not rounded values.
+    datetime _curr = (datetime)CalcCandleTimestamp(::iTime(GetSymbol(), GetTf(), fmax(0, _shift)));
     datetime _last_valid = 0;
 
 #ifdef __MQL4__

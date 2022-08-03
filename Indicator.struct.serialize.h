@@ -79,6 +79,7 @@ SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
         }
         break;
       default:
+        // Type 0 means invalid entry. Invalid entries shouldn't be serialized.
         SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
