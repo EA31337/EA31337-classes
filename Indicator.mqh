@@ -1096,7 +1096,7 @@ class Indicator : public IndicatorBase {
           DebugBreak();
         }
       }
-      GetEntryAlter(_entry, _index);
+      GetEntryAlter(_entry, _ishift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
