@@ -86,7 +86,7 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
     switch (iparams.idstype) {
       case IDATA_INDICATOR:
         if (HasDataSource()) {
-          _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(THIS_PTR, GetAppliedPrice(), _ishift);
+          _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _ishift);
         }
         break;
       default:
