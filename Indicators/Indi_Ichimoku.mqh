@@ -183,7 +183,9 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
     // so we are duplicating it.
     _entry.values[0] = GetEntryValue(LINE_TENKANSEN, _shift);
 #endif
-    _entry.values[(int)LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _shift + 26);
+    _entry.values[LINE_SENKOUSPANA] = GetEntryValue(LINE_SENKOUSPANA, _shift + GetKijunSen());
+    _entry.values[LINE_SENKOUSPANB] = GetEntryValue(LINE_SENKOUSPANB, _shift + GetKijunSen());
+    _entry.values[LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _shift + GetKijunSen());
   }
 
   /**
