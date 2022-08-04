@@ -181,14 +181,14 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
             iFrAMA(GetSymbol(), GetTf(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = iFrAMAOnIndicator(THIS_PTR, GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift);
+        _value = iFrAMAOnIndicator(GetDataSource(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetFRAMAShift() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iFrAMAOnIndicator(THIS_PTR, GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift);
+        _value = iFrAMAOnIndicator(GetDataSource(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

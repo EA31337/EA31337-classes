@@ -90,7 +90,7 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
    */
   static double iDEMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, unsigned int _ma_shift,
                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0, IndicatorBase *_obj = NULL) {
-#ifdef __MQL5__XX
+#ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
@@ -117,7 +117,6 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
     }
     return _res[0];
 #else
-
     if (_obj == nullptr) {
       Print(
           "Indi_DEMA::iDEMA() can work without supplying pointer to IndicatorBase only in MQL5. In this platform the "
@@ -127,6 +126,7 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
     }
 
     return iDEMAOnIndicator(_obj, _period, _ma_shift, _applied_price, _mode, _shift);
+#endif
   }
 
   static double iDEMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, unsigned int _ma_period, unsigned int _ma_shift,
@@ -204,8 +204,8 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
                                   _ishift, _mode, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_DEMA::iDEMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/, _mode,
-                                             _ishift);
+        _value = Indi_DEMA::iDEMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/,
+                                             _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
@@ -214,8 +214,8 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
-        _value = Indi_DEMA::iDEMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/, _mode,
-                                             _ishift);
+        _value = Indi_DEMA::iDEMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/,
+                                             _mode, _ishift);
         break;
     }
     return _value;

@@ -158,13 +158,13 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
                                   THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = iTEMAOnIndicator(THIS_PTR, GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
+        _value = iTEMAOnIndicator(GetDataSource(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetTEMAShift() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iTEMAOnIndicator(THIS_PTR, GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
+        _value = iTEMAOnIndicator(GetDataSource(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

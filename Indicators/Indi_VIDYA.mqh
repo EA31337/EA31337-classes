@@ -181,8 +181,9 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
                                     GetAppliedPrice() /*]*/, 0, _ishift, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_VIDYA::iVIDyAOnIndicator(THIS_PTR, GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(),
-                                               GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value =
+            Indi_VIDYA::iVIDyAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(),
+                                          GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
@@ -192,8 +193,9 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_VIDYA::iVIDyAOnIndicator(THIS_PTR, GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(),
-                                               GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value =
+            Indi_VIDYA::iVIDyAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(),
+                                          GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

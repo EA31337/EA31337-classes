@@ -168,7 +168,8 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
         break;
       case IDATA_ONCALCULATE:
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_CCI::iCCIOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetPeriod(), _ishift /* + iparams.shift*/);
+        _value =
+            Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), _ishift /* + iparams.shift*/);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
@@ -178,7 +179,8 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
         ValidateSelectedDataSource();
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_CCI::iCCIOnIndicator(THIS_PTR, GetSymbol(), GetTf(), GetPeriod(), _ishift /* + iparams.shift*/);
+        _value =
+            Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), _ishift /* + iparams.shift*/);
         break;
     }
     return _value;
