@@ -252,7 +252,6 @@ class Trade : public Taskable<DataParamEntry> {
   /**
    * Check whether the price is in its peak for the current period.
    */
-  /*
   bool IsPeak(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
     bool _result = false;
     double _high = GetSource() PTR_DEREF GetHigh(_shift + 1);
@@ -270,12 +269,10 @@ class Trade : public Taskable<DataParamEntry> {
     }
     return _result;
   }
-  */
 
   /**
    * Checks if the current price is in pivot point level given the order type.
    */
-  /*
   bool IsPivot(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
     bool _result = false;
     double _high = GetSource() PTR_DEREF GetHigh(_shift + 1);
@@ -294,7 +291,6 @@ class Trade : public Taskable<DataParamEntry> {
     }
     return _result;
   }
-  */
 
   /**
    * Check if trading is allowed.
@@ -353,7 +349,6 @@ class Trade : public Taskable<DataParamEntry> {
   /**
    * Checks if we have already better priced opened order.
    */
-  /*
   bool HasOrderBetter(ENUM_ORDER_TYPE _cmd) {
     bool _result = false;
     Ref<Order> _order = order_last;
@@ -394,12 +389,10 @@ class Trade : public Taskable<DataParamEntry> {
     }
     return _result;
   }
-  */
 
   /**
    * Checks if we have already order with the opposite type.
    */
-  /*
   bool HasOrderOppositeType(ENUM_ORDER_TYPE _cmd) {
     bool _result = false;
     Ref<Order> _order = order_last;
@@ -426,7 +419,6 @@ class Trade : public Taskable<DataParamEntry> {
     }
     return _result;
   }
-  */
 
   /**
    * Checks if the trade has the given state.
@@ -537,23 +529,18 @@ class Trade : public Taskable<DataParamEntry> {
    *
    * @see: https://www.mql5.com/en/code/8568
    */
-  /*
   double GetMaxLotSize(double _sl, ENUM_ORDER_TYPE _cmd = NULL) {
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     double risk_amount = account.GetTotalBalance() / 100 * tparams.risk_margin;
-    double _ticks = fabs(_sl - GetSource() PTR_DEREF GetOpenOffer(_cmd)) / GetSource() PTR_DEREF GetTickSize();
+    double _ticks =
+        fabs(_sl - GetSource() PTR_DEREF GetOpenOffer(_cmd)) / GetSource() PTR_DEREF GetSymbolProps().GetTickSize();
     double lot_size1 = fmin(_sl, _ticks) > 0 ? risk_amount / (_sl * (_ticks / 100.0)) : 1;
-    lot_size1 *= GetSource() PTR_DEREF GetVolumeMin();
-    // double lot_size2 = 1 / (GetSource() PTR_DEREF GetTickValue() * sl / risk_margin);
-    // PrintFormat("SL=%g: 1 = %g, 2 = %g", sl, lot_size1, lot_size2);
+    lot_size1 *= GetSource() PTR_DEREF GetSymbolProps().GetVolumeMin();
     return NormalizeLots(lot_size1);
   }
-  */
-  /*
   double GetMaxLotSize(unsigned int _pips, ENUM_ORDER_TYPE _cmd = NULL) {
     return GetMaxLotSize(CalcOrderSLTP(_pips, _cmd, ORDER_TYPE_SL));
   }
-  */
 
   /**
    * Optimize lot size for open based on the consecutive wins and losses.
@@ -1218,12 +1205,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *
    * @todo: Improve number of increases for bull/bear variables.
    */
-  /*
-  double GetTrend(int method, bool simple = false) {
+  double GetTrend(int method, ENUM_TIMEFRAMES _tf = NULL, bool simple = false) {
     static datetime _last_trend_check = 0;
     static double _last_trend = 0;
     string symbol = GetSource() PTR_DEREF GetSymbol();
-    if (_last_trend_check == GetSource() PTR_DEREF GetTime()) {
+    if (_last_trend_check == ChartStatic::GetBarTime(symbol, _tf, 0)) {
       return _last_trend;
     }
     double bull = 0, bear = 0;
@@ -1231,109 +1217,124 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
 
     if (simple && method != 0) {
       if ((method & 1) != 0) {
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_MN1, 0) > GetSource() PTR_DEREF GetClose(PERIOD_MN1, 1)) bull++;
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_MN1, 0) < GetSource() PTR_DEREF GetClose(PERIOD_MN1, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_MN1, 0) > ChartStatic::iClose(symbol, PERIOD_MN1, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_MN1, 0) < ChartStatic::iClose(symbol, PERIOD_MN1, 1)) bear++;
       }
       if ((method & 2) != 0) {
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_W1, 0) > GetSource() PTR_DEREF GetClose(PERIOD_W1, 1)) bull++;
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_W1, 0) < GetSource() PTR_DEREF GetClose(PERIOD_W1, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_W1, 0) > ChartStatic::iClose(symbol, PERIOD_W1, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_W1, 0) < ChartStatic::iClose(symbol, PERIOD_W1, 1)) bear++;
       }
       if ((method & 4) != 0) {
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_D1, 0) > GetSource() PTR_DEREF GetClose(PERIOD_D1, 1)) bull++;
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_D1, 0) < GetSource() PTR_DEREF GetClose(PERIOD_D1, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_D1, 0) > ChartStatic::iClose(symbol, PERIOD_D1, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_D1, 0) < ChartStatic::iClose(symbol, PERIOD_D1, 1)) bear++;
       }
       if ((method & 8) != 0) {
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_H4, 0) > GetSource() PTR_DEREF GetClose(PERIOD_H4, 1)) bull++;
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_H4, 0) < GetSource() PTR_DEREF GetClose(PERIOD_H4, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_H4, 0) > ChartStatic::iClose(symbol, PERIOD_H4, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_H4, 0) < ChartStatic::iClose(symbol, PERIOD_H4, 1)) bear++;
       }
       if ((method & 16) != 0) {
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_H1, 0) > GetSource() PTR_DEREF GetClose(PERIOD_H1, 1)) bull++;
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_H1, 0) < GetSource() PTR_DEREF GetClose(PERIOD_H1, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_H1, 0) > ChartStatic::iClose(symbol, PERIOD_H1, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_H1, 0) < ChartStatic::iClose(symbol, PERIOD_H1, 1)) bear++;
       }
       if ((method & 32) != 0) {
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_M30, 0) > GetSource() PTR_DEREF GetClose(PERIOD_M30, 1)) bull++;
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_M30, 0) < GetSource() PTR_DEREF GetClose(PERIOD_M30, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M30, 0) > ChartStatic::iClose(symbol, PERIOD_M30, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M30, 0) < ChartStatic::iClose(symbol, PERIOD_M30, 1)) bear++;
       }
       if ((method & 64) != 0) {
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_M15, 0) > GetSource() PTR_DEREF GetClose(PERIOD_M15, 1)) bull++;
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_M15, 0) < GetSource() PTR_DEREF GetClose(PERIOD_M15, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M15, 0) > ChartStatic::iClose(symbol, PERIOD_M15, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M15, 0) < ChartStatic::iClose(symbol, PERIOD_M15, 1)) bear++;
       }
       if ((method & 128) != 0) {
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_M5, 0) > GetSource() PTR_DEREF GetClose(PERIOD_M5, 1)) bull++;
-        if (GetSource() PTR_DEREF GetOpen(PERIOD_M5, 0) < GetSource() PTR_DEREF GetClose(PERIOD_M5, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M5, 0) > ChartStatic::iClose(symbol, PERIOD_M5, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M5, 0) < ChartStatic::iClose(symbol, PERIOD_M5, 1)) bear++;
       }
-      // if (GetSource() PTR_DEREF GetOpen(PERIOD_H12, 0) > GetSource() PTR_DEREF GetClose(PERIOD_H12, 1)) bull++;
-      // if (GetSource() PTR_DEREF GetOpen(PERIOD_H12, 0) < GetSource() PTR_DEREF GetClose(PERIOD_H12, 1)) bear++;
-      // if (GetSource() PTR_DEREF GetOpen(PERIOD_H8, 0) > GetSource() PTR_DEREF GetClose(PERIOD_H8, 1)) bull++;
-      // if (GetSource() PTR_DEREF GetOpen(PERIOD_H8, 0) < GetSource() PTR_DEREF GetClose(PERIOD_H8, 1)) bear++;
-      // if (GetSource() PTR_DEREF GetOpen(PERIOD_H6, 0) > GetSource() PTR_DEREF GetClose(PERIOD_H6, 1)) bull++;
-      // if (GetSource() PTR_DEREF GetOpen(PERIOD_H6, 0) < GetSource() PTR_DEREF GetClose(PERIOD_H6, 1)) bear++;
-      // if (GetSource() PTR_DEREF GetOpen(PERIOD_H2, 0) > GetSource() PTR_DEREF GetClose(PERIOD_H2, 1)) bull++;
-      // if (GetSource() PTR_DEREF GetOpen(PERIOD_H2, 0) < GetSource() PTR_DEREF GetClose(PERIOD_H2, 1)) bear++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H12, 0) > ChartStatic::iClose(symbol, PERIOD_H12, 1)) bull++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H12, 0) < ChartStatic::iClose(symbol, PERIOD_H12, 1)) bear++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H8, 0) > ChartStatic::iClose(symbol, PERIOD_H8, 1)) bull++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H8, 0) < ChartStatic::iClose(symbol, PERIOD_H8, 1)) bear++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H6, 0) > ChartStatic::iClose(symbol, PERIOD_H6, 1)) bull++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H6, 0) < ChartStatic::iClose(symbol, PERIOD_H6, 1)) bear++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H2, 0) > ChartStatic::iClose(symbol, PERIOD_H2, 1)) bull++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H2, 0) < ChartStatic::iClose(symbol, PERIOD_H2, 1)) bear++;
     } else if (method != 0) {
       if ((method % 1) == 0) {
         for (_counter = 0; _counter < 3; _counter++) {
-          if (GetSource() PTR_DEREF GetOpen(PERIOD_MN1, _counter) > GetSource() PTR_DEREF GetClose(PERIOD_MN1, _counter
-  + 1)) bull += 30; else if (GetSource() PTR_DEREF GetOpen(PERIOD_MN1, _counter) < GetSource() PTR_DEREF
-  GetClose(PERIOD_MN1, _counter + 1)) bear += 30;
+          if (ChartStatic::iOpen(symbol, PERIOD_MN1, _counter) > ChartStatic::iClose(symbol, PERIOD_MN1, _counter + 1))
+            bull += 30;
+          else if (ChartStatic::iOpen(symbol, PERIOD_MN1, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_MN1, _counter + 1))
+            bear += 30;
         }
       }
       if ((method % 2) == 0) {
         for (_counter = 0; _counter < 8; _counter++) {
-          if (GetSource() PTR_DEREF GetOpen(PERIOD_W1, _counter) > GetSource() PTR_DEREF GetClose(PERIOD_W1, _counter +
-  1)) bull += 7; else if (GetSource() PTR_DEREF GetOpen(PERIOD_W1, _counter) < GetSource() PTR_DEREF GetClose(PERIOD_W1,
-  _counter + 1)) bear += 7;
+          if (ChartStatic::iOpen(symbol, PERIOD_W1, _counter) > ChartStatic::iClose(symbol, PERIOD_W1, _counter + 1))
+            bull += 7;
+          else if (ChartStatic::iOpen(symbol, PERIOD_W1, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_W1, _counter + 1))
+            bear += 7;
         }
       }
       if ((method % 4) == 0) {
         for (_counter = 0; _counter < 7; _counter++) {
-          if (GetSource() PTR_DEREF GetOpen(PERIOD_D1, _counter) > GetSource() PTR_DEREF GetClose(PERIOD_D1, _counter +
-  1)) bull += 1440 / 1440; else if (GetSource() PTR_DEREF GetOpen(PERIOD_D1, _counter) < GetSource() PTR_DEREF
-  GetClose(PERIOD_D1, _counter + 1)) bear += 1440 / 1440;
+          if (ChartStatic::iOpen(symbol, PERIOD_D1, _counter) > ChartStatic::iClose(symbol, PERIOD_D1, _counter + 1))
+            bull += 1440 / 1440;
+          else if (ChartStatic::iOpen(symbol, PERIOD_D1, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_D1, _counter + 1))
+            bear += 1440 / 1440;
         }
       }
       if ((method % 8) == 0) {
         for (_counter = 0; _counter < 24; _counter++) {
-          if (GetSource() PTR_DEREF GetOpen(PERIOD_H4, _counter) > GetSource() PTR_DEREF GetClose(PERIOD_H4, _counter +
-  1)) bull += 240 / 1440; else if (GetSource() PTR_DEREF GetOpen(PERIOD_H4, _counter) < GetSource() PTR_DEREF
-  GetClose(PERIOD_H4, _counter + 1)) bear += 240 / 1440;
+          if (ChartStatic::iOpen(symbol, PERIOD_H4, _counter) > ChartStatic::iClose(symbol, PERIOD_H4, _counter + 1))
+            bull += 240 / 1440;
+          else if (ChartStatic::iOpen(symbol, PERIOD_H4, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_H4, _counter + 1))
+            bear += 240 / 1440;
         }
       }
       if ((method % 16) == 0) {
         for (_counter = 0; _counter < 24; _counter++) {
-          if (GetSource() PTR_DEREF GetOpen(PERIOD_H1, _counter) > GetSource() PTR_DEREF GetClose(PERIOD_H1, _counter +
-  1)) bull += 60 / 1440; else if (GetSource() PTR_DEREF GetOpen(PERIOD_H1, _counter) < GetSource() PTR_DEREF
-  GetClose(PERIOD_H1, _counter + 1)) bear += 60 / 1440;
+          if (ChartStatic::iOpen(symbol, PERIOD_H1, _counter) > ChartStatic::iClose(symbol, PERIOD_H1, _counter + 1))
+            bull += 60 / 1440;
+          else if (ChartStatic::iOpen(symbol, PERIOD_H1, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_H1, _counter + 1))
+            bear += 60 / 1440;
         }
       }
       if ((method % 32) == 0) {
         for (_counter = 0; _counter < 48; _counter++) {
-          if (GetSource() PTR_DEREF GetOpen(PERIOD_M30, _counter) > GetSource() PTR_DEREF GetClose(PERIOD_M30, _counter
-  + 1)) bull += 30 / 1440; else if (GetSource() PTR_DEREF GetOpen(PERIOD_M30, _counter) < GetSource() PTR_DEREF
-  GetClose(PERIOD_M30, _counter + 1)) bear += 30 / 1440;
+          if (ChartStatic::iOpen(symbol, PERIOD_M30, _counter) > ChartStatic::iClose(symbol, PERIOD_M30, _counter + 1))
+            bull += 30 / 1440;
+          else if (ChartStatic::iOpen(symbol, PERIOD_M30, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_M30, _counter + 1))
+            bear += 30 / 1440;
         }
       }
       if ((method % 64) == 0) {
         for (_counter = 0; _counter < 96; _counter++) {
-          if (GetSource() PTR_DEREF GetOpen(PERIOD_M15, _counter) > GetSource() PTR_DEREF GetClose(PERIOD_M15, _counter
-  + 1)) bull += 15 / 1440; else if (GetSource() PTR_DEREF GetOpen(PERIOD_M15, _counter) < GetSource() PTR_DEREF
-  GetClose(PERIOD_M15, _counter + 1)) bear += 15 / 1440;
+          if (ChartStatic::iOpen(symbol, PERIOD_M15, _counter) > ChartStatic::iClose(symbol, PERIOD_M15, _counter + 1))
+            bull += 15 / 1440;
+          else if (ChartStatic::iOpen(symbol, PERIOD_M15, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_M15, _counter + 1))
+            bear += 15 / 1440;
         }
       }
       if ((method % 128) == 0) {
         for (_counter = 0; _counter < 288; _counter++) {
-          if (GetSource() PTR_DEREF GetOpen(PERIOD_M5, _counter) > GetSource() PTR_DEREF GetClose(PERIOD_M5, _counter +
-  1)) bull += 5 / 1440; else if (GetSource() PTR_DEREF GetOpen(PERIOD_M5, _counter) < GetSource() PTR_DEREF
-  GetClose(PERIOD_M5, _counter + 1)) bear += 5 / 1440;
+          if (ChartStatic::iOpen(symbol, PERIOD_M5, _counter) > ChartStatic::iClose(symbol, PERIOD_M5, _counter + 1))
+            bull += 5 / 1440;
+          else if (ChartStatic::iOpen(symbol, PERIOD_M5, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_M5, _counter + 1))
+            bear += 5 / 1440;
         }
       }
     }
     _last_trend = (bull - bear);
-    _last_trend_check = GetSource() PTR_DEREF GetBarTime(_tf, 0);
+    _last_trend_check = ChartStatic::GetBarTime(symbol, _tf, 0);
     logger.Debug(StringFormat("%s: %g", __FUNCTION__, _last_trend));
     return _last_trend;
   }
-  */
 
   /**
    * Get the current market trend.
@@ -1351,13 +1352,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns Buy operation for bullish, Sell for bearish, otherwise NULL for neutral market trend.
    */
-  /*
   ENUM_ORDER_TYPE GetTrendOp(int method, ENUM_TIMEFRAMES _tf = NULL, bool simple = false) {
     double _curr_trend = GetTrend(method, _tf, simple);
     return _curr_trend == 0 ? (ENUM_ORDER_TYPE)(ORDER_TYPE_BUY + ORDER_TYPE_SELL)
                             : (_curr_trend > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
-  */
 
   /* Trade states */
 
@@ -1797,17 +1796,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_COND_IS_ORDER_LIMIT:
         return tparams.IsLimitGe(tstats);
       case TRADE_COND_IS_PEAK:
-        // @fixit IsPeak requires refactoring.
-        // return IsPeak(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>());
-        Alert("Functionality not yet implemented!");
-        DebugBreak();
-        return false;
+        return IsPeak(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>());
       case TRADE_COND_IS_PIVOT:
-        // @fixit IsPivot requires refactoring.
-        // return IsPivot(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>());
-        Alert("Functionality not yet implemented!");
-        DebugBreak();
-        return false;
+        return IsPivot(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>());
       case TRADE_COND_ORDERS_PROFIT_GT_01PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           return CalcActiveEquityInPct() >= 1;
@@ -1886,8 +1877,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     switch (_entry.GetId()) {
       case TRADE_ACTION_CALC_LOT_SIZE:
         tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
-        Alert("Functionality not yet implemented!");
-        DebugBreak();
         return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
       case TRADE_ACTION_ORDER_CLOSE_LEAST_LOSS:
         // @todo
@@ -1941,20 +1930,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          // @fixit GetTrendOp requires refactoring.
-          // _result = OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          Alert("Functionality not yet implemented!");
-          DebugBreak();
+          _result = OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          // @fixit GetTrendOp requires refactoring.
-          // _result = OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
-          Alert("Functionality not yet implemented!");
-          DebugBreak();
-
+          _result = OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
         break;

@@ -874,26 +874,17 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result &= !trade REF_DEREF HasBarOrder(_cmd);  // 1
-      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                       // 2
-
-      // @fixit
-      // if (METHOD(_method, 2)) _result &= trade REF_DEREF IsPivot(_cmd);                // 4
-
-      // @fixit
-      // if (METHOD(_method, 3)) _result &= !trade REF_DEREF HasOrderOppositeType(_cmd);  // 8
-
-      // @fixit
-      // if (METHOD(_method, 4)) _result &= trade REF_DEREF IsPeak(_cmd);                 // 16
-
-      // @fixit
-      // if (METHOD(_method, 5)) _result &= !trade REF_DEREF HasOrderBetter(_cmd);        // 32
-
+      if (METHOD(_method, 0)) _result &= !trade REF_DEREF HasBarOrder(_cmd);           // 1
+      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                                // 2
+      if (METHOD(_method, 2)) _result &= trade REF_DEREF IsPivot(_cmd);                // 4
+      if (METHOD(_method, 3)) _result &= !trade REF_DEREF HasOrderOppositeType(_cmd);  // 8
+      if (METHOD(_method, 4)) _result &= trade REF_DEREF IsPeak(_cmd);                 // 16
+      if (METHOD(_method, 5)) _result &= !trade REF_DEREF HasOrderBetter(_cmd);        // 32
       /*
       if (METHOD(_method, 6))
         _result &= !trade REF_DEREF Check(
             TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_LOW : ACCOUNT_COND_EQUITY_01PC_HIGH);  // 64
-      */
+       */
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -953,8 +944,10 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     float _result = 1.0;
     if (_method != 0) {
-      // if (METHOD(_method, 0)) if (Trade().IsTrend(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 1)) if (Trade().IsPivot(_cmd)) _result *= 1.1;
+      if (METHOD(_method, 0))
+        if (IsTrend(_cmd)) _result *= 1.1f;
+      if (METHOD(_method, 1))
+        if (Trade().IsPivot(_cmd)) _result *= 1.1f;
       // if (METHOD(_method, 2)) if (Trade().IsPeakHours(_cmd)) _result *= 1.1;
       // if (METHOD(_method, 3)) if (Trade().IsRoundNumber(_cmd)) _result *= 1.1;
       // if (METHOD(_method, 4)) if (Trade().IsHedging(_cmd)) _result *= 1.1;
@@ -993,25 +986,17 @@ class Strategy : public Taskable<DataParamEntry> {
     if (_method != 0) {
       if (METHOD(_method, 0)) _result |= _result || !trade REF_DEREF HasBarOrder(_cmd);  // 1
       if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                      // 2
-
-      // @fixit
-      // if (METHOD(_method, 2)) _result |= _result || !trade REF_DEREF IsPivot(_cmd);      // 4
-
+      if (METHOD(_method, 2)) _result |= _result || !trade REF_DEREF IsPivot(_cmd);      // 4
       if (METHOD(_method, 3))
         _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
-
-      // @fixit
-      // if (METHOD(_method, 4)) _result |= _result || trade REF_DEREF IsPeak(_cmd);                           // 16
-
-      // @fixit
-      // if (METHOD(_method, 5)) _result |= _result || trade REF_DEREF HasOrderBetter(_cmd);                   // 32
-
+      if (METHOD(_method, 4)) _result |= _result || trade REF_DEREF IsPeak(_cmd);                 // 16
+      if (METHOD(_method, 5)) _result |= _result || trade REF_DEREF HasOrderBetter(_cmd);         // 32
       /*
       if (METHOD(_method, 6))
         _result |=
             _result || trade REF_DEREF Check(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
-                                                                            : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
-      */
+                                                                             : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
+                                                                             */
       // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
