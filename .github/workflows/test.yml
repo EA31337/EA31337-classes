@@ -81,7 +81,7 @@ jobs:
       - name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 4-16
+          BtDays: 4-8
           BtMonths: 1
           BtYears: 2020
           MtVersion: 4.0.0.1349
