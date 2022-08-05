@@ -631,14 +631,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns calculated lot size (volume).
    */
-  /*
   float CalcLotSize(float _risk_margin = 1,         // Risk margin in %.
                     float _risk_ratio = 1.0,        // Risk ratio factor.
                     unsigned int _orders_avg = 10,  // Number of orders to use for the calculation.
                     unsigned int _method = 0        // Method of calculation (0-3).
   ) {
     float _avail_amount = _method % 2 == 0 ? account.GetMarginAvail() : account.GetTotalBalance();
-    float _lot_size_min = (float)GetSource() PTR_DEREF GetVolumeMin();
+    float _lot_size_min = (float)GetSource() PTR_DEREF GetSymbolProps().GetVolumeMin();
     float _lot_size = _lot_size_min;
     float _risk_value = (float)account.GetLeverage();
     if (_method == 0 || _method == 1) {
@@ -650,14 +649,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     } else {
       float _risk_amount = _avail_amount / 100 * _risk_margin;
       float _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, GetSource() PTR_DEREF GetSymbol());
-      float _tick_value = GetSource() PTR_DEREF GetTickSize();
+      float _tick_value = (float)GetSource() PTR_DEREF GetSymbolProps().GetTickSize();
       // @todo: Improves calculation logic.
       _lot_size = _money_value * _tick_value * _risk_ratio / _risk_value / 100;
     }
-    _lot_size = (float)fmin(_lot_size, GetSource() PTR_DEREF GetVolumeMax());
+    _lot_size = (float)fmin(_lot_size, GetSource() PTR_DEREF GetSymbolProps().GetVolumeMax());
     return (float)NormalizeLots(_lot_size);
   }
-  */
 
   /* Orders methods */
 
@@ -1045,8 +1043,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   ) {
     float _max_value1 = _max_pips > 0 ? CalcOrderSLTP(_max_pips, _cmd, _mode) : 0;
     float _max_value2 = tparams.risk_margin > 0 ? GetMaxSLTP(_cmd, _lot_size, _mode) : 0;
-    float _res = (float)GetSource() PTR_DEREF GetSymbolProps().NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd,
-  _mode));
+    float _res = (float)GetSource() PTR_DEREF GetSymbolProps().NormalizePrice(
+        GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
     // PrintFormat("%s/%s: Value: %g", EnumToString(_cmd), EnumToString(_mode), _value);
     // PrintFormat("%s/%s: Max value 1: %g", EnumToString(_cmd), EnumToString(_mode), _max_value1);
     // PrintFormat("%s/%s: Max value 2: %g", EnumToString(_cmd), EnumToString(_mode), _max_value2);
@@ -1887,8 +1885,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
     switch (_entry.GetId()) {
       case TRADE_ACTION_CALC_LOT_SIZE:
-        // @fixit CalcLotSize requires refactoring.
-        // tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
+        tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
         Alert("Functionality not yet implemented!");
         DebugBreak();
         return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
