@@ -24,6 +24,13 @@
 #include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 
+// Defines.
+#ifdef __MQL4__
+#define INDI_ZIGZAG_PATH "ZigZag"
+#else
+#define INDI_ZIGZAG_PATH "Examples\\ZigZag"
+#endif
+
 // Enums.
 // Indicator mode identifiers used in ZigZag indicator.
 enum ENUM_ZIGZAG_LINE { ZIGZAG_BUFFER = 0, ZIGZAG_HIGHMAP = 1, ZIGZAG_LOWMAP = 2, FINAL_ZIGZAG_LINE_ENTRY };
@@ -40,8 +47,8 @@ struct IndiZigZagParams : IndicatorParams {
         backstep(_backstep),
         IndicatorParams(INDI_ZIGZAG, FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE) {
     shift = _shift;
-    SetCustomIndicatorName("Examples\\ZigZag");
-    SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
+    SetCustomIndicatorName(INDI_ZIGZAG_PATH);
+    SetDataValueRange(IDATA_RANGE_PRICE);
   };
   IndiZigZagParams(IndiZigZagParams &_params) { THIS_REF = _params; };
 };
@@ -73,7 +80,13 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
-  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+  unsigned int GetPossibleDataModes() override {
+#ifdef __MQL__
+    return IDATA_ICUSTOM | IDATA_ONCALCULATE | IDATA_INDICATOR;
+#else
+    return IDATA_ONCALCULATE | IDATA_INDICATOR | IDATA_ICUSTOM;
+#endif
+  }
 
   /**
    * Checks whether given data source satisfies our requirements.
