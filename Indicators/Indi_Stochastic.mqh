@@ -131,7 +131,6 @@ class Indi_Stochastic : public Indicator<IndiStochParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(),
                                               GetMAMethod(), GetPriceField(), _mode, _ishift, THIS_PTR);
         break;

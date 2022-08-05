@@ -1029,6 +1029,14 @@ class IndicatorBase : public Object {
   }
 
   /**
+   * Sets an indicator's state property value.
+   */
+  template <typename T>
+  void Set(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop, T _value) {
+    istate.Set<T>(_prop, _value);
+  }
+
+  /**
    * Sets indicator data source.
    */
   virtual void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) = NULL;

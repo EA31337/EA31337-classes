@@ -229,10 +229,10 @@ class SymbolInfo : public Object {
   /**
    * Get number of points per pip.
    *
-   * To be used to replace Point for trade parameters calculations.
-   * See: http://forum.mql4.com/30672
    */
-  unsigned int GetPointsPerPip() { return sprops.pts_per_pip; }
+  unsigned int GetPointsPerPip() {
+    return sprops.pts_per_pip;
+  }
 
   /**
    * Get the point size in the quote currency.

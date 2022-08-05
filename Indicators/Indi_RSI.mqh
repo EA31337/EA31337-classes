@@ -308,7 +308,6 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value =
             Indi_RSI::iRSI(GetSymbol(), GetTf(), iparams.GetPeriod(), iparams.GetAppliedPrice(), _ishift, THIS_PTR);
         break;
@@ -316,7 +315,6 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
         // @todo Modify iRSIOnIndicator() to operate on single IndicatorBase pointer.
         break;
       case IDATA_ICUSTOM:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ iparams.GetPeriod(),
                          iparams.GetAppliedPrice() /* ] */, 0, _ishift);
         Print(_value);

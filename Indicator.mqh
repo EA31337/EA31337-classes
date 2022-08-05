@@ -1060,6 +1060,13 @@ class Indicator : public IndicatorBase {
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       _entry.Resize(iparams.GetMaxModes());
       _entry.timestamp = GetBarTime(_ishift);
+#ifndef __MQL4__
+      if (IndicatorBase::Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED))) {
+        // Resets the handle on any parameter changes.
+        IndicatorBase::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_HANDLE), INVALID_HANDLE);
+        IndicatorBase::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED), false);
+      }
+#endif
       for (int _mode = 0; _mode < (int)iparams.GetMaxModes(); _mode++) {
         switch (iparams.GetDataValueType()) {
           case TYPE_BOOL:

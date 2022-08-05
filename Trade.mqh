@@ -1037,7 +1037,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Calculates the best SL/TP value for the order given the limits.
    */
-  /*
   float CalcBestSLTP(float _value,                 // Suggested value.
                      float _max_pips,              // Maximal amount of pips.
                      ENUM_ORDER_TYPE_VALUE _mode,  // Type of value (stop loss or take profit).
@@ -1046,7 +1045,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   ) {
     float _max_value1 = _max_pips > 0 ? CalcOrderSLTP(_max_pips, _cmd, _mode) : 0;
     float _max_value2 = tparams.risk_margin > 0 ? GetMaxSLTP(_cmd, _lot_size, _mode) : 0;
-    float _res = (float)GetSource() PTR_DEREF NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd,
+    float _res = (float)GetSource() PTR_DEREF GetSymbolProps().NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd,
   _mode));
     // PrintFormat("%s/%s: Value: %g", EnumToString(_cmd), EnumToString(_mode), _value);
     // PrintFormat("%s/%s: Max value 1: %g", EnumToString(_cmd), EnumToString(_mode), _max_value1);
@@ -1054,32 +1053,21 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     // PrintFormat("%s/%s: Result: %g", EnumToString(_cmd), EnumToString(_mode), _res);
     return _res;
   }
-  */
 
   /**
    * Returns value of stop loss for the new order given the pips value.
    */
-  /*
   float CalcOrderSLTP(float _value,                // Value in pips.
                       ENUM_ORDER_TYPE _cmd,        // Order type (e.g. buy or sell).
                       ENUM_ORDER_TYPE_VALUE _mode  // Type of value (stop loss or take profit).
   ) {
+    double _pip_size = SymbolInfoStatic::GetPipSize(GetSource() PTR_DEREF GetSymbol());
     double _price = _cmd == NULL ? Order::OrderOpenPrice() : GetSource() PTR_DEREF GetOpenOffer(_cmd);
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
-    // PrintFormat("#%d: %s/%s: %g (%g/%g) + %g * %g * %g = %g", Order::OrderTicket(), EnumToString(_cmd),
-    // EnumToString(_mode), _price, Bid, Ask, _value, GetSource() PTR_DEREF GetPipSize(), Order::OrderDirection(_cmd,
-  _mode),
-    // GetSource() PTR_DEREF GetOpenOffer(_cmd) + _value * GetSource() PTR_DEREF GetPipSize() *
-  Order::OrderDirection(_cmd, _mode)); return _value > 0 ? float(_price + _value * GetSource() PTR_DEREF GetPipSize() *
-  Order::OrderDirection(_cmd, _mode)) : 0;
+    return _value > 0 ? float(_price + _value * _pip_size * Order::OrderDirection(_cmd, _mode)) : 0;
   }
-  */
-  /*
   float CalcOrderSL(float _value, ENUM_ORDER_TYPE _cmd) { return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_SL); }
-  */
-  /*
   float CalcOrderTP(float _value, ENUM_ORDER_TYPE _cmd) { return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_TP); }
-  */
 
   /**
    * Returns maximal order stop loss value given the risk margin (in %).
@@ -1093,7 +1081,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns maximum stop loss price value for the given symbol.
    */
-  /*
   float GetMaxSLTP(ENUM_ORDER_TYPE _cmd = NULL, float _lot_size = 0, ENUM_ORDER_TYPE_VALUE _mode = ORDER_TYPE_SL,
                    float _risk_margin = 1.0) {
     double _price = _cmd == NULL ? Order::OrderOpenPrice() : GetSource() PTR_DEREF GetOpenOffer(_cmd);
@@ -1110,17 +1097,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
            // + Convert::MoneyToValue(account.GetMarginAvail() / 100 * _risk_margin, _lot_size)
            + _margin * Order::OrderDirection(_cmd, _mode);
   }
-  */
-  /*
   float GetMaxSL(ENUM_ORDER_TYPE _cmd = NULL, float _lot_size = 0, float _risk_margin = 1.0) {
     return GetMaxSLTP(_cmd, _lot_size, ORDER_TYPE_SL, _risk_margin);
   }
-  */
-  /*
   float GetMaxTP(ENUM_ORDER_TYPE _cmd = NULL, float _lot_size = 0, float _risk_margin = 1.0) {
     return GetMaxSLTP(_cmd, _lot_size, ORDER_TYPE_TP, _risk_margin);
   }
-  */
 
   /**
    * Returns safer SL/TP based on the two SL or TP input values.
@@ -1460,7 +1442,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                            ? GetSource() PTR_DEREF GetSymbolProps().GetVolumeStep()
                            : _vol_min;
     if (_vol_step > 0) {
-      // Related: http://forum.mql4.com/47988
+      // Related: https://www.mql5.com/en/forum/139338
       double _precision = 1 / _vol_step;
       // Edge case when step is higher than minimum.
       _lot_size = _ceil ? ceil(_lots * _precision) / _precision : floor(_lots * _precision) / _precision;

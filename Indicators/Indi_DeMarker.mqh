@@ -113,7 +113,6 @@ class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = _value = Indi_DeMarker::iDeMarker(GetSymbol(), GetTf(), GetPeriod(), _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:

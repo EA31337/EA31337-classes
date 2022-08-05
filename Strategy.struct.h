@@ -437,11 +437,12 @@ struct StgEntry {
   unsigned short signals;
   StgStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
   string ToCSV() {
-    return StringFormat("%s,%s,%s,%s", stats_period[EA_STATS_DAILY].ToCSV(), stats_period[EA_STATS_WEEKLY].ToCSV(),
-                        stats_period[EA_STATS_MONTHLY].ToCSV(), stats_period[EA_STATS_TOTAL].ToCSV());
+    return StringFormat("%s,%s,%s,%s", stats_period[(int)EA_STATS_DAILY].ToCSV(),
+                        stats_period[(int)EA_STATS_WEEKLY].ToCSV(), stats_period[(int)EA_STATS_MONTHLY].ToCSV(),
+                        stats_period[(int)EA_STATS_TOTAL].ToCSV());
   }
   // Struct setters.
-  void SetStats(StgStatsPeriod &_stats, ENUM_STRATEGY_STATS_PERIOD _period) { stats_period[_period] = _stats; }
+  void SetStats(StgStatsPeriod &_stats, ENUM_STRATEGY_STATS_PERIOD _period) { stats_period[(int)_period] = _stats; }
   // Serializers.
   SERIALIZER_EMPTY_STUB
   SerializerNodeType Serialize(Serializer &_s) {

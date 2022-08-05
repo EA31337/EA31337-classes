@@ -76,7 +76,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
   unsigned int GetPossibleDataModes() override {
-#ifdef __MQL4__
+#ifdef __MQL5__
     return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
 #else
     return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
@@ -239,11 +239,11 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
 
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_AMA::iAMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
+        _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
                                            GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_AMA::iAMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
+        _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
                                            GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       default:

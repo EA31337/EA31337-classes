@@ -654,7 +654,6 @@ class Indi_MA : public Indicator<IndiMAParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
                               _ishift, THIS_PTR);
         break;
@@ -663,7 +662,6 @@ class Indi_MA : public Indicator<IndiMAParams> {
                                          GetMAMethod(), GetAppliedPrice(), _ishift);
         break;
       case IDATA_ICUSTOM:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
                          GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, _ishift);
         break;
