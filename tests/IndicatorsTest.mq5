@@ -298,14 +298,12 @@ bool InitIndicators() {
   indis.Push(new Indi_SAR(sar_params));
 
   // Standard Deviation (StdDev).
-  /*
   Ref<IndicatorBase> indi_price_for_stdev = new Indi_Price(PriceIndiParams());
   IndiStdDevParams stddev_on_price_params();
   stddev_on_price_params.SetDraw(clrBlue, 1);
   Ref<Indi_StdDev> indi_stddev_on_price = new Indi_StdDev(stddev_on_price_params);
   indi_stddev_on_price.Ptr().SetDataSource(indi_price_for_stdev.Ptr(), PRICE_OPEN);
   indis.Push(indi_stddev_on_price.Ptr());
-  */
 
   // Stochastic Oscillator.
   IndiStochParams stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
@@ -325,15 +323,12 @@ bool InitIndicators() {
   indis.Push(new Indi_Demo());
 
   // Current Price.
-  /*
   PriceIndiParams price_params();
   // price_params.SetDraw(clrAzure);
   Ref<IndicatorBase> indi_price = new Indi_Price(price_params);
   indis.Push(indi_price);
-  */
 
   // Bollinger Bands over Price indicator.
-  /*
   PriceIndiParams price_params_4_bands();
   Ref<IndicatorBase> indi_price_4_bands = new Indi_Price(price_params_4_bands);
   IndiBandsParams bands_on_price_params();
@@ -341,7 +336,6 @@ bool InitIndicators() {
   Ref<Indi_Bands> indi_bands_on_price = new Indi_Bands(bands_on_price_params);
   indi_bands_on_price.Ptr().SetDataSource(indi_price_4_bands.Ptr());
   indis.Push(indi_bands_on_price.Ptr());
-  */
 
   // Standard Deviation (StdDev) over MA(SMA).
   // NOTE: If you set ma_shift parameter for MA, then StdDev will no longer
@@ -420,23 +414,19 @@ bool InitIndicators() {
   indis.Push(indi_rsi_on_price.Ptr());
 
   // Drawer (socket-based) indicator over RSI over Price.
-  /*
   IndiDrawerParams drawer_params(14, PRICE_OPEN);
   drawer_params.SetDraw(clrBisque, 0);
   Ref<Indi_Drawer> indi_drawer_on_rsi = new Indi_Drawer(drawer_params);
   indi_drawer_on_rsi.Ptr().SetDataSource(indi_rsi_on_price.Ptr(), PRICE_OPEN);
   indis.Push(indi_drawer_on_rsi.Ptr());
-  */
 
   // Applied Price over OHCL indicator.
-  /*
   IndiAppliedPriceParams applied_price_params();
   applied_price_params.SetDraw(clrAquamarine, 0);
   IndiOHLCParams applied_price_ohlc_params;
   Ref<Indi_AppliedPrice> indi_applied_price_on_price = new Indi_AppliedPrice(applied_price_params);
   indi_applied_price_on_price REF_DEREF SetAppliedPrice(PRICE_TYPICAL);
   indis.Push(indi_applied_price_on_price.Ptr());
-  */
 
   // ADXW.
   IndiADXWParams adxw_params(14);
@@ -542,22 +532,20 @@ bool InitIndicators() {
   indis.Push(new Indi_CustomMovingAverage(cma_params));
 
   // Math (specialized indicator).
-  // @todo Uncomment when ready.
-  // IndiMathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
-  // math_params.SetDraw(clrBlue);
-  // math_params.SetName("Bands(UP - LO)");
-  // Ref<Indi_Math> indi_math_1 = new Indi_Math(math_params);
-  // indi_math_1.Ptr().SetDataSource(indi_bands.Ptr(), 0);
-  // indis.Push(indi_math_1.Ptr());
+  IndiMathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
+  math_params.SetDraw(clrBlue);
+  math_params.SetName("Bands(UP - LO)");
+  Ref<Indi_Math> indi_math_1 = new Indi_Math(math_params);
+  indi_math_1.Ptr().SetDataSource(indi_bands.Ptr(), 0);
+  indis.Push(indi_math_1.Ptr());
 
   // Math (specialized indicator) via custom math method.
-  // @todo Uncomment when ready.
-  // IndiMathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
-  // math_custom_params.SetDraw(clrBeige);
-  // math_custom_params.SetName("Bands(Custom math fn)");
-  // Ref<Indi_Math> indi_math_2 = new Indi_Math(math_custom_params);
-  // indi_math_2.Ptr().SetDataSource(indi_bands.Ptr(), 0);
-  // indis.Push(indi_math_2.Ptr());
+  IndiMathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
+  math_custom_params.SetDraw(clrBeige);
+  math_custom_params.SetName("Bands(Custom math fn)");
+  Ref<Indi_Math> indi_math_2 = new Indi_Math(math_custom_params);
+  indi_math_2.Ptr().SetDataSource(indi_bands.Ptr(), 0);
+  indis.Push(indi_math_2.Ptr());
 
   // RS (Math-based) indicator.
   IndiRSParams rs_params();
@@ -580,6 +568,8 @@ bool InitIndicators() {
 
   return GetLastError() == ERR_NO_ERROR;
 }
+
+double MathCustomOp(double a, double b) { return 1.11 + (b - a) * 2.0; }
 
 /**
  * Print indicators.
