@@ -874,8 +874,8 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result &= !trade REF_DEREF HasBarOrder(_cmd);           // 1
-      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                                // 2
+      if (METHOD(_method, 0)) _result &= !trade REF_DEREF HasBarOrder(_cmd);  // 1
+      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                       // 2
       if (METHOD(_method, 2)) _result &= trade REF_DEREF IsPivot(_cmd);                // 4
       if (METHOD(_method, 3)) _result &= !trade REF_DEREF HasOrderOppositeType(_cmd);  // 8
       if (METHOD(_method, 4)) _result &= trade REF_DEREF IsPeak(_cmd);                 // 16
@@ -995,7 +995,7 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 6))
         _result |=
             _result || trade REF_DEREF Check(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
-                                                                             : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
+                                                                            : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
                                                                              */
       // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
@@ -1033,8 +1033,7 @@ class Strategy : public Taskable<DataParamEntry> {
     _psm.SetCandleSource(_data_source);
     if (Object::IsValid(_indi)) {
       int _ishift = 12;     // @todo: Make it dynamic or as variable.
-      float _value = 0.0f;  // @todo
-      // float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
+      float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
       _value = _value + (float)Math::ChangeByPct(fabs(_value - _data_source.GetCloseOffer(0)), _level) * _direction;
       _psm.SetIndicatorPriceValue(_value);
       /*
