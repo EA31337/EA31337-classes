@@ -35,18 +35,15 @@ template <typename TS>
 class Indicator;
 struct ChartParams;
 
-// Defines.
-#define STRUCT_ENUM_INDICATOR_STATE_PROP STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP)
-
 // Includes.
-#include "Array.mqh"
-#include "Chart.struct.tf.h"
-#include "Data.struct.h"
-#include "DateTime.struct.h"
+#include "../Array.mqh"
+#include "../Chart.struct.tf.h"
+#include "../Data.struct.h"
+#include "../DateTime.struct.h"
+#include "../SerializerNode.enum.h"
 #include "Indicator.enum.h"
-#include "Indicator.struct.cache.h"
-#include "SerializerNode.enum.h"
-#include "Storage/ValueStorage.indicator.h"
+#include "IndicatorData.struct.cache.h"
+//#include "Indicator.struct.serialize.h"
 
 /* Structure for indicator parameters. */
 struct IndicatorParams {
@@ -129,55 +126,4 @@ struct IndicatorParams {
   // SERIALIZER_EMPTY_STUB;
   // template <>
   SerializerNodeType Serialize(Serializer &s);
-};
-
-/* Structure for indicator state. */
-struct IndicatorState {
- public:            // @todo: Change it to protected.
-  int handle;       // Indicator handle (MQL5 only).
-  bool is_changed;  // Set when params has been recently changed.
-  bool is_ready;    // Set when indicator is ready (has valid values).
- public:
-  enum ENUM_INDICATOR_STATE_PROP {
-    INDICATOR_STATE_PROP_HANDLE,
-    INDICATOR_STATE_PROP_IS_CHANGED,
-    INDICATOR_STATE_PROP_IS_READY,
-  };
-  // Constructor.
-  IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
-  // Getters.
-  template <typename T>
-  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
-    switch (_prop) {
-      case INDICATOR_STATE_PROP_HANDLE:
-        return (T)handle;
-      case INDICATOR_STATE_PROP_IS_CHANGED:
-        return (T)is_changed;
-      case INDICATOR_STATE_PROP_IS_READY:
-        return (T)is_ready;
-    };
-    SetUserError(ERR_INVALID_PARAMETER);
-    return (T)WRONG_VALUE;
-  }
-  // Setters.
-  template <typename T>
-  void Set(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop, T _value) {
-    switch (_prop) {
-      case INDICATOR_STATE_PROP_HANDLE:
-        handle = (T)_value;
-        break;
-      case INDICATOR_STATE_PROP_IS_CHANGED:
-        is_changed = (T)_value;
-        break;
-      case INDICATOR_STATE_PROP_IS_READY:
-        is_ready = (T)_value;
-        break;
-      default:
-        SetUserError(ERR_INVALID_PARAMETER);
-        break;
-    };
-  }
-  // State checkers.
-  bool IsChanged() { return is_changed; }
-  bool IsReady() { return is_ready; }
 };

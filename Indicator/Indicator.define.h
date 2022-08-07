@@ -91,9 +91,6 @@
 #define LOWER_LINE 1  // Bottom line.
 #endif
 
-// Forward declarations.
-class DrawIndicator;
-
 #ifndef __MQL__
 //
 // Empty value in an indicator buffer.

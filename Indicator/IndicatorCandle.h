@@ -32,7 +32,6 @@
 // Includes.
 #include "../Buffer/BufferCandle.h"
 #include "../Candle.struct.h"
-#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.price_median.h"
 #include "../Storage/ValueStorage.price_typical.h"
 #include "../Storage/ValueStorage.price_weighted.h"
@@ -40,6 +39,7 @@
 #include "../Storage/ValueStorage.tick_volume.h"
 #include "../Storage/ValueStorage.time.h"
 #include "../Storage/ValueStorage.volume.h"
+#include "Indicator.h"
 #include "TickBarCounter.h"
 
 // Indicator modes.
@@ -456,4 +456,4 @@ class IndicatorCandle : public Indicator<TS> {
   /* Virtual methods */
 };
 
-#endif
+#endif  // INDICATOR_CANDLE_H

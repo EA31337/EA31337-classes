@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "../../../IndicatorData.mqh"
+#include "../../../Indicator/IndicatorData.h"
 #include "../../../Refs.mqh"
 
 /**

@@ -75,7 +75,7 @@ void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY
 /**
  * Class to provide drawing methods working with graphic objects.
  */
-class Draw : public Chart {
+class Draw : public Object {
  protected:
   // Variables.
   long chart_id;

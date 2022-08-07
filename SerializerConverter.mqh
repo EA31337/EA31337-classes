@@ -20,10 +20,14 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Prevents processing this includes file for the second time.
 #ifndef SERIALIZER_CONVERTER_MQH
 #define SERIALIZER_CONVERTER_MQH
-#include "SerializerDict.mqh"
 
 // Forward declarations.
 class SerializerNode;
@@ -32,6 +36,7 @@ class SerializerNode;
 #include "File.mqh"
 #include "Serializer.enum.h"
 #include "Serializer.mqh"
+#include "SerializerDict.mqh"
 #include "SerializerNode.mqh"
 
 class SerializerConverter {

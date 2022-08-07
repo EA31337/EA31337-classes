@@ -35,7 +35,7 @@ struct DataParamEntry;
 //#include "../ChartMt.h"
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Indicators/Bitwise/indicators.h"
 #include "../Indicators/Tick/Indi_TickMt.mqh"

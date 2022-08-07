@@ -26,7 +26,7 @@
 #endif
 
 // Includes.
-#include "../Indicator.mqh"
+#include "Indicator.h"
 
 /**
  * Indicator to be used with IndicatorTick as a data source.

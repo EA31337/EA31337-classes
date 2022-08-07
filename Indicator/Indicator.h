@@ -24,27 +24,30 @@
 #ifndef INDICATOR_MQH
 #define INDICATOR_MQH
 
-// Includes.
-#include "Array.mqh"
-#include "BufferStruct.mqh"
-#include "DateTime.mqh"
-#include "DrawIndicator.mqh"
-#include "Flags.h"
+// Forward class declaration.
+struct IndicatorParams;
+
 #include "Indicator.define.h"
 #include "Indicator.enum.h"
-#include "Indicator.struct.cache.h"
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
-#include "IndicatorData.mqh"
-#include "Math.h"
-#include "Object.mqh"
-#include "Refs.mqh"
-#include "Serializer.mqh"
-#include "SerializerCsv.mqh"
-#include "SerializerJson.mqh"
-#include "Storage/ValueStorage.h"
-#include "Storage/ValueStorage.indicator.h"
-#include "Storage/ValueStorage.native.h"
+#include "IndicatorData.h"
+
+// Includes.
+#include "../Array.mqh"
+#include "../BufferStruct.mqh"
+#include "../DateTime.mqh"
+#include "../DrawIndicator.mqh"
+#include "../Flags.h"
+#include "../Math.h"
+#include "../Object.mqh"
+#include "../Refs.mqh"
+#include "../Serializer.mqh"
+#include "../SerializerCsv.mqh"
+#include "../SerializerJson.mqh"
+#include "../Storage/ValueStorage.h"
+#include "../Storage/ValueStorage.indicator.h"
+#include "../Storage/ValueStorage.native.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
@@ -608,10 +611,10 @@ class Indicator : public IndicatorData {
       _entry.Resize(_max_modes);
       _entry.timestamp = GetBarTime(_ishift);
 #ifndef __MQL4__
-      if (IndicatorBase::Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED))) {
+      if (IndicatorData::Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED))) {
         // Resets the handle on any parameter changes.
-        IndicatorBase::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_HANDLE), INVALID_HANDLE);
-        IndicatorBase::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED), false);
+        IndicatorData::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_HANDLE), INVALID_HANDLE);
+        IndicatorData::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED), false);
       }
 #endif
       for (int _mode = 0; _mode < _max_modes; _mode++) {

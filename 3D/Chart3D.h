@@ -26,7 +26,7 @@
  */
 
 #include "../Bar.struct.h"
-#include "../IndicatorData.mqh"
+#include "../Indicator/IndicatorData.h"
 #include "../Indicators/Indi_MA.mqh"
 #include "../Instances.h"
 #include "../Refs.mqh"

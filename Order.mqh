@@ -29,6 +29,9 @@
 #ifndef ORDER_MQH
 #define ORDER_MQH
 
+// Forward declaration.
+class SymbolInfo;
+
 // Includes.
 #include "Convert.mqh"
 #include "Data.define.h"
@@ -38,6 +41,8 @@
 #include "Order.define.h"
 #include "Order.enum.h"
 #include "Order.struct.h"
+#include "Serializer.define.h"
+#include "Serializer.mqh"
 #include "SerializerConverter.mqh"
 #include "SerializerJson.mqh"
 #include "Std.h"

@@ -63,10 +63,6 @@ struct IndicatorParams;
 #include "../EA.mqh"
 #include "../File.mqh"
 #include "../ISerializable.h"
-#include "../Indicator.define.h"
-#include "../Indicator.mqh"
-#include "../IndicatorBase.h"
-#include "../IndicatorData.mqh"
 // #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
@@ -133,6 +129,10 @@ struct IndicatorParams;
 #include "../Web.mqh"
 
 // Includes indicator files.
+#include "../Indicator/Indicator.define.h"
+#include "../Indicator/Indicator.h"
+#include "../Indicator/IndicatorBase.h"
+//#include "../Indicator/IndicatorData.h"
 #include "../Indicators/indicators.h"
 
 /**

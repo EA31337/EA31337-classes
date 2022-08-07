@@ -30,38 +30,26 @@
 #pragma once
 #endif
 
-// Forward declaration.
-class Chart;
-
 // Includes.
-#include "Array.mqh"
-#include "BufferStruct.mqh"
-#include "Chart.mqh"
-#include "Chart.struct.tf.h"
-#include "ChartBase.h"
-#include "ChartMt.h"
-#include "DateTime.mqh"
-#include "DrawIndicator.mqh"
-#include "Flags.h"
-#include "Indicator.define.h"
-#include "Indicator.enum.h"
-#include "Indicator.struct.cache.h"
-#include "Indicator.struct.h"
-#include "Indicator.struct.serialize.h"
-#include "Log.mqh"
-#include "Object.mqh"
-#include "Refs.mqh"
-#include "Serializer.mqh"
-#include "SerializerCsv.mqh"
-#include "SerializerJson.mqh"
-#include "Util.h"
+#include "../Array.mqh"
+#include "../BufferStruct.mqh"
+#include "../Chart.struct.tf.h"
+//#include "../ChartBase.h"
+#include "../ChartMt.h"
+#include "../DateTime.mqh"
+#include "../Log.mqh"
+#include "../Object.mqh"
+#include "../Refs.mqh"
+#include "../Serializer.mqh"
+#include "../SerializerCsv.mqh"
+#include "../SerializerJson.mqh"
+#include "../Util.h"
 
 /**
  * Class to deal with indicators.
  */
 class IndicatorBase : public Object {
  protected:
-  IndicatorState istate;
   Ref<Log> logger;
 
  public:
@@ -87,7 +75,7 @@ class IndicatorBase : public Object {
   /**
    * Class deconstructor.
    */
-  virtual ~IndicatorBase() { ReleaseHandle(); }
+  virtual ~IndicatorBase() {}
 
   /* Operator overloading methods */
 
@@ -169,14 +157,6 @@ class IndicatorBase : public Object {
   /* Getters */
 
   /**
-   * Gets an indicator's state property value.
-   */
-  template <typename T>
-  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
-    return istate.Get<T>(_prop);
-  }
-
-  /**
    * Returns logger.
    */
   Log* GetLogger() {
@@ -189,14 +169,6 @@ class IndicatorBase : public Object {
   /* Getters */
 
   /* Setters */
-
-  /**
-   * Sets an indicator's state property value.
-   */
-  template <typename T>
-  void Set(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop, T _value) {
-    istate.Set<T>(_prop, _value);
-  }
 
   /**
    * Sets name of the indicator.
@@ -214,25 +186,6 @@ class IndicatorBase : public Object {
    * Sets indicator's symbol.
    */
   // void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
-
-  /* Other methods */
-
-  /**
-   * Releases indicator's handle.
-   *
-   * Note: Not supported in MT4.
-   */
-  void ReleaseHandle() {
-#ifdef __MQL5__
-    if (istate.handle != INVALID_HANDLE) {
-      IndicatorRelease(istate.handle);
-    }
-#endif
-    istate.handle = INVALID_HANDLE;
-    istate.is_changed = true;
-  }
-
-  /* Data representation methods */
 
   /* Virtual methods */
 

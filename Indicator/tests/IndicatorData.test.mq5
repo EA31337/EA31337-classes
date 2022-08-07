@@ -25,4 +25,13 @@
  */
 
 // Includes.
-#include "IndicatorDataTest.mq5"
+#include "../../Test.mqh"
+#include "../IndicatorData.h"
+
+/**
+ * Implements OnInit().
+ */
+int OnInit() {
+  // @todo
+  return (INIT_SUCCEEDED);
+}

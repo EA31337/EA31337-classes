@@ -25,10 +25,9 @@
  * Includes Indicator's struct serializers.
  */
 
-#include "Serializer.mqh"
-
-// Forward class declaration.
-class Serializer;
+#include "../Serializer.mqh"
+#include "../SerializerNode.enum.h"
+#include "Indicator.struct.h"
 
 /* Method to serialize IndicatorParams structure. */
 SerializerNodeType IndicatorParams::Serialize(Serializer &s) {

@@ -50,7 +50,10 @@ jobs:
     strategy:
       matrix:
         test:
+          - Indicator.test
+          - IndicatorBase.test
           - IndicatorCandle.test
+          - IndicatorData.test
           - IndicatorTf.test
           - IndicatorTick.test
     steps:

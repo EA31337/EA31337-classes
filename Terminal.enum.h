@@ -31,7 +31,7 @@
 #endif
 
 // Includes.
-#include "Indicator.define.h"
+#include "Indicator/Indicator.define.h"
 
 // Defines user error enumeration.
 enum ENUM_USER_ERR { USER_ERR_INVALID_ARGUMENT };

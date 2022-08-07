@@ -25,9 +25,21 @@
  * Includes Market's structs.
  */
 
+// Forward declaration.
+class Serializer;
+
 // Includes.
 #include "DateTime.struct.h"
+#include "SerializerNode.enum.h"
 #include "Std.h"
+
+// Market info.
+struct MarketData {
+  int empty;
+  // Serializers.
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+  SerializerNodeType Serialize(Serializer &_s) { return SerializerNodeObject; }
+};
 
 // Structure for trade time static methods.
 struct MarketTimeForex : DateTimeEntry {

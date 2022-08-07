@@ -30,6 +30,7 @@
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
 #include "../Config.mqh"
+#include "../Data.define.h"
 #include "../Data.struct.h"
 #include "../DictStruct.mqh"
 #include "../Serializer.mqh"

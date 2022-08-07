@@ -146,14 +146,6 @@ enum ENUM_INDI_ADX_LINE {
   FINAL_INDI_ADX_LINE_ENTRY,
 };
 
-/* Define indicator index. */
-enum ENUM_INDICATOR_INDEX {
-  CURR = 0,
-  PREV = 1,
-  PPREV = 2,
-  FINAL_ENUM_INDICATOR_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
-};
-
 /* Indicator line identifiers used in Envelopes and Fractals */
 enum ENUM_LO_UP_LINE {
 #ifdef __MQL4__
@@ -197,49 +189,6 @@ enum ENUM_SIGNAL_LINE {
 enum ENUM_APPLIED_VOLUME { VOLUME_TICK = 0, VOLUME_REAL = 1 };
 #endif
 
-/* Indicator entry flags. */
-enum INDICATOR_ENTRY_FLAGS {
-  INDI_ENTRY_FLAG_NONE = 0 << 0,
-  INDI_ENTRY_FLAG_IS_BITWISE = 1 << 0,
-  INDI_ENTRY_FLAG_IS_DOUBLED = 1 << 1,  // Type is doubled in size (e.g. double or long).
-  INDI_ENTRY_FLAG_IS_EXPIRED = 1 << 2,
-  INDI_ENTRY_FLAG_IS_REAL = 1 << 3,  // Type is real (float or double).
-  INDI_ENTRY_FLAG_IS_PRICE = 1 << 4,
-  INDI_ENTRY_FLAG_IS_UNSIGNED = 1 << 5,  // Type is unsigned (unsigned int or unsigned long).
-  INDI_ENTRY_FLAG_IS_VALID = 1 << 6,
-  INDI_ENTRY_FLAG_INSUFFICIENT_DATA = 1 << 7,  // Entry has missing value for that shift and probably won't ever have.
-};
-
-// Storage type for IndicatorBase::GetSpecificValueStorage().
-enum ENUM_INDI_VS_TYPE {
-  INDI_VS_TYPE_NONE,            // Not set.
-  INDI_VS_TYPE_TIME,            // Candle.
-  INDI_VS_TYPE_TICK_VOLUME,     // Candle.
-  INDI_VS_TYPE_VOLUME,          // Candle.
-  INDI_VS_TYPE_SPREAD,          // Candle.
-  INDI_VS_TYPE_PRICE_OPEN,      // Candle.
-  INDI_VS_TYPE_PRICE_HIGH,      // Candle.
-  INDI_VS_TYPE_PRICE_LOW,       // Candle.
-  INDI_VS_TYPE_PRICE_CLOSE,     // Candle.
-  INDI_VS_TYPE_PRICE_MEDIAN,    // Candle.
-  INDI_VS_TYPE_PRICE_TYPICAL,   // Candle.
-  INDI_VS_TYPE_PRICE_WEIGHTED,  // Candle.
-  INDI_VS_TYPE_PRICE_BID,       // Tick.
-  INDI_VS_TYPE_PRICE_ASK,       // Tick.
-                                // Indexed value storages, available if indicator have buffer at this index:
-  INDI_VS_TYPE_INDEX_0,
-  INDI_VS_TYPE_INDEX_1,
-  INDI_VS_TYPE_INDEX_2,
-  INDI_VS_TYPE_INDEX_4,
-  INDI_VS_TYPE_INDEX_5,
-  INDI_VS_TYPE_INDEX_6,
-  INDI_VS_TYPE_INDEX_7,
-  INDI_VS_TYPE_INDEX_8,
-  INDI_VS_TYPE_INDEX_9,
-  INDI_VS_TYPE_INDEX_FIRST = INDI_VS_TYPE_INDEX_0,
-  INDI_VS_TYPE_INDEX_LAST = INDI_VS_TYPE_INDEX_9
-};
-
 // Indicator flags.
 enum ENUM_INDI_FLAGS {
   INDI_FLAG_INDEXABLE_BY_SHIFT,                // Indicator supports indexation by shift.
@@ -269,4 +218,3 @@ enum ENUM_INDI_DS_MODE_KIND {
   INDI_DS_MODE_KIND_AP,  // Mode is a value from ENUM_APPLIED_PRICE enumeration. It is used to retrieve value storage
                          // based on ENUM_INDI_VS_TYPE enumeration, e.g., PRICE_OPEN becomes ENUM_INDI_VS_PRICE_OPEN.
 };
-//+------------------------------------------------------------------+

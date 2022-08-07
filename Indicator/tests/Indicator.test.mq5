@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,8 +25,8 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
-#include "../Test.mqh"
+#include "../Indicator.h"
+#include "../../Test.mqh"
 
 /**
  * Implements OnInit().

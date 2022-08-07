@@ -21,17 +21,8 @@
 
 /**
  * @file
- * Test functionality of IndicatorData class.
+ * Test functionality of Indicator class.
  */
 
 // Includes.
-#include "../IndicatorData.mqh"
-#include "../Test.mqh"
-
-/**
- * Implements OnInit().
- */
-int OnInit() {
-  // @todo
-  return (INIT_SUCCEEDED);
-}
+#include "Indicator.test.mq5"

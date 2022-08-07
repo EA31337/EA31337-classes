@@ -147,4 +147,4 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
   ENUM_TIMEFRAMES GetTf() override { return tf; }
 };
 
-#endif
+#endif  // INDICATOR_TF_H

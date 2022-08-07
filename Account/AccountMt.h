@@ -30,10 +30,9 @@ class AccountMt;
 // Includes.
 #include "../Array.mqh"
 #include "../BufferStruct.mqh"
-#include "../Chart.mqh"
 #include "../Convert.mqh"
 #include "../Data.struct.h"
-#include "../Indicator.struct.h"
+#include "../Indicator/Indicator.struct.h"
 #include "../Order.struct.h"
 #include "../Orders.mqh"
 #include "../Serializer.mqh"

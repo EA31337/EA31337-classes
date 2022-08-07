@@ -29,10 +29,6 @@
  * - https://www.mql5.com/en/docs/series
  */
 
-// Class dependencies.
-class Chart;
-class Market;
-
 // Prevents processing this includes file for the second time.
 #ifndef CHART_MQH
 #define CHART_MQH
@@ -46,6 +42,10 @@ class Market;
 #include "Market.mqh"
 #include "Serializer.mqh"
 #include "Task/TaskCondition.enum.h"
+
+// Forward class declaration.
+class Chart;
+class Market;
 
 #ifndef __MQL4__
 // Defines structs (for MQL4 backward compatibility).

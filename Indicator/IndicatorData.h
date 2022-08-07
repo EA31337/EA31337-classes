@@ -20,15 +20,33 @@
  *
  */
 
+// Ignore processing of this file if already included.
+#ifndef INDICATOR_DATA_H
+#define INDICATOR_DATA_H
+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
+// Forward class declaration.
+class IndicatorBase;
+
 // Includes.
+#include "../Bar.struct.h"
+#include "../DrawIndicator.mqh"
+#include "../Flags.h"
+#include "../Storage/ValueStorage.h"
+#include "../Storage/ValueStorage.indicator.h"
+#include "../Storage/ValueStorage.native.h"
+#include "../SymbolInfo.struct.h"
+#include "Indicator.enum.h"
 #include "IndicatorBase.h"
 #include "IndicatorData.enum.h"
+#include "IndicatorData.struct.cache.h"
 #include "IndicatorData.struct.h"
 #include "IndicatorData.struct.serialize.h"
 #include "IndicatorData.struct.signal.h"
-#include "Storage/ValueStorage.h"
-#include "Storage/ValueStorage.indicator.h"
-#include "Storage/ValueStorage.native.h"
 
 /**
  * Implements class to store indicator data.
@@ -51,7 +69,8 @@ class IndicatorData : public IndicatorBase {
   DrawIndicator* draw;
   IndicatorCalculateCache<double> cache;
   IndicatorDataParams idparams;  // Indicator data params.
-  Ref<IndicatorData> indi_src;   // Indicator used as data source.
+  IndicatorState istate;
+  Ref<IndicatorData> indi_src;  // Indicator used as data source.
 
  protected:
   /* Protected methods */
@@ -87,11 +106,14 @@ class IndicatorData : public IndicatorBase {
    * Initialize indicator data drawing on custom data.
    */
   bool InitDraw() {
-    if (idparams.is_draw && !Object::IsValid(draw)) {
-      draw = new DrawIndicator(THIS_PTR);
-      draw.SetColorLine(idparams.indi_color);
-    }
-    return idparams.is_draw;
+    /* @todo: To refactor.
+      if (idparams.is_draw && !Object::IsValid(draw)) {
+        draw = new DrawIndicator(THIS_PTR);
+        draw.SetColorLine(idparams.indi_color);
+      }
+      return idparams.is_draw;
+    */
+    return false;
   }
 
   /**
@@ -121,7 +143,10 @@ class IndicatorData : public IndicatorBase {
   /**
    * Class deconstructor.
    */
-  virtual ~IndicatorData() { DeinitDraw(); }
+  virtual ~IndicatorData() {
+    DeinitDraw();
+    ReleaseHandle();
+  }
 
   /* Operator overloading methods */
 
@@ -762,6 +787,14 @@ class IndicatorData : public IndicatorBase {
   }
 
   /**
+   * Sets an indicator's state property value.
+   */
+  template <typename T>
+  void Set(STRUCT_ENUM_INDICATOR_STATE_PROP _prop, T _value) {
+    istate.Set<T>(_prop, _value);
+  }
+
+  /**
    * Sets indicator data source.
    */
   void SetDataSource(IndicatorData* _indi, int _input_mode = -1) {
@@ -970,6 +1003,23 @@ class IndicatorData : public IndicatorBase {
     if (HasDataSource()) {
       ValidateDataSource(THIS_PTR, GetDataSourceRaw());
     }
+  }
+
+  /* Handle methods */
+
+  /**
+   * Releases indicator's handle.
+   *
+   * Note: Not supported in MT4.
+   */
+  void ReleaseHandle() {
+#ifdef __MQL5__
+    if (istate.handle != INVALID_HANDLE) {
+      IndicatorRelease(istate.handle);
+    }
+#endif
+    istate.handle = INVALID_HANDLE;
+    istate.is_changed = true;
   }
 
   /* Printers */
@@ -1775,3 +1825,5 @@ int CopyBuffer(IndicatorData* _indi, int _mode, int _start, int _count, ValueSto
 
   return _num_copied;
 }
+
+#endif  // INDICATOR_DATA_H

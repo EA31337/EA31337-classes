@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../Bar.struct.h"
-#include "../Indicator.struct.h"
+#include "../Indicator/Indicator.struct.h"
 #include "../Serializer.mqh"
 #include "Special/Indi_Math.mqh"
 

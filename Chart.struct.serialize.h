@@ -42,6 +42,6 @@ SerializerNodeType ChartEntry::Serialize(Serializer& _s) {
 SerializerNodeType ChartParams::Serialize(Serializer& s) {
   s.Pass(THIS_REF, "id", id);
   s.Pass(THIS_REF, "symbol", symbol);
-  s.PassStruct(THIS_REF, "tf", tf);
+  // s.PassStruct(THIS_REF, "tf", tf); // @fixme
   return SerializerNodeObject;
 }

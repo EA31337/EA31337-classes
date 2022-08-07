@@ -23,7 +23,7 @@
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/Indicator.h"
 #include "../../Pattern.struct.h"
 #include "../../Serializer.mqh"
 #include "../Price/Indi_Price.mqh"
