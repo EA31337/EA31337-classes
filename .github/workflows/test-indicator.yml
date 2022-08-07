@@ -53,6 +53,7 @@ jobs:
           - IndicatorCandle.test
           - IndicatorTf.test
           - IndicatorTick.test
+          - IndicatorRenko.test
     steps:
       - uses: actions/download-artifact@v2
         with:

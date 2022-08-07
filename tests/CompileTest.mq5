@@ -130,6 +130,11 @@
 #include "../Web.mqh"
 
 // Includes indicator files.
+#include "../Indicator/IndicatorCandle.h"
+#include "../Indicator/IndicatorRenko.h"
+#include "../Indicator/IndicatorTf.h"
+#include "../Indicator/IndicatorTick.h"
+#include "../Indicator/IndicatorTickSource.h"
 #include "../Indicators/indicators.h"
 
 /**
