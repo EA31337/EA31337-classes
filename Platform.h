@@ -27,7 +27,7 @@
  */
 
 #include "Flags.h"
-#include "IndicatorBase.h"
+#include "Indicator/IndicatorBase.h"
 #include "Std.h"
 
 #ifdef __MQLBUILD__

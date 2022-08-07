@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "Indi_CCI.mqh"
 #include "Indi_Envelopes.mqh"
 #include "Indi_MA.mqh"

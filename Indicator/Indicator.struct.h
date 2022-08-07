@@ -36,14 +36,14 @@ class Indicator;
 struct ChartParams;
 
 // Includes.
-#include "Array.mqh"
-#include "Chart.struct.tf.h"
-#include "Data.struct.h"
-#include "DateTime.struct.h"
+#include "../Array.mqh"
+#include "../Chart.struct.tf.h"
+#include "../Data.struct.h"
+#include "../DateTime.struct.h"
+#include "../SerializerNode.enum.h"
+#include "../Storage/ValueStorage.indicator.h"
 #include "Indicator.enum.h"
 #include "Indicator.struct.cache.h"
-#include "SerializerNode.enum.h"
-#include "Storage/ValueStorage.indicator.h"
 
 // Type-less value for IndicatorDataEntryValue structure.
 union IndicatorDataEntryTypelessValue {

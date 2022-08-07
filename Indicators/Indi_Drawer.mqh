@@ -25,7 +25,7 @@ struct IndicatorParams;
 
 // Includes.
 #include "../DictStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Redis.mqh"
 #include "../Task/TaskAction.h"
 #include "Indi_Drawer.struct.h"

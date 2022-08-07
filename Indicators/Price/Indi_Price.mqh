@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/Indicator.h"
 #include "../../Platform.h"
 #include "../../Storage/Objects.h"
 

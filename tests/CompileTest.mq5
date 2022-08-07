@@ -60,9 +60,6 @@
 #include "../EA.mqh"
 #include "../File.mqh"
 #include "../ISerializable.h"
-#include "../Indicator.define.h"
-#include "../Indicator.mqh"
-//#include "../IndicatorData.mqh" // @removeme
 #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
@@ -130,6 +127,10 @@
 #include "../Web.mqh"
 
 // Includes indicator files.
+#include "../Indicator/Indicator.define.h"
+#include "../Indicator/Indicator.h"
+#include "../Indicator/IndicatorBase.h"
+//#include "../Indicator/IndicatorData.h"
 #include "../Indicators/indicators.h"
 
 /**

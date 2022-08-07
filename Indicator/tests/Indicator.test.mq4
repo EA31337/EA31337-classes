@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,4 +25,4 @@
  */
 
 // Includes.
-#include "IndicatorTest.mq5"
+#include "Indicator.test.mq5"

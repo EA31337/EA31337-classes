@@ -30,7 +30,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "Indi_PriceFeeder.mqh"
 
 #ifndef __MQL4__

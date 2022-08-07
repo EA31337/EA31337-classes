@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../DictStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "Indi_Bands.mqh"
 #include "Indi_CCI.mqh"
 #include "Indi_Envelopes.mqh"

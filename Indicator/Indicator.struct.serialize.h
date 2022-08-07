@@ -25,7 +25,7 @@
  * Includes Indicator's struct serializers.
  */
 
-#include "Serializer.mqh"
+#include "../Serializer.mqh"
 
 // Forward class declaration.
 class Serializer;

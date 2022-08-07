@@ -28,7 +28,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Enums.

@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Storage/ValueStorage.h"
 #include "Price/Indi_Price.mqh"

@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "Price/Indi_Price.mqh"
 
 #ifndef __MQL4__

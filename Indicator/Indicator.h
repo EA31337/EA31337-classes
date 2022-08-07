@@ -25,11 +25,20 @@
 #define INDICATOR_MQH
 
 // Includes.
-#include "Array.mqh"
-#include "BufferStruct.mqh"
-#include "DateTime.mqh"
-#include "DrawIndicator.mqh"
-#include "Flags.h"
+#include "../Array.mqh"
+#include "../BufferStruct.mqh"
+#include "../DateTime.mqh"
+#include "../DrawIndicator.mqh"
+#include "../Flags.h"
+#include "../Math.h"
+#include "../Object.mqh"
+#include "../Refs.mqh"
+#include "../Serializer.mqh"
+#include "../SerializerCsv.mqh"
+#include "../SerializerJson.mqh"
+#include "../Storage/ValueStorage.h"
+#include "../Storage/ValueStorage.indicator.h"
+#include "../Storage/ValueStorage.native.h"
 #include "Indicator.define.h"
 #include "Indicator.enum.h"
 #include "Indicator.struct.cache.h"
@@ -37,15 +46,6 @@
 #include "Indicator.struct.serialize.h"
 #include "Indicator.struct.signal.h"
 #include "IndicatorBase.h"
-#include "Math.h"
-#include "Object.mqh"
-#include "Refs.mqh"
-#include "Serializer.mqh"
-#include "SerializerCsv.mqh"
-#include "SerializerJson.mqh"
-#include "Storage/ValueStorage.h"
-#include "Storage/ValueStorage.indicator.h"
-#include "Storage/ValueStorage.native.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).

@@ -60,7 +60,6 @@ jobs:
           - DatabaseTest
           - DrawIndicatorTest
           - EATest
-          - IndicatorTest
           - IndicatorsTest
           - MailTest
           - MarketTest

@@ -34,7 +34,7 @@ class Trade;
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
-#include "IndicatorBase.h"
+#include "Indicator/IndicatorBase.h"
 #include "Math.h"
 #include "Object.mqh"
 #include "Order.mqh"

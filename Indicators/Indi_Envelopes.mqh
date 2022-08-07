@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/Singleton.h"
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"

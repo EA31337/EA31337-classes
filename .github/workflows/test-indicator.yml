@@ -51,6 +51,7 @@ jobs:
       matrix:
         test:
           - IndicatorCandle.test
+          - Indicator.test
           - IndicatorTf.test
           - IndicatorTick.test
     steps:

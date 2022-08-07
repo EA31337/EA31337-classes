@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "Indi_MA.mqh"
 
 // Structs.
