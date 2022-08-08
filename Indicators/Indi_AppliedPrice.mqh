@@ -30,9 +30,7 @@ struct IndiAppliedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   IndiAppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
-      : applied_price(_applied_price), IndicatorParams(INDI_APPLIED_PRICE, 1, TYPE_DOUBLE) {
-    SetDataSourceType(IDATA_INDICATOR);
-    SetDataValueRange(IDATA_RANGE_PRICE);
+      : applied_price(_applied_price), IndicatorParams(INDI_APPLIED_PRICE) {
     shift = _shift;
   };
   IndiAppliedPriceParams(IndiAppliedPriceParams &_params) { THIS_REF = _params; };
@@ -54,10 +52,19 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
   /**
    * Class constructor.
    */
-  Indi_AppliedPrice(IndiAppliedPriceParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {
+  Indi_AppliedPrice(IndiAppliedPriceParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR,
+                    IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {
     OnInit();
   };
-  Indi_AppliedPrice(int _shift = 0) : Indicator(INDI_PRICE, _shift) { OnInit(); };
+  Indi_AppliedPrice(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData *_indi_src = NULL,
+                    int _indi_src_mode = 0)
+      : Indicator(IndiAppliedPriceParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {
+    OnInit();
+  };
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
@@ -71,7 +78,7 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
    */
   unsigned int GetPossibleDataModes() override { return IDATA_INDICATOR; }
 
-  static double iAppliedPriceOnIndicator(IndicatorBase *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
+  static double iAppliedPriceOnIndicator(IndicatorData *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];
     _indi[_shift].GetArray(_ohlc, 4);
     return BarOHLC::GetAppliedPrice(_applied_price, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);
@@ -80,10 +87,10 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_INDICATOR:
         if (HasDataSource()) {
           _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _ishift);
@@ -104,7 +111,7 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
     bool _is_valid = Indicator<IndiAppliedPriceParams>::IsValidEntry(_entry);
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_INDICATOR:
         if (!HasDataSource()) {
           GetLogger().Error("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");

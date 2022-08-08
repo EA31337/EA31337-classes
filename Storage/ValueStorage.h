@@ -96,7 +96,7 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
   INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)
 
 #define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(INDI, KEY)                                   \
-  IndicatorBase *_suitable_ds = INDI PTR_DEREF GetSuitableDataSource();                                 \
+  IndicatorData *_suitable_ds = INDI PTR_DEREF GetSuitableDataSource();                                 \
   ValueStorage<datetime> *_time =                                                                       \
       (ValueStorage<datetime> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_TIME);      \
   ValueStorage<long> *_tick_volume =                                                                    \

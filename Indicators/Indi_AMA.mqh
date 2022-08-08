@@ -23,7 +23,6 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
-#include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Storage/ValueStorage.h"
 #include "Price/Indi_Price.mqh"
 
@@ -41,12 +40,13 @@ struct IndiAMAParams : IndicatorParams {
         fast_period(_fast_period),
         slow_period(_slow_period),
         ama_shift(_ama_shift),
-        applied_price(_ap) {
-    SetDataValueRange(IDATA_RANGE_PRICE);
+        applied_price(_ap),
+        IndicatorParams(INDI_AMA) {
     // Defaulting to on-indicator mode (will use real ticks from platform via IndicatorTickReal).
-    SetDataSourceMode(IDATA_INDICATOR);
     SetShift(_shift);
-    SetCustomIndicatorName("Examples\\AMA");
+    if (custom_indi_name == "") {
+      SetCustomIndicatorName("Examples\\AMA");
+    }
   };
   IndiAMAParams(IndiAMAParams &_params) { THIS_REF = _params; }
 };
@@ -59,12 +59,16 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   /**
    * Class constructor.
    */
-  Indi_AMA(IndiAMAParams &_p, IndicatorBase *_indi_src = NULL, int _indi_mode = 0)
-      : Indicator(_p, _indi_src, _indi_mode) {
-    iparams.SetIndicatorType(INDI_AMA);
-  };
-  Indi_AMA(int _shift = 0) : Indicator(INDI_AMA, _shift){};
+  Indi_AMA(IndiAMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src){};
 
+  Indi_AMA(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiAMAParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -88,14 +92,14 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    */
   static double iAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period, int _fast_ema_period, int _slow_ema_period,
                      int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
-                     IndicatorBase *_obj = NULL) {
+                     IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iAMA(_symbol, _tf, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap), _mode, _shift);
 #else
     if (_obj == nullptr) {
       Print(
-          "Indi_AMA::iAMA() can work without supplying pointer to IndicatorBase only in MQL5. In this platform the "
+          "Indi_AMA::iAMA() can work without supplying pointer to IndicatorData only in MQL5. In this platform the "
           "pointer is required.");
       DebugBreak();
       return 0;
@@ -129,7 +133,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   /**
    * On-indicator version of AMA.
    */
-  static double iAMAOnIndicator(IndicatorBase *_indi, int _ama_period, int _fast_ema_period, int _slow_ema_period,
+  static double iAMAOnIndicator(IndicatorData *_indi, int _ama_period, int _fast_ema_period, int _slow_ema_period,
                                 int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
         _indi, _ap, Util::MakeKey(_ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
@@ -225,10 +229,10 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_AMA::iAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
                                 GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
@@ -239,12 +243,12 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
 
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
-                                           GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift);
+        _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift(),
+                                           GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
-                                           GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift);
+        _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift(),
+                                           GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -264,7 +268,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    * Called if data source is requested, but wasn't yet set. May be used to initialize indicators that must operate on
    * some data source.
    */
-  virtual IndicatorBase *OnDataSourceRequest() { return DataSourceRequestReturnDefault(GetAppliedPrice()); }
+  virtual IndicatorData *OnDataSourceRequest() { return DataSourceRequestReturnDefault(GetAppliedPrice()); }
 
   /* Getters */
 

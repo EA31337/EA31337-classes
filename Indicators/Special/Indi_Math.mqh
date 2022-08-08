@@ -42,13 +42,11 @@ struct IndiMathParams : IndicatorParams {
   // Struct constructor.
   IndiMathParams(ENUM_MATH_OP _op = MATH_OP_SUB, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
                  unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0)
-      : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_SPECIAL_MATH) {
     mode_1 = _mode_1;
     mode_2 = _mode_2;
     op_builtin = _op;
     op_mode = MATH_OP_MODE_BUILTIN;
-    SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_INDICATOR);
     shift = _shift;
     shift_1 = _shift_1;
     shift_2 = _shift_2;
@@ -57,14 +55,11 @@ struct IndiMathParams : IndicatorParams {
   // Struct constructor.
   IndiMathParams(MathCustomOpFunction _op, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
                  unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0)
-      : IndicatorParams(INDI_SPECIAL_MATH, 1, TYPE_DOUBLE) {
-    max_modes = 1;
+      : IndicatorParams(INDI_SPECIAL_MATH) {
     mode_1 = _mode_1;
     mode_2 = _mode_2;
     op_fn = _op;
     op_mode = MATH_OP_MODE_CUSTOM_FUNCTION;
-    SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_INDICATOR);
     shift = _shift;
     shift_1 = _shift_1;
     shift_2 = _shift_2;
@@ -80,9 +75,8 @@ class Indi_Math : public Indicator<IndiMathParams> {
   /**
    * Class constructor.
    */
-  Indi_Math(IndiMathParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_Math(int _shift = 0) : Indicator(INDI_SPECIAL_MATH, _shift){};
-
+  Indi_Math(IndiMathParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData *_indi_src = NULL, int _indi_src_mode = 0) : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode), _indi_src){};
+  Indi_Math(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData *_indi_src = NULL, int _indi_src_mode = 0) : Indicator(IndiMathParams(), IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode), _indi_src) {};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -98,7 +92,7 @@ class Indi_Math : public Indicator<IndiMathParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiMathParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -113,10 +107,10 @@ class Indi_Math : public Indicator<IndiMathParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_INDICATOR:
         if (!indi_src.IsSet()) {
           GetLogger().Error(
@@ -149,7 +143,7 @@ class Indi_Math : public Indicator<IndiMathParams> {
     return _value;
   }
 
-  static double iMathOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_MATH_OP op,
+  static double iMathOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_MATH_OP op,
                                  unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
                                  unsigned int _shift_2, unsigned int _mode, int _shift, Indi_Math *_obj) {
     double _val_1 = _indi.GetValue<double>(_mode_1, _shift_1);
@@ -157,7 +151,7 @@ class Indi_Math : public Indicator<IndiMathParams> {
     return Math::Op(op, _val_1, _val_2);
   }
 
-  static double iMathOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, MathCustomOpFunction _op,
+  static double iMathOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, MathCustomOpFunction _op,
                                  unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
                                  unsigned int _shift_2, unsigned int _mode, int _shift, Indi_Math *_obj) {
     double _val_1 = _indi.GetValue<double>(_mode_1, _shift_1);

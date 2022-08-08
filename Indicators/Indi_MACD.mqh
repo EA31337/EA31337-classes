@@ -45,9 +45,8 @@ struct IndiMACDParams : IndicatorParams {
         ema_slow_period(_esp),
         signal_period(_sp),
         applied_price(_ap),
-        IndicatorParams(INDI_MACD, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
+        IndicatorParams(INDI_MACD) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };
   IndiMACDParams(IndiMACDParams &_params) { THIS_REF = _params; };
@@ -61,9 +60,18 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
   /**
    * Class constructor.
    */
-  Indi_MACD(IndiMACDParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_MACD(int _shift = 0) : Indicator(INDI_MACD, _shift) {}
-
+  Indi_MACD(IndiMACDParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
+                                                   _indi_src_mode),
+                  _indi_src) {}
+  Indi_MACD(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiMACDParams(),
+                  IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
+                                                   _indi_src_mode),
+                  _indi_src) {}
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -85,7 +93,7 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
       string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ema_fast_period, unsigned int _ema_slow_period,
       unsigned int _signal_period, ENUM_APPLIED_PRICE _applied_price,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,  // (MT4/MT5 _mode): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0, IndicatorBase *_obj = NULL) {
+      int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _mode, _shift);
 #else  // __MQL5__
@@ -121,10 +129,10 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
                                   GetAppliedPrice(), (ENUM_SIGNAL_LINE)_mode, _ishift, THIS_PTR);

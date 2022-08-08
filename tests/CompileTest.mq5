@@ -62,7 +62,8 @@
 #include "../ISerializable.h"
 #include "../Indicator.define.h"
 #include "../Indicator.mqh"
-//#include "../IndicatorData.mqh" // @removeme
+#include "../IndicatorBase.h"
+#include "../IndicatorData.mqh"
 #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"

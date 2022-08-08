@@ -58,13 +58,8 @@ struct IndiEnvelopesParams : IndicatorParams {
         ma_method(_ma_method),
         applied_price(_ap),
         deviation(_deviation),
-        IndicatorParams(INDI_ENVELOPES, 2, TYPE_DOUBLE) {
-#ifdef __MQL4__
-    // There is extra LINE_MAIN in MQL4 for Envelopes.
-    max_modes = 3;
-#endif
+        IndicatorParams(INDI_ENVELOPES) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Envelopes");
   };
   IndiEnvelopesParams(IndiEnvelopesParams &_params) { THIS_REF = _params; };
@@ -74,18 +69,44 @@ struct IndiEnvelopesParams : IndicatorParams {
  * Implements the Envelopes indicator.
  */
 class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() {
+#ifdef __MQL4__
+    // There is extra LINE_MAIN in MQL4 for Envelopes.
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 3);
+#else
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
+#endif
+  }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_Envelopes(IndiEnvelopesParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_Envelopes(int _shift = 0) : Indicator(INDI_ENVELOPES, _shift) {}
-
+  Indi_Envelopes(IndiEnvelopesParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {
+    Init();
+  }
+  Indi_Envelopes(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                 int _indi_src_mode = 0)
+      : Indicator(IndiEnvelopesParams(),
+                  IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {
+    Init();
+  }
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
   unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
 
+ public:
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
@@ -104,7 +125,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
                            int _ma_shift, ENUM_APPLIED_PRICE _ap, double _deviation,
                            int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                                        // UPPER_LINE, 1 - LOWER_LINE
-                           int _shift = 0, IndicatorBase *_obj = NULL) {
+                           int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _ap, _deviation, _mode, _shift);
 #else  // __MQL5__
@@ -145,7 +166,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(IndicatorBase *_target, IndicatorBase *_source, string _symbol,
+  static double iEnvelopesOnIndicator(IndicatorData *_target, IndicatorData *_source, string _symbol,
                                       ENUM_TIMEFRAMES _tf, int _ma_period,
                                       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                       ENUM_APPLIED_PRICE _ap, int _ma_shift, double _deviation,
@@ -204,10 +225,10 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
                                             GetAppliedPrice(), GetDeviation(), _mode, _ishift, THIS_PTR);

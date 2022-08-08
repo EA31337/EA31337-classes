@@ -53,10 +53,10 @@ class Platform {
   static bool time_clear_flags;
 
   // List of added indicators.
-  static DictStruct<long, Ref<IndicatorBase>> indis;
+  static DictStruct<long, Ref<IndicatorData>> indis;
 
   // List of default Candle/Tick indicators.
-  static DictStruct<long, Ref<IndicatorBase>> indis_dflt;
+  static DictStruct<long, Ref<IndicatorData>> indis_dflt;
 
  public:
   /**
@@ -82,7 +82,7 @@ class Platform {
     time_flags = time.GetStartedPeriods();
     time.Update();
 
-    DictStructIterator<long, Ref<IndicatorBase>> _iter;
+    DictStructIterator<long, Ref<IndicatorData>> _iter;
 
     for (_iter = indis.Begin(); _iter.IsValid(); ++_iter) {
       _iter.Value() REF_DEREF Tick();
@@ -99,20 +99,20 @@ class Platform {
   /**
    * Returns dictionary of added indicators (keyed by unique id).
    */
-  static DictStruct<long, Ref<IndicatorBase>> *GetIndicators() { return &indis; }
+  static DictStruct<long, Ref<IndicatorData>> *GetIndicators() { return &indis; }
 
   /**
    * Adds indicator to be processed by platform.
    */
-  static void Add(IndicatorBase *_indi) {
-    Ref<IndicatorBase> _ref = _indi;
+  static void Add(IndicatorData *_indi) {
+    Ref<IndicatorData> _ref = _indi;
     indis.Set(_indi PTR_DEREF GetId(), _ref);
   }
 
   /**
    * Adds indicator to be processed by platform and tries to initialize its data source(s).
    */
-  static void AddWithDefaultBindings(IndicatorBase *_indi, CONST_REF_TO(string) _symbol = "",
+  static void AddWithDefaultBindings(IndicatorData *_indi, CONST_REF_TO(string) _symbol = "",
                                      ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     Add(_indi);
     BindDefaultDataSource(_indi, _symbol, _tf);
@@ -121,7 +121,7 @@ class Platform {
   /**
    * Removes indicator from being processed by platform.
    */
-  static void Remove(IndicatorBase *_indi) { indis.Unset(_indi PTR_DEREF GetId()); }
+  static void Remove(IndicatorData *_indi) { indis.Unset(_indi PTR_DEREF GetId()); }
 
   /**
    * Returns date and time used to determine periods that passed.
@@ -174,11 +174,11 @@ class Platform {
    * Note that some indicators may work on custom set of buffers required from data source and not on Candle or Tick
    * indicator.
    */
-  static void BindDefaultDataSource(IndicatorBase *_indi, CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+  static void BindDefaultDataSource(IndicatorData *_indi, CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
     Flags<unsigned int> _suitable_ds_types = _indi PTR_DEREF GetSuitableDataSourceTypes();
 
-    IndicatorBase *_default_indi_candle = FetchDefaultCandleIndicator(_symbol, _tf);
-    IndicatorBase *_default_indi_tick = FetchDefaultTickIndicator(_symbol);
+    IndicatorData *_default_indi_candle = FetchDefaultCandleIndicator(_symbol, _tf);
+    IndicatorData *_default_indi_tick = FetchDefaultTickIndicator(_symbol);
 
     if (_suitable_ds_types.HasFlag(INDI_SUITABLE_DS_TYPE_EXPECT_NONE)) {
       // There should be no data source, but we have to attach at least a Candle indicator in order to use GetBarTime()
@@ -214,7 +214,7 @@ class Platform {
   /**
    * Returns default Candle-compatible indicator for current platform for given symbol and TF.
    */
-  static IndicatorBase *FetchDefaultCandleIndicator(string _symbol = "", ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  static IndicatorData *FetchDefaultCandleIndicator(string _symbol = "", ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     if (_symbol == "") {
       _symbol = _Symbol;
     }
@@ -225,12 +225,12 @@ class Platform {
 
     // Candle is per symbol and TF. Single Candle indicator can't handle multiple TFs.
     string _key = Util::MakeKey("PlatformIndicatorCandle", _symbol, (int)_tf);
-    IndicatorBase *_indi_candle;
-    if (!Objects<IndicatorBase>::TryGet(_key, _indi_candle)) {
-      _indi_candle = Objects<IndicatorBase>::Set(_key, new IndicatorTfDummy(_tf));
+    IndicatorData *_indi_candle;
+    if (!Objects<IndicatorData>::TryGet(_key, _indi_candle)) {
+      _indi_candle = Objects<IndicatorData>::Set(_key, new IndicatorTfDummy(_tf));
 
       // Adding indicator to list of default indicators in order to tick it on every Tick() call.
-      Ref<IndicatorBase> _ref = _indi_candle;
+      Ref<IndicatorData> _ref = _indi_candle;
       indis_dflt.Set(_indi_candle PTR_DEREF GetId(), _ref);
     }
 
@@ -245,19 +245,19 @@ class Platform {
   /**
    * Returns default Tick-compatible indicator for current platform for given symbol.
    */
-  static IndicatorBase *FetchDefaultTickIndicator(string _symbol = "") {
+  static IndicatorData *FetchDefaultTickIndicator(string _symbol = "") {
     if (_symbol == "") {
       _symbol = _Symbol;
     }
 
     string _key = Util::MakeKey("PlatformIndicatorTick", _symbol);
-    IndicatorBase *_indi_tick;
-    if (!Objects<IndicatorBase>::TryGet(_key, _indi_tick)) {
-      _indi_tick = Objects<IndicatorBase>::Set(_key, new PLATFORM_DEFAULT_INDICATOR_TICK(_symbol));
+    IndicatorData *_indi_tick;
+    if (!Objects<IndicatorData>::TryGet(_key, _indi_tick)) {
+      _indi_tick = Objects<IndicatorData>::Set(_key, new PLATFORM_DEFAULT_INDICATOR_TICK(_symbol));
       _indi_tick PTR_DEREF SetSymbolProps(Platform::FetchDefaultSymbolProps(_symbol));
 
       // Adding indicator to list of default indicators in order to tick it on every Tick() call.
-      Ref<IndicatorBase> _ref = _indi_tick;
+      Ref<IndicatorData> _ref = _indi_tick;
       indis_dflt.Set(_indi_tick PTR_DEREF GetId(), _ref);
     }
     return _indi_tick;
@@ -294,7 +294,7 @@ class Platform {
    */
   static string IndicatorsToString(int _shift = 0) {
     string _result;
-    for (DictStructIterator<long, Ref<IndicatorBase>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
+    for (DictStructIterator<long, Ref<IndicatorData>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
       IndicatorDataEntry _entry = _iter.Value() REF_DEREF GetEntry(_shift);
       _result += _iter.Value() REF_DEREF GetFullName() + " = " + _entry.ToString<double>() + "\n";
     }
@@ -306,8 +306,8 @@ bool Platform::initialized = false;
 DateTime Platform::time = 0;
 unsigned int Platform::time_flags = 0;
 bool Platform::time_clear_flags = true;
-DictStruct<long, Ref<IndicatorBase>> Platform::indis;
-DictStruct<long, Ref<IndicatorBase>> Platform::indis_dflt;
+DictStruct<long, Ref<IndicatorData>> Platform::indis;
+DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
 
 // void OnTimer() { Print("Timer"); Platform::OnTimer(); }
 

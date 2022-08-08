@@ -28,8 +28,7 @@
 // Structs.
 struct IndiWilliamsADParams : IndicatorParams {
   // Struct constructor.
-  IndiWilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD, 1, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
+  IndiWilliamsADParams(int _shift = 0) : IndicatorParams(INDI_WILLIAMS_AD) {
     SetCustomIndicatorName("Examples\\W_AD");
     shift = _shift;
   };
@@ -44,9 +43,15 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   /**
    * Class constructor.
    */
-  Indi_WilliamsAD(IndiWilliamsADParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_WilliamsAD(int _shift = 0) : Indicator(INDI_WILLIAMS_AD, _shift){};
-
+  Indi_WilliamsAD(IndiWilliamsADParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                  IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_WilliamsAD(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                  int _indi_src_mode = 0)
+      : Indicator(IndiWilliamsADParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -60,7 +65,7 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiWilliamsADParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -74,7 +79,7 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   /**
    * OnCalculate-based version of Williams' AD as there is no built-in one.
    */
-  static double iWAD(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+  static double iWAD(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
@@ -144,10 +149,10 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iWAD(THIS_PTR, _mode, _ishift);

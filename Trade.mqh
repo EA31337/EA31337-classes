@@ -34,7 +34,7 @@ class Trade;
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
-#include "IndicatorBase.h"
+#include "IndicatorData.mqh"
 #include "Math.h"
 #include "Object.mqh"
 #include "Order.mqh"
@@ -2013,7 +2013,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Returns pointer to IndicatorCandle-based class.
    */
-  IndicatorBase *GetSource() {
+  IndicatorData *GetSource() {
     if (!indi_candle.IsSet()) {
       Print(
           "Error: Trade has no Candle-based indicator bound. Please pass such object in Trade's constructor or via "

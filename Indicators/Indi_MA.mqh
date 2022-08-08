@@ -56,13 +56,8 @@ struct IndiMAParams : IndicatorParams {
   // Struct constructors.
   IndiMAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
                ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : period(_period),
-        ma_shift(_ma_shift),
-        ma_method(_ma_method),
-        applied_array(_ap),
-        IndicatorParams(INDI_MA, 1, TYPE_DOUBLE) {
+      : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap), IndicatorParams(INDI_MA) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\Moving Average");
   };
   IndiMAParams(IndiMAParams &_params) { THIS_REF = _params; };
@@ -76,9 +71,15 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Class constructor.
    */
-  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_MA(int _shift = 0) : Indicator(INDI_MA, _shift) {}
-
+  Indi_MA(IndiMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
+  Indi_MA(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : Indicator(IndiMAParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -94,7 +95,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiMAParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -112,7 +113,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
    */
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
                     ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
-                    IndicatorBase *_obj = NULL) {
+                    IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
@@ -147,7 +148,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Calculates MA on another indicator.
    */
-  static double iMAOnIndicator(IndicatorBase *_target, IndicatorBase *_source, string symbol, ENUM_TIMEFRAMES tf,
+  static double iMAOnIndicator(IndicatorData *_target, IndicatorData *_source, string symbol, ENUM_TIMEFRAMES tf,
                                unsigned int ma_period, unsigned int ma_shift,
                                ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                ENUM_APPLIED_PRICE _ap, int shift = 0) {
@@ -649,10 +650,10 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
                               _ishift, THIS_PTR);
@@ -671,13 +672,14 @@ class Indi_MA : public Indicator<IndiMAParams> {
                                          GetMAMethod(), GetAppliedPrice(), _ishift);
         break;
     }
+
     return _value;
   }
 
   /**
    * Returns reusable indicator with the same candle indicator as given indicator's one.
    */
-  static Indi_MA *GetCached(IndicatorBase *_indi, int _period, int _ma_shift, ENUM_MA_METHOD _ma_method,
+  static Indi_MA *GetCached(IndicatorData *_indi, int _period, int _ma_shift, ENUM_MA_METHOD _ma_method,
                             ENUM_APPLIED_PRICE _ap) {
     Indi_MA *_ptr;
     string _key =

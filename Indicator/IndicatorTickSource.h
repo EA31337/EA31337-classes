@@ -37,10 +37,14 @@ class IndicatorTickSource : public Indicator<TS> {
   /**
    * Class constructor.
    */
-  IndicatorTickSource(const TS& _iparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
-      : Indicator(_iparams, _indi_src, _indi_mode) {}
-  IndicatorTickSource(ENUM_INDICATOR_TYPE _itype, int _shift = 0, string _name = "")
-      : Indicator(_itype, _shift, _name) {}
+  IndicatorTickSource(const TS& _iparams, const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL,
+                      int _indi_mode = 0)
+      : Indicator(_iparams, _idparams, _indi_src, _indi_mode) {}
+  IndicatorTickSource(const TS& _iparams, const IndicatorDataParams& _idparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator(_iparams, _idparams, _tf) {}
+  IndicatorTickSource(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
+                      string _name = "")
+      : Indicator(_itype, _tf, _shift, _name) {}
 
   /**
    * Class deconstructor.
@@ -50,7 +54,7 @@ class IndicatorTickSource : public Indicator<TS> {
   /**
    * Sets indicator data source.
    */
-  void SetDataSource(IndicatorBase* _indi, int _input_mode = -1) override {
+  void SetDataSource(IndicatorData* _indi, int _input_mode = -1) override {
     if (_indi == NULL) {
       // Just deselecting data source.
       Indicator<TS>::SetDataSource(_indi, _input_mode);
@@ -110,7 +114,7 @@ class IndicatorTickSource : public Indicator<TS> {
    * Called when user tries to set given data source. Could be used to check if indicator implements all required value
    * storages.
    */
-  bool OnValidateDataSource(IndicatorBase* _ds, string& _reason) override {
+  bool OnValidateDataSource(IndicatorData* _ds, string& _reason) override {
     // @todo Make use of this method.
     return true;
   }

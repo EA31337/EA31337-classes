@@ -31,6 +31,7 @@
 #include "SerializerNode.mqh"
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
+#include "Terminal.define.h"
 
 #define SERIALIZER_DEFAULT_FP_PRECISION 8
 
@@ -449,6 +450,7 @@ class Serializer {
               break;
             default:
               Print("Error: Wrong param type ", paramType, "!");
+              SetUserError(ERR_INVALID_PARAMETER);
               DebugBreak();
           }
 

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -39,7 +39,7 @@
 #include "../Test.mqh"
 
 // Global variables.
-Ref<IndicatorBase> candles;
+Ref<IndicatorData> candles;
 int bar_processed;
 
 /**
@@ -67,9 +67,9 @@ void OnTick() {
   if (candles REF_DEREF IsNewBar()) {
     bar_processed++;
 
-    for (DictIterator<long, Ref<IndicatorBase>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
+    for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
          ++iter) {
-      IndicatorBase *_indi = iter.Value().Ptr();
+      IndicatorData *_indi = iter.Value().Ptr();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
@@ -112,10 +112,11 @@ bool InitIndicators() {
   // @fixme: Make it work for MT4.
   // Current Price (used by custom indicators)  .
   PriceIndiParams price_params();
-  price_params.SetDraw(clrGreenYellow);
+  // price_params.SetDraw(clrGreenYellow);
   Platform::AddWithDefaultBindings(new Indi_Price(price_params));
 #endif
 
+  /* @fixme: Array out of range.
   // Bollinger Bands over Price indicator.
   /*
   PriceIndiParams price_params_4_bands();
@@ -138,9 +139,9 @@ bool InitIndicators() {
   */
 
   // We'll be drawing all indicators' values on the chart.
-  for (DictIterator<long, Ref<IndicatorBase>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
+  for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
        ++iter) {
-    iter.Value() REF_DEREF SetDraw(true);
+    // iter.Value() REF_DEREF SetDraw(true); // @fixme
   }
 
   return _LastError == ERR_NO_ERROR;
@@ -151,7 +152,7 @@ bool InitIndicators() {
  */
 bool PrintIndicators(string _prefix = "") {
   ResetLastError();
-  for (DictIterator<long, Ref<IndicatorBase>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
+  for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
        ++iter) {
     IndicatorBase *_indi = iter.Value().Ptr();
     if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {

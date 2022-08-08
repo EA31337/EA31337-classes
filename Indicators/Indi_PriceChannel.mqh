@@ -29,10 +29,8 @@
 struct IndiPriceChannelParams : IndicatorParams {
   unsigned int period;
   // Struct constructor.
-  IndiPriceChannelParams(unsigned int _period = 22, int _shift = 0)
-      : IndicatorParams(INDI_PRICE_CHANNEL, 3, TYPE_DOUBLE) {
+  IndiPriceChannelParams(unsigned int _period = 22, int _shift = 0) : IndicatorParams(INDI_PRICE_CHANNEL) {
     period = _period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Price_Channel");
     shift = _shift;
   };
@@ -47,9 +45,15 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   /**
    * Class constructor.
    */
-  Indi_PriceChannel(IndiPriceChannelParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_PriceChannel(int _shift = 0) : Indicator(INDI_PRICE_CHANNEL, _shift){};
-
+  Indi_PriceChannel(IndiPriceChannelParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                    IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_PriceChannel(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                    int _indi_src_mode = 0)
+      : Indicator(IndiPriceChannelParams(),
+                  IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -63,7 +67,7 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiPriceChannelParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -75,7 +79,7 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   /**
    * OnCalculate-based version of Price Channel indicator as there is no built-in one.
    */
-  static double iPriceChannel(IndicatorBase *_indi, int _period, int _mode = 0, int _shift = 0) {
+  static double iPriceChannel(IndicatorData *_indi, int _period, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period));
     return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
@@ -122,10 +126,10 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iPriceChannel(THIS_PTR, GetPeriod(), _mode, _ishift);

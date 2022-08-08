@@ -37,8 +37,8 @@ struct DataParamEntry;
 #include "../Test.mqh"
 #include "../Trade.mqh"
 
-Ref<IndicatorBase> _chart_m1;
-Ref<IndicatorBase> _chart_m5;
+Ref<IndicatorData> _chart_m1;
+Ref<IndicatorData> _chart_m5;
 bool _finish_test = false;
 
 /**

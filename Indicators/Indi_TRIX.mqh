@@ -31,10 +31,8 @@ struct IndiTRIXParams : IndicatorParams {
   unsigned int tema_shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  IndiTRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_TRIX, 1, TYPE_DOUBLE) {
+  IndiTRIXParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) : IndicatorParams(INDI_TRIX) {
     applied_price = _ap;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\TRIX");
     period = _period;
     shift = _shift;
@@ -50,9 +48,15 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
   /**
    * Class constructor.
    */
-  Indi_TRIX(IndiTRIXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_TRIX(int _shift = 0) : Indicator(INDI_TRIX, _shift){};
-
+  Indi_TRIX(IndiTRIXParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_TRIX(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiTRIXParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -69,13 +73,13 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
    * Built-in version of TriX.
    */
   static double iTriX(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                      int _shift = 0, IndicatorBase *_obj = NULL) {
+                      int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iTriX(_symbol, _tf, _ma_period, _ap), _mode, _shift);
 #else
     if (_obj == nullptr) {
       Print(
-          "Indi_TRIX::iTriX() can work without supplying pointer to IndicatorBase only in MQL5. In this platform "
+          "Indi_TRIX::iTriX() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
           "the pointer is required.");
       DebugBreak();
       return 0;
@@ -110,8 +114,8 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
   /**
    * On-indicator version of TriX.
    */
-  static double iTriXOnIndicator(IndicatorBase *_indi, int _ma_period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                                 int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iTriXOnIndicator(IndicatorData *_indi, int _ma_period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
+                                 int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_ma_period, (int)_ap));
     return iTriXOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _mode, _shift, _cache);
   }
@@ -150,10 +154,10 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_TRIX::iTriX(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode, _ishift,
                                   THIS_PTR);

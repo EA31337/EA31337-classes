@@ -30,9 +30,8 @@
 struct IndiRSParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
-  IndiRSParams(int _shift = 0) : IndicatorParams(INDI_RS, 2, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_MATH);
+  IndiRSParams(ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0) : IndicatorParams(INDI_RS) {
+    applied_volume = _applied_volume;
     shift = _shift;
   };
   IndiRSParams(IndiRSParams &_params) { THIS_REF = _params; };
@@ -48,8 +47,20 @@ class Indi_RS : public Indicator<IndiRSParams> {
   /**
    * Class constructor.
    */
-  Indi_RS(IndiRSParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) { Init(); };
-  Indi_RS(int _shift = 0) : Indicator(INDI_RS, _shift) { Init(); };
+  Indi_RS(IndiRSParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_MATH, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_DIFF, _indi_src_mode),
+                  _indi_src) {
+    Init();
+  };
+  Indi_RS(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_MATH, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : Indicator(IndiRSParams(),
+                  IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_DIFF, _indi_src_mode),
+                  _indi_src) {
+    Init();
+  };
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
@@ -66,7 +77,7 @@ class Indi_RS : public Indicator<IndiRSParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiRSParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -79,7 +90,7 @@ class Indi_RS : public Indicator<IndiRSParams> {
   }
 
   void Init() {
-    if (iparams.GetDataSourceType() == IDATA_MATH) {
+    if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_MATH) {
       IndiOHLCParams _iohlc_params();
       IndiMathParams _imath0_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 0, INDI_OHLC_CLOSE, 1);
       IndiMathParams _imath1_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 1, INDI_OHLC_CLOSE, 0);
@@ -93,9 +104,9 @@ class Indi_RS : public Indicator<IndiRSParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_MATH:
         // Updating Maths' data sources to be the same as RS data source.
         imath.GetByKey(0) REF_DEREF SetDataSource(GetDataSource());

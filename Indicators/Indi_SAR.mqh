@@ -37,9 +37,8 @@ struct IndiSARParams : IndicatorParams {
   double max;
   // Struct constructors.
   IndiSARParams(double _step = 0.02, double _max = 0.2, int _shift = 0)
-      : step(_step), max(_max), IndicatorParams(INDI_SAR, 1, TYPE_DOUBLE) {
+      : step(_step), max(_max), IndicatorParams(INDI_SAR) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit It draws single dot for each bar!
     SetCustomIndicatorName("Examples\\ParabolicSAR");
   };
   IndiSARParams(IndiSARParams &_params) { THIS_REF = _params; };
@@ -53,9 +52,15 @@ class Indi_SAR : public Indicator<IndiSARParams> {
   /**
    * Class constructor.
    */
-  Indi_SAR(IndiSARParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_SAR(int _shift = 0) : Indicator(INDI_SAR, _shift) {}
-
+  Indi_SAR(IndiSARParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
+  Indi_SAR(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiSARParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -74,7 +79,7 @@ class Indi_SAR : public Indicator<IndiSARParams> {
    * - https://www.mql5.com/en/docs/indicators/isar
    */
   static double iSAR(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, double _step = 0.02,
-                     double _max = 0.2, int _shift = 0, IndicatorBase *_obj = NULL) {
+                     double _max = 0.2, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iSAR(_symbol, _tf, _step, _max, _shift);
 #else  // __MQL5__
@@ -109,10 +114,10 @@ class Indi_SAR : public Indicator<IndiSARParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_SAR::iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _ishift, THIS_PTR);
         break;

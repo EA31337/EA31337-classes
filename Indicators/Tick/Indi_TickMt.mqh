@@ -5,18 +5,19 @@
 //+------------------------------------------------------------------+
 
 /*
- *  This file is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
-
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
-
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 /**
@@ -35,17 +36,29 @@
 
 #define INDICATOR_TICK_REAL_FETCH_HISTORY 1000
 
+// Structs.
 // Params for MT patform's tick-based indicator.
 struct Indi_TickMtParams : IndicatorParams {
-  Indi_TickMtParams() : IndicatorParams(INDI_TICK, 2, TYPE_DOUBLE) {}
+  Indi_TickMtParams() : IndicatorParams(INDI_TICK) {}
 };
 
 // MT platform's tick-based indicator.
 class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
+ protected:
   bool _fetch_history_on_first_tick;
 
  public:
-  Indi_TickMt(string _symbol, int _shift = 0, string _name = "") : IndicatorTick(_symbol, INDI_TICK, _shift, _name) {
+  Indi_TickMt(Indi_TickMtParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : IndicatorTick(_p.symbol, _p,
+                      IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                      _indi_src) {
+    _fetch_history_on_first_tick = false;
+  }
+  Indi_TickMt(string _symbol, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0, string _name = "")
+      : IndicatorTick(_symbol, Indi_TickMtParams(),
+                      IndicatorDataParams(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode), _indi_src) {
     _fetch_history_on_first_tick = false;
   }
 
@@ -69,8 +82,8 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _index = -1) override {
-    int _ishift = _index >= 0 ? _index : iparams.GetShift();
+  IndicatorDataEntry GetEntry(long _index = -1) override {
+    int _ishift = _index >= 0 ? (int)_index : iparams.GetShift();
     long _bar_time;
     _bar_time = GetBarTime(_ishift);
 
@@ -85,7 +98,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
     return _entry;
   }
 
-  void OnBecomeDataSourceFor(IndicatorBase* _base_indi) override {
+  void OnBecomeDataSourceFor(IndicatorData *_base_indi) override {
     // Feeding base indicator with historic entries of this indicator.
 #ifdef __debug__
     Print(GetFullName(), " became a data source for ", _base_indi.GetFullName());

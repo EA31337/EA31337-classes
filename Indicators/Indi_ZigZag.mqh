@@ -42,13 +42,9 @@ struct IndiZigZagParams : IndicatorParams {
   unsigned int backstep;
   // Struct constructors.
   IndiZigZagParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
-      : depth(_depth),
-        deviation(_deviation),
-        backstep(_backstep),
-        IndicatorParams(INDI_ZIGZAG, FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE) {
+      : depth(_depth), deviation(_deviation), backstep(_backstep), IndicatorParams(INDI_ZIGZAG) {
     shift = _shift;
     SetCustomIndicatorName(INDI_ZIGZAG_PATH);
-    SetDataValueRange(IDATA_RANGE_PRICE);
   };
   IndiZigZagParams(IndiZigZagParams &_params) { THIS_REF = _params; };
 };
@@ -67,9 +63,18 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Class constructor.
    */
-  Indi_ZigZag(IndiZigZagParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_ZigZag(int _shift = 0) : Indicator(INDI_ZIGZAG, _shift) {}
-
+  Indi_ZigZag(IndiZigZagParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                   IDATA_RANGE_PRICE_ON_SIGNAL),
+                  _indi_src) {}
+  Indi_ZigZag(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(IndiZigZagParams(),
+                  IndicatorDataParams::GetInstance(FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                   IDATA_RANGE_PRICE_ON_SIGNAL),
+                  _indi_src) {}
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -91,7 +96,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiZigZagParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -105,7 +110,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
    * Returns value for ZigZag indicator.
    */
   static double iCustomZigZag(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _depth, int _deviation,
-                              int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                              int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
@@ -140,7 +145,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Returns value for ZigZag indicator.
    */
-  static double iZigZag(IndicatorBase *_indi, int _depth, int _deviation, int _backstep, ENUM_ZIGZAG_LINE _mode = 0,
+  static double iZigZag(IndicatorData *_indi, int _depth, int _deviation, int _backstep, ENUM_ZIGZAG_LINE _mode = 0,
                         int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
     return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
@@ -368,10 +373,10 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);

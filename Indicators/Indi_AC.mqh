@@ -35,15 +35,9 @@ double iAC(string _symbol, int _tf, int _shift) {
 // Structs.
 struct IndiACParams : IndicatorParams {
   // Struct constructor.
-  IndiACParams(int _shift = 0) : IndicatorParams(INDI_AC, 1, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
+  IndiACParams(int _shift = 0) : IndicatorParams(INDI_AC) {
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        SetMaxModes(2);
-        break;
-    }
   };
   IndiACParams(IndiACParams &_params) { THIS_REF = _params; };
 };
@@ -52,18 +46,44 @@ struct IndiACParams : IndicatorParams {
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
 class Indi_AC : public Indicator<IndiACParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() {
+    switch (Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
+      case IDATA_ICUSTOM:
+        Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
+        break;
+    }
+  }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_AC(IndiACParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_AC(int _shift = 0) : Indicator(INDI_AC, _shift){};
+  Indi_AC(IndiACParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
+    Init();
+  }
 
+  Indi_AC(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : Indicator(IndiACParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
+    Init();
+  }
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
   unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
 
+ public:
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
@@ -77,7 +97,7 @@ class Indi_AC : public Indicator<IndiACParams> {
    * - https://www.mql5.com/en/docs/indicators/iac
    */
   static double iAC(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    IndicatorBase *_obj = NULL) {
+                    IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAC(_symbol, _tf, _shift);
 #else  // __MQL5__
@@ -88,10 +108,10 @@ class Indi_AC : public Indicator<IndiACParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) override {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) override {
     IndicatorDataEntryValue _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_AC::iAC(GetSymbol(), GetTf(), _ishift, THIS_PTR);
         break;
@@ -107,7 +127,7 @@ class Indi_AC : public Indicator<IndiACParams> {
   /**
    * Returns reusable indicator with the same candle indicator as given indicator's one.
    */
-  static Indi_AC *GetCached(IndicatorBase *_indi) {
+  static Indi_AC *GetCached(IndicatorData *_indi) {
     Indi_AC *_ptr;
     // There will be only one Indi_AC per IndicatorCandle instance.
     string _key = Util::MakeKey(_indi PTR_DEREF GetCandle() PTR_DEREF GetId());

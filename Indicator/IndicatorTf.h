@@ -84,7 +84,10 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(TFP &_params) : IndicatorCandle<TFP, double>(_params) { Init(); }
+  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams)
+      : IndicatorCandle<TFP, double>(_icparams, _idparams) {
+    Init();
+  }
 
   /**
    * Returns time of the bar for a given shift (MT-compatible shift).

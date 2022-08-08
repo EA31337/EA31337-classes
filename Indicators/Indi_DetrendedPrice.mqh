@@ -31,9 +31,8 @@ struct IndiDetrendedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   IndiDetrendedPriceParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_DETRENDED_PRICE, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_DETRENDED_PRICE) {
     applied_price = _ap;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\DPO");
     period = _period;
     shift = _shift;
@@ -49,9 +48,15 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
   /**
    * Class constructor.
    */
-  Indi_DetrendedPrice(IndiDetrendedPriceParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_DetrendedPrice(int _shift = 0) : Indicator(INDI_DETRENDED_PRICE, _shift){};
-
+  Indi_DetrendedPrice(IndiDetrendedPriceParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                      IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_DetrendedPrice(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                      int _indi_src_mode = 0)
+      : Indicator(IndiDetrendedPriceParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -65,7 +70,7 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiDetrendedPriceParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -77,7 +82,7 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
   /**
    * Built-in version of DPO.
    */
-  static double iDPO(IndicatorBase *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
+  static double iDPO(IndicatorData *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_indi.GetId()));
     return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode, _shift, _cache);
   }
@@ -130,10 +135,10 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iDPO(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, _ishift);

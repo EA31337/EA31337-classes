@@ -38,19 +38,11 @@ struct IndiADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  IndiADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-                ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX, FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE) {
-    SetDataSourceType(_idstype);
-    SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_RANGE);
+  IndiADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
+      : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX) {
     SetShift(_shift);
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        if (custom_indi_name == "") {
-          SetCustomIndicatorName("Examples\\ADX");
-        }
-        break;
+    if (custom_indi_name == "") {
+      SetCustomIndicatorName("Examples\\ADX");
     }
   };
 };
@@ -59,13 +51,28 @@ struct IndiADXParams : IndicatorParams {
  * Implements the Average Directional Movement Index indicator.
  */
 class Indi_ADX : public Indicator<IndiADXParams> {
+ protected:
+  /* Protected methods */
+
+  void Init() {}
+
  public:
   /**
    * Class constructor.
    */
-  Indi_ADX(IndiADXParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_ADX(int _shift = 0) : Indicator(INDI_ADX, _shift) {}
+  Indi_ADX(IndiADXParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
+                                                   _indi_src_mode),
+                  _indi_src) {}
 
+  Indi_ADX(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiADXParams(),
+                  IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
+                                                   _indi_src_mode),
+                  _indi_src) {}
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -94,7 +101,7 @@ class Indi_ADX : public Indicator<IndiADXParams> {
                      ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
                      int _mode = LINE_MAIN_ADX,          // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 -
                                                          // MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
-                     int _shift = 0, IndicatorBase *_obj = NULL) {
+                     int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     Print("We'll now retrieve value from ::iADX(", _symbol, ", ", EnumToString(_tf), ", ", _shift, ")...");
     double _value = ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
@@ -132,10 +139,10 @@ class Indi_ADX : public Indicator<IndiADXParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_ADX::iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _ishift, THIS_PTR);
         break;

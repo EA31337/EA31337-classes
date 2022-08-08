@@ -30,9 +30,8 @@
 struct IndiPivotParams : IndicatorParams {
   ENUM_PP_TYPE method;  // Pivot point calculation method.
   // Struct constructor.
-  IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0) : IndicatorParams(INDI_PIVOT, 9, TYPE_FLOAT) {
+  IndiPivotParams(ENUM_PP_TYPE _method = PP_CLASSIC, int _shift = 0) : IndicatorParams(INDI_PIVOT) {
     method = _method;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     shift = _shift;
   };
   IndiPivotParams(IndiPivotParams& _params) { THIS_REF = _params; };
@@ -42,18 +41,37 @@ struct IndiPivotParams : IndicatorParams {
  * Implements Pivot Detector.
  */
 class Indi_Pivot : public Indicator<IndiPivotParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 9); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_Pivot(IndiPivotParams& _p, IndicatorBase* _indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_Pivot(int _shift = 0) : Indicator(INDI_PIVOT, _shift) {}
-
+  Indi_Pivot(IndiPivotParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData* _indi_src = NULL,
+             int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(9, TYPE_FLOAT, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
+    Init();
+  };
+  Indi_Pivot(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData* _indi_src = NULL,
+             int _indi_src_mode = 0)
+      : Indicator(IndiPivotParams(),
+                  IndicatorDataParams::GetInstance(9, TYPE_FLOAT, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
+    Init();
+  }
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
   unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
 
+ public:
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
@@ -62,7 +80,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase* _ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData* _ds) override {
     // Pivot uses OHLC only.
     return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_OPEN) &&
            _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
@@ -87,7 +105,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
       BarOHLC _ohlc = GetOHLC(_ishift);
       _entry.timestamp = GetCandle() PTR_DEREF GetBarTime(_ishift);
       if (_ohlc.IsValid()) {
-        _entry.Resize(iparams.GetMaxModes());
+        _entry.Resize(Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)));
         _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vdbl, _entry.values[1].value.vdbl,
                         _entry.values[2].value.vdbl, _entry.values[3].value.vdbl, _entry.values[4].value.vdbl,
                         _entry.values[5].value.vdbl, _entry.values[6].value.vdbl, _entry.values[7].value.vdbl,
@@ -116,7 +134,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     return GetEntry(_ishift)[_mode];
   }
@@ -126,7 +144,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    */
   virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
     bool _is_valid = Indicator<IndiPivotParams>::IsValidEntry(_entry);
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         break;
       case IDATA_INDICATOR:
@@ -154,7 +172,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    */
   BarOHLC GetOHLC(int _shift = 0) {
     BarOHLC _ohlc;
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
         _ohlc = GetCandle() PTR_DEREF GetOHLC(_shift);

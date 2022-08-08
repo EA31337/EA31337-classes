@@ -32,9 +32,8 @@ struct IndiTEMAParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   IndiTEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_TEMA, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_TEMA) {
     applied_price = _ap;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\TEMA");
     period = _period;
     shift = _shift;
@@ -51,9 +50,15 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
   /**
    * Class constructor.
    */
-  Indi_TEMA(IndiTEMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_TEMA(int _shift = 0) : Indicator(INDI_TEMA, _shift){};
-
+  Indi_TEMA(IndiTEMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_TEMA(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiTEMAParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -76,7 +81,7 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
 #else
     if (_obj == nullptr) {
       Print(
-          "Indi_TEMA::iTEMA() can work without supplying pointer to IndicatorBase only in MQL5. In this platform "
+          "Indi_TEMA::iTEMA() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
           "the pointer is required.");
       DebugBreak();
       return 0;
@@ -111,7 +116,7 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
   /**
    * On-indicator version of TEMA.
    */
-  static double iTEMAOnIndicator(IndicatorBase *_indi, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
+  static double iTEMAOnIndicator(IndicatorData *_indi, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                                  int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
     return iTEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _ma_shift, _mode, _shift, _cache);
@@ -149,10 +154,10 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_TEMA::iTEMA(GetSymbol(), GetTf(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), 0, _ishift,
                                   THIS_PTR);

@@ -30,8 +30,7 @@
 struct PriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE ap;
   // Struct constructor.
-  PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
-      : ap(_ap), IndicatorParams(INDI_PRICE, 1, TYPE_DOUBLE) {
+  PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0) : ap(_ap), IndicatorParams(INDI_PRICE) {
     SetShift(_shift);
   };
   PriceIndiParams(PriceIndiParams &_params) { THIS_REF = _params; };
@@ -49,9 +48,7 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Class constructor.
    */
-  Indi_Price(PriceIndiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_Price(int _shift = 0) : Indicator(INDI_PRICE, _shift){};
-
+  Indi_Price(PriceIndiParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL, int _indi_src_mode = 0) : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode), _indi_src){}; Indi_Price(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL, int _indi_src_mode = 0) : Indicator(PriceIndiParams(), IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode), _indi_src) {};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -68,7 +65,7 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     return GetCandle() PTR_DEREF GetSpecificAppliedPriceValueStorage(iparams.GetAppliedPrice())
         PTR_DEREF Fetch(_ishift);
@@ -78,7 +75,7 @@ class Indi_Price : public Indicator<PriceIndiParams> {
    * Returns already cached version of Indi_Price for a given parameters.
    */
   static Indi_Price *GetPlatformPrices(string _symbol, ENUM_APPLIED_PRICE _ap, ENUM_TIMEFRAMES _tf, int _shift,
-                                       IndicatorBase *_base_indi = nullptr) {
+                                       IndicatorData *_base_indi = nullptr) {
     String _cache_key;
     _cache_key.Add(_symbol);
     _cache_key.Add((int)_ap);

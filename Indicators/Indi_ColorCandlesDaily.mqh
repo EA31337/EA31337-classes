@@ -28,8 +28,7 @@
 // Structs.
 struct IndiColorCandlesDailyParams : IndicatorParams {
   // Struct constructor.
-  IndiColorCandlesDailyParams(int _shift = 0) : IndicatorParams(INDI_COLOR_CANDLES_DAILY, 5, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
+  IndiColorCandlesDailyParams(int _shift = 0) : IndicatorParams(INDI_COLOR_CANDLES_DAILY) {
     SetCustomIndicatorName("Examples\\ColorCandlesDaily");
     shift = _shift;
   };
@@ -44,9 +43,15 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   /**
    * Class constructor.
    */
-  Indi_ColorCandlesDaily(IndiColorCandlesDailyParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_ColorCandlesDaily(int _shift = 0) : Indicator(INDI_COLOR_CANDLES_DAILY, _shift){};
-
+  Indi_ColorCandlesDaily(IndiColorCandlesDailyParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                         IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(5, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_ColorCandlesDaily(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                         IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(IndiColorCandlesDailyParams(),
+                  IndicatorDataParams::GetInstance(5, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -60,7 +65,7 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiColorCandlesDailyParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -75,7 +80,7 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   /**
    * OnCalculate-based version of Color Candles Daily as there is no built-in one.
    */
-  static double iCCD(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+  static double iCCD(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
@@ -130,19 +135,19 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = iCCD(THIS_PTR, _mode, _ishift);
+        _value = Indi_ColorCandlesDaily::iCCD(THIS_PTR, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iCCD(THIS_PTR, _mode, _ishift);
+        _value = Indi_ColorCandlesDaily::iCCD(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
