@@ -322,11 +322,14 @@ bool InitIndicators() {
   // Demo/Dummy Indicator.
   indis.Push(new Indi_Demo());
 
+#ifndef __MQL4__
+  // @fixme: Make it work for MT4.
   // Current Price.
   PriceIndiParams price_params();
   // price_params.SetDraw(clrAzure);
   Ref<IndicatorBase> indi_price = new Indi_Price(price_params);
   indis.Push(indi_price);
+#endif
 
   // Bollinger Bands over Price indicator.
   PriceIndiParams price_params_4_bands();

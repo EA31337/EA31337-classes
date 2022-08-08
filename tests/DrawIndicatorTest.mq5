@@ -108,10 +108,13 @@ bool InitIndicators() {
   IndiDemoParams demo_params;
   Platform::AddWithDefaultBindings(new Indi_Demo(demo_params));
 
+#ifndef __MQL4__
+  // @fixme: Make it work for MT4.
   // Current Price (used by custom indicators)  .
   PriceIndiParams price_params();
   price_params.SetDraw(clrGreenYellow);
   Platform::AddWithDefaultBindings(new Indi_Price(price_params));
+#endif
 
   // Bollinger Bands over Price indicator.
   /*
