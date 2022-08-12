@@ -130,8 +130,10 @@ struct IndicatorDataEntryValue {
   T Get() {
     T _v;
     Get(_v);
+    DebugBreak();
     return _v;
   }
+  void Get(datetime &_out) { _out = (datetime)value.vlong; }
   void Get(double &_out) { _out = value.vdbl; }
   void Get(float &_out) { _out = value.vflt; }
   void Get(int &_out) { _out = value.vint; }
