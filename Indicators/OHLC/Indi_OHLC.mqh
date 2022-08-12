@@ -49,7 +49,18 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
   /**
    * Class constructor.
    */
-  Indi_OHLC(IndiOHLCParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL, int _indi_src_mode = 0) : Indicator(_p, IndicatorDataParams::GetInstance(FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode), _indi_src){}; Indi_OHLC(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL, int _indi_src_mode = 0) : Indicator(IndiOHLCParams(), IndicatorDataParams::GetInstance(FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode), _indi_src) {};
+  Indi_OHLC(IndiOHLCParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE,
+                                                   _indi_src_mode),
+                  _indi_src){};
+  Indi_OHLC(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiOHLCParams(),
+                  IndicatorDataParams::GetInstance(FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE,
+                                                   _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */

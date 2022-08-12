@@ -20,9 +20,6 @@
  *
  */
 
-// Forward declaration.
-struct IndicatorParams;
-
 // Includes.
 #include "../DictStruct.mqh"
 #include "../Indicator.mqh"

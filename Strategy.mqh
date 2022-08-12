@@ -875,7 +875,7 @@ class Strategy : public Taskable<DataParamEntry> {
     bool _result = true;
     if (_method != 0) {
       if (METHOD(_method, 0)) _result &= !trade REF_DEREF HasBarOrder(_cmd);           // 1
-      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                                // 2
+      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                      // 2
       if (METHOD(_method, 2)) _result &= trade REF_DEREF IsPivot(_cmd);                // 4
       if (METHOD(_method, 3)) _result &= !trade REF_DEREF HasOrderOppositeType(_cmd);  // 8
       if (METHOD(_method, 4)) _result &= trade REF_DEREF IsPeak(_cmd);                 // 16
@@ -884,7 +884,7 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 6))
         _result &= !trade REF_DEREF Check(
             TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_LOW : ACCOUNT_COND_EQUITY_01PC_HIGH);  // 64
-       */
+      */
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -985,7 +985,7 @@ class Strategy : public Taskable<DataParamEntry> {
     bool _result = _method == 0;
     if (_method != 0) {
       if (METHOD(_method, 0)) _result |= _result || !trade REF_DEREF HasBarOrder(_cmd);  // 1
-      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                      // 2
+      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);            // 2
       if (METHOD(_method, 2)) _result |= _result || !trade REF_DEREF IsPivot(_cmd);      // 4
       if (METHOD(_method, 3))
         _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
@@ -996,7 +996,7 @@ class Strategy : public Taskable<DataParamEntry> {
         _result |=
             _result || trade REF_DEREF Check(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
                                                                             : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
-                                                                             */
+      */
       // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -1073,12 +1073,11 @@ class Strategy : public Taskable<DataParamEntry> {
     }
 
     float _range = (float)_bar1.GetRange();
-    if (_range > 0) {
+      if (_range > 0) {
       float _open = (float)_data_source.GetOpen(_tf);
       float _pp = (float)_bar1.GetPivot();
-      _result = 1 / _range * (_open - _pp);
-      _result = fmin(1, fmax(-1, _result));
-    }
+        _result = 1 / _range * (_open - _pp);
+        _result = fmin(1, fmax(-1, _result));
     return _result;
   };
 
@@ -1090,10 +1089,17 @@ class Strategy : public Taskable<DataParamEntry> {
   bool AddTask(TaskEntry &_tentry) {
     bool _is_valid = _tentry.IsValid();
     if (_is_valid) {
-      TaskObject<Strategy, Strategy> _taskobj(_tentry, THIS_PTR, THIS_PTR);
-      tasks.Add(&_taskobj);
+      tasks.Add(new TaskObject<Strategy, Strategy>(_tentry, THIS_PTR, THIS_PTR));
     }
     return _is_valid;
+  }
+
+  /**
+   * Add task object.
+   */
+  template <typename TA, typename TC>
+  bool AddTaskObject(TaskObject<TA, TC> *_tobj) {
+    return tasks.Add<TA, TC>(_tobj);
   }
 
   /**

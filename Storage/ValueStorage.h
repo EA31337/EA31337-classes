@@ -314,4 +314,4 @@ int iPeak(ValueStorage<double> &_price, int _count, int _start, ENUM_IPEAK _type
   return _price_size - _peak_idx - 1;
 }
 
-#endif  // STRATEGY_MQH
+#endif  // VALUE_STORAGE_H

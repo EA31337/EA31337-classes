@@ -65,7 +65,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * Initialize.
    */
-  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_INDI_BWZT_MODE_ENTRY); }
+  void Init() {}
 
  public:
   /**

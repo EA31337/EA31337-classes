@@ -203,7 +203,10 @@ class Trade : public Taskable<DataParamEntry> {
     _request.symbol = GetSource() PTR_DEREF GetSymbol();
     _request.price = GetSource() PTR_DEREF GetOpenOffer(_type);
     _request.type = _type;
+#ifndef __MQL4__
+    // Filling modes not supported under MQL4.
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
+#endif
     _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
     _request.volume = NormalizeLots(fmax(_request.volume, GetSource() PTR_DEREF GetSymbolProps().GetVolumeMin()));
 
@@ -1395,7 +1398,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                            && Terminal::CheckPermissionToTrade()
                            // Check if auto trading is enabled.
                            && (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()));
-/* Chart checks */
+      /* Chart checks */
 #ifdef __debug__
       Print("Trade: Bars in data source: ", GetSource() PTR_DEREF GetBars(),
             ", minimum required bars: ", tparams.GetBarsMin());
@@ -1764,10 +1767,17 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool AddTask(TaskEntry &_tentry) {
     bool _is_valid = _tentry.IsValid();
     if (_is_valid) {
-      TaskObject<Trade, Trade> _taskobj(_tentry, THIS_PTR, THIS_PTR);
-      tasks.Add(&_taskobj);
+      tasks.Add(new TaskObject<Trade, Trade>(_tentry, THIS_PTR, THIS_PTR));
     }
     return _is_valid;
+  }
+
+  /**
+   * Add task object.
+   */
+  template <typename TA, typename TC>
+  bool AddTaskObject(TaskObject<TA, TC> *_tobj) {
+    return tasks.Add<TA, TC>(_tobj);
   }
 
   /**

@@ -47,7 +47,10 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Initialize.
    */
-  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 9); }
+  void Init() {}
+
+ protected:
+  /* Protected methods */
 
  public:
   /**
