@@ -884,7 +884,7 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 6))
         _result &= !trade REF_DEREF Check(
             TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_LOW : ACCOUNT_COND_EQUITY_01PC_HIGH);  // 64
-       */
+      */
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -996,7 +996,7 @@ class Strategy : public Taskable<DataParamEntry> {
         _result |=
             _result || trade REF_DEREF Check(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
                                                                             : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
-                                                                             */
+      */
       // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -1090,10 +1090,17 @@ class Strategy : public Taskable<DataParamEntry> {
   bool AddTask(TaskEntry &_tentry) {
     bool _is_valid = _tentry.IsValid();
     if (_is_valid) {
-      TaskObject<Strategy, Strategy> _taskobj(_tentry, THIS_PTR, THIS_PTR);
-      tasks.Add(&_taskobj);
+      tasks.Add(new TaskObject<Strategy, Strategy>(_tentry, THIS_PTR, THIS_PTR));
     }
     return _is_valid;
+  }
+
+  /**
+   * Add task object.
+   */
+  template <typename TA, typename TC>
+  bool AddTaskObject(TaskObject<TA, TC> *_tobj) {
+    return tasks.Add<TA, TC>(_tobj);
   }
 
   /**

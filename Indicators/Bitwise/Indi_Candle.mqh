@@ -44,11 +44,16 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Class constructor.
    */
-  Indi_Candle(CandleParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-    : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_INT, _idstype, IDATA_RANGE_RANGE, _indi_src_mode), _indi_src){};
+  Indi_Candle(CandleParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_INT, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+                  _indi_src){};
 
-  Indi_Candle(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-  : Indicator(CandleParams(), IndicatorDataParams::GetInstance(1, TYPE_INT, _idstype, IDATA_RANGE_RANGE, _indi_src_mode), _indi_src) {};
+  Indi_Candle(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(CandleParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_INT, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+                  _indi_src){};
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.

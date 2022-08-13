@@ -25,8 +25,8 @@
  */
 
 // Defines.
-//#define __debug__  // Enables debug.
-//#define __debug_verbose__
+// #define __debug__  // Enables debug.
+// #define __debug_verbose__
 
 // Forward declaration.
 struct DataParamEntry;
@@ -99,7 +99,7 @@ void OnTick() {
   if (_candles PTR_DEREF IsNewBar()) {
     if (_candles PTR_DEREF GetBarIndex() > 200) {
       ExpertRemove();
-    }
+  }
 
     if (indis.Size() == 0) {
       return;

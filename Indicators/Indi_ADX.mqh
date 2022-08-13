@@ -65,14 +65,18 @@ class Indi_ADX : public Indicator<IndiADXParams> {
       : Indicator(_p,
                   IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
                                                    _indi_src_mode),
-                  _indi_src) {}
+                  _indi_src) {
+    Init();
+  }
 
   Indi_ADX(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
            int _indi_src_mode = 0)
       : Indicator(IndiADXParams(),
                   IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
                                                    _indi_src_mode),
-                  _indi_src) {}
+                  _indi_src) {
+    Init();
+  }
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
