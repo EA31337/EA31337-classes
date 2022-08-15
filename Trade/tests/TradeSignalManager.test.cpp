@@ -25,10 +25,11 @@
  */
 
 // Includes.
+#include "../TradeSignalManager.h"
+
 #include "../../Common.define.h"
 #include "../../Common.extern.h"
 #include "../../Std.h"
 #include "../../String.extern.h"
-#include "../TradeSignalManager.h"
 
 int main(int argc, char **argv) {}
