@@ -94,8 +94,8 @@ class Strategy : public Taskable<DataParamEntry> {
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
-  Ref<IndicatorBase> indi_source;                  // Candle or Tick indicator as a price source.
-  DictStruct<int, Ref<IndicatorBase>> indicators;  // Indicators list.
+  Ref<IndicatorData> indi_source;                  // Candle or Tick indicator as a price source.
+  DictStruct<int, Ref<IndicatorData>> indicators;  // Indicators list.
   Log logger;                                      // Log instance.
   MqlTick last_tick;
   StgProcessResult sresult;
@@ -220,7 +220,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Returns strategy's indicators.
    */
-  DictStruct<int, Ref<IndicatorBase>> GetIndicators() { return indicators; }
+  DictStruct<int, Ref<IndicatorData>> GetIndicators() { return indicators; }
 
   /* Struct getters */
 
@@ -279,13 +279,13 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Returns Candle or Tick indicator bound to this strategy.
    */
-  IndicatorBase *GetSource() { return indi_source.Ptr(); }
+  IndicatorData *GetSource() { return indi_source.Ptr(); }
 
   /**
    * Executes OnTick() on every attached indicator.
    */
   void Tick() {
-    for (DictIterator<int, Ref<IndicatorBase>> it = indicators.Begin(); it.IsValid(); ++it) {
+    for (DictIterator<int, Ref<IndicatorData>> it = indicators.Begin(); it.IsValid(); ++it) {
       it.Value() REF_DEREF Tick();
     }
   }
@@ -487,8 +487,8 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Sets reference to indicator.
    */
-  void SetIndicator(IndicatorBase *_indi, int _id = 0) {
-    Ref<IndicatorBase> _ref = _indi;
+  void SetIndicator(IndicatorData *_indi, int _id = 0) {
+    Ref<IndicatorData> _ref = _indi;
     indicators.Set(_id, _ref);
   }
 
@@ -884,7 +884,7 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 6))
         _result &= !trade REF_DEREF Check(
             TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_LOW : ACCOUNT_COND_EQUITY_01PC_HIGH);  // 64
-       */
+      */
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -995,8 +995,8 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 6))
         _result |=
             _result || trade REF_DEREF Check(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
-                                                                             : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
-                                                                             */
+                                                                            : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
+      */
       // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -1027,16 +1027,17 @@ class Strategy : public Taskable<DataParamEntry> {
     float _trade_dist = trade REF_DEREF GetTradeDistanceInValue();
     int _count = (int)fmax(fabs(_level), fabs(_method));
     int _direction = Order::OrderDirection(_cmd, _mode);
-    IndicatorBase *_data_source = trade REF_DEREF GetSource();
-    IndicatorBase *_indi = GetIndicators().Begin().Value().Ptr();
+    IndicatorData *_data_source = trade REF_DEREF GetSource();
+    IndicatorData *_indi = GetIndicators().Begin().Value().Ptr();
     StrategyPriceStop _psm(_method);
     _psm.SetCandleSource(_data_source);
     if (Object::IsValid(_indi)) {
-      int _ishift = 12;     // @todo: Make it dynamic or as variable.
-      float _value = 0.0f;  // @todo
-      // float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
-      _value = _value + (float)Math::ChangeByPct(fabs(_value - _data_source.GetCloseOffer(0)), _level) * _direction;
-      _psm.SetIndicatorPriceValue(_value);
+      int _ishift = 12;  // @todo: Make it dynamic or as variable.
+      double _value = _indi.GetValuePrice<double>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
+      _value =
+          _value +
+          (float)Math::ChangeByPct(fabs(_value - SymbolInfoStatic::GetCloseOffer(_Symbol, _cmd)), _level) * _direction;
+      _psm.SetIndicatorPriceValue((float)_value);
       /*
       //IndicatorDataEntry _data[];
       if (_indi.CopyEntries(_data, 3, 0)) {
@@ -1064,7 +1065,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1, int _shift = 1) {
     float _result = 0;
-    IndicatorBase *_data_source = trade REF_DEREF GetSource();
+    IndicatorData *_data_source = trade REF_DEREF GetSource();
 
     BarOHLC _bar1 = _data_source.GetOHLC(_shift);
     if (!_bar1.IsValid()) {
@@ -1089,10 +1090,17 @@ class Strategy : public Taskable<DataParamEntry> {
   bool AddTask(TaskEntry &_tentry) {
     bool _is_valid = _tentry.IsValid();
     if (_is_valid) {
-      TaskObject<Strategy, Strategy> _taskobj(_tentry, THIS_PTR, THIS_PTR);
-      tasks.Add(&_taskobj);
+      tasks.Add(new TaskObject<Strategy, Strategy>(_tentry, THIS_PTR, THIS_PTR));
     }
     return _is_valid;
+  }
+
+  /**
+   * Add task object.
+   */
+  template <typename TA, typename TC>
+  bool AddTaskObject(TaskObject<TA, TC> *_tobj) {
+    return tasks.Add<TA, TC>(_tobj);
   }
 
   /**

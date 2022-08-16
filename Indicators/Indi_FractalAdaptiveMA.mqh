@@ -33,9 +33,8 @@ struct IndiFrAIndiMAParams : IndicatorParams {
 
   // Struct constructor.
   IndiFrAIndiMAParams(int _period = 14, int _frama_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_FRAMA, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_FRAMA) {
     frama_shift = _frama_shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\FrAMA");
     applied_price = _ap;
     period = _period;
@@ -52,9 +51,15 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
   /**
    * Class constructor.
    */
-  Indi_FrAMA(IndiFrAIndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_FrAMA(int _shift = 0) : Indicator(INDI_FRAMA, _shift){};
-
+  Indi_FrAMA(IndiFrAIndiMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_FrAMA(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : Indicator(IndiFrAIndiMAParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -70,7 +75,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiFrAIndiMAParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -86,13 +91,13 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
    * Built-in version of FrAMA.
    */
   static double iFrAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                       int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+                       int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
 #else
     if (_obj == nullptr) {
       Print(
-          "Indi_FrAMA::iFrAMA() can work without supplying pointer to IndicatorBase only in MQL5. In this platform the "
+          "Indi_FrAMA::iFrAMA() can work without supplying pointer to IndicatorData only in MQL5. In this platform the "
           "pointer is required.");
       DebugBreak();
       return 0;
@@ -127,7 +132,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
   /**
    * On-indicator version of FrAMA.
    */
-  static double iFrAMAOnIndicator(IndicatorBase *_indi, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
+  static double iFrAMAOnIndicator(IndicatorData *_indi, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                                   int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
     return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode, _shift, _cache);
@@ -172,10 +177,10 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value =
             iFrAMA(GetSymbol(), GetTf(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift, THIS_PTR);

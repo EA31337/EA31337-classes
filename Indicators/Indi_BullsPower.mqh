@@ -37,9 +37,8 @@ struct IndiBullsPowerParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;  // (MT5): not used
   // Struct constructor.
   IndiBullsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : period(_period), applied_price(_ap), IndicatorParams(INDI_BULLS, 1, TYPE_DOUBLE) {
+      : period(_period), applied_price(_ap), IndicatorParams(INDI_BULLS) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Bulls");
   };
   IndiBullsPowerParams(IndiBullsPowerParams &_params) { THIS_REF = _params; };
@@ -53,9 +52,15 @@ class Indi_BullsPower : public Indicator<IndiBullsPowerParams> {
   /**
    * Class constructor.
    */
-  Indi_BullsPower(IndiBullsPowerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_BullsPower(int _shift = 0) : Indicator(INDI_BULLS, _shift) {}
-
+  Indi_BullsPower(IndiBullsPowerParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                  IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
+  Indi_BullsPower(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                  int _indi_src_mode = 0)
+      : Indicator(IndiBullsPowerParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -75,7 +80,7 @@ class Indi_BullsPower : public Indicator<IndiBullsPowerParams> {
    */
   static double iBullsPower(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                             ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
-                            int _shift = 0, IndicatorBase *_obj = NULL) {
+                            int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBullsPower(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -110,10 +115,10 @@ class Indi_BullsPower : public Indicator<IndiBullsPowerParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _ishift, THIS_PTR);
         break;

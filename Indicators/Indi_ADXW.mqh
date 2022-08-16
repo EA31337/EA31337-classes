@@ -36,16 +36,11 @@
 // Structs.
 struct IndiADXWParams : IndiADXParams {
   // Struct constructor.
-  IndiADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-                 ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-      : IndiADXParams(_period, _ap, _shift, _idstype) {
+  IndiADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
+      : IndiADXParams(_period, _ap, _shift) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
-    SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_RANGE);
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        SetCustomIndicatorName("Examples\\ADXW");
-        break;
+    if (custom_indi_name == "") {
+      SetCustomIndicatorName("Examples\\ADXW");
     }
   };
 };
@@ -58,9 +53,19 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * Class constructor.
    */
-  Indi_ADXW(IndiADXWParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_ADXW(int _shift = 0) : Indicator(INDI_ADXW, _shift){};
+  Indi_ADXW(IndiADXWParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
+                                                   _indi_src_mode),
+                  _indi_src){};
 
+  Indi_ADXW(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiADXWParams(),
+                  IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
+                                                   _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -78,7 +83,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiADXWParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -99,13 +104,13 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
    * Built-in or OnCalculate-based version of ADX Wilder.
    */
   static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = LINE_MAIN_ADX,
-                           int _shift = 0, IndicatorBase *_obj = NULL) {
+                           int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
 #else
     if (_obj == nullptr) {
       Print(
-          "Indi_ADXW::iADXWilder() can work without supplying pointer to IndicatorBase only in MQL5. In this platform "
+          "Indi_ADXW::iADXWilder() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
           "the pointer is required.");
       DebugBreak();
       return 0;
@@ -143,7 +148,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * On-indicator version of ADX Wilder.
    */
-  static double iADXWilder(IndicatorBase *_indi, int _period, int _mode = 0, int _shift = 0) {
+  static double iADXWilder(IndicatorData *_indi, int _period, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period));
     return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
@@ -261,22 +266,22 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
+        _value = Indi_ADXW::iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = iADXWilder(THIS_PTR, GetPeriod(), _mode, _ishift);
+        _value = Indi_ADXW::iADXWilder(THIS_PTR, GetPeriod(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iADXWilder(THIS_PTR, GetPeriod(), _mode, _ishift);
+        _value = Indi_ADXW::iADXWilder(THIS_PTR, GetPeriod(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

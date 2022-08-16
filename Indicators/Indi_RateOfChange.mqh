@@ -30,9 +30,8 @@ struct IndiRateOfChangeParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   IndiRateOfChangeParams(int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_RATE_OF_CHANGE, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_RATE_OF_CHANGE) {
     applied_price = _ap;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ROC");
     period = _period;
     shift = _shift;
@@ -48,9 +47,15 @@ class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
   /**
    * Class constructor.
    */
-  Indi_RateOfChange(IndiRateOfChangeParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_RateOfChange(int _shift = 0) : Indicator(INDI_RATE_OF_CHANGE, _shift){};
-
+  Indi_RateOfChange(IndiRateOfChangeParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                    IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_RateOfChange(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                    int _indi_src_mode = 0)
+      : Indicator(IndiRateOfChangeParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -64,7 +69,7 @@ class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  double iROC(IndicatorBase *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
+  double iROC(IndicatorData *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, (int)_ap));
     return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);
   }
@@ -93,7 +98,7 @@ class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
   /**
    * On-indicator version of Rate of Change.
    */
-  static double iROCOnIndicator(IndicatorBase *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
+  static double iROCOnIndicator(IndicatorData *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
                                 int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, (int)_ap));
     return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);
@@ -121,10 +126,10 @@ class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iROC(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, _ishift);

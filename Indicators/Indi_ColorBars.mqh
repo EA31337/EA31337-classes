@@ -28,8 +28,7 @@
 // Structs.
 struct IndiColorBarsParams : IndicatorParams {
   // Struct constructor.
-  IndiColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS, 5, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
+  IndiColorBarsParams(int _shift = 0) : IndicatorParams(INDI_COLOR_BARS) {
     SetCustomIndicatorName("Examples\\ColorBars");
     shift = _shift;
   };
@@ -44,9 +43,15 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
   /**
    * Class constructor.
    */
-  Indi_ColorBars(IndiColorBarsParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_ColorBars(int _shift = 0) : Indicator(INDI_COLOR_BARS, _shift){};
-
+  Indi_ColorBars(IndiColorBarsParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(5, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_ColorBars(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                 int _indi_src_mode = 0)
+      : Indicator(IndiColorBarsParams(),
+                  IndicatorDataParams::GetInstance(5, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -62,7 +67,7 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
   /**
    * OnCalculate-based version of Color Bars as there is no built-in one.
    */
-  static double iColorBars(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+  static double iColorBars(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     return iColorBarsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
@@ -120,19 +125,19 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = iColorBars(THIS_PTR, _mode, _ishift);
+        _value = Indi_ColorBars::iColorBars(THIS_PTR, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iColorBars(THIS_PTR, _mode, _ishift);
+        _value = Indi_ColorBars::iColorBars(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

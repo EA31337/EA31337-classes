@@ -50,13 +50,14 @@ enum ENUM_HA_MODE {
 // Structs.
 struct IndiHeikenAshiParams : IndicatorParams {
   // Struct constructors.
-  IndiHeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI, FINAL_HA_MODE_ENTRY, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);  // @fixit It draws candles!
+  IndiHeikenAshiParams(int _shift = 0) : IndicatorParams(INDI_HEIKENASHI) {
+    if (custom_indi_name == "") {
 #ifdef __MQL4__
-    SetCustomIndicatorName("Heiken Ashi");
+      SetCustomIndicatorName("Heiken Ashi");
 #else
-    SetCustomIndicatorName("Examples\\Heiken_Ashi");
+      SetCustomIndicatorName("Examples\\Heiken_Ashi");
 #endif
+    }
     shift = _shift;
   };
   IndiHeikenAshiParams(IndiHeikenAshiParams &_params) { THIS_REF = _params; };
@@ -66,18 +67,39 @@ struct IndiHeikenAshiParams : IndicatorParams {
  * Implements the Heiken-Ashi indicator.
  */
 class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_HA_MODE_ENTRY); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(IndiHeikenAshiParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_HeikenAshi(int _shift = 0) : Indicator(INDI_HEIKENASHI, _shift) {}
+  Indi_HeikenAshi(IndiHeikenAshiParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                  IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_HA_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE,
+                                                   _indi_src_mode),
+                  _indi_src) {
+    Init();
+  }
+  Indi_HeikenAshi(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                  int _indi_src_mode = 0)
+      : Indicator(IndiHeikenAshiParams(),
+                  IndicatorDataParams::GetInstance(FINAL_HA_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE,
+                                                   _indi_src_mode),
+                  _indi_src) {}
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
   unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
 
+ public:
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
@@ -88,7 +110,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiHeikenAshiParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -104,7 +126,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
    * Returns value for iHeikenAshi indicator.
    */
   static double iCustomLegacyHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift = 0,
-                                        IndicatorBase *_obj = NULL) {
+                                        IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     // Low and High prices could be in reverse order when using MT4's built-in indicator, so we need to retrieve both
     // and return correct one.
@@ -152,7 +174,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   /**
    * OnCalculate-based version of Color Heiken Ashi as there is no built-in one.
    */
-  static double iHeikenAshi(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+  static double iHeikenAshi(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     return iHeikenAshiOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
@@ -217,10 +239,10 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = HA_OPEN, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = HA_OPEN, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
 #ifdef __MQL4__
@@ -240,17 +262,17 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
             break;
         }
 #endif
-        _value = iHeikenAshi(THIS_PTR, _mode, _ishift);
+        _value = Indi_HeikenAshi::iHeikenAshi(THIS_PTR, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM_LEGACY:
-        _value =
-            iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift, THIS_PTR);
+        _value = Indi_HeikenAshi::iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
+                                                          _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = iHeikenAshi(THIS_PTR, _mode, _ishift);
+        _value = Indi_HeikenAshi::iHeikenAshi(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -41,9 +41,8 @@
 struct IndiCustomParams : public IndicatorParams {
   DataParamEntry iargs[];
   // Struct constructors.
-  IndiCustomParams(string _filepath = INDI_CUSTOM_PATH, int _shift = 0) : IndicatorParams(INDI_CUSTOM, 1, TYPE_DOUBLE) {
+  IndiCustomParams(string _filepath = INDI_CUSTOM_PATH, int _shift = 0) : IndicatorParams(INDI_CUSTOM) {
     custom_indi_name = _filepath;
-    SetDataSourceType(IDATA_ICUSTOM);
   }
   IndiCustomParams(IndiCustomParams &_params) { THIS_REF = _params; }
   // Getters.
@@ -76,8 +75,15 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
   /**
    * Class constructor.
    */
-  Indi_Custom(IndiCustomParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiCustomParams>(_p, _indi_src) {}
-  Indi_Custom(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_CUSTOM, _tf){};
+  Indi_Custom(IndiCustomParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_ICUSTOM, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_UNKNOWN, _indi_src_mode),
+                  _indi_src) {}
+  Indi_Custom(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_ICUSTOM, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(IndiCustomParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src){};
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
@@ -95,7 +101,7 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_ICUSTOM:
         switch (iparams.GetParamsSize()) {
           case 0:

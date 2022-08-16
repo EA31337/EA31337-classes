@@ -170,7 +170,7 @@ struct BufferFXTHeader {
   //----
   int reserved[60];  // Reserved - space for future use.
   // Struct constructor.
-  BufferFXTHeader(IndicatorBase *_source, AccountMt *_a)
+  BufferFXTHeader(IndicatorData *_source, AccountMt *_a)
       : version(405),
         period(_source PTR_DEREF GetTick() PTR_DEREF GetTf()),
         model(0),

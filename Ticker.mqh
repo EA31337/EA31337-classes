@@ -113,7 +113,7 @@ class Ticker {
    * @return
    * Returns true when tick should be parsed, otherwise ignored.
    */
-  bool Process(IndicatorBase *_candle, unsigned int _method) {
+  bool Process(IndicatorData *_candle, unsigned int _method) {
     total_processed++;
     if (_method == 0 || total_processed == 1) {
       return true;

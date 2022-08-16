@@ -38,9 +38,8 @@ struct IndiCHVParams : IndicatorParams {
   // Struct constructor.
   IndiCHVParams(int _smooth_period = 10, int _chv_period = 10,
                 ENUM_CHV_SMOOTH_METHOD _smooth_method = CHV_SMOOTH_METHOD_EMA, int _shift = 0)
-      : IndicatorParams(INDI_CHAIKIN_V, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_CHAIKIN_V) {
     chv_period = _chv_period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\CHV");
     shift = _shift;
     smooth_method = _smooth_method;
@@ -57,9 +56,15 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
   /**
    * Class constructor.
    */
-  Indi_CHV(IndiCHVParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_CHV(int _shift = 0) : Indicator(INDI_CHAIKIN_V, _shift){};
-
+  Indi_CHV(IndiCHVParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_CHV(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiCHVParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -75,7 +80,7 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiCHVParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -88,7 +93,7 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
   /**
    * OnCalculate-based version of Chaikin Volatility as there is no built-in one.
    */
-  double iCHV(IndicatorBase *_indi, int _smooth_period, int _chv_period, ENUM_CHV_SMOOTH_METHOD _smooth_method,
+  double iCHV(IndicatorData *_indi, int _smooth_period, int _chv_period, ENUM_CHV_SMOOTH_METHOD _smooth_method,
               int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi,
                                                        Util::MakeKey(_smooth_period, _chv_period, _smooth_method));
@@ -184,10 +189,10 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iCHV(THIS_PTR, GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod(), _mode, _ishift);

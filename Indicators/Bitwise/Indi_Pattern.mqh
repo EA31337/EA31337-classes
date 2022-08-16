@@ -32,11 +32,7 @@
 // Structs.
 struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
-  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN, 5, TYPE_UINT) {
-    SetDataValueType(TYPE_UINT);
-    SetDataValueRange(IDATA_RANGE_BITWISE);
-    shift = _shift;
-  };
+  IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN) { shift = _shift; };
   IndiPatternParams(IndiPatternParams& _params) { THIS_REF = _params; };
 };
 
@@ -48,8 +44,16 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Class constructor.
    */
-  Indi_Pattern(IndiPatternParams& _p, IndicatorBase* _indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_Pattern(int _shift = 0) : Indicator(INDI_PATTERN, _shift){};
+  Indi_Pattern(IndiPatternParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData* _indi_src = NULL,
+               int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(5, TYPE_UINT, _idstype, IDATA_RANGE_BITWISE, _indi_src_mode),
+                  _indi_src) {}
+
+  Indi_Pattern(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData* _indi_src = NULL,
+               int _indi_src_mode = 0)
+      : Indicator(IndiPatternParams(),
+                  IndicatorDataParams::GetInstance(5, TYPE_UINT, _idstype, IDATA_RANGE_BITWISE, _indi_src_mode),
+                  _indi_src) {}
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
@@ -64,7 +68,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase* _ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData* _ds) override {
     if (Indicator<IndiPatternParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -79,15 +83,16 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int i;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
     BarOHLC _ohlcs[8];
 
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from candle.
-        for (i = 0; i < iparams.GetMaxModes(); ++i) {
+        for (i = 0; i < _max_modes; ++i) {
           _ohlcs[i] = GetCandle() PTR_DEREF GetOHLC(_ishift + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
@@ -112,7 +117,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
           return WRONG_VALUE;
         }
 
-        for (i = 0; i < iparams.GetMaxModes(); ++i) {
+        for (i = 0; i < _max_modes; ++i) {
           _ohlcs[i].open = GetDataSource().GetValue<float>(PRICE_OPEN, _ishift + i);
           _ohlcs[i].high = GetDataSource().GetValue<float>(PRICE_HIGH, _ishift + i);
           _ohlcs[i].low = GetDataSource().GetValue<float>(PRICE_LOW, _ishift + i);

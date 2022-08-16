@@ -35,10 +35,8 @@ double iWPR(string _symbol, int _tf, int _period, int _shift) {
 struct IndiWPRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  IndiWPRParams(unsigned int _period = 14, int _shift = 0)
-      : period(_period), IndicatorParams(INDI_WPR, 1, TYPE_DOUBLE) {
+  IndiWPRParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_WPR) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\WPR");
   };
   IndiWPRParams(IndiWPRParams &_params) { THIS_REF = _params; };
@@ -52,9 +50,15 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
   /**
    * Class constructor.
    */
-  Indi_WPR(IndiWPRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_WPR(int _shift = 0) : Indicator(INDI_WPR, _shift) {}
-
+  Indi_WPR(IndiWPRParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+                  _indi_src) {}
+  Indi_WPR(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiWPRParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+                  _indi_src) {}
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -78,7 +82,7 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
    * - https://www.mql5.com/en/docs/indicators/iwpr
    */
   static double iWPR(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-                     int _shift = 0, IndicatorBase *_obj = NULL) {
+                     int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iWPR(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
@@ -113,10 +117,10 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_WPR::iWPR(GetSymbol(), GetTf(), GetPeriod(), _ishift, THIS_PTR);
         break;

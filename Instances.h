@@ -30,6 +30,10 @@
 #pragma once
 #endif
 
+// Prevents processing this includes file multiple times.
+#ifndef INSTANCES_H
+#define INSTANCES_H
+
 #include "Dict.mqh"
 #include "Util.h"
 
@@ -49,3 +53,5 @@ public:
 
 template<typename T>
 T* Instances::instances[];
+
+#endif  // INSTANCES_MQH

@@ -28,11 +28,10 @@
 
 // Structs.
 struct IndiColorLineParams : IndicatorParams {
-  IndicatorBase *indi_ma;
+  IndicatorData *indi_ma;
   // Struct constructor.
-  IndiColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE, 2, TYPE_DOUBLE) {
+  IndiColorLineParams(int _shift = 0) : IndicatorParams(INDI_COLOR_LINE) {
     indi_ma = NULL;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ColorLine");
     shift = _shift;
   };
@@ -47,9 +46,15 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
   /**
    * Class constructor.
    */
-  Indi_ColorLine(IndiColorLineParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_ColorLine(int _shift = 0) : Indicator(INDI_COLOR_LINE, _shift){};
-
+  Indi_ColorLine(IndiColorLineParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_ColorLine(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                 int _indi_src_mode = 0)
+      : Indicator(IndiColorLineParams(),
+                  IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    *
@@ -65,7 +70,7 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiColorLineParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -77,7 +82,7 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
   /**
    * OnCalculate-based version of Color Line as there is no built-in one.
    */
-  static double iColorLine(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+  static double iColorLine(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     // Will return Indi_MA with the same candles source as _indi's.
     // @fixit There should be Candle attached to MA!
@@ -89,7 +94,7 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
    * Calculates Color Line on the array of values.
    */
   static double iColorLineOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
-                                  IndicatorCalculateCache<double> *_cache, IndicatorBase *_indi_ma,
+                                  IndicatorCalculateCache<double> *_cache, IndicatorData *_indi_ma,
                                   bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -110,7 +115,7 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
   /**
    * On-indicator version of Color Line.
    */
-  static double iColorLineOnIndicator(IndicatorBase *_indi, int _mode, int _shift, IndicatorBase *_obj) {
+  static double iColorLineOnIndicator(IndicatorData *_indi, int _mode, int _shift, IndicatorData *_obj) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     Indi_MA *_indi_ma = _obj.GetDataSource(INDI_MA);
     return iColorLineOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ma);
@@ -119,7 +124,7 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
+  virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
     switch (_id) {
       case INDI_MA:
         return iparams.indi_ma;
@@ -131,7 +136,7 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
    * OnCalculate() method for Color Line indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtColorLineBuffer,
-                       ValueStorage<double> &ExtColorsBuffer, IndicatorBase *ExtMAHandle) {
+                       ValueStorage<double> &ExtColorsBuffer, IndicatorData *ExtMAHandle) {
     static int ticks = 0, modified = 0;
     // Check data.
     int i, calculated = BarsCalculated(ExtMAHandle);
@@ -213,10 +218,10 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iColorLine(THIS_PTR, _mode, _ishift);

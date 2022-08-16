@@ -49,10 +49,7 @@ enum ENUM_INDI_KILLZONES_MODE {
 struct IndiKillzonesParams : IndicatorParams {
   ENUM_PP_TYPE method;  // Pivot point calculation method.
   // Struct constructor.
-  IndiKillzonesParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : IndicatorParams(INDI_PIVOT, FINAL_INDI_KILLZONES_MODE_ENTRY, TYPE_FLOAT) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
-    SetDataSourceType(IDATA_CHART);
+  IndiKillzonesParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_PIVOT) {
     SetShift(_shift);
   };
   IndiKillzonesParams(IndiKillzonesParams &_params) { THIS_REF = _params; };
@@ -95,8 +92,18 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   /**
    * Class constructor.
    */
-  Indi_Killzones(IndiKillzonesParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_Killzones(int _shift = 0) : Indicator(INDI_KILLZONES, _shift) {}
+  Indi_Killzones(IndiKillzonesParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_CHART,
+                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_INDI_KILLZONES_MODE_ENTRY, TYPE_FLOAT, _idstype,
+                                                   IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
+  Indi_Killzones(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_CHART, IndicatorData *_indi_src = NULL,
+                 int _indi_src_mode = 0)
+      : Indicator(IndiKillzonesParams(),
+                  IndicatorDataParams::GetInstance(FINAL_INDI_KILLZONES_MODE_ENTRY, TYPE_FLOAT, _idstype,
+                                                   IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
@@ -111,7 +118,7 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiKillzonesParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -124,11 +131,11 @@ class Indi_Killzones : public Indicator<IndiKillzonesParams> {
   /**
    * Returns the indicator's value.
    */
-  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     float _value = FLT_MAX;
     int _index = (int)_mode / 2;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // Builtin mode not supported.
         SetUserError(ERR_INVALID_PARAMETER);

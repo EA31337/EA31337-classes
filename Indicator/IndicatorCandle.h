@@ -81,7 +81,7 @@ class IndicatorCandle : public Indicator<TS> {
     flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
     icdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     icdata.SetOverflowListener(IndicatorCandleOverflowListener, 10);
-    iparams.SetMaxModes(FINAL_INDI_CANDLE_MODE_ENTRY);
+    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_INDI_CANDLE_MODE_ENTRY);
   }
 
  public:
@@ -90,8 +90,9 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Class constructor.
    */
-  IndicatorCandle(const TS& _icparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
-      : Indicator(_icparams, _indi_src, _indi_mode) {
+  IndicatorCandle(const TS& _icparams, const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = NULL,
+                  int _indi_mode = 0)
+      : Indicator(_icparams, _idparams, _indi_src, _indi_mode) {
     Init();
   }
   IndicatorCandle(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
@@ -159,7 +160,7 @@ class IndicatorCandle : public Indicator<TS> {
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
    * indicator. IndicatorCandle satisfies such requirements.
    */
-  IndicatorBase* GetCandle(bool _warn_if_not_found = true, IndicatorBase* _originator = nullptr) override {
+  IndicatorData* GetCandle(bool _warn_if_not_found = true, IndicatorData* _originator = nullptr) override {
     // We are the candle indicator!
     return THIS_PTR;
   }
@@ -226,9 +227,9 @@ class IndicatorCandle : public Indicator<TS> {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _index = -1) override {
+  IndicatorDataEntry GetEntry(long _index = -1) override {
     ResetLastError();
-    unsigned int _ishift = _index >= 0 ? _index : iparams.GetShift();
+    int _ishift = _index >= 0 ? (int)_index : iparams.GetShift();
     long _candle_time = GetBarTime(_ishift);
     CandleOCTOHLC<TV> _candle;
     _candle = icdata.GetByKey(_candle_time);

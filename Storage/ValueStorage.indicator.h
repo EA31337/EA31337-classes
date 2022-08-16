@@ -31,7 +31,7 @@
 #endif
 
 // Forward declarations.
-class IndicatorBase;
+class IndicatorData;
 
 // Includes.
 #include "ValueStorage.history.h"

@@ -35,11 +35,10 @@ struct IndiZigZagColorParams : IndicatorParams {
   // Struct constructor.
   IndiZigZagColorParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3,
                         int _shift = 0)
-      : IndicatorParams(INDI_ZIGZAG_COLOR, 3, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_ZIGZAG_COLOR) {
     backstep = _backstep;
     depth = _depth;
     deviation = _deviation;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ZigZagColor");
     shift = _shift;
   };
@@ -54,9 +53,17 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   /**
    * Class constructor.
    */
-  Indi_ZigZagColor(IndiZigZagColorParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_ZigZagColor(int _shift = 0) : Indicator(INDI_ZIGZAG_COLOR, _shift){};
-
+  Indi_ZigZagColor(IndiZigZagColorParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                   IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(
+            _p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
+            _indi_src){};
+  Indi_ZigZagColor(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                   int _indi_src_mode = 0)
+      : Indicator(
+            IndiZigZagColorParams(),
+            IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
+            _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -72,7 +79,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiZigZagColorParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -85,7 +92,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   /**
    * Returns value for ZigZag Color indicator.
    */
-  static double iZigZagColor(IndicatorBase *_indi, int _depth, int _deviation, int _backstep,
+  static double iZigZagColor(IndicatorData *_indi, int _depth, int _deviation, int _backstep,
                              ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
     return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
@@ -288,10 +295,10 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_ONCALCULATE:
         _value = Indi_ZigZagColor::iZigZagColor(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(),
                                                 (ENUM_ZIGZAG_LINE)_mode, _ishift);

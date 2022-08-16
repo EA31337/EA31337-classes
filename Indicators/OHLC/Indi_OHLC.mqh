@@ -37,9 +37,7 @@ enum ENUM_INDI_OHLC_MODE {
 // Structs.
 struct IndiOHLCParams : IndicatorParams {
   // Struct constructor.
-  IndiOHLCParams(int _shift = 0) : IndicatorParams(INDI_OHLC, FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE) {
-    SetShift(_shift);
-  };
+  IndiOHLCParams(int _shift = 0) : IndicatorParams(INDI_OHLC) { SetShift(_shift); };
   IndiOHLCParams(IndiOHLCParams &_params) { THIS_REF = _params; };
 };
 
@@ -51,9 +49,18 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
   /**
    * Class constructor.
    */
-  Indi_OHLC(IndiOHLCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_OHLC(int _shift = 0) : Indicator(INDI_OHLC, _shift){};
-
+  Indi_OHLC(IndiOHLCParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE,
+                                                   _indi_src_mode),
+                  _indi_src){};
+  Indi_OHLC(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiOHLCParams(),
+                  IndicatorDataParams::GetInstance(FINAL_INDI_OHLC_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE,
+                                                   _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -67,7 +74,7 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiOHLCParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -82,7 +89,7 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     ENUM_APPLIED_PRICE _ap = PRICE_OPEN;
     switch (_mode) {

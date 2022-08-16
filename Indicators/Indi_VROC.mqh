@@ -31,10 +31,9 @@ struct IndiVROCParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
   IndiVROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_VROC, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_VROC) {
     applied_volume = _applied_volume;
     period = _period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VROC");
     shift = _shift;
   };
@@ -49,9 +48,15 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
   /**
    * Class constructor.
    */
-  Indi_VROC(IndiVROCParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_VROC(int _shift = 0) : Indicator(INDI_VROC, _shift){};
-
+  Indi_VROC(IndiVROCParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_VROC(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiVROCParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -60,7 +65,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiVROCParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -77,7 +82,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
   /**
    * OnCalculate-based version of VROC as there is no built-in one.
    */
-  static double iVROC(IndicatorBase *_indi, int _period, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
+  static double iVROC(IndicatorData *_indi, int _period, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period, (int)_av));
     return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode, _shift, _cache);
   }
@@ -148,10 +153,10 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = iVROC(THIS_PTR, GetPeriod(), GetAppliedVolume(), _mode, _ishift);

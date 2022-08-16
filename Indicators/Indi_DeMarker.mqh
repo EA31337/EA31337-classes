@@ -35,10 +35,8 @@ double iDeMarker(string _symbol, int _tf, int _period, int _shift) {
 struct IndiDeMarkerParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  IndiDeMarkerParams(unsigned int _period = 14, int _shift = 0)
-      : period(_period), IndicatorParams(INDI_DEMARKER, 1, TYPE_DOUBLE) {
+  IndiDeMarkerParams(unsigned int _period = 14, int _shift = 0) : period(_period), IndicatorParams(INDI_DEMARKER) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\DeMarker");
   };
   IndiDeMarkerParams(IndiDeMarkerParams &_params) { THIS_REF = _params; };
@@ -52,9 +50,15 @@ class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
   /**
    * Class constructor.
    */
-  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_DeMarker(int _shift = 0) : Indicator(INDI_DEMARKER, _shift) {}
-
+  Indi_DeMarker(IndiDeMarkerParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+                  _indi_src) {}
+  Indi_DeMarker(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                int _indi_src_mode = 0)
+      : Indicator(IndiDeMarkerParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+                  _indi_src) {}
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -73,7 +77,7 @@ class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
    * - https://www.mql5.com/en/docs/indicators/idemarker
    */
   static double iDeMarker(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
-                          IndicatorBase *_obj = NULL) {
+                          IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iDeMarker(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
@@ -108,10 +112,10 @@ class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = _value = Indi_DeMarker::iDeMarker(GetSymbol(), GetTf(), GetPeriod(), _ishift, THIS_PTR);
         break;

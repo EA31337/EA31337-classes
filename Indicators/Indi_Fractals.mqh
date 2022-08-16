@@ -34,8 +34,7 @@ double iFractals(string _symbol, int _tf, int _mode, int _shift) {
 // Structs.
 struct IndiFractalsParams : IndicatorParams {
   // Struct constructors.
-  IndiFractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS, FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_ARROW);
+  IndiFractalsParams(int _shift = 0) : IndicatorParams(INDI_FRACTALS) {
     SetCustomIndicatorName("Examples\\Fractals");
     shift = _shift;
   };
@@ -46,18 +45,39 @@ struct IndiFractalsParams : IndicatorParams {
  * Implements the Fractals indicator.
  */
 class Indi_Fractals : public Indicator<IndiFractalsParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_LO_UP_LINE_ENTRY); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndiFractalsParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_Fractals(int _shift = 0) : Indicator(INDI_FRACTALS, _shift) {}
+  Indi_Fractals(IndiFractalsParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                   IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
+                  _indi_src) {
+    Init();
+  }
+  Indi_Fractals(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                int _indi_src_mode = 0)
+      : Indicator(IndiFractalsParams(),
+                  IndicatorDataParams::GetInstance(FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                   IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
+                  _indi_src) {}
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
   unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
 
+ public:
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
@@ -73,7 +93,7 @@ class Indi_Fractals : public Indicator<IndiFractalsParams> {
   static double iFractals(string _symbol, ENUM_TIMEFRAMES _tf,
                           ENUM_LO_UP_LINE _mode,  // (MT4 _mode): 1 - MODE_UPPER, 2 - MODE_LOWER
                           int _shift = 0,         // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
-                          IndicatorBase *_obj = NULL) {
+                          IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iFractals(_symbol, _tf, _mode, _shift);
 #else  // __MQL5__
@@ -108,10 +128,10 @@ class Indi_Fractals : public Indicator<IndiFractalsParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), (ENUM_LO_UP_LINE)_mode, _ishift, THIS_PTR);
         break;

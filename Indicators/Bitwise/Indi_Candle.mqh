@@ -32,11 +32,7 @@
 // Structs.
 struct CandleParams : IndicatorParams {
   // Struct constructor.
-  CandleParams(int _shift = 0) : IndicatorParams(INDI_CANDLE, 1, TYPE_INT) {
-    SetDataValueRange(IDATA_RANGE_RANGE);
-    SetDataSourceType(IDATA_BUILTIN);
-    shift = _shift;
-  };
+  CandleParams(int _shift = 0) : IndicatorParams(INDI_CANDLE) { shift = _shift; };
   CandleParams(CandleParams &_params) { THIS_REF = _params; };
 };
 
@@ -48,8 +44,16 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Class constructor.
    */
-  Indi_Candle(CandleParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_Candle(int _shift = 0) : Indicator(INDI_CANDLE, _shift){};
+  Indi_Candle(CandleParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_INT, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+                  _indi_src){};
+
+  Indi_Candle(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(CandleParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_INT, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+                  _indi_src){};
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
@@ -64,7 +68,7 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<CandleParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -87,12 +91,12 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     BarOHLC _ohlcs[1];
 
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from IndicatorCandle.
         _ohlcs[0] = GetCandle() PTR_DEREF GetOHLC(_ishift);

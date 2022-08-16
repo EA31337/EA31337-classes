@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -70,33 +70,32 @@ int OnInit() {
   Platform::Add(indi_ama_orig_sim = new Indi_AMA(_ama_params));
 
   // Original built-in AMA indicator on platform OHLCs.
-  _ama_params.SetDataSourceType(IDATA_BUILTIN);
-  Platform::Add(indi_ama_orig = new Indi_AMA(_ama_params));
+  Platform::Add(indi_ama_orig = new Indi_AMA(_ama_params, IDATA_BUILTIN));
   indi_ama_orig.Ptr().SetDataSource(indi_tf_real.Ptr());
 
   // OnCalculate()-based version of AMA indicator on platform OHLCs.
-  _ama_params.SetDataSourceType(IDATA_ONCALCULATE);
-  Platform::Add(indi_ama_oncalculate = new Indi_AMA(_ama_params));
+  Platform::Add(indi_ama_oncalculate = new Indi_AMA(_ama_params, IDATA_ONCALCULATE));
   indi_ama_oncalculate.Ptr().SetDataSource(indi_tf_real.Ptr());
 
   // iCustom()-based version of AMA indicator on platform OHLCs.
-  _ama_params.SetDataSourceType(IDATA_ICUSTOM);
-  Platform::Add(indi_ama_custom = new Indi_AMA(_ama_params));
+  Platform::Add(indi_ama_custom = new Indi_AMA(_ama_params, IDATA_ICUSTOM));
   indi_ama_custom.Ptr().SetDataSource(indi_tf_real.Ptr());
 
   // Candles will be initialized from tick's history.
-  // indi_tf.Ptr().SetDataSource(indi_tick.Ptr());
-  indi_tf_real.Ptr().SetDataSource(indi_tick.Ptr());
+  // indi_tf.Ptr().SetDataSource(indi_tick.Ptr()); // @fixme: Invalid pointer access.
+  // indi_tf_real.Ptr().SetDataSource(indi_tick.Ptr()); // @fixme: Invalid pointer access.
 
   // AMA will work on the candle indicator.
-  // indi_ama.Ptr().SetDataSource(indi_tf.Ptr());
+  // indi_ama.Ptr().SetDataSource(indi_tf.Ptr()); // @fixme: Invalid pointer access.
 
   // AMA will work on the simulation of real candles.
-  indi_ama_orig_sim.Ptr().SetDataSource(indi_tf_real.Ptr());
+  // indi_ama_orig_sim.Ptr().SetDataSource(indi_tf_real.Ptr()); // @fixme: Invalid pointer access.
 
   // Checking if there are candles for last 100 ticks.
-  // Print(indi_tf.Ptr().GetName(), "'s historic candles (from 100 ticks):");
-  // Print(indi_tf.Ptr().CandlesToString());
+#ifdef __debug__
+  Print(indi_tf.Ptr().GetName(), "'s historic candles (from 100 ticks):");
+  Print(indi_tf.Ptr().CandlesToString());
+#endif
   return (INIT_SUCCEEDED);
 }
 

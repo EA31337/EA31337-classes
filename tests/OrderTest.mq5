@@ -36,7 +36,7 @@
 #define MAX_ORDERS 10
 
 // Global variables.
-Ref<IndicatorBase> _candles;
+Ref<IndicatorData> _candles;
 int bar_processed = 0;
 bool stop = false;
 

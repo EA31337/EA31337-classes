@@ -45,7 +45,7 @@ template <typename C>
 class HistoryValueStorage : public ValueStorage<C> {
  protected:
   // Indicator used as an OHLC source, e.g. IndicatorCandle.
-  WeakRef<IndicatorBase> indi_candle;
+  WeakRef<IndicatorData> indi_candle;
 
   // Whether storage operates in as-series mode.
   bool is_series;

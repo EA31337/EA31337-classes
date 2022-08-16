@@ -28,6 +28,7 @@
 #include "Math.extern.h"
 #include "SerializerNode.enum.h"
 #include "SerializerNodeParam.mqh"
+#include "Terminal.define.h"
 
 class SerializerNode {
  protected:
@@ -139,6 +140,7 @@ class SerializerNode {
           break;
         default:
           Print("Error: Wrong value type ", GetType(), "!");
+          SetUserError(ERR_INVALID_PARAMETER);
           DebugBreak();
       }
     }

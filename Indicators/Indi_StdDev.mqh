@@ -59,9 +59,8 @@ struct IndiStdDevParams : IndicatorParams {
         ma_shift(_ma_shift),
         ma_method(_ma_method),
         applied_price(_ap),
-        IndicatorParams(INDI_STDDEV, 1, TYPE_DOUBLE) {
+        IndicatorParams(INDI_STDDEV) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\StdDev");
   };
   IndiStdDevParams(IndiStdDevParams &_params) { THIS_REF = _params; };
@@ -75,9 +74,15 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   /**
    * Class constructor.
    */
-  Indi_StdDev(IndiStdDevParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src) {}
-  Indi_StdDev(int _shift = 0) : Indicator(INDI_STDDEV, _shift) {}
-
+  Indi_StdDev(IndiStdDevParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
+  Indi_StdDev(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(IndiStdDevParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -98,7 +103,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
    * - https://www.mql5.com/en/docs/indicators/istddev
    */
   static double iStdDev(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method,
-                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorBase *_obj = NULL) {
+                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
@@ -133,7 +138,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   /**
    * Note that this method operates on current price (set by _applied_price).
    */
-  static double iStdDevOnIndicator(IndicatorBase *_target, IndicatorBase *_source, string _symbol, ENUM_TIMEFRAMES _tf,
+  static double iStdDevOnIndicator(IndicatorData *_target, IndicatorData *_source, string _symbol, ENUM_TIMEFRAMES _tf,
                                    int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _shift = 0,
                                    Indi_StdDev *_obj = NULL) {
     double _indi_value_buffer[];
@@ -242,10 +247,10 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),
                                       GetAppliedPrice(), _ishift, THIS_PTR);

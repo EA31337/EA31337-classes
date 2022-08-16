@@ -40,16 +40,15 @@ enum ENUM_INDI_BWZT_MODE {
 
 // Structs.
 struct IndiBWZTParams : IndicatorParams {
-  Ref<IndicatorBase> indi_ac;
-  Ref<IndicatorBase> indi_ao;
+  Ref<IndicatorData> indi_ac;
+  Ref<IndicatorData> indi_ao;
   unsigned int period;
   unsigned int second_period;
   unsigned int sum_period;
   // Struct constructor.
-  IndiBWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT, FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE) {
+  IndiBWZTParams(int _shift = 0) : IndicatorParams(INDI_BWZT) {
     indi_ac = NULL;
     indi_ao = NULL;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
     shift = _shift;
   };
@@ -60,12 +59,34 @@ struct IndiBWZTParams : IndicatorParams {
  * Implements the Bill Williams' Zone Trade.
  */
 class Indi_BWZT : public Indicator<IndiBWZTParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() {}
+
  public:
   /**
    * Class constructor.
    */
-  Indi_BWZT(IndiBWZTParams &_p, IndicatorBase *_indi_src = NULL) : Indicator(_p, _indi_src){};
-  Indi_BWZT(int _shift = 0) : Indicator(INDI_BWZT, _shift){};
+  Indi_BWZT(IndiBWZTParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED,
+                                                   _indi_src_mode),
+                  _indi_src) {
+    Init();
+  };
+  Indi_BWZT(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiBWZTParams(),
+                  IndicatorDataParams::GetInstance(FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED,
+                                                   _indi_src_mode),
+                  _indi_src) {
+    Init();
+  };
 
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
@@ -82,7 +103,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * Checks whether given data source satisfies our requirements.
    */
-  bool OnCheckIfSuitableDataSource(IndicatorBase *_ds) override {
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
     if (Indicator<IndiBWZTParams>::OnCheckIfSuitableDataSource(_ds)) {
       return true;
     }
@@ -97,7 +118,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * OnCalculate-based version of BWZT as there is no built-in one.
    */
-  static double iBWZT(IndicatorBase *_indi, int _mode = 0, int _shift = 0) {
+  static double iBWZT(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
 
     // Will return Indi_AC with the same candles source as _indi's.
@@ -136,8 +157,8 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * On-indicator version of BWZT.
    */
-  static double iBWZTOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
-                                 IndicatorBase *_obj) {
+  static double iBWZTOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
+                                 IndicatorData *_obj) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
 
     Indi_AC *_indi_ac = _obj.GetDataSource(INDI_AC);
@@ -149,7 +170,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
+  virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) override {
     switch (_id) {
       case INDI_AC:
         return iparams.indi_ac.Ptr();
@@ -167,7 +188,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
                        ValueStorage<double> &ExtHBuffer, ValueStorage<double> &ExtLBuffer,
                        ValueStorage<double> &ExtCBuffer, ValueStorage<double> &ExtColorBuffer,
                        ValueStorage<double> &ExtAOBuffer, ValueStorage<double> &ExtACBuffer, int DATA_LIMIT,
-                       IndicatorBase *ExtACHandle, IndicatorBase *ExtAOHandle) {
+                       IndicatorData *ExtACHandle, IndicatorData *ExtAOHandle) {
     if (rates_total < DATA_LIMIT) return (0);
     // Not all data may be calculated.
     int calculated = BarsCalculated(ExtACHandle);
@@ -230,19 +251,19 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = iBWZT(THIS_PTR, _mode, _ishift);
+        _value = Indi_BWZT::iBWZT(THIS_PTR, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = iBWZT(THIS_PTR, _mode, _ishift);
+        _value = Indi_BWZT::iBWZT(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

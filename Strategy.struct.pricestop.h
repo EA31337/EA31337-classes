@@ -119,7 +119,7 @@ struct StrategyPriceStop {
   }
   */
   /* Getters */
-  IndicatorBase* GetCandleSource() { return indi_candle.Ptr(); }
+  IndicatorData* GetCandleSource() { return indi_candle.Ptr(); }
 
   /* Flag getters */
   bool CheckMethod(unsigned int _flags) { return (method & _flags) != 0; }

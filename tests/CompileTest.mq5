@@ -35,6 +35,9 @@
 #include "../3D/Frontends/MT5Frontend.h"
 #endif
 
+// Forward declaration.
+struct IndicatorParams;
+
 // Includes.
 #include "../Account/AccountMt.h"
 #include "../Array.mqh"
@@ -62,8 +65,9 @@
 #include "../ISerializable.h"
 #include "../Indicator.define.h"
 #include "../Indicator.mqh"
-//#include "../IndicatorData.mqh" // @removeme
-#include "../Inet.mqh"
+#include "../IndicatorBase.h"
+#include "../IndicatorData.mqh"
+// #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
 #include "../Storage/IValueStorage.h"
@@ -80,7 +84,7 @@
 #include "../Order.mqh"
 #include "../Orders.mqh"
 #include "../Pattern.mqh"
-#include "../Profiler.mqh"
+// #include "../Profiler.mqh"
 #include "../Redis.mqh"
 #include "../Refs.mqh"
 #include "../Registry.mqh"
@@ -123,7 +127,6 @@
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"
 // #include "../Tests.mqh" // @removeme
-#include "../Ticker.mqh"
 #include "../Timer.mqh"
 #include "../Trade.mqh"
 #include "../Util.h"

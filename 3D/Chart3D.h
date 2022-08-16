@@ -26,6 +26,7 @@
  */
 
 #include "../Bar.struct.h"
+#include "../IndicatorData.mqh"
 #include "../Indicators/Indi_MA.mqh"
 #include "../Instances.h"
 #include "../Refs.mqh"
@@ -82,13 +83,13 @@ class Chart3D : public Dynamic {
   Chart3DType* current_renderer;
 
   Instances<Chart3D> instances;
-  Ref<IndicatorBase> source;
+  Ref<IndicatorData> source;
 
  public:
   /**
    * Constructor.
    */
-  Chart3D(IndicatorBase* _source, ENUM_CHART3D_TYPE _type = CHART3D_TYPE_CANDLES) : instances(&this) {
+  Chart3D(IndicatorData* _source, ENUM_CHART3D_TYPE _type = CHART3D_TYPE_CANDLES) : instances(&this) {
     type = _type;
     offset.x = offset.y = 0.0f;
     offset.z = 25.0f;

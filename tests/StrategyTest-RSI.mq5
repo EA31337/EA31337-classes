@@ -39,15 +39,15 @@
 class Stg_RSI : public Strategy {
  public:
   // Class constructor.
-  void Stg_RSI(StgParams &_sparams, TradeParams &_tparams, IndicatorBase *_indi_source, string _name = "")
+  void Stg_RSI(StgParams &_sparams, TradeParams &_tparams, IndicatorData *_indi_source, string _name = "")
       : Strategy(_sparams, _tparams, _indi_source, _name) {}
 
-  static Stg_RSI *Init(IndicatorBase *_indi_source) {
+  static Stg_RSI *Init(IndicatorData *_indi_source) {
     IndiRSIParams _indi_params(12, PRICE_OPEN, 0);
     StgParams _stg_params;
     TradeParams _tparams;
     Strategy *_strat = new Stg_RSI(_stg_params, _tparams, _indi_source, "RSI");
-    IndicatorBase *_indi_rsi = new Indi_RSI(_indi_params);
+    IndicatorData *_indi_rsi = new Indi_RSI(_indi_params);
     _strat.SetIndicator(_indi_rsi);
     _indi_rsi PTR_DEREF SetDataSource(_indi_source);
     return _strat;
@@ -84,7 +84,7 @@ class Stg_RSI : public Strategy {
 // Global variables.
 Ref<Strategy> stg_rsi;
 Ref<Trade> trade;
-Ref<IndicatorBase> _candles;
+Ref<IndicatorData> _candles;
 
 /**
  * Implements OnInit().
