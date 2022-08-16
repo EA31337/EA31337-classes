@@ -221,6 +221,7 @@ struct CandleOHLC
  * candle. */
 template <typename T>
 struct CandleOCTOHLC : CandleOHLC<T> {
+  bool is_complete;
   long open_timestamp, close_timestamp;
 
   // Number of ticks which formed the candle. Also known as volume.
@@ -230,6 +231,7 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, long _open_timestamp = -1,
                 long _close_timestamp = -1, int _volume = 0)
       : CandleOHLC(_open, _high, _low, _close),
+        is_complete(true),
         open_timestamp(_open_timestamp),
         close_timestamp(_close_timestamp),
         volume(_volume) {

@@ -101,6 +101,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_PRICE_FEEDER,                    // Indicator which returns prices from custom array
   INDI_PRICE_VOLUME_TREND,              // Price and Volume Trend
   INDI_RATE_OF_CHANGE,                  // Rate of Change
+  INDI_RENKO,                           // Renko Indicator
   INDI_RS,                              // Indi_Math-based RSI
   INDI_RSI,                             // Relative Strength Index
   INDI_RSI_ON_PRICE,                    // Relative Strength Index (RSI) (on Price)

@@ -40,13 +40,38 @@
 #include "IndicatorRenko.struct.h"
 
 /**
- * Class to deal with candle indicators.
+ * Renko indicator parameters.
  */
-template <typename TFP>
-class IndicatorRenko : public IndicatorCandle<TFP, double> {
+struct RenkoParams : IndicatorTfParams {
+  int pips_limit;
+
+  RenkoParams(int _pips_limit = 10, int _shift = 0) : IndicatorTfParams("Renko") {
+    pips_limit = _pips_limit;
+    shift = _shift;
+  };
+  RenkoParams(RenkoParams &_params) : IndicatorTfParams("Renko") { THIS_REF = _params; };
+
+  // Getters.
+  unsigned int GetSecsPerCandle() {
+    // Renko doesn't use timeframe-based candles.
+    return 0;
+  }
+};
+
+/**
+ * Renko candles.
+ *
+ * Note that Renko acts as a Candle indicator and thus has the same number of
+ * modes and same list of ValueStorage buffers as IndicatorCandle one.
+ */
+class IndicatorRenko : public IndicatorCandle<RenkoParams, double> {
  protected:
   // Time-frame used to create candles.
   ENUM_TIMEFRAMES tf;
+
+  long last_entry_ts;
+  long last_completed_candle_ts;
+  long last_incomplete_candle_ts;
 
   /* Protected methods */
 
@@ -55,7 +80,11 @@ class IndicatorRenko : public IndicatorCandle<TFP, double> {
    *
    * Called on constructor.
    */
-  void Init() {}
+  void Init() {
+    last_entry_ts = 0;
+    last_completed_candle_ts = 0;
+    last_incomplete_candle_ts = 0;
+  }
 
  public:
   /* Special methods */
@@ -63,84 +92,114 @@ class IndicatorRenko : public IndicatorCandle<TFP, double> {
   /**
    * Class constructor with timeframe enum.
    */
-  IndicatorRenko(unsigned int _spc) {
-    iparams.SetSecsPerCandle(_spc);
-    Init();
-  }
-
-  /**
-   * Class constructor with timeframe enum.
-   */
-  IndicatorRenko(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
-    tf = _tf;
-    Init();
-  }
-
-  /**
-   * Class constructor with timeframe index.
-   */
-  IndicatorRenko(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
-    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
-    tf = ChartTf::IndexToTf(_tfi);
+  IndicatorRenko(int _pips_limit = 10) {
+    iparams.pips_limit = _pips_limit;
     Init();
   }
 
   /**
    * Class constructor with parameters.
    */
-  IndicatorRenko(TFP &_params) : IndicatorCandle<TFP, double>(_params) { Init(); }
-
-  /**
-   * Returns time of the bar for a given shift (MT-compatible shift).
-   */
-  datetime GetBarTimeLegacy(int _shift = 0) {
-    // Note: iTime() in MT4 build can return not rounded values.
-    datetime _curr = (datetime)CalcCandleTimestamp(::iTime(GetSymbol(), GetTf(), fmax(0, _shift)));
-    datetime _last_valid = 0;
-
-#ifdef __MQL4__
-    if (GetLastError() == ERR_HISTORY_WILL_UPDATED) {
-      // Workaround for MT4 history data issues.
-      // See: https://www.mql5.com/en/forum/155707
-      for (int i = 0; i < 10; i++) {
-        Sleep(1000);
-        _curr = ::iTime(GetSymbol(), GetTf(), 0);
-        if (GetLastError() != ERR_HISTORY_WILL_UPDATED) {
-          break;
-        }
-        SetUserError(ERR_HISTORY_WILL_UPDATED);
-      }
-    }
-#endif
-    while (_curr >= icdata.GetMin()) {
-      if (icdata.KeyExists(_curr)) {
-        _last_valid = _curr;
-        if (_shift-- == 0) {
-          return _curr;
-        }
-      }
-      // Going back in time by TF.
-      _curr -= ChartTf::TfToSeconds(tf);
-    }
-
-    // No entry found. Returning last valid candle.
-    if (icdata.KeyExists(_last_valid)) {
-      return _last_valid;
-    } else {
-      // Not a single valid candle found.
-      return 0;
-    }
+  IndicatorRenko(RenkoParams &_params)
+      : IndicatorCandle<RenkoParams, double>(_params, IndicatorDataParams(FINAL_INDI_CANDLE_MODE_ENTRY)) {
+    Init();
   }
 
-  /* Virtual methods */
+  /**
+   *
+   */
+  bool RenkoConditionMet(CandleOCTOHLC<double> &_candle, double _price) {
+    Print("RenkoConditionMet: ", _candle.close, " ? ", _price);
+    return true;
+  }
+
+  /**
+   * Called when data source emits new entry (historic or future one).
+   */
+  void OnDataSourceEntry(IndicatorDataEntry &entry) override {
+    if (entry.timestamp < last_entry_ts) {
+      Print("Error: IndicatorRenko doesn't support sending entries in non-ascending order!");
+      DebugBreak();
+    }
+
+    // We'll be updating candle from bid price.
+    double _price = entry[1];
+
+    CandleOCTOHLC<double> _candle;
+
+    if (last_incomplete_candle_ts != 0) {
+      // There is previous candle. Retrieving and updating it.
+      _candle = icdata.GetByKey(last_incomplete_candle_ts);
+      _candle.Update(entry.timestamp, _price);
+
+      // Checking for close price difference.
+      if (RenkoConditionMet(_candle, _price)) {
+        // Closing current candle.
+        _candle.is_complete = true;
+      }
+
+      // Updating candle.
+      icdata.Add(_candle, last_incomplete_candle_ts);
+
+      if (_candle.is_complete) {
+        last_completed_candle_ts = last_incomplete_candle_ts;
+        last_incomplete_candle_ts = 0;
+      }
+    } else {
+      // There is no incomplete candle, creating one.
+      _candle = CandleOCTOHLC<double>(_price, _price, _price, _price, entry.timestamp, entry.timestamp);
+      _candle.is_complete = false;
+
+      // Creating new candle.
+      icdata.Add(_candle, entry.timestamp);
+
+      last_incomplete_candle_ts = entry.timestamp;
+    }
+
+    // Updating tick & bar indices. Bar time is time of the last incomplete candle.
+    counter.OnTick(last_incomplete_candle_ts);
+
+    last_entry_ts = entry.timestamp;
+  };
+
+  /**
+   * Adds tick's price to the matching candle and updates its OHLC values.
+   */
+  void UpdateCandle(long _tick_timestamp, double _price) {
+    long _candle_timestamp = CalcCandleTimestamp(_tick_timestamp);
+
+#ifdef __debug_verbose__
+    Print("Updating candle for ", GetFullName(), " at candle ",
+          TimeToString(_candle_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " from tick at ",
+          TimeToString(_tick_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS), ": ", _price);
+#endif
+
+    CandleOCTOHLC<double> _candle(_price, _price, _price, _price, _tick_timestamp, _tick_timestamp);
+    if (icdata.KeyExists(_candle_timestamp)) {
+      // Candle already exists.
+      _candle = icdata.GetByKey(_candle_timestamp);
+
+#ifdef __debug_verbose__
+      Print("Candle was ", _candle.ToCSV());
+#endif
+
+      _candle.Update(_tick_timestamp, _price);
+
+#ifdef __debug_verbose__
+      Print("Candle is  ", _candle.ToCSV());
+#endif
+    }
+
+    icdata.Add(_candle, _candle_timestamp);
+  }
 
   /**
    * Returns time of the bar for a given shift.
    */
   datetime GetBarTime(int _shift = 0) override {
-    // @fixit Should be replaced by MT-compatible bar time calculation for the given shift.
-    return GetBarTimeLegacy(_shift);
+    // @todo
+    DebugBreak();
+    return 0;
   }
 
   /**

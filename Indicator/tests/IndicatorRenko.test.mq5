@@ -36,12 +36,8 @@
 #include "../IndicatorTick.h"
 #include "classes/Indicators.h"
 
-Ref<Indi_TickMt> indi_tick;
-Ref<Indi_AMA> indi_ama;
-Ref<Indi_AMA> indi_ama_orig;
-Ref<Indi_AMA> indi_ama_orig_sim;
-Ref<Indi_AMA> indi_ama_oncalculate;
-Ref<Indi_AMA> indi_ama_custom;
+Ref<IndicatorData> indi_tick;
+Ref<IndicatorData> indi_renko;
 
 /**
  * Implements OnInit().
@@ -51,55 +47,15 @@ int OnInit() {
   // Platform ticks.
   indi_tick = Platform::FetchDefaultTickIndicator();
 
-  // @todo: E.g. 1 pip candles, 10 pip candles
+  // Renko with 10 pips limit.
+  indi_renko = new IndicatorRenko(10);
 
-  // float _pip_value = SymbolInfoStatic::GetPipValue(_Symbol);
+  double _pip_value = SymbolInfoStatic::GetPipValue(_Symbol);
+  Print("Pip Value: ", _pip_value);
 
-  /*
-  // 1-second candles.
-  // indicators.Add(indi_tf = new IndicatorRenkoDummy(1));
+  // Renko will be run over default tick indicator.
+  indi_renko.Ptr().SetDataSource(indi_tick.Ptr());
 
-  // 1:1 candles from platform using current timeframe.
-  indi_renko_real = Platform::FetchDefaultCandleIndicator();
-
-  // 1-second candles.
-  // indicators.Add(indi_ama = new Indi_AMA());
-
-  IndiAMAParams _ama_params;
-  _ama_params.applied_price = PRICE_OPEN;
-
-  // AMA on platform candles.
-  Platform::Add(indi_ama_orig_sim = new Indi_AMA(_ama_params));
-
-  // Original built-in AMA indicator on platform OHLCs.
-  _ama_params.SetDataSourceType(IDATA_BUILTIN);
-  Platform::Add(indi_ama_orig = new Indi_AMA(_ama_params));
-  indi_ama_orig.Ptr().SetDataSource(indi_renko_real.Ptr());
-
-  // OnCalculate()-based version of AMA indicator on platform OHLCs.
-  _ama_params.SetDataSourceType(IDATA_ONCALCULATE);
-  Platform::Add(indi_ama_oncalculate = new Indi_AMA(_ama_params));
-  indi_ama_oncalculate.Ptr().SetDataSource(indi_renko_real.Ptr());
-
-  // iCustom()-based version of AMA indicator on platform OHLCs.
-  _ama_params.SetDataSourceType(IDATA_ICUSTOM);
-  Platform::Add(indi_ama_custom = new Indi_AMA(_ama_params));
-  indi_ama_custom.Ptr().SetDataSource(indi_renko_real.Ptr());
-
-  // Candles will be initialized from tick's history.
-  // indi_tf.Ptr().SetDataSource(indi_tick.Ptr());
-  indi_renko_real.Ptr().SetDataSource(indi_tick.Ptr());
-
-  // AMA will work on the candle indicator.
-  // indi_ama.Ptr().SetDataSource(indi_tf.Ptr());
-
-  // AMA will work on the simulation of real candles.
-  indi_ama_orig_sim.Ptr().SetDataSource(indi_renko_real.Ptr());
-  */
-
-  // Checking if there are candles for last 100 ticks.
-  // Print(indi_tf.Ptr().GetName(), "'s historic candles (from 100 ticks):");
-  // Print(indi_tf.Ptr().CandlesToString());
   return (INIT_SUCCEEDED);
 }
 
@@ -110,7 +66,7 @@ void OnTick() {
   Platform::Tick();
 
 #ifdef __debug__
-  if (indi_renko_real.Ptr().IsNewBar()) {
+  if (indi_renko.Ptr().IsNewBar()) {
     Print("New bar: ", indi_renko_real.Ptr().GetBarIndex());
   }
 
@@ -120,17 +76,16 @@ void OnTick() {
   string c = DoubleToStr(iClose(_Symbol, PERIOD_CURRENT, 0), 5);
   string time = TimeToString(iTime(_Symbol, PERIOD_CURRENT, 0), TIME_DATE | TIME_MINUTES | TIME_SECONDS);
 
-  Util::Print(
-      "Tick: " + IntegerToString((long)iTime(indi_renko_real.Ptr().GetSymbol(), indi_renko_real.Ptr().GetTf(), 0)) +
-      " (" + time + "), real   = " + o + ", " + h + ", " + l + ", " + c);
+  Util::Print("Tick: " + IntegerToString((long)iTime(indi_renko.Ptr().GetSymbol(), indi_renko.Ptr().GetTf(), 0)) +
+              " (" + time + "), real   = " + o + ", " + h + ", " + l + ", " + c);
 
-  string c_o = DoubleToStr(indi_renko_real.Ptr().GetOpen(0), 5);
-  string c_h = DoubleToStr(indi_renko_real.Ptr().GetHigh(0), 5);
-  string c_l = DoubleToStr(indi_renko_real.Ptr().GetLow(0), 5);
-  string c_c = DoubleToStr(indi_renko_real.Ptr().GetClose(0), 5);
+  string c_o = DoubleToStr(indi_renko.Ptr().GetOpen(0), 5);
+  string c_h = DoubleToStr(indi_renko.Ptr().GetHigh(0), 5);
+  string c_l = DoubleToStr(indi_renko.Ptr().GetLow(0), 5);
+  string c_c = DoubleToStr(indi_renko.Ptr().GetClose(0), 5);
 
-  Util::Print("Tick: " + IntegerToString(indi_renko_real.Ptr().GetBarTime(0)) + " (" + time + "), candle = " + c_o +
-              ", " + c_h + ", " + c_l + ", " + c_c);
+  Util::Print("Tick: " + IntegerToString(indi_renko.Ptr().GetBarTime(0)) + " (" + time + "), candle = " + c_o + ", " +
+              c_h + ", " + c_l + ", " + c_c);
 
   Util::Print(Platform::IndicatorsToString(0));
 #endif
