@@ -36,6 +36,8 @@
 #include "../IndicatorTick.h"
 #include "classes/Indicators.h"
 
+#define __debug__x
+
 Ref<IndicatorData> indi_tick;
 Ref<IndicatorData> indi_renko;
 
@@ -48,7 +50,7 @@ int OnInit() {
   indi_tick = Platform::FetchDefaultTickIndicator();
 
   // Renko with 10 pips limit.
-  indi_renko = new IndicatorRenko(10);
+  Platform::Add(indi_renko = new IndicatorRenko(10));
 
   double _pip_value = SymbolInfoStatic::GetPipValue(_Symbol);
   Print("Pip Value: ", _pip_value);
@@ -65,30 +67,16 @@ int OnInit() {
 void OnTick() {
   Platform::Tick();
 
-#ifdef __debug__
   if (indi_renko.Ptr().IsNewBar()) {
-    Print("New bar: ", indi_renko_real.Ptr().GetBarIndex());
+    string c_o = DoubleToStr(indi_renko.Ptr().GetOpen(0), 5);
+    string c_h = DoubleToStr(indi_renko.Ptr().GetHigh(0), 5);
+    string c_l = DoubleToStr(indi_renko.Ptr().GetLow(0), 5);
+    string c_c = DoubleToStr(indi_renko.Ptr().GetClose(0), 5);
+    string time = TimeToString(indi_renko.Ptr().GetBarTime(0), TIME_DATE | TIME_MINUTES | TIME_SECONDS);
+
+    Util::Print("Bar: " + IntegerToString(indi_renko.Ptr().GetBarTime(0)) + " (" + time + "), candle = " + c_o + ", " +
+                c_h + ", " + c_l + ", " + c_c);
   }
-
-  string o = DoubleToStr(iOpen(_Symbol, PERIOD_CURRENT, 0), 5);
-  string h = DoubleToStr(iHigh(_Symbol, PERIOD_CURRENT, 0), 5);
-  string l = DoubleToStr(iLow(_Symbol, PERIOD_CURRENT, 0), 5);
-  string c = DoubleToStr(iClose(_Symbol, PERIOD_CURRENT, 0), 5);
-  string time = TimeToString(iTime(_Symbol, PERIOD_CURRENT, 0), TIME_DATE | TIME_MINUTES | TIME_SECONDS);
-
-  Util::Print("Tick: " + IntegerToString((long)iTime(indi_renko.Ptr().GetSymbol(), indi_renko.Ptr().GetTf(), 0)) +
-              " (" + time + "), real   = " + o + ", " + h + ", " + l + ", " + c);
-
-  string c_o = DoubleToStr(indi_renko.Ptr().GetOpen(0), 5);
-  string c_h = DoubleToStr(indi_renko.Ptr().GetHigh(0), 5);
-  string c_l = DoubleToStr(indi_renko.Ptr().GetLow(0), 5);
-  string c_c = DoubleToStr(indi_renko.Ptr().GetClose(0), 5);
-
-  Util::Print("Tick: " + IntegerToString(indi_renko.Ptr().GetBarTime(0)) + " (" + time + "), candle = " + c_o + ", " +
-              c_h + ", " + c_l + ", " + c_c);
-
-  Util::Print(Platform::IndicatorsToString(0));
-#endif
 }
 
 /**

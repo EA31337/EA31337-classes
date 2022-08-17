@@ -66,7 +66,7 @@ struct RenkoParams : IndicatorTfParams {
  */
 class IndicatorRenko : public IndicatorCandle<RenkoParams, double> {
  protected:
-  // Time-frame used to create candles.
+  // @todo Time-frame used to create candles.
   ENUM_TIMEFRAMES tf;
 
   long last_entry_ts;
@@ -106,11 +106,12 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double> {
   }
 
   /**
-   *
+   * Checks for pips limit.
    */
   bool RenkoConditionMet(CandleOCTOHLC<double> &_candle, double _price) {
-    Print("RenkoConditionMet: ", _candle.close, " ? ", _price);
-    return true;
+    double _price_diff_limit = GetSymbolProps().GetPipValue() * iparams.pips_limit;
+    double _price_diff = MathAbs(_price - _candle.open);
+    return _price_diff >= _price_diff_limit;
   }
 
   /**
@@ -156,56 +157,32 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double> {
       last_incomplete_candle_ts = entry.timestamp;
     }
 
-    // Updating tick & bar indices. Bar time is time of the last incomplete candle.
-    counter.OnTick(last_incomplete_candle_ts);
+    // Updating tick & bar indices. Bar time is time of the last completed candle.
+    // Print(last_completed_candle_ts);
+    counter.OnTick(last_completed_candle_ts);
 
     last_entry_ts = entry.timestamp;
   };
 
   /**
-   * Adds tick's price to the matching candle and updates its OHLC values.
-   */
-  void UpdateCandle(long _tick_timestamp, double _price) {
-    long _candle_timestamp = CalcCandleTimestamp(_tick_timestamp);
-
-#ifdef __debug_verbose__
-    Print("Updating candle for ", GetFullName(), " at candle ",
-          TimeToString(_candle_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " from tick at ",
-          TimeToString(_tick_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS), ": ", _price);
-#endif
-
-    CandleOCTOHLC<double> _candle(_price, _price, _price, _price, _tick_timestamp, _tick_timestamp);
-    if (icdata.KeyExists(_candle_timestamp)) {
-      // Candle already exists.
-      _candle = icdata.GetByKey(_candle_timestamp);
-
-#ifdef __debug_verbose__
-      Print("Candle was ", _candle.ToCSV());
-#endif
-
-      _candle.Update(_tick_timestamp, _price);
-
-#ifdef __debug_verbose__
-      Print("Candle is  ", _candle.ToCSV());
-#endif
-    }
-
-    icdata.Add(_candle, _candle_timestamp);
-  }
-
-  /**
-   * Returns time of the bar for a given shift.
-   */
-  datetime GetBarTime(int _shift = 0) override {
-    // @todo
-    DebugBreak();
-    return 0;
-  }
-
-  /**
    * Gets indicator's time-frame.
    */
   ENUM_TIMEFRAMES GetTf() override { return tf; }
+
+  /**
+   * Returns time of the bar for a given shift.
+   *
+   * Note: For Renko it returns last completed bar.
+   */
+  datetime GetBarTime(int _shift = 0) override {
+    if (_shift != 0) {
+      Print("Error: IndicatorRenko doesn't yet support shift other than 0!");
+      DebugBreak();
+      return 0;
+    }
+
+    return (datetime)last_completed_candle_ts;
+  }
 };
 
 #endif

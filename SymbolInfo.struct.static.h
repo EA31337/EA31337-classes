@@ -128,7 +128,7 @@ struct SymbolInfoStatic {
    */
   static double GetPipValue(string _symbol) {
     unsigned int _pdigits = GetPipDigits(_symbol);
-    return 10 >> _pdigits;
+    return 1.0 / MathPow(10, _pdigits);
   }
 
   /**

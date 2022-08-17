@@ -42,6 +42,13 @@ struct TickBarCounter {
   // Index of the current tick.
   int tick_index;
 
+  TickBarCounter() {
+    last_bar_time = (datetime)0;
+    bar_index = 0;
+    is_new_bar = false;
+    tick_index = 0;
+  }
+
   /**
    * Increases current bar index (used in OnTick()). If there was no bar, the current bar will become 0.
    */
@@ -101,6 +108,7 @@ struct TickBarCounter {
 
     if (is_new_bar) {
       // IsNewBar() will no longer signal new bar.
+      Print("Was new bar. Clearing flag.");
       is_new_bar = false;
     }
 
