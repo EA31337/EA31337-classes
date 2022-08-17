@@ -42,6 +42,7 @@
 
 // Pointers.
 #ifdef __MQL__
+#define GET_PTR(obj) GetPointer(obj)
 #define THIS_ATTR
 #define THIS_PTR (&this)
 #define THIS_REF this
@@ -52,6 +53,7 @@
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
 #define nullptr NULL
 #else
+#define GET_PTR(obj) (*obj)
 #define THIS_ATTR this->
 #define THIS_PTR (this)
 #define THIS_REF (*this)

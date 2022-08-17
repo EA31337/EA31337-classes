@@ -142,7 +142,7 @@ class Strategy : public Taskable<DataParamEntry> {
     Strategy::OnInit();
   }
 
-  Log *GetLogger() { return GetPointer(logger); }
+  Log *GetLogger() { return GET_PTR(logger); }
 
   /**
    * Class deconstructor.
@@ -443,7 +443,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   void SetId(long _id) {
     sparams.id = _id;
-    ((Object *)GetPointer(this)).SetId(_id);
+    ((Object *)THIS_PTR).SetId(_id);
   }
 
   /**
@@ -657,7 +657,7 @@ class Strategy : public Taskable<DataParamEntry> {
    * Event on strategy's init.
    */
   virtual void OnInit() {
-    SetStops(GetPointer(this), GetPointer(this));
+    SetStops(THIS_PTR, THIS_PTR);
     // trade.SetStrategy(&this); // @fixme
   }
 

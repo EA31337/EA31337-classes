@@ -100,7 +100,7 @@ class Object : public Dynamic {
   /**
    * Returns text representation of the object.
    */
-  virtual const string ToString() { return StringFormat("[Object #%04x]", GetPointer(this)); }
+  virtual const string ToString() { return StringFormat("[Object #%04x]", THIS_PTR); }
 
   /**
    * Returns text representation of the object.

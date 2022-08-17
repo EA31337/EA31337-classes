@@ -48,7 +48,7 @@ class OrderQuery : public Dynamic {
   };
 
   OrderQuery() {}
-  OrderQuery(DictStruct<long, Ref<Order>> &_orders) : orders(GetPointer(_orders)) {}
+  OrderQuery(DictStruct<long, Ref<Order>> &_orders) : orders(GET_PTR(_orders)) {}
 
   /**
    * Calculates sum of order's value based on the property's enum.

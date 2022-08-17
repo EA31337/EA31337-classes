@@ -102,7 +102,7 @@ class TaskAction : public TaskActionBase {
   /**
    * Gets s reference to the object.
    */
-  TO *GetObject() { return GetPointer(obj); }
+  TO *GetObject() { return PTR_TO_REF(obj); }
 
   /* Setters */
 

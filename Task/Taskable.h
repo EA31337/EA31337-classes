@@ -52,7 +52,7 @@ class Taskable : public Object {
   /**
    * Class constructor with default arguments.
    */
-  Taskable() : Object(GetPointer(this), __LINE__) {}
+  Taskable() : Object(THIS_PTR, __LINE__) {}
 
   /* Virtual methods */
 

@@ -92,7 +92,7 @@ class TaskSetter : protected TaskSetterBase<TS> {
   /**
    * Gets a reference to the object.
    */
-  TO *GetObject() { return GetPointer(obj); }
+  TO *GetObject() { return PTR_TO_REF(obj); }
 
   /* Setters */
 
