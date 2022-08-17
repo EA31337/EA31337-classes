@@ -559,6 +559,6 @@ class SymbolInfo : public Object {
   /**
    * Returns Log handler.
    */
-  Log *GetLogger() { return GetPointer(logger); }
+  Log *GetLogger() { return GET_PTR(logger); }
 };
 #endif  // SYMBOLINFO_MQH

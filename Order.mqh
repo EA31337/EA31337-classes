@@ -167,7 +167,7 @@ class Order : public SymbolInfo {
    */
   ~Order() {}
 
-  Log *GetLogger() { return GetPointer(ologger); }
+  Log *GetLogger() { return GET_PTR(ologger); }
 
   /* Getters */
 

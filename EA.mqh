@@ -1049,7 +1049,7 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Returns pointer to Market object.
    */
-  Terminal *GetTerminal() { return GetPointer(terminal); }
+  Terminal *GetTerminal() { return GET_PTR(terminal); }
 
   /**
    * Gets EA's name.
@@ -1059,7 +1059,7 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Gets DictStruct reference to strategies.
    */
-  DictStruct<long, Ref<Strategy>> *GetStrategies() { return GetPointer(strats); }
+  DictStruct<long, Ref<Strategy>> *GetStrategies() { return GET_PTR(strats); }
 
   /**
    * Gets EA state.
@@ -1076,7 +1076,7 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Gets pointer to log instance.
    */
-  Log *GetLogger() { return GetPointer(logger); }
+  Log *GetLogger() { return GET_PTR(logger); }
 
   /**
    * Gets reference to strategies.

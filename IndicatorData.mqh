@@ -518,7 +518,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Get pointer to data of indicator.
    */
-  BufferStruct<IndicatorDataEntry>* GetData() { return GetPointer(idata); }
+  BufferStruct<IndicatorDataEntry>* GetData() { return GET_PTR(idata); }
 
   /**
    * Returns given data source type. Used by i*OnIndicator methods if indicator's Calculate() uses other indicators.

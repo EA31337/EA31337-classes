@@ -1998,7 +1998,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Returns pointer to Log class.
    */
-  Log *GetLogger() { return GetPointer(logger); }
+  Log *GetLogger() { return GET_PTR(logger); }
 
   /* Serializers */
 

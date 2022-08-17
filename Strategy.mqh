@@ -129,6 +129,9 @@ class Strategy : public Taskable<DataParamEntry> {
     MqlTick _tick = {0};
     last_tick = _tick;
 
+    // Link log instances.
+    logger.Link(trade.GetLogger());
+
     // Statistics variables.
     // UpdateOrderStats(EA_STATS_DAILY);
     // UpdateOrderStats(EA_STATS_WEEKLY);
@@ -139,7 +142,7 @@ class Strategy : public Taskable<DataParamEntry> {
     Strategy::OnInit();
   }
 
-  Log *GetLogger() { return GetPointer(logger); }
+  Log *GetLogger() { return GET_PTR(logger); }
 
   /**
    * Class deconstructor.
@@ -663,7 +666,7 @@ class Strategy : public Taskable<DataParamEntry> {
     logger.Link(trade.GetLogger());
     trade.GetLogger().SetLevel(sparams.Get<ENUM_LOG_LEVEL>(STRAT_PARAM_LOG_LEVEL));
     // Sets strategy stops.
-    SetStops(GetPointer(this), GetPointer(this));
+    SetStops(THIS_PTR, THIS_PTR);
     // trade.SetStrategy(&this); // @fixme
     // Sets strategy's trade spread limit.
     trade.Set<float>(TRADE_PARAM_MAX_SPREAD, sparams.Get<float>(STRAT_PARAM_MAX_SPREAD));
