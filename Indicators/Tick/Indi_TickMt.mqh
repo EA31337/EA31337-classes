@@ -182,7 +182,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
 #endif
   }
 
-  void OnTick() override {
+  void OnTick(int _global_tick_index) override {
     if (_fetch_history_on_first_tick) {
       // We wait for fetching the history for the first tick, as it won't work in OnInit().
       _fetch_history_on_first_tick = false;

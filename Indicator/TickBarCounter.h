@@ -75,12 +75,11 @@ struct TickBarCounter {
    * Check if there is a new bar to parse.
    */
   bool IsNewBarInternal(datetime _bar_time) {
-    bool _result = false;
     if (last_bar_time != _bar_time) {
       SetLastBarTime(_bar_time);
-      _result = true;
+      return true;
     }
-    return _result;
+    return false;
   }
 
   /* Setters */
@@ -103,12 +102,11 @@ struct TickBarCounter {
   /**
    * Updates tick & bar indices.
    */
-  void OnTick(datetime _bar_time) {
+  void OnTick(datetime _bar_time = 0) {
     IncreaseTickIndex();
 
     if (is_new_bar) {
       // IsNewBar() will no longer signal new bar.
-      Print("Was new bar. Clearing flag.");
       is_new_bar = false;
     }
 

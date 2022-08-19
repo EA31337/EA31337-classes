@@ -50,7 +50,7 @@ int OnInit() {
   indi_tick = Platform::FetchDefaultTickIndicator();
 
   // Renko with 10 pips limit.
-  Platform::Add(indi_renko = new IndicatorRenko(10));
+  Platform::Add(indi_renko = new IndicatorRenko(1));
 
   double _pip_value = SymbolInfoStatic::GetPipValue(_Symbol);
   Print("Pip Value: ", _pip_value);

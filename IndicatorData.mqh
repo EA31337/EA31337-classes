@@ -41,7 +41,7 @@ class IndicatorData : public IndicatorBase {
   bool is_fed;          // Whether calc_start_bar is already calculated.
   int calc_start_bar;   // Index of the first valid bar (from 0).
   int flags;            // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
-  long last_tick_time;  // Time of the last Tick() call.
+  int last_tick_index;  // Index of the last tick.
   void* mydata;
   ENUM_INDI_VS_TYPE retarget_ap_av;  // Value storage type to be used as applied price/volume.
   ARRAY(Ref<IValueStorage>, value_storages);
@@ -77,7 +77,7 @@ class IndicatorData : public IndicatorBase {
     // By default, indicator is indexable only by shift and data source must be also indexable by shift.
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
-    last_tick_time = 0;
+    last_tick_index = -1;
     retarget_ap_av = INDI_VS_TYPE_NONE;
     InitDraw();
     return true;
@@ -851,29 +851,27 @@ class IndicatorData : public IndicatorBase {
            HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME);
   }
 
-  void Tick() {
-    long _current_time = TimeCurrent();
-
-    if (last_tick_time == _current_time) {
+  void Tick(int _global_tick_index) {
+    if (last_tick_index == _global_tick_index) {
       // We've already ticked.
       return;
     }
 
-    last_tick_time = _current_time;
+    last_tick_index = _global_tick_index;
 
     // Checking and potentially initializing new data source.
     if (HasDataSource(true) != NULL) {
       // Ticking data source if not yet ticked.
-      GetDataSource().Tick();
+      GetDataSource().Tick(_global_tick_index);
     }
 
     // Also ticking all used indicators if they've not yet ticked.
     for (DictStructIterator<int, Ref<IndicatorData>> iter = indicators.Begin(); iter.IsValid(); ++iter) {
-      iter.Value().Ptr().Tick();
+      iter.Value().Ptr().Tick(_global_tick_index);
     }
 
     // Overridable OnTick() method.
-    OnTick();
+    OnTick(_global_tick_index);
   }
 
   /**
@@ -1685,7 +1683,7 @@ class IndicatorData : public IndicatorBase {
    */
   virtual void OnDataSourceEntry(IndicatorDataEntry& entry){};
 
-  virtual void OnTick() {}
+  virtual void OnTick(int _global_tick_index) {}
 
   /**
    * Called if data source is requested, but wasn't yet set. May be used to initialize indicators that must operate on

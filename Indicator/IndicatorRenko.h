@@ -40,6 +40,15 @@
 #include "IndicatorRenko.struct.h"
 
 /**
+ * Renko candle type.
+ */
+enum ENUM_INDI_RENKO_CANDLE_TYPE {
+  INDI_RENKO_CANDLE_TYPE_NONE,   // Empty candle.
+  INDI_RENKO_CANDLE_TYPE_RAISE,  // Green candle.
+  INDI_RENKO_CANDLE_TYPE_DROP,   // Red candle.
+};
+
+/**
  * Renko indicator parameters.
  */
 struct RenkoParams : IndicatorTfParams {
@@ -106,12 +115,55 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double> {
   }
 
   /**
+   * Checks whether given candle is a raise (green) or drop (red).
+   */
+  ENUM_INDI_RENKO_CANDLE_TYPE GetCandleType(CandleOCTOHLC<double> &_candle) {
+    if (_candle.close > _candle.open) {
+      return INDI_RENKO_CANDLE_TYPE_RAISE;
+    }
+
+    if (_candle.close < _candle.open) {
+      return INDI_RENKO_CANDLE_TYPE_DROP;
+    }
+
+    Print("Error: Candle's close price cannot equal open price!");
+    DebugBreak();
+    return INDI_RENKO_CANDLE_TYPE_NONE;
+  }
+
+  /**
    * Checks for pips limit.
    */
-  bool RenkoConditionMet(CandleOCTOHLC<double> &_candle, double _price) {
+  bool RenkoConditionMet(ENUM_INDI_RENKO_CANDLE_TYPE _last_candle_type, CandleOCTOHLC<double> &_candle, double _price) {
     double _price_diff_limit = GetSymbolProps().GetPipValue() * iparams.pips_limit;
-    double _price_diff = MathAbs(_price - _candle.open);
-    return _price_diff >= _price_diff_limit;
+    double _price_diff = _price - _candle.open;
+
+    if (_last_candle_type == INDI_RENKO_CANDLE_TYPE_NONE) {
+      // No candle and then raise/drop requires just normal difference of pips.
+      if (MathAbs(_price_diff) > _price_diff_limit) {
+        return true;
+      }
+    } else {
+      if (_last_candle_type == INDI_RENKO_CANDLE_TYPE_RAISE) {
+        if (_price_diff > _price_diff_limit) {
+          // Raising after raise.
+          return true;
+        } else if (_price_diff < -_price_diff_limit * 2) {
+          // Drop after raise requires 2 x pips drop.
+          return true;
+        }
+      } else if (_last_candle_type == INDI_RENKO_CANDLE_TYPE_DROP) {
+        if (_price_diff > _price_diff_limit * 2) {
+          // Raising after drop requires 2 x pips raise.
+          return true;
+        } else if (_price_diff < -_price_diff_limit) {
+          // Drop after drop.
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -127,6 +179,15 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double> {
     double _price = entry[1];
 
     CandleOCTOHLC<double> _candle;
+    CandleOCTOHLC<double> _last_completed_candle;
+    ENUM_INDI_RENKO_CANDLE_TYPE _last_completed_candle_type;
+
+    if (last_completed_candle_ts != 0) {
+      _last_completed_candle = icdata.GetByKey(last_completed_candle_ts);
+      _last_completed_candle_type = GetCandleType(_last_completed_candle);
+    } else {
+      _last_completed_candle_type = INDI_RENKO_CANDLE_TYPE_NONE;
+    }
 
     if (last_incomplete_candle_ts != 0) {
       // There is previous candle. Retrieving and updating it.
@@ -134,7 +195,7 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double> {
       _candle.Update(entry.timestamp, _price);
 
       // Checking for close price difference.
-      if (RenkoConditionMet(_candle, _price)) {
+      if (RenkoConditionMet(_last_completed_candle_type, _candle, _price)) {
         // Closing current candle.
         _candle.is_complete = true;
       }
@@ -142,24 +203,46 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double> {
       // Updating candle.
       icdata.Add(_candle, last_incomplete_candle_ts);
 
+      Print("Updated Candle: ", _candle.ToString());
+
       if (_candle.is_complete) {
         last_completed_candle_ts = last_incomplete_candle_ts;
         last_incomplete_candle_ts = 0;
       }
     } else {
       // There is no incomplete candle, creating one.
-      _candle = CandleOCTOHLC<double>(_price, _price, _price, _price, entry.timestamp, entry.timestamp);
+      if (last_completed_candle_ts != 0) {
+        // Price of the last candle will be used to initialize open price for new, incomplete candle.
+        double _last_close_price = _last_completed_candle.close;
+        _candle = CandleOCTOHLC<double>(_last_close_price, _last_close_price, _last_close_price, _last_close_price,
+                                        entry.timestamp, entry.timestamp);
+        // Current price will be added to newly created incomplete candle.
+        _candle.Update(entry.timestamp, _price);
+      } else {
+        // There was no completed candle. Creating new, incomplete candle from current price.
+        _candle = CandleOCTOHLC<double>(_price, _price, _price, _price, entry.timestamp, entry.timestamp);
+      }
+
       _candle.is_complete = false;
 
       // Creating new candle.
       icdata.Add(_candle, entry.timestamp);
 
+      Print("Added candle: ", _candle.ToString());
+
       last_incomplete_candle_ts = entry.timestamp;
     }
+
+    Print("Last Incomplete Time:   ", TimeToString(last_incomplete_candle_ts, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+    Print("Last Incomplete Candle: ", icdata.GetByKey(last_incomplete_candle_ts).ToString());
+    Print("Last Completed Time:    ", TimeToString(last_completed_candle_ts, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+    Print("Last Completed Candle:  ", icdata.GetByKey(last_completed_candle_ts).ToString());
 
     // Updating tick & bar indices. Bar time is time of the last completed candle.
     // Print(last_completed_candle_ts);
     counter.OnTick(last_completed_candle_ts);
+
+    Print("---------");
 
     last_entry_ts = entry.timestamp;
   };

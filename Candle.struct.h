@@ -261,6 +261,14 @@ struct CandleOCTOHLC : CandleOHLC<T> {
 
   // Returns timestamp of close price.
   long GetCloseTimestamp() { return close_timestamp; }
+
+  // Returns text representation of candle.
+  string ToString() {
+    return StringFormat("%.5f %.5f %.5f %.5f [%s] @ %s - %s", open, high, low, close,
+                        is_complete ? "Complete" : "Incomplete",
+                        TimeToString(open_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+                        TimeToString(close_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+  }
 };
 
 /* Structore for storing OHLC values with timestamp. */

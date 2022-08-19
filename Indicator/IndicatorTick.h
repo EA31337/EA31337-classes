@@ -33,6 +33,7 @@
 #include "../Buffer/BufferTick.h"
 #include "../Indicator.mqh"
 #include "../Indicator.struct.h"
+#include "TickBarCounter.h"
 
 // Indicator modes.
 enum ENUM_INDI_TICK_MODE {
@@ -51,6 +52,7 @@ class IndicatorTick : public Indicator<TS> {
   TS itparams;
   string symbol;
   SymbolInfoProp symbol_props;
+  TickBarCounter counter;
 
  protected:
   /* Protected methods */

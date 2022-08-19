@@ -53,9 +53,9 @@ class Indicators {
   /**
    * Executes OnTick() on every added indicator.
    */
-  void Tick() {
+  void Tick(int _global_tick_index) {
     for (int i = 0; i < ArraySize(_indis); ++i) {
-      _indis[i].Ptr().OnTick();
+      _indis[i].Ptr().OnTick(_global_tick_index);
     }
   }
 

@@ -43,6 +43,9 @@ class Platform {
   // Whether Init() was already called.
   static bool initialized;
 
+  // Global tick index.
+  static int global_tick_index;
+
   // Date and time used to determine periods that passed.
   static DateTime time;
 
@@ -75,9 +78,16 @@ class Platform {
   }
 
   /**
+   * Returns global tick index.
+   */
+  int GetGlobalTickIndex() { return global_tick_index; }
+
+  /**
    * Performs tick on every added indicator.
    */
   static void Tick() {
+    ++global_tick_index;
+
     // Checking starting periods and updating time to current one.
     time_flags = time.GetStartedPeriods();
     time.Update();
@@ -85,11 +95,11 @@ class Platform {
     DictStructIterator<long, Ref<IndicatorData>> _iter;
 
     for (_iter = indis.Begin(); _iter.IsValid(); ++_iter) {
-      _iter.Value() REF_DEREF Tick();
+      _iter.Value() REF_DEREF Tick(global_tick_index);
     }
 
     for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
-      _iter.Value() REF_DEREF Tick();
+      _iter.Value() REF_DEREF Tick(global_tick_index);
     }
 
     // Will check for new time periods in consecutive Platform::UpdateTime().
@@ -306,6 +316,7 @@ bool Platform::initialized = false;
 DateTime Platform::time = 0;
 unsigned int Platform::time_flags = 0;
 bool Platform::time_clear_flags = true;
+int Platform::global_tick_index = 0;
 DictStruct<long, Ref<IndicatorData>> Platform::indis;
 DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
 
