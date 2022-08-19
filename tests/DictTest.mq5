@@ -29,9 +29,9 @@
 #include "../DictObject.mqh"
 #include "../DictStruct.mqh"
 #include "../Object.mqh"
-#include "../Serializer.mqh"
-#include "../SerializerConverter.mqh"
-#include "../SerializerJson.mqh"
+#include "../Serializer/Serializer.h"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerJson.h"
 #include "../Test.mqh"
 
 class DictTestClass {

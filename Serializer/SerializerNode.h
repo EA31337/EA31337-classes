@@ -21,14 +21,14 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef JSON_NODE_MQH
-#define JSON_NODE_MQH
+#ifndef SERIALIZER_NODE_H
+#define SERIALIZER_NODE_H
 
 // Includes.
-#include "Math.extern.h"
+#include "../Math.extern.h"
+#include "../Terminal.define.h"
 #include "SerializerNode.enum.h"
-#include "SerializerNodeParam.mqh"
-#include "Terminal.define.h"
+#include "SerializerNodeParam.h"
 
 class SerializerNode {
  protected:
@@ -368,4 +368,4 @@ class SerializerNode {
   }
 };
 
-#endif
+#endif  // SERIALIZER_NODE_H

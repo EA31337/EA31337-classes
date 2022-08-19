@@ -30,10 +30,10 @@
 #pragma once
 #endif
 
-#include "Convert.extern.h"
-#include "DateTime.extern.h"
-#include "Object.mqh"
-#include "Refs.struct.h"
+#include "../Convert.extern.h"
+#include "../DateTime.extern.h"
+#include "../Object.mqh"
+#include "../Refs.struct.h"
 
 class SerializerConversions {
  public:

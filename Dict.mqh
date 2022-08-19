@@ -27,8 +27,8 @@
 #include "Convert.mqh"
 #include "DictBase.mqh"
 #include "Matrix.mqh"
-#include "Serializer.mqh"
-#include "SerializerNodeIterator.mqh"
+#include "Serializer/Serializer.h"
+#include "Serializer/SerializerNodeIterator.h"
 
 template <typename K, typename V>
 class DictIterator : public DictIteratorBase<K, V> {

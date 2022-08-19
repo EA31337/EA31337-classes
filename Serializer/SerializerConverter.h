@@ -33,11 +33,11 @@
 class SerializerNode;
 
 // Includes.
-#include "File.mqh"
+#include "../File.mqh"
 #include "Serializer.enum.h"
-#include "Serializer.mqh"
-#include "SerializerDict.mqh"
-#include "SerializerNode.mqh"
+#include "Serializer.h"
+#include "SerializerDict.h"
+#include "SerializerNode.h"
 
 class SerializerConverter {
  public:

@@ -30,7 +30,7 @@
 #define STRUCT_ENUM_INDICATOR_STATE_PROP STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP)
 
 // Includes.
-#include "../SerializerNode.enum.h"
+#include "../Serializer/SerializerNode.enum.h"
 #include "IndicatorData.enum.h"
 
 // Type-less value for IndicatorDataEntryValue structure.

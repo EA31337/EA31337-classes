@@ -41,8 +41,8 @@ struct DataParamEntry;
 #include "../Indicators/Tick/Indi_TickMt.mqh"
 #include "../Indicators/indicators.h"
 #include "../Platform.h"
-#include "../SerializerConverter.mqh"
-#include "../SerializerJson.mqh"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerJson.h"
 #include "../Std.h"
 #include "../Test.mqh"
 

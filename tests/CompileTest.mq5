@@ -62,7 +62,6 @@ struct IndicatorParams;
 #include "../DrawIndicator.mqh"
 #include "../EA.mqh"
 #include "../File.mqh"
-#include "../ISerializable.h"
 // #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
@@ -89,18 +88,6 @@ struct IndicatorParams;
 #include "../Storage/Objects.h"
 #include "../Storage/ObjectsCache.h"
 // #include "../SVG.mqh" // @removeme
-#include "../Serializer.mqh"
-#include "../SerializerBinary.mqh"
-#include "../SerializerConversions.h"
-#include "../SerializerConverter.mqh"
-#include "../SerializerCsv.mqh"
-#include "../SerializerDict.mqh"
-#include "../SerializerJson.mqh"
-#include "../SerializerNode.mqh"
-#include "../SerializerNodeIterator.mqh"
-#include "../SerializerNodeParam.mqh"
-#include "../SerializerObject.mqh"
-#include "../SerializerSqlite.mqh"
 #include "../Session.mqh"
 #include "../SetFile.mqh"
 #include "../Socket.mqh"
@@ -128,12 +115,27 @@ struct IndicatorParams;
 #include "../Util.h"
 #include "../Web.mqh"
 
-// Includes indicator files.
+// Includes Indicator files.
 #include "../Indicator/Indicator.define.h"
 #include "../Indicator/Indicator.h"
 #include "../Indicator/IndicatorBase.h"
-//#include "../Indicator/IndicatorData.h"
+#include "../Indicator/IndicatorData.h"
 #include "../Indicators/indicators.h"
+
+// Includes Serializer files.
+#include "../Serializer/Serializable.h"
+#include "../Serializer/Serializer.h"
+#include "../Serializer/SerializerBinary.h"
+#include "../Serializer/SerializerConversions.h"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerCsv.h"
+#include "../Serializer/SerializerDict.h"
+#include "../Serializer/SerializerJson.h"
+#include "../Serializer/SerializerNode.h"
+#include "../Serializer/SerializerNodeIterator.h"
+#include "../Serializer/SerializerNodeParam.h"
+#include "../Serializer/SerializerObject.h"
+#include "../Serializer/SerializerSqlite.h"
 
 /**
  * Implements Init event handler.

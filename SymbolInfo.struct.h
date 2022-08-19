@@ -31,15 +31,16 @@
 #endif
 
 // Includes.
-#include "ISerializable.h"
+#include "Serializer/Serializable.h"
 #include "Std.h"
 #include "SymbolInfo.struct.static.h"
 #include "Tick/Tick.struct.h"
+#include "Serializer/Serializer.h"
 
 // Defines struct to store symbol data.
 struct SymbolInfoEntry
 #ifndef __MQL__
-    : public ISerializable
+    : public Serializable
 #endif
 {
   double bid;            // Current Bid price.
@@ -151,8 +152,6 @@ struct SymbolInfoProp {
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer& _s);
 };
-
-#include "Serializer.mqh"
 
 SerializerNodeType SymbolInfoEntry::Serialize(Serializer& _s) {
   _s.Pass(THIS_REF, "ask", ask);

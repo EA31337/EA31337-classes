@@ -25,13 +25,13 @@
 #define SERIALIZER_MQH
 
 // Includes.
-#include "Convert.mqh"
+#include "../Convert.mqh"
+#include "../Terminal.define.h"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
-#include "SerializerNode.mqh"
-#include "SerializerNodeIterator.mqh"
-#include "SerializerNodeParam.mqh"
-#include "Terminal.define.h"
+#include "SerializerNode.h"
+#include "SerializerNodeIterator.h"
+#include "SerializerNodeParam.h"
 
 #define SERIALIZER_DEFAULT_FP_PRECISION 8
 

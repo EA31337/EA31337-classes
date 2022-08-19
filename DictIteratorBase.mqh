@@ -31,7 +31,7 @@ class DictBase;
 
 #include "DictBase.mqh"
 #include "DictSlotsRef.h"
-#include "SerializerConversions.h"
+#include "Serializer/SerializerConversions.h"
 
 template <typename K, typename V>
 class DictIteratorBase {

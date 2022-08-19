@@ -36,16 +36,17 @@ class Serializer;
 // Includes.
 #include "Bar.enum.h"
 #include "Chart.enum.h"
-#include "ISerializable.h"
-#include "Serializer.enum.h"
-#include "SerializerNode.enum.h"
+#include "Serializer/Serializable.h"
+#include "Serializer/Serializer.enum.h"
+#include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
+#include "Serializer/Serializer.h"
 
 /* Structure for storing OHLC values. */
 template <typename T>
 struct CandleOHLC
 #ifndef __MQL__
-    : public ISerializable
+    : public Serializable
 #endif
 {
   T open, high, low, close;
@@ -275,8 +276,6 @@ struct CandleTOHLC : CandleOHLC<T> {
   // Converters.
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
 };
-
-#include "Serializer.mqh"
 
 /* Method to serialize CandleEntry structure. */
 template <typename T>

@@ -38,9 +38,10 @@ struct MqlRates;
 // Includes.
 #include "Data.enum.h"
 #include "DateTime.mqh"
-#include "Serializer.enum.h"
-#include "SerializerNode.enum.h"
+#include "Serializer/Serializer.enum.h"
+#include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
+#include "Serializer/Serializer.h"
 
 #ifndef __MQL__
 /**
@@ -329,8 +330,6 @@ struct DataParamEntry : public MqlParam {
   }
   SerializerNodeType Serialize(Serializer &s);
 };
-
-#include "Serializer.mqh"
 
 /* Method to serialize DataParamEntry struct. */
 SerializerNodeType DataParamEntry::Serialize(Serializer &s) {

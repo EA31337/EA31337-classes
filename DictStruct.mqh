@@ -26,8 +26,8 @@
 
 #include "DictBase.mqh"
 #include "DictIteratorBase.mqh"
-#include "Serializer.mqh"
-#include "SerializerNodeIterator.mqh"
+#include "Serializer/Serializer.h"
+#include "Serializer/SerializerNodeIterator.h"
 
 // DictIterator could be used as DictStruct iterator.
 #define DictStructIterator DictIteratorBase

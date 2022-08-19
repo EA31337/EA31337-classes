@@ -25,10 +25,10 @@
 #define SERIALIZER_BINARY_MQH
 
 // Includes.
-#include "DictBase.mqh"
-#include "Object.mqh"
-#include "Serializer.mqh"
-#include "SerializerNode.mqh"
+#include "../DictBase.mqh"
+#include "../Object.mqh"
+#include "Serializer.h"
+#include "SerializerNode.h"
 
 class Log;
 

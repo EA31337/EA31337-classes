@@ -40,9 +40,9 @@
 #include "../Log.mqh"
 #include "../Object.mqh"
 #include "../Refs.mqh"
-#include "../Serializer.mqh"
-#include "../SerializerCsv.mqh"
-#include "../SerializerJson.mqh"
+#include "../Serializer/Serializer.h"
+#include "../Serializer/SerializerCsv.h"
+#include "../Serializer/SerializerJson.h"
 #include "../Util.h"
 
 /**

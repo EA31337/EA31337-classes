@@ -25,8 +25,8 @@
  * Includes Indicator's struct serializers.
  */
 
-#include "../Serializer.mqh"
-#include "../SerializerNode.enum.h"
+#include "../Serializer/Serializer.h"
+#include "../Serializer/SerializerNode.enum.h"
 #include "Indicator.struct.h"
 
 /* Method to serialize IndicatorParams structure. */

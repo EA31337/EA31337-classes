@@ -35,7 +35,7 @@ class AccountMt;
 #include "../Indicator/Indicator.struct.h"
 #include "../Order.struct.h"
 #include "../Orders.mqh"
-#include "../Serializer.mqh"
+#include "../Serializer/Serializer.h"
 #include "../SymbolInfo.mqh"
 #include "../Trade.struct.h"
 #include "Account.define.h"

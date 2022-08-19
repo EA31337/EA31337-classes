@@ -25,9 +25,9 @@
 #define SERIALIZER_SQL_MQH
 
 // Includes.
-#include "Database.mqh"
-#include "SerializerConverter.mqh"
-#include "SerializerCsv.mqh"
+#include "../Database.mqh"
+#include "SerializerConverter.h"
+#include "SerializerCsv.h"
 
 class SerializerSqlite {
  public:

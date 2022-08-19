@@ -40,7 +40,7 @@ struct ChartParams;
 #include "../Chart.struct.tf.h"
 #include "../Data.struct.h"
 #include "../DateTime.struct.h"
-#include "../SerializerNode.enum.h"
+#include "../Serializer/SerializerNode.enum.h"
 #include "Indicator.enum.h"
 #include "IndicatorData.struct.cache.h"
 //#include "Indicator.struct.serialize.h"

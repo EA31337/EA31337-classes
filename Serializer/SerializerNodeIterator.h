@@ -21,11 +21,11 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef JSON_ITERATOR_MQH
-#define JSON_ITERATOR_MQH
+#ifndef SERIALIZER_NODE_ITERATOR_H
+#define SERIALIZER_NODE_ITERATOR_H
 
-#include "Serializer.mqh"
-#include "SerializerNode.mqh"
+#include "Serializer.h"
+#include "SerializerNode.h"
 
 class SerializerNode;
 class Serializer;

@@ -25,12 +25,12 @@
 #define SERIALIZER_JSON_MQH
 
 // Includes.
-#include "DictBase.mqh"
-#include "Object.mqh"
+#include "../DictBase.mqh"
+#include "../Object.mqh"
+#include "../String.extern.h"
 #include "Serializer.enum.h"
-#include "Serializer.mqh"
-#include "SerializerNode.mqh"
-#include "String.extern.h"
+#include "Serializer.h"
+#include "SerializerNode.h"
 
 class Log;
 

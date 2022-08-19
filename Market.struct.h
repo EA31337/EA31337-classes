@@ -30,7 +30,7 @@ class Serializer;
 
 // Includes.
 #include "DateTime.struct.h"
-#include "SerializerNode.enum.h"
+#include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
 
 // Market info.

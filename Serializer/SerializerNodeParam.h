@@ -22,8 +22,9 @@
 
 // Prevents processing this includes file for the second time.
 #include "SerializerConversions.h"
-#ifndef JSON_PARAM_MQH
-#define JSON_PARAM_MQH
+
+#ifndef SERIALIZER_NODE_PARAM_H
+#define SERIALIZER_NODE_PARAM_H
 
 /**
  * Enumeration.
@@ -333,6 +334,4 @@ SerializerNodeParam* SerializerNodeParam::FromString(string& value) {
   return param;
 }
 
-
-
-#endif
+#endif  // SERIALIZER_NODE_PARAM_H

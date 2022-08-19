@@ -40,7 +40,7 @@
 #include "Chart.struct.serialize.h"
 #include "Convert.mqh"
 #include "Market.mqh"
-#include "Serializer.mqh"
+#include "Serializer/Serializer.h"
 #include "Task/TaskCondition.enum.h"
 
 // Forward class declaration.

@@ -110,7 +110,6 @@ jobs:
           - OrderQuery
           - ProfilerTest
           - RefsTest
-          - SerializerTest
           - TerminalTest
           - TimerTest
           - ValueStorageTest

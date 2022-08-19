@@ -27,20 +27,20 @@
  */
 
 // Includes.
-#include "../BufferStruct.mqh"
-#include "../Chart.mqh"
-#include "../Config.mqh"
-#include "../Data.define.h"
-#include "../Data.struct.h"
-#include "../DictStruct.mqh"
-#include "../Serializer.mqh"
-#include "../SerializerBinary.mqh"
-#include "../SerializerCsv.mqh"
-#include "../SerializerDict.mqh"
-#include "../SerializerJson.mqh"
-#include "../SerializerNode.mqh"
-#include "../SerializerObject.mqh"
-#include "../Test.mqh"
+#include "../../BufferStruct.mqh"
+#include "../../Chart.mqh"
+#include "../../Config.mqh"
+#include "../../Data.define.h"
+#include "../../Data.struct.h"
+#include "../../DictStruct.mqh"
+#include "../../Test.mqh"
+#include "../Serializer.h"
+#include "../SerializerBinary.h"
+#include "../SerializerCsv.h"
+#include "../SerializerDict.h"
+#include "../SerializerJson.h"
+#include "../SerializerNode.h"
+#include "../SerializerObject.h"
 
 struct SerializableSubEntry {
  public:
