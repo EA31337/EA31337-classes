@@ -34,7 +34,7 @@
 #include "ISerializable.h"
 #include "Std.h"
 #include "SymbolInfo.struct.static.h"
-#include "Tick.struct.h"
+#include "Tick/Tick.struct.h"
 
 // Defines struct to store symbol data.
 struct SymbolInfoEntry

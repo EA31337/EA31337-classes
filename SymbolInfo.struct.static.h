@@ -28,7 +28,7 @@
 #include "MQL5.mqh"
 #include "Order.enum.h"
 #include "Std.h"
-#include "Tick.struct.h"
+#include "Tick/Tick.struct.h"
 
 /**
  * Struct to provide symbol information.

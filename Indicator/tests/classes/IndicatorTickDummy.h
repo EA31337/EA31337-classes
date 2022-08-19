@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "../../../Tick.struct.h"
+#include "../../../Tick/Tick.struct.h"
 #include "../../IndicatorTick.h"
 
 // Params for dummy tick-based indicator.
