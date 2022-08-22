@@ -23,9 +23,9 @@
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/Indicator.h"
 #include "../../Pattern.struct.h"
-#include "../../Serializer.mqh"
+#include "../../Serializer/Serializer.h"
 #include "../Price/Indi_Price.mqh"
 #include "../Special/Indi_Math.mqh"
 

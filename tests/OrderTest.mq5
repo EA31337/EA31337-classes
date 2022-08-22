@@ -28,8 +28,8 @@
 #include "../Chart.mqh"
 #include "../Order.mqh"
 #include "../Platform.h"
-#include "../SerializerConverter.mqh"
-#include "../SerializerJson.mqh"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerJson.h"
 #include "../Test.mqh"
 
 // Global defines.

@@ -34,7 +34,7 @@ class Trade;
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
-#include "IndicatorData.mqh"
+#include "Indicator/IndicatorData.h"
 #include "Math.h"
 #include "Object.mqh"
 #include "Order.mqh"
@@ -1398,7 +1398,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                            && Terminal::CheckPermissionToTrade()
                            // Check if auto trading is enabled.
                            && (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()));
-      /* Chart checks */
+/* Chart checks */
 #ifdef __debug__
       Print("Trade: Bars in data source: ", GetSource() PTR_DEREF GetBars(),
             ", minimum required bars: ", tparams.GetBarsMin());

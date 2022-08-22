@@ -36,15 +36,16 @@ class Serializer;
 // Includes.
 #include "Bar.enum.h"
 #include "Chart.enum.h"
-#include "ISerializable.h"
-#include "Serializer.enum.h"
-#include "SerializerNode.enum.h"
+#include "Serializer/Serializable.h"
+#include "Serializer/Serializer.enum.h"
+#include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
+#include "Serializer/Serializer.h"
 
 /* Struct for storing OHLC values. */
 struct BarOHLC
 #ifndef __MQL__
-    : public ISerializable
+    : public Serializable
 #endif
 {
   datetime time;
@@ -229,8 +230,6 @@ struct BarOHLC
   // Converters.
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
 };
-
-#include "Serializer.mqh"
 
 /* Method to serialize BarOHLC structure. */
 SerializerNodeType BarOHLC::Serialize(Serializer &s) {

@@ -25,9 +25,8 @@
 
 // Includes.
 #include "Account/AccountMt.h"
-#include "Chart.mqh"
 #include "DictStruct.mqh"
-#include "IndicatorBase.h"
+#include "Indicator/IndicatorData.h"
 #include "Object.mqh"
 
 // Defines.

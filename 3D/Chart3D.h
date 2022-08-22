@@ -26,12 +26,12 @@
  */
 
 #include "../Bar.struct.h"
-#include "../IndicatorData.mqh"
+#include "../Indicator/IndicatorData.h"
 #include "../Indicators/Indi_MA.mqh"
 #include "../Instances.h"
 #include "../Refs.mqh"
-#include "../SerializerConverter.mqh"
-#include "../SerializerJson.mqh"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerJson.h"
 #include "Chart3DCandles.h"
 #include "Chart3DType.h"
 #include "Cube.h"

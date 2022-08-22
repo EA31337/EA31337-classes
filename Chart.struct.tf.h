@@ -30,10 +30,14 @@
 #pragma once
 #endif
 
+// Forward declarations.
+class Serializer;
+
 // Includes.
 #include "Chart.enum.h"
-#include "Serializer.mqh"
+#include "Serializer/SerializerNode.enum.h"
 #include "Terminal.define.h"
+#include "Serializer/Serializer.h"
 
 /* Defines struct for chart timeframe. */
 struct ChartTf {

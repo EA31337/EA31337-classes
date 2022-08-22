@@ -32,9 +32,10 @@
 // Includes.
 #include "File.define.h"
 #include "File.extern.h"
+#include "Std.h"
 #include "Terminal.define.h"
-#include "Terminal.extern.h"
 #include "Terminal.enum.h"
+#include "Terminal.extern.h"
 
 #ifndef __MQL__
 enum ENUM_FILE_PROPERTY_INTEGER {

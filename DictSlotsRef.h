@@ -37,6 +37,7 @@
 #include "Std.h"
 #include "Util.h"
 
+// Forward class declaration.
 template <typename K, typename V>
 class DictSlot;
 
