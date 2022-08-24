@@ -80,7 +80,7 @@ class IndicatorCandle : public Indicator<TS> {
     // Along with indexing by shift, we can also index via timestamp!
     flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
     icdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
-    icdata.SetOverflowListener(IndicatorCandleOverflowListener, 10);
+    icdata.SetOverflowListener(BufferStructOverflowListener, 10);
     Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_INDI_CANDLE_MODE_ENTRY);
   }
 
@@ -286,22 +286,6 @@ class IndicatorCandle : public Indicator<TS> {
     }
 
     return value_storages[_mode].Ptr();
-  }
-
-  /**
-   * Function should return true if resize can be made, or false to overwrite current slot.
-   */
-  static bool IndicatorCandleOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
-    switch (_reason) {
-      case DICT_OVERFLOW_REASON_FULL:
-        // We allow resize if dictionary size is less than 86400 slots.
-        return _size < 86400;
-      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
-      default:
-        // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
-        break;
-    }
-    return false;
   }
 
   /**

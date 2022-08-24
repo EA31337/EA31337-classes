@@ -69,7 +69,7 @@ class IndicatorTick : public Indicator<TS> {
     flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
 
     itdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
-    itdata.SetOverflowListener(IndicatorTickOverflowListener, 10);
+    itdata.SetOverflowListener(BufferStructOverflowListener, 10);
     // Ask and Bid price.
     Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
   }
@@ -325,24 +325,6 @@ class IndicatorTick : public Indicator<TS> {
     _tick.bid = _entry[0];
     _tick.ask = _entry[1];
     return _tick;
-  }
-
-  /* Callback methods */
-
-  /**
-   * Function should return true if resize can be made, or false to overwrite current slot.
-   */
-  static bool IndicatorTickOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
-    switch (_reason) {
-      case DICT_OVERFLOW_REASON_FULL:
-        // We allow resize if dictionary size is less than 86400 slots.
-        return _size < 86400;
-      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
-      default:
-        // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
-        break;
-    }
-    return false;
   }
 };
 

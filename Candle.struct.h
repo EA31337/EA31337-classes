@@ -262,6 +262,9 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   // Returns timestamp of close price.
   long GetCloseTimestamp() { return close_timestamp; }
 
+  // Serializers.
+  SerializerNodeType Serialize(Serializer &s);
+
   // Returns text representation of candle.
   string ToString() {
     return StringFormat("%.5f %.5f %.5f %.5f [%s] @ %s - %s", open, high, low, close,
@@ -307,5 +310,19 @@ SerializerNodeType CandleTOHLC::Serialize(Serializer &s) {
   s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  return SerializerNodeObject;
+}
+
+/* Method to serialize CandleEntry structure. */
+template <typename T>
+SerializerNodeType CandleOCTOHLC::Serialize(Serializer &s) {
+  s.Pass(THIS_REF, "is_complete", is_complete, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "open_timestamp", open_timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "close_timestamp", close_timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "volume", volume, SERIALIZER_FIELD_FLAG_DYNAMIC);
   return SerializerNodeObject;
 }

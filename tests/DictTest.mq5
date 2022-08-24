@@ -55,15 +55,18 @@ class DictTestClass {
 
 // Function should return true if resize can be made, or false to overwrite current slot.
 bool Dict14_OverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
+  static int cache_limit = 10;
   switch (_reason) {
-    case DICT_OVERFLOW_REASON_FULL:
+    case DICT_LISTENER_FULL_CAN_RESIZE:
+    case DICT_LISTENER_NOT_PERFORMANT_CAN_RESIZE:
       // We allow resize if dictionary size is less than 10 slots.
-      return _size < 10;
-    case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
-    default:
-      // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
-      return false;
+      return _size < cache_limit;
+    case DICT_LISTENER_CONFLICTS_CAN_OVERWRITE:
+      // We start to overwrite slots when we can't make dict bigger and there is at least 10 consecutive conflicts while
+      // inserting new value.
+      return _size >= cache_limit && _num_conflicts >= 10;
   }
+  return true;
 }
 
 /**

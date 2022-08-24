@@ -290,86 +290,98 @@ class DictStruct : public DictBase<K, V> {
     }
 
     unsigned int position;
-    DictSlot<K, V>* keySlot = THIS_ATTR GetSlotByKey(dictSlotsRef, key, position);
+    DictSlot<K, V>* _slot = THIS_ATTR GetSlotByKey(dictSlotsRef, key, position);
 
-    if (keySlot == NULL && !THIS_ATTR IsGrowUpAllowed()) {
-      // Resize is prohibited, so we will just overwrite some slot.
-      allow_resize = false;
+    // If we have a slot then we can overwrite it.
+    if (_slot != NULL) {
+      WriteSlot(_slot, key, value, DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+      // We're done, we don't have to increment number of slots used.
+      return true;
     }
 
-    if (allow_resize) {
-      // Will resize dict if there were performance problems before or there is no slots.
-      if (THIS_ATTR IsGrowUpAllowed() && !dictSlotsRef.IsPerformant()) {
+    // If we don't have a slot then we should consider growing up number of slots or overwrite some existing slot.
+
+    bool _is_performant = dictSlotsRef.IsPerformant();  // Whether there is no performance problems.
+    bool _is_full =
+        dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots);  // Whether we don't have empty slots to use.
+
+    if ((_is_full || !_is_performant) && allow_resize) {
+      // We have to resize the dict as it is either full or have perfomance problems due to massive number of conflicts
+      // when inserting new values.
+      if (overflow_listener == NULL) {
+        // There is no overflow listener so we can freely grow up the dict.
         if (!GrowUp()) {
+          // Can't resize the dict. Error happened.
           return false;
         }
-        // We now have new positions of slots, so we have to take the corrent slot again.
-        keySlot = THIS_ATTR GetSlotByKey(dictSlotsRef, key, position);
-      }
-
-      if (keySlot == NULL && dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {
-        // No DictSlotsRef.DictSlots available.
-        if (THIS_ATTR overflow_listener != NULL) {
-          if (!THIS_ATTR overflow_listener(DICT_OVERFLOW_REASON_FULL, dictSlotsRef._num_used, 0)) {
-            // Overwriting slot pointed exactly by key's position in the hash table (we don't check for possible
-            // conflicts).
-            keySlot = &dictSlotsRef.DictSlots[THIS_ATTR Hash(key) % ArraySize(dictSlotsRef.DictSlots)];
+      } else {
+        // Overflow listener will decide if we can grow up the dict.
+        if (overflow_listener(_is_full ? DICT_LISTENER_FULL_CAN_RESIZE : DICT_LISTENER_NOT_PERFORMANT_CAN_RESIZE,
+                              dictSlotsRef._num_used, 0)) {
+          // We can freely grow up the dict.
+          if (!GrowUp()) {
+            // Can't resize the dict. Error happened.
+            return false;
           }
-        }
-
-        if (keySlot == NULL) {
-          // We need to expand array of DictSlotsRef.DictSlots.
-          if (!GrowUp()) return false;
         }
       }
     }
 
-    if (keySlot == NULL) {
-      position = THIS_ATTR Hash(key) % ArraySize(dictSlotsRef.DictSlots);
+    // At this point we have at least one free slot and we won't be doing any dict's grow up in the loop where we search
+    // for an empty slot.
 
-      unsigned int _starting_position = position;
-      unsigned int _num_conflicts = 0;
-      bool _overwrite_slot = false;
+    // Position we will start from in order to search free slot.
+    position = THIS_ATTR Hash(key) % ArraySize(dictSlotsRef.DictSlots);
 
-      // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
-      while (dictSlotsRef.DictSlots[position].IsUsed() &&
-             (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
-        if (THIS_ATTR overflow_listener_max_conflicts != 0 &&
-            ++_num_conflicts == THIS_ATTR overflow_listener_max_conflicts) {
-          if (THIS_ATTR overflow_listener != NULL) {
-            if (!THIS_ATTR overflow_listener(DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS, dictSlotsRef._num_used,
-                                             _num_conflicts)) {
-              // Overflow listener returned false so we won't search for further empty slot.
-              _overwrite_slot = true;
-              break;
-            }
-          } else {
-            // Even if there is no overflow listener function, we stop searching for further empty slot as maximum
-            // number of conflicts has been reached.
-            _overwrite_slot = true;
-            break;
-          }
-        }
+    // Saving position for further, possible overwrite.
+    unsigned int _starting_position = position;
 
-        // Position may overflow, so we will start from the beginning.
-        position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
+    // How many times we had to skip slot as it was already occupied.
+    unsigned int _num_conflicts = 0;
+
+    // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
+    while (dictSlotsRef.DictSlots[position].IsUsed() &&
+           (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
+      ++_num_conflicts;
+
+      if (overflow_listener == NULL) {
+        // There is no overflow listener, so we can't overwrite a slot. We will be looping until we find empty slot.
+        continue;
       }
 
-      if (_overwrite_slot) {
-        // Overwriting starting position for faster further lookup.
+      // We had to skip slot as it is already occupied. Now we are checking if
+      // there is too many conflicts/skips and thus we can overwrite slot in
+      // the starting position.
+      if (overflow_listener(DICT_LISTENER_CONFLICTS_CAN_OVERWRITE, dictSlotsRef._num_used, _num_conflicts)) {
+        // Looks like dict is working as buffer and we can overwrite slot in the starting position.
         position = _starting_position;
-      } else if (!dictSlotsRef.DictSlots[position].IsUsed()) {
-        // If slot isn't already used then we increment number of used slots.
-        ++dictSlotsRef._num_used;
+        break;
       }
 
-      dictSlotsRef.AddConflicts(_num_conflicts);
+      // Position may overflow, so we will start from the beginning.
+      position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
 
-    dictSlotsRef.DictSlots[position].key = key;
-    dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+    // Acknowledging slots array about number of conflicts as it calculates average number of conflicts per insert.
+    dictSlotsRef.AddConflicts(_num_conflicts);
+
+    // Incrementing number of slots used only if we're writing into empty slot.
+    if (!dictSlotsRef.DictSlots[position].IsUsed()) {
+      ++dictSlotsRef._num_used;
+    }
+
+    // Writing slot in the position of empty slot or, when overwriting, in starting position.
+    WriteSlot(dictSlotsRef.DictSlots[position], key, value, DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
     return true;
+  }
+
+  /***
+   * Writes slot with given key, value and flags.
+   */
+  void WriteSlot(DictSlot<K, V>& _slot, const K _key, V& _value, unsigned char _slot_flags) {
+    _slot.key = _key;
+    _slot.value = _value;
+    _slot.SetFlags(_slot_flags);
   }
 
   /**

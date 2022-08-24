@@ -27,6 +27,8 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Candle.struct.h"
+#include "../SerializerConverter.mqh"
+#include "../SerializerJson.mqh"
 
 /**
  * Class to store struct data.
@@ -41,7 +43,7 @@ class BufferCandle : public BufferStruct<CandleOCTOHLC<TV>> {
    *
    * Called on constructor.
    */
-  void Init() { SetOverflowListener(BufferCandleOverflowListener, 10); }
+  void Init() { SetOverflowListener(BufferStructOverflowListener, 10); }
 
  public:
   /* Constructors */
@@ -55,24 +57,10 @@ class BufferCandle : public BufferStruct<CandleOCTOHLC<TV>> {
     Init();
   }
 
-  /* Callback methods */
-
   /**
-   * Function should return true if resize can be made, or false to overwrite current slot.
+   * Returns JSON representation of the buffer.
    */
-  static bool BufferCandleOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
-    static int cache_limit = 86400;
-    switch (_reason) {
-      case DICT_OVERFLOW_REASON_FULL:
-        // We allow resize if dictionary size is less than 86400 slots.
-        return _size < cache_limit;
-      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
-      default:
-        // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
-        break;
-    }
-    return false;
-  }
+  string ToJSON() { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 };
 
 #endif  // BUFFER_CANDLE_H

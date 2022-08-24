@@ -228,14 +228,26 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double> {
       // Creating new candle.
       icdata.Add(_candle, entry.timestamp);
 
-      Print("Added candle: ", _candle.ToString());
+      Print("Added candle: ", _candle.ToString(), " now there is ", icdata.Size(), " candles in the buffer.");
 
       last_incomplete_candle_ts = entry.timestamp;
     }
 
-    Print("Last Incomplete Time:   ", TimeToString(last_incomplete_candle_ts, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+    static int iteration = 0;
+
+    ++iteration;
+
+    Print("Iteration: ", iteration);
+
+    if (iteration > 1793) {
+      // Print(icdata.ToJSON());
+    }
+
+    Print("Last Incomplete Time:   ", TimeToString(last_incomplete_candle_ts, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+          " (", last_incomplete_candle_ts, ")");
     Print("Last Incomplete Candle: ", icdata.GetByKey(last_incomplete_candle_ts).ToString());
-    Print("Last Completed Time:    ", TimeToString(last_completed_candle_ts, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+    Print("Last Completed Time:    ", TimeToString(last_completed_candle_ts, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+          " (", last_completed_candle_ts, ")");
     Print("Last Completed Candle:  ", icdata.GetByKey(last_completed_candle_ts).ToString());
 
     // Updating tick & bar indices. Bar time is time of the last completed candle.
