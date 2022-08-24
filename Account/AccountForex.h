@@ -25,7 +25,7 @@
 #define ACCOUNTFOREX_H
 
 // Includes.
-#include "../Serializer.mqh"
+#include "../Serializer/Serializer.h"
 #include "Account.h"
 #include "AccountForex.struct.h"
 

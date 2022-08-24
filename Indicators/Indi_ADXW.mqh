@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.applied_price.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.spread.h"

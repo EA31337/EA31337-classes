@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.h"
 #include "Price/Indi_Price.mqh"
 
@@ -45,7 +45,7 @@ struct IndiAMAParams : IndicatorParams {
     // Defaulting to on-indicator mode (will use real ticks from platform via IndicatorTickReal).
     SetShift(_shift);
     if (custom_indi_name == "") {
-      SetCustomIndicatorName("Examples\\AMA");
+    SetCustomIndicatorName("Examples\\AMA");
     }
   };
   IndiAMAParams(IndiAMAParams &_params) { THIS_REF = _params; }

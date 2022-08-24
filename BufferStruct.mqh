@@ -27,7 +27,7 @@
 // Includes.
 #include "DictBase.mqh"
 #include "DictStruct.mqh"
-#include "Serializer.mqh"
+#include "Serializer/Serializer.h"
 
 /**
  * Implements BufferStruct's Overflow Listener.

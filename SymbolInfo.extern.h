@@ -23,7 +23,7 @@
 // Includes.
 #include "Order.enum.h"
 #include "SymbolInfo.enum.h"
-#include "Tick.struct.h"
+#include "Tick/Tick.struct.h"
 
 // Define external global functions.
 #ifndef __MQL__

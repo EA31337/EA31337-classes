@@ -20,16 +20,20 @@
  *
  */
 
+// Prevents processing this includes file for the second time.
+#ifndef LOG_MQH
+#define LOG_MQH
+
+// Forward class declaration.
+template <typename K, typename V>
+class DictStruct;
+
 // Includes.
 #include "Array.mqh"
 #include "Collection.mqh"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
 #include "Object.mqh"
-
-// Prevents processing this includes file for the second time.
-#ifndef LOG_MQH
-#define LOG_MQH
 
 // Define assert macros.
 // Alias for function and line macros combined together.

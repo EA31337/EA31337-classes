@@ -25,7 +25,6 @@
 #define ACCOUNTBASE_H
 
 // Includes.
-//#include "../Serializer.mqh"
 #include "../Refs.mqh"
 #include "AccountBase.struct.h"
 

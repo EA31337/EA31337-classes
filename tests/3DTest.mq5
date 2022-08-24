@@ -43,7 +43,7 @@
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
 #include "../Platform.h"
-#include "../Serializer.mqh"
+#include "../Serializer/Serializer.h"
 #include "../Test.mqh"
 
 /**

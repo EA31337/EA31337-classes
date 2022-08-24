@@ -28,8 +28,8 @@
 #include "../BufferStruct.mqh"
 #include "../Data.define.h"
 #include "../Data.struct.h"
-#include "../SerializerConverter.mqh"
-#include "../SerializerJSON.mqh"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerJSON.h"
 #include "../Std.h"
 #include "../Test.mqh"
 

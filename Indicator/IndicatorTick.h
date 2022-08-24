@@ -31,8 +31,8 @@
 
 // Includes.
 #include "../Buffer/BufferTick.h"
-#include "../Indicator.mqh"
-#include "../Indicator.struct.h"
+#include "Indicator.h"
+#include "Indicator.struct.h"
 #include "TickBarCounter.h"
 
 // Indicator modes.

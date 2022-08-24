@@ -30,7 +30,7 @@
 // Includes.
 #include "../DictStruct.mqh"
 #include "../DrawIndicator.mqh"
-#include "../Indicator.struct.serialize.h"
+#include "../Indicator/Indicator.struct.serialize.h"
 #include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_MA.mqh"

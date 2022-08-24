@@ -22,8 +22,8 @@
 
 // Includes.
 #include "../Bar.struct.h"
-#include "../Indicator.struct.h"
-#include "../Serializer.mqh"
+#include "../Indicator/Indicator.struct.h"
+#include "../Serializer/Serializer.h"
 #include "Special/Indi_Math.mqh"
 
 // Structs.

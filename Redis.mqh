@@ -27,9 +27,9 @@
 #include "Dict.mqh"
 #include "Object.mqh"
 #include "Redis.struct.h"
-#include "Serializer.mqh"
-#include "SerializerConversions.h"
-#include "SerializerJson.mqh"
+#include "Serializer/Serializer.h"
+#include "Serializer/SerializerConversions.h"
+#include "Serializer/SerializerJson.h"
 #include "Socket.mqh"
 
 enum ENUM_REDIS_VALUE_SET { REDIS_VALUE_SET_ALWAYS, REDIS_VALUE_SET_IF_NOT_EXIST, REDIS_VALUE_SET_IF_ALREADY_EXIST };

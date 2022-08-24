@@ -24,6 +24,9 @@
  * Median price version of ValueStorage.
  */
 
+// Forward declarations.
+class IndicatorBase;
+
 // Includes.
 #include "ObjectsCache.h"
 #include "ValueStorage.history.h"

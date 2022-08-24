@@ -27,7 +27,7 @@
 
 // Includes.
 #include "Data.struct.h"
-#include "Indicator.struct.h"
+#include "Indicator/Indicator.struct.h"
 #include "Math.define.h"
 #include "Math.enum.h"
 #include "Math.extern.h"

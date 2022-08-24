@@ -31,6 +31,7 @@
 #endif
 
 // Includes.
+#include "Chart.struct.static.h"
 #include "Chart.symboltf.h"
 #include "Terminal.define.h"
 

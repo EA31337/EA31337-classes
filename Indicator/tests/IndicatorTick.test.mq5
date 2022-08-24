@@ -26,6 +26,7 @@
 
 // Includes.
 #include "../../Test.mqh"
+#include "../IndicatorTick.h"
 #include "classes/IndicatorTickDummy.h"
 
 /**

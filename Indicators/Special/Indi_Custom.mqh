@@ -33,7 +33,7 @@
 #endif
 
 // Includes.
-#include "../../Indicator.mqh"
+#include "../../Indicator/Indicator.h"
 
 // Structs.
 

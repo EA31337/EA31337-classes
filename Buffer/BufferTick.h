@@ -28,7 +28,7 @@
 #include "../BufferStruct.mqh"
 #include "../Chart.enum.h"
 #include "../Storage/IValueStorage.h"
-#include "../Tick.struct.h"
+#include "../Tick/Tick.struct.h"
 
 // TV = Type of price stored by BufferTick. RV = Type of property to be retrieved from BufferTick.
 template <typename TV, typename RV>
