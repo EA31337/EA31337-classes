@@ -27,8 +27,8 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Candle.struct.h"
-#include "../SerializerConverter.mqh"
-#include "../SerializerJson.mqh"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerJson.h"
 
 /**
  * Class to store struct data.

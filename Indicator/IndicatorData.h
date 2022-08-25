@@ -1433,6 +1433,16 @@ class IndicatorData : public IndicatorBase {
   virtual long GetTickVolume(int _shift = 0) { return GetCandle() PTR_DEREF GetTickVolume(_shift); }
 
   /**
+   * Removes candle from the buffer. Used mainly for testing purposes.
+   */
+  virtual void InvalidateCandle(datetime _bar_time = 0) { GetCandle() PTR_DEREF InvalidateCandle(_bar_time); }
+
+  /**
+   * Fetches historic ticks for a given range and emits these ticks. Used to regenerate candles.
+   */
+  virtual void FetchHistory(long _range_from, long _range_to) {}
+
+  /**
    * Returns value storage of given kind.
    */
   virtual IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {

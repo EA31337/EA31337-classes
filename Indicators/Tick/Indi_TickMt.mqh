@@ -107,6 +107,40 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
     _fetch_history_on_first_tick = true;
   }
 
+  /**
+   * Fetches historic ticks for a given range and emits these ticks. Used to regenerate candles.
+   */
+  void FetchHistory(long _range_from, long _range_to) override {
+    // Number of retries for CopyTicksRange().
+    int _tries = 10;
+
+    static MqlTick _tmp_ticks[];
+    ArrayResize(_tmp_ticks, 0);
+
+    while (_tries > 0) {
+      int _num_copied = CopyTicksRange(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, _range_from, _range_to);
+
+      if (_num_copied == -1) {
+        ResetLastError();
+        Sleep(1000);
+        --_tries;
+      } else {
+        for (int i = 0; i < _num_copied; ++i) {
+          TickAB<double> _tick(_tmp_ticks[i].ask, _tmp_ticks[i].bid);
+#ifdef __debug_verbose__
+          Print("Emitting historic tick at ", TimeToString(_tmp_ticks[i].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+                ": ", _tmp_ticks[i].ask, ", ", _tmp_ticks[i].bid);
+#endif
+          EmitEntry(TickToEntry(_tmp_ticks[i].time, _tick));
+        }
+        break;
+      }
+    }
+  }
+
+  /**
+   * Fetches historic ticks for last two weeks and emits those ticks.
+   */
   void FetchHistory() {
     if (INDICATOR_TICK_REAL_FETCH_HISTORY == 0) {
       // No history requested.

@@ -40,6 +40,7 @@
 #include "../Storage/ValueStorage.time.h"
 #include "../Storage/ValueStorage.volume.h"
 #include "Indicator.h"
+#include "IndicatorData.h"
 #include "TickBarCounter.h"
 
 // Indicator modes.
@@ -79,7 +80,6 @@ class IndicatorCandle : public Indicator<TS> {
   void Init() {
     // Along with indexing by shift, we can also index via timestamp!
     flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
-    icdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     icdata.SetOverflowListener(BufferStructOverflowListener, 10);
     Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_INDI_CANDLE_MODE_ENTRY);
   }
@@ -108,6 +108,11 @@ class IndicatorCandle : public Indicator<TS> {
   }
 
   /* Getters */
+
+  /**
+   * Returns buffer where candles are temporarily stored.
+   */
+  BufferCandle<TV>* GetCandlesBuffer() { return &icdata; }
 
   /**
    * Gets open price for a given, optional shift.
@@ -166,27 +171,32 @@ class IndicatorCandle : public Indicator<TS> {
   }
 
   /**
+   * Removes candle from the buffer. Used mainly for testing purposes.
+   */
+  void InvalidateCandle(datetime _bar_time = 0) override {
+    if (_bar_time == 0) {
+      _bar_time = GetBarTime();
+    }
+
+    icdata.Unset(_bar_time);
+  }
+
+  /**
    * Gets OHLC price values.
    */
   BarOHLC GetOHLC(int _shift = 0) override {
-    datetime _bar_time = GetBarTime(_shift);
-    BarOHLC _ohlc;
+    IndicatorDataEntry _entry = GetEntry(_shift);
+    BarOHLC _bar(0, 0, 0, _entry.timestamp);
 
-    if ((long)_bar_time != 0) {
-      CandleOCTOHLC<TV> candle = icdata.GetByKey((long)_bar_time);
-      _ohlc.open = (float)candle.open;
-      _ohlc.high = (float)candle.high;
-      _ohlc.low = (float)candle.low;
-      _ohlc.close = (float)candle.close;
-      _ohlc.time = _bar_time;
+    if (!_entry.IsValid()) {
+      return _bar;
     }
 
-#ifdef __debug_verbose__
-    Print("Fetching OHLC #", _shift, " from ", TimeToString(_ohlc.time, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
-    Print("^- ", _ohlc.open, ", ", _ohlc.high, ", ", _ohlc.low, ", ", _ohlc.close);
-#endif
-
-    return _ohlc;
+    _bar.open = _entry.GetValue<double>(INDI_CANDLE_MODE_PRICE_OPEN);
+    _bar.high = _entry.GetValue<double>(INDI_CANDLE_MODE_PRICE_HIGH);
+    _bar.low = _entry.GetValue<double>(INDI_CANDLE_MODE_PRICE_LOW);
+    _bar.close = _entry.GetValue<double>(INDI_CANDLE_MODE_PRICE_CLOSE);
+    return _bar;
   }
 
   /**
@@ -231,17 +241,26 @@ class IndicatorCandle : public Indicator<TS> {
     ResetLastError();
     int _ishift = _index >= 0 ? (int)_index : iparams.GetShift();
     long _candle_time = GetBarTime(_ishift);
-    CandleOCTOHLC<TV> _candle;
-    _candle = icdata.GetByKey(_candle_time);
+    long _candle_end_time = GetBarTime(_ishift - 1);
+
+    CandleOCTOHLC<TV> _candle = icdata.GetByKey(_candle_time);
 
     if (!_candle.IsValid()) {
-      // No candle found.
-      DebugBreak();
-      Print(GetFullName(), ": Missing candle at shift ", _index, " (",
-            TimeToString(_candle_time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), "). Lowest timestamp in history is ",
-            icdata.GetMin());
+      // No candle found. Regenerating it.
+      GetTick() PTR_DEREF FetchHistory(_candle_time * 1000, _candle_end_time * 1000 - 1);
+      // At this point candle should be regenerated (or not) via
+      // OnDataSourceEntry() called from IndicatorTick.
+      _candle = icdata.GetByKey(_candle_time);
+
+      if (!_candle.IsValid()) {
+        // Candle wasn't regenerated. Maybe there is no history for that bar?
+        IndicatorDataEntry _entry = CandleToEntry(_candle_time, _candle);
+        _entry.AddFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA);
+        return _entry;
+      }
     }
 
+    // At this point candle is filled with proper values.
     return CandleToEntry(_candle_time, _candle);
   }
 
@@ -440,4 +459,4 @@ class IndicatorCandle : public Indicator<TS> {
   /* Virtual methods */
 };
 
-#endif  // INDICATOR_CANDLE_H
+#endif

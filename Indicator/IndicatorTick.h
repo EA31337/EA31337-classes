@@ -68,7 +68,6 @@ class IndicatorTick : public Indicator<TS> {
     // We can only index via timestamp.
     flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
 
-    itdata.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
     itdata.SetOverflowListener(BufferStructOverflowListener, 10);
     // Ask and Bid price.
     Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);

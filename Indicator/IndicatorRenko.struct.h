@@ -31,7 +31,7 @@
 #endif
 
 // Includes.
-#include "../Indicator.struct.h"
+#include "Indicator.struct.h"
 
 /* Structure for IndicatorRenko class parameters. */
 struct IndicatorRenkoParams : IndicatorParams {
