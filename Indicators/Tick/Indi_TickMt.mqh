@@ -75,6 +75,22 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
   unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN; }
 
   /**
+   * Returns time of the bar for a given shift.
+   */
+  virtual datetime GetBarTime(int _shift = 0) {
+    Print(
+        "Error: Indi_TickMt's GetBarTime() requires TF to be passed. Please use GetBarTime(ENUM_TIMEFRAMES _tf, int "
+        "_shift = 0) variant.");
+    DebugBreak();
+    return 0;
+  }
+
+  /**
+   * Returns time of the bar for a given timeframe and shift.
+   */
+  virtual datetime GetBarTime(ENUM_TIMEFRAMES _tf, int _shift = 0) { return ::GetBarTime(_tf, _shift); }
+
+  /**
    * Returns the indicator's struct entry for the given shift.
    *
    * @see: IndicatorDataEntry.
@@ -118,7 +134,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
     ArrayResize(_tmp_ticks, 0);
 
     while (_tries > 0) {
-      int _num_copied = CopyTicksRange(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, _range_from, _range_to);
+      int _num_copied = (GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, _range_from, _range_to);
 
       if (_num_copied == -1) {
         ResetLastError();

@@ -30,8 +30,8 @@
 #endif
 
 // Includes.
-#include "../Buffer/BufferCandle.h"
 #include "../Candle.struct.h"
+#include "../Storage/ItemsHistory.h"
 #include "../Storage/ValueStorage.price_median.h"
 #include "../Storage/ValueStorage.price_typical.h"
 #include "../Storage/ValueStorage.price_weighted.h"
@@ -66,8 +66,8 @@ enum ENUM_INDI_CANDLE_MODE {
 template <typename TS, typename TV>
 class IndicatorCandle : public Indicator<TS> {
  protected:
-  BufferCandle<TV> icdata;
   TickBarCounter counter;
+  ItemsHistory<CandleOCTOHLC<TV>> history;
 
  protected:
   /* Protected methods */
@@ -80,7 +80,6 @@ class IndicatorCandle : public Indicator<TS> {
   void Init() {
     // Along with indexing by shift, we can also index via timestamp!
     flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
-    icdata.SetOverflowListener(BufferStructOverflowListener, 10);
     Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_INDI_CANDLE_MODE_ENTRY);
   }
 
@@ -112,7 +111,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Returns buffer where candles are temporarily stored.
    */
-  BufferCandle<TV>* GetCandlesBuffer() { return &icdata; }
+  ItemsHistory<CandleOCTOHLC<TV>>* GetCandlesBuffer() { return &history; }
 
   /**
    * Gets open price for a given, optional shift.
@@ -162,6 +161,31 @@ class IndicatorCandle : public Indicator<TS> {
   /* Virtual method implementations */
 
   /**
+   * Returns time of the bar for a given shift.
+   */
+  virtual datetime GetBarTime(int _shift = 0) {
+    /*
+        datetime _bar_time = history.GetBarTime(_shift);
+      
+        if (_bar_time == 0) {
+          // No bar found.
+          candles_history.FetchBarsFromShift()
+        }
+     */
+
+    // Will retrieve bar's time from tick indicator.
+    return GetBarTime(GetTf(), _shift);
+  }
+
+  /**
+   * Returns time of the bar for a given timeframe and shift.
+   */
+  virtual datetime GetBarTime(ENUM_TIMEFRAMES _tf, int _shift = 0) {
+    // Retrieving bar's time from tick indicator.
+    return GetTick() PTR_DEREF GetBarTime(_tf, _shift);
+  }
+
+  /**
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
    * indicator. IndicatorCandle satisfies such requirements.
    */
@@ -171,31 +195,18 @@ class IndicatorCandle : public Indicator<TS> {
   }
 
   /**
-   * Removes candle from the buffer. Used mainly for testing purposes.
-   */
-  void InvalidateCandle(datetime _bar_time = 0) override {
-    if (_bar_time == 0) {
-      _bar_time = GetBarTime();
-    }
-
-    icdata.Unset(_bar_time);
-  }
-
-  /**
    * Gets OHLC price values.
    */
   BarOHLC GetOHLC(int _shift = 0) override {
-    IndicatorDataEntry _entry = GetEntry(_shift);
-    BarOHLC _bar(0, 0, 0, _entry.timestamp);
+    BarOHLC _bar;
 
-    if (!_entry.IsValid()) {
+    if (!history.EnsureShiftExists(_shift)) {
+      // There's no candle fort that shift.
       return _bar;
     }
 
-    _bar.open = _entry.GetValue<double>(INDI_CANDLE_MODE_PRICE_OPEN);
-    _bar.high = _entry.GetValue<double>(INDI_CANDLE_MODE_PRICE_HIGH);
-    _bar.low = _entry.GetValue<double>(INDI_CANDLE_MODE_PRICE_LOW);
-    _bar.close = _entry.GetValue<double>(INDI_CANDLE_MODE_PRICE_CLOSE);
+    CandleOCTOHLC<double> _candle = history.GetByShift(_shift);
+    _bar = BarOHLC(_candle.open, _candle.high, _candle.low, _candle.close, _candle.open_timestamp);
     return _bar;
   }
 

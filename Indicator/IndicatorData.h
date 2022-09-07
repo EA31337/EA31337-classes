@@ -1139,7 +1139,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns time of the bar for a given shift.
    */
-  virtual datetime GetBarTime(int _shift = 0) { return GetCandle() PTR_DEREF GetBarTime(_shift); }
+  virtual datetime GetBarTime(int _shift = 0) { return GetTick() PTR_DEREF GetBarTime(_shift); }
 
   /**
    * Search for a bar by its time.

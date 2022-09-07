@@ -38,9 +38,9 @@ class Serializer;
 #include "Chart.enum.h"
 #include "Serializer/Serializable.h"
 #include "Serializer/Serializer.enum.h"
+#include "Serializer/Serializer.h"
 #include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
-#include "Serializer/Serializer.h"
 
 /* Structure for storing OHLC values. */
 template <typename T>
@@ -256,6 +256,9 @@ struct CandleOCTOHLC : CandleOHLC<T> {
     // Increasing candle's volume.
     ++volume;
   }
+
+  // Method used by ItemsHistory;
+  datetime GetTime() { return (datetime)open_timestamp; }
 
   // Returns timestamp of open price.
   long GetOpenTimestamp() { return open_timestamp; }
