@@ -82,10 +82,10 @@ class ItemsHistoryItemProvider : public Dynamic {
  * When items are prepended, there could be a situation where the most
  * recent items dissapeared and must be regenerated.
  */
-template <typename IV>
+template <typename IV, typename PT>
 class ItemsHistory {
   // Provides items from bound provider.
-  Ref<ItemsHistoryItemProvider<IV>> item_provider;
+  Ref<PT> item_provider;
 
   // Holds items per its index. "shift" property indicates how indices
   // are shifted from their index.
@@ -110,11 +110,20 @@ class ItemsHistory {
   // We have to regenerate all between last_valid_shift -> given shift.
   int last_valid_index;
 
+  /// Maximum number of items that occupied the history.
+  unsigned int peak_size;
+
  public:
   /**
    * Constructor
    */
-  ItemsHistory(ItemsHistoryItemProvider<IV>* _item_provider) : item_provider(_item_provider) {}
+  ItemsHistory(PT* _item_provider)
+      : item_provider(_item_provider), current_index(0), first_valid_index(0), last_valid_index(0), peak_size(0) {}
+
+  /**
+   * Returns item provider.
+   */
+  PT* GetProvider() { return item_provider.Ptr(); }
 
   /**
    * Gets time in milliseconds of the last(oldest) item's time in current history time or 0.
@@ -124,6 +133,12 @@ class ItemsHistory {
     return history.GetByKey(last_valid_index).GetTime();
   }
   */
+
+  /**
+   * Returns maximum number of items that occupied the history. Could be used e.g., to determine how many bars could be
+   * retrieved from history and past the history.
+   */
+  unsigned int PeakSize() { return peak_size; }
 
   /**
    * Will regenerate items from item provider. "_dir" indicates if we have to prepend or append items.
@@ -150,6 +165,8 @@ class ItemsHistory {
     history.Set(++current_index, _item);
 
     ++last_valid_index;
+
+    peak_size = MathMax(peak_size, history.Size());
   }
 
   /**
@@ -170,24 +187,26 @@ class ItemsHistory {
 
     // Adding iem at the beginning of all the history and expanding history by one item in the past.
     history.Set(first_valid_index--, _item);
+
+    peak_size = MathMax(peak_size, history.Size());
   }
 
   /**
-   * Returns bar time in milliseconds for the given shift.
+   * Returns item time in milliseconds for the given shift.
    */
-  long GetBarTimeMsc(int _shift) {
+  long GetItemTimeByShiftMsc(int _shift) {
     if (!EnsureShiftExists(_shift)) {
       // There won't be item at given shift.
       return (datetime)0;
     }
 
-    return GetItemByShift(_shift).GetTime();
+    return GetItemByShift(_shift).GetTimeMs();
   }
 
   /**
    * Returns bar date and time for the given shift.
    */
-  datetime GetBarTime(int _shift) { return (datetime)(GetBarTime(_shift) / 1000); }
+  datetime GetItemTimeByShift(int _shift) { return (datetime)(GetItemTimeByShiftMsc(_shift) / 1000); }
 
   /**
    * Ensures

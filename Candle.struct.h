@@ -223,18 +223,18 @@ struct CandleOHLC
 template <typename T>
 struct CandleOCTOHLC : CandleOHLC<T> {
   bool is_complete;
-  long open_timestamp, close_timestamp;
+  long open_timestamp_ms, close_timestamp_ms;
 
   // Number of ticks which formed the candle. Also known as volume.
   int volume;
 
   // Struct constructors.
-  CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, long _open_timestamp = -1,
-                long _close_timestamp = -1, int _volume = 0)
+  CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, long _open_timestamp_ms = -1,
+                long _close_timestamp_ms = -1, int _volume = 0)
       : CandleOHLC(_open, _high, _low, _close),
         is_complete(true),
-        open_timestamp(_open_timestamp),
-        close_timestamp(_close_timestamp),
+        open_timestamp_ms(_open_timestamp_ms),
+        close_timestamp_ms(_close_timestamp_ms),
         volume(_volume) {
     if (_open != 0) {
       volume = 1;
@@ -242,13 +242,13 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   }
 
   // Updates OHLC values taking into consideration tick's timestamp.
-  void Update(long _timestamp, T _price) {
-    if (_timestamp < open_timestamp) {
-      open_timestamp = _timestamp;
+  void Update(long _timestamp_ms, T _price) {
+    if (_timestamp_ms < open_timestamp_ms) {
+      open_timestamp_ms = _timestamp_ms;
       open = _price;
     }
-    if (_timestamp > close_timestamp) {
-      close_timestamp = _timestamp;
+    if (_timestamp_ms > close_timestamp_ms) {
+      close_timestamp_ms = _timestamp_ms;
       close = _price;
     }
     high = MathMax(high, _price);
@@ -258,13 +258,16 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   }
 
   // Method used by ItemsHistory;
-  datetime GetTime() { return (datetime)open_timestamp; }
+  long GetTimeMs() { return open_timestamp_ms; }
+
+  // Method used by ItemsHistory;
+  datetime GetTime() { return (datetime)(open_timestamp_ms / 1000); }
 
   // Returns timestamp of open price.
-  long GetOpenTimestamp() { return open_timestamp; }
+  long GetOpenTimestamp() { return open_timestamp_ms / 1000; }
 
   // Returns timestamp of close price.
-  long GetCloseTimestamp() { return close_timestamp; }
+  long GetCloseTimestamp() { return close_timestamp_ms / 1000; }
 
   // Serializers.
   SerializerNodeType Serialize(Serializer &s);
@@ -273,8 +276,8 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   string ToString() {
     return StringFormat("%.5f %.5f %.5f %.5f [%s] @ %s - %s", open, high, low, close,
                         is_complete ? "Complete" : "Incomplete",
-                        TimeToString(open_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
-                        TimeToString(close_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+                        TimeToString(open_timestamp_ms, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+                        TimeToString(close_timestamp_ms, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
   }
 };
 
@@ -319,8 +322,8 @@ SerializerNodeType CandleTOHLC::Serialize(Serializer &s) {
 template <typename T>
 SerializerNodeType CandleOCTOHLC::Serialize(Serializer &s) {
   s.Pass(THIS_REF, "is_complete", is_complete, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(THIS_REF, "open_timestamp", open_timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(THIS_REF, "close_timestamp", close_timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "open_timestamp_ms", open_timestamp_ms, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "close_timestamp_ms", close_timestamp_ms, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);

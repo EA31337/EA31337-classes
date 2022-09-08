@@ -75,22 +75,6 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
   unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN; }
 
   /**
-   * Returns time of the bar for a given shift.
-   */
-  virtual datetime GetBarTime(int _shift = 0) {
-    Print(
-        "Error: Indi_TickMt's GetBarTime() requires TF to be passed. Please use GetBarTime(ENUM_TIMEFRAMES _tf, int "
-        "_shift = 0) variant.");
-    DebugBreak();
-    return 0;
-  }
-
-  /**
-   * Returns time of the bar for a given timeframe and shift.
-   */
-  virtual datetime GetBarTime(ENUM_TIMEFRAMES _tf, int _shift = 0) { return ::GetBarTime(_tf, _shift); }
-
-  /**
    * Returns the indicator's struct entry for the given shift.
    *
    * @see: IndicatorDataEntry.
@@ -99,28 +83,35 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
   IndicatorDataEntry GetEntry(long _index = -1) override {
-    int _ishift = _index >= 0 ? (int)_index : iparams.GetShift();
-    long _bar_time;
-    _bar_time = GetBarTime(_ishift);
+    // @todo Use history to check/regenerate tick and return data entry.
 
-    TickAB<double> _tick = itdata.GetByKey(_bar_time);
-    IndicatorDataEntry _entry = TickToEntry(_bar_time, _tick);
+    /*
+      int _ishift = _index >= 0 ? (int)_index : iparams.GetShift();
+      long _bar_time;
+      _bar_time = GetBarTime(_ishift);
 
-    if (_entry.IsValid()) {
-      istate.is_changed = false;
-      istate.is_ready = true;
+      TickAB<double> _tick = itdata.GetByKey(_bar_time);
+      IndicatorDataEntry _entry = TickToEntry(_bar_time, _tick);
+
+      if (_entry.IsValid()) {
+        istate.is_changed = false;
+        istate.is_ready = true;
+      }
+
+      return _entry;
     }
 
-    return _entry;
-  }
+    void OnBecomeDataSourceFor(IndicatorData *_base_indi) override {
+      // Feeding base indicator with historic entries of this indicator.
+  #ifdef __debug__
+      Print(GetFullName(), " became a data source for ", _base_indi.GetFullName());
+  #endif
 
-  void OnBecomeDataSourceFor(IndicatorData *_base_indi) override {
-    // Feeding base indicator with historic entries of this indicator.
-#ifdef __debug__
-    Print(GetFullName(), " became a data source for ", _base_indi.GetFullName());
-#endif
+      _fetch_history_on_first_tick = true;
+      */
 
-    _fetch_history_on_first_tick = true;
+    IndicatorDataEntry _default;
+    return _default;
   }
 
   /**
@@ -134,7 +125,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
     ArrayResize(_tmp_ticks, 0);
 
     while (_tries > 0) {
-      int _num_copied = (GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, _range_from, _range_to);
+      int _num_copied = CopyTicksRange(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, _range_from, _range_to);
 
       if (_num_copied == -1) {
         ResetLastError();
