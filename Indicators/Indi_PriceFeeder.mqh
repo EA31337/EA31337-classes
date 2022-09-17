@@ -98,8 +98,11 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
     return _value;
   }
 
-  void OnTick() {
-    Indicator<IndiPriceFeederParams>::OnTick();
+  /**
+   * Called when new tick is retrieved from attached data source.
+   */
+  void OnTick(int _global_tick_index) override {
+    Indicator<IndiPriceFeederParams>::OnTick(_global_tick_index);
 
     if (idparams.is_draw) {
       int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));

@@ -111,8 +111,11 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
     return false;
   }
 
-  virtual void OnTick() {
-    Indicator<IndiDrawerParams>::OnTick();
+  /**
+   * Called when new tick is retrieved from attached data source.
+   */
+  void OnTick(int _global_tick_index) override {
+    Indicator<IndiDrawerParams>::OnTick(_global_tick_index);
 
     /* @fixme
     TaskActionEntry action(INDI_ACTION_SET_VALUE);

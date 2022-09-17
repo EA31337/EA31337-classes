@@ -1743,6 +1743,9 @@ class IndicatorData : public IndicatorBase {
    */
   virtual void OnDataSourceEntry(IndicatorDataEntry& entry){};
 
+  /**
+   * Called when new tick is retrieved from attached data source.
+   */
   virtual void OnTick(int _global_tick_index) {}
 
   /**

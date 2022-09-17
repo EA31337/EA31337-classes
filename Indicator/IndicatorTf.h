@@ -35,7 +35,7 @@
 #include "IndicatorTf.struct.h"
 
 /**
- * Candle grouping and regenerationf for time-frame based candles.
+ * Candle grouping and regeneration for time-frame based candles.
  */
 template <typename TV>
 class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
@@ -43,9 +43,58 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
   /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
-  virtual void OnTick(long _timestamp_ms, float _ask, float _bid) {
-    // @todo Check if tick is outside current candle and if yes, close the candle,
-    // mark as completed and open new candle.
+  virtual void OnTick(long _time_ms, float _ask, float _bid) {
+    Print("IndicatorTf's history: New tick: ", TimeToString(_time_ms / 1000, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+          ", ", _ask, ", ", _bid);
+
+    // Index of the candle we will be updating/creating.
+    int _candle_index = GetCandleIndexFromTimeMs(_time_ms);
+
+    // We know that tick's timestamp will be ahead of the last tick and thus
+    // inside or ahead of the last created candle. In order to retrieve last
+    // valid candle, we need to use ItemsHistory::GetItemByShift(0) to check if
+    // we have to update last or create/append new candle.
+    CandleOCTOHLC<TV> _candle;
+
+    // Will regenerate candles up to the last added candle ever. We have to
+    // call it, because some of the previous actions may have removed some of
+    // the recent candles. Note that OnTick() advances its _time_ms in
+    // ascending order, so all we need to most recent history.
+    GetHistory() PTR_DEREF EnsureShiftExists(0);
+
+    if (GetHistory() PTR_DEREF TryGetItemByIndex(_candle_index, _candle)) {
+      // There is a candle at given time. Updating it.
+      _candle.Update(_time_ms, _bid);
+
+      // Storing candle in the history.
+      GetHistory() PTR_DEREF Update(_candle, _candle_index);
+    } else {
+      // There is no such candle. Adding new one.
+      _candle.Update(_time_ms, _bid);
+
+      // Adding candle as the most recent item in the history.
+      GetHistory() PTR_DEREF Append(_candle);
+    }
+  }
+
+  /**
+   * Determines index of the candle for the ItemsHistory from given time in
+   * milliseconds.
+   */
+  int GetCandleIndexFromTimeMs(long _time_ms) {}
+
+  /**
+   * Retrieves given number of items starting from the given microseconds or index (inclusive). "_dir" identifies if we
+   * want previous or next items from selected starting point.
+   */
+  virtual void GetItems(long _from, ENUM_ITEMS_HISTORY_SELECTOR _sel, ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items,
+                        ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
+    // Method is called if there is a missing item (candle) in the history. We need to regenerate it.
+    if (_sel == ITEMS_HISTORY_SELECTOR_INDEX) {
+    } else if (_sel == ITEMS_HISTORY_SELECTOR_TIME_MS) {
+      Print("Error: Candles are indexed by their index (integer) and thus we can't work with time indices!");
+      DebugBreak();
+    }
   }
 };
 

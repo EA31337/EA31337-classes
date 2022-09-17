@@ -243,16 +243,24 @@ struct CandleOCTOHLC : CandleOHLC<T> {
 
   // Updates OHLC values taking into consideration tick's timestamp.
   void Update(long _timestamp_ms, T _price) {
-    if (_timestamp_ms < open_timestamp_ms) {
+    bool _is_init = open_timestamp_ms == -1;
+
+    if (_is_init || _timestamp_ms < open_timestamp_ms) {
       open_timestamp_ms = _timestamp_ms;
       open = _price;
     }
-    if (_timestamp_ms > close_timestamp_ms) {
+    if (_is_init || _timestamp_ms > close_timestamp_ms) {
       close_timestamp_ms = _timestamp_ms;
       close = _price;
     }
-    high = MathMax(high, _price);
-    low = MathMin(low, _price);
+
+    if (_is_init) {
+      high = _price;
+      low = _price;
+    } else {
+      high = MathMax(high, _price);
+      low = MathMin(low, _price);
+    }
     // Increasing candle's volume.
     ++volume;
   }

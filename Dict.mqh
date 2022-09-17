@@ -268,18 +268,15 @@ class Dict : public DictBase<K, V> {
            (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
       ++_num_conflicts;
 
-      if (overflow_listener == NULL) {
-        // There is no overflow listener, so we can't overwrite a slot. We will be looping until we find empty slot.
-        continue;
-      }
-
-      // We had to skip slot as it is already occupied. Now we are checking if
-      // there is too many conflicts/skips and thus we can overwrite slot in
-      // the starting position.
-      if (overflow_listener(DICT_LISTENER_CONFLICTS_CAN_OVERWRITE, dictSlotsRef._num_used, _num_conflicts)) {
-        // Looks like dict is working as buffer and we can overwrite slot in the starting position.
-        position = _starting_position;
-        break;
+      if (overflow_listener != NULL) {
+        // We had to skip slot as it is already occupied. Now we are checking if
+        // there is too many conflicts/skips and thus we can overwrite slot in
+        // the starting position.
+        if (overflow_listener(DICT_LISTENER_CONFLICTS_CAN_OVERWRITE, dictSlotsRef._num_used, _num_conflicts)) {
+          // Looks like dict is working as buffer and we can overwrite slot in the starting position.
+          position = _starting_position;
+          break;
+        }
       }
 
       // Position may overflow, so we will start from the beginning.
