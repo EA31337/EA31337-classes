@@ -223,16 +223,26 @@ struct CandleOHLC
 template <typename T>
 struct CandleOCTOHLC : CandleOHLC<T> {
   bool is_complete;
+
+  // Timestamp of where the candle is placed on the chart.
+  int start_time;
+
+  // Length of the candle in seconds.
+  int length;
+
+  // Open and close timestamps of ticks that were part of this candle.
   long open_timestamp_ms, close_timestamp_ms;
 
   // Number of ticks which formed the candle. Also known as volume.
   int volume;
 
   // Struct constructors.
-  CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, long _open_timestamp_ms = -1,
-                long _close_timestamp_ms = -1, int _volume = 0)
+  CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, int _start_time = -1, int _length = 0,
+                long _open_timestamp_ms = -1, long _close_timestamp_ms = -1, int _volume = 0)
       : CandleOHLC(_open, _high, _low, _close),
         is_complete(true),
+        start_time(_start_time),
+        length(_length),
         open_timestamp_ms(_open_timestamp_ms),
         close_timestamp_ms(_close_timestamp_ms),
         volume(_volume) {
@@ -241,7 +251,22 @@ struct CandleOCTOHLC : CandleOHLC<T> {
     }
   }
 
-  // Updates OHLC values taking into consideration tick's timestamp.
+  /**
+   * Initializes candle with a given start time, lenght in seconds, first tick's timestamp and its price.
+   */
+  void Init(int _start_time, int _length, long _timestamp_ms, T _price) {
+    is_complete = false;
+    start_time = _start_time;
+    length = _length;
+    open_timestamp_ms = _timestamp_ms;
+    close_timestamp_ms = _timestamp_ms;
+    volume = 1;
+    open = high = low = close = _price;
+  }
+
+  /**
+   * Updates OHLC values taking into consideration tick's timestamp.
+   */
   void Update(long _timestamp_ms, T _price) {
     bool _is_init = open_timestamp_ms == -1;
 
@@ -265,22 +290,39 @@ struct CandleOCTOHLC : CandleOHLC<T> {
     ++volume;
   }
 
-  // Method used by ItemsHistory;
-  long GetTimeMs() { return open_timestamp_ms; }
+  /**
+   * Method used by ItemsHistory;
+   */
+  long GetTimeMs() { return start_time * 1000; }
 
-  // Method used by ItemsHistory;
-  datetime GetTime() { return (datetime)(open_timestamp_ms / 1000); }
+  /**
+   * Method used by ItemsHistory;
+   */
+  datetime GetTime() { return (datetime)start_time; }
 
-  // Returns timestamp of open price.
+  /**
+   * Returns timestamp of open price.
+   */
   long GetOpenTimestamp() { return open_timestamp_ms / 1000; }
 
-  // Returns timestamp of close price.
+  /**
+   * Returns timestamp of close price.
+   */
   long GetCloseTimestamp() { return close_timestamp_ms / 1000; }
+
+  /**
+   * Whether given time fits in the candle.
+   */
+  bool ContainsTimeMs(long _time_ms) {
+    return _time_ms >= (start_time * 1000) && _time_ms < (start_time + length) * 1000;
+  }
 
   // Serializers.
   SerializerNodeType Serialize(Serializer &s);
 
-  // Returns text representation of candle.
+  /**
+   * Returns text representation of candle.
+   */
   string ToString() {
     return StringFormat("%.5f %.5f %.5f %.5f [%s] @ %s - %s", open, high, low, close,
                         is_complete ? "Complete" : "Incomplete",
@@ -289,7 +331,9 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   }
 };
 
-/* Structore for storing OHLC values with timestamp. */
+/**
+ * Structure for storing OHLC values with timestamp.
+ */
 template <typename T>
 struct CandleTOHLC : CandleOHLC<T> {
   datetime time;

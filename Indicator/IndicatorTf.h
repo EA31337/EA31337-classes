@@ -39,16 +39,21 @@
  */
 template <typename TV>
 class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
+  // Seconds per candle.
+  int spc;
+
  public:
+  /**
+   * Constructor.
+   */
+  ItemsHistoryTfCandleProvider(int _spc) : ItemsHistoryCandleProvider(), spc(_spc) {}
+
   /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
   virtual void OnTick(long _time_ms, float _ask, float _bid) {
     Print("IndicatorTf's history: New tick: ", TimeToString(_time_ms / 1000, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
           ", ", _ask, ", ", _bid);
-
-    // Index of the candle we will be updating/creating.
-    int _candle_index = GetCandleIndexFromTimeMs(_time_ms);
 
     // We know that tick's timestamp will be ahead of the last tick and thus
     // inside or ahead of the last created candle. In order to retrieve last
@@ -60,28 +65,32 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
     // call it, because some of the previous actions may have removed some of
     // the recent candles. Note that OnTick() advances its _time_ms in
     // ascending order, so all we need to most recent history.
+    //
+    // Note that EnsureShiftExists() may return false when there never been any
+    // candle added.
     GetHistory() PTR_DEREF EnsureShiftExists(0);
 
-    if (GetHistory() PTR_DEREF TryGetItemByIndex(_candle_index, _candle)) {
-      // There is a candle at given time. Updating it.
+    if (GetHistory() PTR_DEREF TryGetItemByShift(0, _candle) && _candle.ContainsTimeMs(_time_ms)) {
+      // Time given fits in the last added candle's time-frame, updating the candle with given price.
       _candle.Update(_time_ms, _bid);
 
       // Storing candle in the history.
-      GetHistory() PTR_DEREF Update(_candle, _candle_index);
+      GetHistory() PTR_DEREF Update(_candle, GetHistory() PTR_DEREF GetShiftIndex(0));
     } else {
-      // There is no such candle. Adding new one.
-      _candle.Update(_time_ms, _bid);
+      // Either there is no candle at shift 0 or given time doesn't fit in the #0 candle's time-frame.
+      _candle.Init(GetCandleTimeFromTimeMs(_time_ms, spc), spc, _time_ms, _bid);
 
-      // Adding candle as the most recent item in the history.
+      // Adding candle as the most recent item in the history. It will now become the candle at shift 0.
       GetHistory() PTR_DEREF Append(_candle);
     }
   }
 
   /**
-   * Determines index of the candle for the ItemsHistory from given time in
-   * milliseconds.
+   * Returns start time of the candle (the place it's on the chart) for the given tick's time in milliseconds.
    */
-  int GetCandleIndexFromTimeMs(long _time_ms) {}
+  int GetCandleTimeFromTimeMs(long _time_ms, int _length_in_secs) {
+    return (int)((_time_ms - _time_ms % (_length_in_secs * 1000)) / 1000);
+  }
 
   /**
    * Retrieves given number of items starting from the given microseconds or index (inclusive). "_dir" identifies if we
@@ -91,6 +100,7 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
                         ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
     // Method is called if there is a missing item (candle) in the history. We need to regenerate it.
     if (_sel == ITEMS_HISTORY_SELECTOR_INDEX) {
+      DebugBreak();
     } else if (_sel == ITEMS_HISTORY_SELECTOR_TIME_MS) {
       Print("Error: Candles are indexed by their index (integer) and thus we can't work with time indices!");
       DebugBreak();
@@ -122,7 +132,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
   /**
    * Class constructor with timeframe enum.
    */
-  IndicatorTf(unsigned int _spc) : IndicatorCandle<TFP, double>(new ItemsHistoryTfCandleProvider<double>()) {
+  IndicatorTf(unsigned int _spc) : IndicatorCandle<TFP, double>(new ItemsHistoryTfCandleProvider<double>(_spc)) {
     iparams.SetSecsPerCandle(_spc);
     Init();
   }
@@ -131,7 +141,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    * Class constructor with timeframe enum.
    */
   IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : IndicatorCandle<TFP, double>(new ItemsHistoryTfCandleProvider<double>()) {
+      : IndicatorCandle<TFP, double>(new ItemsHistoryTfCandleProvider<double>(ChartTf::TfToSeconds(_tf))) {
     iparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
     tf = _tf;
     Init();
@@ -141,7 +151,8 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    * Class constructor with timeframe index.
    */
   IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0)
-      : IndicatorCandle<TFP, double>(new ItemsHistoryTfCandleProvider<double>()) {
+      : IndicatorCandle<TFP, double>(
+            new ItemsHistoryTfCandleProvider<double>(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)))) {
     iparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
     tf = ChartTf::IndexToTf(_tfi);
     Init();
@@ -151,7 +162,8 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    * Class constructor with parameters.
    */
   IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams)
-      : IndicatorCandle<TFP, double>(_icparams, _idparams, new ItemsHistoryTfCandleProvider<double>()) {
+      : IndicatorCandle<TFP, double>(_icparams, _idparams,
+                                     new ItemsHistoryTfCandleProvider<double>(_icparams.GetSecsPerCandle())) {
     Init();
   }
 

@@ -40,6 +40,12 @@ template <typename TV>
 class ItemsHistoryCandleProvider : public ItemsHistoryItemProvider<CandleOCTOHLC<TV>> {
  public:
   /**
+   * Constructor.
+   */
+  ItemsHistoryCandleProvider(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryItemProvider<CandleOCTOHLC<TV>>>* _history)
+      : ItemsHistoryItemProvider(_history) {}
+
+  /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
   virtual void OnTick(long _timestamp_ms, float _ask, float _bid) {

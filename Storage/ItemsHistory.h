@@ -237,47 +237,45 @@ class ItemsHistory {
    */
   void Update(IV& _item, int _index) {
     if (!history.KeyExists(_index)) {
-      Print("Error: You may only update existing items! History doesn't contain item with index ", _index, ".")
-          DebugBreak();
+      Print("Error: You may only update existing items! History doesn't contain item with index ", _index, ".");
+      DebugBreak();
     }
     history.Set(_index, _item);
   }
 
   /**
-   * Returns item time in milliseconds for the given shift.
-   */
-  long GetItemTimeByShiftMsc(int _shift) {
-    if (!EnsureShiftExists(_shift)) {
-      // There won't be item at given shift.
-      return (datetime)0;
-    }
-
-    return GetItemByShift(_shift).GetTimeMs();
-  }
-
-  /**
    * Returns bar date and time for the given shift.
    */
-  datetime GetItemTimeByShift(int _shift) { return (datetime)(GetItemTimeByShiftMsc(_shift) / 1000); }
+  datetime GetItemTimeByShift(int _shift) {
+    if (history.Size() == 0) {
+    }
+
+    return (datetime)(GetItemTimeByShiftMsc(_shift) / 1000);
+  }
 
   /**
    * Ensures
    */
   bool EnsureShiftExists(int _shift) {
+    if (history.Size() == 0) {
+      return false;
+    }
+
     int _index = GetShiftIndex(_shift);
     if (_index < first_valid_index) {
       RegenerateHistory(_index, first_valid_index - 1, ITEMS_HISTORY_DIRECTION_BACKWARD);
     } else if (_index > last_valid_index) {
       RegenerateHistory(last_valid_index + 1, _index, ITEMS_HISTORY_DIRECTION_FORWARD);
     }
-    return history.Size() > 0;
+
+    return history.KeyExists(_index);
   }
 
   /**
    * Returns item at given index. Index must exist!
    */
   IV GetItemByIndex(int _index) {
-    if (_index < first_valid_index || _index > last_valid_index) {
+    if (history.Size() == 0 || _index < first_valid_index || _index > last_valid_index) {
       Print("Error! Given index is outside the range of valid items!");
       DebugBreak();
       IV _default;
@@ -290,7 +288,7 @@ class ItemsHistory {
    * Tries to get item at given index.
    */
   bool TryGetItemByIndex(int _index, IV& _out_item) {
-    if (_index < first_valid_index || _index > last_valid_index) {
+    if (history.Size() == 0 || _index < first_valid_index || _index > last_valid_index) {
       return false;
     }
     _out_item = history.GetByKey(_index);
@@ -305,15 +303,23 @@ class ItemsHistory {
   /**
    * Returns item at given shift. Shift must exist!
    */
-  IV GetItemByShift(int _shift) {
-    int _index = GetShiftIndex(_shift);
-    if (_index < first_valid_index || _index > last_valid_index) {
-      Print("Error! Given shift is outside the range of valid items!");
-      DebugBreak();
-      IV _default;
-      return _default;
+  IV GetItemByShift(int _shift) { return GetItemByIndex(GetShiftIndex(_shift)); }
+
+  /**
+   * Tries to get item at given shift.
+   */
+  bool TryGetItemByShift(int _shift, IV& _out_item) { return TryGetItemByIndex(GetShiftIndex(_shift), _out_item); }
+
+  /**
+   * Returns item time in milliseconds for the given shift.
+   */
+  long GetItemTimeByShiftMsc(int _shift) {
+    if (!EnsureShiftExists(_shift)) {
+      // There won't be item at given shift.
+      return (datetime)0;
     }
-    return history.GetByKey(_index);
+
+    return GetItemByShift(_shift).GetTimeMs();
   }
 };
 
