@@ -42,14 +42,26 @@ class ItemsHistoryCandleProvider : public ItemsHistoryItemProvider<CandleOCTOHLC
   /**
    * Constructor.
    */
-  ItemsHistoryCandleProvider(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryItemProvider<CandleOCTOHLC<TV>>>* _history)
-      : ItemsHistoryItemProvider(_history) {}
+  ItemsHistoryCandleProvider() {}
 
   /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
-  virtual void OnTick(long _timestamp_ms, float _ask, float _bid) {
+  virtual void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryItemProvider<CandleOCTOHLC<TV>>>* _history,
+                      long _timestamp_ms, float _ask, float _bid) {
     // Should be overrided.
+  }
+
+  /**
+   * Retrieves given number of items starting from the given microseconds or index (inclusive). "_dir" identifies if we
+   * want previous or next items from selected starting point.
+   */
+  void GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryCandleProvider<TV>>* _history, long _from,
+                ENUM_ITEMS_HISTORY_SELECTOR _sel, ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items,
+                ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
+    // Method is called if there is a missing item (candle) in the history. We need to regenerate it.
+    Print("Error: Retrieving items by this item provider is not implemented!");
+    DebugBreak();
   }
 };
 

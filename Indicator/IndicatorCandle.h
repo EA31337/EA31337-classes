@@ -64,11 +64,11 @@ enum ENUM_INDI_CANDLE_MODE {
 /**
  * Class to deal with candle indicators.
  */
-template <typename TS, typename TV>
+template <typename TS, typename TV, typename TCP>
 class IndicatorCandle : public Indicator<TS> {
  protected:
   TickBarCounter counter;
-  ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryCandleProvider<TV>> history;
+  ItemsHistory<CandleOCTOHLC<TV>, TCP> history;
 
  protected:
   /* Protected methods */
@@ -90,14 +90,13 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Class constructor.
    */
-  IndicatorCandle(const TS& _icparams, const IndicatorDataParams& _idparams,
-                  ItemsHistoryCandleProvider<TV>* _candle_provider, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
-      : Indicator(_icparams, _idparams, _indi_src, _indi_mode), history(_candle_provider) {
+  IndicatorCandle(const TS& _icparams, const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = NULL,
+                  int _indi_mode = 0)
+      : Indicator(_icparams, _idparams, _indi_src, _indi_mode) {
     Init();
   }
-  IndicatorCandle(ItemsHistoryCandleProvider<TV>* _candle_provider, ENUM_INDICATOR_TYPE _itype = INDI_CANDLE,
-                  int _shift = 0, string _name = "")
-      : Indicator(_itype, _shift, _name), history(_candle_provider) {
+  IndicatorCandle(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
+      : Indicator(_itype, _shift, _name) {
     Init();
   }
 
@@ -113,7 +112,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Returns buffer where candles are temporarily stored.
    */
-  ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryCandleProvider<TV>>* GetHistory() { return &history; }
+  ItemsHistory<CandleOCTOHLC<TV>, TCP>* GetHistory() { return &history; }
 
   /**
    * Gets open price for a given, optional shift.
@@ -307,7 +306,7 @@ class IndicatorCandle : public Indicator<TS> {
     // ask and bid price. As an abstract class, we really don't know how to
     // update/create candles so we just pass the entry into history's
     // ItemsHistoryCandleProvider and it will do all the job.
-    history.GetProvider() PTR_DEREF OnTick(entry.timestamp * 1000, (float)entry[0], (float)entry[1]);
+    history.GetItemProvider() PTR_DEREF OnTick(&history, entry.timestamp * 1000, (float)entry[0], (float)entry[1]);
 
     // @fixit Maybe we should generate some tick/bar change?
     // counter.OnTick(CalcCandleTimestamp(entry.timestamp));
