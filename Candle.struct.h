@@ -268,6 +268,11 @@ struct CandleOCTOHLC : CandleOHLC<T> {
    * Updates OHLC values taking into consideration tick's timestamp.
    */
   void Update(long _timestamp_ms, T _price) {
+    if (!ContainsTimeMs(_timestamp_ms)) {
+      Print("Error: Cannot update candle. Given time doesn't fit in candle's time-frame!");
+      DebugBreak();
+    }
+
     bool _is_init = open_timestamp_ms == -1;
 
     if (_is_init || _timestamp_ms < open_timestamp_ms) {
@@ -314,7 +319,7 @@ struct CandleOCTOHLC : CandleOHLC<T> {
    * Whether given time fits in the candle.
    */
   bool ContainsTimeMs(long _time_ms) {
-    return _time_ms >= (start_time * 1000) && _time_ms < (start_time + length) * 1000;
+    return _time_ms >= (long)start_time * 1000 && _time_ms < (long)(start_time + length) * 1000;
   }
 
   // Serializers.

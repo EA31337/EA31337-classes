@@ -44,6 +44,10 @@
 #include "IndicatorData.h"
 #include "TickBarCounter.h"
 
+#ifndef INDI_CANDLE_HISTORY_SIZE
+#define INDI_CANDLE_HISTORY_SIZE 86400
+#endif
+
 // Indicator modes.
 enum ENUM_INDI_CANDLE_MODE {
   INDI_CANDLE_MODE_PRICE_OPEN,
@@ -92,11 +96,11 @@ class IndicatorCandle : public Indicator<TS> {
    */
   IndicatorCandle(const TS& _icparams, const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = NULL,
                   int _indi_mode = 0)
-      : Indicator(_icparams, _idparams, _indi_src, _indi_mode) {
+      : Indicator(_icparams, _idparams, _indi_src, _indi_mode), history(INDI_CANDLE_HISTORY_SIZE) {
     Init();
   }
   IndicatorCandle(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
-      : Indicator(_itype, _shift, _name) {
+      : Indicator(_itype, _shift, _name), history(INDI_CANDLE_HISTORY_SIZE) {
     Init();
   }
 
@@ -140,24 +144,38 @@ class IndicatorCandle : public Indicator<TS> {
   double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) override { return GetOHLC(_shift).GetAppliedPrice(_ap); }
 
   /**
-   * Returns current bar index (incremented every OnTick() if IsNewBar() is true).
+   * Returns current bar index.
    */
-  int GetBarIndex() override { return counter.GetBarIndex(); }
+  int GetBarIndex() override { return history.GetCurrentIndex(); }
 
   /**
    * Returns the number of bars on the chart.
    */
-  int GetBars() override { return (int)history.PeakSize(); }
+  int GetBars() override {
+    // Will return total number of bars prepended and appended to the history,
+    // even if those bars were cleaned up because of history's candle limit.
+    return (int)history.GetPeakSize();
+  }
 
   /**
    * Returns current tick index (incremented every OnTick()).
    */
-  int GetTickIndex() override { return counter.GetTickIndex(); }
+  int GetTickIndex() override { return GetTick() PTR_DEREF GetTickIndex(); }
 
   /**
    * Check if there is a new bar to parse.
    */
-  bool IsNewBar() override { return counter.is_new_bar; }
+  bool IsNewBar() override {
+    CandleOCTOHLC<TV> _candle;
+    // We check if last bar has volume 1. If yes, that would mean that new candle was created with a single tick. In
+    // consecutive ticks the volume will be incremented.
+    if (history.TryGetItemByShift(0, _candle, false)) {
+      return _candle.volume == 1;
+    }
+
+    // No candles means no new bar.
+    return false;
+  }
 
   /* Virtual method implementations */
 
@@ -180,14 +198,12 @@ class IndicatorCandle : public Indicator<TS> {
    */
   BarOHLC GetOHLC(int _shift = 0) override {
     BarOHLC _bar;
+    CandleOCTOHLC<double> _candle;
 
-    if (!history.EnsureShiftExists(_shift)) {
-      // There's no candle fort that shift.
-      return _bar;
+    if (history.TryGetItemByShift(_shift, _candle)) {
+      _bar = BarOHLC(_candle.open, _candle.high, _candle.low, _candle.close, _candle.open_timestamp_ms);
     }
 
-    CandleOCTOHLC<double> _candle = history.GetItemByShift(_shift);
-    _bar = BarOHLC(_candle.open, _candle.high, _candle.low, _candle.close, _candle.open_timestamp_ms);
     return _bar;
   }
 
@@ -197,8 +213,13 @@ class IndicatorCandle : public Indicator<TS> {
    * If local history is empty (not loaded), function returns 0.
    */
   long GetVolume(int _shift = 0) override {
-    CandleOCTOHLC<TV> candle = history.GetItemByShift(_shift);
-    return candle.volume;
+    CandleOCTOHLC<TV> _candle;
+
+    if (history.TryGetItemByShift(_shift, _candle)) {
+      return _candle.volume;
+    }
+
+    return 0;
   }
 
   /**

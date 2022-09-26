@@ -24,22 +24,16 @@
  * Test functionality of ItemsHistory class.
  */
 
+// Defines
+#define INDI_CANDLE_HISTORY_SIZE 4
+
 // Includes
 #include "../../Platform.h"
 #include "../../Test.mqh"
 #include "../ItemsHistory.h"
 
-struct TestItem {
-  int value;
-
-  // Method used by ItemsHistory;
-  long GetTimeMs() { return 0; }
-
-  // Method used by ItemsHistory;
-  datetime GetTime() { return (datetime)0; }
-};
-
-class ItemsHistoryTestItemProvider : public ItemsHistoryItemProvider<TestItem> {};
+// Candles buffer.
+ARRAY(BarOHLC, _ohlcs);
 
 /**
  * Implements OnInit().
@@ -47,15 +41,39 @@ class ItemsHistoryTestItemProvider : public ItemsHistoryItemProvider<TestItem> {
 int OnInit() {
   Platform::Init();
 
-  ItemsHistory<TestItem, ItemsHistoryTestItemProvider> items(new ItemsHistoryTestItemProvider());
-
   return (GetLastError() > 0 ? INIT_FAILED : INIT_SUCCEEDED);
 };
 
 /**
  * Implements OnTick().
  */
-void OnTick() { Platform::Tick(); }
+void OnTick() {
+  Platform::Tick();
+
+  IndicatorData* _candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
+
+  if (_candles PTR_DEREF IsNewBar()) {
+    BarOHLC _ohlc = _candles PTR_DEREF GetOHLC(0);
+    ArrayPushObject(_ohlcs, _ohlc);
+
+    Print(_ohlc.ToCSV());
+
+    if (_candles PTR_DEREF GetBarIndex() == INDI_CANDLE_HISTORY_SIZE) {
+      // Now first candle should be forgotten by candle history. We'll check if candle regeneration works.
+      Print("First candle was:      ", _ohlcs[0].ToCSV());
+
+      BarOHLC _ohlc_regenerated = _candles PTR_DEREF GetOHLC(INDI_CANDLE_HISTORY_SIZE);
+      Print("Regenerated candle is: ", _ohlc_regenerated.ToCSV());
+
+      if (_ohlcs[0] != _ohlc_regenerated) {
+        Print("Error: Candle regeneration resulted in OHLC/time difference!");
+        Print("Expected: ", _ohlcs[0].ToCSV());
+        Print("Got:      ", _ohlc_regenerated.ToCSV());
+        ExpertRemove();
+      }
+    }
+  }
+}
 
 /**
  * Implements OnDeinit().

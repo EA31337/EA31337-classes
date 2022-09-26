@@ -38,9 +38,9 @@ class Serializer;
 #include "Chart.enum.h"
 #include "Serializer/Serializable.h"
 #include "Serializer/Serializer.enum.h"
+#include "Serializer/Serializer.h"
 #include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
-#include "Serializer/Serializer.h"
 
 /* Struct for storing OHLC values. */
 struct BarOHLC
@@ -229,6 +229,11 @@ struct BarOHLC
   SerializerNodeType Serialize(Serializer &s);
   // Converters.
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
+  // Operators.
+  bool operator==(const BarOHLC &_r) {
+    return time == _r.time && open == _r.time && high == _r.high && low == _r.low && close == _r.close;
+  }
+  bool operator!=(const BarOHLC &_r) { return !(THIS_REF == _r); }
 };
 
 /* Method to serialize BarOHLC structure. */
