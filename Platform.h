@@ -86,8 +86,6 @@ class Platform {
    * Performs tick on every added indicator.
    */
   static void Tick() {
-    ++global_tick_index;
-
     // Checking starting periods and updating time to current one.
     time_flags = time.GetStartedPeriods();
     time.Update();
@@ -104,6 +102,9 @@ class Platform {
 
     // Will check for new time periods in consecutive Platform::UpdateTime().
     time_clear_flags = true;
+
+    // Started from 0. Will be incremented after each finished tick.
+    ++global_tick_index;
   }
 
   /**

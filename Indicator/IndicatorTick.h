@@ -325,6 +325,15 @@ class IndicatorTick : public Indicator<TS> {
     _tick.ask = _entry[1];
     return _tick;
   }
+
+  /**
+   * Fetches historic ticks for a given range and emits these ticks. Used to regenerate candles.
+   */
+  virtual bool FetchHistory(long _range_from, long _range_to, ARRAY_REF(TickAB<TV>, _out_ticks)) {
+    Print("Error: ", GetFullName(), " does not implement FetchHistory()!");
+    DebugBreak();
+    return false;
+  }
 };
 
 #endif

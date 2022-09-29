@@ -254,13 +254,13 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   /**
    * Initializes candle with a given start time, lenght in seconds, first tick's timestamp and its price.
    */
-  void Init(int _start_time, int _length, long _timestamp_ms, T _price) {
+  void Init(int _start_time, int _length, long _timestamp_ms = -1, T _price = 0) {
     is_complete = false;
     start_time = _start_time;
     length = _length;
     open_timestamp_ms = _timestamp_ms;
     close_timestamp_ms = _timestamp_ms;
-    volume = 1;
+    volume = _price != 0 ? 1 : 0;
     open = high = low = close = _price;
   }
 
@@ -298,10 +298,15 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   /**
    * Method used by ItemsHistory;
    */
-  long GetTimeMs() { return start_time * 1000; }
+  long GetTimeMs() { return (long)start_time * 1000; }
 
   /**
    * Method used by ItemsHistory;
+   */
+  long GetLengthMs() { return (long)length * 1000; }
+
+  /**
+   * Returns candle's start time.
    */
   datetime GetTime() { return (datetime)start_time; }
 

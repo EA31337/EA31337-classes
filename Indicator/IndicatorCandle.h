@@ -201,7 +201,7 @@ class IndicatorCandle : public Indicator<TS> {
     CandleOCTOHLC<double> _candle;
 
     if (history.TryGetItemByShift(_shift, _candle)) {
-      _bar = BarOHLC(_candle.open, _candle.high, _candle.low, _candle.close, _candle.open_timestamp_ms);
+      _bar = BarOHLC(_candle.open, _candle.high, _candle.low, _candle.close, _candle.start_time);
     }
 
     return _bar;
