@@ -295,19 +295,6 @@ class ItemsHistory {
   }
 
   /**
-   * Returns bar date and time for the given shift.
-   */
-  datetime GetItemTimeByShift(int _shift) {
-    if (history.Size() == 0) {
-      // What to do? Maybe just return 0?
-      DebugBreak();
-      return 0;
-    }
-
-    return (datetime)(GetItemTimeByShiftMsc(_shift) / 1000);
-  }
-
-  /**
    * Ensures
    */
   bool EnsureShiftExists(int _shift) {
@@ -392,6 +379,18 @@ class ItemsHistory {
     }
 
     return GetItemByShift(_shift).GetTimeMs();
+  }
+
+  /**
+   * Returns bar date and time for the given shift.
+   */
+  datetime GetItemTimeByShift(int _shift) {
+    if (!EnsureShiftExists(_shift)) {
+      // There won't be item at given shift.
+      return (datetime)0;
+    }
+
+    return (datetime)(GetItemTimeByShiftMsc(_shift) / 1000);
   }
 };
 

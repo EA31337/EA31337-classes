@@ -58,6 +58,11 @@ void OnTick() {
 
     Print(_ohlc.ToCSV());
 
+    if (_candles PTR_DEREF GetBarIndex() == 1) {
+      // Updating first candle to be sure it was formed by all possible ticks.
+      _ohlcs[0] = _candles PTR_DEREF GetOHLC(1);
+    }
+
     if (_candles PTR_DEREF GetBarIndex() == INDI_CANDLE_HISTORY_SIZE) {
       // Now first candle should be forgotten by candle history. We'll check if candle regeneration works.
       Print("First candle was:      ", _ohlcs[0].ToCSV());

@@ -31,6 +31,7 @@
 
 // Includes.
 #include "../../IndicatorTf.h"
+#include "../../IndicatorTf.struct.h"
 
 // Params for dummy candle-based indicator.
 struct IndicatorTfDummyParams : IndicatorTfParams {

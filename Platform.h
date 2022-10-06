@@ -80,7 +80,7 @@ class Platform {
   /**
    * Returns global tick index.
    */
-  int GetGlobalTickIndex() { return global_tick_index; }
+  static int GetGlobalTickIndex() { return global_tick_index; }
 
   /**
    * Performs tick on every added indicator.
