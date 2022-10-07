@@ -33,6 +33,7 @@
 #include "../Buffer/BufferTick.h"
 #include "Indicator.h"
 #include "Indicator.struct.h"
+#include "IndicatorTick.provider.h"
 #include "TickBarCounter.h"
 
 // Indicator modes.
@@ -45,10 +46,10 @@ enum ENUM_INDI_TICK_MODE {
 /**
  * Class to deal with tick indicators.
  */
-template <typename TS, typename TV>
+template <typename TS, typename TV, typename TCP>
 class IndicatorTick : public Indicator<TS> {
  protected:
-  BufferTick<TV> itdata;
+  ItemsHistory<TickTAB<TV>, TCP> history;
   TS itparams;
   string symbol;
   SymbolInfoProp symbol_props;
@@ -68,9 +69,10 @@ class IndicatorTick : public Indicator<TS> {
     // We can only index via timestamp.
     flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
 
-    itdata.SetOverflowListener(BufferStructOverflowListener, 10);
     // Ask and Bid price.
     Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
+
+    history.SetItemProvider(new ItemsHistoryTickProvider<double>(THIS_PTR));
   }
 
  public:
@@ -103,14 +105,7 @@ class IndicatorTick : public Indicator<TS> {
   /**
    * Returns time of the bar for a given shift.
    */
-  datetime GetBarTime(int _shift = 0) override {
-    if (_shift != 0) {
-      Print("Error: IndicatorTick::GetBarTime() does not yet support getting entries by shift other than 0!");
-      DebugBreak();
-    }
-
-    return (datetime)itdata.GetMax();
-  }
+  datetime GetBarTime(int _shift = 0) override { return history.GetItemTimeByShift(_shift); }
 
   /**
    * Gets ask price for a given date and time. Return current ask price if _dt wasn't passed or is 0.
@@ -126,6 +121,8 @@ class IndicatorTick : public Indicator<TS> {
    * Returns value storage of given kind.
    */
   IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+    Print("IndicatorTick::GetSpecificValueStorage() is no longer available!");
+    /*
     switch (_type) {
       case INDI_VS_TYPE_PRICE_ASK:
         return (IValueStorage*)itdata.GetAskValueStorage();
@@ -141,6 +138,8 @@ class IndicatorTick : public Indicator<TS> {
         // Trying in parent class.
         return Indicator<TS>::GetSpecificValueStorage(_type);
     }
+    */
+    return nullptr;
   }
 
   /**
@@ -160,19 +159,12 @@ class IndicatorTick : public Indicator<TS> {
   }
 
   /**
-   * Sends historic entries to listening indicators. May be overriden.
+   * Appends given entry into the history.
    */
-  void EmitHistory() override {
-    for (DictStructIterator<long, TickAB<TV>> iter(itdata.Begin()); iter.IsValid(); ++iter) {
-      IndicatorDataEntry _entry = TickToEntry(iter.Key(), iter.Value());
-      EmitEntry(_entry);
-    }
-  }
-
-  /**
-   * Stores entry in the buffer for later rerieval.
-   */
-  void StoreEntry(IndicatorDataEntry& _entry) override { itdata.Add(EntryToTick(_entry), _entry.timestamp); }
+  virtual void AppendEntry(IndicatorDataEntry& entry) override {
+    // Appending tick into the history.
+    history.GetItemProvider() PTR_DEREF OnTick(&history, entry.timestamp * 1000, (float)entry[0], (float)entry[1]);
+  };
 
   /**
    * @todo
@@ -195,53 +187,6 @@ class IndicatorTick : public Indicator<TS> {
     _tick.bid = _entry.GetValue<TV>(INDI_TICK_MODE_PRICE_BID);
     return _tick;
   }
-
-  /**
-   * Returns the indicator's data entry.
-   *
-   * @see: IndicatorDataEntry.
-   *
-   * @return
-   *   Returns IndicatorDataEntry struct filled with indicator values.
-   */
-  IndicatorDataEntry GetEntry(long _dt = 0) override {
-    ResetLastError();
-    long _timestamp;
-
-    if ((long)_dt != 0) {
-      _timestamp = (long)_dt;
-    } else {
-      _timestamp = itdata.GetMax();
-    }
-
-    if (itdata.KeyExists(_timestamp)) {
-      TickAB<TV> _tick = itdata.GetByKey(_timestamp);
-      return TickToEntry(_timestamp, _tick);
-    }
-    int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
-
-    // No tick at given timestamp. Returning invalid entry.
-    IndicatorDataEntry _entry(_max_modes);
-    GetEntryAlter(_entry, (datetime)_entry.timestamp);
-
-    for (int i = 0; i < _max_modes; ++i) {
-      _entry.values[i] = (double)0;
-    }
-
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, false);
-    return _entry;
-  }
-
-  /**
-   * Alters indicator's struct value.
-   *
-   * This method allows user to modify the struct entry before it's added to cache.
-   * This method is called on GetEntry() right after values are set.
-   */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, datetime _time) {
-    ENUM_DATATYPE _dtype = Get<ENUM_DATATYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DTYPE));
-    _entry.AddFlags(_entry.GetDataTypeFlags(_dtype));
-  };
 
   /**
    * Returns the indicator's entry value for the given shift and mode.
@@ -294,46 +239,6 @@ class IndicatorTick : public Indicator<TS> {
    * Traverses source indicators' hierarchy and tries to find IndicatorTick object at the end.
    */
   virtual IndicatorTick* GetTickIndicator() { return THIS_PTR; }
-
-  /* Setters */
-
-  /**
-   * Sets a tick struct with price values.
-   *
-   * @see: MqlTick.
-   */
-  void SetTick(MqlTick& _mql_tick, long _timestamp = 0) {
-    TickAB<TV> _tick(_mql_tick);
-    itdata.Add(_tick, _timestamp);
-  }
-
-  /* Virtual methods */
-
-  /**
-   * Returns a tick struct with price values.
-   *
-   * @see: MqlTick.
-   *
-   * @return
-   *   Returns MqlTick struct with prices of the symbol.
-   */
-  virtual MqlTick GetTick(int _timestamp = 0) {
-    IndicatorDataEntry _entry = GetEntry((datetime)_timestamp);
-    MqlTick _tick;
-    _tick.time = (datetime)_entry.GetTime();
-    _tick.bid = _entry[0];
-    _tick.ask = _entry[1];
-    return _tick;
-  }
-
-  /**
-   * Fetches historic ticks for a given range and emits these ticks. Used to regenerate candles.
-   */
-  virtual bool FetchHistory(long _range_from, long _range_to, ARRAY_REF(TickAB<TV>, _out_ticks)) {
-    Print("Error: ", GetFullName(), " does not implement FetchHistory()!");
-    DebugBreak();
-    return false;
-  }
 };
 
 #endif

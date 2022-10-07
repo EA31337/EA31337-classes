@@ -328,9 +328,6 @@ class IndicatorCandle : public Indicator<TS> {
     // update/create candles so we just pass the entry into history's
     // ItemsHistoryCandleProvider and it will do all the job.
     history.GetItemProvider() PTR_DEREF OnTick(&history, entry.timestamp * 1000, (float)entry[0], (float)entry[1]);
-
-    // @fixit Maybe we should generate some tick/bar change?
-    // counter.OnTick(CalcCandleTimestamp(entry.timestamp));
   };
 
   /**

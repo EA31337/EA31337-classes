@@ -296,12 +296,12 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   }
 
   /**
-   * Method used by ItemsHistory;
+   * Method used by ItemsHistory.
    */
   long GetTimeMs() { return (long)start_time * 1000; }
 
   /**
-   * Method used by ItemsHistory;
+   * Method used by ItemsHistory.
    */
   long GetLengthMs() { return (long)length * 1000; }
 

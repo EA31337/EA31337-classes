@@ -33,6 +33,7 @@
 // Includes.
 #include "../../Chart.struct.static.h"
 #include "../../Indicator/IndicatorTick.h"
+#include "../../Indicator/IndicatorTick.provider.h"
 
 // Structs.
 // Params for MT patform's tick-based indicator.
@@ -41,17 +42,26 @@ struct Indi_TickMtParams : IndicatorParams {
 };
 
 // MT platform's tick-based indicator.
-class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
+class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistoryTickProvider<double>> {
  public:
   Indi_TickMt(Indi_TickMtParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
               int _indi_src_mode = 0)
       : IndicatorTick(_p.symbol, _p,
                       IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
-                      _indi_src) {}
+                      _indi_src) {
+    Init();
+  }
   Indi_TickMt(string _symbol, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
               int _indi_src_mode = 0, string _name = "")
       : IndicatorTick(_symbol, Indi_TickMtParams(),
-                      IndicatorDataParams(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode), _indi_src) {}
+                      IndicatorDataParams(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode), _indi_src) {
+    Init();
+  }
+
+  /**
+   * Initializes the class.
+   */
+  void Init() {}
 
   string GetName() override { return "Indi_TickMt"; }
 
@@ -106,9 +116,9 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
   }
 
   /**
-   * Fetches historic ticks for a given range and emits these ticks. Used to regenerate candles.
+   * Fetches historic ticks for a given time range.
    */
-  bool FetchHistory(long _range_from, long _range_to, ARRAY_REF(TickTAB<double>, _out_ticks)) override {
+  virtual bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
     ArrayResize(_out_ticks, 0);
 
     static MqlTick _tmp_ticks[];
@@ -117,7 +127,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
     int _tries = 10;
 
     while (_tries > 0) {
-      int _num_copied = CopyTicksRange(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, _range_from, _range_to);
+      int _num_copied = CopyTicksRange(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, _from_ms, _to_ms);
 
       if (_num_copied == -1) {
         ResetLastError();
@@ -158,7 +168,10 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
       // DebugBreak();
       // Just emitting zeroes in case of error.
       TickAB<double> _tick(0, 0);
-      EmitEntry(TickToEntry(TimeCurrent(), _tick));
+      IndicatorDataEntry _entry(TickToEntry(TimeCurrent(), _tick));
+      EmitEntry(_entry);
+      // Appending tick into the history.
+      AppendEntry(_entry);
       return;
     }
 
@@ -176,7 +189,8 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
 #endif
     TickAB<double> _tick(_ask, _bid);
     IndicatorDataEntry _entry(TickToEntry(_time, _tick));
-    StoreEntry(_entry);
     EmitEntry(_entry);
+    // Appending tick into the history.
+    AppendEntry(_entry);
   }
 };

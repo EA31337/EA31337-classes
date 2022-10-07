@@ -71,4 +71,17 @@ struct TickTAB : TickAB<T> {
   // Struct constructors.
   TickTAB(long _time_ms = 0, T _ask = 0, T _bid = 0) : time_ms(_time_ms), TickAB<T>(_ask, _bid) {}
   TickTAB(MqlTick &_tick) : time_ms(_tick.time_msc), TickAB<T>(_tick) {}
+
+  /**
+   * Method used by ItemsHistory.
+   */
+  long GetTimeMs() { return time_ms; }
+
+  /**
+   * Method used by ItemsHistory.
+   */
+  long GetLengthMs() {
+    // Ticks have length of 0ms, so next tick could be at least 1ms after the previous tick.
+    return 0;
+  }
 };

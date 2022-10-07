@@ -36,6 +36,7 @@ class IndicatorBase;
 #include "../Bar.struct.h"
 #include "../DrawIndicator.mqh"
 #include "../Flags.h"
+#include "../Storage/ItemsHistory.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.indicator.h"
 #include "../Storage/ValueStorage.native.h"
@@ -1450,9 +1451,91 @@ class IndicatorData : public IndicatorBase {
   virtual void InvalidateCandle(datetime _bar_time = 0) { GetCandle() PTR_DEREF InvalidateCandle(_bar_time); }
 
   /**
-   * Fetches historic ticks for a given range and emits these ticks. Used to regenerate candles.
+   * Fetches historic ticks for a given time range.
    */
-  virtual bool FetchHistory(long _range_from, long _range_to, ARRAY_REF(TickTAB<double>, _out_ticks)) { return false; }
+  virtual bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
+    return false;
+  }
+
+  /**
+   * Fetches historic ticks for a given start time and minimum number of tick to retrieve.
+   */
+  virtual bool FetchHistoryByStartTimeAndCount(long _from_ms, ENUM_ITEMS_HISTORY_DIRECTION _dir, int _min_count,
+                                               ARRAY_REF(TickTAB<double>, _out_ticks)) {
+    Print("FetchHistoryByStartTimeAndCount:");
+    Print("- Requested _from_ms = ", _from_ms, ", _dir = ", EnumToString(_dir), ", _min_count = ", _min_count);
+
+    ArrayResize(_out_ticks, 0);
+
+    // Number of ticks still to retrieve to satisfy the caller.
+    int _num_to_retrieve = _min_count, i, o;
+
+    // Ticks per fixed time range.
+    static ARRAY(TickTAB<double>, _recv_ticks);
+
+    // Time-frames for which we'll be receiving ticks.
+    long _recv_range_ms = 1000 * 60 * 30;  // 30 min time-frames.
+
+    // Calculating initial time frame.
+    if (_dir == ITEMS_HISTORY_DIRECTION_BACKWARD) {
+      // _from_ms will be at start of previous time-frame.
+      _from_ms -= _recv_range_ms - 1;
+    }
+    // _to_ms will be at the last ms of _from_ms's timeframe.
+    long _to_ms = _from_ms + _recv_range_ms - 1;
+
+    Print("- Initial _from_ms = ", _from_ms, "_to_ms = ", _to_ms);
+
+    do {
+      bool _success = FetchHistoryByTimeRange(_from_ms, _to_ms, _recv_ticks);
+
+      int _num_ticks_before = ArraySize(_out_ticks);
+      int _num_received = ArraySize(_recv_ticks);
+
+      // Our _out_tick must fit additional received ticks.
+      ArrayResize(_out_ticks, _num_ticks_before + _num_received);
+
+      if (_dir == ITEMS_HISTORY_DIRECTION_BACKWARD) {
+        // Moving output ticks from the beginning to the end.
+        // i = input index, o = output index.
+        for (i = 0, o = _num_ticks_before; i < _num_received; i++, o++) {
+          _out_ticks[o] = _out_ticks[i];
+        }
+      }
+
+      for (i = 0; i < ArraySize(_recv_ticks); ++i) {
+        if (_dir == ITEMS_HISTORY_DIRECTION_FORWARD) {
+          // Pushing received ticks at the end of the output ticks.
+          ArrayPushObject(_out_ticks, _recv_ticks[i]);
+        } else {
+          // Filling the beginning of the output ticks with received ticks.
+          _out_ticks[i] = _recv_ticks[i];
+        }
+      }
+
+      if (!_success) {
+        // An error happended;
+        break;
+      }
+
+      _num_to_retrieve -= _num_received;
+
+      if (_dir == ITEMS_HISTORY_DIRECTION_FORWARD) {
+        // Going to the next time-frame.
+        _from_ms += _recv_range_ms;
+        _to_ms += _recv_range_ms;
+      } else {
+        // Going to the previous time-frame.
+        _from_ms -= _recv_range_ms;
+        _to_ms -= _recv_range_ms;
+      }
+
+    } while (_LastError != 0 && _num_to_retrieve > 0);
+
+    // _num_to_retrieve may be negative and it's perfectly fine. We'll just have more ticks than we wanted in the output
+    // array.
+    return _num_to_retrieve <= 0;
+  }
 
   /**
    * Returns value storage of given kind.
@@ -1795,9 +1878,9 @@ class IndicatorData : public IndicatorBase {
   virtual void SetSymbolProps(const SymbolInfoProp& _props) {}
 
   /**
-   * Stores entry in the buffer for later rerieval.
+   * Appends given entry into the history.
    */
-  virtual void StoreEntry(IndicatorDataEntry& entry) {}
+  virtual void AppendEntry(IndicatorDataEntry& entry) {}
 
   /**
    * Update indicator.

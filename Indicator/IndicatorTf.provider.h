@@ -139,7 +139,7 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
         long _candle_length_ms = (long)spc * 1000;
         long _ticks_to_ms = _ticks_from_ms + _candle_length_ms - 1;
 
-        if (!_indi_tick PTR_DEREF FetchHistory(_ticks_from_ms, _ticks_to_ms, _ticks)) {
+        if (!_indi_tick PTR_DEREF FetchHistoryByTimeRange(_ticks_from_ms, _ticks_to_ms, _ticks)) {
           // There is no more ticks in the history, giving up.
           break;
         }
