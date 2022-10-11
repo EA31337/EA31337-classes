@@ -87,10 +87,7 @@ class Indi_AD : public Indicator<IndiADParams> {
   static double iAD(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                     IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
-    Print("We'll now retrieve value from ::iAD(", _symbol, ", ", EnumToString(_tf), ", ", _shift, ")...");
-    double _value = ::iAD(_symbol, _tf, _shift);
-    Print("value = \"", _value, "\", LastError: ", _LastError);
-    return _value;
+    return ::iAD(_symbol, _tf, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iAD(_symbol, _tf, VOLUME_TICK), 0, _shift);
 #endif

@@ -124,6 +124,8 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     static MqlTick _tmp_ticks[];
     ArrayResize(_tmp_ticks, 0);
 
+    // There's no history in MQL4.
+#ifndef __MQL4__
     int _tries = 10;
 
     while (_tries > 0) {
@@ -146,6 +148,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
         return true;
       }
     }
+#endif
 
     // To many tries. Probably no ticks at the given range.
     return false;
@@ -192,5 +195,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     EmitEntry(_entry);
     // Appending tick into the history.
     AppendEntry(_entry);
+
+    // Print("Added tick!");
   }
 };

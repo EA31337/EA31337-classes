@@ -136,32 +136,8 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
 #ifdef __MQL4__
     return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
 #else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
-    }
-
-    return _res[0];
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price), _mode,
+                                      _shift);
 #endif
   }
 
@@ -181,6 +157,11 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
 
     // Period can't be higher than number of available bars.
     _period = MathMin(_period, ArraySize(_indi_applied_price));
+
+    // But must be greater than 0!
+    if (_period == 0) {
+      return EMPTY_VALUE;
+    }
 
     ArrayCopy(_indi_value_buffer, _indi_applied_price, 0, _bands_shift + _shift, _period);
 

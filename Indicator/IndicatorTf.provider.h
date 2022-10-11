@@ -87,10 +87,10 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
 
       // We don't want to regenerate history, because at the start there will bo no candle however.
       if (_history PTR_DEREF TryGetItemByShift(0, _candle_tmp, false)) {
-        Print("Completed candle: ", _candle_tmp.ToString());
-        Print("Real candle:      ", iOpen(NULL, Period(), 1), " ", iHigh(NULL, Period(), 1), " ",
-              iLow(NULL, Period(), 1), " ", ChartStatic::iClose(NULL, (ENUM_TIMEFRAMES)Period(), 1));
-        Print("--");
+        // Print("Completed candle: ", _candle_tmp.ToString());
+        // Print("Real candle:      ", iOpen(NULL, Period(), 1), " ", iHigh(NULL, Period(), 1), " ",
+        //       iLow(NULL, Period(), 1), " ", ChartStatic::iClose(NULL, (ENUM_TIMEFRAMES)Period(), 1));
+        // Print("--");
       }
 
       // Either there is no candle at shift 0 or given time doesn't fit in the #0 candle's time-frame.
@@ -111,7 +111,7 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
    * Returns start time of the candle (the place it's on the chart) for the given tick's time in milliseconds.
    */
   int GetCandleTimeFromTimeMs(long _time_ms, int _length_in_secs) {
-    return (int)((_time_ms - _time_ms % (_length_in_secs * 1000)) / 1000);
+    return (int)((_time_ms - _time_ms % ((long)_length_in_secs * 1000)) / 1000);
   }
 
   /**

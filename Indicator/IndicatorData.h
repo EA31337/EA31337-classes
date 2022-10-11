@@ -78,7 +78,7 @@ class IndicatorData : public IndicatorBase {
   /* Protected methods */
 
   bool Init() {
-    ArrayResize(value_storages, idparams.Get<unsigned int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)));
+    ArrayResize(value_storages, GetModeCount());
     if (indi_src.IsSet()) {
       // SetDataSource(_indi_src, _indi_mode);
       idparams.Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_INDICATOR);
@@ -565,31 +565,7 @@ class IndicatorData : public IndicatorBase {
 
   /* Getters */
 
-  int GetBarsCalculated(ENUM_TIMEFRAMES _tf = NULL) {
-    int _bars = Bars(GetSymbol(), _tf);
-
-    if (!idparams.Get<bool>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IS_FED))) {
-      // Calculating start_bar.
-      for (; calc_start_bar < _bars; ++calc_start_bar) {
-        // Iterating from the oldest or previously iterated.
-        IndicatorDataEntry _entry = GetEntry(_bars - calc_start_bar - 1);
-
-        if (_entry.IsValid()) {
-          // From this point we assume that future entries will be all valid.
-          idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IS_FED), true);
-          return _bars - calc_start_bar;
-        }
-      }
-    }
-
-    if (!idparams.Get<bool>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IS_FED))) {
-      Print("Can't find valid bars for ", GetFullName());
-      return 0;
-    }
-
-    // Assuming all entries are calculated (even if have invalid values).
-    return _bars;
-  }
+  int GetBarsCalculated() { return GetBars(); }
 
   /**
    * Returns buffers' cache.
@@ -761,7 +737,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Checks whether indicator have given mode (max_modes is greater that given mode).
    */
-  bool HasValueStorage(int _mode = 0) { return _mode < GetModeCount(); }
+  bool HasValueStorage(unsigned int _mode = 0) { return _mode < GetModeCount(); }
 
   /**
    * Whether we can and have to select mode when specifying data source.
@@ -1261,7 +1237,9 @@ class IndicatorData : public IndicatorBase {
   /**
    * Gets number of modes available to retrieve by GetValue().
    */
-  virtual int GetModeCount() { return 0; }
+  virtual unsigned int GetModeCount() {
+    return idparams.Get<unsigned int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
+  }
 
   /**
    * Get name of the indicator.
@@ -1462,8 +1440,8 @@ class IndicatorData : public IndicatorBase {
    */
   virtual bool FetchHistoryByStartTimeAndCount(long _from_ms, ENUM_ITEMS_HISTORY_DIRECTION _dir, int _min_count,
                                                ARRAY_REF(TickTAB<double>, _out_ticks)) {
-    Print("FetchHistoryByStartTimeAndCount:");
-    Print("- Requested _from_ms = ", _from_ms, ", _dir = ", EnumToString(_dir), ", _min_count = ", _min_count);
+    // Print("FetchHistoryByStartTimeAndCount:");
+    // Print("- Requested _from_ms = ", _from_ms, ", _dir = ", EnumToString(_dir), ", _min_count = ", _min_count);
 
     ArrayResize(_out_ticks, 0);
 
@@ -1484,7 +1462,7 @@ class IndicatorData : public IndicatorBase {
     // _to_ms will be at the last ms of _from_ms's timeframe.
     long _to_ms = _from_ms + _recv_range_ms - 1;
 
-    Print("- Initial _from_ms = ", _from_ms, "_to_ms = ", _to_ms);
+    // Print("- Initial _from_ms = ", _from_ms, "_to_ms = ", _to_ms);
 
     do {
       bool _success = FetchHistoryByTimeRange(_from_ms, _to_ms, _recv_ticks);

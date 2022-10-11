@@ -102,6 +102,11 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
                                 int _mode, int _shift = 0) {
     _indi.ValidateDataSourceMode(_mode);
 
+    if (_indi.GetBars() < (int)_period) {
+      // No enough bars.
+      return DBL_MAX;
+    }
+
     double _indi_value_buffer[];
     IndicatorDataEntry _entry(_indi.GetModeCount());
 

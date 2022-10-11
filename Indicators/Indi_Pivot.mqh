@@ -58,14 +58,14 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    */
   Indi_Pivot(IndiPivotParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData* _indi_src = NULL,
              int _indi_src_mode = 0)
-      : Indicator(_p, IndicatorDataParams::GetInstance(9, TYPE_FLOAT, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+      : Indicator(_p, IndicatorDataParams::GetInstance(9, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
                   _indi_src) {
     Init();
   };
   Indi_Pivot(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData* _indi_src = NULL,
              int _indi_src_mode = 0)
       : Indicator(IndiPivotParams(),
-                  IndicatorDataParams::GetInstance(9, TYPE_FLOAT, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  IndicatorDataParams::GetInstance(9, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
                   _indi_src) {
     Init();
   }
@@ -140,32 +140,6 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     return GetEntry(_ishift)[_mode];
-  }
-
-  /**
-   * Checks if indicator entry values are valid.
-   */
-  virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
-    bool _is_valid = Indicator<IndiPivotParams>::IsValidEntry(_entry);
-    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
-      case IDATA_BUILTIN:
-        break;
-      case IDATA_INDICATOR:
-        // In this mode, price is fetched from given indicator. Such indicator
-        // must have at least 4 buffers and define OHLC in the first 4 buffers.
-        // Indi_Price is an example of such indicator.
-        if (!HasDataSource()) {
-          GetLogger().Error("Invalid data source!");
-          SetUserError(ERR_INVALID_PARAMETER);
-          _is_valid &= false;
-        }
-        break;
-      default:
-        SetUserError(ERR_INVALID_PARAMETER);
-        _is_valid &= false;
-        break;
-    }
-    return _is_valid;
   }
 
   /* Getters */
