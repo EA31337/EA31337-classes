@@ -104,6 +104,8 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
 
   static double iMomentumOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                      int _mode, int _shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
+
     double _indi_value_buffer[];
     IndicatorDataEntry _entry(_indi.GetModeCount());
 

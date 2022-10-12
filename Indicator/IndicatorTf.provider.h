@@ -168,6 +168,11 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
       DebugBreak();
     }
   }
+
+  /**
+   * Returns information about item provider.
+   */
+  string ToString() override { return "IndicatorTf candle provider on " + indi PTR_DEREF GetFullName(); }
 };
 
 #endif  // INDICATOR_TF_PROVIDER_H

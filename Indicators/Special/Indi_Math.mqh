@@ -153,6 +153,7 @@ class Indi_Math : public Indicator<IndiMathParams> {
   static double iMathOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_MATH_OP op,
                                  unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
                                  unsigned int _shift_2, unsigned int _mode, int _shift, Indi_Math *_obj) {
+    INDI_REQUIRE_SHIFT_OR_RETURN_EMPTY(_indi, MathMax(_shift_1, _shift_2));
     double _val_1 = _indi.GetValue<double>(_mode_1, _shift_1);
     double _val_2 = _indi.GetValue<double>(_mode_2, _shift_2);
     return Math::Op(op, _val_1, _val_2);
@@ -161,6 +162,7 @@ class Indi_Math : public Indicator<IndiMathParams> {
   static double iMathOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, MathCustomOpFunction _op,
                                  unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
                                  unsigned int _shift_2, unsigned int _mode, int _shift, Indi_Math *_obj) {
+    INDI_REQUIRE_SHIFT_OR_RETURN_EMPTY(_indi, MathMax(_shift_1, _shift_2));
     double _val_1 = _indi.GetValue<double>(_mode_1, _shift_1);
     double _val_2 = _indi.GetValue<double>(_mode_2, _shift_2);
     return _op(_val_1, _val_2);

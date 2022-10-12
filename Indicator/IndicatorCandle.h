@@ -152,7 +152,7 @@ class IndicatorCandle : public Indicator<TS> {
    * Returns the number of bars on the chart.
    */
   int GetBars() override {
-    // Will return total number of bars prepended and appended to the history,
+    // Will return number of bars prepended and appended to the history,
     // even if those bars were cleaned up because of history's candle limit.
     return (int)history.GetPeakSize();
   }

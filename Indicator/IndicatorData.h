@@ -32,6 +32,16 @@
 // Forward class declaration.
 class IndicatorBase;
 
+// Defines.
+#define INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period) \
+  if ((int)_indi PTR_DEREF GetBars() < (int)_period) {    \
+    return DBL_MAX;                                       \
+  }
+
+// We're adding 1 because e.g., shift 1 means that we need two bars to exist in
+// history in order to retrieve bar at shift 1.
+#define INDI_REQUIRE_SHIFT_OR_RETURN_EMPTY(_indi, _shift) INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _shift + 1)
+
 // Includes.
 #include "../Bar.struct.h"
 #include "../DrawIndicator.mqh"
@@ -1128,7 +1138,21 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns time of the bar for a given shift.
    */
-  virtual datetime GetBarTime(int _shift = 0) { return GetTick() PTR_DEREF GetBarTime(_shift); }
+  virtual datetime GetBarTime(int _shift = 0) {
+    IndicatorData* _indi = GetCandle(false);
+
+    if (_indi == nullptr) _indi = GetTick(false);
+
+    if (_indi == nullptr) {
+      Print("Error: Neither candle nor tick indicator exists in the hierarch of ", GetFullName(), "!");
+      DebugBreak();
+      return (datetime)0;
+    }
+
+    Print("Getting bar time for shift ", _shift, " for ", GetFullName());
+
+    return _indi PTR_DEREF GetBarTime(_shift);
+  }
 
   /**
    * Search for a bar by its time.

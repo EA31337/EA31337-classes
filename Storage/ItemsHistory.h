@@ -73,6 +73,11 @@ class ItemsHistoryItemProvider : public Dynamic {
     // first item.
     return (long)TimeCurrent() * 1000;
   }
+
+  /**
+   * Returns information about item provider.
+   */
+  virtual string ToString() { return "Abstract items history item provider."; }
 };
 
 /**
@@ -330,7 +335,8 @@ class ItemsHistory {
   IV GetItemByIndex(int _index, bool _try_regenerate = true) {
     IV _item;
     if (!TryGetItemByIndex(_index, _item, _try_regenerate)) {
-      Print("Error! Given index ", _index, " is outside the range of valid items!");
+      Print("Error! Given index ", _index,
+            " is outside the range of valid items! Errored: ", item_provider REF_DEREF ToString());
       DebugBreak();
     }
     return _item;

@@ -119,9 +119,4 @@ class Indi_RS : public Indicator<IndiRSParams> {
     }
     return EMPTY_VALUE;
   }
-
-  /**
-   * Checks if indicator entry values are valid.
-   */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return true; }
 };

@@ -64,6 +64,11 @@ class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {
     // Method is called if there is a missing item (tick) in the history. We need to regenerate it.
     indi PTR_DEREF FetchHistoryByStartTimeAndCount(_from_time_ms, _dir, _num_items, _out_arr);
   }
+
+  /**
+   * Returns information about item provider.
+   */
+  string ToString() override { return "IndicatorTick tick provider on " + indi PTR_DEREF GetFullName(); }
 };
 
 #endif  // INDICATOR_TICK_PROVIDER_H
