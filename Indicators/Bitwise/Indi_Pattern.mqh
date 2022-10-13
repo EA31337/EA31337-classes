@@ -23,6 +23,7 @@
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../BufferStruct.mqh"
+#include "../../Indicator/Indicator.define.h"
 #include "../../Indicator/Indicator.h"
 #include "../../Pattern.struct.h"
 #include "../../Serializer/Serializer.h"
@@ -87,6 +88,9 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
     int i;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
+
+    INDI_REQUIRE_SHIFT_OR_RETURN(GetCandle(), _max_modes + _ishift, WRONG_VALUE);
+
     BarOHLC _ohlcs[8];
 
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -150,5 +154,5 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
    * @return
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return !_entry.HasValue<int>(INT_MAX); }
+  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return !_entry.HasValue<int>(WRONG_VALUE); }
 };

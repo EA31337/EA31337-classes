@@ -27,6 +27,7 @@
 // Defines.
 // #define __debug__  // Enables debug.
 // #define __debug_verbose__
+#define __debug_items_history__
 
 // Forward declaration.
 struct DataParamEntry;

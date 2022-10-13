@@ -173,6 +173,8 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
   static double iRSIOnIndicator(Indi_RSI *_target, IndicatorData *_source, string _symbol = NULL,
                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                 ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_target, _period + _shift + 1);  // +1 because of _bar_time_prev.
+
     long _bar_time_curr = _source PTR_DEREF GetBarTime(_shift);
     long _bar_time_prev = _source PTR_DEREF GetBarTime(_shift + 1);
     if (fmin(_bar_time_curr, _bar_time_prev) < 0) {

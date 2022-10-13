@@ -127,3 +127,15 @@
     return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;                                                    \
   }                                                                                                        \
   return _res[0];
+
+#define INDI_REQUIRE_BARS_OR_RETURN(_indi, _period, _ret) \
+  if ((int)_indi PTR_DEREF GetBars() < (int)_period) {    \
+    return _ret;                                          \
+  }
+
+#define INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period) INDI_REQUIRE_BARS_OR_RETURN(_indi, _period, DBL_MAX)
+
+// We're adding 1 because e.g., shift 1 means that we need two bars to exist in
+// history in order to retrieve bar at shift 1.
+#define INDI_REQUIRE_SHIFT_OR_RETURN(_indi, _shift, _ret) INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _shift + 1)
+#define INDI_REQUIRE_SHIFT_OR_RETURN_EMPTY(_indi, _shift) INDI_REQUIRE_SHIFT_OR_RETURN(_indi, _shift, DBL_MAX)

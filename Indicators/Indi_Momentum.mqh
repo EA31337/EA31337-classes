@@ -114,6 +114,8 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
     ArrayResize(_indi_value_buffer, _period);
 
     for (int i = 0; i < (int)_period; i++) {
+      Print("<Momentum>: Getting data from ", _indi PTR_DEREF GetFullName(), " from shift ", i);
+
       // Getting value from single, selected buffer.
       _indi_value_buffer[i] = _indi[i].GetValue<double>(_mode);
     }

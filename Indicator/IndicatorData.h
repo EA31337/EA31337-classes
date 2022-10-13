@@ -32,16 +32,6 @@
 // Forward class declaration.
 class IndicatorBase;
 
-// Defines.
-#define INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period) \
-  if ((int)_indi PTR_DEREF GetBars() < (int)_period) {    \
-    return DBL_MAX;                                       \
-  }
-
-// We're adding 1 because e.g., shift 1 means that we need two bars to exist in
-// history in order to retrieve bar at shift 1.
-#define INDI_REQUIRE_SHIFT_OR_RETURN_EMPTY(_indi, _shift) INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _shift + 1)
-
 // Includes.
 #include "../Bar.struct.h"
 #include "../DrawIndicator.mqh"
