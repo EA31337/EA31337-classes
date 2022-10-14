@@ -207,8 +207,11 @@ class ItemsHistory {
         // Time from we'll be getting items will be the time of the first possible item/candle/tick - 1ms.
         _from_time_ms = item_provider REF_DEREF GetInitialTimeMs() - 1;
       } else {
-        // Time will be the time of the first valid item - 1ms.
+#ifdef __debug_items_history__
         Print("RegenerateHistory: Getting first valid item at index ", first_valid_index);
+#endif
+
+        // Time will be the time of the first valid item - 1ms.
         _item = GetItemByIndex(first_valid_index);
         _from_time_ms = _item.GetTimeMs() - 1;
       }
@@ -392,10 +395,6 @@ class ItemsHistory {
       if (!_try_regenerate) {
         // Print("Notice: Missing history. Tried to get item at index ", _index);
         return false;
-      }
-
-      if (_index == -1) {
-        DebugBreak();
       }
 
 #ifdef __debug_items_history__

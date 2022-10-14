@@ -27,7 +27,7 @@
 // Defines.
 // #define __debug__  // Enables debug.
 // #define __debug_verbose__
-#define __debug_items_history__
+// #define __debug_items_history__
 
 // Forward declaration.
 struct DataParamEntry;
@@ -98,7 +98,7 @@ void OnTick() {
   IndicatorData* _candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
 
   if (_candles PTR_DEREF IsNewBar()) {
-    if (_candles PTR_DEREF GetBarIndex() > 300) {
+    if (_candles PTR_DEREF GetBarIndex() > 500) {
       ExpertRemove();
     }
 

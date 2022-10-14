@@ -103,6 +103,11 @@ class IndicatorTick : public Indicator<TS> {
   unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
 
   /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN; }
+
+  /**
    * Returns time of the bar for a given shift.
    */
   datetime GetBarTime(int _shift = 0) override { return history.GetItemTimeByShift(_shift); }
@@ -167,16 +172,9 @@ class IndicatorTick : public Indicator<TS> {
   };
 
   /**
-   * @todo
+   * Returns points to ticks history.
    */
-  IndicatorDataEntry TickToEntry(long _timestamp, TickAB<TV>& _tick) {
-    IndicatorDataEntry _entry(2);
-    _entry.timestamp = _timestamp;
-    _entry.values[INDI_TICK_MODE_PRICE_ASK] = _tick.ask;
-    _entry.values[INDI_TICK_MODE_PRICE_BID] = _tick.bid;
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _tick.ask != 0 && _tick.bid != 0);
-    return _entry;
-  }
+  ItemsHistory<TickTAB<TV>, TCP>* GetHistory() { return &history; }
 
   /**
    * @todo
@@ -197,16 +195,23 @@ class IndicatorTick : public Indicator<TS> {
    *   Returns DataParamEntry struct filled with a single value.
    */
   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) override {
-    if (_shift != 0) {
-      Print("Error: IndicatorTick does not yet support getting entries by shift other than 0!");
-      DebugBreak();
-      IndicatorDataEntryValue _default;
-      return _default;
+    int _ishift = _shift >= 0 ? _shift : itparams.GetShift();
+
+    TickTAB<TV> _tick;
+
+    if (history.TryGetItemByShift(_ishift, _tick)) {
+      switch (_mode) {
+        case INDI_TICK_MODE_PRICE_ASK:
+          return _tick.ask;
+        case INDI_TICK_MODE_PRICE_BID:
+          return _tick.bid;
+        default:
+          Print("Invalid mode while trying to get entry from IndicatorTick!");
+          DebugBreak();
+      }
     }
 
-    int _ishift = _shift >= 0 ? _shift : itparams.GetShift();
-    // @todo Support for shift.
-    return GetEntry((datetime)0)[_mode];
+    return DBL_MAX;
   }
 
   /**
@@ -240,5 +245,18 @@ class IndicatorTick : public Indicator<TS> {
    */
   virtual IndicatorTick* GetTickIndicator() { return THIS_PTR; }
 };
+
+/**
+ * Converts TickAB into IndicatorDataEntry.
+ */
+template <typename TV>
+IndicatorDataEntry TickToEntry(long _timestamp, TickAB<TV>& _tick) {
+  IndicatorDataEntry _entry(2);
+  _entry.timestamp = _timestamp;
+  _entry.values[INDI_TICK_MODE_PRICE_ASK] = _tick.ask;
+  _entry.values[INDI_TICK_MODE_PRICE_BID] = _tick.bid;
+  _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _tick.ask != 0 && _tick.bid != 0);
+  return _entry;
+}
 
 #endif

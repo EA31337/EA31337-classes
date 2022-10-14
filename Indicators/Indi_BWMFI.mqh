@@ -93,7 +93,6 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
    */
   unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
 
- public:
   /**
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */

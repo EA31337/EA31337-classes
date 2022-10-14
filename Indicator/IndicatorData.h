@@ -1139,7 +1139,9 @@ class IndicatorData : public IndicatorBase {
       return (datetime)0;
     }
 
+#ifdef __debug_items_history__
     Print("Getting bar time for shift ", _shift, " for ", GetFullName());
+#endif
 
     return _indi PTR_DEREF GetBarTime(_shift);
   }

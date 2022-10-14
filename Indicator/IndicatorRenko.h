@@ -174,7 +174,7 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double, ItemsHistoryR
   void OnDataSourceEntry(IndicatorDataEntry &entry) override{
       /*
       @todo Move logic into ItemsHistoryRenkoCandleProvider class.
-      
+      
       if (entry.timestamp < last_entry_ts) {
         Print("Error: IndicatorRenko doesn't support sending entries in non-ascending order!");
         DebugBreak();

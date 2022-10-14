@@ -150,6 +150,8 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
                                       int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5
                                                   // _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
                                       int _shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_source, _shift + _ma_shift + _ma_period);
+
     return iEnvelopesOnArray(_source.GetSpecificAppliedPriceValueStorage(_ap, _target), 0, _ma_period, _ma_method,
                              _ma_shift, _deviation, _mode, _shift, _target PTR_DEREF GetCache());
   }
