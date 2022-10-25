@@ -118,6 +118,8 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   static double iStdDevOnIndicator(IndicatorData *_target, IndicatorData *_source, string _symbol, ENUM_TIMEFRAMES _tf,
                                    int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _shift = 0,
                                    Indi_StdDev *_obj = NULL) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_source, _ma_period + _ma_shift + _shift)
+
     double _indi_value_buffer[];
     double _std_dev;
     int i;
@@ -224,9 +226,9 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),

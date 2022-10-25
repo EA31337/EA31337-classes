@@ -88,9 +88,9 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int data_size = ArraySize(iparams.price_data);
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _ishift = _shift + iparams.GetShift();
 
     if (_ishift >= data_size || _ishift < 0) return DBL_MIN;
 

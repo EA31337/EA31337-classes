@@ -117,9 +117,9 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BWMFI_BUFFER, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BWMFI_BUFFER, int _shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _ishift = _shift + iparams.GetShift();
 
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
@@ -142,9 +142,11 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
     Indicator<IndiBWIndiMFIParams>::GetEntryAlter(_entry, _shift);
 #ifdef __MQL4__
+    Print(GetVolume(_shift), ", ", GetVolume(_shift + 1), " | ", GetValue<double>(BWMFI_BUFFER, _shift), " > ",
+          GetValue<double>(BWMFI_BUFFER, _shift + 1));
     // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
-    bool _vol_up = GetVolume(_shift) > GetVolume(_shift);
-    bool _val_up = GetValue<double>(BWMFI_BUFFER, _shift) > GetValue<double>(BWMFI_BUFFER, _shift);
+    bool _vol_up = GetVolume(_shift) > GetVolume(_shift + 1);
+    bool _val_up = GetValue<double>(BWMFI_BUFFER, _shift) > GetValue<double>(BWMFI_BUFFER, _shift + 1);
     double _histcolor = EMPTY_VALUE;
     switch (_vol_up) {
       case true:
@@ -182,8 +184,8 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
    * @return
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return _entry[(int)BWMFI_BUFFER] > 0 && _entry[(int)BWMFI_HISTCOLOR] >= 0 && !_entry.HasValue<double>(DBL_MAX) &&
-           !_entry.HasValue<double>(EMPTY_VALUE);
+  bool IsValidEntry(IndicatorDataEntry &_entry) override {
+    return _entry.GetValue<double>((int)BWMFI_BUFFER) > 0 && _entry.GetValue<double>((int)BWMFI_HISTCOLOR) >= 0 &&
+           !_entry.HasValue<double>(DBL_MAX);
   }
 };

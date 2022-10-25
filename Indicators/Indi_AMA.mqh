@@ -45,7 +45,7 @@ struct IndiAMAParams : IndicatorParams {
     // Defaulting to on-indicator mode (will use real ticks from platform via IndicatorTickReal).
     SetShift(_shift);
     if (custom_indi_name == "") {
-    SetCustomIndicatorName("Examples\\AMA");
+      SetCustomIndicatorName("Examples\\AMA");
     }
   };
   IndiAMAParams(IndiAMAParams &_params) { THIS_REF = _params; }
@@ -229,9 +229,9 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_AMA::iAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),

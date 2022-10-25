@@ -575,9 +575,9 @@ class Indicator : public IndicatorData {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(long _index = -1) override {
+  IndicatorDataEntry GetEntry(int _index = 0) override {
     ResetLastError();
-    int _ishift = _index >= 0 ? (int)_index : iparams.GetShift();
+    int _ishift = _index + iparams.GetShift();
     long _bar_time;
     _bar_time = GetBarTime(_ishift);
 
@@ -679,7 +679,7 @@ class Indicator : public IndicatorData {
    *   Returns DataParamEntry struct filled with a single value.
    */
   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) override {
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _ishift = _shift + iparams.GetShift();
     return GetEntry(_ishift)[_mode];
   }
 

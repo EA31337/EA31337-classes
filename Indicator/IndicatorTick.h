@@ -195,7 +195,7 @@ class IndicatorTick : public Indicator<TS> {
    *   Returns DataParamEntry struct filled with a single value.
    */
   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) override {
-    int _ishift = _shift >= 0 ? _shift : itparams.GetShift();
+    int _ishift = _shift + iparams.GetShift();
 
     TickTAB<TV> _tick;
 

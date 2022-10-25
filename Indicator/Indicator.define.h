@@ -129,7 +129,7 @@
   return _res[0];
 
 #define INDI_REQUIRE_BARS_OR_RETURN(_indi, _period, _ret) \
-  if ((int)_indi PTR_DEREF GetBars() < (int)_period) {    \
+  if ((int)(_indi)PTR_DEREF GetBars() < (int)_period) {   \
     return _ret;                                          \
   }
 

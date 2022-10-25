@@ -100,6 +100,9 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
    */
   static double iUO(IndicatorData *_indi, int _fast_period, int _middle_period, int _slow_period, int _fast_k,
                     int _middle_k, int _slow_k, int _mode = 0, int _shift = 0) {
+    int _min_bars_required = MathMax(MathMax(_fast_period, _middle_period), _slow_period);
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _min_bars_required);
+
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _indi, Util::MakeKey(_fast_period, _middle_period, _slow_period, _fast_k, _middle_k, _slow_k));
 
@@ -166,8 +169,6 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
     int ExtMaxPeriod = InpSlowPeriod;
     if (ExtMaxPeriod < InpMiddlePeriod) ExtMaxPeriod = InpMiddlePeriod;
     if (ExtMaxPeriod < InpFastPeriod) ExtMaxPeriod = InpFastPeriod;
-
-    int min_bars_required = MathMax(MathMax(InpFastPeriod, InpMiddlePeriod), InpSlowPeriod);
 
     if (rates_total < ExtMaxPeriod) return (0);
     // Not all data may be calculated.
@@ -248,9 +249,9 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:

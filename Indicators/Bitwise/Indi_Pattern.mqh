@@ -84,9 +84,9 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int i;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _ishift = _shift + iparams.GetShift();
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     INDI_REQUIRE_SHIFT_OR_RETURN(GetCandle(), _max_modes + _ishift, WRONG_VALUE);

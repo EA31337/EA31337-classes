@@ -165,19 +165,6 @@ class IndicatorData : public IndicatorBase {
     return GetEntry(_index);
   }
 
-  /**
-   * Access indicator entry data using [] operator via datetime.
-   */
-  IndicatorDataEntry operator[](datetime _dt) {
-    if (!bool(flags | INDI_FLAG_INDEXABLE_BY_TIMESTAMP)) {
-      Print(GetFullName(), " is not indexable by timestamp!");
-      DebugBreak();
-      IndicatorDataEntry _default;
-      return _default;
-    }
-    return GetEntry(_dt);
-  }
-
   IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) { return GetEntry((int)_index); }
 
   /* Getters */
@@ -1199,7 +1186,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's struct value via index.
    */
-  virtual IndicatorDataEntry GetEntry(long _index = 0) = NULL;
+  virtual IndicatorDataEntry GetEntry(int _index = 0) = NULL;
 
   /**
    * Returns the indicator's struct value via timestamp.

@@ -152,9 +152,9 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _ishift = _shift + iparams.GetShift();
 #ifdef __MQL4__
     if (_mode == 0) {
       // In MQL4 mode 0 should be treated as mode 1 as Alligator buffers starts from index 1.

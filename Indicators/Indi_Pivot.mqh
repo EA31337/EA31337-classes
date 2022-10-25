@@ -100,7 +100,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
   virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+    int _ishift = _shift + iparams.GetShift();
     long _bar_time = GetCandle() PTR_DEREF GetBarTime(_ishift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
@@ -137,8 +137,8 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+    int _ishift = _shift + iparams.GetShift();
     return GetEntry(_ishift)[_mode];
   }
 
