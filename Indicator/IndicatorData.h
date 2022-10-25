@@ -493,11 +493,11 @@ class IndicatorData : public IndicatorBase {
   /**
    * Get current (or by given date and time) open price depending on the operation type.
    */
-  double GetOpenOffer(ENUM_ORDER_TYPE _cmd, datetime _dt = 0) {
+  double GetOpenOffer(ENUM_ORDER_TYPE _cmd) {
     // Use the right open price at opening of a market order. For example:
     // - When selling, only the latest Bid prices can be used.
     // - When buying, only the latest Ask prices can be used.
-    return _cmd == ORDER_TYPE_BUY ? GetAsk(_dt) : GetBid(_dt);
+    return _cmd == ORDER_TYPE_BUY ? GetAsk() : GetBid();
   }
 
   /**
@@ -1111,9 +1111,14 @@ class IndicatorData : public IndicatorBase {
   }
 
   /**
-   * Gets ask price for a given date and time. Return current ask price if _dt wasn't passed or is 0.
+   * Gets ask price for a given shift. Return current ask price if _shift wasn't passed or is 0.
    */
-  virtual double GetAsk(datetime _dt = 0) { return GetTick() PTR_DEREF GetAsk(_dt); }
+  virtual double GetAsk(int _shift = 0) { return GetTick() PTR_DEREF GetAsk(_shift); }
+
+  /**
+   * Gets bid price for a given shift. Return current bid price if _shift wasn't passed or is 0.
+   */
+  virtual double GetBid(int _shift = 0) { return GetTick() PTR_DEREF GetBid(_shift); }
 
   /**
    * Returns the number of bars on the chart.
@@ -1154,11 +1159,6 @@ class IndicatorData : public IndicatorBase {
   virtual int GetBarShift(datetime _time, bool _exact = false) {
     return GetTick() PTR_DEREF GetBarShift(_time, _exact);
   }
-
-  /**
-   * Gets bid price for a given date and time. Return current bid price if _dt wasn't passed or is 0.
-   */
-  virtual double GetBid(datetime _dt = 0) { return GetTick() PTR_DEREF GetBid(_dt); }
 
   /**
    * Traverses source indicators' hierarchy and tries to find OHLC-featured

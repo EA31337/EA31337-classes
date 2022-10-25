@@ -88,7 +88,11 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
   unsigned int GetPossibleDataModes() override {
+#ifdef __MQL5__
     return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+#else
+    return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+#endif
   }
 
   /**

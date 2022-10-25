@@ -115,12 +115,12 @@ class IndicatorTick : public Indicator<TS> {
   /**
    * Gets ask price for a given date and time. Return current ask price if _dt wasn't passed or is 0.
    */
-  virtual double GetAsk(datetime _dt = 0) { return GetEntry(_dt).GetValue<double>(INDI_TICK_MODE_PRICE_ASK); }
+  virtual double GetAsk(int _shift = 0) { return GetEntryValue(INDI_TICK_MODE_PRICE_ASK, _shift).Get<double>(); }
 
   /**
    * Gets bid price for a given date and time. Return current bid price if _dt wasn't passed or is 0.
    */
-  virtual double GetBid(datetime _dt = 0) { return GetEntry(_dt).GetValue<double>(INDI_TICK_MODE_PRICE_BID); }
+  virtual double GetBid(int _shift = 0) { return GetEntryValue(INDI_TICK_MODE_PRICE_BID, _shift).Get<double>(); }
 
   /**
    * Returns value storage of given kind.

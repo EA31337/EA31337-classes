@@ -474,7 +474,9 @@ class Indicator : public IndicatorData {
     switch (_action) {
       case INDI_ACTION_CLEAR_CACHE:
         _arg1 = _arg1 > 0 ? _arg1 : TimeCurrent();
-        idata.Clear(_arg1);
+        Print("Action not yet implemented!");
+        DebugBreak();
+        // idata.Clear(_arg1);
         return true;
       default:
         GetLogger().Error(StringFormat("Invalid Indicator action: %s!", EnumToString(_action), __FUNCTION_LINE__));
@@ -509,19 +511,6 @@ class Indicator : public IndicatorData {
 #endif
     istate.handle = INVALID_HANDLE;
     istate.is_changed = true;
-  }
-
-  /**
-   * Adds entry to the indicator's buffer. Invalid entry won't be added.
-   */
-  bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
-    if (!entry.IsValid()) return false;
-
-    datetime timestamp = GetBarTime(_shift);
-    entry.timestamp = timestamp;
-    idata.Add(entry, timestamp);
-
-    return true;
   }
 
   /* Data representation methods */
