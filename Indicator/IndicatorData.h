@@ -1126,7 +1126,7 @@ class IndicatorData : public IndicatorBase {
     if (_indi == nullptr) _indi = GetTick(false);
 
     if (_indi == nullptr) {
-      Print("Error: Neither candle nor tick indicator exists in the hierarch of ", GetFullName(), "!");
+      Print("Error: Neither candle nor tick indicator exists in the hierarchy of ", GetFullName(), "!");
       DebugBreak();
       return (datetime)0;
     }

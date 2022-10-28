@@ -54,8 +54,13 @@ struct IndiMAParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_array;
   // Struct constructors.
-  IndiMAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
-               ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  /**
+   * Regarding _ma_shift and _shift:
+   * @see https://www.mql5.com/en/forum/146006#comment_3685589
+   * "Always use MA shift 0 (ignore it) and use the regular shift, unless you are placing it on the chart for visual".
+   */
+  IndiMAParams(unsigned int _period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
+               ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 10)
       : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap), IndicatorParams(INDI_MA) {
     shift = _shift;
     SetCustomIndicatorName("Examples\\Moving Average");

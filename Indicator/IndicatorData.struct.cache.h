@@ -234,7 +234,9 @@ class IndicatorCalculateCache : public Dynamic {
   }
 
   /**
+   * Retrieves _shift-th (0 = most recent) cached value from the given buffer.
    *
+   * @todo Return DBL_MAX in case the index is out of array boundary.
    */
   template <typename D>
   D GetTailValue(int _buffer_index, int _shift) {
