@@ -154,22 +154,23 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_TEMA::iTEMA(GetSymbol(), GetTf(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), 0, _ishift,
-                                  THIS_PTR);
+        _value = Indi_TEMA::iTEMA(GetSymbol(), GetTf(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), 0,
+                                  ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = iTEMAOnIndicator(GetDataSource(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
+        _value = iTEMAOnIndicator(GetDataSource(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode,
+                                  ToRelShift(_abs_shift));
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
-                         GetTEMAShift() /*]*/, 0, _ishift);
+                         GetTEMAShift() /*]*/, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = iTEMAOnIndicator(GetDataSource(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
+        _value = iTEMAOnIndicator(GetDataSource(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode,
+                                  ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

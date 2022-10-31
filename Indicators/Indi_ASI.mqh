@@ -206,20 +206,19 @@ class Indi_ASI : public Indicator<IndiASIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
-                         /*[*/ GetMaximumPriceChanging() /*]*/, 0, _ishift);
+                         /*[*/ GetMaximumPriceChanging() /*]*/, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_ASI::iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, _ishift);
+        _value = Indi_ASI::iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ASI::iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, _ishift);
+        _value = Indi_ASI::iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

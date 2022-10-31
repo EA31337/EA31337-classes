@@ -137,5 +137,5 @@
 
 // We're adding 1 because e.g., shift 1 means that we need two bars to exist in
 // history in order to retrieve bar at shift 1.
-#define INDI_REQUIRE_SHIFT_OR_RETURN(_indi, _shift, _ret) INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _shift + 1)
-#define INDI_REQUIRE_SHIFT_OR_RETURN_EMPTY(_indi, _shift) INDI_REQUIRE_SHIFT_OR_RETURN(_indi, _shift, DBL_MAX)
+#define INDI_REQUIRE_SHIFT_OR_RETURN(_indi, _rel_shift, _ret) INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _rel_shift + 1)
+#define INDI_REQUIRE_SHIFT_OR_RETURN_EMPTY(_indi, _rel_shift) INDI_REQUIRE_SHIFT_OR_RETURN(_indi, _rel_shift, DBL_MAX)

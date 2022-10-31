@@ -309,25 +309,24 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
     double _res[];
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value =
-            Indi_RSI::iRSI(GetSymbol(), GetTf(), iparams.GetPeriod(), iparams.GetAppliedPrice(), _ishift, THIS_PTR);
+        _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), iparams.GetPeriod(), iparams.GetAppliedPrice(),
+                                ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
         // @todo Modify iRSIOnIndicator() to operate on single IndicatorData pointer.
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ iparams.GetPeriod(),
-                         iparams.GetAppliedPrice() /* ] */, 0, _ishift);
+                         iparams.GetAppliedPrice() /* ] */, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         _value = Indi_RSI::iRSIOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), iparams.GetPeriod(),
-                                           iparams.GetAppliedPrice(), _ishift);
+                                           iparams.GetAppliedPrice(), ToRelShift(_abs_shift));
         break;
     }
     return _value;

@@ -94,16 +94,16 @@ class Indi_RVI : public Indicator<IndiRVIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_RVI::iRVI(GetSymbol(), GetTf(), GetPeriod(), (ENUM_SIGNAL_LINE)_mode, _ishift, THIS_PTR);
+        _value = Indi_RVI::iRVI(GetSymbol(), GetTf(), GetPeriod(), (ENUM_SIGNAL_LINE)_mode, ToRelShift(_abs_shift),
+                                THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
-                         _mode, _ishift);
+                         _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -99,14 +99,13 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    int _ishift = _shift + iparams.GetShift();
-    long _bar_time = GetCandle() PTR_DEREF GetBarTime(_ishift);
+  virtual IndicatorDataEntry GetEntry(int _rel_shift = 0) {
+    long _bar_time = GetCandle() PTR_DEREF GetBarTime(_rel_shift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       ResetLastError();
-      BarOHLC _ohlc = GetOHLC(_ishift);
-      _entry.timestamp = GetCandle() PTR_DEREF GetBarTime(_ishift);
+      BarOHLC _ohlc = GetOHLC(_rel_shift);
+      _entry.timestamp = GetCandle() PTR_DEREF GetBarTime(_rel_shift);
       if (_ohlc.IsValid()) {
         _entry.Resize(Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)));
         _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vdbl, _entry.values[1].value.vdbl,
@@ -117,7 +116,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
           _entry.values[i].SetDataType(TYPE_DOUBLE);
         }
       }
-      GetEntryAlter(_entry, _shift);
+      GetEntryAlter(_entry, _rel_shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
@@ -137,9 +136,8 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
-    int _ishift = _shift + iparams.GetShift();
-    return GetEntry(_ishift)[_mode];
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
+    return GetEntry(ToRelShift(_abs_shift))[_mode];
   }
 
   /* Getters */

@@ -110,7 +110,7 @@ class IndicatorTick : public Indicator<TS> {
   /**
    * Returns time of the bar for a given shift.
    */
-  datetime GetBarTime(int _shift = 0) override { return history.GetItemTimeByShift(_shift); }
+  datetime GetBarTime(int _rel_shift = 0) override { return history.GetItemTimeByShift(_rel_shift); }
 
   /**
    * Gets ask price for a given date and time. Return current ask price if _dt wasn't passed or is 0.
@@ -194,12 +194,10 @@ class IndicatorTick : public Indicator<TS> {
    * @return
    *   Returns DataParamEntry struct filled with a single value.
    */
-  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) override {
-    int _ishift = _shift + iparams.GetShift();
-
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
     TickTAB<TV> _tick;
 
-    if (history.TryGetItemByShift(_ishift, _tick)) {
+    if (history.TryGetItemByShift(_abs_shift, _tick)) {
       switch (_mode) {
         case INDI_TICK_MODE_PRICE_ASK:
           return _tick.ask;

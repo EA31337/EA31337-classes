@@ -110,17 +110,16 @@ class Indi_Stochastic : public Indicator<IndiStochParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(),
-                                              GetMAMethod(), GetPriceField(), _mode, _ishift, THIS_PTR);
+                                              GetMAMethod(), GetPriceField(), _mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetKPeriod(),
-                         GetDPeriod(), GetSlowing() /*]*/, _mode, _ishift);
+                         GetDPeriod(), GetSlowing() /*]*/, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

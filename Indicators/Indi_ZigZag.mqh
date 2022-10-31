@@ -373,21 +373,22 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);
+        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode,
+                         ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
-        _value =
-            Indi_ZigZag::iCustomZigZag(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetDepth(),
-                                       GetDeviation(), GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
+        _value = Indi_ZigZag::iCustomZigZag(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetDepth(),
+                                            GetDeviation(), GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode,
+                                            ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);
+        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode,
+                         ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

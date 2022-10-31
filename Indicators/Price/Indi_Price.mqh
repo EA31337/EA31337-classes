@@ -73,10 +73,9 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
-    int _ishift = _shift + iparams.GetShift();
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     return GetCandle() PTR_DEREF GetSpecificAppliedPriceValueStorage(iparams.GetAppliedPrice())
-        PTR_DEREF Fetch(_ishift);
+        PTR_DEREF Fetch(ToRelShift(_abs_shift));
   }
 
   /**

@@ -114,9 +114,8 @@ class Indi_Math : public Indicator<IndiMathParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_INDICATOR:
         if (!indi_src.IsSet()) {
@@ -134,12 +133,12 @@ class Indi_Math : public Indicator<IndiMathParams> {
           case MATH_OP_MODE_BUILTIN:
             _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
                                                  /*[*/ GetOpBuiltIn(), GetMode1(), GetMode2(), GetShift1(),
-                                                 GetShift2() /*]*/, 0, _ishift, &this);
+                                                 GetShift2() /*]*/, 0, ToRelShift(_abs_shift), &this);
             break;
           case MATH_OP_MODE_CUSTOM_FUNCTION:
             _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
                                                  /*[*/ GetOpFunction(), GetMode1(), GetMode2(), GetShift1(),
-                                                 GetShift2() /*]*/, 0, _ishift, &this);
+                                                 GetShift2() /*]*/, 0, ToRelShift(_abs_shift), &this);
             break;
         }
         break;

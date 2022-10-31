@@ -212,6 +212,18 @@ class Indicator : public IndicatorData {
     draw.SetWindow(_window);
   }
 
+  /* Converters */
+
+  /**
+   * Converts relative shift into absolute one.
+   */
+  int ToAbsShift(int _rel_shift) override { return _rel_shift + iparams.shift; }
+
+  /**
+   * Converts absolute shift into relative one.
+   */
+  int ToRelShift(int _abs_shift) override { return _abs_shift - iparams.shift; }
+
   /* Buffer methods */
 
   virtual string CacheKey() { return GetFullName(); }
@@ -575,11 +587,9 @@ class Indicator : public IndicatorData {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _index = 0) override {
+  IndicatorDataEntry GetEntry(int _rel_shift = 0) override {
     ResetLastError();
-    int _ishift = _index + iparams.GetShift();
-    long _bar_time;
-    _bar_time = GetBarTime(_ishift);
+    long _bar_time = GetBarTime(_rel_shift);
 
     if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_BUILTIN &&
         (GetPossibleDataModes() & IDATA_BUILTIN) == 0) {
@@ -598,7 +608,7 @@ class Indicator : public IndicatorData {
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
       _entry.Resize(_max_modes);
-      _entry.timestamp = GetBarTime(_ishift);
+      _entry.timestamp = GetBarTime(_rel_shift);
 #ifndef __MQL4__
       if (IndicatorData::Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED))) {
         // Resets the handle on any parameter changes.
@@ -611,22 +621,22 @@ class Indicator : public IndicatorData {
           case TYPE_BOOL:
           case TYPE_CHAR:
           case TYPE_INT:
-            _entry.values[_mode] = GetValue<int>(_mode, _ishift);
+            _entry.values[_mode] = GetValue<int>(_mode, _rel_shift);
             break;
           case TYPE_LONG:
-            _entry.values[_mode] = GetValue<long>(_mode, _ishift);
+            _entry.values[_mode] = GetValue<long>(_mode, _rel_shift);
             break;
           case TYPE_UINT:
-            _entry.values[_mode] = GetValue<unsigned int>(_mode, _ishift);
+            _entry.values[_mode] = GetValue<unsigned int>(_mode, _rel_shift);
             break;
           case TYPE_ULONG:
-            _entry.values[_mode] = GetValue<unsigned long>(_mode, _ishift);
+            _entry.values[_mode] = GetValue<unsigned long>(_mode, _rel_shift);
             break;
           case TYPE_DOUBLE:
-            _entry.values[_mode] = GetValue<double>(_mode, _ishift);
+            _entry.values[_mode] = GetValue<double>(_mode, _rel_shift);
             break;
           case TYPE_FLOAT:
-            _entry.values[_mode] = GetValue<float>(_mode, _ishift);
+            _entry.values[_mode] = GetValue<float>(_mode, _rel_shift);
             break;
           case TYPE_STRING:
           case TYPE_UCHAR:
@@ -637,12 +647,12 @@ class Indicator : public IndicatorData {
 
         if (_LastError != ERR_SUCCESS) {
           datetime _bar_dt = (datetime)_bar_time;
-          Print("Error: Code ", _LastError, " while trying to retrieve entry at shift ", _ishift, ", mode ", _mode,
-                ", time ", _bar_dt);
+          Print("Error: Code ", _LastError, " while trying to retrieve entry at shift ", _rel_shift, " (absolute ",
+                ToAbsShift(_rel_shift), "), mode ", _mode, ", time ", _bar_dt);
           DebugBreak();
         }
       }
-      GetEntryAlter(_entry, _ishift);
+      GetEntryAlter(_entry, _rel_shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
@@ -665,7 +675,7 @@ class Indicator : public IndicatorData {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift) {
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _rel_shift) {
     ENUM_DATATYPE _dtype = Get<ENUM_DATATYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DTYPE));
     _entry.AddFlags(_entry.GetDataTypeFlags(_dtype));
   };
@@ -678,9 +688,8 @@ class Indicator : public IndicatorData {
    * @return
    *   Returns DataParamEntry struct filled with a single value.
    */
-  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) override {
-    int _ishift = _shift + iparams.GetShift();
-    return GetEntry(_ishift)[_mode];
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
+    return GetEntry(ToRelShift(_abs_shift))[_mode];
   }
 
   /* Virtual methods */

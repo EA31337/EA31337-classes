@@ -149,12 +149,12 @@ class IndicatorCandle : public Indicator<TS> {
   int GetBarIndex() override { return history.GetCurrentIndex(); }
 
   /**
-   * Returns the number of bars on the chart.
+   * Returns the number of bars on the chart decremented by iparams.shift.
    */
   int GetBars() override {
     // Will return number of bars prepended and appended to the history,
     // even if those bars were cleaned up because of history's candle limit.
-    return (int)history.GetPeakSize();
+    return (int)history.GetPeakSize() - iparams.shift;
   }
 
   /**
@@ -182,7 +182,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Returns time of the bar for a given shift.
    */
-  virtual datetime GetBarTime(int _shift = 0) { return history.GetItemTimeByShift(_shift); }
+  virtual datetime GetBarTime(int _rel_shift = 0) { return history.GetItemTimeByShift(_rel_shift); }
 
   /**
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
@@ -196,11 +196,11 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Gets OHLC price values.
    */
-  BarOHLC GetOHLC(int _shift = 0) override {
+  BarOHLC GetOHLC(int _rel_shift = 0) override {
     BarOHLC _bar;
     CandleOCTOHLC<double> _candle;
 
-    if (history.TryGetItemByShift(_shift, _candle)) {
+    if (history.TryGetItemByShift(ToAbsShift(_rel_shift), _candle)) {
       _bar = BarOHLC(_candle.open, _candle.high, _candle.low, _candle.close, _candle.start_time);
     }
 

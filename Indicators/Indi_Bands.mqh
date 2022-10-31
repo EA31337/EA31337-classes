@@ -255,28 +255,27 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BAND_BASE, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = BAND_BASE, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
-                                    GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift, THIS_PTR);
+                                    GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value =
-            Indi_Bands::iBandsOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
-                                          GetBandsShift(), GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift);
+        _value = Indi_Bands::iBandsOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
+                                               GetDeviation(), GetBandsShift(), GetAppliedPrice(),
+                                               (ENUM_BANDS_LINE)_mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
-                         GetBandsShift(), GetDeviation(), GetAppliedPrice() /* ] */, _mode, _ishift);
+                         GetBandsShift(), GetDeviation(), GetAppliedPrice() /* ] */, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
         _value = Indi_Bands::iBandsOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
                                                GetDeviation(), GetBandsShift(), GetAppliedPrice(),
-                                               (ENUM_BANDS_LINE)_mode, _ishift, THIS_PTR);
+                                               (ENUM_BANDS_LINE)_mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
     }
     return _value;

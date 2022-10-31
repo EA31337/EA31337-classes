@@ -177,30 +177,29 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_VIDYA::iVIDyA(GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(), GetVIDYAShift(),
-                                    GetAppliedPrice() /*]*/, 0, _ishift, THIS_PTR);
+                                    GetAppliedPrice() /*]*/, 0, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value =
-            Indi_VIDYA::iVIDyAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(),
-                                          GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_VIDYA::iVIDyAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(),
+                                               GetMAPeriod(), GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode,
+                                               ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
                          GetCMOPeriod(), GetMAPeriod(),
                          GetVIDYAShift()
                          /*]*/,
-                         0, _ishift);
+                         0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value =
-            Indi_VIDYA::iVIDyAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(),
-                                          GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_VIDYA::iVIDyAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(),
+                                               GetMAPeriod(), GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode,
+                                               ToRelShift(_abs_shift), THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

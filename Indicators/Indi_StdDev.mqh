@@ -226,25 +226,24 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),
-                                      GetAppliedPrice(), _ishift, THIS_PTR);
+                                      GetAppliedPrice(), ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
         _value = Indi_StdDev::iStdDevOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
-                                                 GetMAShift(), GetAppliedPrice(), _ishift, THIS_PTR);
+                                                 GetMAShift(), GetAppliedPrice(), ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetMAPeriod(),
-                         GetMAShift(), GetMAMethod() /*]*/, 0, _ishift);
+                         GetMAShift(), GetMAMethod() /*]*/, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         _value = Indi_StdDev::iStdDevOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
-                                                 GetMAShift(), GetAppliedPrice(), _ishift, THIS_PTR);
+                                                 GetMAShift(), GetAppliedPrice(), ToRelShift(_abs_shift), THIS_PTR);
         break;
     }
     return _value;

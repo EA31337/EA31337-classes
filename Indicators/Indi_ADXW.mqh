@@ -266,22 +266,21 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_ADXW::iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
+        _value = Indi_ADXW::iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_ADXW::iADXWilder(THIS_PTR, GetPeriod(), _mode, _ishift);
+        _value = Indi_ADXW::iADXWilder(THIS_PTR, GetPeriod(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
-                         _mode, _ishift);
+                         _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ADXW::iADXWilder(THIS_PTR, GetPeriod(), _mode, _ishift);
+        _value = Indi_ADXW::iADXWilder(THIS_PTR, GetPeriod(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

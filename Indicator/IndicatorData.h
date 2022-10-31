@@ -155,17 +155,17 @@ class IndicatorData : public IndicatorBase {
   /**
    * Access indicator entry data using [] operator via shift.
    */
-  IndicatorDataEntry operator[](int _index) {
+  IndicatorDataEntry operator[](int _rel_shift) {
     if (!bool(flags | INDI_FLAG_INDEXABLE_BY_SHIFT)) {
       Print(GetFullName(), " is not indexable by shift!");
       DebugBreak();
       IndicatorDataEntry _default;
       return _default;
     }
-    return GetEntry(_index);
+    return GetEntry(_rel_shift);
   }
 
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _index) { return GetEntry((int)_index); }
+  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _rel_shift) { return GetEntry((int)_rel_shift); }
 
   /* Getters */
 
@@ -188,8 +188,8 @@ class IndicatorData : public IndicatorBase {
   /**
    * Gets an indicator property flag.
    */
-  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = 0) {
-    IndicatorDataEntry _entry = GetEntry(_shift);
+  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _rel_shift = 0) {
+    IndicatorDataEntry _entry = GetEntry(_rel_shift);
     return _entry.CheckFlag(_prop);
   }
 
@@ -1013,9 +1013,9 @@ class IndicatorData : public IndicatorBase {
   }
 
   template <typename T>
-  T GetValue(int _mode = 0, int _index = 0) {
+  T GetValue(int _mode = 0, int _rel_shift = 0) {
     T _out;
-    GetEntryValue(_mode, _index).Get(_out);
+    GetEntryValue(_mode, ToAbsShift(_rel_shift)).Get(_out);
     return _out;
   }
 
@@ -1108,7 +1108,7 @@ class IndicatorData : public IndicatorBase {
   virtual double GetBid(int _shift = 0) { return GetTick() PTR_DEREF GetBid(_shift); }
 
   /**
-   * Returns the number of bars on the chart.
+   * Returns the number of bars on the chart decremented by iparams.shift.
    */
   virtual int GetBars() { return GetCandle() PTR_DEREF GetBars(); }
 
@@ -1120,7 +1120,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns time of the bar for a given shift.
    */
-  virtual datetime GetBarTime(int _shift = 0) {
+  virtual datetime GetBarTime(int _rel_shift = 0) {
     IndicatorData* _indi = GetCandle(false);
 
     if (_indi == nullptr) _indi = GetTick(false);
@@ -1132,10 +1132,10 @@ class IndicatorData : public IndicatorBase {
     }
 
 #ifdef __debug_items_history__
-    Print("Getting bar time for shift ", _shift, " for ", GetFullName());
+    Print("Getting bar time for shift ", _rel_shift, " for ", GetFullName());
 #endif
 
-    return _indi PTR_DEREF GetBarTime(_shift);
+    return _indi PTR_DEREF GetBarTime(_rel_shift);
   }
 
   /**
@@ -1186,7 +1186,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's struct value via index.
    */
-  virtual IndicatorDataEntry GetEntry(int _index = 0) = NULL;
+  virtual IndicatorDataEntry GetEntry(int _rel_shift = 0) = NULL;
 
   /**
    * Returns the indicator's struct value via timestamp.
@@ -1211,7 +1211,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's entry value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) = NULL;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) = NULL;
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -1257,7 +1257,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Gets OHLC price values.
    */
-  virtual BarOHLC GetOHLC(int _shift = 0) { return GetCandle() PTR_DEREF GetOHLC(_shift); }
+  virtual BarOHLC GetOHLC(int _rel_shift = 0) { return GetCandle() PTR_DEREF GetOHLC(_rel_shift); }
 
   /**
    * Get peak price at given number of bars.
@@ -1271,8 +1271,8 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the current price value given applied price type, symbol and timeframe.
    */
-  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
-    return GetCandle() PTR_DEREF GetPrice(_ap, _shift);
+  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, int _rel_shift = 0) {
+    return GetCandle() PTR_DEREF GetPrice(_ap, _rel_shift);
   }
 
   /**
@@ -1870,6 +1870,16 @@ class IndicatorData : public IndicatorBase {
     // @todo
     return false;
   };
+
+  /**
+   * Converts relative shift into absolute one.
+   */
+  virtual int ToAbsShift(int _rel_shift) = 0;
+
+  /**
+   * Converts absolute shift into relative one.
+   */
+  virtual int ToRelShift(int _abs_shift) = 0;
 
   /**
    * Loads and validates built-in indicators whose can be used as data source.

@@ -215,9 +215,8 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = HA_OPEN, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = HA_OPEN, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
@@ -238,17 +237,18 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
             break;
         }
 #endif
-        _value = Indi_HeikenAshi::iHeikenAshi(THIS_PTR, _mode, _ishift);
+        _value = Indi_HeikenAshi::iHeikenAshi(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
+                         ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM_LEGACY:
         _value = Indi_HeikenAshi::iCustomLegacyHeikenAshi(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
-                                                          _ishift, THIS_PTR);
+                                                          ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_HeikenAshi::iHeikenAshi(THIS_PTR, _mode, _ishift);
+        _value = Indi_HeikenAshi::iHeikenAshi(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

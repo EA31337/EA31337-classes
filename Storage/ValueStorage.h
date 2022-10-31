@@ -153,7 +153,7 @@ class ValueStorage : public IValueStorage {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual C Fetch(int _shift) {
+  virtual C Fetch(int _rel_shift) {
     Alert("Fetching data by shift is not supported from this value storage!");
     DebugBreak();
     return (C)0;

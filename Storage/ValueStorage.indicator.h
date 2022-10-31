@@ -54,5 +54,5 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  C Fetch(int _shift) override { return indi_candle REF_DEREF GetValue<C>(mode, RealShift(_shift)); }
+  C Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetValue<C>(mode, RealShift(_rel_shift)); }
 };

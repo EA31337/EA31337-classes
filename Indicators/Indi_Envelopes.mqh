@@ -204,28 +204,28 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
-                                            GetAppliedPrice(), GetDeviation(), _mode, _ishift, THIS_PTR);
+                                            GetAppliedPrice(), GetDeviation(), _mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
         // @todo Is cache needed here?
         _value = Indi_Envelopes::iEnvelopesOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
                                                        GetMAMethod(), GetAppliedPrice(), GetMAShift(), GetDeviation(),
-                                                       _mode, _ishift);
+                                                       _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/ GetMAPeriod(),
-                         GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation() /**/, _mode, _ishift);
+        _value =
+            iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/ GetMAPeriod(),
+                    GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation() /**/, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         _value = Indi_Envelopes::iEnvelopesOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
                                                        GetMAMethod(), GetAppliedPrice(), GetMAShift(), GetDeviation(),
-                                                       _mode, _ishift);
+                                                       _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

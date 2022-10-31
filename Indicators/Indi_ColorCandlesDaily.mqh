@@ -135,19 +135,19 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = Indi_ColorCandlesDaily::iCCD(THIS_PTR, _mode, _ishift);
+        _value = Indi_ColorCandlesDaily::iCCD(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
+                         ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ColorCandlesDaily::iCCD(THIS_PTR, _mode, _ishift);
+        _value = Indi_ColorCandlesDaily::iCCD(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -96,7 +96,7 @@ class ChartBase : public Dynamic {
   /**
    * Returns time of the bar with a given shift.
    */
-  virtual datetime GetBarTime(int _shift = 0) = 0;
+  virtual datetime GetBarTime(int _rel_shift = 0) = 0;
 
   datetime GetLastBarTime() { return last_bar_time; }
 
@@ -170,14 +170,14 @@ class ChartBase : public Dynamic {
   /**
    * Gets OHLC price values.
    */
-  virtual BarOHLC GetOHLC(int _shift = 0) {
-    datetime _time = GetBarTime(_shift);
+  virtual BarOHLC GetOHLC(int _rel_shift = 0) {
+    datetime _time = GetBarTime(_rel_shift);
     float _open = 0, _high = 0, _low = 0, _close = 0;
     if (_time > 0) {
-      _open = (float)GetOpen(_shift);
-      _high = (float)GetHigh(_shift);
-      _low = (float)GetLow(_shift);
-      _close = (float)GetClose(_shift);
+      _open = (float)GetOpen(_rel_shift);
+      _high = (float)GetHigh(_rel_shift);
+      _low = (float)GetLow(_rel_shift);
+      _close = (float)GetClose(_rel_shift);
     }
     BarOHLC _ohlc(_open, _high, _low, _close, _time);
     return _ohlc;

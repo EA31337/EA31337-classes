@@ -198,22 +198,21 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift + iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = Indi_CHO::iChaikin(GetSymbol(), GetTf(), /*[*/ GetSlowMA(), GetFastMA(), GetSmoothMethod(),
-                                    GetInputVolume() /*]*/, _mode, _ishift, THIS_PTR);
+                                    GetInputVolume() /*]*/, _mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetFastMA(),
-                         GetSlowMA(), GetSmoothMethod(), GetInputVolume() /*]*/, 0, _ishift);
+                         GetSlowMA(), GetSmoothMethod(), GetInputVolume() /*]*/, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         _value = Indi_CHO::iChaikinOnIndicator(GetDataSource(), /*[*/ GetFastMA(), GetSlowMA(), GetSmoothMethod(),
-                                               GetInputVolume() /*]*/, _mode, _ishift);
+                                               GetInputVolume() /*]*/, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -274,8 +274,8 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double, ItemsHistoryR
    *
    * Note: For Renko it returns last completed bar.
    */
-  datetime GetBarTime(int _shift = 0) override {
-    if (_shift != 0) {
+  datetime GetBarTime(int _rel_shift = 0) override {
+    if (_rel_shift != 0) {
       Print("Error: IndicatorRenko doesn't yet support shift other than 0!");
       DebugBreak();
       return 0;
