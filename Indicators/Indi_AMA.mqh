@@ -112,7 +112,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    * Calculates AMA on the array of values.
    */
   static double iAMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ama_period, int _fast_ema_period,
-                            int _slow_ema_period, int _ama_shift, int _mode, int _shift,
+                            int _slow_ema_period, int _ama_shift, int _mode, int _abs_shift,
                             IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
@@ -127,7 +127,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
     _cache.SetPrevCalculated(Indi_AMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
                                                  _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

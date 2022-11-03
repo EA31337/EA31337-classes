@@ -38,11 +38,6 @@ double iBands(string _symbol, int _tf, int _period, double _deviation, int _band
   return Indi_Bands::iBands(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _deviation, _bands_shift, (ENUM_APPLIED_PRICE)_ap,
                             (ENUM_BANDS_LINE)_mode, _shift);
 }
-double iBandsOnArray(double &_arr[], int _total, int _period, double _deviation, int _bands_shift, int _mode,
-                     int _shift) {
-  ResetLastError();
-  return Indi_Bands::iBandsOnArray(_arr, _total, _period, _deviation, _bands_shift, _mode, _shift);
-}
 #endif
 
 // Indicator line identifiers used in Bands.
@@ -144,99 +139,107 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
   /**
    * Calculates Bands on another indicator.
    */
-  static double iBandsOnIndicator(IndicatorData *_target, IndicatorData *_source, string _symbol, ENUM_TIMEFRAMES _tf,
-                                  unsigned int _period, double _deviation, int _bands_shift, ENUM_APPLIED_PRICE _ap,
+  static double iBandsOnIndicator(IndicatorData *_indi, unsigned int _period, double _deviation, int _bands_shift,
+                                  ENUM_APPLIED_PRICE _ap,
                                   ENUM_BANDS_LINE _mode,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
-                                  int _shift, IndicatorData *_indi_source = NULL) {
-    double _indi_value_buffer[];
-    double _std_dev;
-    double _line_value;
-
-    ValueStorage<double> *_indi_applied_price = _source PTR_DEREF GetSpecificAppliedPriceValueStorage(_ap, _target);
-
-    // Period can't be higher than number of available bars.
-    _period = MathMin(_period, ArraySize(_indi_applied_price));
-
-    // But must be greater than 0!
-    if (_period == 0) {
-      return EMPTY_VALUE;
-    }
-
-    ArrayCopy(_indi_value_buffer, _indi_applied_price, 0, _bands_shift + _shift, _period);
-
-    // Base band. Calculating MA from "_period" number of values or less.
-    _line_value = Indi_MA::SimpleMA(0, _period, _indi_value_buffer);
-
-    // Standard deviation.
-    _std_dev = Indi_StdDev::iStdDevOnArray(_indi_value_buffer, _line_value, _period);
-
-    double _result = EMPTY_VALUE;
-
-    switch (_mode) {
-      case BAND_BASE:
-        // Already calculated.
-        _result = _line_value;
-        break;
-      case BAND_UPPER:
-        _result = _line_value + /* band deviations */ _deviation * _std_dev;
-        break;
-      case BAND_LOWER:
-        _result = _line_value - /* band deviations */ _deviation * _std_dev;
-        break;
-    }
-
-    return _result;
+                                  int _rel_shift) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap,
+                                                        Util::MakeKey(_period, _deviation, _bands_shift, (int)_ap));
+    return iBandsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _deviation, _bands_shift, _mode,
+                         _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
-  static double iBandsOnArray(double &array[], int total, int period, double deviation, int bands_shift, int mode,
-                              int shift) {
-#ifdef __MQL4__
-    return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
-#else  // __MQL5__
-    static Ref<Indi_PriceFeeder> price_feeder = new Indi_PriceFeeder();
-    price_feeder REF_DEREF SetPrices(array);
-    price_feeder REF_DEREF SetDataSourceAppliedPrice(INDI_VS_TYPE_INDEX_0);
-    // First parameter is a pointer to target indicator. It is used to override applied price, so we configure it on the
-    // price feeder itself and pass it as both, target and source indicator.
-    return iBandsOnIndicator(price_feeder.Ptr(), price_feeder.Ptr(), NULL, NULL, period, deviation, bands_shift,
-                             (ENUM_APPLIED_PRICE)0 /* unused */, (ENUM_BANDS_LINE)mode, shift);
-#endif
+  static double iBandsOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, double _deviation, int _bands_shift,
+                              int _mode, int _abs_shift, IndicatorCalculateCache<double> *_cache,
+                              bool _recalculate = false) {
+    _cache.SetPriceBuffer(_price);
+
+    if (!_cache.HasBuffers()) {
+      _cache.AddBuffer<NativeValueStorage<double>>(4);
+    }
+
+    if (_recalculate) {
+      _cache.ResetPrevCalculated();
+    }
+
+    _cache.SetPrevCalculated(Indi_Bands::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
+                                                   _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
+                                                   _cache.GetBuffer<double>(3), _period, _bands_shift, _deviation));
+
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
-  static double iBandsOnArray2(double &array[], int total, int period, double deviation, int bands_shift, int mode,
-                               int shift) {
-#ifdef __MQL5__
-    // Calculates bollinger bands indicator from array data
-    int size = ArraySize(array);
-    if (size < period) return false;
-    if (period <= 0) return false;
+  /**
+   * OnCalculate() method for Bands indicator.
+   */
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &ExtMLBuffer,
+                       ValueStorage<double> &ExtTLBuffer, ValueStorage<double> &ExtBLBuffer,
+                       ValueStorage<double> &ExtStdDevBuffer, int InpBandsPeriod, int InpBandsShift,
+                       double InpBandsDeviations) {
+    int ExtBandsPeriod, ExtBandsShift;
+    double ExtBandsDeviations;
+    int ExtPlotBegin = 0;
 
-    double ma = Indi_MA::iMAOnArray(array, total, period, 0, MODE_SMA, 0);
+    if (InpBandsPeriod < 2) {
+      ExtBandsPeriod = 20;
+      PrintFormat("Incorrect value for input variable InpBandsPeriod=%d. Indicator will use value=%d for calculations.",
+                  InpBandsPeriod, ExtBandsPeriod);
+    } else
+      ExtBandsPeriod = InpBandsPeriod;
+    if (InpBandsShift < 0) {
+      ExtBandsShift = 0;
+      PrintFormat("Incorrect value for input variable InpBandsShift=%d. Indicator will use value=%d for calculations.",
+                  InpBandsShift, ExtBandsShift);
+    } else
+      ExtBandsShift = InpBandsShift;
+    if (InpBandsDeviations == 0.0) {
+      ExtBandsDeviations = 2.0;
+      PrintFormat(
+          "Incorrect value for input variable InpBandsDeviations=%f. Indicator will use value=%f for calculations.",
+          InpBandsDeviations, ExtBandsDeviations);
+    } else
+      ExtBandsDeviations = InpBandsDeviations;
 
-    double sum = 0.0, val;
-    int i;
-
-    for (i = 0; i < period; i++) {
-      val = array[size - i - 1] - ma;
-      sum += val * val;
+    if (rates_total < ExtPlotBegin) return (0);
+    //--- indexes draw begin settings, when we've recieved previous begin
+    if (ExtPlotBegin != ExtBandsPeriod + begin) {
+      ExtPlotBegin = ExtBandsPeriod + begin;
+      PlotIndexSetInteger(0, PLOT_DRAW_BEGIN, ExtPlotBegin);
+      PlotIndexSetInteger(1, PLOT_DRAW_BEGIN, ExtPlotBegin);
+      PlotIndexSetInteger(2, PLOT_DRAW_BEGIN, ExtPlotBegin);
     }
-
-    double dev = deviation * MathSqrt(sum / period);
-
-    switch (mode) {
-      case BAND_BASE:
-        return ma;
-      case BAND_UPPER:
-        return ma + dev;
-      case BAND_LOWER:
-        return ma - dev;
+    //--- starting calculation
+    int pos;
+    if (prev_calculated > 1)
+      pos = prev_calculated - 1;
+    else
+      pos = 0;
+    //--- main cycle
+    for (int i = pos; i < rates_total && !IsStopped(); i++) {
+      //--- middle line
+      ExtMLBuffer[i] = Indi_MA::SimpleMA(i, ExtBandsPeriod, price);
+      //--- calculate and write down StdDev
+      ExtStdDevBuffer[i] = StdDev_Func(i, price, ExtMLBuffer, ExtBandsPeriod);
+      //--- upper line
+      ExtTLBuffer[i] = ExtMLBuffer[i] + ExtBandsDeviations * ExtStdDevBuffer[i].Get();
+      //--- lower line
+      ExtBLBuffer[i] = ExtMLBuffer[i] - ExtBandsDeviations * ExtStdDevBuffer[i].Get();
     }
+    //--- OnCalculate done. Return new prev_calculated.
+    return (rates_total);
+  }
 
-    return DBL_MIN;
-#else
-    return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
-#endif
+  static double StdDev_Func(const int position, ValueStorage<double> &price, ValueStorage<double> &ma_price,
+                            const int period) {
+    double std_dev = 0.0;
+    //--- calcualte StdDev
+    if (position >= period) {
+      for (int i = 0; i < period; i++) std_dev += MathPow(price[position - i] - ma_price[position], 2.0);
+      std_dev = MathSqrt(std_dev / period);
+    }
+    //--- return calculated value
+    return (std_dev);
   }
 
   /**
@@ -263,19 +266,14 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
                                     GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_Bands::iBandsOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
-                                               GetDeviation(), GetBandsShift(), GetAppliedPrice(),
-                                               (ENUM_BANDS_LINE)_mode, ToRelShift(_abs_shift));
+      case IDATA_INDICATOR:
+        // Calculating bands value from specified indicator.
+        _value = Indi_Bands::iBandsOnIndicator(THIS_PTR, GetPeriod(), GetDeviation(), GetBandsShift(),
+                                               GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
                          GetBandsShift(), GetDeviation(), GetAppliedPrice() /* ] */, _mode, ToRelShift(_abs_shift));
-        break;
-      case IDATA_INDICATOR:
-        // Calculating bands value from specified indicator.
-        _value = Indi_Bands::iBandsOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
-                                               GetDeviation(), GetBandsShift(), GetAppliedPrice(),
-                                               (ENUM_BANDS_LINE)_mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
     }
     return _value;

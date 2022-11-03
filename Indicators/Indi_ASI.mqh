@@ -100,15 +100,16 @@ class Indi_ASI : public Indicator<IndiASIParams> {
   /**
    * OnCalculate-based version of ASI as there is no built-in one.
    */
-  static double iASI(IndicatorData *_indi, double _mpc, int _mode = 0, int _shift = 0) {
+  static double iASI(IndicatorData *_indi, double _mpc, int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_mpc));
-    return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
+    return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                       _cache);
   }
 
   /**
    * Calculates ASI on the array of values.
    */
-  static double iASIOnArray(INDICATOR_CALCULATE_PARAMS_LONG, double _mpc, int _mode, int _shift,
+  static double iASIOnArray(INDICATOR_CALCULATE_PARAMS_LONG, double _mpc, int _mode, int _abs_shift,
                             IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -123,7 +124,7 @@ class Indi_ASI : public Indicator<IndiASIParams> {
     _cache.SetPrevCalculated(Indi_ASI::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
                                                  _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2), _mpc));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

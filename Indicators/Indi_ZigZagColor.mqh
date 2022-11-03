@@ -93,17 +93,17 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
    * Returns value for ZigZag Color indicator.
    */
   static double iZigZagColor(IndicatorData *_indi, int _depth, int _deviation, int _backstep,
-                             ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0) {
+                             ENUM_ZIGZAG_LINE _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
-    return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
-                               _cache);
+    return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode,
+                               _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
    * Calculates ZigZag Color on the array of values.
    */
   static double iZigZagColorOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _depth, int _deviation, int _backstep,
-                                    int _mode, int _shift, IndicatorCalculateCache<double> *_cache,
+                                    int _mode, int _abs_shift, IndicatorCalculateCache<double> *_cache,
                                     bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -120,7 +120,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
                                                          _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3),
                                                          _cache.GetBuffer<double>(4), _depth, _deviation, _backstep));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

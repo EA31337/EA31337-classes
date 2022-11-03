@@ -40,10 +40,10 @@ double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_metho
   return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
                       (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift,
+double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _abs_shift,
                   IndicatorCalculateCache<double> *_cache = NULL) {
   ResetLastError();
-  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift, _cache);
+  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
 }
 #endif
 

@@ -146,17 +146,17 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
    * Returns value for ZigZag indicator.
    */
   static double iZigZag(IndicatorData *_indi, int _depth, int _deviation, int _backstep, ENUM_ZIGZAG_LINE _mode = 0,
-                        int _shift = 0) {
+                        int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
-    return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
-                          _cache);
+    return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode,
+                          _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
    * Calculates ZigZag on the array of values.
    */
   static double iZigZagOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _depth, int _deviation, int _backstep, int _mode,
-                               int _shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                               int _abs_shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {
@@ -171,7 +171,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
                                                     _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2), _depth,
                                                     _deviation, _backstep));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

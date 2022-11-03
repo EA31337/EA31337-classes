@@ -119,7 +119,7 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
    * Calculates Ultimate Oscillator on the array of values.
    */
   static double iUOOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_period, int _middle_period, int _slow_period,
-                           int _fast_k, int _middle_k, int _slow_k, int _mode, int _shift,
+                           int _fast_k, int _middle_k, int _slow_k, int _mode, int _abs_shift,
                            IndicatorCalculateCache<double> *_cache, IndicatorData *_indi_atr_fast,
                            IndicatorData *_indi_atr_middle, IndicatorData *_indi_atr_slow, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
@@ -137,7 +137,7 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4), _fast_period,
         _middle_period, _slow_period, _fast_k, _middle_k, _slow_k, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -218,7 +218,7 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
       ExtBPBuffer[0] = 0.0;
       ExtUOBuffer[0] = 0.0;
       // Set value for first InpSlowPeriod bars.
-      for (i = 1; i <= InpSlowPeriod; i++) {
+      for (i = 1; i < InpSlowPeriod; i++) {
         ExtUOBuffer[i] = 0.0;
         true_low = MathMin(low[i].Get(), close[i - 1].Get());
         ExtBPBuffer[i] = close[i] - true_low;

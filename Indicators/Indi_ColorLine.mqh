@@ -82,18 +82,19 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
   /**
    * OnCalculate-based version of Color Line as there is no built-in one.
    */
-  static double iColorLine(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+  static double iColorLine(IndicatorData *_indi, int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     // Will return Indi_MA with the same candles source as _indi's.
     // @fixit There should be Candle attached to MA!
     Indi_MA *_indi_ma = Indi_MA::GetCached(_indi, 10, 0, MODE_EMA, PRICE_CLOSE);
-    return iColorLineOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ma);
+    return iColorLineOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                             _cache, _indi_ma);
   }
 
   /**
    * Calculates Color Line on the array of values.
    */
-  static double iColorLineOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+  static double iColorLineOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
                                   IndicatorCalculateCache<double> *_cache, IndicatorData *_indi_ma,
                                   bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
@@ -109,16 +110,17 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
     _cache.SetPrevCalculated(Indi_ColorLine::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
                                                        _cache.GetBuffer<double>(1), _indi_ma));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * On-indicator version of Color Line.
    */
-  static double iColorLineOnIndicator(IndicatorData *_indi, int _mode, int _shift, IndicatorData *_obj) {
+  static double iColorLineOnIndicator(IndicatorData *_indi, int _mode, int _rel_shift, IndicatorData *_obj) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     Indi_MA *_indi_ma = _obj.GetDataSource(INDI_MA);
-    return iColorLineOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ma);
+    return iColorLineOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                             _cache, _indi_ma);
   }
 
   /**

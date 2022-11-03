@@ -98,7 +98,7 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
    * Calculates iVIDyA on the array of values.
    */
   static double iVIDyAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _cmo_period, int _ema_period, int _ma_shift,
-                              int _mode, int _shift, IndicatorCalculateCache<double> *_cache,
+                              int _mode, int _abs_shift, IndicatorCalculateCache<double> *_cache,
                               bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
@@ -113,19 +113,19 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
     _cache.SetPrevCalculated(Indi_VIDYA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
                                                    _cmo_period, _ema_period, _ma_shift));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * On-indicator version of VIDya indicator.
    */
   static double iVIDyAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period,
-                                  int _ema_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
-                                  IndicatorData *_obj = NULL) {
+                                  int _ema_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0,
+                                  int _rel_shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap,
                                                         Util::MakeKey(_cmo_period, _ema_period, _ma_shift, (int)_ap));
-    return iVIDyAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _cmo_period, _ema_period, _ma_shift, _mode, _shift,
-                         _cache);
+    return iVIDyAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _cmo_period, _ema_period, _ma_shift, _mode,
+                         _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**

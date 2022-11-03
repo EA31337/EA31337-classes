@@ -40,9 +40,9 @@ double iStdDev(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_m
   return Indi_StdDev::iStdDev(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
                               (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iStdDevOnArray(double &_arr[], int _total, int _ma_period, int _ma_shift, int _ma_method, int _shift) {
+double iStdDevOnArray(double &_arr[], int _total, int _ma_period, int _ma_shift, int _ma_method, int _abs_shift) {
   ResetLastError();
-  return Indi_StdDev::iStdDevOnArray(_arr, _total, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method, _shift);
+  return Indi_StdDev::iStdDevOnArray(_arr, _total, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method, _abs_shift);
 }
 #endif
 

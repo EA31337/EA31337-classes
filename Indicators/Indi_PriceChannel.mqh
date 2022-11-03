@@ -79,15 +79,16 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   /**
    * OnCalculate-based version of Price Channel indicator as there is no built-in one.
    */
-  static double iPriceChannel(IndicatorData *_indi, int _period, int _mode = 0, int _shift = 0) {
+  static double iPriceChannel(IndicatorData *_indi, int _period, int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period));
-    return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
+    return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode,
+                                _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
    * Calculates Price Channel on the array of values.
    */
-  static double iPriceChannelOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _shift,
+  static double iPriceChannelOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _abs_shift,
                                      IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -103,7 +104,7 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
                                                           _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
                                                           _cache.GetBuffer<double>(2), _period));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

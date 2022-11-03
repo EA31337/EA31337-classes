@@ -79,15 +79,16 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   /**
    * OnCalculate-based version of Williams' AD as there is no built-in one.
    */
-  static double iWAD(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+  static double iWAD(IndicatorData *_indi, int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
-    return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+    return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                       _cache);
   }
 
   /**
    * Calculates William's AD on the array of values.
    */
-  static double iWADOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+  static double iWADOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
                             IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -102,7 +103,7 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
     _cache.SetPrevCalculated(
         Indi_WilliamsAD::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0)));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

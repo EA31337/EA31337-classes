@@ -122,7 +122,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * Calculates ADX Wilder on the array of values.
    */
-  static double iADXWilderOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _shift,
+  static double iADXWilderOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _abs_shift,
                                   IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -142,15 +142,17 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
 
     // Returns value from the first calculation buffer.
     // Returns first value for as-series array or last value for non-as-series array.
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * On-indicator version of ADX Wilder.
    */
-  static double iADXWilder(IndicatorData *_indi, int _period, int _mode = 0, int _shift = 0) {
+  static double iADXWilder(IndicatorData *_indi, int _period, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period));
-    return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
+    return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode,
+                             _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
@@ -163,6 +165,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
                        ValueStorage<double> &ExtTRBuffer, ValueStorage<double> &ExtATRBuffer,
                        ValueStorage<double> &ExtDXBuffer, int ExtADXWPeriod) {
     int i;
+
     // Checking for bars count.
     if (rates_total < ExtADXWPeriod) return (0);
     // Detect start position.

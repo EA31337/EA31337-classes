@@ -94,7 +94,7 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
   /**
    * Calculates iTEMA on the array of values.
    */
-  static double iTEMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ma_period, int _ma_shift, int _mode, int _shift,
+  static double iTEMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ma_period, int _ma_shift, int _mode, int _abs_shift,
                              IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
@@ -110,16 +110,17 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
                                                   _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
                                                   _cache.GetBuffer<double>(3), _ma_period, _ma_shift));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * On-indicator version of TEMA.
    */
   static double iTEMAOnIndicator(IndicatorData *_indi, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                                 int _mode = 0, int _shift = 0) {
+                                 int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
-    return iTEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _ma_shift, _mode, _shift, _cache);
+    return iTEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _ma_shift, _mode,
+                        _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**

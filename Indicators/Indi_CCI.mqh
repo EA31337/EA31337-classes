@@ -32,9 +32,9 @@ double iCCI(string _symbol, int _tf, int _period, int _ap, int _shift) {
   ResetLastError();
   return Indi_CCI::iCCI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iCCIOnArray(double &_arr[], int _total, int _period, int _shift) {
+double iCCIOnArray(double &_arr[], int _total, int _period, int _abs_shift) {
   ResetLastError();
-  return Indi_CCI::iCCIOnArray(_arr, _total, _period, _shift);
+  return Indi_CCI::iCCIOnArray(_arr, _total, _period, _abs_shift);
 }
 #endif
 

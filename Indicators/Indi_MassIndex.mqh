@@ -87,17 +87,17 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
    * OnCalculate-based version of Mass Index as there is no built-in one.
    */
   static double iMI(IndicatorData *_indi, int _period, int _second_period, int _sum_period, int _mode = 0,
-                    int _shift = 0) {
+                    int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period, _second_period, _sum_period));
-    return iMIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _second_period, _sum_period, _mode, _shift,
-                      _cache);
+    return iMIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _second_period, _sum_period, _mode,
+                      _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
    * Calculates Mass Index on the array of values.
    */
   static double iMIOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _second_period, int _sum_period, int _mode,
-                           int _shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                           int _abs_shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {
@@ -112,7 +112,7 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
         INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _period, _second_period, _sum_period));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

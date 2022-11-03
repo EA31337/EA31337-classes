@@ -150,15 +150,16 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
   /**
    * OnCalculate-based version of Color Heiken Ashi as there is no built-in one.
    */
-  static double iHeikenAshi(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+  static double iHeikenAshi(IndicatorData *_indi, int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
-    return iHeikenAshiOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+    return iHeikenAshiOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                              _cache);
   }
 
   /**
    * Calculates Heiken Ashi on the array of values.
    */
-  static double iHeikenAshiOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+  static double iHeikenAshiOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
                                    IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -174,7 +175,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
         INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4)));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

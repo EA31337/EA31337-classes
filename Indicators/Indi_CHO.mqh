@@ -104,7 +104,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
    * Calculates Chaikin Oscillator on the array of values.
    */
   static double iChaikinOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_ma_period, int _slow_ma_period,
-                                ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode, int _shift,
+                                ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode, int _abs_shift,
                                 IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -120,7 +120,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
         INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _fast_ma_period, _slow_ma_period, _ma_method, _av));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

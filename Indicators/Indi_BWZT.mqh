@@ -118,7 +118,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * OnCalculate-based version of BWZT as there is no built-in one.
    */
-  static double iBWZT(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+  static double iBWZT(IndicatorData *_indi, int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
 
     // Will return Indi_AC with the same candles source as _indi's.
@@ -127,13 +127,14 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
     // Will return Indi_AO with the same candles source as _indi's.
     Indi_AO *_indi_ao = Indi_AO::GetCached(_indi);
 
-    return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ac, _indi_ao);
+    return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                        _cache, _indi_ac, _indi_ao);
   }
 
   /**
    * Calculates BWZT on the array of values.
    */
-  static double iBWZTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+  static double iBWZTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
                              IndicatorCalculateCache<double> *_cache, Indi_AC *_indi_ac, Indi_AO *_indi_ao,
                              bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
@@ -151,20 +152,21 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4),
         _cache.GetBuffer<double>(5), _cache.GetBuffer<double>(6), 38, _indi_ac, _indi_ao));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * On-indicator version of BWZT.
    */
-  static double iBWZTOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
+  static double iBWZTOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _rel_shift,
                                  IndicatorData *_obj) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
 
     Indi_AC *_indi_ac = _obj.GetDataSource(INDI_AC);
     Indi_AO *_indi_ao = _obj.GetDataSource(INDI_AO);
 
-    return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ac, _indi_ao);
+    return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                        _cache, _indi_ac, _indi_ao);
   }
 
   /**
