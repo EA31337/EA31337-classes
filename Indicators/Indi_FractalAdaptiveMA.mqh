@@ -91,9 +91,10 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
    * Built-in version of FrAMA.
    */
   static double iFrAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                       int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
+                       int _mode = 0, int _rel_shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
-    INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode,
+                                      _obj PTR_DEREF ToAbsShift(_rel_shift));
 #else
     if (_obj == nullptr) {
       Print(
@@ -103,8 +104,8 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
       return 0;
     }
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_obj, Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
-    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period,
-                         _ma_indi PTR_DEREF ToAbsShift(rel_shift), _ap, _mode, _shift, _cache);
+    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode,
+                         _obj PTR_DEREF ToAbsShift(_rel_shift), _cache);
 #endif
   }
 

@@ -119,7 +119,7 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
 #ifdef __MQL4__
-        _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _ishift);
+        _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), ToRelShift(_abs_shift), THIS_PTR);
 #else  // __MQL5__
         _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), ToRelShift(_abs_shift), THIS_PTR);
 #endif

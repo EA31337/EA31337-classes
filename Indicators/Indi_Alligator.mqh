@@ -157,7 +157,7 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
 #ifdef __MQL4__
     if (_mode == 0) {
       // In MQL4 mode 0 should be treated as mode 1 as Alligator buffers starts from index 1.
-      return GetEntryValue((ENUM_ALLIGATOR_LINE)1, _ishift);
+      return GetEntryValue((ENUM_ALLIGATOR_LINE)1, ToRelShift(_abs_shift));
     }
 #endif
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {

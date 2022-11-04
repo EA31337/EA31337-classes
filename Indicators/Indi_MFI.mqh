@@ -104,7 +104,7 @@ class Indi_MFI : public Indicator<IndiMFIParams> {
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
 #ifdef __MQL4__
-        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _ishift);
+        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), ToRelShift(_abs_shift));
 #else  // __MQL5__
         _value =
             Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), ToRelShift(_abs_shift), THIS_PTR);
