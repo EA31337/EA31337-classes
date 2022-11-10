@@ -26,6 +26,7 @@
 #endif
 
 #include "MQL5.mqh"
+#include "Math.h"
 #include "Order.enum.h"
 #include "Std.h"
 #include "Tick/Tick.struct.h"
@@ -128,7 +129,7 @@ struct SymbolInfoStatic {
    */
   static double GetPipValue(string _symbol) {
     unsigned int _pdigits = GetPipDigits(_symbol);
-    return 1.0 / MathPow(10, _pdigits);
+    return 1.0 / MathPow(10, (int)_pdigits);
   }
 
   /**

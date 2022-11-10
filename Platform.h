@@ -28,14 +28,15 @@
 
 #include "Flags.h"
 #include "Indicator/IndicatorData.h"
+#include "Indicator/tests/classes/IndicatorTfDummy.h"
 #include "Std.h"
 
 #ifdef __MQLBUILD__
-#include "Indicator/tests/classes/IndicatorTfDummy.h"
 #include "Indicators/Tick/Indi_TickMt.mqh"
 #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
 #else
-#error "Platform not supported!
+#include "Indicators/Tick/Indi_TickRandom.mqh"
+#define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickRandom
 #endif
 #include "SymbolInfo.struct.static.h"
 
@@ -310,6 +311,18 @@ class Platform {
       _result += _iter.Value() REF_DEREF GetFullName() + " = " + _entry.ToString<double>() + "\n";
     }
     return _result;
+  }
+
+  /**
+   * Returns currently selected period for platform.
+   */
+  static ENUM_TIMEFRAMES Period() {
+#ifdef __MQL__
+    return Period();
+#else
+    // @fixit Should fetch selected period from somewhere.
+    return PERIOD_M15;
+#endif
   }
 };
 

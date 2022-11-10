@@ -212,7 +212,8 @@ void ArrayInitialize(ValueStorage<C> &_storage, C _value) {
  * ValueStorage-compatible wrapper for ArrayCopy.
  */
 template <typename C, typename D>
-int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _src_start = 0, int count = WHOLE_ARRAY) {
+int ArrayCopy(ARRAY_REF(D, _target), ValueStorage<C> &_source, int _dst_start = 0, int _src_start = 0,
+              int count = WHOLE_ARRAY) {
   if (count == WHOLE_ARRAY) {
     count = ArraySize(_source);
   }
