@@ -348,7 +348,7 @@ class ItemsHistory {
   }
 
   /**
-   * Ensures
+   * Ensures that the given shift exists. Tries to regenerate the history if it does not.
    */
   bool EnsureShiftExists(int _shift) {
     if (history.Size() == 0) {
@@ -464,6 +464,30 @@ class ItemsHistory {
     }
 
     return (datetime)(GetItemTimeByShiftMsc(_shift) / 1000);
+  }
+
+  /**
+   * Removes recently added item.
+   */
+  bool RemoveRecentItem() {
+    history.Unset(last_valid_index);
+
+    // Going back to previous item.
+    current_index = --last_valid_index;
+
+    // Peak size is less by one item.
+    --peak_size;
+
+    return history.Size() > 0;
+  }
+
+  /**
+   * Removes recently added items.
+   */
+  void RemoveRecentItems(int _num_to_remove = INT_MAX) {
+    while (_num_to_remove-- > 0 && RemoveRecentItem()) {
+      // Removing item one by one ^^.
+    }
   }
 };
 

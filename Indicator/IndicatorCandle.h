@@ -180,6 +180,22 @@ class IndicatorCandle : public Indicator<TS> {
   /* Virtual method implementations */
 
   /**
+   * Removes candle from the buffer. Used mainly for testing purposes.
+   */
+  void InvalidateCandle(int _abs_shift) {
+    if (_abs_shift != GetBarIndex()) {
+      Print(
+          "IndicatorCandle::InvalidateCandle() currently supports specyfing "
+          "current, absolute candle index and nothing else. You may retrieve current one by calling GetBarIndex().");
+      DebugBreak();
+      return;
+    }
+
+    int _num_to_remove = GetBarIndex() - _abs_shift + 1;
+    history.RemoveRecentItems(_num_to_remove);
+  }
+
+  /**
    * Returns time of the bar for a given shift.
    */
   virtual datetime GetBarTime(int _rel_shift = 0) { return history.GetItemTimeByShift(_rel_shift); }

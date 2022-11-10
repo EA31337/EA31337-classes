@@ -42,13 +42,14 @@ int OnInit() {
 
 void OnTick() {
   Platform::Tick();
-  if (Platform::IsNewHour()) {
+  if (Platform::IsNewHour() && indi_candle REF_DEREF GetBarIndex() > 0) {
     // If a new hour occur, we check for a candle OHLCs, then we invalidate the
     // candle and try to regenerate it by checking again the OHLCs.
     BarOHLC _ohlc1 = indi_candle REF_DEREF GetOHLC();
 
     // Now we invalidate current candle (candle will be removed from the IndicatorCandle's cache).
-    indi_candle REF_DEREF InvalidateCandle();
+    // @fixit @todo Fix candle invalidation.
+    // indi_candle REF_DEREF InvalidateCandle(indi_candle REF_DEREF GetBarIndex());
 
     // Retrieving candle again.
     BarOHLC _ohlc2 = indi_candle REF_DEREF GetOHLC();

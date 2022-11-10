@@ -1429,7 +1429,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Removes candle from the buffer. Used mainly for testing purposes.
    */
-  virtual void InvalidateCandle(datetime _bar_time = 0) { GetCandle() PTR_DEREF InvalidateCandle(_bar_time); }
+  virtual void InvalidateCandle(int _abs_shift = 0) { GetCandle() PTR_DEREF InvalidateCandle(_abs_shift); }
 
   /**
    * Fetches historic ticks for a given time range.
