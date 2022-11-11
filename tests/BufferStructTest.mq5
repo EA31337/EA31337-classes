@@ -28,6 +28,7 @@
 #include "../BufferStruct.mqh"
 #include "../Data.define.h"
 #include "../Data.struct.h"
+#include "../Data.struct.serialize.h"
 #include "../Serializer/SerializerConverter.h"
 #include "../Serializer/SerializerJSON.h"
 #include "../Std.h"

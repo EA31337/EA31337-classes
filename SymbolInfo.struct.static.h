@@ -26,7 +26,6 @@
 #endif
 
 #include "MQL5.mqh"
-#include "Math.h"
 #include "Order.enum.h"
 #include "Std.h"
 #include "Tick/Tick.struct.h"

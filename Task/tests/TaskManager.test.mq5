@@ -28,7 +28,10 @@
 struct DataParamEntry;
 
 // Includes.
+#include "../../Data.struct.serialize.h"
 #include "../../Test.mqh"
+#include "../TaskAction.struct.serialize.h"
+#include "../TaskCondition.struct.serialize.h"
 #include "../TaskManager.h"
 
 // Define test classes.

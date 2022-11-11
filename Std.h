@@ -298,3 +298,13 @@ inline _NULL_VALUE::operator const std::string() const {
 #else
 #define NULL_VALUE NULL
 #endif
+
+#ifndef __MQL__
+#include "Chart.enum.h"
+/**
+ * Returns currently selected period for platform.
+ */
+// @fixit Should fetch selected period from somewhere.
+extern ENUM_TIMEFRAMES Period();
+
+#endif

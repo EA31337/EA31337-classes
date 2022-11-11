@@ -312,18 +312,6 @@ class Platform {
     }
     return _result;
   }
-
-  /**
-   * Returns currently selected period for platform.
-   */
-  static ENUM_TIMEFRAMES Period() {
-#ifdef __MQL__
-    return Period();
-#else
-    // @fixit Should fetch selected period from somewhere.
-    return PERIOD_M15;
-#endif
-  }
 };
 
 bool Platform::initialized = false;

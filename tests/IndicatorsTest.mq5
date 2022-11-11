@@ -98,10 +98,6 @@ void OnTick() {
   IndicatorData* _candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
 
   if (_candles PTR_DEREF IsNewBar()) {
-    if (_candles PTR_DEREF GetBarIndex() < 500) {
-      return;
-    }
-
     if (_candles PTR_DEREF GetBarIndex() > 550) {
       ExpertRemove();
     }

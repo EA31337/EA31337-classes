@@ -21,9 +21,12 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef DICT_STRUCT_MQH
-#define DICT_STRUCT_MQH
+#ifndef __MQL__
+#pragma once
+#endif
 
+// Includes.
+#include "Convert.basic.h"
 #include "DictBase.mqh"
 #include "DictIteratorBase.mqh"
 #include "Serializer/Serializer.h"
@@ -290,7 +293,7 @@ class DictStruct : public DictBase<K, V> {
 
     // If we have a slot then we can overwrite it.
     if (_slot != NULL) {
-      WriteSlot(_slot, key, value, DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+      WriteSlot(PTR_TO_REF(_slot), key, value, DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
       // We're done, we don't have to increment number of slots used.
       return true;
     }
@@ -304,7 +307,7 @@ class DictStruct : public DictBase<K, V> {
     if ((_is_full || !_is_performant) && allow_resize) {
       // We have to resize the dict as it is either full or have perfomance problems due to massive number of conflicts
       // when inserting new values.
-      if (overflow_listener == NULL) {
+      if (THIS_ATTR overflow_listener == NULL) {
         // There is no overflow listener so we can freely grow up the dict.
         if (!GrowUp()) {
           // Can't resize the dict. Error happened.
@@ -312,8 +315,9 @@ class DictStruct : public DictBase<K, V> {
         }
       } else {
         // Overflow listener will decide if we can grow up the dict.
-        if (overflow_listener(_is_full ? DICT_LISTENER_FULL_CAN_RESIZE : DICT_LISTENER_NOT_PERFORMANT_CAN_RESIZE,
-                              dictSlotsRef._num_used, 0)) {
+        if (THIS_ATTR overflow_listener(
+                _is_full ? DICT_LISTENER_FULL_CAN_RESIZE : DICT_LISTENER_NOT_PERFORMANT_CAN_RESIZE,
+                dictSlotsRef._num_used, 0)) {
           // We can freely grow up the dict.
           if (!GrowUp()) {
             // Can't resize the dict. Error happened.
@@ -340,11 +344,12 @@ class DictStruct : public DictBase<K, V> {
            (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
       ++_num_conflicts;
 
-      if (overflow_listener != NULL) {
+      if (THIS_ATTR overflow_listener != NULL) {
         // We had to skip slot as it is already occupied. Now we are checking if
         // there is too many conflicts/skips and thus we can overwrite slot in
         // the starting position.
-        if (overflow_listener(DICT_LISTENER_CONFLICTS_CAN_OVERWRITE, dictSlotsRef._num_used, _num_conflicts)) {
+        if (THIS_ATTR overflow_listener(DICT_LISTENER_CONFLICTS_CAN_OVERWRITE, dictSlotsRef._num_used,
+                                        _num_conflicts)) {
           // Looks like dict is working as buffer and we can overwrite slot in the starting position.
           position = _starting_position;
           break;
@@ -490,7 +495,7 @@ class DictStruct : public DictBase<K, V> {
           if (i.HasKey()) {
             // Converting key to a string.
             K key;
-            Convert::StringToType(i.Key(), key);
+            ConvertBasic::StringToType(i.Key(), key);
 
             // Note that we're retrieving value by a key (as we are in an
             // object!).
@@ -520,5 +525,3 @@ class DictStruct : public DictBase<K, V> {
     }
   }
 };
-
-#endif

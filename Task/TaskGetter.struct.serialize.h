@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Includes TaskCondition's structures serialization methods.
+ * Includes TaskGetter's structure serialization methods.
  */
 
 #ifndef __MQL__
@@ -30,13 +30,13 @@
 #endif
 
 // Includes.
-#include "TaskCondition.struct.h"
+#include "../Serializer/Serializer.h"
+#include "TaskGetter.struct.h"
 
-SerializerNodeType TaskConditionEntry::Serialize(Serializer &s) {
+SerializerNodeType TaskGetterEntry::Serialize(Serializer &s) {
   s.Pass(THIS_REF, "flags", flags);
   s.Pass(THIS_REF, "id", id);
-  s.Pass(THIS_REF, "last_check", last_check);
-  s.Pass(THIS_REF, "last_success", last_success);
+  s.Pass(THIS_REF, "time_last_get", time_last_get);
   s.Pass(THIS_REF, "tries", tries);
   s.PassEnum(THIS_REF, "freq", freq);
   s.PassArray(THIS_REF, "args", args);

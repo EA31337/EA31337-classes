@@ -37,10 +37,11 @@ struct MqlRates;
 
 // Includes.
 #include "Data.enum.h"
-#include "DateTime.mqh"
+#include "DateTime.extern.h"
 #include "Serializer/Serializer.enum.h"
 #include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
+#include "String.mqh"
 
 #ifndef __MQL__
 /**
@@ -188,7 +189,7 @@ struct DataParamEntry : public MqlParam {
       case TYPE_CHAR:
       case TYPE_STRING:
       case TYPE_UCHAR:
-        return (T)::StringToDouble(string_value);
+        return (T)StringToDouble(string_value);
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
         return (T)ToDouble(THIS_REF);

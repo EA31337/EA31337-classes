@@ -24,7 +24,7 @@
 #ifndef DICT_MQH
 #define DICT_MQH
 
-#include "Convert.mqh"
+#include "Convert.basic.h"
 #include "DictBase.mqh"
 #include "Matrix.mqh"
 #include "Serializer/Serializer.h"
@@ -404,7 +404,7 @@ class Dict : public DictBase<K, V> {
         if (i.HasKey()) {
           // Converting key to a string.
           K key;
-          Convert::StringToType(i.Key(), key);
+          ConvertBasic::StringToType(i.Key(), key);
 
           // Note that we're retrieving value by a key (as we are in an
           // object!).

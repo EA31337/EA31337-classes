@@ -257,7 +257,7 @@ struct ChartTf {
    * _tf ENUM_TIMEFRAMES Specify timeframe enum.
    */
   static ENUM_TIMEFRAMES_INDEX TfToIndex(ENUM_TIMEFRAMES _tf) {
-    _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES)Platform::Period() : _tf;
+    _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES)Period() : _tf;
     for (int i = 0; i < ArraySize(TIMEFRAMES_LIST); i++) {
       if (TIMEFRAMES_LIST[i] == _tf) {
         return (ENUM_TIMEFRAMES_INDEX)i;
