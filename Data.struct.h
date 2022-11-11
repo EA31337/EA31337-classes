@@ -41,7 +41,6 @@ struct MqlRates;
 #include "Serializer/Serializer.enum.h"
 #include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
-#include "Serializer/Serializer.h"
 
 #ifndef __MQL__
 /**
@@ -330,46 +329,3 @@ struct DataParamEntry : public MqlParam {
   }
   SerializerNodeType Serialize(Serializer &s);
 };
-
-/* Method to serialize DataParamEntry struct. */
-SerializerNodeType DataParamEntry::Serialize(Serializer &s) {
-  s.PassEnum(THIS_REF, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
-  string aux_string;
-
-  switch (type) {
-    case TYPE_BOOL:
-    case TYPE_UCHAR:
-    case TYPE_CHAR:
-    case TYPE_USHORT:
-    case TYPE_SHORT:
-    case TYPE_UINT:
-    case TYPE_INT:
-    case TYPE_ULONG:
-    case TYPE_LONG:
-      s.Pass(THIS_REF, "value", integer_value);
-      break;
-
-    case TYPE_DOUBLE:
-      s.Pass(THIS_REF, "value", double_value);
-      break;
-
-    case TYPE_STRING:
-      s.Pass(THIS_REF, "value", string_value);
-      break;
-
-    case TYPE_DATETIME:
-      if (s.IsWriting()) {
-        aux_string = TimeToString(integer_value);
-        s.Pass(THIS_REF, "value", aux_string);
-      } else {
-        s.Pass(THIS_REF, "value", aux_string);
-        integer_value = StringToTime(aux_string);
-      }
-      break;
-
-    default:
-      // Unknown type. Serializing anyway.
-      s.Pass(THIS_REF, "value", aux_string);
-  }
-  return SerializerNodeObject;
-}

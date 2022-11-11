@@ -691,7 +691,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
    * - https://www.mql5.com/en/docs/array/arraymaximum
    */
   template <typename X>
-  static int ArrayMinimum(const ARRAY_REF(X, _array), int _start = 0, int _count = WHOLE_ARRAY) {
+  static int ArrayMinimum(ARRAY_REF(X, _array), int _start = 0, int _count = WHOLE_ARRAY) {
 #ifdef __MQL__
     return ::ArrayMinimum(_array);
 #else
@@ -724,7 +724,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
    * - https://www.mql5.com/en/docs/array/arraymaximum
    */
   template <typename X>
-  static int ArrayMaximum(const ARRAY_REF(X, _array), int start = 0, int count = WHOLE_ARRAY) {
+  static int ArrayMaximum(ARRAY_REF(X, _array), int start = 0, int count = WHOLE_ARRAY) {
 #ifdef __MQL__
     return ::ArrayMaximum(_array);
 #else
