@@ -138,12 +138,15 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
 
   /**
    * Calculates Bands on another indicator.
+   *
+   * Note that "_bands_shift" is used only for drawing.
    */
   static double iBandsOnIndicator(IndicatorData *_indi, unsigned int _period, double _deviation, int _bands_shift,
                                   ENUM_APPLIED_PRICE _ap,
                                   ENUM_BANDS_LINE _mode,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
                                   int _rel_shift) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap,
                                                         Util::MakeKey(_period, _deviation, _bands_shift, (int)_ap));
     return iBandsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _deviation, _bands_shift, _mode,

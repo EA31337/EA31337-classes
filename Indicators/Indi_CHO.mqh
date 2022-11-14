@@ -20,6 +20,10 @@
  *
  */
 
+// Defines.
+// 2 bars was originally specified by Indicators/Examples/CHO.mq5
+#define INDI_CHO_MIN_BARS 2
+
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
@@ -93,6 +97,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
       DebugBreak();
       return 0;
     }
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_obj, INDI_CHO_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _obj, Util::MakeKey(_fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
@@ -128,6 +133,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
    */
   static double iChaikinOnIndicator(IndicatorData *_indi, int _fast_ma_period, int _slow_ma_period,
                                     ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_CHO_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _indi, Util::MakeKey(_fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
@@ -144,7 +150,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
     if (rates_total < InpSlowMA) return (0);
     // Preliminary calculations.
     int i, start;
-    if (prev_calculated < 2)
+    if (prev_calculated < INDI_CHO_MIN_BARS)
       start = 0;
     else
       start = prev_calculated - 2;

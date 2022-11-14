@@ -80,6 +80,7 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
    * OnCalculate-based version of Price Channel indicator as there is no built-in one.
    */
   static double iPriceChannel(IndicatorData *_indi, int _period, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period));
     return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode,
                                 _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);

@@ -135,6 +135,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    */
   static double iAMAOnIndicator(IndicatorData *_indi, int _ama_period, int _fast_ema_period, int _slow_ema_period,
                                 int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _ama_period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
         _indi, _ap, Util::MakeKey(_ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
     return iAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ama_period, _fast_ema_period, _slow_ema_period,

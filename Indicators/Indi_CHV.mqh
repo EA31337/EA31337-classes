@@ -95,6 +95,7 @@ class Indi_CHV : public Indicator<IndiCHVParams> {
    */
   double iCHV(IndicatorData *_indi, int _smooth_period, int _chv_period, ENUM_CHV_SMOOTH_METHOD _smooth_method,
               int _mode = 0, int _shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _chv_period + _smooth_period - 2);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi,
                                                        Util::MakeKey(_smooth_period, _chv_period, _smooth_method));
     return iCHVOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _smooth_period, _chv_period, _smooth_method, _mode,

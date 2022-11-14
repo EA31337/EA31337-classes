@@ -88,6 +88,7 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
    */
   static double iMI(IndicatorData *_indi, int _period, int _second_period, int _sum_period, int _mode = 0,
                     int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _sum_period + _period + _second_period - 3);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period, _second_period, _sum_period));
     return iMIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _second_period, _sum_period, _mode,
                       _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);

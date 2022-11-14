@@ -100,12 +100,9 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
 
   static double iCCIOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                 int _mode, int _shift = 0) {
-    _indi.ValidateDataSourceMode(_mode);
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
 
-    if (_indi.GetBars() < (int)_period) {
-      // No enough bars.
-      return DBL_MAX;
-    }
+    _indi.ValidateDataSourceMode(_mode);
 
     double _indi_value_buffer[];
     IndicatorDataEntry _entry(_indi.GetModeCount());

@@ -20,6 +20,10 @@
  *
  */
 
+// Defines.
+// 100 bars was originally specified by Indicators/Examples/ZigZag.mq5
+#define INDI_ZIGZAG_MIN_BARS 100
+
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
@@ -147,6 +151,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
    */
   static double iZigZag(IndicatorData *_indi, int _depth, int _deviation, int _backstep, ENUM_ZIGZAG_LINE _mode = 0,
                         int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_ZIGZAG_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
     return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode,
                           _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
@@ -182,7 +187,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
                        int InpDeviation, int InpBackstep) {
     int ExtRecalc = 3;
 
-    if (rates_total < 100) return (0);
+    if (rates_total < INDI_ZIGZAG_MIN_BARS) return (0);
     //---
     int i = 0;
     int start = 0, extreme_counter = 0, extreme_search = Extremum;

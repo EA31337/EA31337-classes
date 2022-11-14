@@ -20,6 +20,10 @@
  *
  */
 
+// Defines.
+// 2 bars was originally specified by Indicators/Examples/W_AD.mq5
+#define INDI_WAD_MIN_BARS 100
+
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
@@ -80,6 +84,7 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
    * OnCalculate-based version of Williams' AD as there is no built-in one.
    */
   static double iWAD(IndicatorData *_indi, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_WAD_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
                        _cache);
@@ -110,7 +115,7 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
    * OnCalculate() method for Williams' AD indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtWADBuffer) {
-    if (rates_total < 2) return (0);
+    if (rates_total < INDI_WAD_MIN_BARS) return (0);
     int pos = prev_calculated - 1;
     if (pos < 1) {
       pos = 1;

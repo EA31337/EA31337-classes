@@ -150,6 +150,7 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
    */
   static double iDEMAOnIndicator(IndicatorData *_indi, int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                                  int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, 2 * _period - 1);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, _ma_shift));
     return iDEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ma_shift, _mode,
                         _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);

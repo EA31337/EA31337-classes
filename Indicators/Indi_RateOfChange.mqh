@@ -101,6 +101,7 @@ class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
    */
   static double iROCOnIndicator(IndicatorData *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
                                 int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, (int)_ap));
     return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode,
                        _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);

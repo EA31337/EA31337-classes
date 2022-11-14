@@ -20,6 +20,10 @@
  *
  */
 
+// Defines.
+// 100 bars was originally specified by Indicators/Examples/ZigzagColor.mq5
+#define INDI_ZIGZAG_COLOR_MIN_BARS 100
+
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
@@ -94,6 +98,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
    */
   static double iZigZagColor(IndicatorData *_indi, int _depth, int _deviation, int _backstep,
                              ENUM_ZIGZAG_LINE _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_ZIGZAG_COLOR_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
     return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode,
                                _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
@@ -132,7 +137,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
                        int InpDeviation, int InpBackstep) {
     int ExtRecalc = 3;
 
-    if (rates_total < 100) return 0;
+    if (rates_total < INDI_ZIGZAG_COLOR_MIN_BARS) return 0;
     int i, start = 0;
     int extreme_counter = 0, extreme_search = Extremum;
     int shift, back = 0, last_high_pos = 0, last_low_pos = 0;

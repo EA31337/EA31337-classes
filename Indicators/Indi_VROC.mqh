@@ -83,6 +83,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
    * OnCalculate-based version of VROC as there is no built-in one.
    */
   static double iVROC(IndicatorData *_indi, int _period, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period, (int)_av));
     return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode,
                         _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);

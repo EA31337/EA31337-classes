@@ -116,6 +116,7 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
    */
   static double iTriXOnIndicator(IndicatorData *_indi, int _ma_period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
                                  int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, 3 * _ma_period - 3);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_ma_period, (int)_ap));
     return iTriXOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _mode,
                         _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);

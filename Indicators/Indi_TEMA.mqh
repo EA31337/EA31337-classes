@@ -118,6 +118,7 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
    */
   static double iTEMAOnIndicator(IndicatorData *_indi, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                                  int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, 3 * _ma_period - 3);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
     return iTEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _ma_shift, _mode,
                         _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);

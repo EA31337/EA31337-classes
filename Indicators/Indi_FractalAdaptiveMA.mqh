@@ -103,6 +103,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
       DebugBreak();
       return 0;
     }
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_obj, 2 * _ma_period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_obj, Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
     return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode,
                          _obj PTR_DEREF ToAbsShift(_rel_shift), _cache);
@@ -136,6 +137,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
    */
   static double iFrAMAOnIndicator(IndicatorData *_indi, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                                   int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, 2 * _ma_period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
     return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode,
                          _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);

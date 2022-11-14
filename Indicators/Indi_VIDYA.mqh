@@ -122,6 +122,7 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
   static double iVIDyAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period,
                                   int _ema_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0,
                                   int _rel_shift = 0, IndicatorData *_obj = NULL) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _ema_period + _cmo_period - 1);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap,
                                                         Util::MakeKey(_cmo_period, _ema_period, _ma_shift, (int)_ap));
     return iVIDyAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _cmo_period, _ema_period, _ma_shift, _mode,
