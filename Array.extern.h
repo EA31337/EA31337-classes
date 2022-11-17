@@ -24,36 +24,64 @@
 #ifndef __MQL__
 #pragma once
 
+#include "Common.extern.h"
 #include "Std.h"
+#include "String.extern.h"
 
 template <typename T>
-extern int ArraySize(const ARRAY_REF(T, _array));
+int ArraySize(const ARRAY_REF(T, _array)) {
+  return _array.size();
+}
 
 template <typename T, int size>
-extern constexpr int ArraySize(const T REF(_array)[size]);
+constexpr int ArraySize(const T REF(_array)[size]);
 
 template <typename T>
-extern int ArrayResize(ARRAY_REF(T, _array), int _new_size, int _reserve_size = 0);
+int ArrayResize(ARRAY_REF(T, _array), int _new_size, int _reserve_size = 0) {
+  _array.resize(_new_size, _reserve_size);
+  return _new_size;
+}
 
 template <typename T>
-extern bool ArraySetAsSeries(ARRAY_REF(T, _array), bool _flag);
+bool ArraySetAsSeries(ARRAY_REF(T, _array), bool _flag) {
+  _array.setIsSeries(_flag);
+  return true;
+}
 
 template <typename T>
-extern int ArrayMaximum(const ARRAY_REF(T, _array), int _start = 0, unsigned int _count = WHOLE_ARRAY);
+int ArrayMaximum(const ARRAY_REF(T, _array), int _start = 0, unsigned int _count = WHOLE_ARRAY) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
 
 template <typename T>
-extern int ArrayMinimum(const ARRAY_REF(T, _array), int _start = 0, unsigned int _count = WHOLE_ARRAY);
+int ArrayMinimum(const ARRAY_REF(T, _array), int _start = 0, unsigned int _count = WHOLE_ARRAY) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
 
 template <typename T>
-extern int ArrayFree(const ARRAY_REF(T, _array));
+int ArrayFree(ARRAY_REF(T, _array)) {
+  _array.resize(0, 0);
+  return 0;
+}
 
 template <typename T>
-extern int ArrayReverse(const ARRAY_REF(T, _array));
+bool ArrayReverse(ARRAY_REF(T, _array)) {
+  _array.reverse();
+  return true;
+}
 
 template <typename T>
-extern int ArrayInitialize(ARRAY_REF(T, array), char value);
+extern int ArrayInitialize(ARRAY_REF(T, array), char value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
 
 template <typename T>
-extern int ArraySort(ARRAY_REF(T, array));
+extern int ArraySort(ARRAY_REF(T, array)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
 
 #endif

@@ -42,20 +42,17 @@ class datetime {
   time_t dt;
 
  public:
-  datetime();
-  datetime(const long& _time);
+  datetime() { dt = 0; }
+  datetime(const long& _time) { dt = _time; }
   datetime(const int& _time);
-  bool operator==(const int _time) const;
-  bool operator==(const datetime& _time) const;
-  bool operator<(const int _time) const;
-  bool operator>(const int _time) const;
-  bool operator<(const datetime& _time);
-  bool operator>(const datetime& _time);
-  operator long() const;
+  bool operator==(const int _time) const = delete;
+  bool operator==(const datetime& _time) const { return dt == _time; }
+  bool operator<(const int _time) const = delete;
+  bool operator>(const int _time) const = delete;
+  bool operator<(const datetime& _time) const { return dt < _time; }
+  bool operator>(const datetime& _time) const { return dt > _time; }
+  operator long() const { return dt; }
 };
-
-extern datetime TimeCurrent();
-extern datetime TimeCurrent(MqlDateTime& dt_struct);
 
 extern int CopyTime(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
                     ARRAY_REF(datetime, time_array));
@@ -73,10 +70,20 @@ extern datetime TimeGMT(MqlDateTime& dt_struct);
 extern datetime TimeTradeServer();
 extern datetime TimeTradeServer(MqlDateTime& dt_struct);
 extern datetime StringToTime(const string& value);
-extern string TimeToString(datetime value, int mode = TIME_DATE | TIME_MINUTES);
+string TimeToString(datetime value, int mode = TIME_DATE | TIME_MINUTES) {
+  /*
+  auto now = std::chrono::time_point();
+  auto in_time_t = std::chrono::system_clock::to_time_t(now);
+  */
+  std::stringstream ss;
+  ss << __FUNCTION__ << " is not yet implemented!";
+  // ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+  return ss.str();
+}
 
 template <char... T>
 extern datetime operator"" _D();
 
 #define DATETIME_LITERAL(STR) _D " ## STR ## "
+
 #endif

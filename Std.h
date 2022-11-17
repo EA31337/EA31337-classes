@@ -166,6 +166,8 @@ class _cpp_array {
     m_isSeries = r.m_isSeries;
   }
 
+  std::vector<T>& str() { return m_data; }
+
   void operator=(const _cpp_array& r) {
     m_data = r.m_data;
     m_isSeries = r.m_isSeries;
@@ -195,6 +197,14 @@ class _cpp_array {
    * Returns number of elements in the array.
    */
   int size() const { return (int)m_data.size(); }
+
+  void resize(int new_size, int reserve_size = 0) {
+    // E.g., size = 10, new_size = 90, reserve_size = 50
+    // thus: new_reserve_size = new_size + reserve_size - (new_size % reserve_size)
+    // which is: 90 + reserve_size - (90 % reserve_size) = 90 + 50 - 40 = 100.
+    m_data.reserve(new_size + reserve_size - (new_size % reserve_size));
+    m_data.resize(new_size);
+  }
 
   /**
    * Checks whether

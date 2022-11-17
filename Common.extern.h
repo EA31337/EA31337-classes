@@ -23,12 +23,18 @@
 // Define external global functions.
 #ifndef __MQL__
 #pragma once
+#include <csignal>
+
 #include "Chart.enum.h"
 #include "DateTime.enum.h"
+#include "Terminal.define.h"
 
-extern void DebugBreak();
+void DebugBreak() { raise(SIGTRAP); }
+
+int _LastError = 0;
+
 // Errors.
-extern void SetUserError(unsigned short user_error);
+void SetUserError(unsigned short user_error) { _LastError = ERR_USER_ERROR_FIRST + user_error; }
 // Exceptions.
 extern int NotImplementedException();
 // Print-related functions.

@@ -30,6 +30,8 @@
 #include "Account/Account.extern.h"
 #include "Array.mqh"
 #include "Convert.extern.h"
+#include "DateTime.extern.h"
+#include "DateTime.mqh"
 #include "Math.extern.h"
 #include "Order.enum.h"
 #include "SymbolInfo.enum.h"

@@ -29,15 +29,32 @@
 
 // Define external global functions.
 #ifndef __MQL__
-extern double StringToDouble(string value);
-extern int StringFind(string string_value, string match_substring, int start_pos = 0);
-extern int StringLen(string string_value);
-extern int StringSplit(const string& string_value, const unsigned short separator, ARRAY_REF(string, result));
-extern long StringToInteger(string value);
-extern string IntegerToString(long number, int str_len = 0, unsigned short fill_symbol = ' ');
-extern string StringFormat(string format, ...);
-extern string StringSubstr(string string_value, int start_pos, int length = -1);
-extern unsigned short StringGetCharacter(string string_value, int pos);
+double StringToDouble(string value) { return std::stod(value); }
+
+auto StringFind(const string string_value, string match_substring, int start_pos = 0) -> int {
+  return string_value.find(match_substring);
+}
+int StringLen(string string_value) { return string_value.size(); }
+int StringSplit(const string& string_value, const unsigned short separator, ARRAY_REF(string, result)) {
+  auto start = 0U;
+  auto end = string_value.find((char)separator);
+  while (end != std::string::npos) {
+    result.str().push_back(string_value.substr(start, end - start));
+    start = end + 1;  // 1 - size of the separator.
+    end = string_value.find((char)separator, start);
+  }
+  return result.size();
+}
+long StringToInteger(string value) { return std::stol(value); }
+string IntegerToString(long number, int str_len = 0, unsigned short fill_symbol = ' ') {
+  return std::to_string(number);
+}
+
+string StringFormat(string format, ...);
+string StringSubstr(string string_value, int start_pos, int length = -1) {
+  return string_value.substr(start_pos, length == -1 ? (string_value.size() - start_pos) : length);
+}
+unsigned short StringGetCharacter(string string_value, int pos);
 int StringToCharArray(string text_string, ARRAY_REF(unsigned char, array), int start = 0, int count = -1,
                       unsigned int codepage = CP_ACP);
 #endif
