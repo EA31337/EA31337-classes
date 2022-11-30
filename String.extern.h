@@ -23,12 +23,18 @@
 // Prevents processing this includes file for the second time.
 #ifndef __MQL__
 #pragma once
+
+// Includes.
+#include <stdarg.h>
+
+#include <iostream>
+#include <sstream>
+#include <tuple>
+
 #include "Std.h"
 #include "Terminal.define.h"
-#endif
 
 // Define external global functions.
-#ifndef __MQL__
 double StringToDouble(string value) { return std::stod(value); }
 
 auto StringFind(const string string_value, string match_substring, int start_pos = 0) -> int {
@@ -50,11 +56,63 @@ string IntegerToString(long number, int str_len = 0, unsigned short fill_symbol 
   return std::to_string(number);
 }
 
-string StringFormat(string format, ...);
+template <class Tuple, std::size_t N>
+struct TuplePrinter {
+  static void print(const std::string& fmt, std::ostream& os, const Tuple& t) {
+    const size_t idx = fmt.find_last_of('%');
+    TuplePrinter<Tuple, N - 1>::print(std::string(fmt, 0, idx), os, t);
+    os << std::get<N - 1>(t) << std::string(fmt, idx + 1);
+  }
+};
+
+template <class Tuple>
+struct TuplePrinter<Tuple, 1> {
+  static void print(const std::string& fmt, std::ostream& os, const Tuple& t) {
+    const size_t idx = fmt.find_first_of('%');
+    os << std::string(fmt, 0, idx) << std::get<0>(t) << std::string(fmt, idx + 1);
+  }
+};
+
+template <typename Arg, typename... Args>
+void PrintTo(std::ostream& out, Arg&& arg, Args&&... args) {
+  out << std::forward<Arg>(arg);
+  using expander = int[];
+  (void)expander{0, (void(out << std::forward<Args>(args)), 0)...};
+}
+
+template <typename Arg, typename... Args>
+void Print(Arg&& arg, Args&&... args) {
+  PrintTo(std::cout, arg, args...);
+}
+
+template <typename Arg, typename... Args>
+void Alert(Arg&& arg, Args&&... args) {
+  PrintTo(std::cerr, arg, args...);
+}
+
+template <class... Args>
+std::string StringFormat(const std::string& fmt, Args&&... args) {
+  std::stringstream ss;
+  const auto t = std::make_tuple(std::forward<Args>(args)...);
+  TuplePrinter<decltype(t), sizeof...(Args)>::print(fmt, ss, t);
+  return ss.str();
+}
+
+template <class... Args>
+void PrintFormat(const std::string& fmt, Args&&... args) {
+  std::cout << StringFormat(fmt, args...) << std::endl;
+}
+
 string StringSubstr(string string_value, int start_pos, int length = -1) {
   return string_value.substr(start_pos, length == -1 ? (string_value.size() - start_pos) : length);
 }
-unsigned short StringGetCharacter(string string_value, int pos);
+unsigned short StringGetCharacter(string string_value, int pos) {
+  if (pos < 0 || pos >= string_value.size()) {
+    Alert("Character index out of string boundary! Position passed: ", pos, ", string passed: \"", string_value, "\"");
+  }
+  return string_value[pos];
+}
+
 int StringToCharArray(string text_string, ARRAY_REF(unsigned char, array), int start = 0, int count = -1,
                       unsigned int codepage = CP_ACP);
 #endif

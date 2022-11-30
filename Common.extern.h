@@ -24,6 +24,7 @@
 #ifndef __MQL__
 #pragma once
 #include <csignal>
+#include <string>
 
 #include "Chart.enum.h"
 #include "DateTime.enum.h"
@@ -38,16 +39,5 @@ void SetUserError(unsigned short user_error) { _LastError = ERR_USER_ERROR_FIRST
 // Exceptions.
 extern int NotImplementedException();
 // Print-related functions.
-template <typename... Args>
-extern std::string StringFormat(const std::string& format, Args... args);
-
-template <typename... Args>
-extern std::string PrintFormat(const std::string& format, Args... args);
-
-template <typename... Args>
-extern void Print(Args... args);
-
-template <typename... Args>
-extern void Alert(Args... args);
 
 #endif
