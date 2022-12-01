@@ -29,6 +29,7 @@
 
 // Includes.
 #include <time.h>
+
 #include "DateTime.enum.h"
 #include "String.mqh"
 
@@ -44,7 +45,7 @@ class datetime {
  public:
   datetime() { dt = 0; }
   datetime(const long& _time) { dt = _time; }
-  datetime(const int& _time);
+  // datetime(const int& _time);
   bool operator==(const int _time) const = delete;
   bool operator==(const datetime& _time) const { return dt == _time; }
   bool operator<(const int _time) const = delete;
@@ -82,7 +83,7 @@ string TimeToString(datetime value, int mode = TIME_DATE | TIME_MINUTES) {
 }
 
 template <char... T>
-extern datetime operator"" _D();
+datetime operator"" _D();
 
 #define DATETIME_LITERAL(STR) _D " ## STR ## "
 

@@ -24,6 +24,7 @@
 #ifndef __MQL__
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 
 template <typename T>

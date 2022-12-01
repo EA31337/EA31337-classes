@@ -202,7 +202,10 @@ class _cpp_array {
     // E.g., size = 10, new_size = 90, reserve_size = 50
     // thus: new_reserve_size = new_size + reserve_size - (new_size % reserve_size)
     // which is: 90 + reserve_size - (90 % reserve_size) = 90 + 50 - 40 = 100.
-    m_data.reserve(new_size + reserve_size - (new_size % reserve_size));
+    if (reserve_size > 0) {
+      new_size = reserve_size - (new_size % reserve_size);
+    }
+    m_data.reserve(new_size);
     m_data.resize(new_size);
   }
 

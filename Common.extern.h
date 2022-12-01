@@ -30,7 +30,14 @@
 #include "DateTime.enum.h"
 #include "Terminal.define.h"
 
-void DebugBreak() { raise(SIGTRAP); }
+void DebugBreak() {
+#ifdef _MSC_VER
+  // @see https://learn.microsoft.com/en-us/cpp/intrinsics/debugbreak?view=msvc-170
+  __debugbreak();
+#else
+  raise(SIGTRAP);
+#endif
+}
 
 int _LastError = 0;
 
