@@ -25,5 +25,12 @@
  * Includes external declarations related to objects.
  */
 #ifndef __MQL__
-extern void *GetPointer(void *anyobject);
+template <typename X>
+X* GetPointer(X& value) {
+  return &value;
+}
+template <typename X>
+X* GetPointer(X* ptr) {
+  return ptr;
+}
 #endif

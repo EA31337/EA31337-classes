@@ -78,6 +78,8 @@ void PrintTo(std::ostream& out, Arg&& arg, Args&&... args) {
   out << std::forward<Arg>(arg);
   using expander = int[];
   (void)expander{0, (void(out << std::forward<Args>(args)), 0)...};
+  out << "\n";
+  out.flush();
 }
 
 template <typename Arg, typename... Args>

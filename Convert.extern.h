@@ -25,8 +25,8 @@
 #pragma once
 
 // Includes.
-#include <sstream>
 #include <cmath>
+#include <sstream>
 
 // Define external global functions.
 double NormalizeDouble(double value, int digits) { return std::round(value / digits) * digits; }
@@ -45,7 +45,7 @@ string DoubleToString(double value, int digits = 8) {
 
 string ShortToString(unsigned short symbol_code) {
   std::stringstream ss;
-  ss << symbol_code;
+  ss << (char)symbol_code;
   return ss.str();
 }
 #endif

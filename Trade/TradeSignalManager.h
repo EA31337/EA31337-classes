@@ -181,3 +181,15 @@ class TradeSignalManager : Dynamic {
         .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
   }
 };
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(TradeSignalManager) {
+  emscripten::class_<TradeSignalManager>("TradeSignalManager")
+      .constructor()
+      .function("SignalAdd", &TradeSignalManager::SignalAdd)
+      .function("ToString", &TradeSignalManager::ToString);
+}
+
+#endif

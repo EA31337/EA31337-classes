@@ -65,6 +65,15 @@ struct TaskEntry {
  public:
   // Constructors.
   TaskEntry() { Init(); }
+  TaskEntry(const TaskEntry &_entry)
+      : action(_entry.action),
+        cond(_entry.cond),
+        expires(_entry.expires),
+        last_process(_entry.last_process),
+        last_success(_entry.last_success),
+        flags(_entry.flags) {
+    Init();
+  }
   TaskEntry(const TaskActionEntry &_action, const TaskConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
   template <typename AE, typename CE>
   TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) {
@@ -143,3 +152,10 @@ struct TaskEntry {
 
   SERIALIZER_EMPTY_STUB;
 };
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(TaskEntry) { emscripten::class_<TaskEntry>("TaskEntry").constructor(); }
+
+#endif

@@ -30,10 +30,6 @@
 #pragma once
 #endif
 
-// Prevents processing this includes file for the second time.
-#ifndef TASK_MANAGER_H
-#define TASK_MANAGER_H
-
 // Includes.
 #include "../DictObject.mqh"
 #include "../Serializer/SerializerConverter.h"
@@ -95,6 +91,11 @@ class TaskManager {
     return Add((Task *)_task_obj);
   }
 
+  /**
+   * Clears tasks list.
+   */
+  void Clear() { tasks.Clear(); }
+
   /* Processing methods */
 
   /**
@@ -110,4 +111,18 @@ class TaskManager {
   }
 };
 
-#endif  // TASK_MANAGER_H
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(TaskManager) {
+  emscripten::class_<TaskManager>("TaskManager")
+      .constructor()
+      .function("Add", emscripten::optional_override([](TaskManager &self, Ref<Task> task) {
+                  Print("Adding Task");
+                  self.Add(task.Ptr());
+                }))
+      //      .function("Add", emscripten::select_overload<bool(Task*)>(&TaskManager::Add))
+      .function("Clear", &TaskManager::Clear)
+      .function("Process", &TaskManager::Process);
+}
+#endif

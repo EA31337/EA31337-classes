@@ -31,8 +31,14 @@
 #endif
 
 // Includes.
+#include <type_traits>
+
 #include "Refs.rc.h"
 #include "Std.h"
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+#endif
 
 class Dynamic;
 // Forward class declaration.
@@ -87,6 +93,10 @@ struct SimpleRef {
   }
 };
 
+template <typename T>
+using base_type =
+    typename std::remove_cv<typename std::remove_reference<typename std::remove_pointer<T>::type>::type>::type;
+
 /**
  * Class used to hold strong reference to reference-counted object.
  */
@@ -97,21 +107,34 @@ struct Ref {
    */
   X* ptr_object;
 
+#ifdef EMSCRIPTEN
+  typedef X element_type;
+#endif
+
  public:
   /**
    * Constructor.
    */
-  Ref(X* _ptr) { THIS_REF = _ptr; }
+  Ref(X* _ptr) {
+    ptr_object = nullptr;
+    THIS_REF = _ptr;
+  }
 
   /**
    * Constructor.
    */
-  Ref(Ref<X>& ref) { THIS_REF = ref.Ptr(); }
+  Ref(const Ref<X>& ref) {
+    ptr_object = nullptr;
+    Set(ref.Ptr());
+  }
 
   /**
    * Constructor.
    */
-  Ref(WeakRef<X>& ref) { THIS_REF = ref.Ptr(); }
+  Ref(WeakRef<X>& ref) {
+    ptr_object = nullptr;
+    Set(ref.Ptr());
+  }
 
   /**
    * Constructor.
@@ -126,7 +149,11 @@ struct Ref {
   /**
    * Returns pointer to target object.
    */
-  X* Ptr() { return ptr_object; }
+  X* Ptr() const { return ptr_object; }
+
+#ifdef EMSCRIPTEN
+  X* get() const { return ptr_object; }
+#endif
 
   /**
    * Checks whether any object is referenced.
@@ -208,7 +235,11 @@ struct Ref {
   /**
    * Makes a strong reference to the given object.
    */
-  X* operator=(X* _ptr) {
+  X* operator=(X* _ptr) { return Set(_ptr); }
+  /**
+   * Makes a strong reference to the given object.
+   */
+  X* Set(X* _ptr) {
     if (ptr_object == _ptr) {
       // Assigning the same object.
       return Ptr();
@@ -240,24 +271,23 @@ struct Ref {
   /**
    * Makes a strong reference to the given weakly-referenced object.
    */
-  X* operator=(WeakRef<X>& right) {
-    THIS_REF = right.Ptr();
-    return Ptr();
-  }
+  X* operator=(const WeakRef<X>& right) { return Set((X*)right.Ptr()); }
 
   /**
    * Makes a strong reference to the strongly-referenced object.
    */
-  X* operator=(Ref<X>& right) {
-    THIS_REF = right.Ptr();
-    return Ptr();
-  }
+  X* operator=(const Ref<X>& right) { return Set((X*)right.Ptr()); }
 
   /**
    * Equality operator.
    */
   bool operator==(const Ref<X>& r) { return ptr_object != NULL && ptr_object == r.ptr_object; }
 };
+
+template <typename X>
+Ref<X> make_ref() {
+  return Ref<X>();
+}
 
 /**
  * Class used to hold weak reference to reference-counted object.

@@ -89,17 +89,6 @@ class DictStruct : public DictBase<K, V> {
     THIS_ATTR _mode = right._mode;
   }
 
-  void operator=(DictStruct<K, V>& right) {
-    Clear();
-    Resize(right.GetSlotCount());
-    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
-      THIS_ATTR _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
-    }
-    THIS_ATTR _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
-    THIS_ATTR _current_id = right._current_id;
-    THIS_ATTR _mode = right._mode;
-  }
-
   void Clear() {
     for (unsigned int i = 0; i < (unsigned int)ArraySize(THIS_ATTR _DictSlots_ref.DictSlots); ++i) {
       THIS_ATTR _DictSlots_ref.DictSlots[i].SetFlags(0);
@@ -124,7 +113,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts value using hashless key.
    */
-  bool Push(V& value) {
+  bool Push(const V& value) {
     if (!InsertInto(THIS_ATTR _DictSlots_ref, value)) return false;
     return true;
   }
@@ -136,6 +125,8 @@ class DictStruct : public DictBase<K, V> {
 
 /**
  * Inserts value using hashless key.
+ *
+ * @todo Get rid of this method.
  */
 #ifdef __MQL__
   template <>
@@ -385,7 +376,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts hashless value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const V& value) {
     if (THIS_ATTR _mode == DictModeUnknown)
       THIS_ATTR _mode = DictModeList;
     else if (THIS_ATTR _mode != DictModeList) {

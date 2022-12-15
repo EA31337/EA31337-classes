@@ -129,8 +129,8 @@ class DateTime {
     }
 
 #ifdef __debug_verbose__
-    string _passed =
-        "time now " + (string)dt_curr.GetTimestamp() + ", time last " + (string)dt_last.GetTimestamp() + " ";
+    string _passed = "time now " + TimeToString(dt_curr.GetTimestamp()) + ", time last " +
+                     TimeToString(dt_last.GetTimestamp()) + " ";
 
     if (_update) {
       _passed += "updating time ";
