@@ -20,6 +20,10 @@
  *
  */
 
+// Defines.
+// 100 bars was originally specified by Indicators/Examples/PVT.mq5
+#define INDI_PVT_MIN_BARS 2
+
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
@@ -70,15 +74,17 @@ class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
   /**
    * OnCalculate-based version of Price Volume Trend as there is no built-in one.
    */
-  static double iPVT(IndicatorData *_indi, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
+  static double iPVT(IndicatorData *_indi, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_PVT_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey((int)_av));
-    return iPVTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
+    return iPVTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                       _cache);
   }
 
   /**
    * Calculates Price Volume Trend on the array of values.
    */
-  static double iPVTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, ENUM_APPLIED_VOLUME _av, int _mode, int _shift,
+  static double iPVTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, ENUM_APPLIED_VOLUME _av, int _mode, int _abs_shift,
                             IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -93,15 +99,16 @@ class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
     _cache.SetPrevCalculated(
         Indi_PriceVolumeTrend::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _av));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * On-indicator version of Price Volume Trend.
    */
-  static double iPVTOnIndicator(IndicatorData *_indi, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
+  static double iPVTOnIndicator(IndicatorData *_indi, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey((int)_av));
-    return iPVTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
+    return iPVTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                       _cache);
   }
 
   /**
@@ -109,7 +116,7 @@ class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtPVTBuffer,
                        ENUM_APPLIED_VOLUME InpVolumeType) {
-    if (rates_total < 2) return (0);
+    if (rates_total < INDI_PVT_MIN_BARS) return (0);
     int pos = prev_calculated - 1;
     // Correct position, when it's first iteration.
     if (pos < 0) {
@@ -140,20 +147,19 @@ class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = iPVT(THIS_PTR, GetAppliedVolume(), _mode, _ishift);
+        _value = iPVT(THIS_PTR, GetAppliedVolume(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
-                         /*[*/ GetAppliedVolume() /*]*/, 0, _ishift);
+                         /*[*/ GetAppliedVolume() /*]*/, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = iPVT(THIS_PTR, GetAppliedVolume(), _mode, _ishift);
+        _value = iPVT(THIS_PTR, GetAppliedVolume(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

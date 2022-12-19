@@ -20,6 +20,10 @@
  *
  */
 
+// Defines.
+// 2 bars was originally specified by Indicators/Examples/W_AD.mq5
+#define INDI_WAD_MIN_BARS 100
+
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
@@ -79,15 +83,17 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   /**
    * OnCalculate-based version of Williams' AD as there is no built-in one.
    */
-  static double iWAD(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+  static double iWAD(IndicatorData *_indi, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_WAD_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
-    return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+    return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                       _cache);
   }
 
   /**
    * Calculates William's AD on the array of values.
    */
-  static double iWADOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+  static double iWADOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
                             IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -102,14 +108,14 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
     _cache.SetPrevCalculated(
         Indi_WilliamsAD::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0)));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * OnCalculate() method for Williams' AD indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtWADBuffer) {
-    if (rates_total < 2) return (0);
+    if (rates_total < INDI_WAD_MIN_BARS) return (0);
     int pos = prev_calculated - 1;
     if (pos < 1) {
       pos = 1;
@@ -149,19 +155,19 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = iWAD(THIS_PTR, _mode, _ishift);
+        _value = iWAD(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), 0, _ishift);
+        _value =
+            iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = iWAD(THIS_PTR, _mode, _ishift);
+        _value = iWAD(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

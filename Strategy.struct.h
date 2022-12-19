@@ -366,7 +366,7 @@ struct StgParams {
 struct Stg_Params {
   string symbol;
   ENUM_TIMEFRAMES tf;
-  Stg_Params() : symbol(_Symbol), tf((ENUM_TIMEFRAMES)_Period) {}
+  Stg_Params() : symbol(_Symbol), tf((ENUM_TIMEFRAMES)Period()) {}
 };
 
 /* Structure for strategy's process results. */

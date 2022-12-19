@@ -20,6 +20,10 @@
  *
  */
 
+// Defines.
+// 100 bars was originally specified by Indicators/Examples/ZigzagColor.mq5
+#define INDI_ZIGZAG_COLOR_MIN_BARS 100
+
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
@@ -93,17 +97,18 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
    * Returns value for ZigZag Color indicator.
    */
   static double iZigZagColor(IndicatorData *_indi, int _depth, int _deviation, int _backstep,
-                             ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0) {
+                             ENUM_ZIGZAG_LINE _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_ZIGZAG_COLOR_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
-    return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
-                               _cache);
+    return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode,
+                               _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
    * Calculates ZigZag Color on the array of values.
    */
   static double iZigZagColorOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _depth, int _deviation, int _backstep,
-                                    int _mode, int _shift, IndicatorCalculateCache<double> *_cache,
+                                    int _mode, int _abs_shift, IndicatorCalculateCache<double> *_cache,
                                     bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -120,7 +125,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
                                                          _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3),
                                                          _cache.GetBuffer<double>(4), _depth, _deviation, _backstep));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -132,7 +137,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
                        int InpDeviation, int InpBackstep) {
     int ExtRecalc = 3;
 
-    if (rates_total < 100) return 0;
+    if (rates_total < INDI_ZIGZAG_COLOR_MIN_BARS) return 0;
     int i, start = 0;
     int extreme_counter = 0, extreme_search = Extremum;
     int shift, back = 0, last_high_pos = 0, last_low_pos = 0;
@@ -295,17 +300,16 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_ONCALCULATE:
         _value = Indi_ZigZagColor::iZigZagColor(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(),
-                                                (ENUM_ZIGZAG_LINE)_mode, _ishift);
+                                                (ENUM_ZIGZAG_LINE)_mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
-                         /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/, _mode, _ishift);
+                         /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

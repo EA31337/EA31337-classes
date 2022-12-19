@@ -46,9 +46,9 @@ class VolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  long Fetch(int _shift) override {
+  long Fetch(int _rel_shift) override {
     ResetLastError();
-    long _volume = indi_candle REF_DEREF GetVolume(RealShift(_shift));
+    long _volume = indi_candle REF_DEREF GetVolume(RealShift(_rel_shift));
     if (_LastError != ERR_NO_ERROR) {
       Print("Cannot fetch iVolume! Error: ", _LastError);
       DebugBreak();

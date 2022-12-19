@@ -32,6 +32,7 @@
 #include "../../Config.mqh"
 #include "../../Data.define.h"
 #include "../../Data.struct.h"
+#include "../../Data.struct.serialize.h"
 #include "../../DictStruct.mqh"
 #include "../../Test.mqh"
 #include "../Serializer.h"

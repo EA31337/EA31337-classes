@@ -108,15 +108,15 @@ class Indi_AC : public Indicator<IndiACParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) override {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
     IndicatorDataEntryValue _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_AC::iAC(GetSymbol(), GetTf(), _ishift, THIS_PTR);
+        _value = Indi_AC::iAC(GetSymbol(), GetTf(), ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
+                         ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

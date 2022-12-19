@@ -100,6 +100,9 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
    */
   static double iUO(IndicatorData *_indi, int _fast_period, int _middle_period, int _slow_period, int _fast_k,
                     int _middle_k, int _slow_k, int _mode = 0, int _shift = 0) {
+    int _min_bars_required = MathMax(MathMax(_fast_period, _middle_period), _slow_period);
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _min_bars_required);
+
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _indi, Util::MakeKey(_fast_period, _middle_period, _slow_period, _fast_k, _middle_k, _slow_k));
 
@@ -116,7 +119,7 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
    * Calculates Ultimate Oscillator on the array of values.
    */
   static double iUOOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_period, int _middle_period, int _slow_period,
-                           int _fast_k, int _middle_k, int _slow_k, int _mode, int _shift,
+                           int _fast_k, int _middle_k, int _slow_k, int _mode, int _abs_shift,
                            IndicatorCalculateCache<double> *_cache, IndicatorData *_indi_atr_fast,
                            IndicatorData *_indi_atr_middle, IndicatorData *_indi_atr_slow, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
@@ -134,7 +137,7 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4), _fast_period,
         _middle_period, _slow_period, _fast_k, _middle_k, _slow_k, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -166,8 +169,6 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
     int ExtMaxPeriod = InpSlowPeriod;
     if (ExtMaxPeriod < InpMiddlePeriod) ExtMaxPeriod = InpMiddlePeriod;
     if (ExtMaxPeriod < InpFastPeriod) ExtMaxPeriod = InpFastPeriod;
-
-    int min_bars_required = MathMax(MathMax(InpFastPeriod, InpMiddlePeriod), InpSlowPeriod);
 
     if (rates_total < ExtMaxPeriod) return (0);
     // Not all data may be calculated.
@@ -217,7 +218,7 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
       ExtBPBuffer[0] = 0.0;
       ExtUOBuffer[0] = 0.0;
       // Set value for first InpSlowPeriod bars.
-      for (i = 1; i <= InpSlowPeriod; i++) {
+      for (i = 1; i < InpSlowPeriod; i++) {
         ExtUOBuffer[i] = 0.0;
         true_low = MathMin(low[i].Get(), close[i - 1].Get());
         ExtBPBuffer[i] = close[i] - true_low;
@@ -248,25 +249,24 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = Indi_UltimateOscillator::iUO(THIS_PTR, GetFastPeriod(), GetMiddlePeriod(), GetSlowPeriod(), GetFastK(),
-                                              GetMiddleK(), GetSlowK(), _mode, _ishift);
+                                              GetMiddleK(), GetSlowK(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
                          GetFastPeriod(), GetMiddlePeriod(), GetSlowPeriod(), GetFastK(), GetMiddleK(),
                          GetSlowK()
                          /*]*/,
-                         0, _ishift);
+                         0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         _value = Indi_UltimateOscillator::iUO(THIS_PTR, GetFastPeriod(), GetMiddlePeriod(), GetSlowPeriod(), GetFastK(),
-                                              GetMiddleK(), GetSlowK(), _mode, _ishift);
+                                              GetMiddleK(), GetSlowK(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

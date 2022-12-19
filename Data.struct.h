@@ -37,11 +37,11 @@ struct MqlRates;
 
 // Includes.
 #include "Data.enum.h"
-#include "DateTime.mqh"
+#include "DateTime.extern.h"
 #include "Serializer/Serializer.enum.h"
 #include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
-#include "Serializer/Serializer.h"
+#include "String.mqh"
 
 #ifndef __MQL__
 /**
@@ -189,7 +189,7 @@ struct DataParamEntry : public MqlParam {
       case TYPE_CHAR:
       case TYPE_STRING:
       case TYPE_UCHAR:
-        return (T)::StringToDouble(string_value);
+        return (T)StringToDouble(string_value);
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
         return (T)ToDouble(THIS_REF);
@@ -330,46 +330,3 @@ struct DataParamEntry : public MqlParam {
   }
   SerializerNodeType Serialize(Serializer &s);
 };
-
-/* Method to serialize DataParamEntry struct. */
-SerializerNodeType DataParamEntry::Serialize(Serializer &s) {
-  s.PassEnum(THIS_REF, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
-  string aux_string;
-
-  switch (type) {
-    case TYPE_BOOL:
-    case TYPE_UCHAR:
-    case TYPE_CHAR:
-    case TYPE_USHORT:
-    case TYPE_SHORT:
-    case TYPE_UINT:
-    case TYPE_INT:
-    case TYPE_ULONG:
-    case TYPE_LONG:
-      s.Pass(THIS_REF, "value", integer_value);
-      break;
-
-    case TYPE_DOUBLE:
-      s.Pass(THIS_REF, "value", double_value);
-      break;
-
-    case TYPE_STRING:
-      s.Pass(THIS_REF, "value", string_value);
-      break;
-
-    case TYPE_DATETIME:
-      if (s.IsWriting()) {
-        aux_string = TimeToString(integer_value);
-        s.Pass(THIS_REF, "value", aux_string);
-      } else {
-        s.Pass(THIS_REF, "value", aux_string);
-        integer_value = StringToTime(aux_string);
-      }
-      break;
-
-    default:
-      // Unknown type. Serializing anyway.
-      s.Pass(THIS_REF, "value", aux_string);
-  }
-  return SerializerNodeObject;
-}

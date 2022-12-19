@@ -82,16 +82,18 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
   /**
    * OnCalculate-based version of VROC as there is no built-in one.
    */
-  static double iVROC(IndicatorData *_indi, int _period, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
+  static double iVROC(IndicatorData *_indi, int _period, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period, (int)_av));
-    return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode, _shift, _cache);
+    return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode,
+                        _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
    * Calculates VROC on the array of values.
    */
   static double iVROCOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, ENUM_APPLIED_VOLUME _av, int _mode,
-                             int _shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                             int _abs_shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {
@@ -105,7 +107,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
     _cache.SetPrevCalculated(
         Indi_VROC::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _period, _av));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -153,20 +155,19 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = iVROC(THIS_PTR, GetPeriod(), GetAppliedVolume(), _mode, _ishift);
+        _value = iVROC(THIS_PTR, GetPeriod(), GetAppliedVolume(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
-                         /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, _ishift);
+                         /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = iVROC(THIS_PTR, GetPeriod(), GetAppliedVolume(), _mode, _ishift);
+        _value = iVROC(THIS_PTR, GetPeriod(), GetAppliedVolume(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

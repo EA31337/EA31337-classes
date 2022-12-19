@@ -30,15 +30,14 @@
 #endif
 
 // Includes.
-#include "../Chart.struct.tf.h"
 #include "IndicatorCandle.h"
-#include "IndicatorTf.struct.h"
+#include "IndicatorTf.provider.h"
 
 /**
  * Class to deal with candle indicators.
  */
 template <typename TFP>
-class IndicatorTf : public IndicatorCandle<TFP, double> {
+class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProvider<double>> {
  protected:
   // Time-frame used to create candles.
   ENUM_TIMEFRAMES tf;
@@ -50,7 +49,9 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    *
    * Called on constructor.
    */
-  void Init() {}
+  void Init() {
+    history.SetItemProvider(new ItemsHistoryTfCandleProvider<double>(iparams.GetSecsPerCandle(), THIS_PTR));
+  }
 
  public:
   /* Special methods */
@@ -84,67 +85,17 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams)
-      : IndicatorCandle<TFP, double>(_icparams, _idparams) {
-    Init();
-  }
-
-  /**
-   * Returns time of the bar for a given shift (MT-compatible shift).
-   */
-  datetime GetBarTimeLegacy(int _shift = 0) {
-    // Note: iTime() in MT4 build can return not rounded values.
-    datetime _curr = (datetime)CalcCandleTimestamp(::iTime(GetSymbol(), GetTf(), fmax(0, _shift)));
-    datetime _last_valid = 0;
-
-#ifdef __MQL4__
-    if (GetLastError() == ERR_HISTORY_WILL_UPDATED) {
-      // Workaround for MT4 history data issues.
-      // See: https://www.mql5.com/en/forum/155707
-      for (int i = 0; i < 10; i++) {
-        Sleep(1000);
-        _curr = ::iTime(GetSymbol(), GetTf(), 0);
-        if (GetLastError() != ERR_HISTORY_WILL_UPDATED) {
-          break;
-        }
-        SetUserError(ERR_HISTORY_WILL_UPDATED);
-      }
-    }
-#endif
-    while (_curr >= icdata.GetMin()) {
-      if (icdata.KeyExists(_curr)) {
-        _last_valid = _curr;
-        if (_shift-- == 0) {
-          return _curr;
-        }
-      }
-      // Going back in time by TF.
-      _curr -= ChartTf::TfToSeconds(tf);
-    }
-
-    // No entry found. Returning last valid candle.
-    if (icdata.KeyExists(_last_valid)) {
-      return _last_valid;
-    } else {
-      // Not a single valid candle found.
-      return 0;
-    }
-  }
-
-  /* Virtual methods */
-
-  /**
-   * Returns time of the bar for a given shift.
-   */
-  datetime GetBarTime(int _shift = 0) override {
-    // @fixit Should be replaced by MT-compatible bar time calculation for the given shift.
-    return GetBarTimeLegacy(_shift);
-  }
+  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams) { Init(); }
 
   /**
    * Gets indicator's time-frame.
    */
   ENUM_TIMEFRAMES GetTf() override { return tf; }
+
+  /**
+   * Returns current tick index (incremented every OnTick()).
+   */
+  int GetTickIndex() override { return history.GetItemProvider() PTR_DEREF GetTickIndex(); }
 };
 
 #endif  // INDICATOR_TF_H

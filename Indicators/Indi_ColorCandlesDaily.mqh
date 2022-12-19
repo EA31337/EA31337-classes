@@ -80,15 +80,16 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   /**
    * OnCalculate-based version of Color Candles Daily as there is no built-in one.
    */
-  static double iCCD(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+  static double iCCD(IndicatorData *_indi, int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
-    return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+    return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                       _cache);
   }
 
   /**
    * Calculates Color Candles Daily on the array of values.
    */
-  static double iCCDOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+  static double iCCDOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
                             IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -104,7 +105,7 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
         INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4)));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -135,19 +136,19 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = Indi_ColorCandlesDaily::iCCD(THIS_PTR, _mode, _ishift);
+        _value = Indi_ColorCandlesDaily::iCCD(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
+                         ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ColorCandlesDaily::iCCD(THIS_PTR, _mode, _ishift);
+        _value = Indi_ColorCandlesDaily::iCCD(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

@@ -31,6 +31,7 @@
 
 // Includes.
 #include "../Data.struct.h"
+#include "../Serializer/Serializer.define.h"
 #include "../Std.h"
 #include "../Terminal.define.h"
 #include "Task.enum.h"
@@ -169,15 +170,7 @@ struct TaskGetterEntry {
     // @todo: for().
   }
   // Serializers
-  SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(THIS_REF, "flags", flags);
-    s.Pass(THIS_REF, "id", id);
-    s.Pass(THIS_REF, "time_last_get", time_last_get);
-    s.Pass(THIS_REF, "tries", tries);
-    s.PassEnum(THIS_REF, "freq", freq);
-    s.PassArray(THIS_REF, "args", args);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer &s);
 
   SERIALIZER_EMPTY_STUB;
 };

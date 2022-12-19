@@ -25,7 +25,7 @@
 #define SERIALIZER_MQH
 
 // Includes.
-#include "../Convert.mqh"
+#include "../Convert.basic.h"
 #include "../Terminal.define.h"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
@@ -420,17 +420,17 @@ class Serializer {
           SerializerNodeParamType paramType = PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), GetType());
           switch (paramType) {
             case SerializerNodeParamBool:
-              Convert::BoolToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._bool, value);
+              ConvertBasic::BoolToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._bool, value);
               break;
             case SerializerNodeParamLong:
-              Convert::LongToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._long, value);
+              ConvertBasic::LongToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._long, value);
               break;
             case SerializerNodeParamDouble:
-              Convert::DoubleToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._double, value);
+              ConvertBasic::DoubleToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._double, value);
               break;
             case SerializerNodeParamString:
               // There shouldn't be a conversion to int!
-              Convert::StringToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _string), value);
+              ConvertBasic::StringToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _string), value);
               break;
             default:
               Print("Error: Wrong param type ", paramType, "!");

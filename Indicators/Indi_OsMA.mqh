@@ -91,50 +91,25 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
 #ifdef __MQL4__
     return ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _shift);
 #else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price)) ==
-          INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
-    }
-    return _res[0];
+    INDICATOR_BUILTIN_CALL_AND_RETURN(
+        ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price), 0, _shift);
 #endif
   }
 
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_OsMA::iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
-                                  GetAppliedPrice(), _ishift, THIS_PTR);
+                                  GetAppliedPrice(), ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value =
             iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetEmaFastPeriod(),
-                    GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice() /*]*/, 0, _ishift);
+                    GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice() /*]*/, 0, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

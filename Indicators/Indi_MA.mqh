@@ -40,10 +40,10 @@ double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_metho
   return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
                       (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift,
+double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _abs_shift,
                   IndicatorCalculateCache<double> *_cache = NULL) {
   ResetLastError();
-  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift, _cache);
+  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
 }
 #endif
 
@@ -54,8 +54,13 @@ struct IndiMAParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_array;
   // Struct constructors.
-  IndiMAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
-               ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  /**
+   * Regarding _ma_shift and _shift:
+   * @see https://www.mql5.com/en/forum/146006#comment_3685589
+   * "Always use MA shift 0 (ignore it) and use the regular shift, unless you are placing it on the chart for visual".
+   */
+  IndiMAParams(unsigned int _period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
+               ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 10)
       : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap), IndicatorParams(INDI_MA) {
     shift = _shift;
     SetCustomIndicatorName("Examples\\Moving Average");
@@ -117,31 +122,8 @@ class Indi_MA : public Indicator<IndiMAParams> {
 #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
-    }
-    return _res[0];
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price), 0,
+                                      _shift);
 #endif
   }
 
@@ -152,6 +134,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
                                unsigned int ma_period, unsigned int ma_shift,
                                ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                ENUM_APPLIED_PRICE _ap, int shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_source, int(ma_period + ma_shift + shift));
     ValueStorage<double> *_data = (ValueStorage<double> *)_source.GetSpecificAppliedPriceValueStorage(_ap, _target);
     return iMAOnArray(_data, 0, ma_period, ma_shift, ma_method, shift, _target PTR_DEREF GetCache());
   }
@@ -650,26 +633,25 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
-                              _ishift, THIS_PTR);
+                              ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
         _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
-                                         GetMAMethod(), GetAppliedPrice(), _ishift);
+                                         GetMAMethod(), GetAppliedPrice(), ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
-                         GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, _ishift);
+                         GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
         _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
-                                         GetMAMethod(), GetAppliedPrice(), _ishift);
+                                         GetMAMethod(), GetAppliedPrice(), ToRelShift(_abs_shift));
         break;
     }
 

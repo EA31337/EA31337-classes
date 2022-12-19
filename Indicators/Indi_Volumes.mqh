@@ -20,6 +20,10 @@
  *
  */
 
+// Defines.
+// 2 bars was originally specified by Indicators/Examples/Volumes.mq5
+#define INDI_VOLUMES_MIN_BARS 2
+
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
@@ -81,15 +85,17 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
   /**
    * OnCalculate-based version of Volumes as there is no built-in one.
    */
-  static double iVolumes(IndicatorData *_indi, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
+  static double iVolumes(IndicatorData *_indi, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_VOLUMES_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey((int)_av));
-    return iVolumesOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode, _shift, _cache);
+    return iVolumesOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _av, _mode,
+                           _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
    * Calculates AMVolumes on the array of values.
    */
-  static double iVolumesOnArray(INDICATOR_CALCULATE_PARAMS_LONG, ENUM_APPLIED_VOLUME _av, int _mode, int _shift,
+  static double iVolumesOnArray(INDICATOR_CALCULATE_PARAMS_LONG, ENUM_APPLIED_VOLUME _av, int _mode, int _abs_shift,
                                 IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -104,7 +110,7 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
     _cache.SetPrevCalculated(Indi_Volumes::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
                                                      _cache.GetBuffer<double>(1), _av));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -112,7 +118,7 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtVolumesBuffer,
                        ValueStorage<double> &ExtColorsBuffer, ENUM_APPLIED_VOLUME InpVolumeType) {
-    if (rates_total < 2) return (0);
+    if (rates_total < INDI_VOLUMES_MIN_BARS) return (0);
 
     // Starting work.
     int pos = prev_calculated - 1;
@@ -147,20 +153,19 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = Indi_Volumes::iVolumes(THIS_PTR, GetAppliedVolume(), _mode, _ishift);
+        _value = Indi_Volumes::iVolumes(THIS_PTR, GetAppliedVolume(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
-                         /*[*/ GetAppliedVolume() /*]*/, _mode, _ishift);
+                         /*[*/ GetAppliedVolume() /*]*/, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Volumes::iVolumes(THIS_PTR, GetAppliedVolume(), _mode, _ishift);
+        _value = Indi_Volumes::iVolumes(THIS_PTR, GetAppliedVolume(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

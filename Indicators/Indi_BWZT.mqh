@@ -20,6 +20,10 @@
  *
  */
 
+// Defines.
+// 38 bars (DATA_LIMIT) was originally specified by Indicators/Examples/BW-ZoneTrade.mq5
+#define INDI_BWZT_DATA_LIMIT 100
+
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/IndicatorTf.h"
@@ -118,7 +122,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * OnCalculate-based version of BWZT as there is no built-in one.
    */
-  static double iBWZT(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+  static double iBWZT(IndicatorData *_indi, int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
 
     // Will return Indi_AC with the same candles source as _indi's.
@@ -127,13 +131,14 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
     // Will return Indi_AO with the same candles source as _indi's.
     Indi_AO *_indi_ao = Indi_AO::GetCached(_indi);
 
-    return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ac, _indi_ao);
+    return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                        INDI_BWZT_DATA_LIMIT, _cache, _indi_ac, _indi_ao);
   }
 
   /**
    * Calculates BWZT on the array of values.
    */
-  static double iBWZTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+  static double iBWZTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift, int _data_limit,
                              IndicatorCalculateCache<double> *_cache, Indi_AC *_indi_ac, Indi_AO *_indi_ao,
                              bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
@@ -149,22 +154,24 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
     _cache.SetPrevCalculated(Indi_BWZT::Calculate(
         INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4),
-        _cache.GetBuffer<double>(5), _cache.GetBuffer<double>(6), 38, _indi_ac, _indi_ao));
+        _cache.GetBuffer<double>(5), _cache.GetBuffer<double>(6), _data_limit, _indi_ac, _indi_ao));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * On-indicator version of BWZT.
    */
-  static double iBWZTOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
-                                 IndicatorData *_obj) {
+  static double iBWZTOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _rel_shift,
+                                 int _data_limit, IndicatorData *_obj) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _data_limit);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
 
     Indi_AC *_indi_ac = _obj.GetDataSource(INDI_AC);
     Indi_AO *_indi_ao = _obj.GetDataSource(INDI_AO);
 
-    return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ac, _indi_ao);
+    return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                        _data_limit, _cache, _indi_ac, _indi_ao);
   }
 
   /**
@@ -251,19 +258,19 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = Indi_BWZT::iBWZT(THIS_PTR, _mode, _ishift);
+        _value = Indi_BWZT::iBWZT(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
+                         ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_BWZT::iBWZT(THIS_PTR, _mode, _ishift);
+        _value = Indi_BWZT::iBWZT(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

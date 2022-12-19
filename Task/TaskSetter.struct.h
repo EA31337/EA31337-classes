@@ -31,6 +31,7 @@
 
 // Includes.
 #include "../Data.struct.h"
+#include "../Serializer/Serializer.h"
 #include "../Std.h"
 #include "Task.enum.h"
 

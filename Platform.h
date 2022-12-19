@@ -28,20 +28,24 @@
 
 #include "Flags.h"
 #include "Indicator/IndicatorData.h"
+#include "Indicator/tests/classes/IndicatorTfDummy.h"
 #include "Std.h"
 
 #ifdef __MQLBUILD__
-#include "Indicator/tests/classes/IndicatorTfDummy.h"
 #include "Indicators/Tick/Indi_TickMt.mqh"
 #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
 #else
-#error "Platform not supported!
+#include "Indicators/Tick/Indi_TickRandom.mqh"
+#define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickRandom
 #endif
 #include "SymbolInfo.struct.static.h"
 
 class Platform {
   // Whether Init() was already called.
   static bool initialized;
+
+  // Global tick index.
+  static int global_tick_index;
 
   // Date and time used to determine periods that passed.
   static DateTime time;
@@ -75,6 +79,11 @@ class Platform {
   }
 
   /**
+   * Returns global tick index.
+   */
+  static int GetGlobalTickIndex() { return global_tick_index; }
+
+  /**
    * Performs tick on every added indicator.
    */
   static void Tick() {
@@ -85,15 +94,18 @@ class Platform {
     DictStructIterator<long, Ref<IndicatorData>> _iter;
 
     for (_iter = indis.Begin(); _iter.IsValid(); ++_iter) {
-      _iter.Value() REF_DEREF Tick();
+      _iter.Value() REF_DEREF Tick(global_tick_index);
     }
 
     for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
-      _iter.Value() REF_DEREF Tick();
+      _iter.Value() REF_DEREF Tick(global_tick_index);
     }
 
     // Will check for new time periods in consecutive Platform::UpdateTime().
     time_clear_flags = true;
+
+    // Started from 0. Will be incremented after each finished tick.
+    ++global_tick_index;
   }
 
   /**
@@ -306,6 +318,7 @@ bool Platform::initialized = false;
 DateTime Platform::time = 0;
 unsigned int Platform::time_flags = 0;
 bool Platform::time_clear_flags = true;
+int Platform::global_tick_index = 0;
 DictStruct<long, Ref<IndicatorData>> Platform::indis;
 DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
 

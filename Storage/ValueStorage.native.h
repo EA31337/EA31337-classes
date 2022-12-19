@@ -58,15 +58,17 @@ class NativeValueStorage : public ValueStorage<C> {
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
+   *
+   * Note that this storage type operates on absolute shifts!
    */
-  C Fetch(int _shift) override {
-    if (_shift < 0 || _shift >= ArraySize(_values)) {
+  C Fetch(int _abs_shift) override {
+    if (_abs_shift < 0 || _abs_shift >= ArraySize(_values)) {
       return (C)EMPTY_VALUE;
       // Print("Invalid buffer data index: ", _shift, ". Buffer size: ", ArraySize(_values));
       // DebugBreak();
     }
 
-    return _values[_shift];
+    return _values[_abs_shift];
   }
 
   /**

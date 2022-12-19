@@ -25,6 +25,7 @@
  */
 
 // Includes.
+#include "../../Platform.h"
 #include "../../Test.mqh"
 #include "../IndicatorTick.h"
 #include "classes/IndicatorTickDummy.h"
@@ -33,15 +34,18 @@
  * Implements OnInit().
  */
 int OnInit() {
-  IndicatorTickDummy _indi_tick(_Symbol);
+  Platform::Init();
+
+  Ref<IndicatorTickDummy> _indi_tick = new IndicatorTickDummy(_Symbol);
+  Platform::Add(_indi_tick.Ptr());
+
   long _time = 1;
+
   for (double _price = 0.1; _price <= 2.0; _price += 0.1) {
-    MqlTick _tick;
-    _tick.time = (datetime)_time++;
-    _tick.ask = _price;
-    _tick.bid = _price;
-    _indi_tick.SetTick(_tick, _tick.time);
+    TickTAB<double> _tick(_time++ * 1000, _price, _price);
+    _indi_tick REF_DEREF GetHistory() PTR_DEREF Append(_tick);
   }
-  // Print(_indi_tick.ToString());
+
+  // Print(_indi_tick REF_DEREF ToString());
   return (INIT_SUCCEEDED);
 }

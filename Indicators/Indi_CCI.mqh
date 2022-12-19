@@ -32,9 +32,9 @@ double iCCI(string _symbol, int _tf, int _period, int _ap, int _shift) {
   ResetLastError();
   return Indi_CCI::iCCI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iCCIOnArray(double &_arr[], int _total, int _period, int _shift) {
+double iCCIOnArray(double &_arr[], int _total, int _period, int _abs_shift) {
   ResetLastError();
-  return Indi_CCI::iCCIOnArray(_arr, _total, _period, _shift);
+  return Indi_CCI::iCCIOnArray(_arr, _total, _period, _abs_shift);
 }
 #endif
 
@@ -100,6 +100,8 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
 
   static double iCCIOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                 int _mode, int _shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
+
     _indi.ValidateDataSourceMode(_mode);
 
     double _indi_value_buffer[];
@@ -161,30 +163,29 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _ishift /* + iparams.shift*/,
-                                THIS_PTR);
+        _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(),
+                                ToRelShift(_abs_shift) /* + iparams.shift*/, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value =
-            Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), _ishift /* + iparams.shift*/);
+        _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
+                                           ToRelShift(_abs_shift) /* + iparams.shift*/);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
-                         GetAppliedPrice() /* ] */, 0, _ishift);
+                         GetAppliedPrice() /* ] */, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         ValidateSelectedDataSource();
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value =
-            Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), _ishift /* + iparams.shift*/);
+        _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
+                                           ToRelShift(_abs_shift) /* + iparams.shift*/);
         break;
     }
     return _value;

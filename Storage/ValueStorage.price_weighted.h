@@ -46,9 +46,9 @@ class PriceWeightedValueStorage : public HistoryValueStorage<double> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  double Fetch(int _shift) override {
+  double Fetch(int _rel_shift) override {
     ResetLastError();
-    double _value = indi_candle REF_DEREF GetOHLC(RealShift(_shift)).GetWeighted();
+    double _value = indi_candle REF_DEREF GetOHLC(RealShift(_rel_shift)).GetWeighted();
     if (_LastError != ERR_NO_ERROR) {
       Print("Cannot fetch OHLC! Error: ", _LastError);
       DebugBreak();

@@ -47,5 +47,5 @@ class SpreadValueStorage : public HistoryValueStorage<long> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  long Fetch(int _shift) override { return indi_candle REF_DEREF GetSpread(RealShift(_shift)); }
+  long Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetSpread(RealShift(_rel_shift)); }
 };

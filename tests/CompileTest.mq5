@@ -120,6 +120,11 @@ struct IndicatorParams;
 #include "../Indicator/Indicator.h"
 #include "../Indicator/IndicatorBase.h"
 #include "../Indicator/IndicatorData.h"
+#include "../Indicator/IndicatorCandle.h"
+#include "../Indicator/IndicatorRenko.h"
+#include "../Indicator/IndicatorTf.h"
+#include "../Indicator/IndicatorTick.h"
+#include "../Indicator/IndicatorTickSource.h"
 #include "../Indicators/indicators.h"
 
 // Includes Serializer files.

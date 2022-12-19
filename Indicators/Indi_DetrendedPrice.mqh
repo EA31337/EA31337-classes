@@ -82,16 +82,18 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
   /**
    * Built-in version of DPO.
    */
-  static double iDPO(IndicatorData *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
+  static double iDPO(IndicatorData *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period + _rel_shift);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_indi.GetId()));
-    return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode, _shift, _cache);
+    return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode,
+                       _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
    * Calculates DPO on the array of values.
    */
   static double iDPOOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, ENUM_APPLIED_PRICE _ap, int _mode,
-                            int _shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                            int _abs_shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
     if (!_cache.HasBuffers()) {
@@ -105,7 +107,7 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
     _cache.SetPrevCalculated(Indi_DetrendedPrice::Calculate(
         INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1), _period));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -135,20 +137,19 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = iDPO(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, _ishift);
+        _value = iDPO(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
-                         0, _ishift);
+                         0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = iDPO(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, _ishift);
+        _value = iDPO(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

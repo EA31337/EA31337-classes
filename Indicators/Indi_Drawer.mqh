@@ -111,8 +111,11 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
     return false;
   }
 
-  virtual void OnTick() {
-    Indicator<IndiDrawerParams>::OnTick();
+  /**
+   * Called when new tick is retrieved from attached data source.
+   */
+  void OnTick(int _global_tick_index) override {
+    Indicator<IndiDrawerParams>::OnTick(_global_tick_index);
 
     /* @fixme
     TaskActionEntry action(INDI_ACTION_SET_VALUE);
@@ -191,15 +194,15 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_Drawer::iDrawer(GetSymbol(), GetTf(), _ishift, THIS_PTR);
+        _value = Indi_Drawer::iDrawer(GetSymbol(), GetTf(), ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), _ishift);
+        _value =
+            Indi_Drawer::iDrawerOnIndicator(GetDataSource(), THIS_PTR, GetSymbol(), GetTf(), ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

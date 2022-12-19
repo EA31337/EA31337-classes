@@ -84,6 +84,8 @@ class HistoryValueStorage : public ValueStorage<C> {
 
   /**
    * Number of bars passed from the start. There will be a single bar at the start.
+   *
+   * Note that number of bars are decremented by iparams.shift of the candle indicator.
    */
   int BarsFromStart() {
     if (!indi_candle.ObjectExists()) {

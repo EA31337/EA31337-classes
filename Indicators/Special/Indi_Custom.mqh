@@ -98,23 +98,23 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
   /**
    * Returns the indicator's value.
    */
-  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_ICUSTOM:
         switch (iparams.GetParamsSize()) {
           case 0:
-            _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, _mode, _ishift);
+            _value =
+                iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, _mode, ToRelShift(_abs_shift));
             break;
           case 1:
             _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name,
-                             iparams.GetParam(1).ToValue<double>(), _mode, _ishift);
+                             iparams.GetParam(1).ToValue<double>(), _mode, ToRelShift(_abs_shift));
             break;
           case 2:
-            _value =
-                iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name,
-                        iparams.GetParam(1).ToValue<double>(), iparams.GetParam(2).ToValue<double>(), _mode, _ishift);
+            _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name,
+                             iparams.GetParam(1).ToValue<double>(), iparams.GetParam(2).ToValue<double>(), _mode,
+                             ToRelShift(_abs_shift));
             break;
         }
         break;

@@ -67,11 +67,11 @@ class ChartMt : public ChartBase {
   /**
    * Returns time of the bar with a given shift.
    */
-  virtual datetime GetBarTime(int _shift = 0) override {
-    datetime _time = ::iTime(GetSymbol(), GetTf(), _shift);
+  virtual datetime GetBarTime(int _rel_shift = 0) override {
+    datetime _time = ::iTime(GetSymbol(), GetTf(), _rel_shift);
 
     if (_LastError != ERR_NO_ERROR) {
-      Print("Error: ", _LastError, " while doing ::iTime() in ChartMt::GetBarTime(", _shift, ")");
+      Print("Error: ", _LastError, " while doing ::iTime() in ChartMt::GetBarTime(", _rel_shift, ")");
       DebugBreak();
     }
 

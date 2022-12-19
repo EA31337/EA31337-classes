@@ -28,6 +28,7 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
+#include "Platform.h"
 #endif
 
 // Forward declarations.
@@ -35,9 +36,9 @@ class Serializer;
 
 // Includes.
 #include "Chart.enum.h"
+#include "Serializer/Serializer.h"
 #include "Serializer/SerializerNode.enum.h"
 #include "Terminal.define.h"
-#include "Serializer/Serializer.h"
 
 /* Defines struct for chart timeframe. */
 struct ChartTf {
@@ -256,7 +257,7 @@ struct ChartTf {
    * _tf ENUM_TIMEFRAMES Specify timeframe enum.
    */
   static ENUM_TIMEFRAMES_INDEX TfToIndex(ENUM_TIMEFRAMES _tf) {
-    _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES)_Period : _tf;
+    _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES)Period() : _tf;
     for (int i = 0; i < ArraySize(TIMEFRAMES_LIST); i++) {
       if (TIMEFRAMES_LIST[i] == _tf) {
         return (ENUM_TIMEFRAMES_INDEX)i;
