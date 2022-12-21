@@ -94,7 +94,19 @@ class TaskManager {
   /**
    * Clears tasks list.
    */
-  void Clear() { tasks.Clear(); }
+  void Clear() {
+    Task *task0 = tasks[0].Ptr();
+
+    for (int i = 0; i < tasks.Size(); ++i) {
+      std::cout << "Task #" << i << ": " << tasks[i].ToString() << std::endl;
+    }
+
+    tasks.Clear();
+
+    std::cout << "Tasks cleared." << std::endl;
+    std::cout << task0 PTR_DEREF ToString() << std::endl;
+    // std::cout.flush();
+  }
 
   /* Processing methods */
 

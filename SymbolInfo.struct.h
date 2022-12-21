@@ -32,10 +32,10 @@
 
 // Includes.
 #include "Serializer/Serializable.h"
+#include "Serializer/Serializer.h"
 #include "Std.h"
 #include "SymbolInfo.struct.static.h"
 #include "Tick/Tick.struct.h"
-#include "Serializer/Serializer.h"
 
 // Defines struct to store symbol data.
 struct SymbolInfoEntry
@@ -58,7 +58,7 @@ struct SymbolInfoEntry
     spread = (unsigned int)round((ask - bid) * pow(10, SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS)));
   }
   // Copy constructor.
-  SymbolInfoEntry(const SymbolInfoEntry& _sie) { this = _sie; }
+  SymbolInfoEntry(const SymbolInfoEntry& _sie) { THIS_REF = _sie; }
   // Getters
   string ToCSV() { return StringFormat("%g,%g,%g,%g,%d", bid, ask, last, spread, volume); }
 // Serializers.

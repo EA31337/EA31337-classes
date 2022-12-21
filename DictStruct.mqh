@@ -152,12 +152,12 @@ class DictStruct : public DictBase<K, V> {
   V operator[](K key) {
     DictSlot<K, V>* slot;
 
-    int position;
+    unsigned int position;
 
     if (THIS_ATTR _mode == DictModeList)
       slot = THIS_ATTR GetSlot((unsigned int)key);
     else
-      slot = GetSlotByKey(THIS_ATTR _DictSlots_ref, key, position);
+      slot = THIS_ATTR GetSlotByKey(THIS_ATTR _DictSlots_ref, key, position);
 
     if (slot == NULL || !slot PTR_DEREF IsUsed()) {
       Alert("Invalid DictStruct key \"", key, "\" (called by [] operator). Returning empty structure.");
@@ -174,7 +174,7 @@ class DictStruct : public DictBase<K, V> {
    */
   V GetByKey(const K _key) {
     unsigned int position;
-    DictSlot<K, V>* slot = GetSlotByKey(THIS_ATTR _DictSlots_ref, _key, position);
+    DictSlot<K, V>* slot = THIS_ATTR GetSlotByKey(THIS_ATTR _DictSlots_ref, _key, position);
 
     if (!slot) {
       static V _empty;

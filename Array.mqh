@@ -119,7 +119,7 @@ class Array {
     int i;
     string result = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      result += StringFormat("%d:%d%s", i, arr[i], sep);
+      result += StringFormat("%d:%d%s", i, arr[i], C_STR(sep));
     }
     // Return text without last separator.
     return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
@@ -136,7 +136,7 @@ class Array {
     int i;
     string result = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      result += StringFormat("%d:%g%s", i, arr[i], sep);
+      result += StringFormat("%d:%g%s", i, arr[i], C_STR(sep));
     }
     // Return text without last separator.
     return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
@@ -404,7 +404,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
     int i;
     string res = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      res += StringFormat("%g%s", NormalizeDouble(arr[i], digits), dlm);
+      res += StringFormat("%g%s", NormalizeDouble(arr[i], digits), C_STR(dlm));
     }
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;

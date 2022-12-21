@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 
 /**
@@ -181,6 +186,14 @@ class Platform {
   static bool IsNewYear() { return (time_flags & DATETIME_YEAR) != 0; }
 
   /**
+   * Returns number of candles for a given symbol and time-frame.
+   */
+  static int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+    Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+    return 0;
+  }
+
+  /**
    * Binds Candle and/or Tick indicator as a source of prices or data for given indicator.
    *
    * Note that some indicators may work on custom set of buffers required from data source and not on Candle or Tick
@@ -321,8 +334,6 @@ bool Platform::time_clear_flags = true;
 int Platform::global_tick_index = 0;
 DictStruct<long, Ref<IndicatorData>> Platform::indis;
 DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
-
-// void OnTimer() { Print("Timer"); Platform::OnTimer(); }
 
 /**
  * Will test given indicator class with platform-default data source bindings.

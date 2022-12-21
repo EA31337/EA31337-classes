@@ -25,9 +25,15 @@
  * Includes Chart's static structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Chart.define.h"
 #include "Chart.symboltf.h"
+#include "Platform.extern.h"
 #include "Terminal.define.h"
 
 /* Defines struct for chart static methods. */

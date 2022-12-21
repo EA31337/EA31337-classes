@@ -56,22 +56,14 @@ string IntegerToString(long number, int str_len = 0, unsigned short fill_symbol 
   return std::to_string(number);
 }
 
-template <class Tuple, std::size_t N>
-struct TuplePrinter {
-  static void print(const std::string& fmt, std::ostream& os, const Tuple& t) {
-    const size_t idx = fmt.find_last_of('%');
-    TuplePrinter<Tuple, N - 1>::print(std::string(fmt, 0, idx), os, t);
-    os << std::get<N - 1>(t) << std::string(fmt, idx + 1);
-  }
-};
-
-template <class Tuple>
-struct TuplePrinter<Tuple, 1> {
-  static void print(const std::string& fmt, std::ostream& os, const Tuple& t) {
-    const size_t idx = fmt.find_first_of('%');
-    os << std::string(fmt, 0, idx) << std::get<0>(t) << std::string(fmt, idx + 1);
-  }
-};
+template <class... Args>
+std::string StringFormat(std::string f, Args&&... args) {
+  int size = snprintf(nullptr, 0, f.c_str(), args...);
+  std::string res;
+  res.resize(size);
+  snprintf(&res[0], size + 1, f.c_str(), args...);
+  return res;
+}
 
 template <typename Arg, typename... Args>
 void PrintTo(std::ostream& out, Arg&& arg, Args&&... args) {
@@ -90,14 +82,6 @@ void Print(Arg&& arg, Args&&... args) {
 template <typename Arg, typename... Args>
 void Alert(Arg&& arg, Args&&... args) {
   PrintTo(std::cerr, arg, args...);
-}
-
-template <class... Args>
-std::string StringFormat(const std::string& fmt, Args&&... args) {
-  std::stringstream ss;
-  const auto t = std::make_tuple(std::forward<Args>(args)...);
-  TuplePrinter<decltype(t), sizeof...(Args)>::print(fmt, ss, t);
-  return ss.str();
 }
 
 template <class... Args>

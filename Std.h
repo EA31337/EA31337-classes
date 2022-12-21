@@ -296,6 +296,13 @@ class InvalidEnumValue {
 };
 
 #ifndef __MQL__
+struct _WRONG_VALUE {
+  template <typename T>
+  operator T() {
+    return (T)-1;
+  }
+} WRONG_VALUE;
+
 // Converter of NULL_VALUE into expected type. e.g., "int x = NULL_VALUE" will end up with "x = 0".
 struct _NULL_VALUE {
   template <typename T>
@@ -303,6 +310,20 @@ struct _NULL_VALUE {
     return (T)0;
   }
 } NULL_VALUE;
+
+/**
+ * Converting an enumeration value of any type to a text form.
+ *
+ * @docs
+ * - https://www.mql5.com/en/docs/convert/enumtostring
+ */
+string EnumToString(int _value) {
+  std::stringstream ss;
+  // We really don't want to mess with type reflection here (if possible at all). So we are outputting the input
+  // integer.
+  ss << _value;
+  return ss.str();
+}
 
 template <>
 inline _NULL_VALUE::operator const std::string() const {

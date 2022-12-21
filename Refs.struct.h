@@ -282,6 +282,15 @@ struct Ref {
    * Equality operator.
    */
   bool operator==(const Ref<X>& r) { return ptr_object != NULL && ptr_object == r.ptr_object; }
+
+  /**
+   * Returns information about object references counter.
+   */
+  string ToString() {
+    if (ptr_object == nullptr) return "Empty pointer";
+
+    return ptr_object PTR_DEREF ToString();
+  }
 };
 
 template <typename X>

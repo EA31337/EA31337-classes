@@ -59,26 +59,46 @@ enum ENUM_INIT_RETCODE {
 #ifndef __MQL__
 
 /**
- * Enumeration for the MQL program properties (integer type).
+ * Enumeration for the MQL5 program properties (integer type).
  *
  * @docs
  * - https://www.mql5.com/en/docs/constants/environment_state/mql5_programm_info
  */
+
 enum ENUM_MQL_INFO_INTEGER {
-  MQL_DEBUG,            // Indication that the program is running in the debugging mode (bool).
-  MQL_DLLS_ALLOWED,     // The permission to use DLL for the given running program (bool).
-  MQL_FORWARD,          // Indication that the program is running in the forward testing process (bool).
-  MQL_FRAME_MODE,       // Indication that the program is running in gathering optimization result frames mode (bool).
-  MQL_LICENSE_TYPE,     // Type of license of the EX module.
-  MQL_MEMORY_LIMIT,     // Maximum possible amount of dynamic memory for MQL5 program in MB (int).
-  MQL_MEMORY_USED,      // Memory used by MQL5 program in MB (int).
-  MQL_OPTIMIZATION,     // Indication that the program is running in the optimization mode (bool).
-  MQL_PROFILER,         // Indication that the program is running in the code profiling mode (bool).
-  MQL_PROGRAM_TYPE,     // Type of the MQL5 program (ENUM_PROGRAM_TYPE).
-  MQL_SIGNALS_ALLOWED,  // The permission to modify the Signals for the given running program (bool).
-  MQL_TESTER,           // Indication that the program is running in the tester (bool).
-  MQL_TRADE_ALLOWED,    // The permission to trade for the given running program (bool).
-  MQL_VISUAL_MODE,      // Indication that the program is running in the visual testing mode (bool).
+  MQL_DEBUG = 5,          // Indication that the program is running in the debugging mode (bool).
+  MQL_DLLS_ALLOWED = 3,   // The permission to use DLL for the given running program (bool).
+  MQL_FORWARD = 16,       // Indication that the program is running in the forward testing process (bool).
+  MQL_FRAME_MODE = 12,    // Indication that the program is running in gathering optimization result frames mode (bool).
+  MQL_HANDLES_USED = 17,  // The current number of active object handles. These include both dynamic (created via new)
+                          // and non-dynamic objects, global/local variables or class members. The more handles a
+                          // program uses, the more resources it consumes.
+  MQL_LICENSE_TYPE = 9,   // Type of license of the EX module.
+  MQL_MEMORY_LIMIT = 13,  // Maximum possible amount of dynamic memory for MQL5 program in MB (int).
+  MQL_MEMORY_USED = 11,   // Memory used by MQL5 program in MB (int).
+  MQL_OPTIMIZATION = 7,   // Indication that the program is running in the optimization mode (bool).
+  MQL_PROFILER = 10,      // Indication that the program is running in the code profiling mode (bool).
+  MQL_PROGRAM_TYPE = 2,   // Type of the MQL5 program (ENUM_PROGRAM_TYPE).
+  MQL_SIGNALS_ALLOWED = 14,  // The permission to modify the Signals for the given running program (bool).
+  MQL_TESTER = 6,            // Indication that the program is running in the tester (bool).
+  MQL_TRADE_ALLOWED = 4,     // The permission to trade for the given running program (bool).
+  MQL_VISUAL_MODE = 8,       // Indication that the program is running in the visual testing mode (bool).
+
+  // Additional enumerations for MQL4 compatibility:
+
+  // MQL4:
+  MQL_CODEPAGE = 128
+};
+
+/**
+ * @docs
+ * - https://www.mql5.com/en/docs/constants/environment_state/mql5_programm_info#enum_program_type
+ */
+enum ENUM_PROGRAM_TYPE {
+  PROGRAM_SCRIPT,     // Script.
+  PROGRAM_EXPERT,     // Expert.
+  PROGRAM_INDICATOR,  // Indicator
+  PROGRAM_SERVICE,    // Service.
 };
 
 /**
@@ -88,8 +108,9 @@ enum ENUM_MQL_INFO_INTEGER {
  * - https://www.mql5.com/en/docs/constants/environment_state/mql5_programm_info
  */
 enum ENUM_MQL_INFO_STRING {
-  MQL_PROGRAM_NAME,   // Name of the running mql5-program (string).
-  MQL5_PROGRAM_PATH,  // Path for the given running program (string).
+  MQL_PROGRAM_NAME,                     // Name of the running mql5-program (string).
+  MQL5_PROGRAM_PATH,                    // Path for the given running program (string).
+  MQL_PROGRAM_PATH = MQL5_PROGRAM_PATH  // Same as above.
 };
 
 /**
@@ -162,6 +183,17 @@ enum ENUM_TERMINAL_INFO_INTEGER {
   TERMINAL_TRADE_ALLOWED,          // Permission to trade (bool).
   TERMINAL_VPS,                    // Indication that the terminal is launched on the VPS (bool).
   TERMINAL_X64,                    // Indication of the "64-bit terminal" (bool).
+};
+
+/**
+ * Enumeration for MQLInfoInteger(MQL_LICENSE_TYPE).
+ */
+enum ENUM_LICENSE_TYPE {
+  LICENSE_FREE,  // A free unlimited version.
+  LICENSE_DEMO,  // A trial version of a paid product from the Market. It works only in the strategy tester.
+  LICENSE_FULL,  // A purchased licensed version allows at least 5 activations. The number of activations is specified
+                 // by seller. Seller may increase the allowed number of activations.
+  LICENSE_TIME   // A version with limited term liсense.
 };
 
 /**

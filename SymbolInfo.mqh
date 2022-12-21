@@ -111,7 +111,7 @@ class SymbolInfo : public Object {
    */
   MqlTick GetTick() {
     if (!SymbolInfoTick(symbol, last_tick)) {
-      GetLogger().Error("Cannot return current prices!", __FUNCTION__);
+      GetLogger() PTR_DEREF Error("Cannot return current prices!", __FUNCTION__);
     }
     return last_tick;
   }
@@ -487,7 +487,7 @@ class SymbolInfo : public Object {
     static int _index = 0;
     if (_index++ >= ArraySize(tick_data) - 1) {
       if (ArrayResize(tick_data, _index + 100, 1000) < 0) {
-        GetLogger().Error(StringFormat("Cannot resize array (size: %d)!", _index), __FUNCTION__);
+        GetLogger() PTR_DEREF Error(StringFormat("Cannot resize array (size: %d)!", _index), __FUNCTION__);
         return false;
       }
     }

@@ -63,17 +63,17 @@ class BufferStruct : public DictStruct<long, TStruct> {
   /**
    * Constructor.
    */
-  BufferStruct() : max(INT_MIN), min(INT_MAX) { SetOverflowListener(BufferStructOverflowListener, 10); }
+  BufferStruct() : max(INT_MIN), min(INT_MAX) { THIS_ATTR SetOverflowListener(BufferStructOverflowListener, 10); }
   BufferStruct(BufferStruct& _right) : max(INT_MIN), min(INT_MAX) {
     this = _right;
-    SetOverflowListener(BufferStructOverflowListener, 10);
+    THIS_ATTR SetOverflowListener(BufferStructOverflowListener, 10);
   }
 
   /**
    * Adds new value.
    */
   void Add(TStruct& _value, long _dt = 0) {
-    _dt = _dt > 0 ? _dt : TimeCurrent();
+    _dt = _dt > 0 ? _dt : (long)TimeCurrent();
     if (Set(_dt, _value)) {
       min = _dt < min ? _dt : min;
       max = _dt > max ? _dt : max;
@@ -87,7 +87,7 @@ class BufferStruct : public DictStruct<long, TStruct> {
     min = INT_MAX;
     max = INT_MIN;
     if (_dt > 0) {
-      for (DictStructIterator<long, TStruct> iter(Begin()); iter.IsValid(); ++iter) {
+      for (DictStructIterator<long, TStruct> iter(THIS_ATTR Begin()); iter.IsValid(); ++iter) {
         long _time = iter.Key();
         if (_older && _time < _dt) {
           Unset(iter.Key());

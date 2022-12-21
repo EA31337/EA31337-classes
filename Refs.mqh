@@ -130,6 +130,16 @@ class Dynamic {
           "side.");
     }
   }
+
+  /**
+   * Returns text representation of the object.
+   */
+  virtual string ToString() {
+    if (ptr_ref_counter == nullptr) return "<Missing references counter!>";
+
+    return StringFormat("%d strong ref(s) and %d weak ref(s)", ptr_ref_counter PTR_DEREF num_strong_refs,
+                        ptr_ref_counter PTR_DEREF num_weak_refs);
+  }
 };
 
 #endif

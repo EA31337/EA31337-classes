@@ -33,6 +33,7 @@ class DictStruct;
 #include "Collection.mqh"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
+#include "File.mqh"
 #include "Object.mqh"
 
 // Define assert macros.
