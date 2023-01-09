@@ -31,15 +31,13 @@
 
 // Forward class declaration.
 class IndicatorBase;
+class IndicatorDraw;
 
 // Includes.
 #include "../Bar.struct.h"
-#include "../DrawIndicator.mqh"
 #include "../Flags.h"
+#include "../Storage/IValueStorage.h"
 #include "../Storage/ItemsHistory.h"
-#include "../Storage/ValueStorage.h"
-#include "../Storage/ValueStorage.indicator.h"
-#include "../Storage/ValueStorage.native.h"
 #include "../SymbolInfo.struct.h"
 #include "Indicator.enum.h"
 #include "IndicatorBase.h"

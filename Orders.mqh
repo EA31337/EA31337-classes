@@ -25,7 +25,6 @@ class Orders;
 
 // Includes.
 #include "Account/Account.h"
-#include "Chart.mqh"
 #include "Log.mqh"
 #include "Math.h"
 #include "Order.mqh"

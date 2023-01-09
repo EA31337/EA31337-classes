@@ -30,8 +30,10 @@ class Chart;
 class Draw;
 
 // Includes.
-#include "Chart.mqh"
 #include "Data.define.h"
+#include "Object.extern.h"
+#include "Platform.h"
+#include "Terminal.define.h"
 
 #ifndef __MQL4__
 // Defines macros (for MQL4 backward compatibility).
@@ -39,21 +41,6 @@ class Draw;
 #define SetIndexDrawBegin(_index, _value) (PlotIndexSetInteger(_index, PLOT_DRAW_BEGIN, _value))
 #define SetIndexEmptyValue(_index, _value) (PlotIndexSetDouble(_index, PLOT_EMPTY_VALUE, _value))
 #define SetIndexShift(_index, _value) (PlotIndexSetInteger(_index, PLOT_SHIFT, _value))
-#endif
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compatibility).
-bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
-  return Draw::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1);
-}
-bool ObjectDelete(string _name) { return Draw::ObjectDelete(_name); }
-bool ObjectSet(string _name, int _prop_id, double _value) { return Draw::ObjectSet(_name, _prop_id, _value); }
-int ObjectsTotal(int _type = EMPTY) { return Draw::ObjectsTotal(); }
-string ObjectName(int _index) { return Draw::ObjectName(_index); }
-void SetIndexLabel(int _index, string _text) { Draw::SetIndexLabel(_index, _text); }
-void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY, color _clr = CLR_NONE) {
-  Draw::SetIndexStyle(_index, _type, _style, _width, _clr);
-}
 #endif
 
 #define WINDOW_MAIN 0
@@ -85,7 +72,7 @@ class Draw : public Object {
   /**
    * Class constructor.
    */
-  Draw(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : ChartID()) {}
+  Draw(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : Platform::ChartID()) {}
 
   /* Graphic object related methods */
 
@@ -335,3 +322,18 @@ class Draw : public Object {
     return true;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compatibility).
+bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
+  return Draw::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1);
+}
+bool ObjectDelete(string _name) { return Draw::ObjectDelete(_name); }
+bool ObjectSet(string _name, int _prop_id, double _value) { return Draw::ObjectSet(_name, _prop_id, _value); }
+int ObjectsTotal(int _type = EMPTY) { return Draw::ObjectsTotal(); }
+string ObjectName(int _index) { return Draw::ObjectName(_index); }
+void SetIndexLabel(int _index, string _text) { Draw::SetIndexLabel(_index, _text); }
+void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY, color _clr = CLR_NONE) {
+  Draw::SetIndexStyle(_index, _type, _style, _width, _clr);
+}
+#endif

@@ -25,6 +25,19 @@
 #pragma once
 #endif
 
+#ifndef __MQL__
+
+/**
+ * Extern declarations for C++.
+ */
+
+/**
+ * Returns number of candles for a given symbol and time-frame.
+ */
+extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
+
+#endif
+
 // Includes.
 
 /**
@@ -192,6 +205,11 @@ class Platform {
     Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
     return 0;
   }
+
+  /**
+   * Returns id of the current chart.
+   */
+  static int ChartID() { Print("Not yet implemented: ", __FUNCTION__, " returns 0."); }
 
   /**
    * Binds Candle and/or Tick indicator as a source of prices or data for given indicator.

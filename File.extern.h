@@ -28,6 +28,7 @@
 
 // Define external global functions.
 #ifndef __MQL__
+#pragma once
 
 MemoryFileSystem _memfs;
 

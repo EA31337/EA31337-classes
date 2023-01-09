@@ -25,7 +25,6 @@
  */
 
 // Includes.
-#include "../Chart.struct.h"
 #include "ObjectsCache.h"
 #include "ValueStorage.history.h"
 

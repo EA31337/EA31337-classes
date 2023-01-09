@@ -31,7 +31,6 @@ class Trade;
 
 // Includes.
 #include "Account/AccountMt.h"
-#include "Chart.mqh"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
 #include "Indicator/IndicatorData.h"

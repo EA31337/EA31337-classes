@@ -31,7 +31,6 @@
 #endif
 
 // Includes.
-#include "../../Chart.struct.static.h"
 #include "../../Indicator/IndicatorTick.h"
 #include "../../Indicator/IndicatorTick.provider.h"
 

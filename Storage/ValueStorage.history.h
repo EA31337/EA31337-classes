@@ -31,7 +31,6 @@
 #endif
 
 // Includes.
-#include "../Indicator/IndicatorData.h"
 #include "ValueStorage.h"
 
 // Forward declarations.

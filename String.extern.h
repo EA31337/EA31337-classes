@@ -101,4 +101,30 @@ unsigned short StringGetCharacter(string string_value, int pos) {
 
 int StringToCharArray(string text_string, ARRAY_REF(unsigned char, array), int start = 0, int count = -1,
                       unsigned int codepage = CP_ACP);
+
+bool StringInit(string& string_var, int new_len = 0, unsigned short character = 0) {
+  string_var = string(new_len, (char)character);
+  return true;
+}
+
+/**
+ * It replaces all the found substrings of a string by a set sequence of symbols.
+ *
+ * @docs
+ * - https://www.mql5.com/en/docs/strings/stringreplace
+ */
+int StringReplace(string& str, const string& find, const string& replacement) {
+  int num_replacements;
+  for (size_t pos = 0;; pos += replacement.length()) {
+    // Locate the substring to replace
+    pos = str.find(find, pos);
+    if (pos == string::npos) break;
+    // Replace by erasing and inserting
+    str.erase(pos, find.length());
+    str.insert(pos, replacement);
+    ++num_replacements;
+  }
+  return num_replacements;
+}
+
 #endif

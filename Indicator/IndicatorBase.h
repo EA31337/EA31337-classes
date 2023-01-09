@@ -34,11 +34,10 @@
 #include "../Array.mqh"
 #include "../BufferStruct.mqh"
 #include "../Chart.struct.tf.h"
-//#include "../ChartBase.h"
-#include "../ChartMt.h"
 #include "../DateTime.mqh"
 #include "../Log.mqh"
 #include "../Object.mqh"
+#include "../Platform.extern.h"
 #include "../Refs.mqh"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerCsv.h"
@@ -192,7 +191,7 @@ class IndicatorBase : public Object {
   /**
    * Get name of the indicator.
    */
-  virtual string GetName() = NULL;
+  virtual string GetName() = 0;
 
   /**
    * Get full name of the indicator (with "over ..." part).

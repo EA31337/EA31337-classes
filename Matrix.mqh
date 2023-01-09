@@ -282,7 +282,7 @@ class MatrixDimension {
   /**
    * Sets physical position of the dimension in the matrix.
    */
-  void SetPosition(int& _position[], int _level) {
+  void SetPosition(ARRAY_REF(int, _position), int _level) {
     for (int i = 0; i < ArraySize(_position); ++i) {
       position[i] = i < _level ? _position[i] : -1;
     }
@@ -472,8 +472,8 @@ class MatrixDimension {
    *
    * @todo Allow of resizing containers instead of freeing them firstly.
    */
-  static MatrixDimension<X>* SetDimensions(MatrixDimension<X>* _ptr_parent_dimension, int& _dimensions[], int index,
-                                           int& _current_position[]) {
+  static MatrixDimension<X>* SetDimensions(MatrixDimension<X>* _ptr_parent_dimension, ARRAY_REF(int, _dimensions),
+                                           int index, ARRAY_REF(int, _current_position)) {
     if (_ptr_parent_dimension == NULL) _ptr_parent_dimension = new MatrixDimension();
 
     if (index == 0 && _dimensions[0] == 0) {
@@ -634,7 +634,7 @@ class MatrixDimension {
   /**
    * Extracts dimensions's values to the given array. Used internally.
    */
-  void FillArray(X& array[], int& offset) {
+  void FillArray(ARRAY_REF(X, array), int& offset) {
     int i;
     if (type == MATRIX_DIMENSION_TYPE_CONTAINERS) {
       for (i = 0; i < ArraySize(containers); ++i) {
@@ -647,7 +647,7 @@ class MatrixDimension {
     }
   }
 
-  void FromArray(X& _array[], int& offset) {
+  void FromArray(ARRAY_REF(X, _array), int& offset) {
     int i;
     switch (type) {
       case MATRIX_DIMENSION_TYPE_CONTAINERS:
@@ -1378,7 +1378,7 @@ class Matrix {
   /**
    * Fills array with all values from the matrix.
    */
-  void GetRawArray(X& array[]) {
+  void GetRawArray(ARRAY_REF(X, array)) {
     ArrayResize(array, GetSize());
     int offset = 0;
     ptr_first_dimension.FillArray(array, offset);
@@ -1425,7 +1425,7 @@ class Matrix {
   }
 #endif
 
-  void FillFromArray(X& _array[]) {
+  void FillFromArray(ARRAY_REF(X, _array)) {
     if (ArraySize(_array) != GetSize()) {
       Print("Matrix::FillFromArray(): input array (", ArraySize(_array), " elements) must be the same size as matrix (",
             GetSize(), " elements)!");
@@ -1908,10 +1908,10 @@ class Matrix {
     return GetDimensionsTotal(_dimensions);
   }
 
-  static int GetDimensionsTotal(int& dimensions[]) {
+  static int GetDimensionsTotal(FIXED_ARRAY_REF(int, dimensions, MATRIX_DIMENSIONS)) {
     int size = 0;
 
-    for (int i = 0; i < ArraySize(dimensions); ++i) {
+    for (int i = 0; i < MATRIX_DIMENSIONS; ++i) {
       if (dimensions[i] != 0) {
         if (size == 0) {
           size = 1;

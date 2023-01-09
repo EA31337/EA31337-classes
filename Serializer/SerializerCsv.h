@@ -55,12 +55,12 @@ class SerializerCsv {
     SerializerConverter* _stub = (SerializerConverter*)serializer_aux_arg;
 
     if (CheckPointer(_root) == POINTER_INVALID) {
-      Alert("SerializerCsv: Invalid root node poiner!");
+      Alert("SerializerCsv: Invalid root node pointer!");
       DebugBreak();
       return NULL;
     }
 
-    if (_stub == NULL || _stub.Node() == NULL) {
+    if (_stub == NULL || _stub PTR_DEREF Node() == NULL) {
       Alert("SerializerCsv: Cannot convert to CSV without stub object!");
       DebugBreak();
       return NULL;
@@ -72,12 +72,13 @@ class SerializerCsv {
     unsigned int _num_columns, _num_rows;
     int x, y;
 
-    if (_stub.Node().IsArray()) {
-      _num_columns = _stub.Node().MaximumNumChildrenInDeepEnd();
-      _num_rows = _root.NumChildren();
+    if (_stub PTR_DEREF Node() PTR_DEREF IsArray()) {
+      _num_columns = _stub PTR_DEREF Node() PTR_DEREF MaximumNumChildrenInDeepEnd();
+      _num_rows = _root PTR_DEREF NumChildren();
     } else {
-      _num_columns = MathMax(_stub.Node().MaximumNumChildrenInDeepEnd(), _root.MaximumNumChildrenInDeepEnd());
-      _num_rows = _root.NumChildren() > 0 ? 1 : 0;
+      _num_columns = MathMax(_stub PTR_DEREF Node() PTR_DEREF MaximumNumChildrenInDeepEnd(),
+                             _root PTR_DEREF MaximumNumChildrenInDeepEnd());
+      _num_rows = _root PTR_DEREF NumChildren() > 0 ? 1 : 0;
     }
 
     if (_include_titles) {
@@ -100,61 +101,61 @@ class SerializerCsv {
       _column_types_out = &_column_types;
     }
 
-    _matrix_out.Resize(_num_columns, _num_rows);
-    _column_types_out.Resize(_num_columns, 1);
+    _matrix_out PTR_DEREF Resize(_num_columns, _num_rows);
+    _column_types_out PTR_DEREF Resize(_num_columns, 1);
 
     if (_include_titles) {
       _column_titles.Resize(_num_columns, 1);
       int _titles_current_column = 0;
-      SerializerCsv::ExtractColumns(_stub.Node(), &_column_titles, _column_types_out, serializer_flags,
+      SerializerCsv::ExtractColumns(_stub PTR_DEREF Node(), &_column_titles, _column_types_out, serializer_flags,
                                     _titles_current_column);
-      for (x = 0; x < _matrix_out.SizeX(); ++x) {
-        _matrix_out.Set(x, 0, EscapeString(_column_titles.Get(x, 0)));
+      for (x = 0; x < _matrix_out PTR_DEREF SizeX(); ++x) {
+        _matrix_out PTR_DEREF Set(x, 0, EscapeString(_column_titles.Get(x, 0)));
       }
     }
 
 #ifdef __debug__
-    Print("Stub: ", _stub.Node().ToString());
-    Print("Data: ", _root.ToString());
+    Print("Stub: ", _stub PTR_DEREF Node() PTR_DEREF ToString());
+    Print("Data: ", _root PTR_DEREF ToString());
     Print("Size: ", _num_columns, " x ", _num_rows);
 #endif
 
-    if (!SerializerCsv::FlattenNode(_root, _stub.Node(), _matrix_out, _column_types_out, _include_key ? 1 : 0,
-                                    _include_titles ? 1 : 0, serializer_flags)) {
+    if (!SerializerCsv::FlattenNode(_root, _stub PTR_DEREF Node(), PTR_TO_REF(_matrix_out), _column_types_out,
+                                    _include_key ? 1 : 0, _include_titles ? 1 : 0, serializer_flags)) {
       Alert("SerializerCsv: Error occured during flattening!");
     }
 
     string _result;
 
-    for (y = 0; y < _matrix_out.SizeY(); ++y) {
-      for (x = 0; x < _matrix_out.SizeX(); ++x) {
-        _result += _matrix_out.Get(x, y);
+    for (y = 0; y < _matrix_out PTR_DEREF SizeY(); ++y) {
+      for (x = 0; x < _matrix_out PTR_DEREF SizeX(); ++x) {
+        _result += _matrix_out PTR_DEREF Get(x, y);
 
-        if (x != _matrix_out.SizeX() - 1) {
+        if (x != _matrix_out PTR_DEREF SizeX() - 1) {
           _result += ",";
         }
       }
 
-      if (y != _matrix_out.SizeY() - 1) _result += "\n";
+      if (y != _matrix_out PTR_DEREF SizeY() - 1) _result += "\n";
     }
 
     if ((serializer_flags & SERIALIZER_FLAG_REUSE_STUB) == 0) {
-      _stub.Clean();
+      _stub PTR_DEREF Clean();
     }
 
     return _result;
   }
 
   static string ParamToString(SerializerNodeParam* param) {
-    switch (param.GetType()) {
+    switch (param PTR_DEREF GetType()) {
       case SerializerNodeParamBool:
       case SerializerNodeParamLong:
       case SerializerNodeParamDouble:
-        return param.AsString(false, false, false, param.GetFloatingPointPrecision());
+        return param PTR_DEREF AsString(false, false, false, param PTR_DEREF GetFloatingPointPrecision());
       case SerializerNodeParamString:
-        return EscapeString(param.AsString(false, false, false, param.GetFloatingPointPrecision()));
+        return EscapeString(param PTR_DEREF AsString(false, false, false, param PTR_DEREF GetFloatingPointPrecision()));
       default:
-        Print("Error: Wrong param type ", EnumToString(param.GetType()), "!");
+        Print("Error: Wrong param type ", EnumToString(param PTR_DEREF GetType()), "!");
         DebugBreak();
     }
 
@@ -173,12 +174,12 @@ class SerializerCsv {
    */
   static void ExtractColumns(SerializerNode* _stub, MiniMatrix2d<string>* _titles,
                              MiniMatrix2d<SerializerNodeParamType>* _column_types, int _flags, int& _column) {
-    for (unsigned int _stub_entry_idx = 0; _stub_entry_idx < _stub.NumChildren(); ++_stub_entry_idx) {
-      SerializerNode* _child = _stub.GetChild(_stub_entry_idx);
-      if (_child.IsContainer()) {
+    for (unsigned int _stub_entry_idx = 0; _stub_entry_idx < _stub PTR_DEREF NumChildren(); ++_stub_entry_idx) {
+      SerializerNode* _child = _stub PTR_DEREF GetChild(_stub_entry_idx);
+      if (_child PTR_DEREF IsContainer()) {
         ExtractColumns(_child, _titles, _column_types, _flags, _column);
-      } else if (_child.HasKey()) {
-        _titles.Set(_column++, 0, _child.Key());
+      } else if (_child PTR_DEREF HasKey()) {
+        _titles PTR_DEREF Set(_column++, 0, _child PTR_DEREF Key());
       }
     }
   }
@@ -192,31 +193,31 @@ class SerializerCsv {
 
     bool _include_key = bool(_flags & SERIALIZER_CSV_INCLUDE_KEY);
 
-    if (_stub.IsArray()) {
-      for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
+    if (_stub PTR_DEREF IsArray()) {
+      for (_data_entry_idx = 0; _data_entry_idx < _data PTR_DEREF NumChildren(); ++_data_entry_idx) {
         if (_include_key) {
           // Adding object's key in the first row.
-          SerializerNode* _child = _data.GetChild(_data_entry_idx);
-          string key = _child.HasKey() ? _child.Key() : "";
+          SerializerNode* _child = _data PTR_DEREF GetChild(_data_entry_idx);
+          string key = _child PTR_DEREF HasKey() ? _child PTR_DEREF Key() : "";
           _cells.Set(0, _row + _data_entry_idx, key);
         }
 
-        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column_types, _column,
-                                    _row + _data_entry_idx, 0, 0, _flags)) {
+        if (!SerializerCsv::FillRow(_data PTR_DEREF GetChild(_data_entry_idx), _stub PTR_DEREF GetChild(0), _cells,
+                                    _column_types, _column, _row + _data_entry_idx, 0, 0, _flags)) {
           return false;
         }
       }
-    } else if (_stub.IsObject()) {
+    } else if (_stub PTR_DEREF IsObject()) {
       // Object means that there is only one row.
-      if (_data.IsArray()) {
+      if (_data PTR_DEREF IsArray()) {
         // Stub is an object, but data is an array (should be?).
-        for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-          if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column_types, _column, _row, 0,
-                                      0, _flags)) {
+        for (_data_entry_idx = 0; _data_entry_idx < _data PTR_DEREF NumChildren(); ++_data_entry_idx) {
+          if (!SerializerCsv::FillRow(_data PTR_DEREF GetChild(_data_entry_idx), _stub, _cells, _column_types, _column,
+                                      _row, 0, 0, _flags)) {
             return false;
           }
 
-          _column += (int)_stub.GetChild(_data_entry_idx).MaximumNumChildrenInDeepEnd();
+          _column += (int)_stub PTR_DEREF GetChild(_data_entry_idx) PTR_DEREF MaximumNumChildrenInDeepEnd();
         }
       } else {
         // Stub and object are both arrays.
@@ -237,34 +238,34 @@ class SerializerCsv {
                       int _level, int _flags) {
     unsigned int _data_entry_idx, _entry_size;
 
-    if (_stub.IsObject()) {
-      for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        if (_stub.NumChildren() == 0) {
-          Print("Stub is empty for object representation of: ", _data.ToString(false, 2));
+    if (_stub PTR_DEREF IsObject()) {
+      for (_data_entry_idx = 0; _data_entry_idx < _data PTR_DEREF NumChildren(); ++_data_entry_idx) {
+        if (_stub PTR_DEREF NumChildren() == 0) {
+          Print("Stub is empty for object representation of: ", _data PTR_DEREF ToString(false, 2));
           Print(
               "Note that if you're serializing a dictionary, your stub must contain a single, dummy key and maximum "
               "possible object representation.");
-          Print("Missing key \"", _data.Key(), "\" in stub.");
+          Print("Missing key \"", _data PTR_DEREF Key(), "\" in stub.");
           DebugBreak();
         }
-        _entry_size = MathMax(_stub.GetChild(_data_entry_idx).TotalNumChildren(),
-                              _data.GetChild(_data_entry_idx).TotalNumChildren());
+        _entry_size = MathMax(_stub PTR_DEREF GetChild(_data_entry_idx) PTR_DEREF TotalNumChildren(),
+                              _data PTR_DEREF GetChild(_data_entry_idx) PTR_DEREF TotalNumChildren());
 
-        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx),
-                                    _stub != NULL ? _stub.GetChild(_data_entry_idx) : NULL, _cells, _column_types,
-                                    _column, _row, _data_entry_idx, _level + 1, _flags)) {
+        if (!SerializerCsv::FillRow(_data PTR_DEREF GetChild(_data_entry_idx),
+                                    _stub != NULL ? _stub PTR_DEREF GetChild(_data_entry_idx) : NULL, _cells,
+                                    _column_types, _column, _row, _data_entry_idx, _level + 1, _flags)) {
           return false;
         }
 
         _column += (int)_entry_size;
       }
-    } else if (_stub.IsArray()) {
-      for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        _entry_size = MathMax(_stub.GetChild(_data_entry_idx).TotalNumChildren(),
-                              _data.GetChild(_data_entry_idx).TotalNumChildren());
+    } else if (_stub PTR_DEREF IsArray()) {
+      for (_data_entry_idx = 0; _data_entry_idx < _data PTR_DEREF NumChildren(); ++_data_entry_idx) {
+        _entry_size = MathMax(_stub PTR_DEREF GetChild(_data_entry_idx) PTR_DEREF TotalNumChildren(),
+                              _data PTR_DEREF GetChild(_data_entry_idx) PTR_DEREF TotalNumChildren());
 
-        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column_types, _column,
-                                    _row, _data_entry_idx, _level + 1, _flags)) {
+        if (!SerializerCsv::FillRow(_data PTR_DEREF GetChild(_data_entry_idx), _stub PTR_DEREF GetChild(0), _cells,
+                                    _column_types, _column, _row, _data_entry_idx, _level + 1, _flags)) {
           return false;
         }
 
@@ -277,14 +278,14 @@ class SerializerCsv {
       bool _include_titles_tree = (_flags & SERIALIZER_CSV_INCLUDE_TITLES_TREE) == SERIALIZER_CSV_INCLUDE_TITLES_TREE;
 
       if (_column_types != NULL) {
-        if (_data.GetValueParam() == NULL) {
+        if (_data PTR_DEREF GetValueParam() == NULL) {
           Alert("Error: Expected value here! Stub is probably initialized without proper structure.");
           DebugBreak();
         }
-        _column_types.Set(_column, 0, _data.GetValueParam().GetType());
+        _column_types PTR_DEREF Set(_column, 0, _data PTR_DEREF GetValueParam() PTR_DEREF GetType());
       }
 
-      _cells.Set(_column, _row, ParamToString(_data.GetValueParam()));
+      _cells.Set(_column, _row, ParamToString(_data PTR_DEREF GetValueParam()));
     }
 
     return true;

@@ -29,6 +29,11 @@
  * - Files with which file operations are conducted means cannot be outside the file sandbox.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "File.define.h"
 #include "File.extern.h"
