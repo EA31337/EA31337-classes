@@ -79,11 +79,22 @@ struct IndicatorSignal {
       }
     }
     SetSignal(INDICATOR_SIGNAL_CROSSOVER, _is_cross);
+
     // INDICATOR_SIGNAL_DIVERGENCE
-    int _shift0 = ChartStatic::iBarShift(_symbol, _tf, _data[0].timestamp);
-    int _shift1 = ChartStatic::iBarShift(_symbol, _tf, _data[_size - 1].timestamp);
-    double _price_w0 = ChartStatic::iPrice(PRICE_WEIGHTED, _symbol, _tf, _shift0);
-    double _price_w1 = ChartStatic::iPrice(PRICE_WEIGHTED, _symbol, _tf, _shift1);
+    //
+    // @fixit Should use pointer to IndicatorBase as a source of prices.
+    // int _shift0 = ChartStatic::iBarShift(_symbol, _tf, _data[0].timestamp);
+    // int _shift1 = ChartStatic::iBarShift(_symbol, _tf, _data[_size - 1].timestamp);
+    // double _price_w0 = ChartStatic::iPrice(PRICE_WEIGHTED, _symbol, _tf, _shift0);
+    // double _price_w1 = ChartStatic::iPrice(PRICE_WEIGHTED, _symbol, _tf, _shift1);
+    Alert(__FUNCSIG__, " Should use pointer to IndicatorBase as a source of prices!");
+    DebugBreak();
+
+    int _shift0 = 0;
+    int _shift1 = 1;
+    double _price_w0 = 0;
+    double _price_w1 = 0;
+
     SetSignal(INDICATOR_SIGNAL_DIVERGENCE,
               ((_price_w0 - _price_w1 > 0) && (_data[0][_m1] - _data[_size - 1][_m1]) < 0) ||
                   ((_price_w0 - _price_w1) < 0 && (_data[0][_m1] - _data[_size - 1][_m1]) > 0));
@@ -142,7 +153,7 @@ struct IndicatorSignal {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckSignals(1 << i) ? 1 : 0;
-      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      _s.Pass(THIS_REF, IntegerToString(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     }
     return SerializerNodeObject;
   }

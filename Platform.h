@@ -44,6 +44,7 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
  * Current platform's static methods.
  */
 
+#include "DrawIndicator.mqh"
 #include "Flags.h"
 #include "Indicator/IndicatorData.h"
 #include "Indicator/tests/classes/IndicatorTfDummy.h"
@@ -207,6 +208,14 @@ class Platform {
   }
 
   /**
+   * Returns the number of calculated data for the specified indicator.
+   */
+  static int BarsCalculated(int indicator_handle) {
+    Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+    return 0;
+  }
+
+  /**
    * Returns id of the current chart.
    */
   static int ChartID() { Print("Not yet implemented: ", __FUNCTION__, " returns 0."); }
@@ -352,6 +361,29 @@ bool Platform::time_clear_flags = true;
 int Platform::global_tick_index = 0;
 DictStruct<long, Ref<IndicatorData>> Platform::indis;
 DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
+
+#ifndef __MQL__
+// Following methods must be there are they're externed in Platform.extern.h
+// and there's no better place for them!
+
+/**
+ * Returns number of candles for a given symbol and time-frame.
+ */
+int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) { return Platform::Bars(_symbol, _tf); }
+
+/**
+ * Returns the number of calculated data for the specified indicator.
+ */
+int BarsCalculated(int indicator_handle) { return Platform::BarsCalculated(indicator_handle); }
+
+/**
+ * Gets data of a specified buffer of a certain indicator in the necessary quantity.
+ */
+int CopyBuffer(int indicator_handle, int buffer_num, int start_pos, int count, ARRAY_REF(double, buffer)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+}
+
+#endif
 
 /**
  * Will test given indicator class with platform-default data source bindings.

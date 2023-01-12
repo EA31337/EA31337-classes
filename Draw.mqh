@@ -32,7 +32,7 @@ class Draw;
 // Includes.
 #include "Data.define.h"
 #include "Object.extern.h"
-#include "Platform.h"
+//#include "Platform.h"
 #include "Terminal.define.h"
 
 #ifndef __MQL4__

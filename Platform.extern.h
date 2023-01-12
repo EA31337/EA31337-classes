@@ -23,16 +23,26 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
-#endif
 
-// Includes.
-#include "Platform.h"
-
-#ifndef __MQL__
+template <typename... Args>
+double iCustom(string symbol, int timeframe, string name, Args... args) {
+  Alert(__FUNCSIG__, " it not implemented!");
+  return 0;
+}
 
 /**
  * Returns number of candles for a given symbol and time-frame.
  */
-static int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) { return Platform::Bars(_symbol, _tf); }
+extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
+
+/**
+ * Returns the number of calculated data for the specified indicator.
+ */
+extern int BarsCalculated(int indicator_handle);
+
+/**
+ * Gets data of a specified buffer of a certain indicator in the necessary quantity.
+ */
+extern int CopyBuffer(int indicator_handle, int buffer_num, int start_pos, int count, ARRAY_REF(double, buffer));
 
 #endif

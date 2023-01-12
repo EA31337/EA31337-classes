@@ -238,7 +238,7 @@ class color {
   unsigned int value;
 
  public:
-  color(unsigned int _color) { value = _color; }
+  color(unsigned int _color = 0) { value = _color; }
   color& operator=(unsigned int _color) {
     value = _color;
     return *this;

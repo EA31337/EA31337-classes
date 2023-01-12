@@ -28,7 +28,7 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
-#include "Platform.h"
+#include "Platform.extern.h"
 #endif
 
 // Forward declarations.
@@ -280,7 +280,7 @@ struct ChartTf {
    * @param
    * _tf ENUM_TIMEFRAMES Specify timeframe enum.
    */
-  static unsigned int TfToSeconds(const ENUM_TIMEFRAMES _tf) { return ::PeriodSeconds(_tf); }
+  static unsigned int TfToSeconds(const ENUM_TIMEFRAMES _tf) { return ChartTf::TfToSeconds(_tf); }
 
   /**
    * Returns text representation of the timeframe constant.

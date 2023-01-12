@@ -139,7 +139,8 @@ struct OrderParams {
       // s.Pass(THIS_REF, "cond_args", cond_args);
       return SerializerNodeObject;
     }
-  } cond_close[];
+  };
+  ARRAY(OrderCloseCond, cond_close);
   bool dummy;                   // Whether order is dummy (fake) or not (real).
   color color_arrow;            // Color of the opening arrow on the chart.
   unsigned short refresh_freq;  // How often to refresh order values (in secs).
@@ -201,7 +202,7 @@ struct OrderParams {
     SetUserError(ERR_INVALID_PARAMETER);
   }
   void SetConditionClose(ENUM_ORDER_CONDITION _cond, int _index = 0) {
-    DataParamEntry _args[];
+    ARRAY(DataParamEntry, _args);
     SetConditionClose(_cond, _args, _index);
   }
   void SetConditionClose(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args), int _index = 0) {
@@ -290,7 +291,7 @@ struct OrderData {
         volume_curr(0),
         volume_init(0) {}
   // Copy constructor.
-  OrderData(OrderData &_odata) { this = _odata; }
+  OrderData(OrderData &_odata) { THIS_REF = _odata; }
   // Getters.
   template <typename T>
   T Get(ENUM_ORDER_PROPERTY_CUSTOM _prop_name) {

@@ -30,6 +30,9 @@
 #pragma once
 #endif
 
+// Includes.
+#include "../Platform.extern.h"
+
 // Defines macros.
 #define COMMA ,
 #define DUMMY

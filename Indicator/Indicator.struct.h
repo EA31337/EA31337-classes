@@ -85,19 +85,19 @@ struct IndicatorParams {
     DataParamEntry _param = input_params[_index];
     switch (_param.type) {
       case TYPE_BOOL:
-        return (T)param.integer_value;
+        return (T)_param.integer_value;
       case TYPE_INT:
       case TYPE_LONG:
       case TYPE_UINT:
       case TYPE_ULONG:
-        return param.integer_value;
+        return _param.integer_value;
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
-        return (T)param.double_value;
+        return (T)_param.double_value;
       case TYPE_CHAR:
       case TYPE_STRING:
       case TYPE_UCHAR:
-        return (T)param.string_value;
+        return (T)_param.string_value;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
         break;

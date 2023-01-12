@@ -178,7 +178,7 @@ enum ENUM_SIGNAL_LINE {
   FINAL_SIGNAL_LINE_ENTRY,
 };
 
-#ifdef __MQL4__
+#ifndef __MQL5__
 /**
  * The volume type is used in calculations.
  *

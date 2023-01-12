@@ -221,7 +221,7 @@ class IndicatorCalculateCache : public Dynamic {
    */
   void Resize(int _buffers_size) {
     for (int i = 0; i < ArraySize(buffers); ++i) {
-      buffers[i].Resize(_buffers_size, 65535);
+      buffers[i] PTR_DEREF Resize(_buffers_size, 65535);
     }
   }
 
@@ -230,7 +230,7 @@ class IndicatorCalculateCache : public Dynamic {
    */
   template <typename D>
   D GetValue(int _buffer_index, int _shift) {
-    return GetBuffer<D>(_buffer_index).Fetch(_shift).Get();
+    return GetBuffer<D>(_buffer_index) PTR_DEREF Fetch(_shift).Get();
   }
 
   /**

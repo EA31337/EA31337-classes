@@ -188,7 +188,7 @@ struct IndicatorDataEntry {
 
   // Constructors.
   IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { Resize(_size); }
-  IndicatorDataEntry(IndicatorDataEntry &_entry) { THIS_REF = _entry; }
+  IndicatorDataEntry(const IndicatorDataEntry &_entry) { THIS_REF = _entry; }
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
   template <typename T>
@@ -211,7 +211,9 @@ struct IndicatorDataEntry {
   T operator[](I _index) {
     return values[(int)_index].Get<T>();
   }
+#ifdef __MQL__
   template <>
+#endif
   double operator[](int _index) {
     if (_index >= ArraySize(values)) {
       return 0;

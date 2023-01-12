@@ -31,10 +31,11 @@
 
 // Forward class declaration.
 class IndicatorBase;
-class IndicatorDraw;
+class DrawIndicator;
 
 // Includes.
 #include "../Bar.struct.h"
+#include "../Chart.struct.tf.h"
 #include "../Flags.h"
 #include "../Storage/IValueStorage.h"
 #include "../Storage/ItemsHistory.h"
@@ -70,7 +71,7 @@ class IndicatorData : public IndicatorBase {
   IndicatorCalculateCache<double> cache;
   IndicatorDataParams idparams;  // Indicator data params.
   IndicatorState istate;
-  Ref<IndicatorData> indi_src;  // Indicator used as data source.
+  Ref<IndicatorBase> indi_src;  // Indicator used as data source.
 
  protected:
   /* Protected methods */
@@ -87,7 +88,7 @@ class IndicatorData : public IndicatorBase {
       case IDATA_ICUSTOM:
         break;
       case IDATA_INDICATOR:
-        if (indi_src.IsSet() == NULL) {
+        if (indi_src.IsSet()) {
           // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
           // SetDataSource(_indi_price, true, PRICE_OPEN);
         }
@@ -120,9 +121,11 @@ class IndicatorData : public IndicatorBase {
    * Deinitialize drawing.
    */
   void DeinitDraw() {
+    /* @todo: To refactor.
     if (draw) {
       delete draw;
     }
+    */
   }
 
  public:
@@ -225,7 +228,7 @@ class IndicatorData : public IndicatorBase {
     }
 
     return GetName() + "#" + IntegerToString(GetId()) + "-" + _mode + "[" + IntegerToString(_max_modes) + "]" +
-           (HasDataSource() ? (" (over " + GetDataSource(false).GetFullName() + ")") : "");
+           (HasDataSource() ? (" (over " + GetDataSource(false) PTR_DEREF GetFullName() + ")") : "");
   }
 
   /**
@@ -391,13 +394,13 @@ class IndicatorData : public IndicatorBase {
    */
   template <typename T>
   double GetMax(int start_bar = 0, int count = WHOLE_ARRAY) {
-    double max = NULL;
+    double max = -DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).GetMax<T>(_max_modes);
-      if (max == NULL || value > max) {
+      if (max == -DBL_MAX || value > max) {
         max = value;
       }
     }
@@ -410,13 +413,13 @@ class IndicatorData : public IndicatorBase {
    */
   template <typename T>
   double GetMin(int start_bar, int count = WHOLE_ARRAY) {
-    double min = NULL;
+    double min = DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).GetMin<T>(_max_modes);
-      if (min == NULL || value < min) {
+      if (min == DBL_MAX || value < min) {
         min = value;
       }
     }
@@ -450,7 +453,7 @@ class IndicatorData : public IndicatorBase {
    */
   template <typename T>
   double GetMed(int start_bar, int count = WHOLE_ARRAY) {
-    double array[];
+    ARRAY(double, array);
 
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int num_bars = last_bar - start_bar + 1;
@@ -513,7 +516,7 @@ class IndicatorData : public IndicatorBase {
    * Returns true of successful copy.
    * Returns false on invalid values.
    */
-  bool CopyEntries(IndicatorDataEntry& _data[], int _count, int _start_shift = 0) {
+  bool CopyEntries(ARRAY_REF(IndicatorDataEntry, _data), int _count, int _start_shift = 0) {
     bool _is_valid = true;
     if (ArraySize(_data) < _count) {
       _is_valid &= ArrayResize(_data, _count) > 0;
@@ -534,7 +537,7 @@ class IndicatorData : public IndicatorBase {
    * Returns false on invalid values.
    */
   template <typename T>
-  bool CopyValues(T& _data[], int _count, int _start_shift = 0, int _mode = 0) {
+  bool CopyValues(ARRAY_REF(T, _data), int _count, int _start_shift = 0, int _mode = 0) {
     bool _is_valid = true;
     if (ArraySize(_data) < _count) {
       _count = ArrayResize(_data, _count);
@@ -1184,7 +1187,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's struct value via index.
    */
-  virtual IndicatorDataEntry GetEntry(int _rel_shift = 0) = NULL;
+  virtual IndicatorDataEntry GetEntry(int _rel_shift = 0) = 0;
 
   /**
    * Returns the indicator's struct value via timestamp.
@@ -1209,7 +1212,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's entry value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) = NULL;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) = 0;
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -1278,7 +1281,7 @@ class IndicatorData : public IndicatorBase {
    *
    * When indicator values are not valid, returns empty signals.
    */
-  virtual IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) = NULL;
+  virtual IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) = 0;
 
   /**
    * Returns spread for the bar.
