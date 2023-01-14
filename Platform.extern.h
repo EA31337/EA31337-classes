@@ -24,6 +24,9 @@
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
 
+// Includes.
+#include "Deal.enum.h"
+
 template <typename... Args>
 double iCustom(string symbol, int timeframe, string name, Args... args) {
   Alert(__FUNCSIG__, " it not implemented!");
@@ -44,5 +47,23 @@ extern int BarsCalculated(int indicator_handle);
  * Gets data of a specified buffer of a certain indicator in the necessary quantity.
  */
 extern int CopyBuffer(int indicator_handle, int buffer_num, int start_pos, int count, ARRAY_REF(double, buffer));
+
+extern unsigned long PositionGetTicket(int _index);
+
+extern long PositionGetInteger(ENUM_POSITION_PROPERTY_INTEGER property_id);
+
+extern double PositionGetDouble(ENUM_POSITION_PROPERTY_DOUBLE property_id);
+
+extern string PositionGetString(ENUM_POSITION_PROPERTY_STRING property_id);
+
+extern int HistoryDealsTotal();
+
+extern unsigned long HistoryDealGetTicket(int index);
+
+extern long HistoryDealGetInteger(unsigned long ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id);
+
+extern double HistoryDealGetDouble(unsigned long ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id);
+
+extern string HistoryDealGetString(unsigned long ticket_number, ENUM_DEAL_PROPERTY_STRING property_id);
 
 #endif

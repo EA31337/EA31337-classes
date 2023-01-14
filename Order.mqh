@@ -305,9 +305,10 @@ class Order : public SymbolInfo {
       int _num = oparams.Get<int>(ORDER_PARAM_COND_CLOSE_NUM);
       for (int _ci = 0; _ci < _num; _ci++) {
         ENUM_ORDER_CONDITION _cond = oparams.Get<ENUM_ORDER_CONDITION>(ORDER_PARAM_COND_CLOSE, _ci);
-        DataParamEntry _cond_args[1];
-        _cond_args[0] = oparams.Get<long>(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _ci);
-        _result |= _result || Order::CheckCondition(_cond, _cond_args);
+        ARRAY(DataParamEntry, _cond_args);
+        DataParamEntry _item0 = oparams.Get<long>(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _ci);
+        ArrayPush(_cond_args, _item0);
+        _result |= Order::CheckCondition(_cond, _cond_args);
       }
     }
     return _result;
@@ -470,7 +471,7 @@ class Order : public SymbolInfo {
 #endif
   }
   datetime GetOpenTime() {
-    if (odata.Get<datetime>(ORDER_PROP_TIME_OPENED) == 0) {
+    if (odata.Get<datetime>(ORDER_PROP_TIME_OPENED) == (datetime)0) {
       OrderSelect();
       odata.Set<datetime>(ORDER_PROP_TIME_OPENED, Order::OrderOpenTime());
     }
@@ -503,7 +504,7 @@ class Order : public SymbolInfo {
     return (datetime)_result;
 #endif
   }
-  datetime GetCloseTime() { return IsClosed() ? odata.Get<datetime>(ORDER_PROP_TIME_CLOSED) : 0; }
+  datetime GetCloseTime() { return IsClosed() ? odata.Get<datetime>(ORDER_PROP_TIME_CLOSED) : (datetime)0; }
 
   /**
    * Returns comment of the currently selected order/position.
@@ -695,7 +696,7 @@ class Order : public SymbolInfo {
       case ORDER_TP:
         return OrderTakeProfit();
     }
-    return NULL;
+    return 0;
   }
 
   /**
@@ -1003,7 +1004,7 @@ class Order : public SymbolInfo {
    *
    * @see: https://docs.mql4.com/trading/orderdelete
    */
-  static bool OrderDelete(unsigned long _ticket, color _color = NULL) {
+  static bool OrderDelete(unsigned long _ticket, color _color = color()) {
 #ifdef __MQL4__
     return ::OrderDelete((int)_ticket, _color);
 #else

@@ -23,9 +23,9 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
-#endif
 
-#ifndef __MQL__
+// Includes.
+#include "Deal.enum.h"
 
 /**
  * Extern declarations for C++.
@@ -381,6 +381,48 @@ int BarsCalculated(int indicator_handle) { return Platform::BarsCalculated(indic
  */
 int CopyBuffer(int indicator_handle, int buffer_num, int start_pos, int count, ARRAY_REF(double, buffer)) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+}
+
+unsigned long PositionGetTicket(int _index) { Print("Not yet implemented: ", __FUNCTION__, " returns 0."); }
+
+long PositionGetInteger(ENUM_POSITION_PROPERTY_INTEGER property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+double PositionGetDouble(ENUM_POSITION_PROPERTY_DOUBLE property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+string PositionGetString(ENUM_POSITION_PROPERTY_STRING property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return "";
+}
+
+int HistoryDealsTotal() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+unsigned long HistoryDealGetTicket(int index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+long HistoryDealGetInteger(unsigned long ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+double HistoryDealGetDouble(unsigned long ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+string HistoryDealGetString(unsigned long ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return 0;
 }
 
 #endif
