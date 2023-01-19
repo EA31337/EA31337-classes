@@ -51,7 +51,7 @@ class SerializerConverter {
   SerializerConverter(SerializerNode* _root = NULL, int serializer_flags = 0)
       : root_node(_root), _serializer_flags(serializer_flags) {}
 
-  SerializerConverter(SerializerConverter& right) {
+  SerializerConverter(const SerializerConverter& right) {
     root_node = right.root_node;
     _serializer_flags = right._serializer_flags;
   }

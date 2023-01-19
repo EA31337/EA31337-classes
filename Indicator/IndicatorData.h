@@ -30,7 +30,7 @@
 #endif
 
 // Forward class declaration.
-class IndicatorBase;
+class IndicatorData;
 class DrawIndicator;
 
 // Includes.
@@ -47,6 +47,8 @@ class DrawIndicator;
 #include "IndicatorData.struct.h"
 #include "IndicatorData.struct.serialize.h"
 #include "IndicatorData.struct.signal.h"
+
+extern IValueStorage* InstantiateIndicatorBufferValueStorageDouble(IndicatorData* _indi, int _mode);
 
 /**
  * Implements class to store indicator data.
@@ -71,7 +73,7 @@ class IndicatorData : public IndicatorBase {
   IndicatorCalculateCache<double> cache;
   IndicatorDataParams idparams;  // Indicator data params.
   IndicatorState istate;
-  Ref<IndicatorBase> indi_src;  // Indicator used as data source.
+  Ref<IndicatorData> indi_src;  // Indicator used as data source.
 
  protected:
   /* Protected methods */
@@ -134,7 +136,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Class constructor.
    */
-  IndicatorData(const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
+  IndicatorData(const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL, int _indi_mode = 0)
       : do_draw(false), idparams(_idparams), indi_src(_indi_src) {
     Init();
   }
@@ -576,7 +578,7 @@ class IndicatorData : public IndicatorBase {
     } else if (Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID)) != -1) {
       int _source_id = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID));
 
-      Print("Setting data source by id is now obsolete. Please use SetDataSource(IndicatorBase*) method for ",
+      Print("Setting data source by id is now obsolete. Please use SetDataSource(IndicatorData*) method for ",
             GetName(), " (data source id ", _source_id, ").");
       DebugBreak();
 
@@ -608,7 +610,7 @@ class IndicatorData : public IndicatorBase {
     }
 
     if (_validate) {
-      ValidateDataSource(&this, _result);
+      ValidateDataSource(THIS_PTR, _result);
     }
 
     return _result;
@@ -776,7 +778,7 @@ class IndicatorData : public IndicatorBase {
 
     // If _indi or any of the _indi's data source points to this indicator then this would create circular dependency.
     for (_curr = _indi; _curr != nullptr && _iterations_left != 0;
-         _curr = _curr.GetDataSource(false), --_iterations_left) {
+         _curr = _curr PTR_DEREF GetDataSource(false), --_iterations_left) {
       if (_curr == THIS_PTR) {
         // Circular dependency found.
         Print("Error: Circular dependency found when trying to attach " + _indi PTR_DEREF GetFullName() + " into " +
@@ -788,15 +790,15 @@ class IndicatorData : public IndicatorBase {
 
     if (indi_src.IsSet()) {
       if (bool(flags | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT) &&
-          !bool(_indi.GetFlags() | INDI_FLAG_INDEXABLE_BY_SHIFT)) {
-        Print(GetFullName(), ": Cannot set data source to ", _indi.GetFullName(),
+          !bool(_indi PTR_DEREF GetFlags() | INDI_FLAG_INDEXABLE_BY_SHIFT)) {
+        Print(GetFullName(), ": Cannot set data source to ", _indi PTR_DEREF GetFullName(),
               ", because source indicator isn't indexable by shift!");
         DebugBreak();
         return;
       }
       if (bool(flags | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_TIMESTAMP) &&
-          !bool(_indi.GetFlags() | INDI_FLAG_INDEXABLE_BY_TIMESTAMP)) {
-        Print(GetFullName(), ": Cannot set data source to ", _indi.GetFullName(),
+          !bool(_indi PTR_DEREF GetFlags() | INDI_FLAG_INDEXABLE_BY_TIMESTAMP)) {
+        Print(GetFullName(), ": Cannot set data source to ", _indi PTR_DEREF GetFullName(),
               ", because source indicator isn't indexable by timestamp!");
         DebugBreak();
         return;
@@ -804,14 +806,14 @@ class IndicatorData : public IndicatorBase {
     }
 
     if (indi_src.IsSet() && indi_src.Ptr() != _indi) {
-      indi_src.Ptr().RemoveListener(THIS_PTR);
+      indi_src REF_DEREF RemoveListener(THIS_PTR);
     }
     indi_src = _indi;
     if (_indi != NULL) {
-      indi_src.Ptr().AddListener(THIS_PTR);
+      indi_src REF_DEREF AddListener(THIS_PTR);
       Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID), -1);
       Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE), _input_mode);
-      indi_src.Ptr().OnBecomeDataSourceFor(THIS_PTR);
+      indi_src REF_DEREF OnBecomeDataSourceFor(THIS_PTR);
     }
   }
 
@@ -870,14 +872,14 @@ class IndicatorData : public IndicatorBase {
     last_tick_index = _global_tick_index;
 
     // Checking and potentially initializing new data source.
-    if (HasDataSource(true) != NULL) {
+    if (HasDataSource(true)) {
       // Ticking data source if not yet ticked.
-      GetDataSource().Tick(_global_tick_index);
+      GetDataSource() PTR_DEREF Tick(_global_tick_index);
     }
 
     // Also ticking all used indicators if they've not yet ticked.
     for (DictStructIterator<int, Ref<IndicatorData>> iter = indicators.Begin(); iter.IsValid(); ++iter) {
-      iter.Value().Ptr().Tick(_global_tick_index);
+      iter.Value() REF_DEREF Tick(_global_tick_index);
     }
 
     // Overridable OnTick() method.
@@ -925,27 +927,27 @@ class IndicatorData : public IndicatorBase {
       return;
     }
 
-    if (!_target.IsDataSourceModeSelectable()) {
+    if (!_target PTR_DEREF IsDataSourceModeSelectable()) {
       // We don't validate source mode as it will use all modes.
       return;
     }
 
-    if (_source.GetModeCount() > 1 &&
-        _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
+    if (_source PTR_DEREF GetModeCount() > 1 &&
+        _target PTR_DEREF idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
       // Mode must be selected if source indicator has more that one mode.
       Alert("Warning! ", GetName(),
             " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
-      _target.idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE), 0);
+      _target PTR_DEREF idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE), 0);
       DebugBreak();
-    } else if (_source.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == 1 &&
-               _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
-      _target.idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE), 0);
-    } else if (_target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) < 0 ||
-               _target.idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) >
-                   _source.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES))) {
-      Alert("Error! ", _target.GetName(),
+    } else if (_source PTR_DEREF Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == 1 &&
+               _target PTR_DEREF idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) == -1) {
+      _target PTR_DEREF idparams.Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE), 0);
+    } else if (_target PTR_DEREF idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) < 0 ||
+               _target PTR_DEREF idparams.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DATA_SRC_MODE)) >
+                   _source PTR_DEREF Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES))) {
+      Alert("Error! ", _target PTR_DEREF GetName(),
             " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
-            _source.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)), ".");
+            _source PTR_DEREF Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)), ".");
       DebugBreak();
     }
   }
@@ -1329,7 +1331,7 @@ class IndicatorData : public IndicatorBase {
       default:
         Print("Error: Invalid applied price " + EnumToString(_ap) +
               ", only PRICE_(OPEN|HIGH|LOW|CLOSE|MEDIAN|TYPICAL|WEIGHTED) are currently supported by "
-              "IndicatorBase::HasSpecificAppliedPriceValueStorage()!");
+              "IndicatorData::HasSpecificAppliedPriceValueStorage()!");
         DebugBreak();
         return false;
     }
@@ -1372,7 +1374,7 @@ class IndicatorData : public IndicatorBase {
       default:
         Print("Error: Invalid applied price " + EnumToString(_ap) +
               ", only PRICE_(OPEN|HIGH|LOW|CLOSE|MEDIAN|TYPICAL|WEIGHTED) are currently supported by "
-              "IndicatorBase::GetSpecificAppliedPriceValueStorage()!");
+              "IndicatorData::GetSpecificAppliedPriceValueStorage()!");
         DebugBreak();
         return NULL;
     }
@@ -1736,7 +1738,7 @@ class IndicatorData : public IndicatorBase {
     }
 
     if (!value_storages[_mode].IsSet()) {
-      value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
+      value_storages[_mode] = InstantiateIndicatorBufferValueStorageDouble(THIS_PTR, _mode);
     }
     return value_storages[_mode].Ptr();
   }
@@ -1754,7 +1756,7 @@ class IndicatorData : public IndicatorBase {
   void EmitEntry(IndicatorDataEntry& entry) {
     for (int i = 0; i < ArraySize(listeners); ++i) {
       if (listeners[i].ObjectExists()) {
-        listeners[i].Ptr().OnDataSourceEntry(entry);
+        listeners[i] REF_DEREF OnDataSourceEntry(entry);
       }
     }
   }
@@ -1891,7 +1893,7 @@ class IndicatorData : public IndicatorBase {
 /**
  * BarsCalculated()-compatible method to be used on Indicator instance.
  */
-int BarsCalculated(IndicatorData* _indi) { return _indi.GetBarsCalculated(); }
+int BarsCalculated(IndicatorData* _indi) { return _indi PTR_DEREF GetBarsCalculated(); }
 
 /**
  * CopyBuffer() method to be used on Indicator instance with ValueStorage buffer.
@@ -1909,7 +1911,7 @@ int CopyBuffer(IndicatorData* _indi, int _mode, int _start, int _count, ValueSto
   }
 
   for (int i = _start; i < _count; ++i) {
-    IndicatorDataEntry _entry = _indi.GetEntry(i);
+    IndicatorDataEntry _entry = _indi PTR_DEREF GetEntry(i);
 
     if (!_entry.IsValid()) {
       break;

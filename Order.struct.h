@@ -33,6 +33,7 @@
 // Includes.
 #include "Data.struct.h"
 #include "Order.enum.h"
+#include "Platform.extern.h"
 #include "Serializer/Serializer.h"
 #include "SymbolInfo.struct.static.h"
 #include "Terminal.mqh"

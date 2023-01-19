@@ -48,7 +48,7 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   /**
    * Constructor.
    */
-  IndicatorBufferValueStorage(IndicatorBase *_indi_candle, int _mode = 0, bool _is_series = false)
+  IndicatorBufferValueStorage(IndicatorData* _indi_candle, int _mode = 0, bool _is_series = false)
       : mode(_mode), HistoryValueStorage(_indi_candle) {}
 
   /**
@@ -56,3 +56,7 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
    */
   C Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetValue<C>(mode, RealShift(_rel_shift)); }
 };
+
+IValueStorage* InstantiateIndicatorBufferValueStorageDouble(IndicatorData* _indi, int _mode) {
+  return new IndicatorBufferValueStorage<double>(_indi, _mode);
+}

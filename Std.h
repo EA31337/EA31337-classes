@@ -309,12 +309,16 @@ struct _WRONG_VALUE {
   }
 } WRONG_VALUE;
 
+const char* _empty_string_c = "";
+const string _empty_string = "";
+
 // Converter of NULL_VALUE into expected type. e.g., "int x = NULL_VALUE" will end up with "x = 0".
 struct _NULL_VALUE {
   template <typename T>
-  explicit operator T() const {
+  operator T() const {
     return (T)0;
   }
+
 } NULL_VALUE;
 
 /**
@@ -332,11 +336,13 @@ string EnumToString(int _value) {
 }
 
 template <>
-inline _NULL_VALUE::operator const std::string() const {
-  return "";
+_NULL_VALUE::operator string() const {
+  return _empty_string;
 }
+#define NULL_STRING ""
 #else
 #define NULL_VALUE NULL
+#define NULL_STRING NULL
 #endif
 
 #ifndef __MQL__

@@ -243,7 +243,8 @@ enum ENUM_ORDER_TYPE {
                                // price.
   ORDER_TYPE_SELL_STOP_LIMIT,  // Upon reaching the order price, a pending Sell Limit order is placed at the StopLimit
                                // price.
-  ORDER_TYPE_CLOSE_BY          // Order to close a position by an opposite one.
+  ORDER_TYPE_CLOSE_BY,         // Order to close a position by an opposite one.
+  ORDER_TYPE_UNSET             // A NULL value.
 };
 #endif
 

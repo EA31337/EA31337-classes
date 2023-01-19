@@ -37,6 +37,7 @@ class AccountMt;
 #include "../Orders.mqh"
 #include "../Serializer/Serializer.h"
 #include "../SymbolInfo.mqh"
+#include "../Task/TaskCondition.enum.h"
 #include "../Trade.struct.h"
 #include "Account.define.h"
 #include "Account.enum.h"
@@ -283,7 +284,7 @@ class AccountMt {
     return ::AccountFreeMarginMode();
 #else
     // @todo: Not implemented yet.
-    return NULL;
+    return NULL_VALUE;
 #endif
   }
   static double GetAccountFreeMarginMode() { return AccountMt::AccountFreeMarginMode(); }

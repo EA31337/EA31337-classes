@@ -26,6 +26,7 @@
 
 // Includes.
 #include "Deal.enum.h"
+#include "Order.struct.h"
 
 /**
  * Extern declarations for C++.
@@ -423,6 +424,153 @@ double HistoryDealGetDouble(unsigned long ticket_number, ENUM_DEAL_PROPERTY_DOUB
 string HistoryDealGetString(unsigned long ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
   return 0;
+}
+
+bool OrderSelect(int index, int select, int pool = MODE_TRADES) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool PositionSelectByTicket(int index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool HistoryOrderSelect(int index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool OrderSend(const MqlTradeRequest &request, MqlTradeResult &result) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool OrderCheck(const MqlTradeRequest &request, MqlTradeCheckResult &result) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+unsigned long OrderGetTicket(int index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+unsigned long HistoryOrderGetTicket(int index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+bool HistorySelectByPosition(long position_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool HistoryDealSelect(unsigned long ticket) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+long OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+long HistoryOrderGetInteger(unsigned long ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+double HistoryOrderGetDouble(unsigned long ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return 0;
+}
+
+string HistoryOrderGetString(unsigned long ticket_number, ENUM_ORDER_PROPERTY_STRING property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return 0;
+}
+
+int PositionsTotal() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+bool HistorySelect(datetime from_date, datetime to_date) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return 0;
+}
+
+int HistoryOrdersTotal() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int OrdersTotal() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyOpen(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(double, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyHigh(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(double, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyLow(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(double, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyClose(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(double, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyTickVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(long, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyRealVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(long, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int ChartID() { return Platform::ChartID(); }
+
+bool OrderCalcMargin(ENUM_ORDER_TYPE _action, string _symbol, double _volume, double _price, double &_margin) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+double AccountInfoDouble(ENUM_ACCOUNT_INFO_DOUBLE property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return false;
+}
+
+long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return false;
+}
+
+string AccountInfoInteger(ENUM_ACCOUNT_INFO_STRING property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return false;
 }
 
 #endif

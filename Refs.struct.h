@@ -317,12 +317,17 @@ struct WeakRef {
   /**
    * Constructor.
    */
-  WeakRef(WeakRef<X>& ref) { this = ref.Ptr(); }
+  WeakRef(const WeakRef<X>& ref) { THIS_REF = ref.Ptr(); }
 
   /**
    * Constructor.
    */
-  WeakRef(Ref<X>& ref) { this = ref.Ptr(); }
+  WeakRef(WeakRef<X>& ref) { THIS_REF = ref.Ptr(); }
+
+  /**
+   * Constructor.
+   */
+  WeakRef(Ref<X>& ref) { THIS_REF = ref.Ptr(); }
 
   /**
    * Destructor.

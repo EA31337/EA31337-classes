@@ -1081,9 +1081,9 @@ class Order : public SymbolInfo {
         if (IsClosed()) {
           Refresh();
         } else {
-          GetLogger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).",
-                                           odata.Get<long>(ORDER_PROP_TICKET), _price, _sl, _tp, _last_error),
-                              __FUNCTION_LINE__, ToCSV());
+          GetLogger() PTR_DEREF Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).",
+                                                     odata.Get<long>(ORDER_PROP_TICKET), _price, _sl, _tp, _last_error),
+                                        __FUNCTION_LINE__, ToCSV());
           Refresh(ORDER_SL);
           Refresh(ORDER_TP);
           // TODO: Refresh(ORDER_PRI)
@@ -1693,7 +1693,7 @@ class Order : public SymbolInfo {
 
     if (!_result || _last_error > ERR_NO_ERROR) {
       if (_last_error > ERR_NO_ERROR && _last_error != 4014) {  // @fixme: In MT4 (why 4014?).
-        GetLogger().Warning(StringFormat("Update failed! Error: %d", _last_error), __FUNCTION_LINE__);
+        GetLogger() PTR_DEREF Warning(StringFormat("Update failed! Error: %d", _last_error), __FUNCTION_LINE__);
       }
       odata.ProcessLastError();
       ResetLastError();
@@ -1984,7 +1984,7 @@ class Order : public SymbolInfo {
    *   Return text representation of the order.
    */
   static string OrderTypeToString(ENUM_ORDER_TYPE _cmd, bool _lc = false) {
-    _cmd = _cmd != NULL ? _cmd : OrderType();
+    _cmd = _cmd != ORDER_TYPE_UNSET ? _cmd : OrderType();
     string _res = StringSubstr(EnumToString(_cmd), 11);
     StringReplace(_res, "_", " ");
     if (_lc) {
@@ -2059,8 +2059,8 @@ class Order : public SymbolInfo {
   /**
    * Get color of the order based on its type.
    */
-  static color GetOrderColor(ENUM_ORDER_TYPE _cmd = (ENUM_ORDER_TYPE)-1, color cbuy = Blue, color csell = Red) {
-    if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE)OrderType();
+  static color GetOrderColor(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_UNSET, color cbuy = Blue, color csell = Red) {
+    if (_cmd == ORDER_TYPE_UNSET) _cmd = (ENUM_ORDER_TYPE)OrderType();
     return OrderData::GetTypeValue(_cmd) > 0 ? cbuy : csell;
   }
 
@@ -2308,7 +2308,7 @@ class Order : public SymbolInfo {
     _out = OrderGetString(property_id);
     return true;
 #else
-    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_STRING, _out) != (string)NULL_VALUE;
+    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_STRING, _out) != NULL_STRING;
 #endif
   }
 
@@ -2333,7 +2333,7 @@ class Order : public SymbolInfo {
   static long OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, long &_out) {
     switch (type) {
       case ORDER_SELECT_TYPE_NONE:
-        return NULL;
+        return 0;
       case ORDER_SELECT_TYPE_ACTIVE:
         _out = ::OrderGetInteger((ENUM_ORDER_PROPERTY_INTEGER)property_id);
         break;
@@ -2371,7 +2371,7 @@ class Order : public SymbolInfo {
   static double OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, double &_out) {
     switch (type) {
       case ORDER_SELECT_TYPE_NONE:
-        return NULL;
+        return 0;
       case ORDER_SELECT_TYPE_ACTIVE:
         _out = ::OrderGetDouble((ENUM_ORDER_PROPERTY_DOUBLE)property_id);
         break;

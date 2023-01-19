@@ -26,6 +26,12 @@
 
 // Includes.
 #include "Deal.enum.h"
+#include "Order.define.h"
+
+// Forward declarations.
+class MqlTradeRequest;
+class MqlTradeResult;
+class MqlTradeCheckResult;
 
 template <typename... Args>
 double iCustom(string symbol, int timeframe, string name, Args... args) {
@@ -48,6 +54,15 @@ extern int BarsCalculated(int indicator_handle);
  */
 extern int CopyBuffer(int indicator_handle, int buffer_num, int start_pos, int count, ARRAY_REF(double, buffer));
 
+extern int CopyOpen(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
+                    ARRAY_REF(double, close_array));
+extern int CopyHigh(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
+                    ARRAY_REF(double, close_array));
+extern int CopyLow(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
+                   ARRAY_REF(double, close_array));
+extern int CopyClose(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
+                     ARRAY_REF(double, close_array));
+
 extern unsigned long PositionGetTicket(int _index);
 
 extern long PositionGetInteger(ENUM_POSITION_PROPERTY_INTEGER property_id);
@@ -65,5 +80,59 @@ extern long HistoryDealGetInteger(unsigned long ticket_number, ENUM_DEAL_PROPERT
 extern double HistoryDealGetDouble(unsigned long ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id);
 
 extern string HistoryDealGetString(unsigned long ticket_number, ENUM_DEAL_PROPERTY_STRING property_id);
+
+extern bool OrderSelect(int index);
+
+extern bool PositionSelectByTicket(int index);
+
+extern bool HistoryOrderSelect(int index);
+
+extern bool OrderSend(const MqlTradeRequest& request, MqlTradeResult& result);
+
+extern bool OrderCheck(const MqlTradeRequest& request, MqlTradeCheckResult& result);
+
+extern unsigned long OrderGetTicket(int index);
+
+extern unsigned long HistoryOrderGetTicket(int index);
+
+extern bool HistorySelectByPosition(long position_id);
+
+extern bool HistoryDealSelect(unsigned long ticket);
+
+extern long OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id);
+
+extern long HistoryOrderGetInteger(unsigned long ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id);
+
+extern double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id);
+
+extern double HistoryOrderGetDouble(unsigned long ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id);
+
+string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id);
+
+string HistoryOrderGetString(unsigned long ticket_number, ENUM_ORDER_PROPERTY_STRING property_id);
+
+extern int PositionsTotal();
+
+extern bool HistorySelect(datetime from_date, datetime to_date);
+
+extern int HistoryOrdersTotal();
+
+extern int OrdersTotal();
+
+extern int CopyTickVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
+                          ARRAY_REF(long, arr));
+
+extern int CopyRealVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
+                          ARRAY_REF(long, arr));
+
+extern int ChartID();
+
+extern bool OrderCalcMargin(ENUM_ORDER_TYPE _action, string _symbol, double _volume, double _price, double& _margin);
+
+double AccountInfoDouble(ENUM_ACCOUNT_INFO_DOUBLE property_id);
+
+long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id);
+
+string AccountInfoInteger(ENUM_ACCOUNT_INFO_STRING property_id);
 
 #endif

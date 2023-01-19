@@ -75,7 +75,7 @@ struct ChartStatic {
     }
     return _bar_shift;
 #else  // __MQL5__
-    if (_time < 0) return (-1);
+    if (_time == (datetime)0) return (-1);
     ARRAY(datetime, arr);
     datetime _time0;
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
@@ -337,7 +337,7 @@ struct ChartStatic {
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     // @todo: Improves performance by caching values.
 
-    datetime _time = (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
+    datetime _time = (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : (datetime)0;
 
     if (_LastError != ERR_NO_ERROR) {
       Print("Error: ", _LastError, " while doing CopyTime() in ChartStatic::GetBarTime(", _symbol, ", ",

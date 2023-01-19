@@ -27,6 +27,8 @@
 // Includes.
 #include <stdarg.h>
 
+#include <algorithm>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <tuple>
@@ -125,6 +127,16 @@ int StringReplace(string& str, const string& find, const string& replacement) {
     ++num_replacements;
   }
   return num_replacements;
+}
+
+string StringToLower(string str) {
+  std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return ::tolower(c); });
+  return str;
+}
+
+string StringToUpper(string str) {
+  std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return ::toupper(c); });
+  return str;
 }
 
 #endif
