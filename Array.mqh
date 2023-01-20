@@ -760,7 +760,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
   template <typename X>
   static void ArrayStore(ARRAY_REF(X, array), int index, X value, int reserve_size = 0) {
     if (index >= ArraySize(array)) {
-      ArrayResize(array, MathMax(index + 1, ArraySize(array)), reserve_size);
+      ::ArrayResize(array, MathMax(index + 1, ArraySize(array)), reserve_size);
     } else if (index < 0) {
       Print("Index cannot be negative! " + IntegerToString(index) + " passed.");
       DebugBreak();
@@ -772,11 +772,11 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
 
 template <typename X>
 void ArrayPush(ARRAY_REF(X, array), X value) {
-  ArrayResize(Array::ArraySize(array) + 1);
+  ::ArrayResize(array, Array::ArraySize(array) + 1);
   array[ArraySize(array) - 1] = value;
 }
 template <typename X>
 void ArrayPushObject(ARRAY_REF(X, array), X& value) {
-  ArrayResize(array, Array::ArraySize(array) + 1);
+  ::ArrayResize(array, Array::ArraySize(array) + 1);
   array[Array::ArraySize(array) - 1] = value;
 }

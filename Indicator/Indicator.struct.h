@@ -48,13 +48,13 @@ struct ChartParams;
 /* Structure for indicator parameters. */
 struct IndicatorParams {
  public:                                // @todo: Change it to protected.
+  string custom_indi_name;              // Name of the indicator passed to iCustom() method.
   string name;                          // Name of the indicator.
   int shift;                            // Shift (relative to the current bar, 0 - default).
   unsigned int max_params;              // Max supported input params.
   ENUM_INDICATOR_TYPE itype;            // Indicator type (e.g. INDI_RSI).
   color indi_color;                     // Indicator color.
   ARRAY(DataParamEntry, input_params);  // Indicator input params.
-  string custom_indi_name;              // Name of the indicator passed to iCustom() method.
   string symbol;                        // Symbol used by indicator.
  public:
   /* Special methods */

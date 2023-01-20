@@ -293,6 +293,8 @@ struct ChartStatic {
                    ChartStatic::iClose(_symbol, _tf, _shift) + ChartStatic::iClose(_symbol, _tf, _shift)) /
                   4;
         break;
+      default:
+        break;  // FINAL_APPLIED_PRICE_ENTRY.
     }
     return _result;
   }

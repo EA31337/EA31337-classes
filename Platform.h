@@ -573,6 +573,11 @@ string AccountInfoInteger(ENUM_ACCOUNT_INFO_STRING property_id) {
   return false;
 }
 
+string Symbol() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return false;
+}
+
 #endif
 
 /**

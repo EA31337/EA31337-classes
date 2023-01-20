@@ -34,7 +34,9 @@ int ArraySize(const ARRAY_REF(T, _array)) {
 }
 
 template <typename T, int size>
-constexpr int ArraySize(const T REF(_array)[size]);
+constexpr int ArraySize(const T REF(_array)[size]) {
+  return size;
+}
 
 template <typename T>
 int ArrayResize(ARRAY_REF(T, _array), int _new_size, int _reserve_size = 0) {

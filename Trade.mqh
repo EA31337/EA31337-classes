@@ -241,7 +241,8 @@ class Trade : public Taskable<DataParamEntry> {
    * Sets default name of trade instance.
    */
   void SetName() {
-    name = StringFormat("%s@%s", GetSource() PTR_DEREF GetSymbol(), ChartTf::TfToString(GetSource() PTR_DEREF GetTf()));
+    name = StringFormat("%s@%s", C_STR(GetSource() PTR_DEREF GetSymbol()),
+                        C_STR(ChartTf::TfToString(GetSource() PTR_DEREF GetTf())));
   }
 
   /**
@@ -269,6 +270,9 @@ class Trade : public Taskable<DataParamEntry> {
         case ORDER_TYPE_SELL:
           _result = _open < _low;
           break;
+        default:
+          RUNTIME_ERROR("Order type not supported!");
+          _result = false;
       }
     }
     return _result;
@@ -291,6 +295,9 @@ class Trade : public Taskable<DataParamEntry> {
         case ORDER_TYPE_SELL:
           _result = GetSource() PTR_DEREF GetOpenOffer(_cmd) < _pp;
           break;
+        default:
+          RUNTIME_ERROR("Order type not supported!");
+          _result = false;
       }
     }
     return _result;
@@ -368,6 +375,9 @@ class Trade : public Taskable<DataParamEntry> {
           case ORDER_TYPE_SELL:
             _result |= _odata.Get<float>(ORDER_PRICE_OPEN) >= _price_curr;
             break;
+          default:
+            RUNTIME_ERROR("Order type not supported!");
+            _result = false;
         }
       }
     }
@@ -384,6 +394,9 @@ class Trade : public Taskable<DataParamEntry> {
               case ORDER_TYPE_SELL:
                 _result |= _odata.Get<float>(ORDER_PRICE_OPEN) >= _price_curr;
                 break;
+              default:
+                RUNTIME_ERROR("Order type not supported!");
+                _result = false;
             }
           }
         } else if (_order.IsSet()) {
@@ -401,7 +414,7 @@ class Trade : public Taskable<DataParamEntry> {
     bool _result = false;
     Ref<Order> _order = order_last;
     OrderData _odata;
-    double _price_curr = GetSource() PTR_DEREF GetOpenOffer(_cmd);
+    // double _price_curr = GetSource() PTR_DEREF GetOpenOffer(_cmd);
 
     if (_order.IsSet()) {
       _result = _odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) != _cmd;
@@ -661,7 +674,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     switch (_last_error) {
       case 69539:
         logger.Error("Error while opening an order!", __FUNCTION_LINE__,
-                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+                     StringFormat("Code: %d, Msg: %s", _last_error, C_STR(Terminal::GetErrorText(_last_error))));
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         // Pass-through.
       case ERR_NO_ERROR:  // 0
@@ -684,7 +697,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       default:
         logger.Error("Cannot add order!", __FUNCTION_LINE__,
-                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+                     StringFormat("Code: %d, Msg: %s", _last_error, C_STR(Terminal::GetErrorText(_last_error))));
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         _result = false;
         break;
@@ -854,7 +867,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   On error, returns -1.
    */
   int OrdersCloseAll(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_ALL, string _comment = "") {
-    int _oid = 0, _closed = 0;
+    int _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
@@ -884,7 +897,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   int OrdersCloseViaCmd(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN,
                         string _comment = "") {
-    int _oid = 0, _closed = 0;
+    int _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
@@ -922,7 +935,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   template <typename E, typename T>
   int OrdersCloseViaProp(E _prop, T _value, ENUM_MATH_CONDITION _op,
                          ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
-    int _oid = 0, _closed = 0;
+    int _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
@@ -958,7 +971,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   template <typename E, typename T>
   int OrdersCloseViaProp2(E _prop1, T _value1, E _prop2, T _value2, ENUM_MATH_CONDITION _op,
                           ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
-    int _oid = 0, _closed = 0;
+    int _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
@@ -1109,7 +1122,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           case ORDER_TYPE_TP:
             return NormalizeSLTP(_value1 < _value2 ? _value1 : _value2, _cmd, _mode);
           default:
-            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            logger.Error(StringFormat("Invalid mode: %s at %s!", C_STR(EnumToString(_mode)), C_STR(__FUNCTION__)));
         }
         break;
       case ORDER_TYPE_SELL_LIMIT:
@@ -1120,11 +1133,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           case ORDER_TYPE_TP:
             return NormalizeSLTP(_value1 > _value2 ? _value1 : _value2, _cmd, _mode);
           default:
-            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            logger.Error(StringFormat("Invalid mode: %s at %s!", C_STR(EnumToString(_mode)), C_STR(__FUNCTION__)));
         }
         break;
       default:
-        logger.Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+        logger.Error(StringFormat("Invalid order type: %s at %s!", C_STR(EnumToString(_cmd)), C_STR(__FUNCTION__)));
     }
     return EMPTY_VALUE;
   }
@@ -1475,7 +1488,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           case ORDER_TYPE_TP:
             return fmax(_value, GetSource() PTR_DEREF GetBid() + GetTradeDistanceInValue());
           default:
-            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            logger.Error(StringFormat("Invalid mode: %s at %s!", C_STR(EnumToString(_mode)), C_STR(__FUNCTION__)));
         }
         break;
       // Selling is done at the Bid price.
@@ -1490,11 +1503,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           case ORDER_TYPE_TP:
             return fmin(_value, GetSource() PTR_DEREF GetAsk() - GetTradeDistanceInValue());
           default:
-            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            logger.Error(StringFormat("Invalid mode: %s at %s!", C_STR(EnumToString(_mode)), C_STR(__FUNCTION__)));
         }
         break;
       default:
-        logger.Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+        logger.Error(StringFormat("Invalid order type: %s at %s!", C_STR(EnumToString(_cmd)), C_STR(__FUNCTION__)));
     }
     return 0;
   }
@@ -1578,7 +1591,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
 #ifdef __debug__
     if (!_is_valid) {
-      PrintFormat("%s(): Invalid stop for %s! Value: %g, price: %g", __FUNCTION__, EnumToString(_cmd), _value, _price);
+      PrintFormat("%s(): Invalid stop for %s! Value: %g, price: %g", __FUNCTION__, C_STR(EnumToString(_cmd)), _value,
+                  _price);
     }
 #endif
     if (_is_valid && _value_prev > 0 && _locked) {
@@ -1609,7 +1623,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     double ask = GetSource() PTR_DEREF GetAsk();
     double bid = GetSource() PTR_DEREF GetBid();
     double openprice = GetSource() PTR_DEREF GetOpenOffer(_cmd);
-    double closeprice = GetSource() PTR_DEREF GetCloseOffer(_cmd);
+    // double closeprice = GetSource() PTR_DEREF GetCloseOffer(_cmd);
     // The minimum distance of SYMBOL_TRADE_STOPS_LEVEL taken into account.
     double distance = GetTradeDistanceInValue();
     // bool result;
@@ -1698,7 +1712,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
 #ifdef __debug__
     if (!_is_valid) {
-      PrintFormat("%s(): Invalid stop for %s! Value: %g, price: %g", __FUNCTION__, EnumToString(_cmd), _value, _price);
+      PrintFormat("%s(): Invalid stop for %s! Value: %g, price: %g", C_STR(__FUNCTION__), C_STR(EnumToString(_cmd)),
+                  _value, _price);
     }
 #endif
     if (_is_valid && _value_prev > 0 && _locked) {
@@ -1853,7 +1868,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // case TRADE_ORDER_CONDS_IN_TREND:
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
-        GetLogger() PTR_DEREF Error(StringFormat("Invalid Trade condition: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        GetLogger() PTR_DEREF Error(
+            StringFormat("Invalid Trade condition: %d at %s!", _entry.GetId(), C_STR(__FUNCTION_LINE__)));
         SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
@@ -1986,7 +2002,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_STATE_ADD:
         tstates.AddState(_entry.GetArg(0).ToValue<unsigned int>());
       default:
-        GetLogger() PTR_DEREF Error(StringFormat("Invalid Trade action: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        GetLogger()
+            PTR_DEREF Error(StringFormat("Invalid Trade action: %d at %s!", _entry.GetId(), C_STR(__FUNCTION_LINE__)));
         SetUserError(ERR_INVALID_PARAMETER);
         break;
     }

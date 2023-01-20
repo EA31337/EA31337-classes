@@ -204,6 +204,9 @@ class Orders {
             // PrintFormat("%s:%d%d: OP_SELL: TP=%g, SL=%g, total: %g/%g", __FUNCTION__, i, OrdersTotal(), order_tp,
             // order_sl, total_sell_sl, total_sell_tp);
             break;
+          default:
+            RUNTIME_ERROR("Not supported order type!");
+            return 0;
         }
       }
     }
@@ -273,6 +276,9 @@ class Orders {
           case ORDER_TYPE_SELL:
             sell_lots += Order::OrderLots();
             break;
+          default:
+            RUNTIME_ERROR("Not supported order type!");
+            return 0;
         }
       }
     }

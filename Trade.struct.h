@@ -129,13 +129,13 @@ struct TradeStats {
 
 /* Structure for trade parameters. */
 struct TradeParams {
-  float lot_size;        // Default lot size.
-  float risk_margin;     // Maximum account margin to risk (in %).
-  string order_comment;  // Order comment.
+  unsigned short bars_min;  // Minimum bars to trade.
+  string order_comment;     // Order comment.
+  float lot_size;           // Default lot size.
+  unsigned long magic_no;   // Unique magic number used for the trading.
+  float risk_margin;        // Maximum account margin to risk (in %).
   unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
   unsigned int slippage;     // Value of the maximum price slippage in points.
-  unsigned long magic_no;    // Unique magic number used for the trading.
-  unsigned short bars_min;   // Minimum bars to trade.
   ENUM_LOG_LEVEL log_level;  // Log verbosity level.
   // Constructors.
   TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50)
@@ -148,7 +148,7 @@ struct TradeParams {
     SetLimits(0);
   }
   TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
-      : bars_min(100), lot_size(0), order_comment(""), log_level(_ll), magic_no(_magic_no) {}
+      : bars_min(100), order_comment(""), lot_size(0), magic_no(_magic_no), log_level(_ll) {}
   TradeParams(const TradeParams &_tparams) { THIS_REF = _tparams; }
   // Deconstructor.
   ~TradeParams() {}
@@ -163,11 +163,13 @@ struct TradeParams {
       case TRADE_PARAM_MAGIC_NO:
         return (T)magic_no;
       case TRADE_PARAM_ORDER_COMMENT:
-        return (T)order_comment;
+        return ConvertBasic::StringTo<T>(order_comment);
       case TRADE_PARAM_RISK_MARGIN:
         return (T)risk_margin;
       case TRADE_PARAM_SLIPPAGE:
         return (T)slippage;
+      default:
+        break;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
@@ -220,7 +222,7 @@ struct TradeParams {
         magic_no = (unsigned long)_value;
         return;
       case TRADE_PARAM_ORDER_COMMENT:
-        order_comment = (string)_value;
+        order_comment = SerializerConversions::ValueToString(_value);
         return;
       case TRADE_PARAM_RISK_MARGIN:
         risk_margin = (float)_value;
@@ -228,6 +230,8 @@ struct TradeParams {
       case TRADE_PARAM_SLIPPAGE:
         slippage = (unsigned int)_value;
         return;
+      default:
+        break;
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
@@ -328,6 +332,8 @@ struct TradeStates {
         return "Terminal offline";
       case TRADE_STATE_TRADE_TERMINAL_SHUTDOWN:
         return "Terminal is shutting down";
+      default:
+        break;
     }
     return "Unknown!";
   }

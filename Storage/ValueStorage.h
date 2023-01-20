@@ -228,8 +228,6 @@ int ArrayCopy(ARRAY_REF(D, _target), ValueStorage<C> &_source, int _dst_start = 
     }
   }
 
-  int _pre_fill = _dst_start;
-
   count = MathMin(count, ArraySize(_source) - _src_start);
 
   int _dst_required_size = _dst_start + count;

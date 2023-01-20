@@ -29,9 +29,9 @@
 #include "Order.define.h"
 
 // Forward declarations.
-class MqlTradeRequest;
-class MqlTradeResult;
-class MqlTradeCheckResult;
+struct MqlTradeRequest;
+struct MqlTradeResult;
+struct MqlTradeCheckResult;
 
 template <typename... Args>
 double iCustom(string symbol, int timeframe, string name, Args... args) {
@@ -129,10 +129,12 @@ extern int ChartID();
 
 extern bool OrderCalcMargin(ENUM_ORDER_TYPE _action, string _symbol, double _volume, double _price, double& _margin);
 
-double AccountInfoDouble(ENUM_ACCOUNT_INFO_DOUBLE property_id);
+extern double AccountInfoDouble(ENUM_ACCOUNT_INFO_DOUBLE property_id);
 
-long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id);
+extern long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id);
 
-string AccountInfoInteger(ENUM_ACCOUNT_INFO_STRING property_id);
+extern string AccountInfoInteger(ENUM_ACCOUNT_INFO_STRING property_id);
+
+extern string Symbol();
 
 #endif

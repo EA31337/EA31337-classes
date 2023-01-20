@@ -115,26 +115,17 @@ struct Ref {
   /**
    * Constructor.
    */
-  Ref(X* _ptr) {
-    ptr_object = nullptr;
-    THIS_REF = _ptr;
-  }
+  Ref(X* _ptr) : ptr_object(nullptr) { THIS_REF = _ptr; }
 
   /**
    * Constructor.
    */
-  Ref(const Ref<X>& ref) {
-    ptr_object = nullptr;
-    Set(ref.Ptr());
-  }
+  Ref(const Ref<X>& ref) : ptr_object(nullptr) { Set(ref.Ptr()); }
 
   /**
    * Constructor.
    */
-  Ref(WeakRef<X>& ref) {
-    ptr_object = nullptr;
-    Set(ref.Ptr());
-  }
+  Ref(WeakRef<X>& ref) : ptr_object(nullptr) { Set(ref.Ptr()); }
 
   /**
    * Constructor.
@@ -312,31 +303,26 @@ struct WeakRef {
   /**
    * Constructor.
    */
-  WeakRef(X* _ptr = NULL) { this = _ptr; }
+  WeakRef(X* _ptr = NULL) : ptr_ref_counter(nullptr) { THIS_REF = _ptr; }
 
   /**
    * Constructor.
    */
-  WeakRef(const WeakRef<X>& ref) { THIS_REF = ref.Ptr(); }
+  WeakRef(const WeakRef<X>& ref) : ptr_ref_counter(nullptr) { THIS_REF = ref.Ptr(); }
 
   /**
    * Constructor.
    */
-  WeakRef(WeakRef<X>& ref) { THIS_REF = ref.Ptr(); }
-
-  /**
-   * Constructor.
-   */
-  WeakRef(Ref<X>& ref) { THIS_REF = ref.Ptr(); }
+  WeakRef(Ref<X>& ref) : ptr_ref_counter(nullptr) { THIS_REF = ref.Ptr(); }
 
   /**
    * Destructor.
    */
   ~WeakRef() { Unset(); }
 
-  bool ObjectExists() { return ptr_ref_counter != NULL && !PTR_ATTRIB(ptr_ref_counter, deleted); }
+  bool ObjectExists() const { return ptr_ref_counter != NULL && !PTR_ATTRIB(ptr_ref_counter, deleted); }
 
-  X* Ptr() { return ObjectExists() ? (X*)(PTR_ATTRIB(ptr_ref_counter, ptr_object)) : NULL; }
+  X* Ptr() const { return ObjectExists() ? (X*)(PTR_ATTRIB(ptr_ref_counter, ptr_object)) : NULL; }
 
   /**
    * Makes a weak reference to the given object.
@@ -374,7 +360,7 @@ struct WeakRef {
    * Makes a weak reference to the given weakly-referenced object.
    */
   X* operator=(WeakRef<X>& right) {
-    this = right.Ptr();
+    THIS_REF = right.Ptr();
     return Ptr();
   }
 
@@ -382,7 +368,7 @@ struct WeakRef {
    * Makes a weak reference to the strongly-referenced object.
    */
   X* operator=(Ref<X>& right) {
-    this = right.Ptr();
+    THIS_REF = right.Ptr();
     return Ptr();
   }
 

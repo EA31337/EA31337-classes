@@ -60,12 +60,12 @@ class Log : public Object {
     ENUM_LOG_LEVEL log_level;
     string msg;
   };
-  DictStruct<int, Ref<Log>> logs;
-  string filename;
-  ARRAY(log_entry, data);
   int last_entry;
   datetime last_flush;
   ENUM_LOG_LEVEL log_level;
+  string filename;
+  ARRAY(log_entry, data);
+  DictStruct<int, Ref<Log>> logs;
 
  public:
   /**
@@ -145,7 +145,7 @@ class Log : public Object {
    * Adds a log entry.
    */
   bool Add(string msg, string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
-    return Add(prefix, msg, suffix, entry_log_level);
+    return Add(entry_log_level, msg, prefix, suffix);
   }
   bool Add(ARRAY_REF(double, arr), string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, Array::ArrToString(arr), suffix, entry_log_level);
@@ -315,7 +315,6 @@ class Log : public Object {
   bool DeleteByTimestamp(datetime timestamp) {
     int size = ArraySize(data);
     if (size > 0) {
-      int offset = 0;
       for (int i = 0; i < size; i++) {
         if (data[i].timestamp == timestamp) {
           Erase(data, i);

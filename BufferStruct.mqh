@@ -63,8 +63,8 @@ class BufferStruct : public DictStruct<long, TStruct> {
   /**
    * Constructor.
    */
-  BufferStruct() : max(INT_MIN), min(INT_MAX) { THIS_ATTR SetOverflowListener(BufferStructOverflowListener, 10); }
-  BufferStruct(BufferStruct& _right) : max(INT_MIN), min(INT_MAX) {
+  BufferStruct() : min(INT_MAX), max(INT_MIN) { THIS_ATTR SetOverflowListener(BufferStructOverflowListener, 10); }
+  BufferStruct(BufferStruct& _right) : min(INT_MAX), max(INT_MIN) {
     this = _right;
     THIS_ATTR SetOverflowListener(BufferStructOverflowListener, 10);
   }
@@ -74,7 +74,7 @@ class BufferStruct : public DictStruct<long, TStruct> {
    */
   void Add(TStruct& _value, long _dt = 0) {
     _dt = _dt > 0 ? _dt : (long)TimeCurrent();
-    if (Set(_dt, _value)) {
+    if (THIS_ATTR Set(_dt, _value)) {
       min = _dt < min ? _dt : min;
       max = _dt > max ? _dt : max;
     }

@@ -69,8 +69,8 @@ template <typename T>
 struct TickTAB : TickAB<T> {
   long time_ms;  // Time of the last prices update.
   // Struct constructors.
-  TickTAB(long _time_ms = 0, T _ask = 0, T _bid = 0) : time_ms(_time_ms), TickAB<T>(_ask, _bid) {}
-  TickTAB(MqlTick &_tick) : time_ms(_tick.time_msc), TickAB<T>(_tick) {}
+  TickTAB(long _time_ms = 0, T _ask = 0, T _bid = 0) : TickAB<T>(_ask, _bid), time_ms(_time_ms) {}
+  TickTAB(MqlTick &_tick) : TickAB<T>(_tick), time_ms(_tick.time_msc) {}
 
   /**
    * Method used by ItemsHistory.

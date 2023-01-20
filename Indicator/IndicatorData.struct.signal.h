@@ -90,8 +90,8 @@ struct IndicatorSignal {
     Alert(__FUNCSIG__, " Should use pointer to IndicatorBase as a source of prices!");
     DebugBreak();
 
-    int _shift0 = 0;
-    int _shift1 = 1;
+    // int _shift0 = 0;
+    // int _shift1 = 1;
     double _price_w0 = 0;
     double _price_w1 = 0;
 

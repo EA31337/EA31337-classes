@@ -33,6 +33,7 @@
 #include <sstream>
 #include <tuple>
 
+#include "Math.extern.h"
 #include "Std.h"
 #include "Terminal.define.h"
 
@@ -102,7 +103,14 @@ unsigned short StringGetCharacter(string string_value, int pos) {
 }
 
 int StringToCharArray(string text_string, ARRAY_REF(unsigned char, array), int start = 0, int count = -1,
-                      unsigned int codepage = CP_ACP);
+                      unsigned int codepage = CP_ACP) {
+  if (count == -1) count = text_string.size();
+
+  for (int i = start; i < MathMin(start + count, (int)text_string.size()); ++i)
+    array.push((unsigned char)text_string[i]);
+
+  return array.size();
+}
 
 bool StringInit(string& string_var, int new_len = 0, unsigned short character = 0) {
   string_var = string(new_len, (char)character);
@@ -116,7 +124,7 @@ bool StringInit(string& string_var, int new_len = 0, unsigned short character = 
  * - https://www.mql5.com/en/docs/strings/stringreplace
  */
 int StringReplace(string& str, const string& find, const string& replacement) {
-  int num_replacements;
+  int num_replacements = 0;
   for (size_t pos = 0;; pos += replacement.length()) {
     // Locate the substring to replace
     pos = str.find(find, pos);

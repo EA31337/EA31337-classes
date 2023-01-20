@@ -187,7 +187,7 @@ struct IndicatorDataEntry {
   ARRAY(IndicatorDataEntryValue, values);
 
   // Constructors.
-  IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { Resize(_size); }
+  IndicatorDataEntry(int _size = 1) : timestamp(0), flags(INDI_ENTRY_FLAG_NONE) { Resize(_size); }
   IndicatorDataEntry(const IndicatorDataEntry &_entry) { THIS_REF = _entry; }
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
@@ -327,7 +327,7 @@ struct IndicatorDataEntry {
   int GetYear() { return DateTimeStatic::Year(timestamp); }
   long GetTime() { return timestamp; };
   ENUM_DATATYPE GetDataType(int _mode) { return values[_mode].GetDataType(); }
-  ushort GetDataTypeFlags(ENUM_DATATYPE _dt) {
+  unsigned short GetDataTypeFlags(ENUM_DATATYPE _dt) {
     switch (_dt) {
       case TYPE_BOOL:
       case TYPE_CHAR:
@@ -402,21 +402,21 @@ struct IndicatorDataEntry {
 /* Structure for indicator data parameters. */
 struct IndicatorDataParams {
  public:
-  // @todo: Move to protected.
-  bool is_draw;      // Draw active.
-  color indi_color;  // Indicator color.
  protected:
   /* Struct protected variables */
-  bool is_fed;                      // Whether calc_start_bar is already calculated.
   int data_src_mode;                // Mode used as input from data source.
   int draw_window;                  // Drawing window.
-  int src_id;                       // Id of the indicator to be used as data source.
-  int src_mode;                     // Mode of source indicator
-  unsigned int max_buffers;         // Max buffers to store.
-  unsigned int max_modes;           // Max supported indicator modes (values per entry).
   ENUM_DATATYPE dtype;              // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
+  unsigned int max_modes;           // Max supported indicator modes (values per entry).
+  unsigned int max_buffers;         // Max buffers to store.
   ENUM_IDATA_SOURCE_TYPE idstype;   // Indicator's data source type (e.g. IDATA_BUILTIN, IDATA_ICUSTOM).
   ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
+  color indi_color;                 // Indicator color.
+  // @todo: Move to protected.
+  bool is_draw;  // Draw active.
+  bool is_fed;   // Whether calc_start_bar is already calculated.
+  int src_id;    // Id of the indicator to be used as data source.
+  int src_mode;  // Mode of source indicator
  public:
   /* Struct enumerations */
   enum ENUM_IDATA_PARAM {

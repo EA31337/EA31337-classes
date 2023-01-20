@@ -126,7 +126,7 @@ class Dict : public DictBase<K, V> {
 
     if (!slot) return (V)NULL;
 
-    return slot.value;
+    return slot PTR_DEREF value;
   }
 
   /**
@@ -143,7 +143,7 @@ class Dict : public DictBase<K, V> {
       return _default;
     }
 
-    return slot.value;
+    return slot PTR_DEREF value;
   }
 
   /**
@@ -159,7 +159,7 @@ class Dict : public DictBase<K, V> {
       return _empty;
     }
 
-    return slot.value;
+    return slot PTR_DEREF value;
   }
 
   /**
@@ -174,7 +174,7 @@ class Dict : public DictBase<K, V> {
 
     if (!slot) return false;
 
-    return slot.value == value;
+    return slot PTR_DEREF value == value;
   }
 
   /**

@@ -274,8 +274,9 @@ class SerializerCsv {
     } else {
       // A property.
 
-      bool _include_titles = bool(_flags & SERIALIZER_CSV_INCLUDE_TITLES);
-      bool _include_titles_tree = (_flags & SERIALIZER_CSV_INCLUDE_TITLES_TREE) == SERIALIZER_CSV_INCLUDE_TITLES_TREE;
+      // bool _include_titles = bool(_flags & SERIALIZER_CSV_INCLUDE_TITLES);
+      // bool _include_titles_tree = (_flags & SERIALIZER_CSV_INCLUDE_TITLES_TREE) ==
+      // SERIALIZER_CSV_INCLUDE_TITLES_TREE;
 
       if (_column_types != NULL) {
         if (_data PTR_DEREF GetValueParam() == NULL) {

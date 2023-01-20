@@ -123,21 +123,6 @@ class DictStruct : public DictBase<K, V> {
    */
   bool operator+=(V& value) { return Push(value); }
 
-/**
- * Inserts value using hashless key.
- *
- * @todo Get rid of this method.
- */
-#ifdef __MQL__
-  template <>
-#endif
-  bool Push(Dynamic* value) {
-    V ptr = value;
-
-    if (!InsertInto(THIS_ATTR _DictSlots_ref, ptr)) return false;
-    return true;
-  }
-
   /**
    * Inserts or replaces value for a given key.
    */

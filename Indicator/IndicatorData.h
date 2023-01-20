@@ -95,6 +95,8 @@ class IndicatorData : public IndicatorBase {
           // SetDataSource(_indi_price, true, PRICE_OPEN);
         }
         break;
+      default:
+        break;
     }
     // By default, indicator is indexable only by shift and data source must be also indexable by shift.
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
@@ -159,7 +161,7 @@ class IndicatorData : public IndicatorBase {
    * Access indicator entry data using [] operator via shift.
    */
   IndicatorDataEntry operator[](int _rel_shift) {
-    if (!bool(flags | INDI_FLAG_INDEXABLE_BY_SHIFT)) {
+    if (!bool(flags & INDI_FLAG_INDEXABLE_BY_SHIFT)) {
       Print(GetFullName(), " is not indexable by shift!");
       DebugBreak();
       IndicatorDataEntry _default;
@@ -227,6 +229,9 @@ class IndicatorData : public IndicatorBase {
       case IDATA_INDICATOR:
         _mode = "On-I";
         break;
+      default:
+        _mode = "Unkw";
+        break;
     }
 
     return GetName() + "#" + IntegerToString(GetId()) + "-" + _mode + "[" + IntegerToString(_max_modes) + "]" +
@@ -256,7 +261,6 @@ class IndicatorData : public IndicatorBase {
         return _price;
       }
       datetime _bar_time = GetBarTime(_shift);
-      float _value = 0;
       BarOHLC _ohlc(_values, _bar_time);
       _price = _ohlc.GetAppliedPrice(_ap);
     }
@@ -741,7 +745,7 @@ class IndicatorData : public IndicatorBase {
    */
   void AddListener(IndicatorData* _indi) {
     WeakRef<IndicatorData> _ref = _indi;
-    ArrayPushObject(listeners, _ref);
+    ArrayPush(listeners, _ref);
   }
 
   /**
@@ -789,15 +793,15 @@ class IndicatorData : public IndicatorBase {
     }
 
     if (indi_src.IsSet()) {
-      if (bool(flags | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT) &&
-          !bool(_indi PTR_DEREF GetFlags() | INDI_FLAG_INDEXABLE_BY_SHIFT)) {
+      if (bool(flags & INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT) &&
+          !bool(_indi PTR_DEREF GetFlags() & INDI_FLAG_INDEXABLE_BY_SHIFT)) {
         Print(GetFullName(), ": Cannot set data source to ", _indi PTR_DEREF GetFullName(),
               ", because source indicator isn't indexable by shift!");
         DebugBreak();
         return;
       }
-      if (bool(flags | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_TIMESTAMP) &&
-          !bool(_indi PTR_DEREF GetFlags() | INDI_FLAG_INDEXABLE_BY_TIMESTAMP)) {
+      if (bool(flags & INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_TIMESTAMP) &&
+          !bool(_indi PTR_DEREF GetFlags() & INDI_FLAG_INDEXABLE_BY_TIMESTAMP)) {
         Print(GetFullName(), ": Cannot set data source to ", _indi PTR_DEREF GetFullName(),
               ", because source indicator isn't indexable by timestamp!");
         DebugBreak();
@@ -1004,7 +1008,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's value in plain format.
    */
-  virtual string ToString(int _index = 0) {
+  string EntryToString(int _index = 0) {
     IndicatorDataEntry _entry = GetEntry(_index);
     int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT |
                             SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE;
@@ -1044,10 +1048,6 @@ class IndicatorData : public IndicatorBase {
     }
 
     switch (GetAppliedPrice()) {
-      case PRICE_ASK:
-        return INDI_VS_TYPE_PRICE_ASK;
-      case PRICE_BID:
-        return INDI_VS_TYPE_PRICE_BID;
       case PRICE_OPEN:
         return INDI_VS_TYPE_PRICE_OPEN;
       case PRICE_HIGH:
@@ -1062,6 +1062,12 @@ class IndicatorData : public IndicatorBase {
         return INDI_VS_TYPE_PRICE_TYPICAL;
       case PRICE_WEIGHTED:
         return INDI_VS_TYPE_PRICE_WEIGHTED;
+      default:
+        if ((int)GetAppliedPrice() == (int)PRICE_ASK) {
+          return INDI_VS_TYPE_PRICE_ASK;
+        } else if ((int)GetAppliedPrice() == (int)PRICE_BID) {
+          return INDI_VS_TYPE_PRICE_BID;
+        }
     }
 
     Print("Error: ", GetFullName(), " has not supported applied price set: ", EnumToString(GetAppliedPrice()), "!");
@@ -1310,10 +1316,6 @@ class IndicatorData : public IndicatorBase {
     }
 
     switch (_ap) {
-      case PRICE_ASK:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
-      case PRICE_BID:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
       case PRICE_OPEN:
         return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
       case PRICE_HIGH:
@@ -1329,6 +1331,11 @@ class IndicatorData : public IndicatorBase {
       case PRICE_WEIGHTED:
         return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_WEIGHTED);
       default:
+        if ((int)GetAppliedPrice() == (int)PRICE_ASK) {
+          return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+        } else if ((int)GetAppliedPrice() == (int)PRICE_BID) {
+          return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
+        }
         Print("Error: Invalid applied price " + EnumToString(_ap) +
               ", only PRICE_(OPEN|HIGH|LOW|CLOSE|MEDIAN|TYPICAL|WEIGHTED) are currently supported by "
               "IndicatorData::HasSpecificAppliedPriceValueStorage()!");
@@ -1353,10 +1360,6 @@ class IndicatorData : public IndicatorBase {
     }
 
     switch (_ap) {
-      case PRICE_ASK:
-        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
-      case PRICE_BID:
-        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
       case PRICE_OPEN:
         return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
       case PRICE_HIGH:
@@ -1372,6 +1375,11 @@ class IndicatorData : public IndicatorBase {
       case PRICE_WEIGHTED:
         return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_WEIGHTED);
       default:
+        if ((int)GetAppliedPrice() == (int)PRICE_ASK) {
+          return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+        } else if ((int)GetAppliedPrice() == (int)PRICE_BID) {
+          return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
+        }
         Print("Error: Invalid applied price " + EnumToString(_ap) +
               ", only PRICE_(OPEN|HIGH|LOW|CLOSE|MEDIAN|TYPICAL|WEIGHTED) are currently supported by "
               "IndicatorData::GetSpecificAppliedPriceValueStorage()!");

@@ -176,8 +176,10 @@ class IndicatorCalculateCache : public Dynamic {
         return price_low_buffer;
       case PRICE_CLOSE:
         return price_close_buffer;
+      default:
+        RUNTIME_ERROR("Applied price not supported!");
     }
-    return NULL;
+    return nullptr;
   }
 
   /**
@@ -241,7 +243,7 @@ class IndicatorCalculateCache : public Dynamic {
   template <typename D>
   D GetTailValue(int _buffer_index, int _shift) {
     ValueStorage<D> *_buff = GetBuffer<D>(_buffer_index);
-    int _index = _buff.IsSeries() ? _shift : (ArraySize(_buff) - _shift - 1);
+    int _index = _buff PTR_DEREF IsSeries() ? _shift : (ArraySize(_buff) - _shift - 1);
     return _buff[_index].Get();
   }
 

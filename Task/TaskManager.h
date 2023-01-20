@@ -131,6 +131,8 @@ EMSCRIPTEN_BINDINGS(TaskManager) {
       .constructor()
       .function("Add", emscripten::optional_override([](TaskManager &self, Ref<Task> task) {
                   Print("Adding Task");
+                  Print(StringToUpper("Testing StringToUpper"));
+                  Print(StringToLower("Testing StringToLower"));
                   self.Add(task.Ptr());
                 }))
       //      .function("Add", emscripten::select_overload<bool(Task*)>(&TaskManager::Add))

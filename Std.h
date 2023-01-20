@@ -174,6 +174,8 @@ class _cpp_array {
 
   std::vector<T>& str() { return m_data; }
 
+  void push(const T& value) { m_data.push_back(value); }
+
   void operator=(const _cpp_array& r) {
     m_data = r.m_data;
     m_isSeries = r.m_isSeries;
@@ -354,3 +356,7 @@ _NULL_VALUE::operator string() const {
 extern ENUM_TIMEFRAMES Period();
 
 #endif
+
+#define RUNTIME_ERROR(MSG) \
+  Print(MSG);              \
+  DebugBreak();

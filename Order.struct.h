@@ -154,7 +154,7 @@ struct OrderParams {
   T Get(ENUM_ORDER_PARAM _param, int _index1 = 0, int _index2 = 0) {
     switch (_param) {
       case ORDER_PARAM_COLOR_ARROW:
-        return (T)color_arrow;
+        return (T)(unsigned int)color_arrow;
       case ORDER_PARAM_COND_CLOSE:
         return (T)cond_close[_index1].cond;
       case ORDER_PARAM_COND_CLOSE_ARG_VALUE:
@@ -167,6 +167,9 @@ struct OrderParams {
         return (T)refresh_freq;
       case ORDER_PARAM_UPDATE_FREQ:
         return (T)update_freq;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        return WRONG_VALUE;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
@@ -182,7 +185,7 @@ struct OrderParams {
   void Set(ENUM_ORDER_PARAM _param, T _value, int _index1 = 0, int _index2 = 0) {
     switch (_param) {
       case ORDER_PARAM_COLOR_ARROW:
-        color_arrow = (color)_value;
+        color_arrow = (color)(unsigned int)_value;
         return;
       case ORDER_PARAM_COND_CLOSE:
         SetConditionClose((ENUM_ORDER_CONDITION)_value, _index1);
@@ -199,6 +202,8 @@ struct OrderParams {
       case ORDER_PARAM_UPDATE_FREQ:
         update_freq = (unsigned short)_value;
         return;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
@@ -232,12 +237,7 @@ struct OrderData {
   unsigned long position_by_id;          // Position By ID.
   unsigned long ticket;                  // Ticket number.
   ENUM_ORDER_STATE state;                // State.
-  datetime time_closed;                  // Closed time.
-  datetime time_done;                    // Execution/cancellation time.
-  datetime time_expiration;              // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
-  datetime time_setup;                   // Setup time.
-  datetime time_last_refresh;            // Last refresh of order values.
-  datetime time_last_update;             // Last update of order stops.
+  string comment;                        // Comment.
   double commission;                     // Commission.
   double profit;                         // Profit.
   double total_profit;                   // Total profit (profit minus fees).
@@ -246,22 +246,27 @@ struct OrderData {
   double price_current;                  // Current price.
   double price_stoplimit;                // The limit order price for the StopLimit order.
   double swap;                           // Order cumulative swap.
+  datetime time_closed;                  // Closed time.
+  datetime time_done;                    // Execution/cancellation time.
+  long time_done_msc;                    // The time of execution/cancellation time (in msc).
+  datetime time_expiration;              // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
+  datetime time_last_refresh;            // Last refresh of order values.
+  datetime time_last_update;             // Last update of order stops.
+  datetime time_setup;                   // Setup time.
+  long time_setup_msc;                   // The time of placing the order (in msc).
   double total_fees;                     // Total fees.
   double sl;                             // Current Stop loss level of the order.
   double tp;                             // Current Take Profit level of the order.
-  long time_setup_msc;                   // The time of placing the order (in msc).
-  long time_done_msc;                    // The time of execution/cancellation time (in msc).
   ENUM_ORDER_TYPE type;                  // Type.
   ENUM_ORDER_TYPE_FILLING type_filling;  // Filling type.
   ENUM_ORDER_TYPE_TIME type_time;        // Lifetime (the order validity period).
   ENUM_ORDER_REASON reason;              // Reason or source for placing an order.
   ENUM_ORDER_REASON_CLOSE reason_close;  // Reason or source for closing an order.
   unsigned int last_error;               // Last error code.
-  double volume_curr;                    // Current volume.
-  double volume_init;                    // Initial volume.
-  string comment;                        // Comment.
   string ext_id;                         // External trading system identifier.
   string symbol;                         // Symbol of the order.
+  double volume_curr;                    // Current volume.
+  double volume_init;                    // Initial volume.
  public:
   OrderData()
       : magic(0),
@@ -296,7 +301,6 @@ struct OrderData {
   // Getters.
   template <typename T>
   T Get(ENUM_ORDER_PROPERTY_CUSTOM _prop_name) {
-    double _tick_value = SymbolInfoStatic::GetTickValue(symbol);
     switch (_prop_name) {
       case ORDER_PROP_COMMISSION:
         return (T)commission;
@@ -330,6 +334,9 @@ struct OrderData {
         return (T)time_done;
       case ORDER_PROP_TOTAL_FEES:
         return (T)total_fees;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        return WRONG_VALUE;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
@@ -366,13 +373,13 @@ struct OrderData {
       case ORDER_STATE:
         return (T)state;
       case ORDER_TIME_EXPIRATION:
-        return (T)time_expiration;
+        return (T)(long)time_expiration;
       case ORDER_TIME_DONE:
-        return (T)time_done;
+        return (T)(long)time_done;
       case ORDER_TIME_DONE_MSC:
         return (T)time_done_msc;
       case ORDER_TIME_SETUP:
-        return (T)time_setup;
+        return (T)(long)time_setup;
       case ORDER_TIME_SETUP_MSC:
         return (T)time_setup_msc;
       case ORDER_TYPE_FILLING:
@@ -500,7 +507,7 @@ struct OrderData {
         profit = (double)_value;
         return;
       case ORDER_PROP_REASON_CLOSE:
-        reason_close = (ENUM_ORDER_REASON_CLOSE)_value;
+        reason_close = (ENUM_ORDER_REASON_CLOSE)(long)_value;
         return;
       case ORDER_PROP_TICKET:
         ticket = (unsigned long)_value;
@@ -520,6 +527,8 @@ struct OrderData {
       case ORDER_PROP_TOTAL_FEES:
         total_fees = (double)_value;
         return;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }

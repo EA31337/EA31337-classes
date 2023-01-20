@@ -193,10 +193,10 @@ enum ENUM_APPLIED_VOLUME { VOLUME_TICK = 0, VOLUME_REAL = 1 };
 
 // Indicator flags.
 enum ENUM_INDI_FLAGS {
-  INDI_FLAG_INDEXABLE_BY_SHIFT,                // Indicator supports indexation by shift.
-  INDI_FLAG_INDEXABLE_BY_TIMESTAMP,            // Indicator supports indexation by shift.
-  INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT,     // Source indicator must be indexable by shift.
-  INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_TIMESTAMP  // Source indicator must be indexable by timestamp.
+  INDI_FLAG_INDEXABLE_BY_SHIFT = 1 << 0,                // Indicator supports indexation by shift.
+  INDI_FLAG_INDEXABLE_BY_TIMESTAMP = 1 << 1,            // Indicator supports indexation by shift.
+  INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT = 1 << 2,     // Source indicator must be indexable by shift.
+  INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_TIMESTAMP = 1 << 3  // Source indicator must be indexable by timestamp.
 };
 
 // Flags indicating which data sources are required to be provided in order indicator to work.

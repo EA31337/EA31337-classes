@@ -76,5 +76,5 @@ T log10(T value) {
   return std::log10(value);
 }
 int MathRand() { return std::rand() % 32768; }
-int rand() { return std::rand() % 32768; }
+// int rand() { return std::rand() % 32768; }
 #endif
