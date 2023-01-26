@@ -113,7 +113,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts value using hashless key.
    */
-  bool Push(const V& value) {
+  bool Push(V& value) {
     if (!InsertInto(THIS_ATTR _DictSlots_ref, value)) return false;
     return true;
   }
@@ -361,7 +361,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts hashless value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const V& value) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
     if (THIS_ATTR _mode == DictModeUnknown)
       THIS_ATTR _mode = DictModeList;
     else if (THIS_ATTR _mode != DictModeList) {

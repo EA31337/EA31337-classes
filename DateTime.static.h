@@ -31,7 +31,6 @@
 #endif
 
 // Includes.
-#include "DateTime.static.h"
 #include "PlatformTime.h"
 
 /*
@@ -43,7 +42,7 @@ struct DateTimeStatic {
    */
   static int Day(datetime dt = 0) {
     if (dt == (datetime)0) {
-      dt = PlatformTime::CurrentTimestamp();
+      dt = (datetime)PlatformTime::CurrentTimestamp();
     }
 #ifdef __MQL4__
     return ::TimeDay(dt);
@@ -59,7 +58,7 @@ struct DateTimeStatic {
    */
   static int DayOfWeek(datetime dt = 0) {
     if (dt == (datetime)0) {
-      dt = PlatformTime::CurrentTimestamp();
+      dt = (datetime)PlatformTime::CurrentTimestamp();
     }
 #ifdef __MQL4__
     return ::DayOfWeek();
@@ -75,7 +74,7 @@ struct DateTimeStatic {
    */
   static int DayOfYear(datetime dt = 0) {
     if (dt == (datetime)0) {
-      dt = PlatformTime::CurrentTimestamp();
+      dt = (datetime)PlatformTime::CurrentTimestamp();
     }
 #ifdef __MQL4__
     return ::DayOfYear();
@@ -91,7 +90,7 @@ struct DateTimeStatic {
    */
   static int Hour(datetime dt = 0) {
     if (dt == (datetime)0) {
-      dt = PlatformTime::CurrentTimestamp();
+      dt = (datetime)PlatformTime::CurrentTimestamp();
     }
 #ifdef __MQL4__
     return ::Hour();
@@ -116,7 +115,7 @@ struct DateTimeStatic {
    */
   static int Minute(datetime dt = 0) {
     if (dt == (datetime)0) {
-      dt = PlatformTime::CurrentTimestamp();
+      dt = (datetime)PlatformTime::CurrentTimestamp();
     }
 #ifdef __MQL4__
     return ::Minute();
@@ -132,7 +131,7 @@ struct DateTimeStatic {
    */
   static int Month(datetime dt = 0) {
     if (dt == (datetime)0) {
-      dt = PlatformTime::CurrentTimestamp();
+      dt = (datetime)PlatformTime::CurrentTimestamp();
     }
 #ifdef __MQL4__
     return ::Month();
@@ -148,7 +147,7 @@ struct DateTimeStatic {
    */
   static int Seconds(datetime dt = 0) {
     if (dt == (datetime)0) {
-      dt = PlatformTime::CurrentTimestamp();
+      dt = (datetime)PlatformTime::CurrentTimestamp();
     }
 #ifdef __MQL4__
     return ::Seconds();
@@ -194,7 +193,7 @@ struct DateTimeStatic {
    */
   static int Year(datetime dt = 0) {
     if (dt == (datetime)0) {
-      dt = PlatformTime::CurrentTimestamp();
+      dt = (datetime)PlatformTime::CurrentTimestamp();
     }
 #ifdef __MQL4__
     return ::Year();

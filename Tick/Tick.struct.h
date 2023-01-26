@@ -71,6 +71,7 @@ struct TickTAB : TickAB<T> {
   // Struct constructors.
   TickTAB(long _time_ms = 0, T _ask = 0, T _bid = 0) : TickAB<T>(_ask, _bid), time_ms(_time_ms) {}
   TickTAB(MqlTick &_tick) : TickAB<T>(_tick), time_ms(_tick.time_msc) {}
+  TickTAB(const TickTAB &r) { THIS_REF = r; }
 
   /**
    * Method used by ItemsHistory.

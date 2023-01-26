@@ -81,7 +81,7 @@ class Indi_Demo : public Indicator<IndiDemoParams> {
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = Indi_Demo::iDemo(THIS_PTR, ToRelShift(_abs_shift));
-    if (idparams.is_draw) {
+    if (idparams.IsDrawing()) {
       draw.DrawLineTo(GetName(), GetCandle() PTR_DEREF GetBarTime(ToRelShift(_abs_shift)), _value);
     }
     return _value;

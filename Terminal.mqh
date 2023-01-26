@@ -934,36 +934,34 @@ class Terminal : public Object {
   string ToString() override {
     string _sep = "; ";
     return StringFormat("Allow DLL: %s", IsDllsAllowed() ? "Yes" : "No") + _sep +
-               StringFormat("Allow Libraries: %s", IsLibrariesAllowed() ? "Yes" : "No") + _sep +
-               StringFormat("CPUs: %d", GetCpuCores()) + _sep +
-               // StringFormat("Community account: %s", (string)HasCommunityAccount()) + _sep +
-               // StringFormat("Community balance: %.2f", GetCommunityBalance()) + _sep +
-               // StringFormat("Community connection: %s", (string)IsCommunityConnected()) + _sep +
-               StringFormat("Disk space: %d", GetDiskSpace()) + _sep +
-               StringFormat("Enabled FTP: %s", IsFtpEnabled() ? "Yes" : "No") + _sep +
-               StringFormat("Enabled e-mail: %s", IsEmailEnabled() ? "Yes" : "No") + _sep +
-               // StringFormat("Enabled notifications: %s", (string)IsNotificationsEnabled()) + _sep +
-               StringFormat("IsOptimization: %s", IsOptimization() ? "Yes" : "No") + _sep +
-               StringFormat("IsRealtime: %s", IsRealtime() ? "Yes" : "No") + _sep +
-               StringFormat("IsTesting: %s", IsTesting() ? "Yes" : "No") + _sep +
-               StringFormat("IsVisual: %s", IsVisualMode() ? "Yes" : "No") + _sep +
-               // StringFormat("MQ ID: %s", (string)HasMetaQuotesId()) + _sep +
-               StringFormat("Memory (free): %d", GetFreeMemory()) + _sep +
-               StringFormat("Memory (physical): %d", GetPhysicalMemory()) + _sep +
-               StringFormat("Memory (total): %d", GetTotalMemory()) + _sep +
-               StringFormat("Memory (used): %d", GetUsedMemory()) + _sep + "Path (Common): " + GetCommonPath() + _sep +
-               "Path (Data): " + GetDataPath() + _sep + "Path (Expert): " + GetExpertPath() + _sep +
-               "Path (Terminal): ",
-           GetTerminalPath() + _sep + "Program name: ",
-           WindowExpertName() + _sep + StringFormat("Screen DPI: %d", GetScreenDpi()) + _sep +
-               StringFormat("Terminal build: %d", GetBuild()) + _sep +
-               "Terminal code page: " + IntegerToString(GetCodePage()) + _sep + "Terminal company: " + GetCompany() +
-               _sep + "Terminal connected: " + (IsConnected() ? "Yes" : "No") + _sep +
-               "Terminal language: " + GetLanguage() + _sep + "Terminal name: " + GetName() + _sep +
-               StringFormat("Termnal max bars: %d", GetMaxBars()) + _sep +
-               "Trade allowed: " + (IsTradeAllowed() ? "Yes" : "No") + _sep +
-               "Trade context busy: " + (IsTradeContextBusy() ? "Yes" : "No") + _sep + "Trade perm: %s" +
-               (CheckPermissionToTrade() ? "Yes" : "No") + _sep + StringFormat("Trade ping (last): %d", GetPingLast());
+           StringFormat("Allow Libraries: %s", IsLibrariesAllowed() ? "Yes" : "No") + _sep +
+           StringFormat("CPUs: %d", GetCpuCores()) + _sep +
+           // StringFormat("Community account: %s", (string)HasCommunityAccount()) + _sep +
+           // StringFormat("Community balance: %.2f", GetCommunityBalance()) + _sep +
+           // StringFormat("Community connection: %s", (string)IsCommunityConnected()) + _sep +
+           StringFormat("Disk space: %d", GetDiskSpace()) + _sep +
+           StringFormat("Enabled FTP: %s", IsFtpEnabled() ? "Yes" : "No") + _sep +
+           StringFormat("Enabled e-mail: %s", IsEmailEnabled() ? "Yes" : "No") + _sep +
+           // StringFormat("Enabled notifications: %s", (string)IsNotificationsEnabled()) + _sep +
+           StringFormat("IsOptimization: %s", IsOptimization() ? "Yes" : "No") + _sep +
+           StringFormat("IsRealtime: %s", IsRealtime() ? "Yes" : "No") + _sep +
+           StringFormat("IsTesting: %s", IsTesting() ? "Yes" : "No") + _sep +
+           StringFormat("IsVisual: %s", IsVisualMode() ? "Yes" : "No") + _sep +
+           // StringFormat("MQ ID: %s", (string)HasMetaQuotesId()) + _sep +
+           StringFormat("Memory (free): %d", GetFreeMemory()) + _sep +
+           StringFormat("Memory (physical): %d", GetPhysicalMemory()) + _sep +
+           StringFormat("Memory (total): %d", GetTotalMemory()) + _sep +
+           StringFormat("Memory (used): %d", GetUsedMemory()) + _sep + "Path (Common): " + GetCommonPath() + _sep +
+           "Path (Data): " + GetDataPath() + _sep + "Path (Expert): " + GetExpertPath() + _sep +
+           "Path (Terminal): " + GetTerminalPath() + _sep + "Program name: " + WindowExpertName() + _sep +
+           StringFormat("Screen DPI: %d", GetScreenDpi()) + _sep + StringFormat("Terminal build: %d", GetBuild()) +
+           _sep + "Terminal code page: " + IntegerToString(GetCodePage()) + _sep + "Terminal company: " + GetCompany() +
+           _sep + "Terminal connected: " + (IsConnected() ? "Yes" : "No") + _sep +
+           "Terminal language: " + GetLanguage() + _sep + "Terminal name: " + GetName() + _sep +
+           StringFormat("Termnal max bars: %d", GetMaxBars()) + _sep +
+           "Trade allowed: " + (IsTradeAllowed() ? "Yes" : "No") + _sep +
+           "Trade context busy: " + (IsTradeContextBusy() ? "Yes" : "No") + _sep + "Trade perm: %s" +
+           (CheckPermissionToTrade() ? "Yes" : "No") + _sep + StringFormat("Trade ping (last): %d", GetPingLast());
   }
 };
 

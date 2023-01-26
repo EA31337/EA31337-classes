@@ -150,7 +150,7 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
                                                      iparams.shift + ToRelShift(_abs_shift));
-        if (idparams.is_draw) {
+        if (idparams.IsDrawing()) {
           draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + ToRelShift(_abs_shift)), _value, 1);
         }
         break;
@@ -164,7 +164,7 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
                                                      iparams.shift + ToRelShift(_abs_shift));
-        if (idparams.is_draw) {
+        if (idparams.IsDrawing()) {
           draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + ToRelShift(_abs_shift)), _value, 1);
         }
         break;

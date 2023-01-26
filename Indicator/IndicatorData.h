@@ -32,6 +32,11 @@
 // Forward class declaration.
 class IndicatorData;
 class DrawIndicator;
+class IValueStorage;
+
+struct ExternInstantiateIndicatorBufferValueStorageDouble {
+  static IValueStorage* InstantiateIndicatorBufferValueStorageDouble(IndicatorData*, int);
+};
 
 // Includes.
 #include "../Bar.struct.h"
@@ -47,8 +52,6 @@ class DrawIndicator;
 #include "IndicatorData.struct.h"
 #include "IndicatorData.struct.serialize.h"
 #include "IndicatorData.struct.signal.h"
-
-extern IValueStorage* InstantiateIndicatorBufferValueStorageDouble(IndicatorData* _indi, int _mode);
 
 /**
  * Implements class to store indicator data.
@@ -745,7 +748,7 @@ class IndicatorData : public IndicatorBase {
    */
   void AddListener(IndicatorData* _indi) {
     WeakRef<IndicatorData> _ref = _indi;
-    ArrayPush(listeners, _ref);
+    ArrayPushObject(listeners, _ref);
   }
 
   /**
@@ -1746,7 +1749,9 @@ class IndicatorData : public IndicatorBase {
     }
 
     if (!value_storages[_mode].IsSet()) {
-      value_storages[_mode] = InstantiateIndicatorBufferValueStorageDouble(THIS_PTR, _mode);
+      value_storages[_mode] =
+          ExternInstantiateIndicatorBufferValueStorageDouble::InstantiateIndicatorBufferValueStorageDouble(THIS_PTR,
+                                                                                                           _mode);
     }
     return value_storages[_mode].Ptr();
   }

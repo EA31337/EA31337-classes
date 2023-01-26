@@ -30,9 +30,6 @@
 #pragma once
 #endif
 
-// Includes.
-#include <type_traits>
-
 #include "Refs.rc.h"
 #include "Std.h"
 
@@ -92,10 +89,6 @@ struct SimpleRef {
     }
   }
 };
-
-template <typename T>
-using base_type =
-    typename std::remove_cv<typename std::remove_reference<typename std::remove_pointer<T>::type>::type>::type;
 
 /**
  * Class used to hold strong reference to reference-counted object.
@@ -284,9 +277,9 @@ struct Ref {
   }
 };
 
-template <typename X>
-Ref<X> make_ref() {
-  return Ref<X>();
+template <typename R, typename X>
+Ref<R> MakeRef(X* _ptr) {
+  return Ref<R>(_ptr);
 }
 
 /**

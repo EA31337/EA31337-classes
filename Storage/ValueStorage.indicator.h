@@ -34,6 +34,7 @@
 class IndicatorData;
 
 // Includes.
+#include "../Indicator/IndicatorData.h"
 #include "ValueStorage.history.h"
 
 /**
@@ -57,6 +58,7 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   C Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetValue<C>(mode, RealShift(_rel_shift)); }
 };
 
-IValueStorage* InstantiateIndicatorBufferValueStorageDouble(IndicatorData* _indi, int _mode) {
+IValueStorage* ExternInstantiateIndicatorBufferValueStorageDouble::InstantiateIndicatorBufferValueStorageDouble(
+    IndicatorData* _indi, int _mode) {
   return new IndicatorBufferValueStorage<double>(_indi, _mode);
 }

@@ -188,7 +188,8 @@ class Log : public Object {
   void Link(Log *_log) {
     PTR_ATTRIB(_log, SetLevel(log_level));  // Sets the same level as this instance.
     // @todo: Make sure we're not linking the same instance twice.
-    logs.Push(_log);
+    Ref<Log> _ref_log = _log;
+    logs.Push(_ref_log);
   }
 
   /**

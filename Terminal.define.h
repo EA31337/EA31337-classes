@@ -37,6 +37,8 @@
 #define CP_UTF7 65000    // UTF-7 code page.
 #define CP_UTF8 65001    // UTF-8 code page.
 
+#ifndef __MQL__
+
 // Colors.
 #define clrAliceBlue 0x00F0F8FF
 #define clrAntiqueWhite 0x00FAEBD7
@@ -303,6 +305,8 @@
 #define WhiteSmoke clrWhiteSmoke
 #define Yellow clrYellow
 #define YellowGreen clrYellowGreen
+
+#endif
 
 #ifndef __MQL__
 #define clrNONE -1

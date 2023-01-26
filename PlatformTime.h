@@ -23,7 +23,6 @@
 // Includes.
 #include "DateTime.enum.h"
 #include "DateTime.mqh"
-#include "DateTime.struct.h"
 
 /**
  * @file
@@ -35,7 +34,9 @@
 // Includes.
 #include <chrono>
 #include <ctime>
+
 #include "DateTime.struct.h"
+#endif
 
 class PlatformTime {
   static MqlDateTime current_time;
@@ -49,19 +50,19 @@ class PlatformTime {
 
   void static Tick() {
 #ifdef __MQL__
-    static _last_time_ms = 0;
+    static long _last_timestamp_ms = 0;
 
-    current_time_s = ::TimeCurrent(&current_time);
+    current_timestamp_s = ::TimeCurrent(current_time);
 
-    current_time_ms = (long)GetTickCount();
+    current_timestamp_ms = (long)GetTickCount();
 
-    if (_last_time_ms != 0 && current_time_ms < _last_time_ms) {
+    if (_last_timestamp_ms != 0 && current_timestamp_ms < _last_timestamp_ms) {
       // Overflow occured (49.7 days passed).
       // More info: https://docs.mql4.com/common/gettickcount
-      current_time_ms += _last_time_ms;
+      current_timestamp_ms += _last_timestamp_ms;
     }
 
-    _last_time_ms = current_time_ms;
+    _last_timestamp_ms = current_timestamp_ms;
 #else
     using namespace std::chrono;
     current_timestamp_s = (long)duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
@@ -82,8 +83,6 @@ class PlatformTime {
   }
 };
 
-MqlDateTime PlatformTime::current_time{0, 0, 0, 0, 0, 0, 0, 0};
+MqlDateTime PlatformTime::current_time = {0, 0, 0, 0, 0, 0, 0, 0};
 long PlatformTime::current_timestamp_s = 0;
 long PlatformTime::current_timestamp_ms = 0;
-
-#endif

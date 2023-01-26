@@ -219,7 +219,10 @@ class Platform {
   /**
    * Returns id of the current chart.
    */
-  static int ChartID() { Print("Not yet implemented: ", __FUNCTION__, " returns 0."); }
+  static int ChartID() {
+    Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+    return 0;
+  }
 
   /**
    * Binds Candle and/or Tick indicator as a source of prices or data for given indicator.

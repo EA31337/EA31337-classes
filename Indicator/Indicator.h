@@ -27,12 +27,6 @@
 // Forward class declaration.
 struct IndicatorParams;
 
-#include "Indicator.define.h"
-#include "Indicator.enum.h"
-#include "Indicator.struct.h"
-#include "Indicator.struct.serialize.h"
-#include "IndicatorData.h"
-
 // Includes.
 #include "../Array.mqh"
 #include "../BufferStruct.mqh"
@@ -48,6 +42,12 @@ struct IndicatorParams;
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.indicator.h"
 #include "../Storage/ValueStorage.native.h"
+#include "../Task/TaskCondition.enum.h"
+#include "Indicator.define.h"
+#include "Indicator.enum.h"
+#include "Indicator.struct.h"
+#include "Indicator.struct.serialize.h"
+#include "IndicatorData.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).

@@ -530,6 +530,8 @@ struct IndicatorDataParams {
     indi_color = _clr;
     draw_window = _window;
   }
+  bool IsDrawing() { return is_draw; }
+
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
 };
 

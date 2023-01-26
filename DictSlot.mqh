@@ -40,7 +40,7 @@ class DictSlot {
 
   DictSlot(unsigned char flags = 0) : _flags(flags) {}
 
-  DictSlot(const DictSlot& r) : _flags(r._flags), key(r.key), value(r.value) {}
+  DictSlot(const DictSlot& r) : _flags(r._flags), key(r.key) { value = r.value; }
 
   bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
 

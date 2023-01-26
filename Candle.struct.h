@@ -236,7 +236,7 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   // Number of ticks which formed the candle. Also known as volume.
   int volume;
 
-  // Struct constructors.
+  // Struct constructor.
   CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, int _start_time = -1, int _length = 0,
                 long _open_timestamp_ms = -1, long _close_timestamp_ms = -1, int _volume = 0)
       : CandleOHLC(_open, _high, _low, _close),
@@ -250,6 +250,9 @@ struct CandleOCTOHLC : CandleOHLC<T> {
       volume = 1;
     }
   }
+
+  // Struct constructor.
+  CandleOCTOHLC(const CandleOCTOHLC &r) { THIS_REF = r; }
 
   /**
    * Initializes candle with a given start time, lenght in seconds, first tick's timestamp and its price.
