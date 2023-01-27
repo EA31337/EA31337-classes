@@ -33,6 +33,7 @@ class Draw;
 #include "Data.define.h"
 #include "Object.extern.h"
 //#include "Platform.h"
+#include "Object.mqh"
 #include "Terminal.define.h"
 
 #ifndef __MQL4__
@@ -72,7 +73,7 @@ class Draw : public Object {
   /**
    * Class constructor.
    */
-  Draw(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : Platform::ChartID()) {}
+  Draw(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : ::ChartID()) {}
 
   /* Graphic object related methods */
 

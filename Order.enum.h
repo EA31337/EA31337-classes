@@ -246,6 +246,8 @@ enum ENUM_ORDER_TYPE {
   ORDER_TYPE_CLOSE_BY,         // Order to close a position by an opposite one.
   ORDER_TYPE_UNSET             // A NULL value.
 };
+#else
+#define ORDER_TYPE_UNSET NULL
 #endif
 
 /* Positions */

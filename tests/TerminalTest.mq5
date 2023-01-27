@@ -37,7 +37,7 @@ Terminal *terminal;
  */
 int OnInit() {
   terminal = new Terminal();
-  Print("TERMINAL (OnInit):\n\t\t\t", terminal.ToString("\n\t\t\t"));
+  Print("TERMINAL (OnInit):\n\t\t\t", terminal.ToString());
   assertTrueOrFail(terminal.IsDllsAllowed(), "DLLs not allowed!");
   assertTrueOrFail(terminal.IsExpertEnabled(), "Expert Advisors not allowed!");
   assertTrueOrFail(terminal.IsLibrariesAllowed(), "Libraries not allowed!");
@@ -73,6 +73,6 @@ int OnInit() {
  * Implements OnDeinit().
  */
 void OnDeinit(const int reason) {
-  Print("TERMINAL (OnDeinit):\n\t\t\t", terminal.ToString("\n\t\t\t"));
+  Print("TERMINAL (OnDeinit):\n\t\t\t", terminal.ToString());
   Object::Delete(terminal);
 }

@@ -113,7 +113,7 @@ bool OpenOrder(int _index, int _order_no) {
   OrderParams _oparams;
   if (_request.type == ORDER_TYPE_SELL) {
     ARRAY(DataParamEntry, _cond_args);
-    DataParamEntry _param1 = ORDER_TYPE_TIME;
+    DataParamEntry _param1 = (int)ORDER_TYPE_TIME;
     DataParamEntry _param2 = PeriodSeconds() * (MAX_ORDERS + _index);
     ArrayPushObject(_cond_args, _param1);
     ArrayPushObject(_cond_args, _param2);

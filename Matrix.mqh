@@ -229,7 +229,7 @@ class MatrixDimension {
   int position[MATRIX_DIMENSIONS - 1];
 
   // Containers array if type is "Containers"
-  ARRAY(MatrixDimension<X>, containers);
+  ARRAY(MatrixDimension<X>*, containers);
 
   /**
    * Constructor.

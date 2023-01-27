@@ -307,7 +307,7 @@ class Order : public SymbolInfo {
         ENUM_ORDER_CONDITION _cond = oparams.Get<ENUM_ORDER_CONDITION>(ORDER_PARAM_COND_CLOSE, _ci);
         ARRAY(DataParamEntry, _cond_args);
         DataParamEntry _item0 = oparams.Get<long>(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _ci);
-        ArrayPush(_cond_args, _item0);
+        ArrayPushObject(_cond_args, _item0);
         _result |= Order::CheckCondition(_cond, _cond_args);
       }
     }
@@ -2478,7 +2478,7 @@ class Order : public SymbolInfo {
               case ORDER_TIME_SETUP:
                 return OrderGetValue(DEAL_TIME, _type, _out);
               case ORDER_TYPE:
-                switch (OrderGetValue(DEAL_TYPE, _type, _long)) {
+                switch ((int)OrderGetValue(DEAL_TYPE, _type, _long)) {
                   case DEAL_TYPE_BUY:
                     return ConvertBasic::LongTo<X>(ORDER_TYPE_BUY);
                   case DEAL_TYPE_SELL:
@@ -2512,7 +2512,7 @@ class Order : public SymbolInfo {
                 return NULL_VALUE;
               default:
                 if ((int)_prop_id == (int)ORDER_REASON) {
-                  switch (OrderGetValue(DEAL_REASON, _type, _long)) {
+                  switch ((int)OrderGetValue(DEAL_REASON, _type, _long)) {
                     case DEAL_REASON_CLIENT:
                       return ConvertBasic::LongTo<X>(ORDER_REASON_CLIENT);
                     case DEAL_REASON_MOBILE:
@@ -2576,7 +2576,7 @@ class Order : public SymbolInfo {
               case ORDER_TIME_SETUP:
                 return OrderGetValue(POSITION_TIME, _type, _out);
               case ORDER_TYPE:
-                switch (OrderGetValue(POSITION_TYPE, _type, _long)) {
+                switch ((int)OrderGetValue(POSITION_TYPE, _type, _long)) {
                   case POSITION_TYPE_BUY:
                     return ConvertBasic::LongTo<X>(ORDER_TYPE_BUY);
                   case POSITION_TYPE_SELL:
@@ -2610,7 +2610,7 @@ class Order : public SymbolInfo {
                 return NULL_VALUE;
               default:
                 if ((int)_prop_id == (int)ORDER_REASON) {
-                  switch (OrderGetValue(POSITION_REASON, _type, _long)) {
+                  switch ((int)OrderGetValue(POSITION_REASON, _type, _long)) {
                     case POSITION_REASON_CLIENT:
                       return ConvertBasic::LongTo<X>(ORDER_REASON_CLIENT);
                     case POSITION_REASON_MOBILE:

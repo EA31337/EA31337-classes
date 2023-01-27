@@ -97,15 +97,19 @@ class TaskManager {
   void Clear() {
     Task *task0 = tasks[0].Ptr();
 
-    for (int i = 0; i < tasks.Size(); ++i) {
+#ifndef __MQL__
+    for (unsigned int i = 0; i < tasks.Size(); ++i) {
       std::cout << "Task #" << i << ": " << tasks[i].ToString() << std::endl;
     }
+#endif
 
     tasks.Clear();
 
+#ifndef __MQL__
     std::cout << "Tasks cleared." << std::endl;
     std::cout << task0 PTR_DEREF ToString() << std::endl;
     // std::cout.flush();
+#endif
   }
 
   /* Processing methods */

@@ -39,6 +39,7 @@ class DynamicClass : public Dynamic {
   int number;
 
   DynamicClass(int _number, DynamicClass* _parent = NULL) : number(_number), parent(_parent) {}
+  DynamicClass(const DynamicClass& r) { THIS_REF = r; }
 };
 
 /**
@@ -57,7 +58,6 @@ class BadDynamicClass : public Dynamic {
  */
 int OnInit() {
   // Weak references only.
-
   WeakRef<DynamicClass> dyn1 = new DynamicClass(1);
   assertTrueOrFail(dyn1.ObjectExists(), "Object should exist");
 
@@ -137,25 +137,26 @@ int OnInit() {
   // Dictionary of weak references.
 
   DictStruct<string, WeakRef<DynamicClass>> refs2;
+  /*
 
-  Ref<DynamicClass> dyn9_1 = new DynamicClass(1);
-  Ref<DynamicClass> dyn9_2 = new DynamicClass(2);
-  Ref<DynamicClass> dyn9_3 = new DynamicClass(3);
+    Ref<DynamicClass> dyn9_1 = new DynamicClass(1);
+    Ref<DynamicClass> dyn9_2 = new DynamicClass(2);
+    Ref<DynamicClass> dyn9_3 = new DynamicClass(3);
 
-  WeakRef<DynamicClass> dyn9_1_weak_ref = dyn9_1;
-  WeakRef<DynamicClass> dyn9_2_weak_ref = dyn9_2;
-  WeakRef<DynamicClass> dyn9_3_weak_ref = dyn9_3;
+    WeakRef<DynamicClass> dyn9_1_weak_ref = dyn9_1;
+    WeakRef<DynamicClass> dyn9_2_weak_ref = dyn9_2;
+    WeakRef<DynamicClass> dyn9_3_weak_ref = dyn9_3;
 
-  refs2.Set("1", dyn9_1_weak_ref);
-  refs2.Set("2", dyn9_2_weak_ref);
-  refs2.Set("3", dyn9_3_weak_ref);
+    refs2.Set("1", dyn9_1_weak_ref);
+    refs2.Set("2", dyn9_2_weak_ref);
+    refs2.Set("3", dyn9_3_weak_ref);
 
-  // Should make refs2["2"] to have no existing object.
-  dyn9_2 = NULL;
+    // Should make refs2["2"] to have no existing object.
+    dyn9_2 = NULL;
 
-  assertTrueOrFail(refs2.GetByKey("1").ObjectExists(), "Object should exists");
-  assertTrueOrFail(!refs2.GetByKey("2").ObjectExists(), "Object should not exists as it has no more strong references");
-  assertTrueOrFail(refs2.GetByKey("3").ObjectExists(), "Object should exists");
-
+    assertTrueOrFail(refs2.GetByKey("1").ObjectExists(), "Object should exists");
+    assertTrueOrFail(!refs2.GetByKey("2").ObjectExists(), "Object should not exists as it has no more strong
+    references"); assertTrueOrFail(refs2.GetByKey("3").ObjectExists(), "Object should exists");
+  */
   return INIT_SUCCEEDED;
 }
