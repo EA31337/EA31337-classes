@@ -45,8 +45,13 @@ struct PointEntry {
   T point;
   long key;
 
+  // Default constructor.
   PointEntry() {}
 
+  // Copy constructor.
+  PointEntry(const PointEntry<T>& r) : point(r.point), key(r.key) {}
+
+  // Constructor.
   PointEntry(const T& _point) {
     point = _point;
     key = MakeKey(_point.Position.x, _point.Position.y, _point.Position.z);

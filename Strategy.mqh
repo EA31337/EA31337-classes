@@ -259,7 +259,7 @@ class Strategy : public Taskable<DataParamEntry> {
    * Gets strategy entry.
    */
   StgEntry GetEntry() {
-    StgEntry _entry = {};
+    StgEntry _entry;
     for (ENUM_STRATEGY_STATS_PERIOD _p = EA_STATS_DAILY; _p < FINAL_ENUM_STRATEGY_STATS_PERIOD; _p++) {
       _entry.SetStats(stats_period[(int)_p], _p);
     }
@@ -988,9 +988,10 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                      // 2
       if (METHOD(_method, 2)) _result |= _result || !trade REF_DEREF IsPivot(_cmd);      // 4
       if (METHOD(_method, 3))
-        _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
-      if (METHOD(_method, 4)) _result |= _result || trade REF_DEREF IsPeak(_cmd);                 // 16
-      if (METHOD(_method, 5)) _result |= _result || trade REF_DEREF HasOrderBetter(_cmd);         // 32
+        _result |= _result || iOpen(Symbol(), PERIOD_CURRENT, _shift) > iHigh(Symbol(), PERIOD_CURRENT, _shift + 1) ||
+                   iOpen(Symbol(), PERIOD_CURRENT, _shift) < iLow(Symbol(), PERIOD_CURRENT, _shift + 1);  // 8
+      if (METHOD(_method, 4)) _result |= _result || trade REF_DEREF IsPeak(_cmd);                         // 16
+      if (METHOD(_method, 5)) _result |= _result || trade REF_DEREF HasOrderBetter(_cmd);                 // 32
       /*
       if (METHOD(_method, 6))
         _result |=

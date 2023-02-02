@@ -48,6 +48,21 @@ struct AccountEntry {
   double margin_used;
   double margin_free;
   double margin_avail;
+
+  // Default constructor.
+  AccountEntry() {}
+
+  // Constructor.
+  AccountEntry(const AccountEntry& r)
+      : dtime(r.dtime),
+        balance(r.balance),
+        credit(r.credit),
+        equity(r.equity),
+        profit(r.profit),
+        margin_used(r.margin_used),
+        margin_free(r.margin_free),
+        margin_avail(r.margin_avail) {}
+
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer& _s) {

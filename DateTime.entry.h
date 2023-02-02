@@ -33,6 +33,7 @@
 // Includes.
 #include "DateTime.static.h"
 #include "PlatformTime.h"
+#include "Std.h"
 
 struct DateTimeEntry : MqlDateTime {
   int week_of_year;

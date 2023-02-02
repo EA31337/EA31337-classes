@@ -79,6 +79,11 @@ struct IndiRSIParams : IndicatorParams {
 struct RSIGainLossData {
   double avg_gain;
   double avg_loss;
+  // Default constructor.
+  RSIGainLossData() {}
+
+  // Copy constructor.
+  RSIGainLossData(const RSIGainLossData &r) : avg_gain(r.avg_gain), avg_loss(r.avg_loss) {}
 };
 
 /**

@@ -109,6 +109,7 @@ struct DbSymbolInfoEntry : public SymbolInfoEntry {
   DatabaseTableSchema schema;
   // Constructors.
   DbSymbolInfoEntry() { DefineSchema(); }
+  DbSymbolInfoEntry(const DbSymbolInfoEntry &r) { schema = r.schema; }
   DbSymbolInfoEntry(const MqlTick &_tick, const string _symbol = NULL) : SymbolInfoEntry(_tick, _symbol) {
     DefineSchema();
   }
