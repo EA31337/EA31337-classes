@@ -151,7 +151,8 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
         _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
                                                      iparams.shift + ToRelShift(_abs_shift));
         if (idparams.IsDrawing()) {
-          draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + ToRelShift(_abs_shift)), _value, 1);
+          // draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + ToRelShift(_abs_shift)), _value,
+          // 1);
         }
         break;
       case IDATA_ICUSTOM:
@@ -165,7 +166,8 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
         _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
                                                      iparams.shift + ToRelShift(_abs_shift));
         if (idparams.IsDrawing()) {
-          draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + ToRelShift(_abs_shift)), _value, 1);
+          // draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + ToRelShift(_abs_shift)), _value,
+          // 1);
         }
         break;
     }

@@ -277,9 +277,9 @@ struct Ref {
   }
 };
 
-template <typename R, typename X>
-Ref<R> MakeRef(X* _ptr) {
-  return Ref<R>(_ptr);
+template <typename T>
+Ref<T> MakeRef(T* _ptr) {
+  return Ref<T>(_ptr);
 }
 
 /**

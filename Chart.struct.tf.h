@@ -195,7 +195,7 @@ struct ChartTf {
   static unsigned int TfToSeconds(const ENUM_TIMEFRAMES _tf) {
     switch (_tf) {
       case PERIOD_CURRENT:
-        return TfToSeconds(Period());
+        return PeriodSeconds(_tf);
       case PERIOD_M1:  // 1 minute.
         return 60;
       case PERIOD_M2:  // 2 minutes (non-standard).

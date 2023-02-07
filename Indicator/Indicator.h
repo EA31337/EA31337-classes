@@ -207,9 +207,9 @@ class Indicator : public IndicatorData {
    * Sets whether indicator's buffers should be drawn on the chart.
    */
   void SetDraw(bool _value, color _color = clrAquamarine, int _window = 0) {
-    draw.SetEnabled(_value);
-    draw.SetColorLine(_color);
-    draw.SetWindow(_window);
+    // draw.SetEnabled(_value);
+    // draw.SetColorLine(_color);
+    // draw.SetWindow(_window);
   }
 
   /* Converters */

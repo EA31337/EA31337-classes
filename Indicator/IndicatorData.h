@@ -44,6 +44,7 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 #include "../Flags.h"
 #include "../Storage/IValueStorage.h"
 #include "../Storage/ItemsHistory.h"
+#include "../Storage/ValueStorage.indicator.h"
 #include "../SymbolInfo.struct.h"
 #include "Indicator.enum.h"
 #include "IndicatorBase.h"
@@ -72,7 +73,7 @@ class IndicatorData : public IndicatorBase {
   ARRAY(WeakRef<IndicatorData>, listeners);  // List of indicators that listens for events from this one.
   BufferStruct<IndicatorDataEntry> idata;
   DictStruct<int, Ref<IndicatorData>> indicators;  // Indicators list keyed by id.
-  DrawIndicator* draw;
+  // DrawIndicator* draw;
   IndicatorCalculateCache<double> cache;
   IndicatorDataParams idparams;  // Indicator data params.
   IndicatorState istate;
@@ -1937,6 +1938,11 @@ int CopyBuffer(IndicatorData* _indi, int _mode, int _start, int _count, ValueSto
   }
 
   return _num_copied;
+}
+
+IValueStorage* ExternInstantiateIndicatorBufferValueStorageDouble::InstantiateIndicatorBufferValueStorageDouble(
+    IndicatorData* _indi, int _mode) {
+  return new IndicatorBufferValueStorage<double>(_indi, _mode);
 }
 
 #endif  // INDICATOR_DATA_H

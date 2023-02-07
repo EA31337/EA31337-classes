@@ -37,24 +37,27 @@
  * Helper class to store all indicators and call OnTick() on them.
  */
 class Indicators {
-  Ref<IndicatorData> _indis[];
+  DictStruct<int, Ref<IndicatorData>> _indis;
 
  public:
   void Add(IndicatorBase* _indi) {
     Ref<IndicatorData> _ref = _indi;
-    ArrayPushObject(_indis, _ref);
+    _indis.Push(_ref);
   }
 
-  void Remove(IndicatorData* _indi) {
-    Ref<IndicatorData> _ref = _indi;
-    Util::ArrayRemoveFirst(_indis, _ref);
-  }
+  void Add(Ref<IndicatorData>& _indi) { Add(_indi.Ptr()); }
+
+  IndicatorData* Get(int index) { return _indis[index].Ptr(); }
+
+  IndicatorData* operator[](int index) { return Get(index); }
+
+  int Size() { return _indis.Size(); }
 
   /**
    * Executes OnTick() on every added indicator.
    */
   void Tick(int _global_tick_index) {
-    for (int i = 0; i < ArraySize(_indis); ++i) {
+    for (unsigned int i = 0; i < _indis.Size(); ++i) {
       _indis[i].Ptr().OnTick(_global_tick_index);
     }
   }
@@ -64,7 +67,7 @@ class Indicators {
    */
   string ToString(int _shift = 0) {
     string _result;
-    for (int i = 0; i < ArraySize(_indis); ++i) {
+    for (unsigned int i = 0; i < _indis.Size(); ++i) {
       IndicatorDataEntry _entry = _indis[i].Ptr().GetEntry(_shift);
       _result += _indis[i].Ptr().GetFullName() + " = " + _entry.ToString<double>() + "\n";
     }

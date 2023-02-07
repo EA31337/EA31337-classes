@@ -57,8 +57,3 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
    */
   C Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetValue<C>(mode, RealShift(_rel_shift)); }
 };
-
-IValueStorage* ExternInstantiateIndicatorBufferValueStorageDouble::InstantiateIndicatorBufferValueStorageDouble(
-    IndicatorData* _indi, int _mode) {
-  return new IndicatorBufferValueStorage<double>(_indi, _mode);
-}
