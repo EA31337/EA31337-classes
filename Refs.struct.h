@@ -358,9 +358,25 @@ struct WeakRef {
   }
 
   /**
+   * Makes a weak reference to the given weakly-referenced object.
+   */
+  X* operator=(const WeakRef<X>& right) {
+    THIS_REF = right.Ptr();
+    return Ptr();
+  }
+
+  /**
    * Makes a weak reference to the strongly-referenced object.
    */
   X* operator=(Ref<X>& right) {
+    THIS_REF = right.Ptr();
+    return Ptr();
+  }
+
+  /**
+   * Makes a weak reference to the strongly-referenced object.
+   */
+  X* operator=(const Ref<X>& right) {
     THIS_REF = right.Ptr();
     return Ptr();
   }

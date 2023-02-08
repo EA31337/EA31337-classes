@@ -40,7 +40,7 @@ class Indicators {
   DictStruct<int, Ref<IndicatorData>> _indis;
 
  public:
-  void Add(IndicatorBase* _indi) {
+  void Add(IndicatorData* _indi) {
     Ref<IndicatorData> _ref = _indi;
     _indis.Push(_ref);
   }
@@ -51,7 +51,7 @@ class Indicators {
 
   IndicatorData* operator[](int index) { return Get(index); }
 
-  int Size() { return _indis.Size(); }
+  int Size() { return (int)_indis.Size(); }
 
   /**
    * Executes OnTick() on every added indicator.

@@ -47,6 +47,20 @@ struct MqlTick {
   long time_msc;         // Time of a price last update in milliseconds.
   unsigned int flags;    // Tick flags.
   unsigned long volume;  // Volume for the current last price.
+  // Default constructor.
+  MqlTick() {}
+
+  // Copy constructor.
+  MqlTick(){const MqlTick & r} {
+    time = r.time;
+    ask = r.ask;
+    bid = r.bid;
+    last = r.last;
+    volume_real = r.volume_real;
+    time_msc = r.time_msc;
+    flags = r.flags;
+    volume = r.volume;
+  }
 };
 #endif
 

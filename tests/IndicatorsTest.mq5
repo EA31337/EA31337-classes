@@ -53,8 +53,8 @@ enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_EN
 
 // Global variables.
 Indicators indis;
-DictStruct<int, IndicatorData*> whitelisted_indis;
-DictStruct<int, IndicatorData*> tested;
+Dict<int, IndicatorData*> whitelisted_indis;
+Dict<int, IndicatorData*> tested;
 double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235,
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
