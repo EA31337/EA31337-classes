@@ -65,7 +65,7 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Initializes storage with given value.
    */
-  virtual void Initialize(C _value) {
+  virtual void Initialize(C _value) override {
     Print("HistoryValueStorage does not implement Initialize()!");
     DebugBreak();
   }

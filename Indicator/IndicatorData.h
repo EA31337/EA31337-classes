@@ -44,7 +44,6 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 #include "../Flags.h"
 #include "../Storage/IValueStorage.h"
 #include "../Storage/ItemsHistory.h"
-#include "../Storage/ValueStorage.indicator.h"
 #include "../SymbolInfo.struct.h"
 #include "Indicator.enum.h"
 #include "IndicatorBase.h"
@@ -1939,6 +1938,10 @@ int CopyBuffer(IndicatorData* _indi, int _mode, int _start, int _count, ValueSto
 
   return _num_copied;
 }
+
+// clang-format off
+#include "../Storage/ValueStorage.indicator.h"
+// clang-format on
 
 IValueStorage* ExternInstantiateIndicatorBufferValueStorageDouble::InstantiateIndicatorBufferValueStorageDouble(
     IndicatorData* _indi, int _mode) {

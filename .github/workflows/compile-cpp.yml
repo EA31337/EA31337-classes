@@ -43,6 +43,8 @@ jobs:
         with:
           compiler: gcc-latest
       - name: Compile ${{ matrix.file }} via emcc
+        if: always()
         run: emcc "${{ matrix.file }}"
       - name: Compile ${{ matrix.file }} via g++
+        if: always()
         run: g++ -c "${{ matrix.file }}"

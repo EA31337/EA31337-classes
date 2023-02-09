@@ -195,7 +195,12 @@ struct ChartTf {
   static unsigned int TfToSeconds(const ENUM_TIMEFRAMES _tf) {
     switch (_tf) {
       case PERIOD_CURRENT:
-        return PeriodSeconds(_tf);
+#ifdef __MQL__
+        return ::PeriodSeconds(_tf);
+#else
+        RUNTIME_ERROR("PeriodSeconds(PERIOD_CURRENT) is not implemented! Returning 0.");
+        return 0;
+#endif
       case PERIOD_M1:  // 1 minute.
         return 60;
       case PERIOD_M2:  // 2 minutes (non-standard).

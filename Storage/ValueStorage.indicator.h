@@ -32,6 +32,8 @@
 
 // Forward declarations.
 class IndicatorData;
+template <typename C>
+class HistoryValueStorage;
 
 // Includes.
 #include "../Indicator/IndicatorData.h"
@@ -50,10 +52,13 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
    * Constructor.
    */
   IndicatorBufferValueStorage(IndicatorData* _indi_candle, int _mode = 0, bool _is_series = false)
-      : mode(_mode), HistoryValueStorage(_indi_candle) {}
+      : HistoryValueStorage<C>(_indi_candle), mode(_mode) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  C Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetValue<C>(mode, RealShift(_rel_shift)); }
+  C Fetch(int _rel_shift) override {
+    IndicatorData* _indi = THIS_ATTR indi_candle.Ptr();
+    return _indi PTR_DEREF GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
+  }
 };

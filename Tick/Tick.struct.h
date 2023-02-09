@@ -51,7 +51,7 @@ struct MqlTick {
   MqlTick() {}
 
   // Copy constructor.
-  MqlTick(){const MqlTick & r} {
+  MqlTick(const MqlTick &r) {
     time = r.time;
     ask = r.ask;
     bid = r.bid;
