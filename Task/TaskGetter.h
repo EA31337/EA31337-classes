@@ -36,6 +36,7 @@
 
 // Includes.
 //#include "TaskGetter.enum.h"
+#include "../DateTime.mqh"
 #include "../Terminal.define.h"
 #include "TaskGetter.struct.h"
 #include "TaskGetterBase.h"
