@@ -44,7 +44,10 @@ jobs:
           compiler: gcc-latest
       - name: Compile ${{ matrix.file }} via emcc
         if: always()
-        run: emcc "${{ matrix.file }}"
+        run: >
+          emcc -s WASM=1 -s ENVIRONMENT=node -s EXIT_RUNTIME=0 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=1 -Wall -s
+          MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 --bind -s EXPORTED_FUNCTIONS="[]" -g -std=c++17
+          "${{ matrix.file }}"
       - name: Compile ${{ matrix.file }} via g++
         if: always()
-        run: g++ -c "${{ matrix.file }}"
+        run: g++ -g -std=c++17 -c "${{ matrix.file }}"
