@@ -36,7 +36,6 @@ template <typename C>
 class HistoryValueStorage;
 
 // Includes.
-#include "../Indicator/IndicatorData.h"
 #include "ValueStorage.history.h"
 
 /**

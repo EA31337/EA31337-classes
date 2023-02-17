@@ -48,7 +48,7 @@ class DrawPoint {
   }
   // Special methods.
   DrawPoint(const DrawPoint& r) : time(r.time), value(r.value) {}
-  DrawPoint(datetime _time = NULL, double _value = 0) : time(_time), value(_value) {}
+  DrawPoint(datetime _time = 0, double _value = 0) : time(_time), value(_value) {}
 };
 
 class DrawIndicator {
@@ -124,7 +124,8 @@ class DrawIndicator {
     }
 
     if (!last_points.KeyExists(_name)) {
-      last_points.Set(_name, DrawPoint(_time, _value));
+      DrawPoint _point(_time, _value);
+      last_points.Set(_name, _point);
     } else {
       DrawPoint* last_point = last_points.GetByKey(_name);
 

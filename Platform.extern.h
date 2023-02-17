@@ -27,6 +27,7 @@
 // Includes.
 #include "Deal.enum.h"
 #include "Order.define.h"
+#include "Terminal.enum.h"
 
 // Forward declarations.
 struct MqlTradeRequest;
@@ -136,5 +137,33 @@ extern long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id);
 extern string AccountInfoInteger(ENUM_ACCOUNT_INFO_STRING property_id);
 
 extern string Symbol();
+
+extern string ObjectName(long _chart_id, int _pos, int _sub_window = -1, int _type = -1);
+
+extern int ObjectsTotal(long chart_id, int type = EMPTY, int window = -1);
+
+extern bool PlotIndexSetString(int plot_index, int prop_id, string prop_value);
+
+extern bool PlotIndexSetInteger(int plot_index, int prop_id, int prop_value);
+
+extern bool ObjectSetInteger(long chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, long prop_value);
+
+extern bool ObjectSetInteger(long chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, int prop_modifier,
+                             long prop_value);
+
+extern bool ObjectSetDouble(long chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, double prop_value);
+
+extern bool ObjectSetDouble(long chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, int prop_modifier,
+                            double prop_value);
+
+extern bool ObjectCreate(long _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1);
+extern bool ObjectCreate(long _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1,
+                         datetime _t2, double _p2);
+
+extern bool ObjectMove(long chart_id, string name, int point_index, datetime time, double price);
+
+extern bool ObjectDelete(long chart_id, string name);
+
+extern int ObjectFind(long chart_id, string name);
 
 #endif

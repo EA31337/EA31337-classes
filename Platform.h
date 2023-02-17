@@ -581,6 +581,76 @@ string Symbol() {
   return false;
 }
 
+string ObjectName(long _chart_id, int _pos, int _sub_window = -1, int _type = -1) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return "";
+}
+
+int ObjectsTotal(long chart_id, int type = EMPTY, int window = -1) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+bool PlotIndexSetString(int plot_index, int prop_id, string prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool PlotIndexSetInteger(int plot_index, int prop_id, int prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectSetInteger(long chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, long prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectSetInteger(long chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, int prop_modifier,
+                      long prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectSetDouble(long chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, double prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectSetDouble(long chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, int prop_modifier,
+                     double prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectCreate(long _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectCreate(long _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1, datetime _t2,
+                  double _p2) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectMove(long chart_id, string name, int point_index, datetime time, double price) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectDelete(long chart_id, string name) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+int GetLastError() { return _LastError; }
+
+int ObjectFind(long chart_id, string name) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
 #endif
 
 /**
