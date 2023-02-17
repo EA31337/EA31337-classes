@@ -532,7 +532,7 @@ class Indicator : public IndicatorData {
   /**
    * Returns stored data in human-readable format.
    */
-  // virtual bool ToString() = NULL; // @fixme?
+  string ToString() override { return EntryToString(); }
 
   /**
    * Whether we can and have to select mode when specifying data source.
