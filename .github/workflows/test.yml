@@ -73,6 +73,7 @@ jobs:
           - SummaryReportTest
           - TickerTest
           - TradeTest
+      max-parallel: 4
     steps:
       - uses: actions/download-artifact@v2
         with:
@@ -114,6 +115,7 @@ jobs:
           - TerminalTest
           - TimerTest
           - ValueStorageTest
+      max-parallel: 4
     steps:
       - uses: actions/download-artifact@v2
         with:
