@@ -84,8 +84,8 @@ class IndicatorCandle : public Indicator<TS> {
    */
   void Init() {
     // Along with indexing by shift, we can also index via timestamp!
-    flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
-    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_INDI_CANDLE_MODE_ENTRY);
+    THIS_ATTR flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
+    THIS_ATTR Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), (int)FINAL_INDI_CANDLE_MODE_ENTRY);
   }
 
  public:
@@ -96,11 +96,11 @@ class IndicatorCandle : public Indicator<TS> {
    */
   IndicatorCandle(const TS& _icparams, const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = NULL,
                   int _indi_mode = 0)
-      : Indicator(_icparams, _idparams, _indi_src, _indi_mode), history(INDI_CANDLE_HISTORY_SIZE) {
+      : Indicator<TS>(_icparams, _idparams, _indi_src, _indi_mode), history(INDI_CANDLE_HISTORY_SIZE) {
     Init();
   }
   IndicatorCandle(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
-      : Indicator(_itype, _shift, _name), history(INDI_CANDLE_HISTORY_SIZE) {
+      : Indicator<TS>(_itype, _shift, _name), history(INDI_CANDLE_HISTORY_SIZE) {
     Init();
   }
 
@@ -154,13 +154,13 @@ class IndicatorCandle : public Indicator<TS> {
   int GetBars() override {
     // Will return number of bars prepended and appended to the history,
     // even if those bars were cleaned up because of history's candle limit.
-    return (int)history.GetPeakSize() - iparams.shift;
+    return (int)history.GetPeakSize() - THIS_ATTR iparams.shift;
   }
 
   /**
    * Returns current tick index (incremented every OnTick()).
    */
-  int GetTickIndex() override { return GetTick() PTR_DEREF GetTickIndex(); }
+  int GetTickIndex() override { return THIS_ATTR GetTick() PTR_DEREF GetTickIndex(); }
 
   /**
    * Check if there is a new bar to parse.
@@ -182,7 +182,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Removes candle from the buffer. Used mainly for testing purposes.
    */
-  void InvalidateCandle(int _abs_shift) {
+  void InvalidateCandle(int _abs_shift) override {
     if (_abs_shift != GetBarIndex()) {
       Print(
           "IndicatorCandle::InvalidateCandle() currently supports specyfing "
@@ -198,7 +198,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Returns time of the bar for a given shift.
    */
-  virtual datetime GetBarTime(int _rel_shift = 0) { return history.GetItemTimeByShift(_rel_shift); }
+  datetime GetBarTime(int _rel_shift = 0) override { return history.GetItemTimeByShift(_rel_shift); }
 
   /**
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
@@ -216,7 +216,7 @@ class IndicatorCandle : public Indicator<TS> {
     BarOHLC _bar;
     CandleOCTOHLC<double> _candle;
 
-    if (history.TryGetItemByShift(ToAbsShift(_rel_shift), _candle)) {
+    if (history.TryGetItemByShift(THIS_ATTR ToAbsShift(_rel_shift), _candle)) {
       _bar = BarOHLC(_candle.open, _candle.high, _candle.low, _candle.close, _candle.start_time);
     }
 
@@ -262,7 +262,7 @@ class IndicatorCandle : public Indicator<TS> {
    */
   IndicatorDataEntry GetEntry(int _shift = 0) override {
     ResetLastError();
-    int _ishift = _shift + iparams.GetShift();
+    int _ishift = _shift + THIS_ATTR iparams.GetShift();
     CandleOCTOHLC<TV> _candle = history.GetItemByShift(_ishift);
     return CandleToEntry(_candle.GetTime(), _candle);
   }
@@ -271,35 +271,35 @@ class IndicatorCandle : public Indicator<TS> {
    * Returns value storage for a given mode.
    */
   IValueStorage* GetValueStorage(int _mode = 0) override {
-    if (_mode >= ArraySize(value_storages)) {
-      ArrayResize(value_storages, _mode + 1);
+    if (_mode >= ArraySize(THIS_ATTR value_storages)) {
+      ArrayResize(THIS_ATTR value_storages, _mode + 1);
     }
 
-    if (!value_storages[_mode].IsSet()) {
+    if (!THIS_ATTR value_storages[_mode].IsSet()) {
       // Buffer not yet created.
       switch (_mode) {
         case INDI_CANDLE_MODE_PRICE_OPEN:
         case INDI_CANDLE_MODE_PRICE_HIGH:
         case INDI_CANDLE_MODE_PRICE_LOW:
         case INDI_CANDLE_MODE_PRICE_CLOSE:
-          value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
+          THIS_ATTR value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
           break;
         case INDI_CANDLE_MODE_SPREAD:
         case INDI_CANDLE_MODE_TICK_VOLUME:
         case INDI_CANDLE_MODE_VOLUME:
-          value_storages[_mode] = new IndicatorBufferValueStorage<long>(THIS_PTR, _mode);
+          THIS_ATTR value_storages[_mode] = new IndicatorBufferValueStorage<long>(THIS_PTR, _mode);
           break;
         case INDI_CANDLE_MODE_TIME:
-          value_storages[_mode] = new IndicatorBufferValueStorage<datetime>(THIS_PTR, _mode);
+          THIS_ATTR value_storages[_mode] = new IndicatorBufferValueStorage<datetime>(THIS_PTR, _mode);
           break;
         case INDI_CANDLE_MODE_PRICE_MEDIAN:
-          value_storages[_mode] = new PriceMedianValueStorage(THIS_PTR);
+          THIS_ATTR value_storages[_mode] = new PriceMedianValueStorage(THIS_PTR);
           break;
         case INDI_CANDLE_MODE_PRICE_TYPICAL:
-          value_storages[_mode] = new PriceTypicalValueStorage(THIS_PTR);
+          THIS_ATTR value_storages[_mode] = new PriceTypicalValueStorage(THIS_PTR);
           break;
         case INDI_CANDLE_MODE_PRICE_WEIGHTED:
-          value_storages[_mode] = new PriceWeightedValueStorage(THIS_PTR);
+          THIS_ATTR value_storages[_mode] = new PriceWeightedValueStorage(THIS_PTR);
           break;
         default:
           Print("ERROR: Unsupported value storage mode ", _mode);
@@ -307,7 +307,7 @@ class IndicatorCandle : public Indicator<TS> {
       }
     }
 
-    return value_storages[_mode].Ptr();
+    return THIS_ATTR value_storages[_mode].Ptr();
   }
 
   /**

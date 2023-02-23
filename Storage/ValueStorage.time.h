@@ -37,12 +37,12 @@ class TimeValueStorage : public HistoryValueStorage<datetime> {
   /**
    * Constructor.
    */
-  TimeValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
+  TimeValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<datetime>(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  TimeValueStorage(TimeValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  TimeValueStorage(TimeValueStorage &_r) : HistoryValueStorage<datetime>(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.

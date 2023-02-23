@@ -76,6 +76,8 @@ struct TickAB {
   TickAB(MqlTick &_tick) : ask((T)_tick.ask), bid((T)_tick.bid) {}
 };
 
+struct DoubleTickAB : TickAB<double> {};
+
 /**
  * Structure for storing ask and bid prices of the symbol.
  */
@@ -93,6 +95,11 @@ struct TickTAB : TickAB<T> {
   long GetTimeMs() { return time_ms; }
 
   /**
+   * Returns time as timestamp (in seconds).
+   */
+  long GetTimestamp() { return time_ms; }
+
+  /**
    * Method used by ItemsHistory.
    */
   long GetLengthMs() {
@@ -100,3 +107,26 @@ struct TickTAB : TickAB<T> {
     return 0;
   }
 };
+
+struct DoubleTickTAB : TickTAB<double> {};
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(TickAB) {
+  emscripten::value_object<TickAB<double>>("TickAB")
+      .field("ask", &TickAB<double>::ask)
+      .field("bid", &TickAB<double>::bid);
+}
+
+EMSCRIPTEN_BINDINGS(TickTAB) {
+  // emscripten::value_object<TickTAB<double>, emscripten::base<TickAB<double>>>("TickTABDouble")
+  emscripten::value_object<TickTAB<double>>("TickTAB")
+      .field("ask", &TickAB<double>::ask)
+      .field("bid", &TickAB<double>::bid)
+      .field("time_ms", &TickTAB<double>::time_ms);
+}
+
+REGISTER_ARRAY_OF(ArrayTickTABDouble, TickTAB<double>, "TickTABArray");
+
+#endif

@@ -230,6 +230,19 @@ class _cpp_array {
   void setIsSeries(bool _isSeries) { m_isSeries = _isSeries; }
 };
 
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+#define REGISTER_ARRAY_OF(N, T, D)               \
+  EMSCRIPTEN_BINDINGS(N) {                       \
+    emscripten::class_<_cpp_array<T>>(D)         \
+        .constructor()                           \
+        .function("Push", &_cpp_array<T>::push)  \
+        .function("Size", &_cpp_array<T>::size); \
+  }
+
+#endif
+
 template <typename T>
 class _cpp_array;
 #endif

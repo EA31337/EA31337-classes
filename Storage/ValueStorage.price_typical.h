@@ -36,12 +36,12 @@ class PriceTypicalValueStorage : public HistoryValueStorage<double> {
   /**
    * Constructor.
    */
-  PriceTypicalValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
+  PriceTypicalValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  PriceTypicalValueStorage(PriceTypicalValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  PriceTypicalValueStorage(PriceTypicalValueStorage &_r) : HistoryValueStorage<double>(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.

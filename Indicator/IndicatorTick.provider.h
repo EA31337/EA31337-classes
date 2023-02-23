@@ -33,7 +33,7 @@
 #include "../Storage/ItemsHistory.h"
 
 /**
- * Regenerates candles and updates exising candles from new ticks. Subclasses by IndicatorTf, IndicatorRenko.
+ * Regenerates candles and updates existing candles from new ticks. Derived by IndicatorTf, IndicatorRenko.
  */
 template <typename TV>
 class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {

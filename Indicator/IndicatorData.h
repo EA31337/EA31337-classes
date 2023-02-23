@@ -1216,7 +1216,7 @@ class IndicatorData : public IndicatorBase {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry) {}
+  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _rel_shift) {}
 
   // virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = NULL;
 
@@ -1947,5 +1947,9 @@ IValueStorage* ExternInstantiateIndicatorBufferValueStorageDouble::InstantiateIn
     IndicatorData* _indi, int _mode) {
   return new IndicatorBufferValueStorage<double>(_indi, _mode);
 }
+
+#ifndef __MQL__
+int GetBarsFromStart(IndicatorData* _indi) { return _indi PTR_DEREF GetBars(); }
+#endif
 
 #endif  // INDICATOR_DATA_H

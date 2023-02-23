@@ -50,7 +50,8 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    * Called on constructor.
    */
   void Init() {
-    history.SetItemProvider(new ItemsHistoryTfCandleProvider<double>(iparams.GetSecsPerCandle(), THIS_PTR));
+    THIS_ATTR history.SetItemProvider(
+        new ItemsHistoryTfCandleProvider<double>(THIS_ATTR iparams.GetSecsPerCandle(), THIS_PTR));
   }
 
  public:
@@ -60,7 +61,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    * Class constructor with timeframe enum.
    */
   IndicatorTf(unsigned int _spc) {
-    iparams.SetSecsPerCandle(_spc);
+    THIS_ATTR iparams.SetSecsPerCandle(_spc);
     Init();
   }
 
@@ -68,7 +69,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    * Class constructor with timeframe enum.
    */
   IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
+    THIS_ATTR iparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
     tf = _tf;
     Init();
   }
@@ -76,8 +77,8 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
   /**
    * Class constructor with timeframe index.
    */
-  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
-    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
+  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = (ENUM_TIMEFRAMES_INDEX)0) {
+    THIS_ATTR iparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
     tf = ChartTf::IndexToTf(_tfi);
     Init();
   }
@@ -95,7 +96,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
   /**
    * Returns current tick index (incremented every OnTick()).
    */
-  int GetTickIndex() override { return history.GetItemProvider() PTR_DEREF GetTickIndex(); }
+  int GetTickIndex() override { return THIS_ATTR history.GetItemProvider() PTR_DEREF GetTickIndex(); }
 };
 
 #endif  // INDICATOR_TF_H

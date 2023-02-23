@@ -237,11 +237,11 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Alters indicator's struct value.
    */
-  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
-    Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry, _shift);
+  void GetEntryAlter(IndicatorDataEntry &_entry, int _rel_shift) override {
+    Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry, _rel_shift);
 #ifdef __MQL4__
     // The LINE_MAIN only exists in MQL4 for Envelopes.
-    _entry.values[LINE_MAIN] = GetValue<double>((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
+    _entry.values[LINE_MAIN] = GetValue<double>((ENUM_LO_UP_LINE)LINE_MAIN, _rel_shift);
 #endif
   }
 

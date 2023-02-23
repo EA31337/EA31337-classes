@@ -42,7 +42,7 @@ class DictStructDestructable : public DictStruct<K, V*> {
    * Destructor.
    */
   ~DictStructDestructable() {
-    for (DictStructIterator<K, V*> iter = Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<K, V*> iter = THIS_ATTR Begin(); iter.IsValid(); ++iter) {
       delete iter.Value();
     }
   }

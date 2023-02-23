@@ -39,12 +39,12 @@ class PriceMedianValueStorage : public HistoryValueStorage<double> {
   /**
    * Constructor.
    */
-  PriceMedianValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
+  PriceMedianValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  PriceMedianValueStorage(PriceMedianValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  PriceMedianValueStorage(PriceMedianValueStorage &_r) : HistoryValueStorage<double>(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.

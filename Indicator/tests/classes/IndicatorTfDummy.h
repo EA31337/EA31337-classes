@@ -45,7 +45,7 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
  public:
   IndicatorTfDummy(unsigned int _spc) : IndicatorTf(_spc) {}
   IndicatorTfDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorTf(_tf) {}
-  IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi = 0) : IndicatorTf(_tfi) {}
+  IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi = (ENUM_TIMEFRAMES_INDEX)0) : IndicatorTf(_tfi) {}
 
   string GetName() override { return "IndicatorTfDummy(" + IntegerToString(iparams.spc) + ")"; }
 

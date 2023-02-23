@@ -36,12 +36,12 @@ class SpreadValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  SpreadValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
+  SpreadValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<long>(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  SpreadValueStorage(SpreadValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  SpreadValueStorage(SpreadValueStorage &_r) : HistoryValueStorage<long>(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.

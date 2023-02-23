@@ -38,6 +38,10 @@ class IndicatorData;
 template <typename C>
 class ValueStorage;
 
+#ifndef __MQL__
+extern int GetBarsFromStart(IndicatorData* _indi);
+#endif
+
 /**
  * Storage for direct access to indicator's buffer for a given mode.
  */
@@ -90,7 +94,11 @@ class HistoryValueStorage : public ValueStorage<C> {
     if (!indi_candle.ObjectExists()) {
       return 0;
     }
+#ifdef __MQL__
     return indi_candle REF_DEREF GetBars();
+#else
+    return GetBarsFromStart(indi_candle.Ptr());
+#endif
   }
 
   /**

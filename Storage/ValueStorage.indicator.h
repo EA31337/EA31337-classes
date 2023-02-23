@@ -31,7 +31,6 @@
 #endif
 
 // Forward declarations.
-class IndicatorData;
 template <typename C>
 class HistoryValueStorage;
 
@@ -53,11 +52,27 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   IndicatorBufferValueStorage(IndicatorData* _indi_candle, int _mode = 0, bool _is_series = false)
       : HistoryValueStorage<C>(_indi_candle), mode(_mode) {}
 
-  /**
-   * Fetches value from a given shift. Takes into consideration as-series flag.
-   */
+/**
+ * Fetches value from a given shift. Takes into consideration as-series flag.
+ */
+#ifdef __MQL__
   C Fetch(int _rel_shift) override {
     IndicatorData* _indi = THIS_ATTR indi_candle.Ptr();
     return _indi PTR_DEREF GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
   }
+#else
+  C Fetch(int _rel_shift) override;
+#endif
 };
+
+// clang-format off
+#include "../Indicator/IndicatorData.h"
+// clang-format on
+
+#ifndef __MQL__
+template <typename C>
+C IndicatorBufferValueStorage<C>::Fetch(int _rel_shift) {
+  IndicatorData* _indi = THIS_ATTR indi_candle.Ptr();
+  return _indi PTR_DEREF GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
+}
+#endif
