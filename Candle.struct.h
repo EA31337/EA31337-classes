@@ -257,7 +257,9 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   // Virtual destructor. Required because of Emscripted warning, despite structure has no virtual methods:
   // warning: destructor called on non-final 'CandleOCTOHLC<double>' that has virtual functions but non-virtual
   // destructor [-Wdelete-non-abstract-non-virtual-dtor]
+#ifndef __MQL__
   virtual ~CandleOCTOHLC() {}
+#endif
 
   /**
    * Initializes candle with a given start time, lenght in seconds, first tick's timestamp and its price.
@@ -370,7 +372,11 @@ struct CandleTOHLC : CandleOHLC<T> {
 
 /* Method to serialize CandleEntry structure. */
 template <typename T>
+#ifdef __MQL__
+SerializerNodeType CandleOHLC::Serialize(Serializer &s) {
+#else
 SerializerNodeType CandleOHLC<T>::Serialize(Serializer &s) {
+#endif
   // s.Pass(THIS_REF, "time", TimeToString(time));
   s.Pass(THIS_REF, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
@@ -381,7 +387,11 @@ SerializerNodeType CandleOHLC<T>::Serialize(Serializer &s) {
 
 /* Method to serialize CandleEntry structure. */
 template <typename T>
+#ifdef __MQL__
+SerializerNodeType CandleTOHLC::Serialize(Serializer &s) {
+#else
 SerializerNodeType CandleTOHLC<T>::Serialize(Serializer &s) {
+#endif
   s.Pass(THIS_REF, "time", time);
   s.Pass(THIS_REF, "open", THIS_ATTR open, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "high", THIS_ATTR high, SERIALIZER_FIELD_FLAG_DYNAMIC);
@@ -392,7 +402,11 @@ SerializerNodeType CandleTOHLC<T>::Serialize(Serializer &s) {
 
 /* Method to serialize CandleEntry structure. */
 template <typename T>
+#ifdef __MQL__
+SerializerNodeType CandleOCTOHLC::Serialize(Serializer &s) {
+#else
 SerializerNodeType CandleOCTOHLC<T>::Serialize(Serializer &s) {
+#endif
   s.Pass(THIS_REF, "is_complete", is_complete, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "open_timestamp_ms", open_timestamp_ms, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "close_timestamp_ms", close_timestamp_ms, SERIALIZER_FIELD_FLAG_DYNAMIC);

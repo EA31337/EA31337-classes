@@ -31,6 +31,7 @@
 
 // Includes.
 #include "../DateTime.extern.h"
+#include "../Std.h"
 
 #ifndef __MQL__
 /**
