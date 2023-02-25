@@ -359,7 +359,7 @@ class Platform {
 };
 
 bool Platform::initialized = false;
-DateTime Platform::time = 0;
+DateTime Platform::time = (datetime)0;
 unsigned int Platform::time_flags = 0;
 bool Platform::time_clear_flags = true;
 int Platform::global_tick_index = 0;
@@ -385,9 +385,13 @@ int BarsCalculated(int indicator_handle) { return Platform::BarsCalculated(indic
  */
 int CopyBuffer(int indicator_handle, int buffer_num, int start_pos, int count, ARRAY_REF(double, buffer)) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
 }
 
-unsigned long PositionGetTicket(int _index) { Print("Not yet implemented: ", __FUNCTION__, " returns 0."); }
+unsigned long PositionGetTicket(int _index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
 
 long PositionGetInteger(ENUM_POSITION_PROPERTY_INTEGER property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
@@ -573,20 +577,20 @@ long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id) {
 
 string AccountInfoInteger(ENUM_ACCOUNT_INFO_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
-  return false;
+  return "";
 }
 
 string Symbol() {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
-  return false;
+  return "";
 }
 
-string ObjectName(long _chart_id, int _pos, int _sub_window = -1, int _type = -1) {
+string ObjectName(long _chart_id, int _pos, int _sub_window, int _type) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
   return "";
 }
 
-int ObjectsTotal(long chart_id, int type = EMPTY, int window = -1) {
+int ObjectsTotal(long chart_id, int type, int window) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }

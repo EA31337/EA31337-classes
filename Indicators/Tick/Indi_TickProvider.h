@@ -89,7 +89,7 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
   /**
    * Fetches historic ticks for a given time range.
    */
-  bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) override {
+  bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
     // No history.
     return false;
   }

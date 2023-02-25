@@ -30,6 +30,7 @@
 #define STRUCT_ENUM_INDICATOR_STATE_PROP STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP)
 
 // Includes.
+#include "../Serializer/SerializerConversions.h"
 #include "../Serializer/SerializerNode.enum.h"
 #include "IndicatorData.enum.h"
 
@@ -389,7 +390,8 @@ struct IndicatorDataEntry {
     int _asize = ArraySize(values);
     string _result = "";
     for (int i = 0; i < _asize; i++) {
-      _result += StringFormat("%s%s", (string)values[i].Get<T>(), i < _asize ? "," : "");
+      _result +=
+          StringFormat("%s%s", C_STR(SerializerConversions::ValueToString(values[i].Get<T>())), i < _asize ? "," : "");
     }
     return _result;
   }

@@ -26,6 +26,9 @@
  */
 
 #ifndef __MQLBUILD__
+
+#pragma once
+
 // Used for checking the type of the object pointer.
 // @docs
 // - https://docs.mql4.com/constants/namedconstants/enum_pointer_type

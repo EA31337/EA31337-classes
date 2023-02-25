@@ -23,12 +23,6 @@
 // Includes.
 #include "../DictStruct.mqh"
 #include "../Indicator/Indicator.h"
-#include "Indi_Bands.mqh"
-#include "Indi_CCI.mqh"
-#include "Indi_Envelopes.mqh"
-#include "Indi_MA.mqh"
-#include "Indi_Momentum.mqh"
-#include "Indi_StdDev.mqh"
 #include "Price/Indi_Price.mqh"
 
 #ifndef __MQL4__
@@ -335,35 +329,5 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
         break;
     }
     return _value;
-  }
-
-  /**
-   * Provides built-in indicators whose can be used as data source.
-   */
-  virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
-    if (_id == INDI_BANDS) {
-      IndiBandsParams bands_params;
-      return new Indi_Bands(bands_params);
-    } else if (_id == INDI_CCI) {
-      IndiCCIParams cci_params;
-      return new Indi_CCI(cci_params);
-    } else if (_id == INDI_ENVELOPES) {
-      IndiEnvelopesParams env_params;
-      return new Indi_Envelopes(env_params);
-    } else if (_id == INDI_MOMENTUM) {
-      IndiMomentumParams mom_params;
-      return new Indi_Momentum(mom_params);
-    } else if (_id == INDI_MA) {
-      IndiMAParams ma_params;
-      return new Indi_MA(ma_params);
-    } else if (_id == INDI_RSI) {
-      IndiRSIParams _rsi_params;
-      return new Indi_RSI(_rsi_params);
-    } else if (_id == INDI_STDDEV) {
-      IndiStdDevParams stddev_params;
-      return new Indi_StdDev(stddev_params);
-    }
-
-    return IndicatorData::FetchDataSource(_id);
   }
 };

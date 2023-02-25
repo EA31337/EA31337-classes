@@ -28,6 +28,9 @@
 
 #pragma once
 
+// Includes.
+#include "Object.enum.h"
+
 template <typename X>
 X* GetPointer(X& value) {
   return &value;

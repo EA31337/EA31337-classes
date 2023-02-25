@@ -1351,8 +1351,7 @@ class IndicatorData : public IndicatorBase {
    * Returns value storage to be used for given applied price or applied price overriden by target indicator via
    * SetDataSourceAppliedPrice().
    */
-  virtual ValueStorage<double>* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap,
-                                                                    IndicatorData* _target = nullptr) {
+  ValueStorage<double>* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap, IndicatorData* _target = nullptr) {
     if (_target != nullptr) {
       if (_target PTR_DEREF GetDataSourceAppliedType() != INDI_VS_TYPE_NONE) {
         // User wants to use custom value storage type as applied price, so we forcefully override AP given as the
@@ -1448,15 +1447,13 @@ class IndicatorData : public IndicatorBase {
   /**
    * Fetches historic ticks for a given time range.
    */
-  virtual bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
-    return false;
-  }
+  bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) { return false; }
 
   /**
    * Fetches historic ticks for a given start time and minimum number of tick to retrieve.
    */
-  virtual bool FetchHistoryByStartTimeAndCount(long _from_ms, ENUM_ITEMS_HISTORY_DIRECTION _dir, int _min_count,
-                                               ARRAY_REF(TickTAB<double>, _out_ticks)) {
+  bool FetchHistoryByStartTimeAndCount(long _from_ms, ENUM_ITEMS_HISTORY_DIRECTION _dir, int _min_count,
+                                       ARRAY_REF(TickTAB<double>, _out_ticks)) {
     // Print("FetchHistoryByStartTimeAndCount:");
     // Print("- Requested _from_ms = ", _from_ms, ", _dir = ", EnumToString(_dir), ", _min_count = ", _min_count);
 
