@@ -51,6 +51,11 @@ bool ArraySetAsSeries(ARRAY_REF(T, _array), bool _flag) {
 }
 
 template <typename T>
+bool ArrayGetAsSeries(ARRAY_REF(T, _array)) {
+  return _array.getIsSeries();
+}
+
+template <typename T>
 int ArrayMaximum(const ARRAY_REF(T, _array), int _start = 0, unsigned int _count = WHOLE_ARRAY) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;

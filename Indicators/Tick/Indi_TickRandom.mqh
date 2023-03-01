@@ -90,7 +90,7 @@ class Indi_TickRandom : public IndicatorTick<Indi_TickRandomParams, double, Item
     return false;
   }
 
-  void OnTick(int _global_tick_index) override {
+  bool OnTick(int _global_tick_index) override {
     float _ask = 1.0f + (1.0f / 32767 * MathRand());
     float _bid = 1.0f + (1.0f / 32767 * MathRand());
     TickAB<double> _tick(_ask, _bid);
@@ -98,5 +98,7 @@ class Indi_TickRandom : public IndicatorTick<Indi_TickRandomParams, double, Item
     EmitEntry(_entry);
     // Appending tick into the history.
     AppendEntry(_entry);
+
+    return true;
   }
 };

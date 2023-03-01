@@ -55,8 +55,8 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
 #include "Indicators/Tick/Indi_TickMt.mqh"
 #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
 #else
-#include "Indicators/Tick/Indi_TickRandom.mqh"
-#define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickRandom
+#include "Indicators/Tick/Indi_TickProvider.h"
+#define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickProvider
 #endif
 #include "SymbolInfo.struct.static.h"
 
@@ -81,6 +81,9 @@ class Platform {
 
   // List of default Candle/Tick indicators.
   static DictStruct<long, Ref<IndicatorData>> indis_dflt;
+
+  // Result of the last tick.
+  static bool last_tick_result;
 
  public:
   /**
@@ -113,12 +116,14 @@ class Platform {
 
     DictStructIterator<long, Ref<IndicatorData>> _iter;
 
+    last_tick_result = false;
+
     for (_iter = indis.Begin(); _iter.IsValid(); ++_iter) {
-      _iter.Value() REF_DEREF Tick(global_tick_index);
+      last_tick_result |= _iter.Value() REF_DEREF Tick(global_tick_index);
     }
 
     for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
-      _iter.Value() REF_DEREF Tick(global_tick_index);
+      last_tick_result |= _iter.Value() REF_DEREF Tick(global_tick_index);
     }
 
     // Will check for new time periods in consecutive Platform::UpdateTime().
@@ -127,6 +132,11 @@ class Platform {
     // Started from 0. Will be incremented after each finished tick.
     ++global_tick_index;
   }
+
+  /**
+   * Checks whether we had a tick inside previous Tick() invocation.
+   */
+  static bool HadTick() { return last_tick_result; }
 
   /**
    * Returns dictionary of added indicators (keyed by unique id).
@@ -359,6 +369,7 @@ class Platform {
 };
 
 bool Platform::initialized = false;
+bool Platform::last_tick_result = false;
 DateTime Platform::time = (datetime)0;
 unsigned int Platform::time_flags = 0;
 bool Platform::time_clear_flags = true;
@@ -650,9 +661,31 @@ bool ObjectDelete(long chart_id, string name) {
 
 int GetLastError() { return _LastError; }
 
+void ResetLastError() { _LastError = 0; }
+
 int ObjectFind(long chart_id, string name) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
+}
+
+bool TimeToStruct(datetime dt, MqlDateTime &dt_struct) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+SymbolGetter::operator string() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return "";
+}
+
+ENUM_TIMEFRAMES Period() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return (ENUM_TIMEFRAMES)0;
+}
+
+datetime StructToTime(MqlDateTime &dt_struct) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty datetime (0).");
+  return (datetime)0;
 }
 
 #endif

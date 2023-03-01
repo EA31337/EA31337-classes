@@ -53,12 +53,14 @@ class Indicators {
 
   int Size() { return (int)_indis.Size(); }
 
+  void Clear() { _indis.Clear(); }
+
   /**
    * Executes OnTick() on every added indicator.
    */
   void Tick(int _global_tick_index) {
     for (unsigned int i = 0; i < _indis.Size(); ++i) {
-      _indis[i].Ptr().OnTick(_global_tick_index);
+      _indis[i].Ptr() PTR_DEREF OnTick(_global_tick_index);
     }
   }
 
@@ -68,8 +70,8 @@ class Indicators {
   string ToString(int _shift = 0) {
     string _result;
     for (unsigned int i = 0; i < _indis.Size(); ++i) {
-      IndicatorDataEntry _entry = _indis[i].Ptr().GetEntry(_shift);
-      _result += _indis[i].Ptr().GetFullName() + " = " + _entry.ToString<double>() + "\n";
+      IndicatorDataEntry _entry = _indis[i].Ptr() PTR_DEREF GetEntry(_shift);
+      _result += _indis[i].Ptr() PTR_DEREF GetFullName() + " = " + _entry.ToString<double>() + "\n";
     }
     return _result;
   }

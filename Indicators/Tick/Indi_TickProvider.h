@@ -105,10 +105,10 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
 
   int BufferSize() { return ArraySize(buffer); }
 
-  void OnTick(int _global_tick_index) override {
+  bool OnTick(int _global_tick_index) override {
     if (current_index >= ArraySize(buffer)) {
       // No more ticks.
-      return;
+      return false;
     }
 
     TickTAB<double> _tick = buffer[current_index++];
@@ -117,6 +117,8 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
     EmitEntry(_entry);
     // Appending tick into the history.
     AppendEntry(_entry);
+
+    return true;
   }
 };
 

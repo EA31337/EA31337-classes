@@ -100,8 +100,8 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
   /**
    * Called when new tick is retrieved from attached data source.
    */
-  void OnTick(int _global_tick_index) override {
-    Indicator<IndiPriceFeederParams>::OnTick(_global_tick_index);
+  bool OnTick(int _global_tick_index) override {
+    bool _result = Indicator<IndiPriceFeederParams>::OnTick(_global_tick_index);
 
     if (idparams.IsDrawing()) {
       int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
@@ -110,5 +110,7 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
         // draw.DrawLineTo(GetName() + "_" + IntegerToString(i), GetBarTime(0), _entry.values[i].GetDbl());
       }
     }
+
+    return _result;
   }
 };

@@ -67,6 +67,7 @@ class IndicatorData : public IndicatorBase {
   int last_tick_index;      // Index of the last tick.
   long first_tick_time_ms;  // Time of the first ask/bid tick.
   void* mydata;
+  bool last_tick_result;             // Result of the last Tick() invocation.
   ENUM_INDI_VS_TYPE retarget_ap_av;  // Value storage type to be used as applied price/volume.
   ARRAY(Ref<IValueStorage>, value_storages);
   ARRAY(WeakRef<IndicatorData>, listeners);  // List of indicators that listens for events from this one.
@@ -865,10 +866,10 @@ class IndicatorData : public IndicatorBase {
            HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME);
   }
 
-  void Tick(int _global_tick_index) {
+  bool Tick(int _global_tick_index) {
     if (last_tick_index == _global_tick_index) {
       // We've already ticked.
-      return;
+      return last_tick_result;
     }
 
     if (_global_tick_index == 0) {
@@ -884,13 +885,24 @@ class IndicatorData : public IndicatorBase {
       GetDataSource() PTR_DEREF Tick(_global_tick_index);
     }
 
+    last_tick_result = false;
+
     // Also ticking all used indicators if they've not yet ticked.
     for (DictStructIterator<int, Ref<IndicatorData>> iter = indicators.Begin(); iter.IsValid(); ++iter) {
-      iter.Value() REF_DEREF Tick(_global_tick_index);
+      // If any of the attached indicators ticks then we signal that the tick happened, even if this indicator doesn't
+      // tick. It is because e.g., RSI could use Candle indicator and Candle could use Tick indicator. Ticking RSI
+      // doesn't signal tick in RSI, nor Candle, but only Tick indicator and only if new tick occured in the Tick
+      // indicator. In other words: Only Tick indicator returns true in its OnTick(). Also, in OnTick() it sends a tick
+      // into Candle indicator which aggregates ticks. RSI doesn't have OnTick() and we can't know if there is new RSI
+      // value. The only way to know that is to Tick all indicators in hierarchy and if one of them returns true in
+      // OnTick() then we know that we have new value for RSI.
+      last_tick_result |= iter.Value() REF_DEREF Tick(_global_tick_index);
     }
 
     // Overridable OnTick() method.
-    OnTick(_global_tick_index);
+    last_tick_result |= OnTick(_global_tick_index);
+
+    return last_tick_result;
   }
 
   /**
@@ -1835,7 +1847,11 @@ class IndicatorData : public IndicatorBase {
   /**
    * Called when new tick is retrieved from attached data source.
    */
-  virtual void OnTick(int _global_tick_index) {}
+  virtual bool OnTick(int _global_tick_index) {
+    // We really don't know if new tick have happened. Let's just return false and let the Platform's Tick() method tick
+    // the Tick indicator in order to know if new tick was signalled.
+    return false;
+  }
 
   /**
    * Called if data source is requested, but wasn't yet set. May be used to initialize indicators that must operate on
