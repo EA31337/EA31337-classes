@@ -59,34 +59,20 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
 
   /**
    * Class constructor with timeframe enum.
+   *
+   * @todo
    */
+  /*
   IndicatorTf(unsigned int _spc) {
     THIS_ATTR iparams.SetSecsPerCandle(_spc);
     Init();
   }
-
-  /**
-   * Class constructor with timeframe enum.
-   */
-  IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    THIS_ATTR iparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
-    tf = _tf;
-    Init();
-  }
-
-  /**
-   * Class constructor with timeframe index.
-   */
-  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = (ENUM_TIMEFRAMES_INDEX)0) {
-    THIS_ATTR iparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
-    tf = ChartTf::IndexToTf(_tfi);
-    Init();
-  }
+  */
 
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams) { Init(); }
+  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams) : IndicatorCandle(_icparams, _idparams) { Init(); }
 
   /**
    * Gets indicator's time-frame.

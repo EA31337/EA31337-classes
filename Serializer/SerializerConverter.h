@@ -39,7 +39,7 @@ class SerializerNode;
 #include "SerializerDict.h"
 #include "SerializerNode.h"
 
-#ifdef __debug__
+#ifdef __debug_verbose__
 #include "SerializerJson.h"
 #endif
 
@@ -72,7 +72,7 @@ class SerializerConverter {
     _serializer.FreeRootNodeOwnership();
     _serializer.PassObject(_value, "", _value, SERIALIZER_FIELD_FLAG_VISIBLE);
     SerializerConverter _converter(_serializer.GetRoot(), serializer_flags);
-#ifdef __debug__
+#ifdef __debug_verbose__
     Print("FromObject(): serializer flags: ", serializer_flags);
     Print("FromObject(): result: ", _serializer.GetRoot() != NULL
                                         ? _serializer.GetRoot() PTR_DEREF ToString(SERIALIZER_JSON_NO_WHITESPACES)
@@ -87,7 +87,7 @@ class SerializerConverter {
     _serializer.FreeRootNodeOwnership();
     _serializer.PassObject(_value, "", _value, SERIALIZER_FIELD_FLAG_VISIBLE);
     SerializerConverter _converter(_serializer.GetRoot(), serializer_flags);
-#ifdef __debug__
+#ifdef __debug_verbose__
     Print("FromObject(): serializer flags: ", serializer_flags);
     Print("FromObject(): result: ", _serializer.GetRoot() != NULL
                                         ? _serializer.GetRoot() PTR_DEREF ToString(SERIALIZER_JSON_NO_WHITESPACES)
@@ -119,7 +119,7 @@ class SerializerConverter {
   template <typename C>
   static SerializerConverter FromString(string arg) {
     SerializerConverter _converter(((C*)NULL)PTR_DEREF Parse(arg), 0);
-#ifdef __debug__
+#ifdef __debug_verbose__
     Print("FromString(): result: ",
           _converter.Node() != NULL ? _converter.Node() PTR_DEREF ToString(SERIALIZER_JSON_NO_WHITESPACES) : "NULL");
 #endif

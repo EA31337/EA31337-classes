@@ -61,6 +61,7 @@ class DictBase {
     _current_id = 0;
     _mode = DictModeUnknown;
     _flags = 0;
+    overflow_listener = nullptr;
   }
 
   /**

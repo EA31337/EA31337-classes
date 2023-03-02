@@ -40,14 +40,14 @@
  * https://www.mql5.com/en/docs/constants/structures/mqltick
  */
 struct MqlTick {
-  datetime time;         // Time of the last prices update.
-  double ask;            // Current Ask price.
-  double bid;            // Current Bid price.
-  double last;           // Price of the last deal (last).
-  double volume_real;    // Volume for the current last price with greater accuracy.
-  long time_msc;         // Time of a price last update in milliseconds.
-  unsigned int flags;    // Tick flags.
-  unsigned long volume;  // Volume for the current last price.
+  datetime time;          // Time of the last prices update.
+  double ask;             // Current Ask price.
+  double bid;             // Current Bid price.
+  double last;            // Price of the last deal (last).
+  double volume_real;     // Volume for the current last price with greater accuracy.
+  int64 time_msc;         // Time of a price last update in milliseconds.
+  unsigned int flags;     // Tick flags.
+  unsigned int64 volume;  // Volume for the current last price.
   // Default constructor.
   MqlTick() {}
 
@@ -84,26 +84,26 @@ struct DoubleTickAB : TickAB<double> {};
  */
 template <typename T>
 struct TickTAB : TickAB<T> {
-  long time_ms;  // Time of the last prices update.
+  int64 time_ms;  // Time of the last prices update.
   // Struct constructors.
-  TickTAB(long _time_ms = 0, T _ask = 0, T _bid = 0) : TickAB<T>(_ask, _bid), time_ms(_time_ms) {}
+  TickTAB(int64 _time_ms = 0, T _ask = 0, T _bid = 0) : TickAB<T>(_ask, _bid), time_ms(_time_ms) {}
   TickTAB(MqlTick &_tick) : TickAB<T>(_tick), time_ms(_tick.time_msc) {}
   TickTAB(const TickTAB &r) { THIS_REF = r; }
 
   /**
    * Method used by ItemsHistory.
    */
-  long GetTimeMs() { return time_ms; }
+  int64 GetTimeMs() { return time_ms; }
 
   /**
    * Returns time as timestamp (in seconds).
    */
-  long GetTimestamp() { return time_ms; }
+  int64 GetTimestamp() { return time_ms / 1000; }
 
   /**
    * Method used by ItemsHistory.
    */
-  long GetLengthMs() {
+  int64 GetLengthMs() {
     // Ticks have length of 0ms, so next tick could be at least 1ms after the previous tick.
     return 0;
   }

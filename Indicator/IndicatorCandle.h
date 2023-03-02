@@ -94,7 +94,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Class constructor.
    */
-  IndicatorCandle(const TS& _icparams, const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = NULL,
+  IndicatorCandle(const TS& _icparams, const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL,
                   int _indi_mode = 0)
       : Indicator<TS>(_icparams, _idparams, _indi_src, _indi_mode), history(INDI_CANDLE_HISTORY_SIZE) {
     Init();

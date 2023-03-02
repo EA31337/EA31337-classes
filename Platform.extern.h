@@ -67,9 +67,9 @@ extern int CopyLow(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos,
 extern int CopyClose(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
                      ARRAY_REF(double, close_array));
 
-extern unsigned long PositionGetTicket(int _index);
+extern unsigned int64 PositionGetTicket(int _index);
 
-extern long PositionGetInteger(ENUM_POSITION_PROPERTY_INTEGER property_id);
+extern int64 PositionGetInteger(ENUM_POSITION_PROPERTY_INTEGER property_id);
 
 extern double PositionGetDouble(ENUM_POSITION_PROPERTY_DOUBLE property_id);
 
@@ -77,13 +77,13 @@ extern string PositionGetString(ENUM_POSITION_PROPERTY_STRING property_id);
 
 extern int HistoryDealsTotal();
 
-extern unsigned long HistoryDealGetTicket(int index);
+extern unsigned int64 HistoryDealGetTicket(int index);
 
-extern long HistoryDealGetInteger(unsigned long ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id);
+extern int64 HistoryDealGetInteger(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id);
 
-extern double HistoryDealGetDouble(unsigned long ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id);
+extern double HistoryDealGetDouble(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id);
 
-extern string HistoryDealGetString(unsigned long ticket_number, ENUM_DEAL_PROPERTY_STRING property_id);
+extern string HistoryDealGetString(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id);
 
 extern bool OrderSelect(int index);
 
@@ -95,25 +95,25 @@ extern bool OrderSend(const MqlTradeRequest& request, MqlTradeResult& result);
 
 extern bool OrderCheck(const MqlTradeRequest& request, MqlTradeCheckResult& result);
 
-extern unsigned long OrderGetTicket(int index);
+extern unsigned int64 OrderGetTicket(int index);
 
-extern unsigned long HistoryOrderGetTicket(int index);
+extern unsigned int64 HistoryOrderGetTicket(int index);
 
-extern bool HistorySelectByPosition(long position_id);
+extern bool HistorySelectByPosition(int64 position_id);
 
-extern bool HistoryDealSelect(unsigned long ticket);
+extern bool HistoryDealSelect(unsigned int64 ticket);
 
-extern long OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id);
+extern int64 OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id);
 
-extern long HistoryOrderGetInteger(unsigned long ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id);
+extern int64 HistoryOrderGetInteger(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id);
 
 extern double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id);
 
-extern double HistoryOrderGetDouble(unsigned long ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id);
+extern double HistoryOrderGetDouble(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id);
 
 string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id);
 
-string HistoryOrderGetString(unsigned long ticket_number, ENUM_ORDER_PROPERTY_STRING property_id);
+string HistoryOrderGetString(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id);
 
 extern int PositionsTotal();
 
@@ -124,10 +124,10 @@ extern int HistoryOrdersTotal();
 extern int OrdersTotal();
 
 extern int CopyTickVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
-                          ARRAY_REF(long, arr));
+                          ARRAY_REF(int64, arr));
 
 extern int CopyRealVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
-                          ARRAY_REF(long, arr));
+                          ARRAY_REF(int64, arr));
 
 extern int ChartID();
 
@@ -135,38 +135,38 @@ extern bool OrderCalcMargin(ENUM_ORDER_TYPE _action, string _symbol, double _vol
 
 extern double AccountInfoDouble(ENUM_ACCOUNT_INFO_DOUBLE property_id);
 
-extern long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id);
+extern int64 AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id);
 
 extern string AccountInfoInteger(ENUM_ACCOUNT_INFO_STRING property_id);
 
 extern string Symbol();
 
-extern string ObjectName(long _chart_id, int _pos, int _sub_window = -1, int _type = -1);
+extern string ObjectName(int64 _chart_id, int _pos, int _sub_window = -1, int _type = -1);
 
-extern int ObjectsTotal(long chart_id, int type = EMPTY, int window = -1);
+extern int ObjectsTotal(int64 chart_id, int type = EMPTY, int window = -1);
 
 extern bool PlotIndexSetString(int plot_index, int prop_id, string prop_value);
 
 extern bool PlotIndexSetInteger(int plot_index, int prop_id, int prop_value);
 
-extern bool ObjectSetInteger(long chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, long prop_value);
+extern bool ObjectSetInteger(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, int64 prop_value);
 
-extern bool ObjectSetInteger(long chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, int prop_modifier,
-                             long prop_value);
+extern bool ObjectSetInteger(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, int prop_modifier,
+                             int64 prop_value);
 
-extern bool ObjectSetDouble(long chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, double prop_value);
+extern bool ObjectSetDouble(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, double prop_value);
 
-extern bool ObjectSetDouble(long chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, int prop_modifier,
+extern bool ObjectSetDouble(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, int prop_modifier,
                             double prop_value);
 
-extern bool ObjectCreate(long _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1);
-extern bool ObjectCreate(long _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1,
+extern bool ObjectCreate(int64 _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1);
+extern bool ObjectCreate(int64 _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1,
                          datetime _t2, double _p2);
 
-extern bool ObjectMove(long chart_id, string name, int point_index, datetime time, double price);
+extern bool ObjectMove(int64 chart_id, string name, int point_index, datetime time, double price);
 
-extern bool ObjectDelete(long chart_id, string name);
+extern bool ObjectDelete(int64 chart_id, string name);
 
-extern int ObjectFind(long chart_id, string name);
+extern int ObjectFind(int64 chart_id, string name);
 
 #endif

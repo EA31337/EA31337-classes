@@ -56,6 +56,7 @@
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
 #define nullptr NULL
 #define REF_DEREF .Ptr().
+#define int64 long
 #else
 #define THIS_ATTR this->
 #define THIS_PTR (this)
@@ -66,6 +67,7 @@
 #define PTR_TO_REF(PTR) (*PTR)
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
 #define REF_DEREF .Ptr()->
+#define int64 long long
 #endif
 
 // References.

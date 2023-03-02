@@ -27,6 +27,7 @@
 // Includes.
 #include "Deal.enum.h"
 #include "Order.struct.h"
+#include "Platform.define.h"
 
 /**
  * Extern declarations for C++.
@@ -85,6 +86,12 @@ class Platform {
   // Result of the last tick.
   static bool last_tick_result;
 
+  // Symbol of the currently ticking indicator.
+  static string symbol;
+
+  // Timeframe of the currently ticking indicator.
+  static ENUM_TIMEFRAMES period;
+
  public:
   /**
    * Initializes platform.
@@ -96,9 +103,6 @@ class Platform {
     }
 
     initialized = true;
-
-    // Starting from current timestamp.
-    time.Update();
   }
 
   /**
@@ -110,6 +114,10 @@ class Platform {
    * Performs tick on every added indicator.
    */
   static void Tick() {
+    // @todo Should update time for each ticking indicator and only when it signal a tick.
+    PlatformTime::Tick();
+    time.Update();
+
     // Checking starting periods and updating time to current one.
     time_flags = time.GetStartedPeriods();
     time.Update();
@@ -119,12 +127,36 @@ class Platform {
     last_tick_result = false;
 
     for (_iter = indis.Begin(); _iter.IsValid(); ++_iter) {
+      // Updating current symbol and timeframe to the ones used by ticking indicator and its parents.
+      symbol = _iter.Value() REF_DEREF GetSymbol();
+      period = _iter.Value() REF_DEREF GetTf();
+
+#ifdef __debug__
+      PrintFormat("Tick #%d for %s for symbol %s and period %s", global_tick_index,
+                  C_STR(_iter.Value() REF_DEREF GetFullName()), C_STR(symbol), C_STR(ChartTf::TfToString(period)));
+#endif
+
       last_tick_result |= _iter.Value() REF_DEREF Tick(global_tick_index);
     }
 
     for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
+      // Updating current symbol and timeframe to the ones used by ticking indicator and its parents.
+      symbol = (_iter.Value() REF_DEREF GetTick(false) != nullptr) ? _iter.Value() REF_DEREF GetSymbol()
+                                                                   : PLATFORM_WRONG_SYMBOL;
+      period = (_iter.Value() REF_DEREF GetCandle(false) != nullptr) ? _iter.Value() REF_DEREF GetTf()
+                                                                     : PLATFORM_WRONG_TIMEFRAME;
+
+#ifdef __debug__
+      PrintFormat("Tick #%d for %s for symbol %s and period %s", global_tick_index,
+                  C_STR(_iter.Value() REF_DEREF GetFullName()), C_STR(symbol), C_STR(ChartTf::TfToString(period)));
+#endif
+
       last_tick_result |= _iter.Value() REF_DEREF Tick(global_tick_index);
     }
+
+    // Clearing symbol and period in order to signal retrieving symbol/period outside the ticking indicator.
+    symbol = PLATFORM_WRONG_SYMBOL;
+    period = PLATFORM_WRONG_TIMEFRAME;
 
     // Will check for new time periods in consecutive Platform::UpdateTime().
     time_clear_flags = true;
@@ -280,13 +312,13 @@ class Platform {
   /**
    * Returns default Candle-compatible indicator for current platform for given symbol and TF.
    */
-  static IndicatorData *FetchDefaultCandleIndicator(string _symbol = "", ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    if (_symbol == "") {
-      _symbol = _Symbol;
+  static IndicatorData *FetchDefaultCandleIndicator(string _symbol, ENUM_TIMEFRAMES _tf) {
+    if (_symbol == PLATFORM_WRONG_SYMBOL) {
+      RUNTIME_ERROR("Cannot fetch default candle indicator for unknown symbol!");
     }
 
-    if (_tf == PERIOD_CURRENT) {
-      _tf = (ENUM_TIMEFRAMES)Period();
+    if (_tf == PERIOD_CURRENT || _tf == PLATFORM_WRONG_TIMEFRAME) {
+      RUNTIME_ERROR("Cannot fetch default candle indicator for unknown period/timeframe!");
     }
 
     // Candle is per symbol and TF. Single Candle indicator can't handle multiple TFs.
@@ -311,9 +343,9 @@ class Platform {
   /**
    * Returns default Tick-compatible indicator for current platform for given symbol.
    */
-  static IndicatorData *FetchDefaultTickIndicator(string _symbol = "") {
-    if (_symbol == "") {
-      _symbol = _Symbol;
+  static IndicatorData *FetchDefaultTickIndicator(string _symbol) {
+    if (_symbol == PLATFORM_WRONG_SYMBOL) {
+      RUNTIME_ERROR("Cannot fetch default tick indicator for unknown symbol!");
     }
 
     string _key = Util::MakeKey("PlatformIndicatorTick", _symbol);
@@ -366,6 +398,39 @@ class Platform {
     }
     return _result;
   }
+
+  /**
+   * Returns symbol of the currently ticking indicator.
+   **/
+  static string GetSymbol() {
+    if (symbol == PLATFORM_WRONG_SYMBOL) {
+      RUNTIME_ERROR("Retrieving symbol outside the OnTick() of the currently ticking indicator is prohibited!");
+    }
+    return symbol;
+  }
+
+  /**
+   * Returns timeframe of the currently ticking indicator.
+   **/
+  static ENUM_TIMEFRAMES GetPeriod() {
+    if (period == PLATFORM_WRONG_TIMEFRAME) {
+      RUNTIME_ERROR(
+          "Retrieving period/timeframe outside the OnTick() of the currently ticking indicator is prohibited!");
+    }
+
+    return period;
+  }
+
+ private:
+  /**
+   * Sets symbol of the currently ticking indicator.
+   **/
+  static void SetSymbol(string _symbol) { symbol = _symbol; }
+
+  /**
+   * Sets timeframe of the currently ticking indicator.
+   **/
+  static void SetPeriod(ENUM_TIMEFRAMES _period) { period = _period; }
 };
 
 bool Platform::initialized = false;
@@ -374,6 +439,8 @@ DateTime Platform::time = (datetime)0;
 unsigned int Platform::time_flags = 0;
 bool Platform::time_clear_flags = true;
 int Platform::global_tick_index = 0;
+string Platform::symbol = PLATFORM_WRONG_SYMBOL;
+ENUM_TIMEFRAMES Platform::period = PLATFORM_WRONG_TIMEFRAME;
 DictStruct<long, Ref<IndicatorData>> Platform::indis;
 DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
 
@@ -399,12 +466,12 @@ int CopyBuffer(int indicator_handle, int buffer_num, int start_pos, int count, A
   return 0;
 }
 
-unsigned long PositionGetTicket(int _index) {
+unsigned int64 PositionGetTicket(int _index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-long PositionGetInteger(ENUM_POSITION_PROPERTY_INTEGER property_id) {
+int64 PositionGetInteger(ENUM_POSITION_PROPERTY_INTEGER property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -424,22 +491,22 @@ int HistoryDealsTotal() {
   return 0;
 }
 
-unsigned long HistoryDealGetTicket(int index) {
+unsigned int64 HistoryDealGetTicket(int index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-long HistoryDealGetInteger(unsigned long ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id) {
+int64 HistoryDealGetInteger(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-double HistoryDealGetDouble(unsigned long ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id) {
+double HistoryDealGetDouble(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-string HistoryDealGetString(unsigned long ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
+string HistoryDealGetString(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
   return 0;
 }
@@ -469,32 +536,32 @@ bool OrderCheck(const MqlTradeRequest &request, MqlTradeCheckResult &result) {
   return false;
 }
 
-unsigned long OrderGetTicket(int index) {
+unsigned int64 OrderGetTicket(int index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-unsigned long HistoryOrderGetTicket(int index) {
+unsigned int64 HistoryOrderGetTicket(int index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-bool HistorySelectByPosition(long position_id) {
+bool HistorySelectByPosition(int64 position_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
 
-bool HistoryDealSelect(unsigned long ticket) {
+bool HistoryDealSelect(unsigned int64 ticket) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
 
-long OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
+int64 OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-long HistoryOrderGetInteger(unsigned long ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id) {
+int64 HistoryOrderGetInteger(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -504,7 +571,7 @@ double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
   return 0;
 }
 
-double HistoryOrderGetDouble(unsigned long ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+double HistoryOrderGetDouble(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -514,7 +581,7 @@ string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
   return 0;
 }
 
-string HistoryOrderGetString(unsigned long ticket_number, ENUM_ORDER_PROPERTY_STRING property_id) {
+string HistoryOrderGetString(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
   return 0;
 }
@@ -559,12 +626,12 @@ int CopyClose(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int 
   return 0;
 }
 
-int CopyTickVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(long, arr)) {
+int CopyTickVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(int64, arr)) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-int CopyRealVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(long, arr)) {
+int CopyRealVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(int64, arr)) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -581,7 +648,7 @@ double AccountInfoDouble(ENUM_ACCOUNT_INFO_DOUBLE property_id) {
   return false;
 }
 
-long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id) {
+int64 AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return false;
 }
@@ -596,12 +663,12 @@ string Symbol() {
   return "";
 }
 
-string ObjectName(long _chart_id, int _pos, int _sub_window, int _type) {
+string ObjectName(int64 _chart_id, int _pos, int _sub_window, int _type) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
   return "";
 }
 
-int ObjectsTotal(long chart_id, int type, int window) {
+int ObjectsTotal(int64 chart_id, int type, int window) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -616,45 +683,45 @@ bool PlotIndexSetInteger(int plot_index, int prop_id, int prop_value) {
   return false;
 }
 
-bool ObjectSetInteger(long chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, long prop_value) {
+bool ObjectSetInteger(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, int64 prop_value) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
 
-bool ObjectSetInteger(long chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, int prop_modifier,
-                      long prop_value) {
+bool ObjectSetInteger(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, int prop_modifier,
+                      int64 prop_value) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
 
-bool ObjectSetDouble(long chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, double prop_value) {
+bool ObjectSetDouble(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, double prop_value) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
 
-bool ObjectSetDouble(long chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, int prop_modifier,
+bool ObjectSetDouble(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, int prop_modifier,
                      double prop_value) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
 
-bool ObjectCreate(long _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
+bool ObjectCreate(int64 _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
 
-bool ObjectCreate(long _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1, datetime _t2,
+bool ObjectCreate(int64 _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1, datetime _t2,
                   double _p2) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
 
-bool ObjectMove(long chart_id, string name, int point_index, datetime time, double price) {
+bool ObjectMove(int64 chart_id, string name, int point_index, datetime time, double price) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
 
-bool ObjectDelete(long chart_id, string name) {
+bool ObjectDelete(int64 chart_id, string name) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
@@ -663,29 +730,77 @@ int GetLastError() { return _LastError; }
 
 void ResetLastError() { _LastError = 0; }
 
-int ObjectFind(long chart_id, string name) {
+int ObjectFind(int64 chart_id, string name) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
+string TimeToString(datetime value, int mode) {
+  static std::stringstream ss;
+  ss.clear();
+  ss.str("");
+
+  std::time_t time = value;
+  std::tm *ptm = std::localtime(&time);
+  char date[16], minutes[16], seconds[16];
+  std::strftime(date, 32, "%Y.%m.%d", ptm);
+  std::strftime(minutes, 32, "%H:%M", ptm);
+  std::strftime(seconds, 32, "%S", ptm);
+
+  if (mode | TIME_DATE) ss << date;
+
+  if (mode | TIME_MINUTES) {
+    if (mode | TIME_DATE) {
+      ss << " ";
+    }
+    ss << minutes;
+  }
+
+  if (mode | TIME_SECONDS) {
+    if (mode | TIME_DATE && !(mode | TIME_MINUTES)) {
+      ss << " ";
+    } else if (mode | TIME_MINUTES) {
+      ss << ":";
+    }
+    ss << seconds;
+  }
+
+  return ss.str();
+}
+
 bool TimeToStruct(datetime dt, MqlDateTime &dt_struct) {
-  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
-  return false;
+  time_t now = (time_t)dt;
+
+  tm *ltm = localtime(&now);
+
+  dt_struct.day = ltm->tm_mday;
+  dt_struct.day_of_week = ltm->tm_wday;
+  dt_struct.day_of_year = ltm->tm_yday;
+  dt_struct.hour = ltm->tm_hour;
+  dt_struct.min = ltm->tm_min;
+  dt_struct.mon = ltm->tm_mon;
+  dt_struct.sec = ltm->tm_sec;
+  dt_struct.year = ltm->tm_year;
+
+  return true;
 }
 
-SymbolGetter::operator string() {
-  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
-  return "";
-}
+SymbolGetter::operator string() { return Platform::GetSymbol(); }
 
-ENUM_TIMEFRAMES Period() {
-  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
-  return (ENUM_TIMEFRAMES)0;
-}
+ENUM_TIMEFRAMES Period() { return Platform::GetPeriod(); }
 
 datetime StructToTime(MqlDateTime &dt_struct) {
-  Print("Not yet implemented: ", __FUNCTION__, " returns empty datetime (0).");
-  return (datetime)0;
+  tm ltm;
+  ltm.tm_mday = dt_struct.day;
+  ltm.tm_wday = dt_struct.day_of_week;
+  ltm.tm_yday = dt_struct.day_of_year;
+  ltm.tm_hour = dt_struct.hour;
+  ltm.tm_min = dt_struct.min;
+  ltm.tm_mon = dt_struct.mon;
+  ltm.tm_sec = dt_struct.sec;
+  ltm.tm_year = dt_struct.year;
+
+  return mktime(&ltm);
 }
 
 #endif

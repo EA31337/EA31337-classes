@@ -20,46 +20,11 @@
  *
  */
 
-/**
- * @file
- * Includes IndicatorTf's structs.
- */
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
 #endif
 
-// Includes.
-#include "Indicator.struct.h"
-
-/* Structure for IndicatorTf class parameters. */
-struct IndicatorTfParams : IndicatorParams {
-  ChartTf tf;
-
-  /*
-    @todo
-
-    unsigned int spc;  // Seconds per candle.
-  */
-
-  // Struct constructor.
-  IndicatorTfParams(string _name, ENUM_TIMEFRAMES _tf) : IndicatorParams(_name), tf(_tf) {}
-
-  // Getters.
-  unsigned int GetSecsPerCandle() { return tf.GetInSeconds(); }
-
-  /*
-    @todo
-    // Setters.
-    void SetSecsPerCandle(unsigned int _spc) { spc = _spc; }
-  */
-
-  // Copy constructor.
-  IndicatorTfParams(const IndicatorTfParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    THIS_REF = _params;
-    if (_tf != PERIOD_CURRENT) {
-      tf.SetTf(_tf);
-    }
-  }
-};
+// Defines.
+#define PLATFORM_WRONG_SYMBOL ""
+#define PLATFORM_WRONG_TIMEFRAME ((ENUM_TIMEFRAMES)INT_MAX)

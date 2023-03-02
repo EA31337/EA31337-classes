@@ -30,12 +30,13 @@
 #endif
 
 // Includes.
+#include "../../../Platform.define.h"
 #include "../../IndicatorTf.h"
 #include "../../IndicatorTf.struct.h"
 
 // Params for dummy candle-based indicator.
 struct IndicatorTfDummyParams : IndicatorTfParams {
-  IndicatorTfDummyParams(unsigned int _spc = 60) : IndicatorTfParams("IndicatorTf", _spc) {}
+  IndicatorTfDummyParams(ENUM_TIMEFRAMES _tf = PLATFORM_WRONG_TIMEFRAME) : IndicatorTfParams("IndicatorTf", _tf) {}
 };
 
 /**
@@ -43,11 +44,17 @@ struct IndicatorTfDummyParams : IndicatorTfParams {
  */
 class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
  public:
-  IndicatorTfDummy(unsigned int _spc) : IndicatorTf(_spc) {}
-  IndicatorTfDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorTf(_tf) {}
-  IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi = (ENUM_TIMEFRAMES_INDEX)0) : IndicatorTf(_tfi) {}
+  /*
+    @todo
 
-  string GetName() override { return "IndicatorTfDummy(" + IntegerToString(iparams.spc) + ")"; }
+    IndicatorTfDummy(unsigned int _spc) : IndicatorTf(_spc) {}
+  */
+
+  IndicatorTfDummy(ENUM_TIMEFRAMES _tf) : IndicatorTf(IndicatorTfDummyParams(_tf), IndicatorDataParams()) {}
+  IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi)
+      : IndicatorTf(IndicatorTfDummyParams(ChartTf::IndexToTf(_tfi)), IndicatorDataParams()) {}
+
+  string GetName() override { return "IndicatorTfDummy(" + iparams.tf.GetString() + ")"; }
 
   void OnDataSourceEntry(IndicatorDataEntry& entry) override {
     // When overriding OnDataSourceEntry() we have to remember to call parent

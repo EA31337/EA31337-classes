@@ -116,6 +116,7 @@ class Indicator : public IndicatorData {
       : IndicatorData(IndicatorDataParams::GetInstance()) {
     iparams.SetIndicatorType(_itype);
     iparams.SetShift(_shift);
+    SetName(_name);
     Init();
   }
 

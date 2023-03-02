@@ -39,21 +39,21 @@
 
 class PlatformTime {
   static MqlDateTime current_time;
-  static long current_timestamp_s;
-  static long current_timestamp_ms;
+  static int64 current_timestamp_s;
+  static int64 current_timestamp_ms;
 
  public:
-  static long CurrentTimestamp() { return current_timestamp_s; }
-  static long CurrentTimestampMs() { return current_timestamp_ms; }
+  static int64 CurrentTimestamp() { return current_timestamp_s; }
+  static int64 CurrentTimestampMs() { return current_timestamp_ms; }
   static MqlDateTime CurrentTime() { return current_time; }
 
   void static Tick() {
 #ifdef __MQL__
-    static long _last_timestamp_ms = 0;
+    static int64 _last_timestamp_ms = 0;
 
     current_timestamp_s = ::TimeCurrent(current_time);
 
-    current_timestamp_ms = (long)GetTickCount();
+    current_timestamp_ms = (int64)GetTickCount();
 
     if (_last_timestamp_ms != 0 && current_timestamp_ms < _last_timestamp_ms) {
       // Overflow occured (49.7 days passed).
@@ -64,11 +64,11 @@ class PlatformTime {
     _last_timestamp_ms = current_timestamp_ms;
 #else
     using namespace std::chrono;
-    current_timestamp_s = (long)duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
-    current_timestamp_ms = (long)duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    current_timestamp_s = (int64)duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+    current_timestamp_ms = (int64)duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 
     using namespace std::chrono;
-    std::time_t t = std::time(0);
+    std::time_t t = current_timestamp_s;
     std::tm* now = std::localtime(&t);
     current_time.day = now->tm_mday;
     current_time.day_of_week = now->tm_wday;
@@ -83,5 +83,5 @@ class PlatformTime {
 };
 
 MqlDateTime PlatformTime::current_time = {0, 0, 0, 0, 0, 0, 0, 0};
-long PlatformTime::current_timestamp_s = 0;
-long PlatformTime::current_timestamp_ms = 0;
+int64 PlatformTime::current_timestamp_s = 0;
+int64 PlatformTime::current_timestamp_ms = 0;

@@ -64,7 +64,10 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
   /**
    * Initializes the class.
    */
-  void Init() { current_index = 0; }
+  void Init() {
+    current_index = 0;
+    SetName("Indi_TickProvider");
+  }
 
   string GetName() override { return "Indi_TickProvider"; }
 
