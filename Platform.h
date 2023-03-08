@@ -747,19 +747,19 @@ string TimeToString(datetime value, int mode) {
   std::strftime(minutes, 32, "%H:%M", ptm);
   std::strftime(seconds, 32, "%S", ptm);
 
-  if (mode | TIME_DATE) ss << date;
+  if (mode & TIME_DATE) ss << date;
 
-  if (mode | TIME_MINUTES) {
-    if (mode | TIME_DATE) {
+  if (mode & TIME_MINUTES) {
+    if (mode & TIME_DATE) {
       ss << " ";
     }
     ss << minutes;
   }
 
-  if (mode | TIME_SECONDS) {
-    if (mode | TIME_DATE && !(mode | TIME_MINUTES)) {
+  if (mode & TIME_SECONDS) {
+    if (mode & TIME_DATE && !(mode & TIME_MINUTES)) {
       ss << " ";
-    } else if (mode | TIME_MINUTES) {
+    } else if (mode & TIME_MINUTES) {
       ss << ":";
     }
     ss << seconds;
@@ -785,7 +785,7 @@ bool TimeToStruct(datetime dt, MqlDateTime &dt_struct) {
   return true;
 }
 
-SymbolGetter::operator string() { return Platform::GetSymbol(); }
+SymbolGetter::operator string() const { return Platform::GetSymbol(); }
 
 ENUM_TIMEFRAMES Period() { return Platform::GetPeriod(); }
 

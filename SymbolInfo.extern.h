@@ -38,6 +38,6 @@ extern bool SymbolInfoTick(string symbol, MqlTick &tick);
 // Define external global variables.
 class SymbolGetter {
  public:
-  operator string();
+  operator string() const;
 } _Symbol;
 #endif

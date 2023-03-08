@@ -151,7 +151,7 @@ struct ChartStatic {
     if (_start < 0) return (-1);
     _count = (_count <= 0 ? ChartStatic::iBars(_symbol_tf.Symbol(), _symbol_tf.Tf()) : _count);
     ARRAY(double, arr_d);
-    ARRAY(long, arr_l);
+    ARRAY(int64, arr_l);
     ARRAY(datetime, arr_dt);
     ArraySetAsSeries(arr_d, true);
     switch (_type) {
@@ -208,7 +208,7 @@ struct ChartStatic {
     if (_start < 0) return (-1);
     _count = (_count <= 0 ? iBars(_symbol, _tf) : _count);
     ARRAY(double, arr_d);
-    ARRAY(long, arr_l);
+    ARRAY(int64, arr_l);
     ARRAY(datetime, arr_dt);
     ArraySetAsSeries(arr_d, true);
     switch (_type) {
@@ -314,7 +314,7 @@ struct ChartStatic {
     }
     return _volume;
 #else  // __MQL5__
-    ARRAY(long, _arr);
+    ARRAY(int64, _arr);
     ArraySetAsSeries(_arr, true);
     return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif

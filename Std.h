@@ -235,12 +235,13 @@ class _cpp_array {
 #ifdef EMSCRIPTEN
 #include <emscripten/bind.h>
 
-#define REGISTER_ARRAY_OF(N, T, D)               \
-  EMSCRIPTEN_BINDINGS(N) {                       \
-    emscripten::class_<_cpp_array<T>>(D)         \
-        .constructor()                           \
-        .function("Push", &_cpp_array<T>::push)  \
-        .function("Size", &_cpp_array<T>::size); \
+#define REGISTER_ARRAY_OF(N, T, D)                 \
+  EMSCRIPTEN_BINDINGS(N) {                         \
+    emscripten::register_vector<T>(D "CppVector"); \
+    emscripten::class_<_cpp_array<T>>(D)           \
+        .constructor()                             \
+        .function("Push", &_cpp_array<T>::push)    \
+        .function("Size", &_cpp_array<T>::size);   \
   }
 
 #endif

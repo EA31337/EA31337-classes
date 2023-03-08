@@ -184,7 +184,7 @@ class Orders {
         // Terminal::GetErrorText(GetLastError()));
         break;
       }
-      if (Order::OrderSymbol() == _Symbol) {
+      if (Order::OrderSymbol() == (string)_Symbol) {
         double order_tp = Order::OrderTakeProfit();
         double order_sl = Order::OrderStopLoss();
         switch (Order::OrderType()) {
@@ -268,7 +268,7 @@ class Orders {
                                  Terminal::GetErrorText(GetLastError()));
         break;
       }
-      if (Order::OrderSymbol() == _Symbol) {
+      if (Order::OrderSymbol() == (string)_Symbol) {
         switch (Order::OrderType()) {
           case ORDER_TYPE_BUY:
             buy_lots += Order::OrderLots();

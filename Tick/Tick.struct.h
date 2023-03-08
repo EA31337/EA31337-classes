@@ -123,8 +123,8 @@ EMSCRIPTEN_BINDINGS(TickAB) {
 EMSCRIPTEN_BINDINGS(TickTAB) {
   // emscripten::value_object<TickTAB<double>, emscripten::base<TickAB<double>>>("TickTABDouble")
   emscripten::value_object<TickTAB<double>>("TickTAB")
-      .field("ask", &TickAB<double>::ask)
-      .field("bid", &TickAB<double>::bid)
+      .field("ask", &TickTAB<double>::ask)
+      .field("bid", &TickTAB<double>::bid)
       .field("time_ms", &TickTAB<double>::time_ms);
 }
 
