@@ -87,7 +87,9 @@
  * @usage
  *   ARRAY_REF(<type of the array items>, <name of the variable>)
  */
+#define ARRAY_TYPE(T) T[]
 #define ARRAY_REF(T, N) REF(T) N ARRAY_DECLARATION_BRACKETS
+#define FIXED_ARRAY_REF(T, N, S) ARRAY_REF(T, N)
 
 #define CONST_ARRAY_REF(T, N) const N ARRAY_DECLARATION_BRACKETS
 
@@ -102,13 +104,14 @@
 #else
 
 /**
-
  * Reference to the array.
  *
  * @usage
  *   ARRAY_REF(<type of the array items>, <name of the variable>)
  */
-#define ARRAY_REF(T, N) _cpp_array<T>& N
+#define ARRAY_TYPE(T) _cpp_array<T>
+#define ARRAY_REF(T, N) ARRAY_TYPE(T)& N
+#define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
 
 #define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
 
