@@ -120,7 +120,6 @@ class Platform {
 
     // Checking starting periods and updating time to current one.
     time_flags = time.GetStartedPeriods();
-    time.Update();
 
     DictStructIterator<long, Ref<IndicatorData>> _iter;
 

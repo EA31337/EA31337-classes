@@ -128,18 +128,25 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
 #ifdef EMSCRIPTEN
 #include <emscripten/bind.h>
 
+EMSCRIPTEN_BINDINGS(Indi_TickProviderBaseBase) {
+  emscripten::class_<Indicator<Indi_TickProviderParams>, emscripten::base<IndicatorData>>("IndiTickProviderBaseBase")
+      .smart_ptr<Ref<Indicator<Indi_TickProviderParams>>>("Ref<Indicator<Indi_TickProviderParams>>");
+}
+
 EMSCRIPTEN_BINDINGS(Indi_TickProviderBase) {
-  emscripten::class_<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>>(
-      "IndiTickProviderBase");
+  emscripten::class_<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>,
+                     emscripten::base<Indicator<Indi_TickProviderParams>>>("IndiTickProviderBas         e")
+      .smart_ptr<Ref<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>>>(
+          "Ref<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>");
 }
 
 EMSCRIPTEN_BINDINGS(Indi_TickProvider) {
   emscripten::class_<
       Indi_TickProvider,
       emscripten::base<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>>>(
-      "Indi_TickProvider")
-      //.smart_ptr<Ref<Indi_TickProvider>>("Ref<Indi_TickProvider>")
-      .constructor<>()
+      "indicators.TickProvider")
+      .smart_ptr<Ref<Indi_TickProvider>>("Ref<Indi_TickProvider>")
+      .constructor(emscripten::optional_override([]() { return Ref<Indi_TickProvider>(new Indi_TickProvider()); }))
       .function("BufferSize", &Indi_TickProvider::BufferSize)
       .function("Feed", &Indi_TickProvider::Feed);
 }

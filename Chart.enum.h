@@ -126,6 +126,36 @@ enum ENUM_TIMEFRAMES {
   PERIOD_MN1 = 43200   // 1 month.
 };
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(ENUM_TIMEFRAMES) {
+  emscripten::enum_<ENUM_TIMEFRAMES>("timeframes")
+      .value("CURRENT", PERIOD_CURRENT)
+      .value("M1", PERIOD_M1)
+      .value("M2", PERIOD_M2)
+      .value("M3", PERIOD_M3)
+      .value("M3", PERIOD_M3)
+      .value("M5", PERIOD_M5)
+      .value("M6", PERIOD_M6)
+      .value("M10", PERIOD_M10)
+      .value("M12", PERIOD_M12)
+      .value("M15", PERIOD_M15)
+      .value("M20", PERIOD_M20)
+      .value("M30", PERIOD_M30)
+      .value("H1", PERIOD_H1)
+      .value("H3", PERIOD_H3)
+      .value("H4", PERIOD_H4)
+      .value("H6", PERIOD_H6)
+      .value("H8", PERIOD_H8)
+      .value("H12", PERIOD_H12)
+      .value("D1", PERIOD_D1)
+      .value("W1", PERIOD_W1)
+      .value("MN1", PERIOD_MN1);
+}
+#endif
+
 #endif
 
 // Define type of periods.

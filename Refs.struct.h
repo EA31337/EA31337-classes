@@ -130,6 +130,13 @@ struct Ref {
    */
   ~Ref() { Unset(); }
 
+#ifndef __MQL__
+  template <typename R>
+  operator Ref<R>() {
+    return Ref<R>(ptr_object);
+  }
+#endif
+
   /**
    * Returns pointer to target object.
    */

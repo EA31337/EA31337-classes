@@ -356,3 +356,13 @@ class IndicatorBase : public Object {
 #endif
   }
 };
+
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(IndicatorBase) {
+  emscripten::class_<IndicatorBase>("IndicatorBase").smart_ptr<Ref<IndicatorBase>>("Ref<IndicatorBase>");
+}
+
+#endif

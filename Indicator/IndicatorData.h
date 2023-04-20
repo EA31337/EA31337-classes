@@ -1965,4 +1965,19 @@ IValueStorage* ExternInstantiateIndicatorBufferValueStorageDouble::InstantiateIn
 int GetBarsFromStart(IndicatorData* _indi) { return _indi PTR_DEREF GetBars(); }
 #endif
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(IndicatorData) {
+  emscripten::class_<IndicatorData, emscripten::base<IndicatorBase>>("IndicatorData")
+      .smart_ptr<Ref<IndicatorData>>("Ref<IndicatorData>")
+      .function("SetSource", emscripten::optional_override([](IndicatorData& self, IndicatorData* base) {
+                  self.SetDataSource(base);
+                }),
+                emscripten::allow_raw_pointer<emscripten::arg<0>>());
+}
+
+#endif
+
 #endif  // INDICATOR_DATA_H

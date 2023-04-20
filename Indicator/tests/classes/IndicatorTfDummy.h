@@ -68,3 +68,33 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
 #endif
   }
 };
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyParams) { emscripten::value_object<IndicatorTfDummyParams>("indicators.TfParams"); }
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyBaseBaseBase) {
+  emscripten::class_<Indicator<IndicatorTfDummyParams>, emscripten::base<IndicatorData>>(
+      "IndicatorTfDummyBaseBaseBase");
+}
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyBaseBase) {
+  emscripten::class_<IndicatorCandle<IndicatorTfDummyParams, double, ItemsHistoryTfCandleProvider<double>>,
+                     emscripten::base<Indicator<IndicatorTfDummyParams>>>("IndicatorTfDummyBaseBase");
+}
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyBase) {
+  emscripten::class_<
+      IndicatorTf<IndicatorTfDummyParams>,
+      emscripten::base<IndicatorCandle<IndicatorTfDummyParams, double, ItemsHistoryTfCandleProvider<double>>>>(
+      "IndicatorTfDummyBase");
+}
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummy) {
+  emscripten::class_<IndicatorTfDummy, emscripten::base<IndicatorTf<IndicatorTfDummyParams>>>("indicators.Tf")
+      .smart_ptr<Ref<IndicatorTfDummy>>("Ref<IndicatorTfDummy>")
+      .constructor<ENUM_TIMEFRAMES>();
+}
+
+#endif
