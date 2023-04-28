@@ -50,9 +50,16 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
     IndicatorTfDummy(unsigned int _spc) : IndicatorTf(_spc) {}
   */
 
-  IndicatorTfDummy(ENUM_TIMEFRAMES _tf) : IndicatorTf(IndicatorTfDummyParams(_tf), IndicatorDataParams()) {}
+  IndicatorTfDummy(ENUM_TIMEFRAMES _tf) : IndicatorTf(IndicatorTfDummyParams(_tf), IndicatorDataParams()) { Init(); }
   IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi)
-      : IndicatorTf(IndicatorTfDummyParams(ChartTf::IndexToTf(_tfi)), IndicatorDataParams()) {}
+      : IndicatorTf(IndicatorTfDummyParams(ChartTf::IndexToTf(_tfi)), IndicatorDataParams()) {
+    Init();
+  }
+
+  void Init() {
+    // Explicitly specifying built-in mode as in C++ default mode is On-Indicator.
+    idparams.Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_BUILTIN);
+  }
 
   string GetName() override { return "IndicatorTfDummy(" + iparams.tf.GetString() + ")"; }
 

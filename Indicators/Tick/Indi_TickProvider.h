@@ -67,6 +67,8 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
   void Init() {
     current_index = 0;
     SetName("Indi_TickProvider");
+    // Explicitly specifying built-in mode as in C++ default mode is On-Indicator.
+    idparams.Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_BUILTIN);
   }
 
   string GetName() override { return "Indi_TickProvider"; }
@@ -85,6 +87,10 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
    * Returns the indicator's struct entry for the given shift.
    */
   IndicatorDataEntry GetEntry(int _index = 0) override {
+#ifdef __debug_indicator__
+    Print("Indi_TickProvider::GetEntry(index = ", _index, ")");
+#endif
+
     IndicatorDataEntry _default;
     return _default;
   }
@@ -93,6 +99,9 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
    * Fetches historic ticks for a given time range.
    */
   bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
+#ifdef __debug_indicator__
+    Print("Indi_TickProvider::FetchHistoryByTimeRange(from_ms = ", _from_ms, ", to_ms = ", _to_ms, ")");
+#endif
     // No history.
     return false;
   }
@@ -109,12 +118,23 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
   int BufferSize() { return ArraySize(buffer); }
 
   bool OnTick(int _global_tick_index) override {
+#ifdef __debug_indicator__
+    Print("Indi_TickProvider: Tick Index #", _global_tick_index);
+#endif
+
     if (current_index >= ArraySize(buffer)) {
+#ifdef __debug_indicator__
+      Print("Indi_TickProvider: Tick Index #", _global_tick_index, " is beyond buffer size ", ArraySize(buffer),
+            ", so acknowledging that there are no more ticks.");
+#endif
       // No more ticks.
       return false;
     }
 
     TickTAB<double> _tick = buffer[current_index++];
+#ifdef __debug_indicator__
+    Print("Indi_TickProvider: OHLC: ", _tick.ToString());
+#endif
 
     IndicatorDataEntry _entry(TickToEntry(_tick.GetTimestamp(), _tick));
     EmitEntry(_entry);
@@ -127,6 +147,11 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
 
 #ifdef EMSCRIPTEN
 #include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(Indi_TickProviderParams) {
+  emscripten::value_object<Indi_TickProviderParams>("indicators.TickProviderParams")
+      .field("symbol", &Indi_TickProviderParams::symbol);
+}
 
 EMSCRIPTEN_BINDINGS(Indi_TickProviderBaseBase) {
   emscripten::class_<Indicator<Indi_TickProviderParams>, emscripten::base<IndicatorData>>("IndiTickProviderBaseBase")
@@ -147,6 +172,8 @@ EMSCRIPTEN_BINDINGS(Indi_TickProvider) {
       "indicators.TickProvider")
       .smart_ptr<Ref<Indi_TickProvider>>("Ref<Indi_TickProvider>")
       .constructor(emscripten::optional_override([]() { return Ref<Indi_TickProvider>(new Indi_TickProvider()); }))
+      .constructor(emscripten::optional_override(
+          [](Indi_TickProviderParams &_p) { return Ref<Indi_TickProvider>(new Indi_TickProvider(_p)); }))
       .function("BufferSize", &Indi_TickProvider::BufferSize)
       .function("Feed", &Indi_TickProvider::Feed);
 }

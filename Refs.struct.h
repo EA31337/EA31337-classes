@@ -284,10 +284,12 @@ struct Ref {
   }
 };
 
-template <typename T>
-Ref<T> MakeRef(T* _ptr) {
-  return Ref<T>(_ptr);
+#ifdef __cplusplus
+template <class T, class... Types>
+Ref<T> make_ref(Types&&... Args) {
+  return new T(std::forward<Types>(Args)...);
 }
+#endif
 
 /**
  * Class used to hold weak reference to reference-counted object.

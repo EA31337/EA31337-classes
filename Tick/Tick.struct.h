@@ -107,6 +107,14 @@ struct TickTAB : TickAB<T> {
     // Ticks have length of 0ms, so next tick could be at least 1ms after the previous tick.
     return 0;
   }
+
+  /**
+   * Return string representation of tick's OHLC.
+   */
+  string ToString() {
+    return IntegerToString(time_ms) + ": Ask " + DoubleToString(THIS_ATTR ask) +
+           ", Bid: " + DoubleToString(THIS_ATTR bid);
+  }
 };
 
 struct DoubleTickTAB : TickTAB<double> {};

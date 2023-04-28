@@ -27,11 +27,9 @@
 
 // Structs.
 struct IndiRSIParams : IndicatorParams {
- protected:
   int period;
   ENUM_APPLIED_PRICE applied_price;
 
- public:
   IndiRSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : IndicatorParams(INDI_RSI), applied_price(_ap) {
     shift = _shift;
@@ -303,6 +301,10 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * (before mode and shift).
    */
   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
+#ifdef __debug_indicator__
+    Print("Indi_RSI::GetEntryValue(mode = ", _mode, ", abs_shift = ", _abs_shift, ")");
+#endif
+
     double _value = EMPTY_VALUE;
     ARRAY(double, _res);
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -338,4 +340,32 @@ double iRSIOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _abs_sh
   ResetLastError();
   return Indi_RSI::iRSIOnArray(_arr, _total, _period, _abs_shift);
 }
+#endif
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(Indi_RSI_Params) {
+  emscripten::value_object<IndiRSIParams>("indicators.RSIParams")
+      .field("period", &IndiRSIParams::period)
+      .field("appliedPrice", &IndiRSIParams::applied_price)
+      // Inherited fields:
+      .field("shift", &IndiRSIParams::shift);
+}
+
+EMSCRIPTEN_BINDINGS(Indi_RSIBase) {
+  emscripten::class_<Indicator<IndiRSIParams>, emscripten::base<IndicatorData>>("Indi_RSIBase");
+}
+
+EMSCRIPTEN_BINDINGS(Indi_RSI) {
+  emscripten::class_<Indi_RSI, emscripten::base<Indicator<IndiRSIParams>>>("indicators.RSI")
+      .smart_ptr<Ref<Indi_RSI>>("Ref<Indi_RSI>")
+      .constructor(&make_ref<Indi_RSI, IndiRSIParams &>)
+      .constructor(&make_ref<Indi_RSI, IndiRSIParams &, ENUM_IDATA_SOURCE_TYPE>)
+      .constructor(&make_ref<Indi_RSI, IndiRSIParams &, ENUM_IDATA_SOURCE_TYPE, IndicatorData *>,
+                   emscripten::allow_raw_pointer<emscripten::arg<2>>())
+      .constructor(&make_ref<Indi_RSI, IndiRSIParams &, ENUM_IDATA_SOURCE_TYPE, IndicatorData *, int>,
+                   emscripten::allow_raw_pointer<emscripten::arg<2>>());
+}
+
 #endif

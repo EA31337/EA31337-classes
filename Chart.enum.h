@@ -154,6 +154,17 @@ EMSCRIPTEN_BINDINGS(ENUM_TIMEFRAMES) {
       .value("W1", PERIOD_W1)
       .value("MN1", PERIOD_MN1);
 }
+
+EMSCRIPTEN_BINDINGS(ENUM_APPLIED_PRICE) {
+  emscripten::enum_<ENUM_APPLIED_PRICE>("ap")
+      .value("open", PRICE_OPEN)
+      .value("high", PRICE_HIGH)
+      .value("low", PRICE_LOW)
+      .value("median", PRICE_MEDIAN)
+      .value("typical", PRICE_TYPICAL)
+      .value("weighted", PRICE_WEIGHTED);
+}
+
 #endif
 
 #endif

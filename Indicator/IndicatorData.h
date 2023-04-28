@@ -83,6 +83,11 @@ class IndicatorData : public IndicatorBase {
   /* Protected methods */
 
   bool Init() {
+#ifdef __cplusplus
+    // In C++ we default to On-Indicator mode as there are no built-in ones.
+    idparams.Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_INDICATOR);
+#endif
+
     ArrayResize(value_storages, GetModeCount());
     if (indi_src.IsSet()) {
       // SetDataSource(_indi_src, _indi_mode);
@@ -868,6 +873,9 @@ class IndicatorData : public IndicatorBase {
 
   bool Tick(int _global_tick_index) {
     if (last_tick_index == _global_tick_index) {
+#ifdef __debug_indicator__
+      Print("We've already ticked tick index #", _global_tick_index, ". Skipping Tick() for ", GetFullName());
+#endif
       // We've already ticked.
       return last_tick_result;
     }
@@ -879,13 +887,15 @@ class IndicatorData : public IndicatorBase {
 
     last_tick_index = _global_tick_index;
 
+    last_tick_result = false;
+
     // Checking and potentially initializing new data source.
     if (HasDataSource(true)) {
       // Ticking data source if not yet ticked.
-      GetDataSource() PTR_DEREF Tick(_global_tick_index);
-    }
 
-    last_tick_result = false;
+      // If data source returns true, that means it ticked and there could be more ticks in the future.
+      last_tick_result |= GetDataSource() PTR_DEREF Tick(_global_tick_index);
+    }
 
     // Also ticking all used indicators if they've not yet ticked.
     for (DictStructIterator<int, Ref<IndicatorData>> iter = indicators.Begin(); iter.IsValid(); ++iter) {
@@ -896,7 +906,13 @@ class IndicatorData : public IndicatorBase {
       // into Candle indicator which aggregates ticks. RSI doesn't have OnTick() and we can't know if there is new RSI
       // value. The only way to know that is to Tick all indicators in hierarchy and if one of them returns true in
       // OnTick() then we know that we have new value for RSI.
-      last_tick_result |= iter.Value() REF_DEREF Tick(_global_tick_index);
+      bool _tick_result = iter.Value() REF_DEREF Tick(_global_tick_index);
+
+#ifdef __debug_indicator__
+      Print(iter.Value() REF_DEREF GetFullName(), "'s Tick() result: ", _tick_result ? "true" : "false");
+#endif
+
+      last_tick_result |= _tick_result;
     }
 
     // Overridable OnTick() method.
