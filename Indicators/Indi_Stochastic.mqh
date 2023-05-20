@@ -145,7 +145,9 @@ class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.IsWithinRange<double>(0, 101); }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return _entry.IsWithinRange<double>(0, 101);
+  }
 
   /* Getters */
 
