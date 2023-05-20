@@ -24,12 +24,7 @@
 #include "Dict.mqh"
 
 // Enums.
-enum ENUM_STATS_TYPE {
-  STATS_CALC_AVG,
-  STATS_CALC_MIN,
-  STATS_CALC_MED,
-  STATS_CALC_MAX
-};
+enum ENUM_STATS_TYPE { STATS_CALC_AVG, STATS_CALC_MIN, STATS_CALC_MED, STATS_CALC_MAX };
 
 /**
  * Class to calculate minimum, average and maximum values.
@@ -47,8 +42,7 @@ class Stats {
    *
    * @param long _periods Flags to determine periods to calculate.
    */
-  Stats(int _max_buff = 1000) : max_buff(_max_buff) {
-  }
+  Stats(int _max_buff = 1000) : max_buff(_max_buff) {}
 
   /**
    * Implements class destructor.
@@ -82,7 +76,7 @@ class Stats {
    * Returns total count of all values.
    */
   int GetCount() {
-    //return data.GetCount();
+    // return data.GetCount();
     return WRONG_VALUE;
   }
 
@@ -99,5 +93,4 @@ class Stats {
     // ...data
     return WRONG_VALUE;
   }
-
 };
