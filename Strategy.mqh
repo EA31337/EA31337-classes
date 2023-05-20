@@ -931,14 +931,19 @@ class Strategy : public Taskable<DataParamEntry> {
    *   Range: between 0.0 and (max_risk * 2).
    */
   virtual float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) {
-    float _result = 1.0;
+    float _result = 1.0f;
     if (_method != 0) {
-      // if (METHOD(_method, 0)) if (Trade().IsTrend(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 1)) if (Trade().IsPivot(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 2)) if (Trade().IsPeakHours(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 3)) if (Trade().IsRoundNumber(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 4)) if (Trade().IsHedging(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 5)) if (Trade().IsPeakBar(_cmd)) _result *= 1.1;
+      ENUM_TIMEFRAMES _stf = Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
+      if (METHOD(_method, 0)) if (IsTrend(_cmd)) _result *= 1.1f;
+      if (METHOD(_method, 1)) if (trade.GetTrendOp(_cmd, _stf)) _result *= 1.1f;
+      if (METHOD(_method, 2)) if (!trade.HasOrderBetter(_cmd)) _result *= 1.1f;
+      if (METHOD(_method, 3)) if (trade.IsPeak(_cmd)) _result *= 1.1f;
+      if (METHOD(_method, 4)) if (trade.IsPivot(_cmd)) _result *= 1.1f;
+      if (METHOD(_method, 5)) if (trade.HasOrderOppositeType(_cmd)) _result *= 1.1f;
+      if (METHOD(_method, 6)) if (trade.HasBarOrder(_cmd)) _result *= 1.1f;
+      // if (METHOD(_method, 7)) if (trade.IsRoundNumber(_cmd)) _result *= 1.1f;
+      // if (METHOD(_method, 8)) if (trade.IsHedging(_cmd)) _result *= 1.1f;
+      // if (METHOD(_method, 9)) if (trade.IsPeakBar(_cmd)) _result *= 1.1f;
     }
     return _result;
   }
