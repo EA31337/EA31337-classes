@@ -752,7 +752,7 @@ class Indicator : public IndicatorData {
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
       _entry.Resize(_max_modes);
-      _entry.timestamp = GetBarTime(_ishift);
+      _entry.timestamp = _bar_time;
 #ifndef __MQL4__
       if (IndicatorBase::Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED))) {
         // Resets the handle on any parameter changes.
