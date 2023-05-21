@@ -370,7 +370,13 @@ class EA : public Taskable<DataParamEntry> {
     // Check strategy's trade states.
     switch (_request.action) {
       case TRADE_ACTION_DEAL:
-        if (!_strade.IsTradeRecommended()) {
+        if (!_etrade.IsTradeRecommended()) {
+          logger.Debug(
+              StringFormat("Trade not opened due to EA trading states (%d).", _strade.GetStates().GetStates()),
+              __FUNCTION_LINE__);
+          return _result;
+        }
+        else if (!_strade.IsTradeRecommended()) {
           logger.Debug(
               StringFormat("Trade not opened due to strategy trading states (%d).", _strade.GetStates().GetStates()),
               __FUNCTION_LINE__);
@@ -383,11 +389,13 @@ class EA : public Taskable<DataParamEntry> {
     _strat.OnOrderOpen(_oparams);
     // Send the request.
     _result = _etrade.RequestSend(_request, _oparams);
-    if (!_result) {
-      logger.Debug(
-          StringFormat("Error while sending a trade request! Entry: %s",
-                       SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
-          __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
+    if (!_result && _strade.IsTradeRecommended()) {
+      if (_etrade.IsTradeRecommended() && _strade.IsTradeRecommended()) {
+         logger.Debug(
+             StringFormat("Error while sending a trade request! Entry: %s",
+                          SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
+             __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
+      }
     }
     return _result;
   }
