@@ -1348,9 +1348,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *
    */
   void UpdateStates(bool _force = false) {
-    static datetime _last_check = 0;
-    if (_force || _last_check + 60 < TimeCurrent()) {
-      static unsigned int _states_prev = tstates.GetStates();
+    if (_force || tstates.GetLastCheckDiff() > 60) {
+      unsigned int _states_prev = tstates.GetStates();
       // Infrequent checks (each minute).
       /* Limit checks */
       tstates.SetState(TRADE_STATE_PERIOD_LIMIT_REACHED, tparams.IsLimitGe(tstats));
@@ -1382,7 +1381,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                            // Check the permission to trade for the current account.
                            && !AccountMt::IsTradeAllowed());
       tstates.SetState(TRADE_STATE_TRADE_TERMINAL_BUSY, Terminal::IsTradeContextBusy());
-      _last_check = TimeCurrent();
       /* Terminal checks */
       // Check if terminal is connected.
       tstates.SetState(TRADE_STATE_TRADE_TERMINAL_OFFLINE, Terminal::IsRealtime() && !Terminal::IsConnected());
