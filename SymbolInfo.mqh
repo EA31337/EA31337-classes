@@ -339,6 +339,11 @@ class SymbolInfo : public Object {
   unsigned int GetRealSpread() { return SymbolInfoStatic::GetRealSpread(symbol); }
 
   /**
+   * Get a trade mode for the current symbol.
+   */
+  ENUM_SYMBOL_TRADE_MODE GetTradeMode() { return SymbolInfoStatic::GetTradeMode(symbol); }
+
+  /**
    * Minimal indention in points from the current close price to place Stop orders.
    *
    * This is due that at placing of a pending order, the open price cannot be too close to the market.

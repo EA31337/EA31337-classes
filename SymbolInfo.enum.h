@@ -60,6 +60,7 @@ enum ENUM_SYMBOL_SWAP_MODE {
  * For function SymbolInfoDouble().
  *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_INFO_DOUBLE {
@@ -122,6 +123,7 @@ enum ENUM_SYMBOL_INFO_DOUBLE {
  * For function SymbolInfoInteger().
  *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_INFO_INTEGER {
@@ -169,6 +171,7 @@ enum ENUM_SYMBOL_INFO_INTEGER {
  * For function SymbolInfoString().
  *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_INFO_STRING {
@@ -193,6 +196,7 @@ enum ENUM_SYMBOL_INFO_STRING {
  * Enumeration for the current market modes.
  *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_CHART_MODE {
@@ -216,6 +220,7 @@ enum ENUM_SYMBOL_ORDER_GTC_MODE {
  * Enumeration for the margin calculation modes.
  *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_CALC_MODE {
@@ -237,7 +242,11 @@ enum ENUM_SYMBOL_CALC_MODE {
 /**
  * Enumeration for the trading modes.
  *
+ * Possible deal execution modes for a certain symbol
+ * are defined in enumeration ENUM_SYMBOL_TRADE_EXECUTION.
+ *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_TRADE_MODE {
@@ -252,6 +261,7 @@ enum ENUM_SYMBOL_TRADE_MODE {
  * Enumeration for the possible deal execution modes.
  *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_TRADE_EXECUTION {
@@ -265,6 +275,7 @@ enum ENUM_SYMBOL_TRADE_EXECUTION {
  * Enumeration for the option right modes.
  *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_OPTION_RIGHT {
@@ -276,6 +287,7 @@ enum ENUM_SYMBOL_OPTION_RIGHT {
  * Enumeration for the symbol option modes.
  *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_OPTION_MODE {
@@ -287,6 +299,7 @@ enum ENUM_SYMBOL_OPTION_MODE {
  * Enumeration for the type of financial instruments.
  *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_SECTOR {
@@ -310,6 +323,7 @@ enum ENUM_SYMBOL_SECTOR {
  * Enumeration for each type of industry or economy branch.
  *
  * @docs
+ * https://docs.mql4.com/constants/environment_state/marketinfoconstants
  * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
  */
 enum ENUM_SYMBOL_INDUSTRY {

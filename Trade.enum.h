@@ -116,20 +116,25 @@ enum ENUM_TRADE_STATE {
   TRADE_STATE_MARGIN_MAX_HARD = 1 << 2,           // Hard limit of trade margin reached
   TRADE_STATE_MARGIN_MAX_SOFT = 1 << 3,           // Soft limit of trade margin reached
   TRADE_STATE_MARKET_CLOSED = 1 << 4,             // Trade market closed
-  TRADE_STATE_MONEY_NOT_ENOUGH = 1 << 5,          // Not enough money to trade
-  TRADE_STATE_ORDERS_ACTIVE = 1 << 6,             // There are active orders
-  TRADE_STATE_ORDERS_MAX_HARD = 1 << 7,           // Soft limit of maximum orders reached
-  TRADE_STATE_ORDERS_MAX_SOFT = 1 << 8,           // Hard limit of maximum orders reached
-  TRADE_STATE_PERIOD_LIMIT_REACHED = 1 << 9,      // Per period limit reached
-  TRADE_STATE_SPREAD_TOO_HIGH = 1 << 10,          // Spread too high
-  TRADE_STATE_TRADE_NOT_ALLOWED = 1 << 11,        // Trade not allowed
-  TRADE_STATE_TRADE_NOT_POSSIBLE = 1 << 12,       // Trade not possible
-  TRADE_STATE_TRADE_TERMINAL_BUSY = 1 << 13,      // Terminal context busy
-  TRADE_STATE_TRADE_TERMINAL_OFFLINE = 1 << 14,   // Terminal offline
-  TRADE_STATE_TRADE_TERMINAL_SHUTDOWN = 1 << 15,  // Terminal is shutting down
+  TRADE_STATE_MODE_DISABLED = 1 << 5,             // Trade is disabled for the symbol
+  TRADE_STATE_MODE_LONGONLY = 1 << 6,             // Allowed only long positions
+  TRADE_STATE_MODE_SHORTONLY = 1 << 7,            // Allowed only short positions
+  TRADE_STATE_MODE_CLOSEONLY = 1 << 8,            // Allowed only position close operations
+  TRADE_STATE_MODE_FULL = 1 << 9,                 // No trade restrictions
+  TRADE_STATE_MONEY_NOT_ENOUGH = 1 << 10,         // Not enough money to trade
+  TRADE_STATE_ORDERS_ACTIVE = 1 << 11,            // There are active orders
+  TRADE_STATE_ORDERS_MAX_HARD = 1 << 12,          // Soft limit of maximum orders reached
+  TRADE_STATE_ORDERS_MAX_SOFT = 1 << 13,          // Hard limit of maximum orders reached
+  TRADE_STATE_PERIOD_LIMIT_REACHED = 1 << 14,     // Per period limit reached
+  TRADE_STATE_SPREAD_TOO_HIGH = 1 << 15,          // Spread too high
+  TRADE_STATE_TRADE_NOT_ALLOWED = 1 << 16,        // Trade not allowed
+  TRADE_STATE_TRADE_NOT_POSSIBLE = 1 << 17,       // Trade not possible
+  TRADE_STATE_TRADE_TERMINAL_BUSY = 1 << 18,      // Terminal context busy
+  TRADE_STATE_TRADE_TERMINAL_OFFLINE = 1 << 19,   // Terminal offline
+  TRADE_STATE_TRADE_TERMINAL_SHUTDOWN = 1 << 20,  // Terminal is shutting down
   // Pre-defined trade state enumerations.
   TRADE_STATE_TRADE_CANNOT = TRADE_STATE_MARGIN_MAX_HARD | TRADE_STATE_ORDERS_MAX_HARD | TRADE_STATE_MARKET_CLOSED |
-                             TRADE_STATE_MONEY_NOT_ENOUGH | TRADE_STATE_TRADE_NOT_ALLOWED |
+                             TRADE_STATE_MODE_DISABLED | TRADE_STATE_MONEY_NOT_ENOUGH | TRADE_STATE_TRADE_NOT_ALLOWED |
                              TRADE_STATE_TRADE_NOT_POSSIBLE | TRADE_STATE_TRADE_TERMINAL_BUSY |
                              TRADE_STATE_TRADE_TERMINAL_OFFLINE | TRADE_STATE_TRADE_TERMINAL_SHUTDOWN,
   TRADE_STATE_TRADE_SHOULDNT = TRADE_STATE_BARS_NOT_ENOUGH | TRADE_STATE_MARGIN_MAX_SOFT | TRADE_STATE_ORDERS_MAX_SOFT |

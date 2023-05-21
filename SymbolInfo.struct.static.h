@@ -194,6 +194,18 @@ struct SymbolInfoStatic {
   }
 
   /**
+   * Get a trade mode for the symbol.
+   *
+   * Order execution type.
+   *
+   * @docs: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_integer
+   * @see: ENUM_SYMBOL_TRADE_MODE
+   */
+  static ENUM_SYMBOL_TRADE_MODE GetTradeMode(string _symbol) {
+    return (ENUM_SYMBOL_TRADE_MODE)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_MODE);
+  }
+
+  /**
    * Get a tick size in points.
    *
    * It is a minimal price change in points.

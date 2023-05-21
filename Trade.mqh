@@ -1380,6 +1380,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                            && (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()));
       /* Chart checks */
       tstates.SetState(TRADE_STATE_BARS_NOT_ENOUGH, GetChart().GetBars() < tparams.GetBarsMin());
+      /* Symbol trade modes */
+      ENUM_SYMBOL_TRADE_MODE _trade_mode = GetChart().GetTradeMode();
+      tstates.SetState(TRADE_STATE_MODE_DISABLED, _trade_mode == SYMBOL_TRADE_MODE_DISABLED);
+      tstates.SetState(TRADE_STATE_MODE_LONGONLY, _trade_mode == SYMBOL_TRADE_MODE_LONGONLY);
+      tstates.SetState(TRADE_STATE_MODE_SHORTONLY, _trade_mode == SYMBOL_TRADE_MODE_SHORTONLY);
+      tstates.SetState(TRADE_STATE_MODE_CLOSEONLY, _trade_mode == SYMBOL_TRADE_MODE_CLOSEONLY);
+      tstates.SetState(TRADE_STATE_MODE_FULL, _trade_mode == SYMBOL_TRADE_MODE_FULL);
       /* Terminal checks */
       tstates.SetState(TRADE_STATE_TRADE_NOT_ALLOWED,
                        // Check if real trading is allowed.

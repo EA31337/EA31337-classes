@@ -408,7 +408,6 @@ class EA : public Taskable<DataParamEntry> {
         ProcessPeriods();
         // Process all enabled strategies and retrieve their signals.
         for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
-          bool _can_trade = true;
           Strategy *_strat = iter.Value().Ptr();
           Trade *_trade = _strat.GetTrade();
           if (_strat.IsEnabled()) {
@@ -420,6 +419,7 @@ class EA : public Taskable<DataParamEntry> {
               eresults.stg_processed_periods++;
             }
             if (_strat.TickFilter(_tick)) {
+              bool _can_trade = !_trade.HasState(TRADE_STATE_MODE_DISABLED);
               _can_trade &= !_strat.IsSuspended();
               TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
               if (_sentry.Get<unsigned int>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
