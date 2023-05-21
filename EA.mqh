@@ -269,59 +269,64 @@ class EA : public Taskable<DataParamEntry> {
       Trade *_trade = trade.GetByKey(_Symbol);
       Strategy *_strat =
           strats.GetByKey(_signal.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID))).Ptr();
+      _trade_allowed &= _trade.IsTradeAllowed();
       if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
         float _sig_close = _signal.GetSignalClose();
         string _comment_close =
             _strat != NULL && _sig_close != 0.0f ? _strat.GetOrderCloseComment() : __FUNCTION_LINE__;
         // Check if we should close the orders.
-        if (_sig_close >= 0.5f) {
-          // Close signal for buy order.
-          _trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
-              ORDER_MAGIC, _signal.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)), ORDER_TYPE,
-              ORDER_TYPE_BUY, MATH_COND_EQ, ORDER_REASON_CLOSED_BY_SIGNAL, _comment_close);
-          // Buy orders closed.
-          _strat.OnOrderClose(ORDER_TYPE_BUY);
-        }
-        if (_sig_close <= -0.5f) {
-          // Close signal for sell order.
-          _trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
-              ORDER_MAGIC, _signal.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)), ORDER_TYPE,
-              ORDER_TYPE_SELL, MATH_COND_EQ, ORDER_REASON_CLOSED_BY_SIGNAL, _comment_close);
-          // Sell orders closed.
-          _strat.OnOrderClose(ORDER_TYPE_SELL);
+        _trade_allowed &= _strat.GetTrade().IsTradeAllowed(_sig_close != 0.0f);
+        if (_sig_close != 0.0f && _trade_allowed) {
+          if (_sig_close >= 0.5f) {
+            // Close signal for buy order.
+            _trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
+                ORDER_MAGIC, _signal.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)), ORDER_TYPE,
+                ORDER_TYPE_BUY, MATH_COND_EQ, ORDER_REASON_CLOSED_BY_SIGNAL, _comment_close);
+            // Buy orders closed.
+            _strat.OnOrderClose(ORDER_TYPE_BUY);
+          }
+          if (_sig_close <= -0.5f) {
+            // Close signal for sell order.
+            _trade.OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
+                ORDER_MAGIC, _signal.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)), ORDER_TYPE,
+                ORDER_TYPE_SELL, MATH_COND_EQ, ORDER_REASON_CLOSED_BY_SIGNAL, _comment_close);
+            // Sell orders closed.
+            _strat.OnOrderClose(ORDER_TYPE_SELL);
+          }
         }
       }
-      _trade_allowed &= _trade.IsTradeAllowed();
-      _trade_allowed &= _strat.GetTrade().IsTradeAllowed(true);
       _trade_allowed &= !_strat.IsSuspended();
       if (_trade_allowed) {
         float _sig_open = _signal.GetSignalOpen();
         unsigned int _sig_f = eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER));
         string _comment_open = _strat != NULL && _sig_open != 0.0f ? _strat.GetOrderOpenComment() : __FUNCTION_LINE__;
         // Open orders on signals.
-        if (_sig_open >= 0.5f) {
-          // Open signal for buy.
-          // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-          if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
-            _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
-            // Buy order open.
-            _result_local &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
-            if (_result_local && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
-              _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
-              break;
+        _trade_allowed &= _strat.GetTrade().IsTradeAllowed(_sig_open != 0.0f);
+        if (_sig_open != 0.0f && _trade_allowed) {
+          if (_sig_open >= 0.5f) {
+            // Open signal for buy.
+            // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
+            if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
+              _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
+              // Buy order open.
+              _result_local &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
+              if (_result_local && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+                _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
+                break;
+              }
             }
           }
-        }
-        if (_sig_open <= -0.5f) {
-          // Open signal for sell.
-          // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-          if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
-            _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
-            // Sell order open.
-            _result_local &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
-            if (_result_local && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
-              _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
-              break;
+          if (_sig_open <= -0.5f) {
+            // Open signal for sell.
+            // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
+            if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
+              _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
+              // Sell order open.
+              _result_local &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
+              if (_result_local && eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+                _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
+                break;
+              }
             }
           }
         }
@@ -371,15 +376,18 @@ class EA : public Taskable<DataParamEntry> {
     switch (_request.action) {
       case TRADE_ACTION_DEAL:
         if (!_etrade.IsTradeRecommended()) {
-          logger.Debug(
-              StringFormat("Trade not opened due to EA trading states (%d).", _strade.GetStates().GetStates()),
-              __FUNCTION_LINE__);
+          if (logger.GetLevel() > V_INFO) {
+            logger.Debug(
+                StringFormat("Trade not opened due to EA trading states (%d).", _strade.GetStates().GetStates()),
+                __FUNCTION_LINE__);
+          }
           return _result;
-        }
-        else if (!_strade.IsTradeRecommended()) {
-          logger.Debug(
-              StringFormat("Trade not opened due to strategy trading states (%d).", _strade.GetStates().GetStates()),
-              __FUNCTION_LINE__);
+        } else if (!_strade.IsTradeRecommended()) {
+          if (logger.GetLevel() > V_INFO) {
+            logger.Debug(
+                StringFormat("Trade not opened due to strategy trading states (%d).", _strade.GetStates().GetStates()),
+                __FUNCTION_LINE__);
+          }
           return _result;
         }
         break;
@@ -391,10 +399,10 @@ class EA : public Taskable<DataParamEntry> {
     _result = _etrade.RequestSend(_request, _oparams);
     if (!_result && _strade.IsTradeRecommended()) {
       if (_etrade.IsTradeRecommended() && _strade.IsTradeRecommended()) {
-         logger.Debug(
-             StringFormat("Error while sending a trade request! Entry: %s",
-                          SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
-             __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
+        logger.Debug(
+            StringFormat("Error while sending a trade request! Entry: %s",
+                         SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
+            __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
       }
     }
     return _result;
