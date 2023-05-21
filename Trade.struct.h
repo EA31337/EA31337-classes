@@ -112,6 +112,7 @@ struct TradeParams {
     return limits_stats[(int)_type][(int)_period] > 0 && _value >= limits_stats[(int)_type][(int)_period];
   }
   bool IsLimitGe(TradeStats &_stats) {
+    // @todo: Improve code performance.
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
         unsigned int _stat_value = _stats.GetOrderStats(t, p);
@@ -298,12 +299,22 @@ struct TradeStats {
 /* Structure for trade states. */
 struct TradeStates {
  protected:
-  unsigned int states;  // @todo: Move to protected.
+  datetime last_check;
+  unsigned int states;
+
+ protected:
+  // Protected methods.
+  void UpdateCheck() {
+    // Refresh timestamp for the last access.
+    last_check = TimeCurrent();
+  }
+
  public:
   // Struct constructor.
-  TradeStates() : states(0) {}
+  TradeStates() : last_check(0), states(0) {}
   // Getters.
   bool Get(ENUM_TRADE_STATE _prop) { return CheckState(_prop); }
+  int GetLastCheckDiff() { return (int)(TimeCurrent() - last_check); }
   static string GetStateMessage(ENUM_TRADE_STATE _state) {
     switch (_state) {
       case TRADE_STATE_BARS_NOT_ENOUGH:
@@ -341,7 +352,10 @@ struct TradeStates {
     }
     return "Unknown!";
   }
-  unsigned int GetStates() { return states; }
+  unsigned int GetStates() {
+    UpdateCheck();
+    return states;
+  }
   // Struct methods for bitwise operations.
   bool CheckState(unsigned int _states) { return (states & _states) != 0 || states == _states; }
   bool CheckStatesAll(unsigned int _states) { return (states & _states) == _states; }
