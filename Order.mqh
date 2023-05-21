@@ -903,6 +903,7 @@ class Order : public SymbolInfo {
       _request.position = ::PositionGetInteger(POSITION_TICKET);
       _request.symbol = ::PositionGetString(POSITION_SYMBOL);
       _request.type = NegateOrderType((ENUM_POSITION_TYPE)::PositionGetInteger(POSITION_TYPE));
+      _request.type_filling = GetOrderFilling(_request.symbol);
       _request.volume = _lots;
       _request.price = _price;
       _request.deviation = _deviation;
@@ -925,10 +926,11 @@ class Order : public SymbolInfo {
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment != "" ? _comment : odata.GetReasonCloseText();
     _request.deviation = orequest.deviation;
+    _request.symbol = orequest.symbol;
     _request.type = NegateOrderType(orequest.type);
+    _request.type_filling = GetOrderFilling(orequest.symbol);
     _request.position = oresult.deal;
     _request.price = SymbolInfo::GetCloseOffer(orequest.type);
-    _request.symbol = orequest.symbol;
     _request.volume = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);
     if (oresult.retcode == TRADE_RETCODE_DONE) {
