@@ -373,7 +373,9 @@ class Dict : public DictBase<K, V> {
   }
 
  public:
+#ifdef __MQL__
   template <>
+#endif
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i) {

@@ -992,7 +992,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method_abs, 5)) {  // 32
         // Process bar open price ticks.
-        _val = last_tick.time < trade.GetChart().GetBarTime();
+        _val = last_tick.time < trade.GetChart().GetBarTime(); // @todo: Improve performance.
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method_abs, 6)) {  // 64
