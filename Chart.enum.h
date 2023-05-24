@@ -169,6 +169,9 @@ EMSCRIPTEN_BINDINGS(ENUM_APPLIED_PRICE) {
 
 #endif
 
+// Non-TF based period. Used e.g., by Renko indicator.
+#define PERIOD_TF_IRREGULAR ((ENUM_TIMEFRAMES)-1)
+
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 #define TFS 21
