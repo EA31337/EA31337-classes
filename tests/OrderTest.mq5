@@ -48,7 +48,7 @@ Order *orders_dummy[MAX_ORDERS];
  */
 int OnInit() {
   Platform::Init();
-  _candles = Platform::FetchDefaultCandleIndicator();
+  _candles = Platform::FetchDefaultCandleIndicator("EURUSD", PERIOD_M1);
   bool _result = true;
   bar_processed = 0;
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d!", GetLastError()));

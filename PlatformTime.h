@@ -37,6 +37,8 @@
 #include "DateTime.struct.h"
 #endif
 
+#include "Std.h"
+
 class PlatformTime {
   static MqlDateTime current_time;
   static int64 current_timestamp_s;

@@ -47,7 +47,7 @@ int bar_processed;
  */
 int OnInit() {
   Platform::Init();
-  candles = Platform::FetchDefaultCandleIndicator();
+  candles = Platform::FetchDefaultCandleIndicator("EURUSD", PERIOD_M1);
   bool _result = true;
   // Initialize indicators.
   _result &= InitIndicators();

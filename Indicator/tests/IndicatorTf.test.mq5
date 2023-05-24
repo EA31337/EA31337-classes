@@ -55,13 +55,13 @@ Ref<Indi_AMA> indi_ama_custom;
 int OnInit() {
   Platform::Init();
   // Platform ticks.
-  indi_tick = Platform::FetchDefaultTickIndicator();
+  indi_tick = Platform::FetchDefaultTickIndicator("EURUSD");
 
   // 1-second candles.
   // indicators.Add(indi_tf = new IndicatorTfDummy(1));
 
   // 1:1 candles from platform using current timeframe.
-  indi_tf_real = Platform::FetchDefaultCandleIndicator();
+  indi_tf_real = Platform::FetchDefaultCandleIndicator("EURUSD", PERIOD_M1);
 
   // 1-second candles.
   // indicators.Add(indi_ama = new Indi_AMA());
@@ -70,7 +70,7 @@ int OnInit() {
   _ama_params.applied_price = PRICE_OPEN;
 
   // AMA on platform candles.
-  Platform::Add(indi_ama_orig_sim = new Indi_AMA(_ama_params));
+  Platform::AddWithDefaultBindings(indi_ama_orig_sim = new Indi_AMA(_ama_params), "EURUSD", PERIOD_M1);
 
   // Original built-in AMA indicator on platform OHLCs.
   Platform::Add(indi_ama_orig = new Indi_AMA(_ama_params, IDATA_BUILTIN));
