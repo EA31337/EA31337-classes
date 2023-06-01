@@ -76,7 +76,7 @@ int OnInit() {
   Print("Connecting candle and tick indicators to all indicators...");
   // Connecting all indicators to default candle indicator (which is connected to default tick indicator).
   for (int i = 0; i < indis.Size(); ++i) {
-    Platform::AddWithDefaultBindings(indis[i], _Symbol, PERIOD_CURRENT);
+    Platform::AddWithDefaultBindings(indis[i], _Symbol, PERIOD_M1);
   }
 
   // Check for any errors.
@@ -96,7 +96,7 @@ int OnInit() {
  */
 void OnTick() {
   Platform::Tick();
-  IndicatorData* _candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
+  IndicatorData* _candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M1);
 
   if (_candles PTR_DEREF IsNewBar()) {
     if (_candles PTR_DEREF GetBarIndex() > 550) {

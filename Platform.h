@@ -126,7 +126,8 @@ class Platform {
     last_tick_result = false;
 
     for (_iter = indis.Begin(); _iter.IsValid(); ++_iter) {
-      // Updating current symbol and timeframe to the ones used by ticking indicator and its parents.
+      // Print("Ticking ", _iter.Value() REF_DEREF GetFullName());
+      //  Updating current symbol and timeframe to the ones used by ticking indicator and its parents.
       symbol = _iter.Value() REF_DEREF GetSymbol();
       period = _iter.Value() REF_DEREF GetTf();
 
@@ -313,11 +314,15 @@ class Platform {
    */
   static IndicatorData *FetchDefaultCandleIndicator(string _symbol, ENUM_TIMEFRAMES _tf) {
     if (_symbol == PLATFORM_WRONG_SYMBOL) {
-      RUNTIME_ERROR("Cannot fetch default candle indicator for unknown symbol!");
+      Print("Cannot fetch default candle indicator for unknown symbol \"", _symbol, "\" (passed TF value ", (int)_tf,
+            ")!");
+      DebugBreak();
     }
 
     if (_tf == PERIOD_CURRENT || _tf == PLATFORM_WRONG_TIMEFRAME) {
-      RUNTIME_ERROR("Cannot fetch default candle indicator for unknown period/timeframe!");
+      Print("Cannot fetch default candle indicator for unknown period/timeframe (passed symbol \"", _symbol,
+            "\", TF value ", (int)_tf, ")!");
+      DebugBreak();
     }
 
     // Candle is per symbol and TF. Single Candle indicator can't handle multiple TFs.
@@ -344,7 +349,7 @@ class Platform {
    */
   static IndicatorData *FetchDefaultTickIndicator(string _symbol) {
     if (_symbol == PLATFORM_WRONG_SYMBOL) {
-      RUNTIME_ERROR("Cannot fetch default tick indicator for unknown symbol!");
+      RUNTIME_ERROR("Cannot fetch default tick indicator for unknown symbol for indicator ", GetFullName(), "!");
     }
 
     string _key = Util::MakeKey("PlatformIndicatorTick", _symbol);
