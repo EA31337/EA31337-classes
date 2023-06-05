@@ -349,7 +349,8 @@ class Platform {
    */
   static IndicatorData *FetchDefaultTickIndicator(string _symbol) {
     if (_symbol == PLATFORM_WRONG_SYMBOL) {
-      RUNTIME_ERROR("Cannot fetch default tick indicator for unknown symbol for indicator ", GetFullName(), "!");
+      Alert("Cannot fetch default tick indicator for unknown symbol!");
+      DebugBreak();
     }
 
     string _key = Util::MakeKey("PlatformIndicatorTick", _symbol);
