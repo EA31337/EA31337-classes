@@ -187,6 +187,14 @@ struct ChartTf {
   }
 
   /**
+   * Convert timeframe period to miliseconds.
+   *
+   * @param
+   * _tf ENUM_TIMEFRAMES Specify timeframe enum.
+   */
+  static int64 TfToMs(const ENUM_TIMEFRAMES _tf) { return (int64)TfToSeconds(_tf) * 1000; }
+
+  /**
    * Convert timeframe period to seconds.
    *
    * @param
