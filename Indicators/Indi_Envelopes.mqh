@@ -150,8 +150,6 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
                                       int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5
                                                   // _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
                                       int _shift = 0) {
-    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_source, _shift + _ma_shift + _ma_period);
-
     return iEnvelopesOnArray(_source.GetSpecificAppliedPriceValueStorage(_ap, _target), 0, _ma_period, _ma_method,
                              _ma_shift, _deviation, _mode, _shift, _target PTR_DEREF GetCache());
   }
@@ -173,6 +171,11 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   static double iEnvelopesOnArray(ValueStorage<double> *_price, int _total, int _ma_period, ENUM_MA_METHOD _ma_method,
                                   int _ma_shift, double _deviation, int _mode, int _shift,
                                   IndicatorCalculateCache<double> *_cache = NULL) {
+    // We need 1 bar more because MA methods assumes we have historic bars.
+    if (_price PTR_DEREF Size() < _shift + _ma_shift + _ma_period + 1) {
+      return DBL_MIN;
+    }
+
     double _indi_value_buffer[];
     double _result;
 
