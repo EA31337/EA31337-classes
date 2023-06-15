@@ -39,9 +39,6 @@
 template <typename TFP>
 class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProvider<double>> {
  protected:
-  // Time-frame used to create candles.
-  ENUM_TIMEFRAMES tf;
-
   /* Protected methods */
 
   /**
@@ -80,7 +77,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
   /**
    * Gets indicator's time-frame.
    */
-  ENUM_TIMEFRAMES GetTf() override { return tf; }
+  ENUM_TIMEFRAMES GetTf() override { return THIS_ATTR iparams.tf.GetTf(); }
 
   /**
    * Returns current tick index (incremented every OnTick()).

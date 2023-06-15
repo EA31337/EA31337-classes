@@ -180,6 +180,17 @@ class Platform {
    */
   static void Add(IndicatorData *_indi) {
     Ref<IndicatorData> _ref = _indi;
+
+    DictStructIterator<long, Ref<IndicatorData>> _iter;
+    for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
+      if (_iter.Value() == _ref) {
+        Alert("Warning: ", _indi PTR_DEREF GetFullName(),
+              " was already added as default candle/tick indicator and shouldn't be added by Platform:Add() as default "
+              "indicators are also ticked when calling Platform::Tick().");
+        DebugBreak();
+      }
+    }
+
     indis.Set(_indi PTR_DEREF GetId(), _ref);
   }
 
@@ -333,11 +344,15 @@ class Platform {
       // Adding indicator to list of default indicators in order to tick it on every Tick() call.
       Ref<IndicatorData> _ref = _indi_candle;
       indis_dflt.Set(_indi_candle PTR_DEREF GetId(), _ref);
-    }
 
-    if (!_indi_candle PTR_DEREF HasDataSource()) {
-      // Missing tick indicator.
-      _indi_candle PTR_DEREF InjectDataSource(FetchDefaultTickIndicator(_symbol));
+      if (!_indi_candle PTR_DEREF HasDataSource()) {
+        // Missing tick indicator.
+        _indi_candle PTR_DEREF InjectDataSource(FetchDefaultTickIndicator(_symbol));
+      }
+#ifdef __debug__
+      Print("Added default candle indicator for symbol ", _symbol, " and time-frame ", _tf, ". Now it has symbol ",
+            _indi_candle PTR_DEREF GetSymbol(), " and time-frame ", EnumToString(_indi_candle PTR_DEREF GetTf()));
+#endif
     }
 
     return _indi_candle;
