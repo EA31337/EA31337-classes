@@ -186,8 +186,7 @@ class Platform {
   /**
    * Adds indicator to be processed by platform and tries to initialize its data source(s).
    */
-  static void AddWithDefaultBindings(IndicatorData *_indi, CONST_REF_TO(string) _symbol = "",
-                                     ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  static void AddWithDefaultBindings(IndicatorData *_indi, CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
     Add(_indi);
     BindDefaultDataSource(_indi, _symbol, _tf);
   }

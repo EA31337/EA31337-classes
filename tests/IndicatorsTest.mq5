@@ -76,7 +76,7 @@ int OnInit() {
   Print("Connecting candle and tick indicators to all indicators...");
   // Connecting all indicators to default candle indicator (which is connected to default tick indicator).
   for (int i = 0; i < indis.Size(); ++i) {
-    Platform::AddWithDefaultBindings(indis[i], _Symbol, PERIOD_M1);
+    Platform::AddWithDefaultBindings(indis[i], "EURUSD", PERIOD_M1);
   }
 
   // Check for any errors.
