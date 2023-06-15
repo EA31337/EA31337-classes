@@ -817,7 +817,7 @@ datetime StructToTime(MqlDateTime &dt_struct) {
                                                                                                              \
   int OnInit() {                                                                                             \
     Platform::Init();                                                                                        \
-    Platform::AddWithDefaultBindings(indi.Ptr());                                                            \
+    Platform::AddWithDefaultBindings(indi.Ptr(), "EURUSD", PERIOD_M1);                                       \
     bool _result = true;                                                                                     \
     assertTrueOrFail(indi REF_DEREF IsValid(), "Error on IsValid!");                                         \
     return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);                           \

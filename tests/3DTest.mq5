@@ -59,8 +59,8 @@ int OnInit() {
 
     gfx.Start(new MT5Frontend());
 
-    Ref<Shader> _shader_v = gfx.VertexShader(ShaderSourceVS, Vertex::Layout);
-    Ref<Shader> _shader_p = gfx.PixelShader(ShaderSourcePS);
+    Ref<Shader> _shader_v = gfx.CreateVertexShader(ShaderSourceVS, Vertex::Layout);
+    Ref<Shader> _shader_p = gfx.CreatePixelShader(ShaderSourcePS);
 
     Ref<Cube<Vertex>> _mesh = new Cube<Vertex>(1.0f, 1.0f, 1.0f);
     _mesh.Ptr().SetShaderVS(_shader_v.Ptr());

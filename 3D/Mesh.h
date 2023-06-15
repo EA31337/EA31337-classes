@@ -254,8 +254,8 @@ class Mesh : public Dynamic {
     Print("Indices: ", _s_indices);
 #endif
 
-    vbuff = _vbuff = _device.VertexBuffer<T>(_vertices);
-    ibuff = _ibuff = _device.IndexBuffer(_indices);
+    vbuff = _vbuff = _device.CreateVertexBuffer<T>(_vertices);
+    ibuff = _ibuff = _device.CreateIndexBuffer(_indices);
     return true;
   }
 };
