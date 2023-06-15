@@ -138,20 +138,25 @@ class Device : public Dynamic {
   /**
    * Creates vertex shader to be used by current graphics device.
    */
-  virtual Shader* VertexShader(string _source_code, const ShaderVertexLayout& _layout[],
-                               string _entry_point = "main") = NULL;
+  virtual Shader* CreateVertexShader(string _source_code, const ShaderVertexLayout& _layout[],
+                                     string _entry_point = "main") = NULL;
 
   /**
    * Creates pixel shader to be used by current graphics device.
    */
-  virtual Shader* PixelShader(string _source_code, string _entry_point = "main") = NULL;
+  virtual Shader* CreatePixelShader(string _source_code, string _entry_point = "main") = 0;
+
+  /**
+   * Creates vertex buffer to be used by current graphics device.
+   */
+  virtual VertexBuffer* CreateVertexBuffer() = 0;
 
   /**
    * Creates vertex buffer to be used by current graphics device.
    */
   template <typename T>
-  VertexBuffer* VertexBuffer(T& data[]) {
-    VertexBuffer* _buff = VertexBuffer();
+  VertexBuffer* CreateVertexBuffer(T& data[]) {
+    VertexBuffer* _buff = CreateVertexBuffer();
     // Unfortunately we can't make this method virtual.
     if (dynamic_cast<MTDXVertexBuffer*>(_buff) != NULL) {
 // MT5's DirectX.
@@ -166,14 +171,9 @@ class Device : public Dynamic {
   }
 
   /**
-   * Creates vertex buffer to be used by current graphics device.
-   */
-  virtual VertexBuffer* VertexBuffer() = NULL;
-
-  /**
    * Creates index buffer to be used by current graphics device.
    */
-  virtual IndexBuffer* IndexBuffer(unsigned int& _indices[]) = NULL;
+  virtual IndexBuffer* CreateIndexBuffer(unsigned int& _indices[]) = 0;
 
   /**
    * Renders vertex buffer with optional point indices.
@@ -183,7 +183,7 @@ class Device : public Dynamic {
   /**
    * Renders vertex buffer with optional point indices.
    */
-  virtual void RenderBuffers(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) = NULL;
+  virtual void RenderBuffers(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) = 0;
 
   /**
    * Renders given mesh.
@@ -233,6 +233,11 @@ class Device : public Dynamic {
   int Height() { return frontend.Ptr().Height(); }
 
   void SetCameraOrtho3D(float _pos_x = 0.0f, float _pos_y = 0.0f, float _pos_z = 0.0f) {
+    if (Width() <= 0 || Height() <= 0) {
+      Print("Cannot set 2D camera as width or height of the viewport is zero!");
+      DebugBreak();
+      return;
+    }
     DXMatrixOrthoLH(mtx_projection, 1.0f * _pos_z, 1.0f / Width() * Height() * _pos_z, -10000, 10000);
   }
 
