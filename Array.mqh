@@ -753,7 +753,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
    * - https://www.mql5.com/en/docs/array/arraysize
    */
   template <typename X>
-  static int ArraySize(const ARRAY_REF(X, array)) {
+  static int ArraySize(ARRAY_REF(X, array)) {
     return ::ArraySize(array);
   }
 
