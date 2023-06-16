@@ -31,7 +31,6 @@
 #endif
 
 // Includes.
-#include "../../Chart.struct.static.h"
 #include "../../Indicator/IndicatorTick.h"
 #include "../../Indicator/IndicatorTick.provider.h"
 
@@ -86,18 +85,20 @@ class Indi_TickRandom : public IndicatorTick<Indi_TickRandomParams, double, Item
   /**
    * Fetches historic ticks for a given time range.
    */
-  virtual bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
+  bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
     // No history.
     return false;
   }
 
-  void OnTick(int _global_tick_index) override {
+  bool OnTick(int _global_tick_index) override {
     float _ask = 1.0f + (1.0f / 32767 * MathRand());
     float _bid = 1.0f + (1.0f / 32767 * MathRand());
-    TickAB<double> _tick(, _bid);
-    IndicatorDataEntry _entry(TickToEntry(_time, _tick));
+    TickAB<double> _tick(_ask, _bid);
+    IndicatorDataEntry _entry(TickToEntry(TimeCurrent(), _tick));
     EmitEntry(_entry);
     // Appending tick into the history.
     AppendEntry(_entry);
+
+    return true;
   }
 };

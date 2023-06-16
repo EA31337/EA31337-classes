@@ -73,6 +73,7 @@ jobs:
           - SummaryReportTest
           - TickerTest
           - TradeTest
+      max-parallel: 4
     steps:
       - uses: actions/download-artifact@v2
         with:
@@ -86,6 +87,7 @@ jobs:
           MtVersion: 4.0.0.1349
           TestExpert: ${{ matrix.test }}
           RunOnError: show_logs 200
+        if: always()
     timeout-minutes: 10
 
   Scripts-MQL4:
@@ -113,6 +115,7 @@ jobs:
           - TerminalTest
           - TimerTest
           - ValueStorageTest
+      max-parallel: 4
     steps:
       - uses: actions/download-artifact@v2
         with:
@@ -121,6 +124,7 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: ${{ matrix.test }}
+        if: always()
     timeout-minutes: 10
 
   Scripts-MQL4-Ignore:
@@ -146,6 +150,7 @@ jobs:
         with:
           Script: ${{ matrix.test }}
           RunOnFail: "exit 0"
+        if: always()
     timeout-minutes: 10
 
   Trade-Tests-MQL4:
@@ -167,4 +172,5 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: ${{ matrix.test }}
+        if: always()
     timeout-minutes: 10

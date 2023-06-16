@@ -43,8 +43,8 @@ class Terminal;
 #include "Refs.mqh"
 #include "String.mqh"
 #include "Terminal.define.h"
-#include "Terminal.extern.h"
 #include "Terminal.enum.h"
+#include "Terminal.extern.h"
 #include "Terminal.struct.h"
 
 #ifdef __MQL5__
@@ -876,13 +876,13 @@ class Terminal : public Object {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
-    long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
+    // long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
+    // long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
       case TERMINAL_COND_IS_CONNECTED:
         return !IsConnected();
       default:
-        Print(StringFormat("Invalid terminal condition: %s!", EnumToString(_cond), __FUNCTION__));
+        Print("Invalid terminal condition: ", EnumToString(_cond), " at ", __FUNCTION__, "!");
         return false;
     }
   }
@@ -910,14 +910,14 @@ class Terminal : public Object {
    *   Returns true when the condition is met.
    */
   bool ExecuteAction(ENUM_TERMINAL_ACTION _action, ARRAY_REF(MqlParam, _args)) {
-    long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
-    long _arg3l = ArraySize(_args) > 2 ? DataParamEntry::ToInteger(_args[2]) : WRONG_VALUE;
+    // long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
+    // long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
+    // long _arg3l = ArraySize(_args) > 2 ? DataParamEntry::ToInteger(_args[2]) : WRONG_VALUE;
     switch (_action) {
       case TERMINAL_ACTION_CRASH:
         delete THIS_PTR;
       default:
-        Print(StringFormat("Invalid terminal action: %s!", EnumToString(_action), __FUNCTION__));
+        Print("Invalid terminal action: ", EnumToString(_action), " at ", __FUNCTION__, "!");
         return false;
     }
   }
@@ -931,7 +931,8 @@ class Terminal : public Object {
   /**
    * Returns textual representation of the Terminal class.
    */
-  string ToString(string _sep = "; ") {
+  string ToString() override {
+    string _sep = "; ";
     return StringFormat("Allow DLL: %s", IsDllsAllowed() ? "Yes" : "No") + _sep +
            StringFormat("Allow Libraries: %s", IsLibrariesAllowed() ? "Yes" : "No") + _sep +
            StringFormat("CPUs: %d", GetCpuCores()) + _sep +
@@ -950,21 +951,17 @@ class Terminal : public Object {
            StringFormat("Memory (free): %d", GetFreeMemory()) + _sep +
            StringFormat("Memory (physical): %d", GetPhysicalMemory()) + _sep +
            StringFormat("Memory (total): %d", GetTotalMemory()) + _sep +
-           StringFormat("Memory (used): %d", GetUsedMemory()) + _sep +
-           StringFormat("Path (Common): %s", GetCommonPath()) + _sep + StringFormat("Path (Data): %s", GetDataPath()) +
-           _sep + StringFormat("Path (Expert): %s", GetExpertPath()) + _sep +
-           StringFormat("Path (Terminal): %s", GetTerminalPath()) + _sep +
-           StringFormat("Program name: %s", WindowExpertName()) + _sep +
+           StringFormat("Memory (used): %d", GetUsedMemory()) + _sep + "Path (Common): " + GetCommonPath() + _sep +
+           "Path (Data): " + GetDataPath() + _sep + "Path (Expert): " + GetExpertPath() + _sep +
+           "Path (Terminal): " + GetTerminalPath() + _sep + "Program name: " + WindowExpertName() + _sep +
            StringFormat("Screen DPI: %d", GetScreenDpi()) + _sep + StringFormat("Terminal build: %d", GetBuild()) +
-           _sep + StringFormat("Terminal code page: %d", IntegerToString(GetCodePage())) + _sep +
-           StringFormat("Terminal company: %s", GetCompany()) + _sep +
-           StringFormat("Terminal connected: %s", IsConnected() ? "Yes" : "No") + _sep +
-           StringFormat("Terminal language: %s", GetLanguage()) + _sep + StringFormat("Terminal name: %s", GetName()) +
-           _sep + StringFormat("Termnal max bars: %d", GetMaxBars()) + _sep +
-           StringFormat("Trade allowed: %s", IsTradeAllowed() ? "Yes" : "No") + _sep +
-           StringFormat("Trade context busy: %s", IsTradeContextBusy() ? "Yes" : "No") + _sep +
-           StringFormat("Trade perm: %s", CheckPermissionToTrade() ? "Yes" : "No") + _sep +
-           StringFormat("Trade ping (last): %d", GetPingLast());
+           _sep + "Terminal code page: " + IntegerToString(GetCodePage()) + _sep + "Terminal company: " + GetCompany() +
+           _sep + "Terminal connected: " + (IsConnected() ? "Yes" : "No") + _sep +
+           "Terminal language: " + GetLanguage() + _sep + "Terminal name: " + GetName() + _sep +
+           StringFormat("Termnal max bars: %d", GetMaxBars()) + _sep +
+           "Trade allowed: " + (IsTradeAllowed() ? "Yes" : "No") + _sep +
+           "Trade context busy: " + (IsTradeContextBusy() ? "Yes" : "No") + _sep + "Trade perm: %s" +
+           (CheckPermissionToTrade() ? "Yes" : "No") + _sep + StringFormat("Trade ping (last): %d", GetPingLast());
   }
 };
 

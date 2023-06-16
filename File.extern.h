@@ -22,15 +22,37 @@
 
 // Includes.
 #include "File.define.h"
+#include "Storage/MemoryFileSystem.h"
+#include "String.extern.h"
 #include "Terminal.define.h"
 
 // Define external global functions.
 #ifndef __MQL__
+#pragma once
+
+MemoryFileSystem _memfs;
+
 extern bool FileIsEnding(int file_handle);
+
 extern bool FileIsExist(const string file_name, int common_flag = 0);
-extern int FileClose(int file_handle);
-extern int FileOpen(string file_name, int open_flags, short delimiter = '\t', unsigned int codepage = CP_ACP);
+
+void FileClose(int file_handle) { _memfs.FileClose(file_handle); }
+
+int FileOpen(string file_name, int open_flags, short delimiter = '\t', unsigned int codepage = CP_ACP) {
+  return _memfs.FileOpen(file_name, open_flags, delimiter, codepage);
+}
+
 extern int FileReadInteger(int file_handle, int size = INT_VALUE);
+
 extern string FileReadString(int file_handle, int length = -1);
-extern unsigned int FileWriteString(int file_handle, const string text_string, int length = -1);
+
+unsigned int FileWriteString(int file_handle, const string text_string, int length = -1) {
+  return _memfs.FileWrite(file_handle, text_string);
+}
+
+template <typename Arg, typename... Args>
+unsigned int FileWrite(int file_handle, Arg&& arg, Args&&... args) {
+  return _memfs.FileWrite(file_handle, arg, args...);
+}
+
 #endif

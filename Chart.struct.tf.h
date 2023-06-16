@@ -28,7 +28,7 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
-#include "Platform.h"
+#include "Platform.extern.h"
 #endif
 
 // Forward declarations.
@@ -49,7 +49,7 @@ struct ChartTf {
  public:
   // Constructors.
   ChartTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : tf(_tf), tfi(ChartTf::TfToIndex(_tf)){};
-  ChartTf(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(ChartTf::IndexToTf(_tfi)){};
+  ChartTf(ENUM_TIMEFRAMES_INDEX _tfi) : tf(ChartTf::IndexToTf(_tfi)), tfi(_tfi){};
   ChartTf(const ChartTf& _ctf) : tf(_ctf.tf), tfi(_ctf.tfi){};
 
   // Struct operators.
@@ -187,6 +187,78 @@ struct ChartTf {
   }
 
   /**
+   * Convert timeframe period to miliseconds.
+   *
+   * @param
+   * _tf ENUM_TIMEFRAMES Specify timeframe enum.
+   */
+  static int64 TfToMs(const ENUM_TIMEFRAMES _tf) { return (int64)TfToSeconds(_tf) * 1000; }
+
+  /**
+   * Convert timeframe period to seconds.
+   *
+   * @param
+   * _tf ENUM_TIMEFRAMES Specify timeframe enum.
+   */
+  static unsigned int TfToSeconds(const ENUM_TIMEFRAMES _tf) {
+    switch (_tf) {
+      case PERIOD_CURRENT:
+#ifdef __MQL__
+        return ::PeriodSeconds(_tf);
+#else
+        RUNTIME_ERROR("PeriodSeconds(PERIOD_CURRENT) is not implemented! Returning 0.");
+        return 0;
+#endif
+      case PERIOD_M1:  // 1 minute.
+        return 60;
+      case PERIOD_M2:  // 2 minutes (non-standard).
+        return 60 * 2;
+      case PERIOD_M3:  // 3 minutes (non-standard).
+        return 60 * 3;
+      case PERIOD_M4:  // 4 minutes (non-standard).
+        return 60 * 4;
+      case PERIOD_M5:  // 5 minutes.
+        return 60 * 5;
+      case PERIOD_M6:  // 6 minutes (non-standard).
+        return 60 * 6;
+      case PERIOD_M10:  // 10 minutes (non-standard).
+        return 60 * 10;
+      case PERIOD_M12:  // 12 minutes (non-standard).
+        return 60 * 12;
+      case PERIOD_M15:  // 15 minutes.
+        return 60 * 15;
+      case PERIOD_M20:  // 20 minutes (non-standard).
+        return 60 * 20;
+      case PERIOD_M30:  // 30 minutes.
+        return 60 * 30;
+      case PERIOD_H1:  // 1 hour.
+        return 60 * 60;
+      case PERIOD_H2:  // 2 hours (non-standard).
+        return 60 * 60 * 2;
+      case PERIOD_H3:  // 3 hours (non-standard).
+        return 60 * 60 * 3;
+      case PERIOD_H4:  // 4 hours.
+        return 60 * 60 * 4;
+      case PERIOD_H6:  // 6 hours (non-standard).
+        return 60 * 60 * 6;
+      case PERIOD_H8:  // 8 hours (non-standard).
+        return 60 * 60 * 8;
+      case PERIOD_H12:  // 12 hours (non-standard).
+        return 60 * 60 * 12;
+      case PERIOD_D1:  // Daily.
+        return 60 * 60 * 24;
+      case PERIOD_W1:  // Weekly.
+        return 60 * 60 * 24 * 7;
+      case PERIOD_MN1:  // Monthly.
+        return 60 * 60 * 24 * 30;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return 0;
+  }
+
+  /**
    * Convert period to proper chart timeframe value.
    *
    * @param
@@ -273,14 +345,6 @@ struct ChartTf {
    * _tf ENUM_TIMEFRAMES Specify timeframe enum.
    */
   static double TfToMinutes(const ENUM_TIMEFRAMES _tf) { return ChartTf::TfToSeconds(_tf) / 60; }
-
-  /**
-   * Convert timeframe period to seconds.
-   *
-   * @param
-   * _tf ENUM_TIMEFRAMES Specify timeframe enum.
-   */
-  static unsigned int TfToSeconds(const ENUM_TIMEFRAMES _tf) { return ::PeriodSeconds(_tf); }
 
   /**
    * Returns text representation of the timeframe constant.

@@ -54,7 +54,7 @@ class TaskObject : public Task {
   /**
    * Class constructor with task entry as argument.
    */
-  TaskObject(TaskEntry &_tentry, TA *_obja = NULL, TC *_objc = NULL) : obja(_obja), objc(_objc), Task(_tentry) {}
+  TaskObject(TaskEntry &_tentry, TA *_obja = nullptr, TC *_objc = nullptr) : Task(_tentry), obja(_obja), objc(_objc) {}
 
   /**
    * Class deconstructor.

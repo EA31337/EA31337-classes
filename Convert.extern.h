@@ -23,12 +23,29 @@
 // Prevents processing this includes file for the second time.
 #ifndef __MQL__
 #pragma once
-#endif
+
+// Includes.
+#include <cmath>
+#include <sstream>
 
 // Define external global functions.
-#ifndef __MQL__
-extern double NormalizeDouble(double value, int digits);
-extern string CharToString(unsigned char char_code);
-extern string DoubleToString(double value, int digits = 8);
-extern string ShortToString(unsigned short symbol_code);
+double NormalizeDouble(double value, int digits) { return std::round(value / digits) * digits; }
+
+string CharToString(unsigned char char_code) {
+  std::stringstream ss;
+  ss << char_code;
+  return ss.str();
+}
+
+string DoubleToString(double value, int digits = 8) {
+  std::stringstream ss;
+  ss << std::setprecision(digits) << value;
+  return ss.str();
+}
+
+string ShortToString(unsigned short symbol_code) {
+  std::stringstream ss;
+  ss << (char)symbol_code;
+  return ss.str();
+}
 #endif

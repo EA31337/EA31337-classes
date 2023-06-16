@@ -23,21 +23,163 @@
 // Prevents processing this includes file for the second time.
 #ifndef __MQL__
 #pragma once
+
+// Includes.
+#include <stdarg.h>
+
+#include <algorithm>
+#include <cstring>
+#include <iostream>
+#include <sstream>
+#include <tuple>
+
+#include "Math.extern.h"
 #include "Std.h"
 #include "Terminal.define.h"
-#endif
 
 // Define external global functions.
-#ifndef __MQL__
-extern double StringToDouble(string value);
-extern int StringFind(string string_value, string match_substring, int start_pos = 0);
-extern int StringLen(string string_value);
-extern int StringSplit(const string& string_value, const unsigned short separator, ARRAY_REF(string, result));
-extern long StringToInteger(string value);
-extern string IntegerToString(long number, int str_len = 0, unsigned short fill_symbol = ' ');
-extern string StringFormat(string format, ...);
-extern string StringSubstr(string string_value, int start_pos, int length = -1);
-extern unsigned short StringGetCharacter(string string_value, int pos);
+double StringToDouble(string value) { return std::stod(value); }
+
+auto StringFind(const string string_value, string match_substring, int start_pos = 0) -> int {
+  return string_value.find(match_substring);
+}
+int StringLen(string string_value) { return string_value.size(); }
+int StringSplit(const string& string_value, const unsigned short separator, ARRAY_REF(string, result)) {
+  auto start = 0U;
+  auto end = string_value.find((char)separator);
+  while (end != std::string::npos) {
+    result.str().push_back(string_value.substr(start, end - start));
+    start = end + 1;  // 1 - size of the separator.
+    end = string_value.find((char)separator, start);
+  }
+  return result.size();
+}
+long StringToInteger(string value) { return std::stol(value); }
+string IntegerToString(int64 number, int str_len = 0, unsigned short fill_symbol = ' ') {
+  return std::to_string(number);
+}
+
+template <class... Args>
+std::string StringFormat(std::string f, Args&&... args) {
+  int size = snprintf(nullptr, 0, f.c_str(), args...);
+  std::string res;
+  res.resize(size);
+  snprintf(&res[0], size + 1, f.c_str(), args...);
+  return res;
+}
+
+template <typename Arg, typename... Args>
+void PrintTo(std::ostream& out, Arg&& arg, Args&&... args) {
+  out << std::forward<Arg>(arg);
+  using expander = int[];
+  (void)expander{0, (void(out << std::forward<Args>(args)), 0)...};
+  out << std::endl;
+  out.flush();
+}
+
+template <typename Arg, typename... Args>
+void Print(Arg&& arg, Args&&... args) {
+  PrintTo(std::cout, arg, args...);
+}
+
+template <typename Arg, typename... Args>
+void Alert(Arg&& arg, Args&&... args) {
+  PrintTo(std::cerr, arg, args...);
+}
+
+template <class... Args>
+void PrintFormat(const std::string& fmt, Args&&... args) {
+  std::cout << StringFormat(fmt, args...) << std::endl;
+}
+
+string StringSubstr(string string_value, int start_pos, int length = -1) {
+  return string_value.substr(start_pos, length == -1 ? (string_value.size() - start_pos) : length);
+}
+unsigned short StringGetCharacter(string string_value, int pos) {
+  if (pos < 0 || pos >= string_value.size()) {
+    Alert("Character index out of string boundary! Position passed: ", pos, ", string passed: \"", string_value, "\"");
+  }
+  return string_value[pos];
+}
+
 int StringToCharArray(string text_string, ARRAY_REF(unsigned char, array), int start = 0, int count = -1,
-                      unsigned int codepage = CP_ACP);
+                      unsigned int codepage = CP_ACP) {
+  if (count == -1) count = text_string.size();
+
+  for (int i = start; i < MathMin(start + count, (int)text_string.size()); ++i)
+    array.push((unsigned char)text_string[i]);
+
+  return array.size();
+}
+
+bool StringInit(string& string_var, int new_len = 0, unsigned short character = 0) {
+  string_var = string(new_len, (char)character);
+  return true;
+}
+
+/**
+ * It replaces all the found substrings of a string by a set sequence of symbols.
+ *
+ * @docs
+ * - https://www.mql5.com/en/docs/strings/stringreplace
+ */
+int StringReplace(string& str, const string& find, const string& replacement) {
+  int num_replacements = 0;
+  for (size_t pos = 0;; pos += replacement.length()) {
+    // Locate the substring to replace
+    pos = str.find(find, pos);
+    if (pos == string::npos) break;
+    // Replace by erasing and inserting
+    str.erase(pos, find.length());
+    str.insert(pos, replacement);
+    ++num_replacements;
+  }
+  return num_replacements;
+}
+
+string StringToLower(string str) {
+  std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return ::tolower(c); });
+  return str;
+}
+
+string StringToUpper(string str) {
+  std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return ::toupper(c); });
+  return str;
+}
+
+string EnumToString(ENUM_DATATYPE _value) {
+  switch (_value) {
+    case TYPE_BOOL:
+      return "TYPE_BOOL";
+    case TYPE_CHAR:
+      return "TYPE_CHAR";
+    case TYPE_COLOR:
+      return "TYPE_COLOR";
+    case TYPE_DATETIME:
+      return "TYPE_DATETIME";
+    case TYPE_DOUBLE:
+      return "TYPE_DOUBLE";
+    case TYPE_FLOAT:
+      return "TYPE_FLOAT";
+    case TYPE_INT:
+      return "TYPE_INT";
+    case TYPE_LONG:
+      return "TYPE_LONG";
+    case TYPE_SHORT:
+      return "TYPE_SHORT";
+    case TYPE_STRING:
+      return "TYPE_STRING";
+    case TYPE_UCHAR:
+      return "TYPE_UCHAR";
+    case TYPE_UINT:
+      return "TYPE_UINT";
+    case TYPE_ULONG:
+      return "TYPE_ULONG";
+    case TYPE_USHORT:
+      return "TYPE_USHORT";
+  }
+
+  return "<UNKNOWN TYPE: " + IntegerToString((int)_value) + ">";
+}
+
 #endif

@@ -30,9 +30,12 @@
 #pragma once
 #endif
 
-// Includes.
 #include "Refs.rc.h"
 #include "Std.h"
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+#endif
 
 class Dynamic;
 // Forward class declaration.
@@ -97,21 +100,25 @@ struct Ref {
    */
   X* ptr_object;
 
+#ifdef EMSCRIPTEN
+  typedef X element_type;
+#endif
+
  public:
   /**
    * Constructor.
    */
-  Ref(X* _ptr) { THIS_REF = _ptr; }
+  Ref(X* _ptr) : ptr_object(nullptr) { THIS_REF = _ptr; }
 
   /**
    * Constructor.
    */
-  Ref(Ref<X>& ref) { THIS_REF = ref.Ptr(); }
+  Ref(const Ref<X>& ref) : ptr_object(nullptr) { Set(ref.Ptr()); }
 
   /**
    * Constructor.
    */
-  Ref(WeakRef<X>& ref) { THIS_REF = ref.Ptr(); }
+  Ref(WeakRef<X>& ref) : ptr_object(nullptr) { Set(ref.Ptr()); }
 
   /**
    * Constructor.
@@ -123,10 +130,21 @@ struct Ref {
    */
   ~Ref() { Unset(); }
 
+#ifndef __MQL__
+  template <typename R>
+  operator Ref<R>() {
+    return Ref<R>(ptr_object);
+  }
+#endif
+
   /**
    * Returns pointer to target object.
    */
-  X* Ptr() { return ptr_object; }
+  X* Ptr() const { return ptr_object; }
+
+#ifdef EMSCRIPTEN
+  X* get() const { return ptr_object; }
+#endif
 
   /**
    * Checks whether any object is referenced.
@@ -208,7 +226,11 @@ struct Ref {
   /**
    * Makes a strong reference to the given object.
    */
-  X* operator=(X* _ptr) {
+  X* operator=(X* _ptr) { return Set(_ptr); }
+  /**
+   * Makes a strong reference to the given object.
+   */
+  X* Set(X* _ptr) {
     if (ptr_object == _ptr) {
       // Assigning the same object.
       return Ptr();
@@ -240,24 +262,34 @@ struct Ref {
   /**
    * Makes a strong reference to the given weakly-referenced object.
    */
-  X* operator=(WeakRef<X>& right) {
-    THIS_REF = right.Ptr();
-    return Ptr();
-  }
+  X* operator=(const WeakRef<X>& right) { return Set((X*)right.Ptr()); }
 
   /**
    * Makes a strong reference to the strongly-referenced object.
    */
-  X* operator=(Ref<X>& right) {
-    THIS_REF = right.Ptr();
-    return Ptr();
-  }
+  X* operator=(const Ref<X>& right) { return Set((X*)right.Ptr()); }
 
   /**
    * Equality operator.
    */
   bool operator==(const Ref<X>& r) { return ptr_object != NULL && ptr_object == r.ptr_object; }
+
+  /**
+   * Returns information about object references counter.
+   */
+  string ToString() {
+    if (ptr_object == nullptr) return "Empty pointer";
+
+    return ptr_object PTR_DEREF ToString();
+  }
 };
+
+#ifdef __cplusplus
+template <class T, class... Types>
+Ref<T> make_ref(Types&&... Args) {
+  return new T(std::forward<Types>(Args)...);
+}
+#endif
 
 /**
  * Class used to hold weak reference to reference-counted object.
@@ -273,26 +305,26 @@ struct WeakRef {
   /**
    * Constructor.
    */
-  WeakRef(X* _ptr = NULL) { this = _ptr; }
+  WeakRef(X* _ptr = NULL) : ptr_ref_counter(nullptr) { THIS_REF = _ptr; }
 
   /**
    * Constructor.
    */
-  WeakRef(WeakRef<X>& ref) { this = ref.Ptr(); }
+  WeakRef(const WeakRef<X>& ref) : ptr_ref_counter(nullptr) { THIS_REF = ref.Ptr(); }
 
   /**
    * Constructor.
    */
-  WeakRef(Ref<X>& ref) { this = ref.Ptr(); }
+  WeakRef(Ref<X>& ref) : ptr_ref_counter(nullptr) { THIS_REF = ref.Ptr(); }
 
   /**
    * Destructor.
    */
   ~WeakRef() { Unset(); }
 
-  bool ObjectExists() { return ptr_ref_counter != NULL && !PTR_ATTRIB(ptr_ref_counter, deleted); }
+  bool ObjectExists() const { return ptr_ref_counter != NULL && !PTR_ATTRIB(ptr_ref_counter, deleted); }
 
-  X* Ptr() { return ObjectExists() ? (X*)(PTR_ATTRIB(ptr_ref_counter, ptr_object)) : NULL; }
+  X* Ptr() const { return ObjectExists() ? (X*)(PTR_ATTRIB(ptr_ref_counter, ptr_object)) : NULL; }
 
   /**
    * Makes a weak reference to the given object.
@@ -330,7 +362,15 @@ struct WeakRef {
    * Makes a weak reference to the given weakly-referenced object.
    */
   X* operator=(WeakRef<X>& right) {
-    this = right.Ptr();
+    THIS_REF = right.Ptr();
+    return Ptr();
+  }
+
+  /**
+   * Makes a weak reference to the given weakly-referenced object.
+   */
+  X* operator=(const WeakRef<X>& right) {
+    THIS_REF = right.Ptr();
     return Ptr();
   }
 
@@ -338,7 +378,15 @@ struct WeakRef {
    * Makes a weak reference to the strongly-referenced object.
    */
   X* operator=(Ref<X>& right) {
-    this = right.Ptr();
+    THIS_REF = right.Ptr();
+    return Ptr();
+  }
+
+  /**
+   * Makes a weak reference to the strongly-referenced object.
+   */
+  X* operator=(const Ref<X>& right) {
+    THIS_REF = right.Ptr();
     return Ptr();
   }
 

@@ -35,8 +35,8 @@
 #define DUMMY
 
 #define ICUSTOM_DEF(SET_HANDLE, PARAMS)                                        \
-  double _res[];                                                               \
-  if (_handle == NULL || _handle == INVALID_HANDLE) {                          \
+  ARRAY(double, _res);                                                         \
+  if (_handle == 0 || _handle == INVALID_HANDLE) {                             \
     if ((_handle = ::iCustom(_symbol, _tf, _name PARAMS)) == INVALID_HANDLE) { \
       SetUserError(ERR_USER_INVALID_HANDLE);                                   \
       return EMPTY_VALUE;                                                      \
@@ -100,32 +100,32 @@
 #define EMPTY_VALUE DBL_MAX
 #endif
 
-#define INDICATOR_BUILTIN_CALL_AND_RETURN(NATIVE_METHOD_CALL, MODE, SHIFT)                                 \
-  int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL; \
-  double _res[];                                                                                           \
-  ResetLastError();                                                                                        \
-  if (_handle == NULL || _handle == INVALID_HANDLE) {                                                      \
-    if ((_handle = NATIVE_METHOD_CALL) == INVALID_HANDLE) {                                                \
-      SetUserError(ERR_USER_INVALID_HANDLE);                                                               \
-      return EMPTY_VALUE;                                                                                  \
-    } else if (Object::IsValid(_obj)) {                                                                    \
-      _obj.SetHandle(_handle);                                                                             \
-    }                                                                                                      \
-  }                                                                                                        \
-  if (Terminal::IsVisualMode()) {                                                                          \
-    /* To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND), */                                              \
-    /* we check the number of calculated data only in visual mode. */                                      \
-    int _bars_calc = BarsCalculated(_handle);                                                              \
-    if (GetLastError() > 0) {                                                                              \
-      return EMPTY_VALUE;                                                                                  \
-    } else if (_bars_calc <= 2) {                                                                          \
-      SetUserError(ERR_USER_INVALID_BUFF_NUM);                                                             \
-      return EMPTY_VALUE;                                                                                  \
-    }                                                                                                      \
-  }                                                                                                        \
-  if (CopyBuffer(_handle, MODE, SHIFT, 1, _res) < 0) {                                                     \
-    return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;                                                    \
-  }                                                                                                        \
+#define INDICATOR_BUILTIN_CALL_AND_RETURN(NATIVE_METHOD_CALL, MODE, SHIFT)                                        \
+  int _handle = Object::IsValid(_obj) ? _obj PTR_DEREF Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : 0; \
+  ARRAY(double, _res);                                                                                            \
+  ResetLastError();                                                                                               \
+  if (_handle == 0 || _handle == INVALID_HANDLE) {                                                                \
+    if ((_handle = NATIVE_METHOD_CALL) == INVALID_HANDLE) {                                                       \
+      SetUserError(ERR_USER_INVALID_HANDLE);                                                                      \
+      return EMPTY_VALUE;                                                                                         \
+    } else if (Object::IsValid(_obj)) {                                                                           \
+      _obj.SetHandle(_handle);                                                                                    \
+    }                                                                                                             \
+  }                                                                                                               \
+  if (Terminal::IsVisualMode()) {                                                                                 \
+    /* To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND), */                                                     \
+    /* we check the number of calculated data only in visual mode. */                                             \
+    int _bars_calc = BarsCalculated(_handle);                                                                     \
+    if (GetLastError() > 0) {                                                                                     \
+      return EMPTY_VALUE;                                                                                         \
+    } else if (_bars_calc <= 2) {                                                                                 \
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);                                                                    \
+      return EMPTY_VALUE;                                                                                         \
+    }                                                                                                             \
+  }                                                                                                               \
+  if (CopyBuffer(_handle, MODE, SHIFT, 1, _res) < 0) {                                                            \
+    return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;                                                           \
+  }                                                                                                               \
   return _res[0];
 
 #define INDI_REQUIRE_BARS_OR_RETURN(_indi, _period, _ret) \

@@ -26,6 +26,10 @@
  */
 
 #ifndef __MQL__
+
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+
 enum ENUM_DEAL_TYPE {
   DEAL_TYPE_BUY,
   DEAL_TYPE_SELL,

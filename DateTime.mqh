@@ -39,9 +39,12 @@ struct DataParamEntry;
 // Includes class enum and structs.
 #include "Array.mqh"
 #include "Data.struct.h"
+#include "DateTime.entry.h"
 #include "DateTime.enum.h"
 #include "DateTime.extern.h"
+#include "DateTime.static.h"
 #include "DateTime.struct.h"
+#include "PlatformTime.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
@@ -61,7 +64,7 @@ class DateTime {
   /**
    * Class constructor.
    */
-  DateTime() { TimeToStruct(TimeCurrent(), dt_curr); }
+  DateTime() { TimeToStruct(PlatformTime::CurrentTimestamp(), dt_curr); }
   DateTime(DateTime &r) : dt_curr(r.dt_curr), dt_last(r.dt_last) {}
   DateTime(DateTimeEntry &_dt) { dt_curr = _dt; }
   DateTime(MqlDateTime &_dt) { dt_curr = _dt; }
@@ -126,8 +129,8 @@ class DateTime {
     }
 
 #ifdef __debug_verbose__
-    string _passed =
-        "time now " + (string)dt_curr.GetTimestamp() + ", time last " + (string)dt_last.GetTimestamp() + " ";
+    string _passed = "time now " + TimeToString(dt_curr.GetTimestamp()) + ", time last " +
+                     TimeToString(dt_last.GetTimestamp()) + " ";
 
     if (_update) {
       _passed += "updating time ";
@@ -198,7 +201,7 @@ class DateTime {
   /**
    * Updates datetime to the current one.
    */
-  void Update() { dt_curr.Set(TimeCurrent()); }
+  void Update() { dt_curr.Set(PlatformTime::CurrentTimestamp()); }
 
   /* Conditions */
 
@@ -238,4 +241,16 @@ class DateTime {
     return DateTime::CheckCondition(_cond, _args);
   }
 };
+
+#ifndef __MQL__
+
+datetime TimeCurrent() { return PlatformTime::CurrentTimestamp(); }
+
+datetime TimeCurrent(MqlDateTime &dt_struct) {
+  dt_struct = PlatformTime::CurrentTime();
+  return PlatformTime::CurrentTimestamp();
+}
+
+#endif
+
 #endif  // DATETIME_MQH

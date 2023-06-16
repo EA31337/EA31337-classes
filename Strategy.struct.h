@@ -436,6 +436,15 @@ struct StgStatsPeriod {
 struct StgEntry {
   unsigned short signals;
   StgStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
+  // Default constructor.
+  StgEntry() {}
+
+  // Copy constructor.
+  StgEntry(const StgEntry &r) : signals(r.signals) {
+    for (int i = 0; i < FINAL_ENUM_STRATEGY_STATS_PERIOD; ++i) {
+      stats_period[i] = r.stats_period[i];
+    }
+  }
   string ToCSV() {
     return StringFormat("%s,%s,%s,%s", stats_period[(int)EA_STATS_DAILY].ToCSV(),
                         stats_period[(int)EA_STATS_WEEKLY].ToCSV(), stats_period[(int)EA_STATS_MONTHLY].ToCSV(),

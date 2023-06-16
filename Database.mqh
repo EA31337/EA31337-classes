@@ -74,6 +74,21 @@ struct DatabaseTableColumnEntry {
   // State methods.
   bool IsKey() { return bool(flags & DATABASE_COLUMN_FLAG_IS_KEY); }
   bool IsNull() { return bool(flags & DATABASE_COLUMN_FLAG_IS_NULL); }
+
+  DatabaseTableColumnEntry() {}
+  DatabaseTableColumnEntry(const string _name, const ENUM_DATATYPE _type, unsigned short _flags = 0,
+                           unsigned short _char_size = 0) {
+    name = _name;
+    type = _type;
+    flags = _flags;
+    char_size = _char_size;
+  }
+  DatabaseTableColumnEntry(const DatabaseTableColumnEntry &r) {
+    name = r.name;
+    type = r.type;
+    flags = r.flags;
+    char_size = r.char_size;
+  }
 };
 struct DatabaseTableSchema {
   DictStruct<short, DatabaseTableColumnEntry> columns;
@@ -84,6 +99,7 @@ struct DatabaseTableSchema {
       columns.Push(_columns[i]);
     }
   }
+  DatabaseTableSchema(const DatabaseTableSchema &r) { columns = r.columns; }
   // Methods.
   bool AddColumn(DatabaseTableColumnEntry &column) { return columns.Push(column); }
 };
@@ -93,18 +109,17 @@ struct DbSymbolInfoEntry : public SymbolInfoEntry {
   DatabaseTableSchema schema;
   // Constructors.
   DbSymbolInfoEntry() { DefineSchema(); }
+  DbSymbolInfoEntry(const DbSymbolInfoEntry &r) { schema = r.schema; }
   DbSymbolInfoEntry(const MqlTick &_tick, const string _symbol = NULL) : SymbolInfoEntry(_tick, _symbol) {
     DefineSchema();
   }
   // Methods.
   void DefineSchema() {
-    DatabaseTableColumnEntry _columns[] = {
-        {"bid", TYPE_DOUBLE},    {"ask", TYPE_DOUBLE}, {"last", TYPE_DOUBLE},
-        {"spread", TYPE_DOUBLE}, {"volume", TYPE_INT},
-    };
-    for (int i = 0; i < ArraySize(_columns); i++) {
-      schema.columns.Push(_columns[i]);
-    }
+    schema.columns.Push(DatabaseTableColumnEntry("bid", TYPE_DOUBLE));
+    schema.columns.Push(DatabaseTableColumnEntry("ask", TYPE_DOUBLE));
+    schema.columns.Push(DatabaseTableColumnEntry("last", TYPE_DOUBLE));
+    schema.columns.Push(DatabaseTableColumnEntry("spread", TYPE_DOUBLE));
+    schema.columns.Push(DatabaseTableColumnEntry("volume", TYPE_INT));
   }
 };
 #endif

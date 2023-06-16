@@ -179,3 +179,12 @@ class TradeSignal {
    */
   string ToString() { return signal.ToString(); }
 };
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(TradeSignal) {
+  emscripten::class_<TradeSignal>("TradeSignal").constructor().function("ToString", &TradeSignal::ToString);
+}
+
+#endif

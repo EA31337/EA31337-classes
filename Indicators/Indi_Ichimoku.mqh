@@ -164,16 +164,17 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
   /**
    * Alters indicator's struct value.
    */
-  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
-    Indicator<IndiIchimokuParams>::GetEntryAlter(_entry, _shift);
+  void GetEntryAlter(IndicatorDataEntry &_entry, int _rel_shift) override {
+    Indicator<IndiIchimokuParams>::GetEntryAlter(_entry, _rel_shift);
+    int _abs_shift = ToAbsShift(_rel_shift);
 #ifdef __MQL4__
     // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
     // so we are duplicating it.
-    _entry.values[0] = GetEntryValue(LINE_TENKANSEN, _shift);
+    _entry.values[0] = GetEntryValue(LINE_TENKANSEN, _abs_shift);
 #endif
-    _entry.values[LINE_SENKOUSPANA] = GetEntryValue(LINE_SENKOUSPANA, _shift + GetKijunSen());
-    _entry.values[LINE_SENKOUSPANB] = GetEntryValue(LINE_SENKOUSPANB, _shift + GetKijunSen());
-    _entry.values[LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _shift + GetKijunSen());
+    _entry.values[LINE_SENKOUSPANA] = GetEntryValue(LINE_SENKOUSPANA, _abs_shift + GetKijunSen());
+    _entry.values[LINE_SENKOUSPANB] = GetEntryValue(LINE_SENKOUSPANB, _abs_shift + GetKijunSen());
+    _entry.values[LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _abs_shift + GetKijunSen());
   }
 
   /**

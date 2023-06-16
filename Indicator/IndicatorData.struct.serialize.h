@@ -42,11 +42,11 @@ SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
 
     switch (values[i].GetDataType()) {
       case TYPE_DOUBLE:
-        _s.Pass(THIS_REF, (string)i, values[i].value.vdbl,
+        _s.Pass(THIS_REF, IntegerToString(i), values[i].value.vdbl,
                 SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
         break;
       case TYPE_FLOAT:
-        _s.Pass(THIS_REF, (string)i, values[i].value.vflt,
+        _s.Pass(THIS_REF, IntegerToString(i), values[i].value.vflt,
                 SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
         break;
       case TYPE_INT:
@@ -58,7 +58,7 @@ SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
             _s.Pass(THIS_REF, StringFormat("%d@%d", i, j), _value, SERIALIZER_FIELD_FLAG_FEATURE);
           }
         } else {
-          _s.Pass(THIS_REF, (string)i, values[i].value.vint,
+          _s.Pass(THIS_REF, IntegerToString(i), values[i].value.vint,
                   SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
         }
         break;
@@ -74,7 +74,7 @@ SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
           */
           SetUserError(ERR_INVALID_PARAMETER);
         } else {
-          _s.Pass(THIS_REF, (string)i, values[i].value.vlong,
+          _s.Pass(THIS_REF, IntegerToString(i), values[i].value.vlong,
                   SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
         }
         break;

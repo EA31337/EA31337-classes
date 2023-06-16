@@ -134,7 +134,8 @@ class Indi_MA : public Indicator<IndiMAParams> {
                                unsigned int ma_period, unsigned int ma_shift,
                                ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                ENUM_APPLIED_PRICE _ap, int shift = 0) {
-    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_source, int(ma_period + ma_shift + shift));
+    // We need 1 bar more because MA methods assumes we have historic bars.
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_source, int(ma_period + ma_shift + shift + 1));
     ValueStorage<double> *_data = (ValueStorage<double> *)_source.GetSpecificAppliedPriceValueStorage(_ap, _target);
     return iMAOnArray(_data, 0, ma_period, ma_shift, ma_method, shift, _target PTR_DEREF GetCache());
   }

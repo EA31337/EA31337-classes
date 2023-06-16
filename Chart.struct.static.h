@@ -25,9 +25,15 @@
  * Includes Chart's static structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Chart.define.h"
 #include "Chart.symboltf.h"
+#include "Platform.extern.h"
 #include "Terminal.define.h"
 
 /* Defines struct for chart static methods. */
@@ -69,7 +75,7 @@ struct ChartStatic {
     }
     return _bar_shift;
 #else  // __MQL5__
-    if (_time < 0) return (-1);
+    if (_time == (datetime)0) return (-1);
     ARRAY(datetime, arr);
     datetime _time0;
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
@@ -145,7 +151,7 @@ struct ChartStatic {
     if (_start < 0) return (-1);
     _count = (_count <= 0 ? ChartStatic::iBars(_symbol_tf.Symbol(), _symbol_tf.Tf()) : _count);
     ARRAY(double, arr_d);
-    ARRAY(long, arr_l);
+    ARRAY(int64, arr_l);
     ARRAY(datetime, arr_dt);
     ArraySetAsSeries(arr_d, true);
     switch (_type) {
@@ -202,7 +208,7 @@ struct ChartStatic {
     if (_start < 0) return (-1);
     _count = (_count <= 0 ? iBars(_symbol, _tf) : _count);
     ARRAY(double, arr_d);
-    ARRAY(long, arr_l);
+    ARRAY(int64, arr_l);
     ARRAY(datetime, arr_dt);
     ArraySetAsSeries(arr_d, true);
     switch (_type) {
@@ -287,6 +293,8 @@ struct ChartStatic {
                    ChartStatic::iClose(_symbol, _tf, _shift) + ChartStatic::iClose(_symbol, _tf, _shift)) /
                   4;
         break;
+      default:
+        break;  // FINAL_APPLIED_PRICE_ENTRY.
     }
     return _result;
   }
@@ -306,7 +314,7 @@ struct ChartStatic {
     }
     return _volume;
 #else  // __MQL5__
-    ARRAY(long, _arr);
+    ARRAY(int64, _arr);
     ArraySetAsSeries(_arr, true);
     return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif
@@ -331,7 +339,7 @@ struct ChartStatic {
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     // @todo: Improves performance by caching values.
 
-    datetime _time = (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
+    datetime _time = (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : (datetime)0;
 
     if (_LastError != ERR_NO_ERROR) {
       Print("Error: ", _LastError, " while doing CopyTime() in ChartStatic::GetBarTime(", _symbol, ", ",

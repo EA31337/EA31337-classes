@@ -39,9 +39,6 @@
 template <typename TFP>
 class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProvider<double>> {
  protected:
-  // Time-frame used to create candles.
-  ENUM_TIMEFRAMES tf;
-
   /* Protected methods */
 
   /**
@@ -50,7 +47,8 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    * Called on constructor.
    */
   void Init() {
-    history.SetItemProvider(new ItemsHistoryTfCandleProvider<double>(iparams.GetSecsPerCandle(), THIS_PTR));
+    THIS_ATTR history.SetItemProvider(
+        new ItemsHistoryTfCandleProvider<double>(THIS_ATTR iparams.GetSecsPerCandle(), THIS_PTR));
   }
 
  public:
@@ -58,44 +56,33 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
 
   /**
    * Class constructor with timeframe enum.
+   *
+   * @todo
    */
+  /*
   IndicatorTf(unsigned int _spc) {
-    iparams.SetSecsPerCandle(_spc);
+    THIS_ATTR iparams.SetSecsPerCandle(_spc);
     Init();
   }
-
-  /**
-   * Class constructor with timeframe enum.
-   */
-  IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
-    tf = _tf;
-    Init();
-  }
-
-  /**
-   * Class constructor with timeframe index.
-   */
-  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
-    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
-    tf = ChartTf::IndexToTf(_tfi);
-    Init();
-  }
+  */
 
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams) { Init(); }
+  IndicatorTf(const TFP& _icparams, const IndicatorDataParams& _idparams)
+      : IndicatorCandle<TFP, double, ItemsHistoryTfCandleProvider<double>>(_icparams, _idparams) {
+    Init();
+  }
 
   /**
    * Gets indicator's time-frame.
    */
-  ENUM_TIMEFRAMES GetTf() override { return tf; }
+  ENUM_TIMEFRAMES GetTf() override { return THIS_ATTR iparams.tf.GetTf(); }
 
   /**
    * Returns current tick index (incremented every OnTick()).
    */
-  int GetTickIndex() override { return history.GetItemProvider() PTR_DEREF GetTickIndex(); }
+  int GetTickIndex() override { return THIS_ATTR history.GetItemProvider() PTR_DEREF GetTickIndex(); }
 };
 
 #endif  // INDICATOR_TF_H

@@ -119,7 +119,7 @@ class Array {
     int i;
     string result = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      result += StringFormat("%d:%d%s", i, arr[i], sep);
+      result += StringFormat("%d:%d%s", i, arr[i], C_STR(sep));
     }
     // Return text without last separator.
     return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
@@ -136,7 +136,7 @@ class Array {
     int i;
     string result = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      result += StringFormat("%d:%g%s", i, arr[i], sep);
+      result += StringFormat("%d:%g%s", i, arr[i], C_STR(sep));
     }
     // Return text without last separator.
     return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
@@ -404,7 +404,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
     int i;
     string res = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      res += StringFormat("%g%s", NormalizeDouble(arr[i], digits), dlm);
+      res += StringFormat("%g%s", NormalizeDouble(arr[i], digits), C_STR(dlm));
     }
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
@@ -760,7 +760,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
   template <typename X>
   static void ArrayStore(ARRAY_REF(X, array), int index, X value, int reserve_size = 0) {
     if (index >= ArraySize(array)) {
-      ArrayResize(array, MathMax(index + 1, ArraySize(array)), reserve_size);
+      ::ArrayResize(array, MathMax(index + 1, ArraySize(array)), reserve_size);
     } else if (index < 0) {
       Print("Index cannot be negative! " + IntegerToString(index) + " passed.");
       DebugBreak();
@@ -772,11 +772,11 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
 
 template <typename X>
 void ArrayPush(ARRAY_REF(X, array), X value) {
-  ArrayResize(Array::ArraySize(array) + 1);
+  ::ArrayResize(array, Array::ArraySize(array) + 1);
   array[ArraySize(array) - 1] = value;
 }
 template <typename X>
 void ArrayPushObject(ARRAY_REF(X, array), X& value) {
-  ArrayResize(array, Array::ArraySize(array) + 1);
+  ::ArrayResize(array, Array::ArraySize(array) + 1);
   array[Array::ArraySize(array) - 1] = value;
 }

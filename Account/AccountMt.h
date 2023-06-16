@@ -37,6 +37,7 @@ class AccountMt;
 #include "../Orders.mqh"
 #include "../Serializer/Serializer.h"
 #include "../SymbolInfo.mqh"
+#include "../Task/TaskCondition.enum.h"
 #include "../Trade.struct.h"
 #include "Account.define.h"
 #include "Account.enum.h"
@@ -283,7 +284,7 @@ class AccountMt {
     return ::AccountFreeMarginMode();
 #else
     // @todo: Not implemented yet.
-    return NULL;
+    return NULL_VALUE;
 #endif
   }
   static double GetAccountFreeMarginMode() { return AccountMt::AccountFreeMarginMode(); }
@@ -469,7 +470,7 @@ class AccountMt {
    */
   bool IsFreeMargin(ENUM_ORDER_TYPE _cmd, double size_of_lot, string _symbol = NULL) {
     bool _res = true;
-    double margin = AccountFreeMarginCheck(_symbol, _cmd, size_of_lot);
+    // double margin = AccountFreeMarginCheck(_symbol, _cmd, size_of_lot);
     if (GetLastError() == 134 /* NOT_ENOUGH_MONEY */) _res = false;
     return (_res);
   }
@@ -617,9 +618,10 @@ class AccountMt {
     return StringFormat(
         "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Profit: %g, "
         "Margin Used/Free/Avail: %g(%.1f%%)/%g/%g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
-        GetType(), GetServerName(), GetCompanyName(), GetAccountName(), GetCurrency(), GetBalance(), GetCredit(),
-        GetEquity(), GetProfit(), GetMarginUsed(), GetMarginUsedInPct(), GetMarginFree(), GetMarginAvail(),
-        GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode());
+        C_STR(GetType()), C_STR(GetServerName()), C_STR(GetCompanyName()), C_STR(GetAccountName()),
+        C_STR(GetCurrency()), GetBalance(), GetCredit(), GetEquity(), GetProfit(), GetMarginUsed(),
+        GetMarginUsedInPct(), GetMarginFree(), GetMarginAvail(), GetLimitOrders(), GetLeverage(), GetStopoutLevel(),
+        GetStopoutMode());
   }
 
   /**

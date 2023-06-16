@@ -28,6 +28,7 @@
 struct DataParamEntry;
 
 // Includes.
+#include "../Account/Account.struct.h"
 #include "../EA.mqh"
 #include "../Test.mqh"
 

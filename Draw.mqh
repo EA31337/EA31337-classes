@@ -30,8 +30,13 @@ class Chart;
 class Draw;
 
 // Includes.
-#include "Chart.mqh"
 #include "Data.define.h"
+#include "Object.extern.h"
+#include "Object.mqh"
+#include "Platform.extern.h"
+#include "Terminal.define.h"
+#include "Terminal.enum.h"
+#include "Terminal.extern.h"
 
 #ifndef __MQL4__
 // Defines macros (for MQL4 backward compatibility).
@@ -41,24 +46,9 @@ class Draw;
 #define SetIndexShift(_index, _value) (PlotIndexSetInteger(_index, PLOT_SHIFT, _value))
 #endif
 
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compatibility).
-bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
-  return Draw::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1);
-}
-bool ObjectDelete(string _name) { return Draw::ObjectDelete(_name); }
-bool ObjectSet(string _name, int _prop_id, double _value) { return Draw::ObjectSet(_name, _prop_id, _value); }
-int ObjectsTotal(int _type = EMPTY) { return Draw::ObjectsTotal(); }
-string ObjectName(int _index) { return Draw::ObjectName(_index); }
-void SetIndexLabel(int _index, string _text) { Draw::SetIndexLabel(_index, _text); }
-void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY, color _clr = CLR_NONE) {
-  Draw::SetIndexStyle(_index, _type, _style, _width, _clr);
-}
-#endif
-
 #define WINDOW_MAIN 0
 
-#ifdef __MQL5__
+#ifndef __MQL4__
 #define OBJPROP_TIME1 ((ENUM_OBJECT_PROPERTY_INTEGER)0)
 #define OBJPROP_PRICE1 1
 #define OBJPROP_TIME2 2
@@ -85,7 +75,7 @@ class Draw : public Object {
   /**
    * Class constructor.
    */
-  Draw(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : ChartID()) {}
+  Draw(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : ::ChartID()) {}
 
   /* Graphic object related methods */
 
@@ -169,24 +159,6 @@ class Draw : public Object {
     return ::ObjectSet(name, prop_id, prop_value);
 #else  // __MQL5__
     switch (prop_id) {
-      // Datetime value to set/get first coordinate time part.
-      case OBJPROP_TIME1:
-        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, (long)prop_value);
-      // Datetime value to set/get second coordinate time part.
-      case OBJPROP_TIME2:
-        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, 1, (long)prop_value);
-      // Datetime value to set/get third coordinate time part.
-      case OBJPROP_TIME3:
-        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, 2, (long)prop_value);
-      // Double value to set/get first coordinate price part.
-      case OBJPROP_PRICE1:
-        return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, (double)prop_value);
-      // Double value to set/get second coordinate price part.
-      case OBJPROP_PRICE2:
-        return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, 1, prop_value);
-      // Double value to set/get third coordinate price part.
-      case OBJPROP_PRICE3:
-        return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, 2, prop_value);
       case OBJPROP_ANGLE:      // Double value to set/get angle object property in degrees.
       case OBJPROP_DEVIATION:  // Double value to set/get deviation property for Standard deviation objects.
       case OBJPROP_SCALE:      // Double value to set/get scale object property.
@@ -215,6 +187,29 @@ class Draw : public Object {
       default:
         break;
     }
+
+    // MQL4 enum values.
+    switch (prop_id) {
+      // Datetime value to set/get first coordinate time part.
+      case OBJPROP_TIME1:
+        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, (long)prop_value);
+      // Datetime value to set/get second coordinate time part.
+      case OBJPROP_TIME2:
+        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, 1, (long)prop_value);
+      // Datetime value to set/get third coordinate time part.
+      case OBJPROP_TIME3:
+        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, 2, (long)prop_value);
+      // Double value to set/get first coordinate price part.
+      case OBJPROP_PRICE1:
+        return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, (double)prop_value);
+      // Double value to set/get second coordinate price part.
+      case OBJPROP_PRICE2:
+        return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, 1, prop_value);
+      // Double value to set/get third coordinate price part.
+      case OBJPROP_PRICE3:
+        return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, 2, prop_value);
+    }
+
     return (false);
 #endif
   }
@@ -273,7 +268,7 @@ class Draw : public Object {
    * Draw a vertical line.
    */
   bool DrawVLine(string oname, datetime tm) {
-    bool result = Draw::ObjectCreate(NULL, oname, OBJ_VLINE, 0, tm, 0);
+    bool result = Draw::ObjectCreate(NULL_VALUE, oname, OBJ_VLINE, 0, tm, 0);
     if (!result) PrintFormat("%(): Can't create vertical line! code #", __FUNCTION__, GetLastError());
     return (result);
   }
@@ -282,7 +277,7 @@ class Draw : public Object {
    * Draw a horizontal line.
    */
   bool DrawHLine(string oname, double value) {
-    bool result = Draw::ObjectCreate(NULL, oname, OBJ_HLINE, 0, 0, value);
+    bool result = Draw::ObjectCreate(NULL_VALUE, oname, OBJ_HLINE, 0, 0, value);
     if (!result) PrintFormat("%(): Can't create horizontal line! code #", __FUNCTION__, GetLastError());
     return (result);
   }
@@ -291,7 +286,7 @@ class Draw : public Object {
    * Delete a vertical line.
    */
   bool DeleteVertLine(string oname) {
-    bool result = Draw::ObjectDelete(NULL, oname);
+    bool result = Draw::ObjectDelete(NULL_VALUE, oname);
     if (!result) PrintFormat("%(): Can't delete vertical line! code #", __FUNCTION__, GetLastError());
     return (result);
   }
@@ -335,3 +330,18 @@ class Draw : public Object {
     return true;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compatibility).
+bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
+  return Draw::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1);
+}
+bool ObjectDelete(string _name) { return Draw::ObjectDelete(_name); }
+bool ObjectSet(string _name, int _prop_id, double _value) { return Draw::ObjectSet(_name, _prop_id, _value); }
+int ObjectsTotal(int _type = EMPTY) { return Draw::ObjectsTotal(); }
+string ObjectName(int _index) { return Draw::ObjectName(_index); }
+void SetIndexLabel(int _index, string _text) { Draw::SetIndexLabel(_index, _text); }
+void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY, color _clr = CLR_NONE) {
+  Draw::SetIndexStyle(_index, _type, _style, _width, _clr);
+}
+#endif

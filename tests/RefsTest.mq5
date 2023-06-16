@@ -39,6 +39,7 @@ class DynamicClass : public Dynamic {
   int number;
 
   DynamicClass(int _number, DynamicClass* _parent = NULL) : number(_number), parent(_parent) {}
+  DynamicClass(const DynamicClass& r) { THIS_REF = r; }
 };
 
 /**
@@ -57,7 +58,6 @@ class BadDynamicClass : public Dynamic {
  */
 int OnInit() {
   // Weak references only.
-
   WeakRef<DynamicClass> dyn1 = new DynamicClass(1);
   assertTrueOrFail(dyn1.ObjectExists(), "Object should exist");
 

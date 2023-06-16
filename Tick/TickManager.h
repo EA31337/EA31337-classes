@@ -27,6 +27,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
+#include "Tick.struct.h"
 #include "TickManager.h"
 //#include "TickManager.struct.h"
 

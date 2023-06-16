@@ -23,25 +23,28 @@
 // Define external global functions.
 #ifndef __MQL__
 #pragma once
+#include <csignal>
+#include <string>
+
 #include "Chart.enum.h"
 #include "DateTime.enum.h"
+#include "Terminal.define.h"
 
-extern void DebugBreak();
+void DebugBreak() {
+#ifdef _MSC_VER
+  // @see https://learn.microsoft.com/en-us/cpp/intrinsics/debugbreak?view=msvc-170
+  __debugbreak();
+#else
+  raise(SIGTRAP);
+#endif
+}
+
+int _LastError = 0;
+
 // Errors.
-extern void SetUserError(unsigned short user_error);
+void SetUserError(unsigned short user_error) { _LastError = ERR_USER_ERROR_FIRST + user_error; }
 // Exceptions.
 extern int NotImplementedException();
 // Print-related functions.
-template <typename... Args>
-extern std::string StringFormat(const std::string& format, Args... args);
-
-template <typename... Args>
-extern std::string PrintFormat(const std::string& format, Args... args);
-
-template <typename... Args>
-extern void Print(Args... args);
-
-template <typename... Args>
-extern void Alert(Args... args);
 
 #endif

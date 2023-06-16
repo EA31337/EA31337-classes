@@ -104,6 +104,13 @@ class ConvertBasic {
 #endif
   }
 
+  template <typename X>
+  static X StringTo(string _value) {
+    X _out;
+    StringToType(_value, _out);
+    return _out;
+  }
+
   static void BoolToType(bool _value, bool& _out) { _out = _value; }
   static void BoolToType(bool _value, char& _out) { _out = (char)_value; }
   static void BoolToType(bool _value, unsigned char& _out) { _out = (unsigned char)_value; }
@@ -118,6 +125,13 @@ class ConvertBasic {
   static void BoolToType(bool _value, string& _out) { _out = _value ? "1" : "0"; }
   static void BoolToType(bool _value, color& _out) { _out = 0; }
   static void BoolToType(bool _value, datetime& _out) {}
+
+  template <typename X>
+  static X BoolTo(bool _value) {
+    X _out;
+    BoolToType(_value, _out);
+    return _out;
+  }
 
   static void LongToType(long _value, bool& _out) { _out = (bool)_value; }
   static void LongToType(long _value, char& _out) { _out = (char)_value; }
@@ -134,6 +148,13 @@ class ConvertBasic {
   static void LongToType(long _value, color& _out) { _out = 0; }
   static void LongToType(long _value, datetime& _out) {}
 
+  template <typename X>
+  static X LongTo(long _value) {
+    X _out;
+    LongToType(_value, _out);
+    return _out;
+  }
+
   static void DoubleToType(double _value, bool& _out) { _out = (bool)_value; }
   static void DoubleToType(double _value, char& _out) { _out = (char)_value; }
   static void DoubleToType(double _value, unsigned char& _out) { _out = (unsigned char)_value; }
@@ -148,4 +169,11 @@ class ConvertBasic {
   static void DoubleToType(double _value, string& _out) { _out = _value ? "1" : "0"; }
   static void DoubleToType(double _value, color& _out) { _out = 0; }
   static void DoubleToType(double _value, datetime& _out) {}
+
+  template <typename X>
+  static X DoubleTo(double _value) {
+    X _out;
+    DoubleToType(_value, _out);
+    return _out;
+  }
 };

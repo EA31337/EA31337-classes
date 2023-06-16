@@ -22,7 +22,58 @@
 
 // Define external global functions.
 #ifndef __MQL__
+#pragma once
+
+// Includes.
+#include "String.mqh"
+#include "Terminal.define.h"
+#include "Terminal.enum.h"
+
 extern int GetLastError();
 extern string TerminalInfoString(int property_id);
 extern void ResetLastError();
+string MQLInfoString(int property_id) {
+  switch (property_id) {
+    case MQL_PROGRAM_NAME:
+      return "EA";
+    case MQL_PROGRAM_PATH:
+      return "";
+  }
+  return "";
+}
+
+int MQLInfoInteger(int property_id) {
+  switch (property_id) {
+    case MQL_CODEPAGE:
+      return CP_ACP;
+    case MQL_PROGRAM_TYPE:
+      return PROGRAM_EXPERT;
+    case MQL_DLLS_ALLOWED:
+      return false;
+    case MQL_TRADE_ALLOWED:
+      return true;
+    case MQL_SIGNALS_ALLOWED:
+      return true;
+    case MQL_DEBUG:
+      return true;
+    case MQL_PROFILER:
+      return false;
+    case MQL_TESTER:
+      return true;
+    case MQL_OPTIMIZATION:
+      return true;
+    case MQL_VISUAL_MODE:
+      return false;
+    case MQL_FRAME_MODE:
+      return false;
+    case MQL_LICENSE_TYPE:
+      return LICENSE_FREE;
+  }
+  return -1;
+}
+
+bool _StopFlag = false;
+
+bool IsStopped() { return _StopFlag; }
+
 #endif

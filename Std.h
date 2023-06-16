@@ -26,6 +26,9 @@
 #include "Math.define.h"
 #endif
 
+// Includes.
+#include "Data.enum.h"
+
 // Data types.
 #ifdef __cplusplus
 #include <iomanip>
@@ -126,7 +129,7 @@
  *   ARRAY_REF(<type of the array items>, <name of the variable>)
  */
 #define ARRAY_TYPE(T) _cpp_array<T>
-#define ARRAY_REF(T, N) ARRAY_TYPE(T)& N
+#define ARRAY_REF(T, N) ARRAY_TYPE(T) & N
 #define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
 
 #define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N

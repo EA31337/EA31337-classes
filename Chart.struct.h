@@ -51,6 +51,7 @@ struct ChartEntry {
   // Constructors.
   ChartEntry() {}
   ChartEntry(const BarEntry& _bar) { SetBar(_bar); }
+  ChartEntry(const ChartEntry& _r) { SetBar(_r.bar); }
   // Getters.
   BarEntry GetBar() { return bar; }
   string ToCSV() { return StringFormat("%s", bar.ToCSV()); }

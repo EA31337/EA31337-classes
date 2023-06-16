@@ -37,170 +37,13 @@ struct TradeStats;
 #include "DateTime.mqh"
 #include "Trade.enum.h"
 
-/* Structure for trade parameters. */
-struct TradeParams {
-  float lot_size;        // Default lot size.
-  float risk_margin;     // Maximum account margin to risk (in %).
-  string order_comment;  // Order comment.
-  unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
-  unsigned int slippage;     // Value of the maximum price slippage in points.
-  unsigned long magic_no;    // Unique magic number used for the trading.
-  unsigned short bars_min;   // Minimum bars to trade.
-  ENUM_LOG_LEVEL log_level;  // Log verbosity level.
-  // Constructors.
-  TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50)
-      : bars_min(100),
-        order_comment(""),
-        lot_size(_lot_size),
-        magic_no(rand()),
-        risk_margin(_risk_margin),
-        slippage(_slippage) {
-    SetLimits(0);
-  }
-  TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
-      : bars_min(100), lot_size(0), order_comment(""), log_level(_ll), magic_no(_magic_no) {}
-  TradeParams(TradeParams &_tparams) { this = _tparams; }
-  // Deconstructor.
-  ~TradeParams() {}
-  // Getters.
-  template <typename T>
-  T Get(ENUM_TRADE_PARAM _param) {
-    switch (_param) {
-      case TRADE_PARAM_BARS_MIN:
-        return (T)bars_min;
-      case TRADE_PARAM_LOT_SIZE:
-        return (T)lot_size;
-      case TRADE_PARAM_MAGIC_NO:
-        return (T)magic_no;
-      case TRADE_PARAM_ORDER_COMMENT:
-        return (T)order_comment;
-      case TRADE_PARAM_RISK_MARGIN:
-        return (T)risk_margin;
-      case TRADE_PARAM_SLIPPAGE:
-        return (T)slippage;
-    }
-    SetUserError(ERR_INVALID_PARAMETER);
-    return WRONG_VALUE;
-  }
-  float GetRiskMargin() { return risk_margin; }
-  unsigned int GetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) {
-    return limits_stats[(int)_type][(int)_period];
-  }
-  unsigned short GetBarsMin() { return bars_min; }
-  // State checkers.
-  bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, ARRAY_REF(unsigned int, _value)) {
-    // Is limit greater or equal than given value for given array of types.
-    for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-      if (_value[p] > 0 && IsLimitGe(_type, (ENUM_TRADE_STAT_PERIOD)p, _value[p])) {
-        return true;
-      }
-    }
-    return false;
-  }
-  bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, unsigned int _value) {
-    // Is limit greater or equal than given value for given type and period.
-#ifdef __debug__
-    Print("Checking for trade limit. Limit for type ", EnumToString(_type), " and period ", EnumToString(_period),
-          " is ", limits_stats[_type][_period], ". Current trades = ", _value);
-#endif
-    return limits_stats[(int)_type][(int)_period] > 0 && _value >= limits_stats[(int)_type][(int)_period];
-  }
-  bool IsLimitGe(TradeStats &_stats) {
-    for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
-      for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-        unsigned int _stat_value = _stats.GetOrderStats(t, p);
-        if (_stat_value > 0 && IsLimitGe(t, p, _stat_value)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-  // Setters.
-  template <typename T>
-  void Set(ENUM_TRADE_PARAM _param, T _value) {
-    switch (_param) {
-      case TRADE_PARAM_BARS_MIN:
-        bars_min = (unsigned short)_value;
-        return;
-      case TRADE_PARAM_LOT_SIZE:
-        lot_size = (float)_value;
-        return;
-      case TRADE_PARAM_MAGIC_NO:
-        magic_no = (unsigned long)_value;
-        return;
-      case TRADE_PARAM_ORDER_COMMENT:
-        order_comment = (string)_value;
-        return;
-      case TRADE_PARAM_RISK_MARGIN:
-        risk_margin = (float)_value;
-        return;
-      case TRADE_PARAM_SLIPPAGE:
-        slippage = (unsigned int)_value;
-        return;
-    }
-    SetUserError(ERR_INVALID_PARAMETER);
-  }
-  void Set(ENUM_TRADE_PARAM _enum_param, MqlParam &_mql_param) {
-    if (_mql_param.type == TYPE_DOUBLE || _mql_param.type == TYPE_FLOAT) {
-      Set(_enum_param, _mql_param.double_value);
-    } else {
-      Set(_enum_param, _mql_param.integer_value);
-    }
-  }
-  void SetBarsMin(unsigned short _value) { bars_min = _value; }
-  void SetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, unsigned int _value = 0) {
-    // Set new trading limits for the given type and period.
-#ifdef __debug__
-    Print("Setting trade limit for type ", EnumToString(_type), " and period ", EnumToString(_period), " to ", _value);
-#endif
-    limits_stats[(int)_type][(int)_period] = _value;
-  }
-  void SetLimits(ENUM_TRADE_STAT_PERIOD _period, unsigned int _value = 0) {
-    // Set new trading limits for the given period.
-    for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
-#ifdef __debug__
-      Print("Setting trade limit for type ", EnumToString((ENUM_TRADE_STAT_TYPE)t), " and period ",
-            EnumToString(_period), " to ", _value);
-#endif
-      limits_stats[(int)t][(int)_period] = _value;
-    }
-  }
-  void SetLimits(ENUM_TRADE_STAT_TYPE _type, unsigned int _value = 0) {
-    // Set new trading limits for the given type.
-    for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-      limits_stats[(int)_type][(int)p] = _value;
-    }
-  }
-  void SetLimits(unsigned int _value = 0) {
-    // Set new trading limits for all types and periods.
-    // Zero value is for no limits.
-    for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
-      for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-        limits_stats[(int)t][(int)p] = _value;
-      }
-    }
-  }
-  void SetLotSize(float _lot_size) { lot_size = _lot_size; }
-  void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
-  void SetRiskMargin(float _value) { risk_margin = _value; }
-  // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(THIS_REF, "lot_size", lot_size);
-    _s.Pass(THIS_REF, "magic", magic_no);
-    _s.Pass(THIS_REF, "risk_margin", risk_margin);
-    _s.Pass(THIS_REF, "slippage", slippage);
-    return SerializerNodeObject;
-  }
-} trade_params_defaults;
-
 /* Structure for trade statistics. */
 struct TradeStats {
   DateTime dt[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
   unsigned int order_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
   // Struct constructors.
   TradeStats() { ResetStats(); }
+  TradeStats(const TradeStats &r) { THIS_REF = r; }
   // Check statistics for new periods
   void Check() {}
   /* Getters */
@@ -251,37 +94,200 @@ struct TradeStats {
   }
   /* Reset stats for the given period. */
   void ResetStats(ENUM_TRADE_STAT_PERIOD _period) {
-    for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
-      order_stats[(int)t][(int)_period] = 0;
+    for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+      order_stats[t][(int)_period] = 0;
 #ifdef __debug_verbose__
       Print("Resetting trade counter for type ", EnumToString(t), " and  period ", EnumToString(_period));
 #endif
-      dt[(int)t][(int)_period].GetStartedPeriods(true, true);
+      dt[t][(int)_period].GetStartedPeriods(true, true);
     }
   }
   /* Reset stats for the given type. */
   void ResetStats(ENUM_TRADE_STAT_TYPE _type) {
-    for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-      order_stats[(int)_type][(int)p] = 0;
+    for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+      order_stats[(int)_type][p] = 0;
 #ifdef __debug_vebose__
       Print("Resetting trade counter for type ", EnumToString(_type), " and  period ", EnumToString(p));
 #endif
-      dt[(int)_type][(int)p].GetStartedPeriods(true, true);
+      dt[(int)_type][p].GetStartedPeriods(true, true);
     }
   }
   /* Reset all stats. */
   void ResetStats() {
-    for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
-      for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-        order_stats[(int)t][(int)p] = 0;
+    for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+      for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+        order_stats[t][p] = 0;
 #ifdef __debug_verbose__
-        Print("Resetting trade counter for type ", EnumToString(t), " and  period ", EnumToString(p));
+        Print("Resetting trade counter for type ", EnumToString((ENUM_TRADE_STAT_TYPE)t), " and  period ",
+              EnumToString((ENUM_TRADE_STAT_PERIOD)p));
 #endif
-        dt[(int)t][(int)p].GetStartedPeriods(true, true);
+        dt[t][p].GetStartedPeriods(true, true);
       }
     }
   }
 };
+
+/* Structure for trade parameters. */
+struct TradeParams {
+  unsigned short bars_min;  // Minimum bars to trade.
+  string order_comment;     // Order comment.
+  float lot_size;           // Default lot size.
+  unsigned long magic_no;   // Unique magic number used for the trading.
+  float risk_margin;        // Maximum account margin to risk (in %).
+  unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
+  unsigned int slippage;     // Value of the maximum price slippage in points.
+  ENUM_LOG_LEVEL log_level;  // Log verbosity level.
+  // Constructors.
+  TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50)
+      : bars_min(100),
+        order_comment(""),
+        lot_size(_lot_size),
+        magic_no(rand()),
+        risk_margin(_risk_margin),
+        slippage(_slippage) {
+    SetLimits(0);
+  }
+  TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
+      : bars_min(100), order_comment(""), lot_size(0), magic_no(_magic_no), log_level(_ll) {}
+  TradeParams(const TradeParams &_tparams) { THIS_REF = _tparams; }
+  // Deconstructor.
+  ~TradeParams() {}
+  // Getters.
+  template <typename T>
+  T Get(ENUM_TRADE_PARAM _param) {
+    switch (_param) {
+      case TRADE_PARAM_BARS_MIN:
+        return (T)bars_min;
+      case TRADE_PARAM_LOT_SIZE:
+        return (T)lot_size;
+      case TRADE_PARAM_MAGIC_NO:
+        return (T)magic_no;
+      case TRADE_PARAM_ORDER_COMMENT:
+        return ConvertBasic::StringTo<T>(order_comment);
+      case TRADE_PARAM_RISK_MARGIN:
+        return (T)risk_margin;
+      case TRADE_PARAM_SLIPPAGE:
+        return (T)slippage;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return WRONG_VALUE;
+  }
+  float GetRiskMargin() { return risk_margin; }
+  unsigned int GetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) {
+    return limits_stats[(int)_type][(int)_period];
+  }
+  unsigned short GetBarsMin() { return bars_min; }
+  // State checkers.
+  bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, ARRAY_REF(unsigned int, _value)) {
+    // Is limit greater or equal than given value for given array of types.
+    for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+      if (_value[p] > 0 && IsLimitGe(_type, (ENUM_TRADE_STAT_PERIOD)p, _value[p])) {
+        return true;
+      }
+    }
+    return false;
+  }
+  bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, unsigned int _value) {
+    // Is limit greater or equal than given value for given type and period.
+#ifdef __debug__
+    Print("Checking for trade limit. Limit for type ", EnumToString(_type), " and period ", EnumToString(_period),
+          " is ", limits_stats[_type][_period], ". Current trades = ", _value);
+#endif
+    return limits_stats[(int)_type][(int)_period] > 0 && _value >= limits_stats[(int)_type][(int)_period];
+  }
+  bool IsLimitGe(TradeStats &_stats) {
+    for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; ++t) {
+      for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; ++p) {
+        unsigned int _stat_value = _stats.GetOrderStats((ENUM_TRADE_STAT_TYPE)t, (ENUM_TRADE_STAT_PERIOD)p);
+        if (_stat_value > 0 && IsLimitGe((ENUM_TRADE_STAT_TYPE)t, (ENUM_TRADE_STAT_PERIOD)p, _stat_value)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  // Setters.
+  template <typename T>
+  void Set(ENUM_TRADE_PARAM _param, T _value) {
+    switch (_param) {
+      case TRADE_PARAM_BARS_MIN:
+        bars_min = (unsigned short)_value;
+        return;
+      case TRADE_PARAM_LOT_SIZE:
+        lot_size = (float)_value;
+        return;
+      case TRADE_PARAM_MAGIC_NO:
+        magic_no = (unsigned long)_value;
+        return;
+      case TRADE_PARAM_ORDER_COMMENT:
+        order_comment = SerializerConversions::ValueToString(_value);
+        return;
+      case TRADE_PARAM_RISK_MARGIN:
+        risk_margin = (float)_value;
+        return;
+      case TRADE_PARAM_SLIPPAGE:
+        slippage = (unsigned int)_value;
+        return;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
+  void Set(ENUM_TRADE_PARAM _enum_param, MqlParam &_mql_param) {
+    if (_mql_param.type == TYPE_DOUBLE || _mql_param.type == TYPE_FLOAT) {
+      Set(_enum_param, _mql_param.double_value);
+    } else {
+      Set(_enum_param, _mql_param.integer_value);
+    }
+  }
+  void SetBarsMin(unsigned short _value) { bars_min = _value; }
+  void SetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, unsigned int _value = 0) {
+    // Set new trading limits for the given type and period.
+#ifdef __debug__
+    Print("Setting trade limit for type ", EnumToString(_type), " and period ", EnumToString(_period), " to ", _value);
+#endif
+    limits_stats[(int)_type][(int)_period] = _value;
+  }
+  void SetLimits(ENUM_TRADE_STAT_PERIOD _period, unsigned int _value = 0) {
+    // Set new trading limits for the given period.
+    for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+#ifdef __debug__
+      Print("Setting trade limit for type ", EnumToString((ENUM_TRADE_STAT_TYPE)t), " and period ",
+            EnumToString(_period), " to ", _value);
+#endif
+      limits_stats[(int)t][(int)_period] = _value;
+    }
+  }
+  void SetLimits(ENUM_TRADE_STAT_TYPE _type, unsigned int _value = 0) {
+    // Set new trading limits for the given type.
+    for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+      limits_stats[(int)_type][p] = _value;
+    }
+  }
+  void SetLimits(unsigned int _value = 0) {
+    // Set new trading limits for all types and periods.
+    // Zero value is for no limits.
+    for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+      for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+        limits_stats[t][p] = _value;
+      }
+    }
+  }
+  void SetLotSize(float _lot_size) { lot_size = _lot_size; }
+  void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
+  void SetRiskMargin(float _value) { risk_margin = _value; }
+  // Serializers.
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.Pass(THIS_REF, "lot_size", lot_size);
+    _s.Pass(THIS_REF, "magic", magic_no);
+    _s.Pass(THIS_REF, "risk_margin", risk_margin);
+    _s.Pass(THIS_REF, "slippage", slippage);
+    return SerializerNodeObject;
+  }
+} trade_params_defaults;
 
 /* Structure for trade states. */
 struct TradeStates {
@@ -326,6 +332,8 @@ struct TradeStates {
         return "Terminal offline";
       case TRADE_STATE_TRADE_TERMINAL_SHUTDOWN:
         return "Terminal is shutting down";
+      default:
+        break;
     }
     return "Unknown!";
   }
@@ -352,7 +360,7 @@ struct TradeStates {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckState(1 << i) ? 1 : 0;
-      _s.Pass(THIS_REF, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
+      _s.Pass(THIS_REF, IntegerToString(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
     }
     return SerializerNodeObject;
   }

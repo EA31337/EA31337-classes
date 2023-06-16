@@ -47,7 +47,7 @@ Ref<IndicatorData> indi_renko;
 int OnInit() {
   Platform::Init();
   // Platform ticks.
-  indi_tick = Platform::FetchDefaultTickIndicator();
+  indi_tick = Platform::FetchDefaultTickIndicator("EURUSD");
 
   // Renko with 10 pips limit.
   Platform::Add(indi_renko = new IndicatorRenko(1));

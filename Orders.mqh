@@ -25,7 +25,7 @@ class Orders;
 
 // Includes.
 #include "Account/Account.h"
-#include "Chart.mqh"
+#include "Chart.struct.static.h"
 #include "Log.mqh"
 #include "Math.h"
 #include "Order.mqh"
@@ -79,7 +79,7 @@ class Orders {
   // Enum variables.
   ENUM_ORDERS_POOL pool;
   // Struct variables.
-  Order *orders[];
+  ARRAY(Order *, orders);
   // Class variables.
   Ref<Log> logger;
   // Market *market;
@@ -108,7 +108,7 @@ class Orders {
       orders[_size] = new Order(_req);
       return true;
     } else {
-      Logger().Error("Cannot allocate the memory.", __FUNCTION__);
+      Logger() PTR_DEREF Error("Cannot allocate the memory.", __FUNCTION__);
       return false;
     }
   }
@@ -120,7 +120,7 @@ class Orders {
    */
   Order *SelectOrder(unsigned long _ticket) {
     for (unsigned int _pos = ArraySize(orders); _pos >= 0; _pos--) {
-      if (orders[_pos].Get<unsigned long>(ORDER_PROP_TICKET) == _ticket) {
+      if (orders[_pos] PTR_DEREF Get<unsigned long>(ORDER_PROP_TICKET) == _ticket) {
         return orders[_pos];
       }
     }
@@ -140,7 +140,7 @@ class Orders {
       ArrayResize(orders, _size + 1, 100);
       return orders[_size] = new Order(_ticket);
     }
-    Logger().Error(StringFormat("Cannot select order (ticket=#%d)!", _ticket), __FUNCTION__);
+    Logger() PTR_DEREF Error(StringFormat("Cannot select order (ticket=#%d)!", _ticket), __FUNCTION__);
     return NULL;
   }
 
@@ -149,10 +149,10 @@ class Orders {
   /**
    * Calculate number of lots for open positions.
    */
-  static double GetOpenLots(string _symbol = NULL, long magic_number = 0, int magic_range = 0) {
+  static double GetOpenLots(string _symbol = NULL_STRING, long magic_number = 0, int magic_range = 0) {
     double total_lots = 0;
     // @todo: Convert to MQL5.
-    _symbol = _symbol != NULL ? _symbol : _Symbol;
+    _symbol = _symbol != NULL_STRING ? _symbol : _Symbol;
     for (int i = 0; i < OrdersTotal(); i++) {
       if (Order::TryOrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
       if (Order::OrderSymbol() == _symbol) {
@@ -174,7 +174,7 @@ class Orders {
    *   Returns sum of all stop loss or profit take points
    *   from all opened orders for the given symbol.
    */
-  static double TotalSLTP(ENUM_ORDER_TYPE _cmd = NULL, bool sl = true) {
+  static double TotalSLTP(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_UNSET, bool sl = true) {
     double total_buy_sl = 0, total_buy_tp = 0;
     double total_sell_sl = 0, total_sell_tp = 0;
     // @todo: Convert to MQL5.
@@ -184,7 +184,7 @@ class Orders {
         // Terminal::GetErrorText(GetLastError()));
         break;
       }
-      if (Order::OrderSymbol() == _Symbol) {
+      if (Order::OrderSymbol() == (string)_Symbol) {
         double order_tp = Order::OrderTakeProfit();
         double order_sl = Order::OrderStopLoss();
         switch (Order::OrderType()) {
@@ -204,6 +204,9 @@ class Orders {
             // PrintFormat("%s:%d%d: OP_SELL: TP=%g, SL=%g, total: %g/%g", __FUNCTION__, i, OrdersTotal(), order_tp,
             // order_sl, total_sell_sl, total_sell_tp);
             break;
+          default:
+            RUNTIME_ERROR("Not supported order type!");
+            return 0;
         }
       }
     }
@@ -220,7 +223,7 @@ class Orders {
   /**
    * Get sum of total stop loss values of opened orders.
    */
-  double TotalSL(ENUM_ORDER_TYPE _cmd = NULL) { return TotalSLTP(_cmd, true); }
+  double TotalSL(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_UNSET) { return TotalSLTP(_cmd, true); }
 
   /**
    * Get sum of total take profit values of opened orders.
@@ -228,7 +231,7 @@ class Orders {
    * @return
    *   Returns total take profit points.
    */
-  double TotalTP(ENUM_ORDER_TYPE _cmd = NULL) { return TotalSLTP(_cmd, false); }
+  double TotalTP(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_UNSET) { return TotalSLTP(_cmd, false); }
 
   /**
    * Get ratio of total stop loss points.
@@ -236,7 +239,7 @@ class Orders {
    * @return
    *   Returns ratio between 0 and 1.
    */
-  double RatioSL(ENUM_ORDER_TYPE _cmd = NULL) {
+  double RatioSL(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_UNSET) {
     return 1.0 / fmax(TotalSL(_cmd) + TotalTP(_cmd), 0.01) * TotalSL(_cmd);
   }
 
@@ -246,7 +249,7 @@ class Orders {
    * @return
    *   Returns ratio between 0 and 1.
    */
-  double RatioTP(ENUM_ORDER_TYPE _cmd = NULL) {
+  double RatioTP(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_UNSET) {
     return 1.0 / fmax(TotalSL(_cmd) + TotalTP(_cmd), 0.01) * TotalTP(_cmd);
   }
 
@@ -256,16 +259,16 @@ class Orders {
    * @return
    *   Returns sum of all lots from all opened orders.
    */
-  double TotalLots(ENUM_ORDER_TYPE _cmd = NULL) {
+  double TotalLots(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_UNSET) {
     double buy_lots = 0, sell_lots = 0;
     // @todo: Convert to MQL5.
     for (int i = 0; i < OrdersTotal(); i++) {
       if (!Order::OrderSelect(i, SELECT_BY_POS)) {
-        Logger().Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__,
-                       Terminal::GetErrorText(GetLastError()));
+        Logger() PTR_DEREF Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__,
+                                 Terminal::GetErrorText(GetLastError()));
         break;
       }
-      if (Order::OrderSymbol() == _Symbol) {
+      if (Order::OrderSymbol() == (string)_Symbol) {
         switch (Order::OrderType()) {
           case ORDER_TYPE_BUY:
             buy_lots += Order::OrderLots();
@@ -273,6 +276,9 @@ class Orders {
           case ORDER_TYPE_SELL:
             sell_lots += Order::OrderLots();
             break;
+          default:
+            RUNTIME_ERROR("Not supported order type!");
+            return 0;
         }
       }
     }
@@ -300,7 +306,7 @@ class Orders {
     } else if (_sell_lots > 0 && _sell_lots > _buy_lots) {
       return ORDER_TYPE_SELL;
     } else {
-      return NULL;
+      return ORDER_TYPE_UNSET;
     }
   }
 
@@ -534,7 +540,7 @@ class Orders {
    */
   static unsigned int GetOrdersByType(ENUM_ORDER_TYPE _cmd, string _symbol = NULL) {
     unsigned int _counter = 0;
-    _symbol = _symbol != NULL ? _symbol : _Symbol;
+    _symbol = _symbol != NULL_STRING ? _symbol : _Symbol;
     for (int i = 0; i < OrdersTotal(); i++) {
       if (Order::TryOrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
       if (Order::OrderSymbol() == _symbol) {
