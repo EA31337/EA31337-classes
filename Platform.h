@@ -844,7 +844,7 @@ datetime StructToTime(MqlDateTime &dt_struct) {
       IndicatorDataEntry _entry = indi REF_DEREF GetEntry();                                                 \
       bool _is_ready = indi REF_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)); \
       bool _is_valid = _entry.IsValid();                                                                     \
-      Print(indi REF_DEREF ToString(), _is_ready ? "" : " (Not yet ready)");                                 \
+      Print(indi REF_DEREF ToString(), _is_ready ? " (Ready)" : " (Not yet ready)");                         \
       if (_is_ready && !_is_valid) {                                                                         \
         Print(indi REF_DEREF ToString(), " (Invalid entry!)");                                               \
         assertTrueOrExit(_entry.IsValid(), "Invalid entry!");                                                \

@@ -61,13 +61,13 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
                    IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
       : Indicator(
             _p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
-            _indi_src){};
+            _indi_src) {}
   Indi_ZigZagColor(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
                    int _indi_src_mode = 0)
       : Indicator(
             IndiZigZagColorParams(),
             IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
-            _indi_src){};
+            _indi_src) {}
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
@@ -321,7 +321,9 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return _entry.values[0].Get<double>() != DBL_MAX && _entry.values[0].Get<double>() != EMPTY_VALUE;
+  }
 
   /* Getters */
 
