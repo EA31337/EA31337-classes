@@ -87,7 +87,7 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
 #ifdef __MQL4__
     return ::iWPR(_symbol, _tf, _period, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorDataState::INDICATOR_STATE_PROP_HANDLE) : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorDataState::INDICATOR_DATA_STATE_PROP_HANDLE) : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iWPR(_symbol, _tf, _period)) == INVALID_HANDLE) {

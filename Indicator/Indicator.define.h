@@ -101,7 +101,7 @@
 #endif
 
 #define INDICATOR_BUILTIN_CALL_AND_RETURN(NATIVE_METHOD_CALL, MODE, SHIFT)                                        \
-  int _handle = Object::IsValid(_obj) ? _obj PTR_DEREF Get<int>(IndicatorDataState::INDICATOR_STATE_PROP_HANDLE) : 0; \
+  int _handle = Object::IsValid(_obj) ? _obj PTR_DEREF Get<int>(IndicatorDataState::INDICATOR_DATA_STATE_PROP_HANDLE) : 0; \
   ARRAY(double, _res);                                                                                            \
   ResetLastError();                                                                                               \
   if (_handle == 0 || _handle == INVALID_HANDLE) {                                                                \

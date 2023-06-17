@@ -195,7 +195,7 @@ class IndicatorData : public IndicatorBase {
    * Gets an indicator's state property value.
    */
   template <typename T>
-  T Get(STRUCT_ENUM_INDICATOR_STATE_PROP _prop) {
+  T Get(STRUCT_ENUM_INDICATOR_DATA_STATE_PROP _prop) {
     return istate.Get<T>(_prop);
   }
 
@@ -777,7 +777,7 @@ class IndicatorData : public IndicatorBase {
    * Sets an indicator's state property value.
    */
   template <typename T>
-  void Set(STRUCT_ENUM_INDICATOR_STATE_PROP _prop, T _value) {
+  void Set(STRUCT_ENUM_INDICATOR_DATA_STATE_PROP _prop, T _value) {
     istate.Set<T>(_prop, _value);
   }
 

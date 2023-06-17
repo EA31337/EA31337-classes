@@ -72,7 +72,7 @@ void OnTick() {
       IndicatorData *_indi = iter.Value().Ptr();
       _indi.OnTick(Platform::GetGlobalTickIndex());
       IndicatorDataEntry _entry = _indi.GetEntry();
-      if (_indi.Get<bool>(STRUCT_ENUM(IndicatorDataState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
+      if (_indi.Get<bool>(STRUCT_ENUM(IndicatorDataState, INDICATOR_DATA_STATE_PROP_IS_READY)) && _entry.IsValid()) {
 #ifdef __debug__
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
 #endif
@@ -165,7 +165,7 @@ bool PrintIndicators(string _prefix = "") {
   for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
        ++iter) {
     IndicatorData *_indi = iter.Value().Ptr();
-    if (_indi.Get<bool>(STRUCT_ENUM(IndicatorDataState, INDICATOR_STATE_PROP_IS_READY))) {
+    if (_indi.Get<bool>(STRUCT_ENUM(IndicatorDataState, INDICATOR_DATA_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
     }
   }

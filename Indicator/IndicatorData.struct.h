@@ -27,7 +27,7 @@
 
 // Defines.
 #define STRUCT_ENUM_IDATA_PARAM STRUCT_ENUM(IndicatorDataParams, ENUM_IDATA_PARAM)
-#define STRUCT_ENUM_INDICATOR_STATE_PROP STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_STATE_PROP)
+#define STRUCT_ENUM_INDICATOR_DATA_STATE_PROP STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_DATA_STATE_PROP)
 
 // Includes.
 #include "../Serializer/SerializerConversions.h"
@@ -544,22 +544,22 @@ struct IndicatorDataState {
   bool is_changed;  // Set when params has been recently changed.
   bool is_ready;    // Set when indicator is ready (has valid values).
  public:
-  enum ENUM_INDICATOR_STATE_PROP {
-    INDICATOR_STATE_PROP_HANDLE,
-    INDICATOR_STATE_PROP_IS_CHANGED,
-    INDICATOR_STATE_PROP_IS_READY,
+  enum ENUM_INDICATOR_DATA_STATE_PROP {
+    INDICATOR_DATA_STATE_PROP_HANDLE,
+    INDICATOR_DATA_STATE_PROP_IS_CHANGED,
+    INDICATOR_DATA_STATE_PROP_IS_READY,
   };
   // Constructor.
   IndicatorDataState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
   // Getters.
   template <typename T>
-  T Get(STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_STATE_PROP) _prop) {
+  T Get(STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_DATA_STATE_PROP) _prop) {
     switch (_prop) {
-      case INDICATOR_STATE_PROP_HANDLE:
+      case INDICATOR_DATA_STATE_PROP_HANDLE:
         return (T)handle;
-      case INDICATOR_STATE_PROP_IS_CHANGED:
+      case INDICATOR_DATA_STATE_PROP_IS_CHANGED:
         return (T)is_changed;
-      case INDICATOR_STATE_PROP_IS_READY:
+      case INDICATOR_DATA_STATE_PROP_IS_READY:
         return (T)is_ready;
     };
     SetUserError(ERR_INVALID_PARAMETER);
@@ -567,15 +567,15 @@ struct IndicatorDataState {
   }
   // Setters.
   template <typename T>
-  void Set(STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_STATE_PROP) _prop, T _value) {
+  void Set(STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_DATA_STATE_PROP) _prop, T _value) {
     switch (_prop) {
-      case INDICATOR_STATE_PROP_HANDLE:
+      case INDICATOR_DATA_STATE_PROP_HANDLE:
         handle = (T)_value;
         break;
-      case INDICATOR_STATE_PROP_IS_CHANGED:
+      case INDICATOR_DATA_STATE_PROP_IS_CHANGED:
         is_changed = (T)_value;
         break;
-      case INDICATOR_STATE_PROP_IS_READY:
+      case INDICATOR_DATA_STATE_PROP_IS_READY:
         is_ready = (T)_value;
         break;
       default:
