@@ -373,7 +373,7 @@ class Dict : public DictBase<K, V> {
   }
 
  public:
-#ifdef __cplusplus
+#ifdef __MQL__
   template <>
 #endif
   SerializerNodeType Serialize(Serializer& s) {
