@@ -270,7 +270,7 @@ class Market : public SymbolInfo {
       case MARKET_COND_SPREAD_GT_20:
         return GetSpreadInPts() > 20;
       default:
-        GetLogger().Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        logger.Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }

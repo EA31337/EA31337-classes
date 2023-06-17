@@ -123,10 +123,12 @@ class Chart : public Market {
    * _hide bool Flag for hiding indicators when testing. Set true to hide created indicators, otherwise false.
    */
   static void HideTestIndicators(bool _hide = false) {
+#ifdef __MQL__
 #ifdef __MQL4__
     ::HideTestIndicators(_hide);
 #else  // __MQL5__
     ::TesterHideIndicators(_hide);
+#endif
 #endif
   }
 

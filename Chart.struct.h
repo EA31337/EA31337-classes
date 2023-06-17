@@ -113,4 +113,4 @@ struct ChartParams {
   }
   // Serializers.
   SerializerNodeType Serialize(Serializer& s);
-} chart_params_defaults(PERIOD_CURRENT, _Symbol);
+} chart_params_defaults(PERIOD_CURRENT, Symbol());

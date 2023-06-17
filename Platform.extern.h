@@ -30,6 +30,7 @@
 #include "Deal.enum.h"
 #include "Storage/Object.extern.h"
 #include "Order.define.h"
+#include "Order.enum.h"
 #include "Terminal.enum.h"
 
 // Forward declarations.
