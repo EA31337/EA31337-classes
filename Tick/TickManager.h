@@ -25,6 +25,11 @@
  * Implements TickManager class.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "Tick.struct.h"
