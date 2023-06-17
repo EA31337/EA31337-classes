@@ -105,26 +105,26 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Returns value storage of given kind.
    */
-  IValueStorage *GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  IValueStorage *GetSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     // Returning Price indicator which provides applied price in the only buffer #0.
     switch (_type) {
-      case INDI_VS_TYPE_PRICE_ASK:  // Tick.
-      case INDI_VS_TYPE_PRICE_BID:  // Tick.
+      case INDI_DATA_VS_TYPE_PRICE_ASK:  // Tick.
+      case INDI_DATA_VS_TYPE_PRICE_BID:  // Tick.
         return GetPlatformPrices(GetSymbol(), iparams.GetAppliedPrice(), GetTf(), iparams.GetShift())
             PTR_DEREF GetValueStorage(0);
-      case INDI_VS_TYPE_PRICE_OPEN:  // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_OPEN:  // Candle.
         return GetPlatformPrices(GetSymbol(), PRICE_OPEN, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
-      case INDI_VS_TYPE_PRICE_HIGH:  // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_HIGH:  // Candle.
         return GetPlatformPrices(GetSymbol(), PRICE_HIGH, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
-      case INDI_VS_TYPE_PRICE_LOW:  // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_LOW:  // Candle.
         return GetPlatformPrices(GetSymbol(), PRICE_LOW, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
-      case INDI_VS_TYPE_PRICE_CLOSE:  // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_CLOSE:  // Candle.
         return GetPlatformPrices(GetSymbol(), PRICE_CLOSE, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
-      case INDI_VS_TYPE_PRICE_MEDIAN:  // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_MEDIAN:  // Candle.
         return GetPlatformPrices(GetSymbol(), PRICE_MEDIAN, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
-      case INDI_VS_TYPE_PRICE_TYPICAL:  // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_TYPICAL:  // Candle.
         return GetPlatformPrices(GetSymbol(), PRICE_TYPICAL, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
-      case INDI_VS_TYPE_PRICE_WEIGHTED:  // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_WEIGHTED:  // Candle.
         return GetPlatformPrices(GetSymbol(), PRICE_WEIGHTED, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
       default:
         // Trying in parent class.
@@ -135,17 +135,17 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Checks whether indicator support given value storage type.
    */
-  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  bool HasSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     switch (_type) {
-      case INDI_VS_TYPE_PRICE_ASK:       // Tick.
-      case INDI_VS_TYPE_PRICE_BID:       // Tick.
-      case INDI_VS_TYPE_PRICE_OPEN:      // Candle.
-      case INDI_VS_TYPE_PRICE_HIGH:      // Candle.
-      case INDI_VS_TYPE_PRICE_LOW:       // Candle.
-      case INDI_VS_TYPE_PRICE_CLOSE:     // Candle.
-      case INDI_VS_TYPE_PRICE_MEDIAN:    // Candle.
-      case INDI_VS_TYPE_PRICE_TYPICAL:   // Candle.
-      case INDI_VS_TYPE_PRICE_WEIGHTED:  // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_ASK:       // Tick.
+      case INDI_DATA_VS_TYPE_PRICE_BID:       // Tick.
+      case INDI_DATA_VS_TYPE_PRICE_OPEN:      // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_HIGH:      // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_LOW:       // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_CLOSE:     // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_MEDIAN:    // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_TYPICAL:   // Candle.
+      case INDI_DATA_VS_TYPE_PRICE_WEIGHTED:  // Candle.
         return true;
       default:
         // Trying in parent class.

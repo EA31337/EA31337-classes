@@ -40,15 +40,15 @@ class BufferTickValueStorage : ValueStorage<TV> {
   // Poiner to buffer to take tick from.
   BufferTick<TV> *buffer_tick;
 
-  // INDI_VS_TYPE_PRICE_ASK, INDI_VS_TYPE_PRICE_BID, INDI_VS_TYPE_SPREAD, INDI_VS_TYPE_TICK_VOLUME or
-  // INDI_VS_TYPE_VOLUME.
-  ENUM_INDI_VS_TYPE vs_type;
+  // INDI_DATA_VS_TYPE_PRICE_ASK, INDI_DATA_VS_TYPE_PRICE_BID, INDI_DATA_VS_TYPE_SPREAD, INDI_DATA_VS_TYPE_TICK_VOLUME or
+  // INDI_DATA_VS_TYPE_VOLUME.
+  ENUM_INDI_DATA_VS_TYPE vs_type;
 
  public:
   /**
    * Constructor.
    */
-  BufferTickValueStorage(BufferTick<TV> *_buffer_tick, ENUM_INDI_VS_TYPE _vs_type)
+  BufferTickValueStorage(BufferTick<TV> *_buffer_tick, ENUM_INDI_DATA_VS_TYPE _vs_type)
       : buffer_tick(_buffer_tick), vs_type(_vs_type) {}
 
   /**
@@ -56,15 +56,15 @@ class BufferTickValueStorage : ValueStorage<TV> {
    */
   TV Fetch(datetime _dt) override {
     switch (vs_type) {
-      case INDI_VS_TYPE_PRICE_ASK:
+      case INDI_DATA_VS_TYPE_PRICE_ASK:
         return (TV)buffer_tick PTR_DEREF GetByKey(_dt).ask;
-      case INDI_VS_TYPE_PRICE_BID:
+      case INDI_DATA_VS_TYPE_PRICE_BID:
         return (TV)buffer_tick PTR_DEREF GetByKey(_dt).bid;
-      case INDI_VS_TYPE_SPREAD:
+      case INDI_DATA_VS_TYPE_SPREAD:
         // return (TV)buffer_tick PTR_DEREF GetByKey(_dt).spread;
-      case INDI_VS_TYPE_TICK_VOLUME:
+      case INDI_DATA_VS_TYPE_TICK_VOLUME:
         // return (TV)buffer_tick PTR_DEREF GetByKey(_dt).tick_volume;
-      case INDI_VS_TYPE_VOLUME:
+      case INDI_DATA_VS_TYPE_VOLUME:
         // return (TV)buffer_tick PTR_DEREF GetByKey(_dt).volume;
         break;
     }
@@ -154,7 +154,7 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
    */
   BufferTickValueStorage<TV, TV> *GetAskValueStorage() {
     if (_vs_ask == NULL) {
-      _vs_ask = new BufferTickValueStorage<TV, TV>(THIS_PTR, INDI_VS_TYPE_PRICE_ASK);
+      _vs_ask = new BufferTickValueStorage<TV, TV>(THIS_PTR, INDI_DATA_VS_TYPE_PRICE_ASK);
     }
     return _vs_ask;
   }
@@ -164,7 +164,7 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
    */
   BufferTickValueStorage<TV, TV> *GetBidValueStorage() {
     if (_vs_bid == NULL) {
-      _vs_bid = new BufferTickValueStorage<TV, TV>(THIS_PTR, INDI_VS_TYPE_PRICE_BID);
+      _vs_bid = new BufferTickValueStorage<TV, TV>(THIS_PTR, INDI_DATA_VS_TYPE_PRICE_BID);
     }
     return _vs_bid;
   }
@@ -174,7 +174,7 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
    */
   BufferTickValueStorage<TV, TV> *GetSpreadValueStorage() {
     if (_vs_spread == NULL) {
-      _vs_spread = new BufferTickValueStorage<TV, TV>(THIS_PTR, INDI_VS_TYPE_SPREAD);
+      _vs_spread = new BufferTickValueStorage<TV, TV>(THIS_PTR, INDI_DATA_VS_TYPE_SPREAD);
     }
     return _vs_spread;
   }
@@ -184,7 +184,7 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
    */
   BufferTickValueStorage<TV, int> *GetVolumeValueStorage() {
     if (_vs_volume == NULL) {
-      _vs_volume = new BufferTickValueStorage<TV, int>(THIS_PTR, INDI_VS_TYPE_VOLUME);
+      _vs_volume = new BufferTickValueStorage<TV, int>(THIS_PTR, INDI_DATA_VS_TYPE_VOLUME);
     }
     return _vs_volume;
   }
@@ -194,7 +194,7 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
    */
   BufferTickValueStorage<TV, int> *GetTickVolumeValueStorage() {
     if (_vs_tick_volume == NULL) {
-      _vs_tick_volume = new BufferTickValueStorage<TV, int>(THIS_PTR, INDI_VS_TYPE_TICK_VOLUME);
+      _vs_tick_volume = new BufferTickValueStorage<TV, int>(THIS_PTR, INDI_DATA_VS_TYPE_TICK_VOLUME);
     }
     return _vs_tick_volume;
   }

@@ -131,19 +131,19 @@ class IndicatorTick : public Indicator<TS> {
   /**
    * Returns value storage of given kind.
    */
-  IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  IValueStorage* GetSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     Print("IndicatorTick::GetSpecificValueStorage() is no longer available!");
     /*
     switch (_type) {
-      case INDI_VS_TYPE_PRICE_ASK:
+      case INDI_DATA_VS_TYPE_PRICE_ASK:
         return (IValueStorage*)itdata.GetAskValueStorage();
-      case INDI_VS_TYPE_PRICE_BID:
+      case INDI_DATA_VS_TYPE_PRICE_BID:
         return (IValueStorage*)itdata.GetBidValueStorage();
-      case INDI_VS_TYPE_SPREAD:
+      case INDI_DATA_VS_TYPE_SPREAD:
         return (IValueStorage*)itdata.GetSpreadValueStorage();
-      case INDI_VS_TYPE_VOLUME:
+      case INDI_DATA_VS_TYPE_VOLUME:
         return (IValueStorage*)itdata.GetVolumeValueStorage();
-      case INDI_VS_TYPE_TICK_VOLUME:
+      case INDI_DATA_VS_TYPE_TICK_VOLUME:
         return (IValueStorage*)itdata.GetTickVolumeValueStorage();
       default:
         // Trying in parent class.
@@ -156,13 +156,13 @@ class IndicatorTick : public Indicator<TS> {
   /**
    * Checks whether indicator support given value storage type.
    */
-  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  bool HasSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     switch (_type) {
-      case INDI_VS_TYPE_PRICE_ASK:
-      case INDI_VS_TYPE_PRICE_BID:
-      case INDI_VS_TYPE_SPREAD:
-      case INDI_VS_TYPE_VOLUME:
-      case INDI_VS_TYPE_TICK_VOLUME:
+      case INDI_DATA_VS_TYPE_PRICE_ASK:
+      case INDI_DATA_VS_TYPE_PRICE_BID:
+      case INDI_DATA_VS_TYPE_SPREAD:
+      case INDI_DATA_VS_TYPE_VOLUME:
+      case INDI_DATA_VS_TYPE_TICK_VOLUME:
         return true;
       default:
         break;

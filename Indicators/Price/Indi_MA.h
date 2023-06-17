@@ -120,7 +120,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
     }
 
     // Volume uses volume only.
-    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME);
   }
 
   /**
@@ -703,10 +703,10 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Returns value storage of given kind.
    */
-  IValueStorage *GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  IValueStorage *GetSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     switch (_type) {
-      case INDI_VS_TYPE_PRICE_ASK:
-      case INDI_VS_TYPE_PRICE_BID:
+      case INDI_DATA_VS_TYPE_PRICE_ASK:
+      case INDI_DATA_VS_TYPE_PRICE_BID:
         // We're returning the same buffer for ask and bid price, as target indicator probably won't bother.
         return GetValueStorage(0);
       default:
@@ -718,10 +718,10 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Checks whether indicator support given value storage type.
    */
-  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  bool HasSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     switch (_type) {
-      case INDI_VS_TYPE_PRICE_ASK:
-      case INDI_VS_TYPE_PRICE_BID:
+      case INDI_DATA_VS_TYPE_PRICE_ASK:
+      case INDI_DATA_VS_TYPE_PRICE_BID:
         return true;
       default:
         // Trying in parent class.

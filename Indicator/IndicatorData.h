@@ -68,7 +68,7 @@ class IndicatorData : public IndicatorBase {
   long first_tick_time_ms;  // Time of the first ask/bid tick.
   void* mydata;
   bool last_tick_result;             // Result of the last Tick() invocation.
-  ENUM_INDI_VS_TYPE retarget_ap_av;  // Value storage type to be used as applied price/volume.
+  ENUM_INDI_DATA_VS_TYPE retarget_ap_av;  // Value storage type to be used as applied price/volume.
   ARRAY(Ref<IValueStorage>, value_storages);
   ARRAY(WeakRef<IndicatorData>, listeners);  // List of indicators that listens for events from this one.
   BufferStruct<IndicatorDataEntry> idata;
@@ -111,7 +111,7 @@ class IndicatorData : public IndicatorBase {
     flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
     calc_start_bar = 0;
     last_tick_index = -1;
-    retarget_ap_av = INDI_VS_TYPE_NONE;
+    retarget_ap_av = INDI_DATA_VS_TYPE_NONE;
     InitDraw();
     return true;
   }
@@ -653,7 +653,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Gets value storage type previously set by SetDataSourceAppliedPrice() or SetDataSourceAppliedVolume().
    */
-  ENUM_INDI_VS_TYPE GetDataSourceAppliedType() { return retarget_ap_av; }
+  ENUM_INDI_DATA_VS_TYPE GetDataSourceAppliedType() { return retarget_ap_av; }
 
   // int GetDataSourceMode() { return indi_src_mode; }
 
@@ -833,7 +833,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Uses custom value storage type as applied price.
    */
-  void SetDataSourceAppliedPrice(ENUM_INDI_VS_TYPE _vs_type) {
+  void SetDataSourceAppliedPrice(ENUM_INDI_DATA_VS_TYPE _vs_type) {
     // @todo Check if given value storage is of compatible type (double)!
     retarget_ap_av = _vs_type;
   }
@@ -854,10 +854,10 @@ class IndicatorData : public IndicatorBase {
    * Checks whether current indicator has all buffers required to be a Candle-compatible indicator.
    */
   bool IsCandleIndicator() {
-    return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN) && HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH) &&
-           HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW) && HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE) &&
-           HasSpecificValueStorage(INDI_VS_TYPE_SPREAD) && HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME) &&
-           HasSpecificValueStorage(INDI_VS_TYPE_TIME) && HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+    return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_OPEN) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_HIGH) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_LOW) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_CLOSE) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_TIME) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME);
   }
 
   /* Tick methods */
@@ -866,9 +866,9 @@ class IndicatorData : public IndicatorBase {
    * Checks whether current indicator has all buffers required to be a Tick-compatible indicator.
    */
   bool IsTickIndicator() {
-    return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK) && HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID) &&
-           HasSpecificValueStorage(INDI_VS_TYPE_SPREAD) && HasSpecificValueStorage(INDI_VS_TYPE_VOLUME) &&
-           HasSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME);
+    return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_ASK) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_BID) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME);
   }
 
   bool Tick(int _global_tick_index) {
@@ -1072,38 +1072,38 @@ class IndicatorData : public IndicatorBase {
    * Returns value storage's buffer type from this indicator's applied price (indicator must override GetAppliedPrice()
    * method!).
    */
-  virtual ENUM_INDI_VS_TYPE GetAppliedPriceValueStorageType() {
-    if (retarget_ap_av != INDI_VS_TYPE_NONE) {
+  virtual ENUM_INDI_DATA_VS_TYPE GetAppliedPriceValueStorageType() {
+    if (retarget_ap_av != INDI_DATA_VS_TYPE_NONE) {
       // User wants to use custom value storage type as applied price.
       return retarget_ap_av;
     }
 
     switch (GetAppliedPrice()) {
       case PRICE_OPEN:
-        return INDI_VS_TYPE_PRICE_OPEN;
+        return INDI_DATA_VS_TYPE_PRICE_OPEN;
       case PRICE_HIGH:
-        return INDI_VS_TYPE_PRICE_HIGH;
+        return INDI_DATA_VS_TYPE_PRICE_HIGH;
       case PRICE_LOW:
-        return INDI_VS_TYPE_PRICE_LOW;
+        return INDI_DATA_VS_TYPE_PRICE_LOW;
       case PRICE_CLOSE:
-        return INDI_VS_TYPE_PRICE_CLOSE;
+        return INDI_DATA_VS_TYPE_PRICE_CLOSE;
       case PRICE_MEDIAN:
-        return INDI_VS_TYPE_PRICE_MEDIAN;
+        return INDI_DATA_VS_TYPE_PRICE_MEDIAN;
       case PRICE_TYPICAL:
-        return INDI_VS_TYPE_PRICE_TYPICAL;
+        return INDI_DATA_VS_TYPE_PRICE_TYPICAL;
       case PRICE_WEIGHTED:
-        return INDI_VS_TYPE_PRICE_WEIGHTED;
+        return INDI_DATA_VS_TYPE_PRICE_WEIGHTED;
       default:
         if ((int)GetAppliedPrice() == (int)PRICE_ASK) {
-          return INDI_VS_TYPE_PRICE_ASK;
+          return INDI_DATA_VS_TYPE_PRICE_ASK;
         } else if ((int)GetAppliedPrice() == (int)PRICE_BID) {
-          return INDI_VS_TYPE_PRICE_BID;
+          return INDI_DATA_VS_TYPE_PRICE_BID;
         }
     }
 
     Print("Error: ", GetFullName(), " has not supported applied price set: ", EnumToString(GetAppliedPrice()), "!");
     DebugBreak();
-    return (ENUM_INDI_VS_TYPE)-1;
+    return (ENUM_INDI_DATA_VS_TYPE)-1;
   }
 
   /**
@@ -1119,22 +1119,22 @@ class IndicatorData : public IndicatorBase {
    * Returns value storage's buffer type from this indicator's applied volume (indicator must override
    * GetAppliedVolume() method!).
    */
-  virtual ENUM_INDI_VS_TYPE GetAppliedVolumeValueStorageType() {
-    if (retarget_ap_av != INDI_VS_TYPE_NONE) {
+  virtual ENUM_INDI_DATA_VS_TYPE GetAppliedVolumeValueStorageType() {
+    if (retarget_ap_av != INDI_DATA_VS_TYPE_NONE) {
       // User wants to use custom value storage type as applied volume.
       return retarget_ap_av;
     }
 
     switch (GetAppliedVolume()) {
       case VOLUME_TICK:
-        return INDI_VS_TYPE_TICK_VOLUME;
+        return INDI_DATA_VS_TYPE_TICK_VOLUME;
       case VOLUME_REAL:
-        return INDI_VS_TYPE_VOLUME;
+        return INDI_DATA_VS_TYPE_VOLUME;
     }
 
     Print("Error: ", GetFullName(), " has not supported applied volume set: ", EnumToString(GetAppliedVolume()), "!");
     DebugBreak();
-    return (ENUM_INDI_VS_TYPE)-1;
+    return (ENUM_INDI_DATA_VS_TYPE)-1;
   }
 
   /**
@@ -1338,7 +1338,7 @@ class IndicatorData : public IndicatorBase {
 
   virtual bool HasSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap, IndicatorData* _target = nullptr) {
     if (_target != nullptr) {
-      if (_target PTR_DEREF GetDataSourceAppliedType() != INDI_VS_TYPE_NONE) {
+      if (_target PTR_DEREF GetDataSourceAppliedType() != INDI_DATA_VS_TYPE_NONE) {
         // User wants to use custom value storage type as applied price, so we forcefully override AP given as the
         // parameter.
         // @todo Check for value storage compatibility (double).
@@ -1348,24 +1348,24 @@ class IndicatorData : public IndicatorBase {
 
     switch (_ap) {
       case PRICE_OPEN:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
+        return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_OPEN);
       case PRICE_HIGH:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
+        return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_HIGH);
       case PRICE_LOW:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
+        return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_LOW);
       case PRICE_CLOSE:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
+        return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_CLOSE);
       case PRICE_MEDIAN:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_MEDIAN);
+        return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_MEDIAN);
       case PRICE_TYPICAL:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_TYPICAL);
+        return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_TYPICAL);
       case PRICE_WEIGHTED:
-        return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_WEIGHTED);
+        return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_WEIGHTED);
       default:
         if ((int)GetAppliedPrice() == (int)PRICE_ASK) {
-          return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+          return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_ASK);
         } else if ((int)GetAppliedPrice() == (int)PRICE_BID) {
-          return HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
+          return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_BID);
         }
         Print("Error: Invalid applied price " + EnumToString(_ap) +
               ", only PRICE_(OPEN|HIGH|LOW|CLOSE|MEDIAN|TYPICAL|WEIGHTED) are currently supported by "
@@ -1381,7 +1381,7 @@ class IndicatorData : public IndicatorBase {
    */
   ValueStorage<double>* GetSpecificAppliedPriceValueStorage(ENUM_APPLIED_PRICE _ap, IndicatorData* _target = nullptr) {
     if (_target != nullptr) {
-      if (_target PTR_DEREF GetDataSourceAppliedType() != INDI_VS_TYPE_NONE) {
+      if (_target PTR_DEREF GetDataSourceAppliedType() != INDI_DATA_VS_TYPE_NONE) {
         // User wants to use custom value storage type as applied price, so we forcefully override AP given as the
         // parameter.
         // @todo Check for value storage compatibility (double).
@@ -1391,24 +1391,24 @@ class IndicatorData : public IndicatorBase {
 
     switch (_ap) {
       case PRICE_OPEN:
-        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_OPEN);
       case PRICE_HIGH:
-        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_HIGH);
       case PRICE_LOW:
-        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_LOW);
       case PRICE_CLOSE:
-        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_CLOSE);
       case PRICE_MEDIAN:
-        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_MEDIAN);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_MEDIAN);
       case PRICE_TYPICAL:
-        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_TYPICAL);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_TYPICAL);
       case PRICE_WEIGHTED:
-        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_WEIGHTED);
+        return (ValueStorage<double>*)GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_WEIGHTED);
       default:
         if ((int)GetAppliedPrice() == (int)PRICE_ASK) {
-          return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+          return (ValueStorage<double>*)GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_ASK);
         } else if ((int)GetAppliedPrice() == (int)PRICE_BID) {
-          return (ValueStorage<double>*)GetSpecificValueStorage(INDI_VS_TYPE_PRICE_BID);
+          return (ValueStorage<double>*)GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_BID);
         }
         Print("Error: Invalid applied price " + EnumToString(_ap) +
               ", only PRICE_(OPEN|HIGH|LOW|CLOSE|MEDIAN|TYPICAL|WEIGHTED) are currently supported by "
@@ -1560,7 +1560,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns value storage of given kind.
    */
-  virtual IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
+  virtual IValueStorage* GetSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) {
     Print("Error: ", GetFullName(), " indicator has no storage type ", EnumToString(_type), "!");
     DebugBreak();
     return NULL;
@@ -1672,7 +1672,7 @@ class IndicatorData : public IndicatorBase {
       }
     }
 
-    ENUM_INDI_VS_TYPE _requested_vs_type;
+    ENUM_INDI_DATA_VS_TYPE _requested_vs_type;
 
     // Requires a single buffered or OHLC-compatible indicator (targetted via applied price) in the hierarchy.
     if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
@@ -1708,7 +1708,7 @@ class IndicatorData : public IndicatorBase {
 
     // Requires a single buffered or OHLC-compatible indicator (targetted via applied price or volume) in the hierarchy.
     if (_suitable_types.HasAnyFlag(INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_AV)) {
-      _requested_vs_type = (ENUM_INDI_VS_TYPE)-1;
+      _requested_vs_type = (ENUM_INDI_DATA_VS_TYPE)-1;
 
       if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
         // Applied price is defined by this indicator, so it must override GetAppliedPrice().
@@ -1812,10 +1812,10 @@ class IndicatorData : public IndicatorBase {
   /**
    * Checks whether indicator support given value storage type.
    */
-  virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
-    // Maybe indexed value storage? E.g., INDI_VS_TYPE_INDEX_0.
-    if ((int)_type >= INDI_VS_TYPE_INDEX_FIRST && (int)_type <= INDI_VS_TYPE_INDEX_LAST) {
-      return HasValueStorage((int)_type - INDI_VS_TYPE_INDEX_FIRST);
+  virtual bool HasSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) {
+    // Maybe indexed value storage? E.g., INDI_DATA_VS_TYPE_INDEX_0.
+    if ((int)_type >= INDI_DATA_VS_TYPE_INDEX_FIRST && (int)_type <= INDI_DATA_VS_TYPE_INDEX_LAST) {
+      return HasValueStorage((int)_type - INDI_DATA_VS_TYPE_INDEX_FIRST);
     }
     return false;
   }
@@ -1840,7 +1840,7 @@ class IndicatorData : public IndicatorBase {
       return false;
     }
 
-    ENUM_INDI_VS_TYPE _requested_vs_type;
+    ENUM_INDI_DATA_VS_TYPE _requested_vs_type;
 
     if (_suitable_types.HasFlag(INDI_SUITABLE_DS_TYPE_AP)) {
       _requested_vs_type = GetAppliedPriceValueStorageType();

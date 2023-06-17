@@ -289,7 +289,7 @@ bool InitIndicators() {
   IndiBandsParams indi_bands_over_rsi_params(20, 2, 0, PRICE_OPEN);
   Ref<IndicatorData> indi_bands_over_rsi = new Indi_Bands(indi_bands_over_rsi_params);
   // Using RSI's mode 0 as applied price.
-  indi_bands_over_rsi REF_DEREF SetDataSourceAppliedPrice(INDI_VS_TYPE_INDEX_0);
+  indi_bands_over_rsi REF_DEREF SetDataSourceAppliedPrice(INDI_DATA_VS_TYPE_INDEX_0);
   indi_bands_over_rsi REF_DEREF SetDataSource(indi_rsi.Ptr());
   indis.Add(indi_bands_over_rsi);
 

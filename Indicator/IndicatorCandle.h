@@ -349,29 +349,29 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Returns value storage of given kind.
    */
-  IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  IValueStorage* GetSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     switch (_type) {
-      case INDI_VS_TYPE_PRICE_OPEN:
+      case INDI_DATA_VS_TYPE_PRICE_OPEN:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_OPEN);
-      case INDI_VS_TYPE_PRICE_HIGH:
+      case INDI_DATA_VS_TYPE_PRICE_HIGH:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_HIGH);
-      case INDI_VS_TYPE_PRICE_LOW:
+      case INDI_DATA_VS_TYPE_PRICE_LOW:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_LOW);
-      case INDI_VS_TYPE_PRICE_CLOSE:
+      case INDI_DATA_VS_TYPE_PRICE_CLOSE:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_CLOSE);
-      case INDI_VS_TYPE_PRICE_MEDIAN:
+      case INDI_DATA_VS_TYPE_PRICE_MEDIAN:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_MEDIAN);
-      case INDI_VS_TYPE_PRICE_TYPICAL:
+      case INDI_DATA_VS_TYPE_PRICE_TYPICAL:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_TYPICAL);
-      case INDI_VS_TYPE_PRICE_WEIGHTED:
+      case INDI_DATA_VS_TYPE_PRICE_WEIGHTED:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_WEIGHTED);
-      case INDI_VS_TYPE_SPREAD:
+      case INDI_DATA_VS_TYPE_SPREAD:
         return GetValueStorage(INDI_CANDLE_MODE_SPREAD);
-      case INDI_VS_TYPE_TICK_VOLUME:
+      case INDI_DATA_VS_TYPE_TICK_VOLUME:
         return GetValueStorage(INDI_CANDLE_MODE_TICK_VOLUME);
-      case INDI_VS_TYPE_TIME:
+      case INDI_DATA_VS_TYPE_TIME:
         return GetValueStorage(INDI_CANDLE_MODE_TIME);
-      case INDI_VS_TYPE_VOLUME:
+      case INDI_DATA_VS_TYPE_VOLUME:
         return GetValueStorage(INDI_CANDLE_MODE_VOLUME);
       default:
         // Trying in parent class.
@@ -382,19 +382,19 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Checks whether indicator support given value storage type.
    */
-  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  bool HasSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     switch (_type) {
-      case INDI_VS_TYPE_PRICE_OPEN:
-      case INDI_VS_TYPE_PRICE_HIGH:
-      case INDI_VS_TYPE_PRICE_LOW:
-      case INDI_VS_TYPE_PRICE_CLOSE:
-      case INDI_VS_TYPE_PRICE_MEDIAN:
-      case INDI_VS_TYPE_PRICE_TYPICAL:
-      case INDI_VS_TYPE_PRICE_WEIGHTED:
-      case INDI_VS_TYPE_SPREAD:
-      case INDI_VS_TYPE_TICK_VOLUME:
-      case INDI_VS_TYPE_TIME:
-      case INDI_VS_TYPE_VOLUME:
+      case INDI_DATA_VS_TYPE_PRICE_OPEN:
+      case INDI_DATA_VS_TYPE_PRICE_HIGH:
+      case INDI_DATA_VS_TYPE_PRICE_LOW:
+      case INDI_DATA_VS_TYPE_PRICE_CLOSE:
+      case INDI_DATA_VS_TYPE_PRICE_MEDIAN:
+      case INDI_DATA_VS_TYPE_PRICE_TYPICAL:
+      case INDI_DATA_VS_TYPE_PRICE_WEIGHTED:
+      case INDI_DATA_VS_TYPE_SPREAD:
+      case INDI_DATA_VS_TYPE_TICK_VOLUME:
+      case INDI_DATA_VS_TYPE_TIME:
+      case INDI_DATA_VS_TYPE_VOLUME:
         return true;
       default:
         // Trying in parent class.
