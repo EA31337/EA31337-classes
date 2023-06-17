@@ -85,7 +85,6 @@ struct IndicatorParams;
 #include "../Report.mqh"
 #include "../Storage/Objects.h"
 #include "../Storage/Cache/ObjectsCache.h"
-#include "../Session.mqh"
 #include "../SetFile.mqh"
 #include "../Socket.mqh"
 #include "../Stats.mqh"
