@@ -50,6 +50,7 @@ jobs:
     strategy:
       matrix:
         test:
+          - Indi_AppliedPrice.test
           - Indi_MA.test
           - Indi_Price.test
     steps:

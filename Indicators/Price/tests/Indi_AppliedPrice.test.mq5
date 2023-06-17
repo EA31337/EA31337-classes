@@ -20,10 +20,10 @@
  */
 
 // Includes.
-#include "../../Platform.h"
-#include "../../Test.mqh"
-#include "../Indi_AppliedPrice.mqh"
-#include "../Price/Indi_Price.h"
+#include "../../../Platform.h"
+#include "../../../Test.mqh"
+#include "../Indi_AppliedPrice.h"
+#include "../Indi_Price.h"
 
 /**
  * @file

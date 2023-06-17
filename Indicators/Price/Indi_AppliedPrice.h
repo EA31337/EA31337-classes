@@ -21,9 +21,9 @@
  */
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
-#include "../Indicator/Indicator.h"
-#include "OHLC/Indi_OHLC.mqh"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
+#include "../../Indicator/Indicator.h"
+#include "../OHLC/Indi_OHLC.mqh"
 
 // Structs.
 struct IndiAppliedPriceParams : IndicatorParams {
@@ -114,7 +114,7 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_INDICATOR:
         if (!HasDataSource()) {
-          GetLogger().Error("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");
+          logger REF_DEREF Error("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");
           _is_valid &= false;
         }
         break;

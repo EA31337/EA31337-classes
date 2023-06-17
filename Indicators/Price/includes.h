@@ -26,5 +26,6 @@
  */
 
 // Price indicators.
+#include "Indi_AppliedPrice.h"
 #include "Indi_MA.h"
 #include "Indi_Price.h"
