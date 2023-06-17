@@ -50,7 +50,7 @@ jobs:
     strategy:
       matrix:
         test:
-          # - Indi_Candle.test # @todo
+          - Indi_Candle.test
           - Indi_Pattern.test
     steps:
       - uses: actions/download-artifact@v2
