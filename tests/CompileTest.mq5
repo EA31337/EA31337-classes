@@ -82,7 +82,6 @@ struct IndicatorParams;
 // #include "../Profiler.mqh"
 #include "../Storage/Redis.h"
 #include "../Refs.mqh"
-#include "../Registry.mqh"
 #include "../Report.mqh"
 #include "../Storage/Objects.h"
 #include "../Storage/Cache/ObjectsCache.h"
