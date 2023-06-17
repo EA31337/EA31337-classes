@@ -44,11 +44,11 @@ enum INDICATOR_DATA_ENTRY_FLAGS {
 };
 
 /* Define indicator index. */
-enum ENUM_INDICATOR_INDEX {
+enum ENUM_INDICATOR_DATA_INDEX {
   CURR = 0,
   PREV = 1,
   PPREV = 2,
-  FINAL_ENUM_INDICATOR_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
+  FINAL_ENUM_INDICATOR_DATA_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
 };
 
 // Storage type for IndicatorBase::GetSpecificValueStorage().

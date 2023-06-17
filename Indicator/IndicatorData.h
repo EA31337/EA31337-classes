@@ -179,7 +179,7 @@ class IndicatorData : public IndicatorBase {
     return GetEntry(_rel_shift);
   }
 
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _rel_shift) { return GetEntry((int)_rel_shift); }
+  IndicatorDataEntry operator[](ENUM_INDICATOR_DATA_INDEX _rel_shift) { return GetEntry((int)_rel_shift); }
 
   /* Getters */
 
