@@ -21,7 +21,8 @@
  */
 
 // Includes.
-#include "../Indicator/Indicator.h"
+#include "../../Indicator/Indicator.h"
+#include "../Price/Indi_MA.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).

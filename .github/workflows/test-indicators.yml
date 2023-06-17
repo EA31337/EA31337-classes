@@ -59,7 +59,6 @@ jobs:
           - Indi_AO.test
           - Indi_ASI.test
           - Indi_ATR.test
-          - Indi_Alligator.test
           - Indi_AppliedPrice.test
           - Indi_BWMFI.test
           - Indi_BWZT.test
