@@ -85,30 +85,6 @@ jobs:
         if: always()
     timeout-minutes: 10
 
-  Scripts-MQL4-Ignore:
-    defaults:
-      run:
-        shell: bash
-        working-directory: tests
-    needs: Compile
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test:
-          # @fixme: GH-266
-          - WebTest
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: ${{ matrix.test }}
-          RunOnFail: "exit 0"
-        if: always()
-    timeout-minutes: 10
-
   Tests-MQL4:
     defaults:
       run:

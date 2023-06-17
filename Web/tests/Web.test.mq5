@@ -25,10 +25,10 @@
  */
 
 // Includes.
-#include "../Convert.mqh"
-#include "../Terminal.mqh"
-#include "../Test.mqh"
-#include "../Web.mqh"
+#include "../../Convert.mqh"
+#include "../../Terminal.mqh"
+#include "../../Test.mqh"
+#include "../Web.h"
 
 // Properties.
 #property strict

@@ -105,7 +105,6 @@ struct IndicatorParams;
 #include "../Timer.mqh"
 #include "../Trade.mqh"
 #include "../Util.h"
-#include "../Web.mqh"
 
 // Includes Indicator files.
 #include "../Indicator/Indicator.define.h"
