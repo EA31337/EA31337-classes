@@ -21,19 +21,8 @@
 
 /**
  * @file
- * Test compilation of Indicators/ files.
+ * Test compilation of all indicators.
  */
 
 // Includes.
-#include "../Indicators/includes.h"
-#include "../Indicators/Bitwise/includes.h"
-#include "../Indicators/OHLC/includes.h"
-#include "../Indicators/Oscillator/includes.h"
-#include "../Indicators/Price/includes.h"
-#include "../Indicators/PriceRange/includes.h"
-#include "../Indicators/Special/includes.h"
-
-/**
- * Implements Init event handler.
- */
-int OnInit() { return 0; }
+#include "Indicators.test.mq5"

@@ -54,7 +54,6 @@ jobs:
       matrix:
         test:
           - ChartTest
-          - CompileIndicatorsTest
           - EATest
           - IndicatorsTest
           - MailTest

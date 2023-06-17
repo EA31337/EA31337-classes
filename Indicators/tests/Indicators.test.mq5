@@ -21,8 +21,13 @@
 
 /**
  * @file
- * Test compilation of Indicators/ files.
+ * Test compilation of all indicators.
  */
 
 // Includes.
-#include "CompileIndicatorsTest.mq5"
+#include "../includes.h"
+
+/**
+ * Implements Init event handler.
+ */
+int OnInit() { return 0; }
