@@ -80,6 +80,7 @@ jobs:
           BtDays: 4-12
           BtMonths: 1
           BtYears: 2021
+          GitHubApiToken: ${{ github.token }}
           MtVersion: 4.0.0.1349
           TestExpert: ${{ matrix.test }}
           RunOnError: show_logs 200
