@@ -74,7 +74,6 @@ struct IndicatorParams;
 #include "../Math.h"
 #include "../Matrix.mqh"
 #include "../MiniMatrix.h"
-#include "../Msg.mqh"
 #include "../Storage/Object.h"
 #include "../Order.mqh"
 #include "../Orders.mqh"
