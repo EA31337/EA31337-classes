@@ -10,7 +10,7 @@ on:
       - '.github/workflows/test-indicators.yml'
   push:
     paths:
-      - 'Indicator**'
+      - 'Indicator/**'
       - 'Indicators/**'
       - '.github/workflows/test-indicators.yml'
 

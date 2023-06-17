@@ -10,7 +10,7 @@ on:
       - '.github/workflows/test-indicators-pricerange.yml'
   push:
     paths:
-      - 'Indicator**'
+      - 'Indicator/**'
       - 'Indicators/Price/**'
       - '.github/workflows/test-indicators-pricerange.yml'
 
