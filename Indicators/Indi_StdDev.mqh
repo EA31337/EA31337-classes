@@ -29,7 +29,7 @@
 
 // Includes.
 #include "../Indicator/Indicator.h"
-#include "../Storage/ObjectsCache.h"
+#include "../Storage/Cache/ObjectsCache.h"
 #include "Price/Indi_MA.h"
 #include "Indi_PriceFeeder.mqh"
 

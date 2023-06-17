@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -9,43 +9,32 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
-
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
-
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
  * @file
- * Time getter version of ValueStorage.
+ * Test functionality of ObjectsCache class.
  */
 
 // Includes.
-#include "../Util.h"
-#include "Cache/ObjectsCache.h"
-#include "ValueStorage.history.h"
+#include "../../../Test.mqh"
+#include "../ObjectsCache.h"
 
 /**
- * Storage to retrieve time.
+ * Implements OnInit().
  */
-class TimeValueStorage : public HistoryValueStorage<datetime> {
- public:
-  /**
-   * Constructor.
-   */
-  TimeValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<datetime>(_indi_candle) {}
+int OnInit() {
 
-  /**
-   * Copy constructor.
-   */
-  TimeValueStorage(TimeValueStorage &_r) : HistoryValueStorage<datetime>(_r.indi_candle.Ptr()) {}
+  // @todo: Add more tests.
+  // ...
 
-  /**
-   * Fetches value from a given shift. Takes into consideration as-series flag.
-   */
-  datetime Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetBarTime(RealShift(_rel_shift)); }
-};
+  return (GetLastError() > 0 ? INIT_FAILED : INIT_SUCCEEDED);
+}

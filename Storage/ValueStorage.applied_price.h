@@ -26,7 +26,7 @@
 
 // Includes.
 #include "../Chart.struct.h"
-#include "ObjectsCache.h"
+#include "Cache/ObjectsCache.h"
 #include "ValueStorage.history.h"
 
 // Forward declarations.

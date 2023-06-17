@@ -86,7 +86,7 @@ struct IndicatorParams;
 #include "../RegistryBinary.mqh"
 #include "../Report.mqh"
 #include "../Storage/Objects.h"
-#include "../Storage/ObjectsCache.h"
+#include "../Storage/Cache/ObjectsCache.h"
 // #include "../SVG.mqh" // @removeme
 #include "../Session.mqh"
 #include "../SetFile.mqh"

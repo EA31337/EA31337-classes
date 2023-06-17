@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "../Storage/Dict/DictStruct.h"
+#include "../../Storage/Dict/DictStruct.h"
 
 /**
  * Makes DictStruct object pointers to be deleted at the end.

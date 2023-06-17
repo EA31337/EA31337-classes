@@ -28,7 +28,7 @@
 class IndicatorBase;
 
 // Includes.
-#include "ObjectsCache.h"
+#include "Cache/ObjectsCache.h"
 #include "ValueStorage.history.h"
 
 /**
