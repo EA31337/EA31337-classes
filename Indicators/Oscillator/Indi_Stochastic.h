@@ -24,6 +24,15 @@
 #include "../../Indicator/Indicator.h"
 #include "../Price/Indi_MA.h"
 
+#ifndef __MQL__
+// Enums.
+// @see: https://www.mql5.com/en/docs/constants/indicatorconstants/prices
+enum ENUM_STO_PRICE {
+  STO_LOWHIGH = 0, // Calculation is based on Low/High prices.
+  STO_CLOSECLOSE, // Calculation is based on Close/Close prices.
+};
+#endif
+
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iStochastic(string _symbol, int _tf, int _kperiod, int _dperiod, int _slowing, int _ma_method, int _pf,
