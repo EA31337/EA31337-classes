@@ -62,7 +62,6 @@ struct IndicatorParams;
 #include "../Indicators/DrawIndicator.mqh"
 #include "../EA.mqh"
 #include "../File.mqh"
-// #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
 #include "../Storage/IValueStorage.h"
