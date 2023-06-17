@@ -73,16 +73,16 @@ Find below the table of conversion (replace code on left with the right one):
 | MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
 |:---------------------|:---------------------------|:----------------------|
 | `WindowRedraw()`     | `Chart::WindowRedraw()`    | `Chart.mqh`           |
-| `Day()`              | `DateTime::Day()` | `DateTime.mqh` |
-| `TimeDayOfWeek()`    | `DateTime::DayOfWeek()` | `DateTime.mqh` |
-| `DayOfWeek()`        | `DateTime::DayOfWeek()` | `DateTime.mqh` |
-| `DayOfYear()`        | `DateTime::DayOfYear()` | `DateTime.mqh` |
-| `Hour()`             | `DateTime::Hour()` | `DateTime.mqh` |
-| `Month()`            | `DateTime::Month()` | `DateTime.mqh` |
-| `TimeDay()`          | `DateTime::TimeDay()` | `DateTime.mqh` |
-| `TimeDayOfYear()`    | `DateTime::TimeDayOfYear()` | `DateTime.mqh` |
-| `TimeToStr()`        | `DateTime::TimeToStr()` | `DateTime.mqh` |
-| `Year()`             | `DateTime::Year()` | `DateTime.mqh` |
+| `Day()`              | `DateTime::Day()` | `Storage/DateTime.h` |
+| `TimeDayOfWeek()`    | `DateTime::DayOfWeek()` | `Storage/DateTime.h` |
+| `DayOfWeek()`        | `DateTime::DayOfWeek()` | `Storage/DateTime.h` |
+| `DayOfYear()`        | `DateTime::DayOfYear()` | `Storage/DateTime.h` |
+| `Hour()`             | `DateTime::Hour()` | `Storage/DateTime.h` |
+| `Month()`            | `DateTime::Month()` | `Storage/DateTime.h` |
+| `TimeDay()`          | `DateTime::TimeDay()` | `Storage/DateTime.h` |
+| `TimeDayOfYear()`    | `DateTime::TimeDayOfYear()` | `Storage/DateTime.h` |
+| `TimeToStr()`        | `DateTime::TimeToStr()` | `Storage/DateTime.h` |
+| `Year()`             | `DateTime::Year()` | `Storage/DateTime.h` |
 | `iAC()`              | `Indi_AC::iAC()` | `Indicators/Indi_AC.mqh` |
 | `iAD()`              | `Indi_AD::iAD()` | `Indicators/Indi_AD.mqh` |
 | `iADX()`             | `Indi_ADX::iADX()` | `Indicators/Indi_ADX.mqh` |
@@ -112,7 +112,7 @@ Find below the table of conversion (replace code on left with the right one):
 | `iStochastic()`      | `Indi_Stochastic::iStochastic()` | `Indicators/Indi_Stochastic.mqh` |
 | `iWPR()`             | `Indi_WPR::iWPR()` | `Indicators/Indi_WPR.mqh` |
 | `RefreshRates()`     | `Market::RefreshRates()` | `Market.mqh` |
-| `delete object`      | `Object::Delete(object)` | `Object.mqh` |
+| `delete object`      | `Object::Delete(object)` | `Storage/Object.h` |
 | `GetOrderProfit()`   | `Order::GetOrderProfit()` | `Order.mqh` |
 | `OrderClose()`       | `OrderStatic::Close()` | `Order.struct.h` |
 | `OrderCloseTime()`   | `OrderStatic::CloseTime()` | `Order.struct.h` |

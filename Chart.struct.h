@@ -35,7 +35,7 @@ class Class;
 struct ChartTf;
 
 // Includes.
-#include "Array.mqh"
+#include "Storage/Array.h"
 #include "Bar.struct.h"
 #include "Chart.define.h"
 #include "Chart.enum.h"

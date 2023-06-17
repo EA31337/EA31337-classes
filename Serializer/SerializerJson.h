@@ -25,9 +25,9 @@
 #define SERIALIZER_JSON_MQH
 
 // Includes.
-#include "../DictBase.mqh"
-#include "../Object.mqh"
-#include "../String.extern.h"
+#include "../Storage/Dict/DictBase.h"
+#include "../Storage/Object.h"
+#include "../Storage/String.extern.h"
 #include "Serializer.enum.h"
 #include "Serializer.h"
 #include "SerializerNode.h"

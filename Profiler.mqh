@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "Collection.mqh"
+#include "Storage/Collection.h"
 #include "Timer.mqh"
 
 // Defines macros.

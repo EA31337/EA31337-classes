@@ -35,7 +35,7 @@
 #define TASKABLE_H
 
 // Includes.
-#include "../Object.mqh"
+#include "../Storage/Object.h"
 #include "TaskAction.h"
 #include "TaskCondition.h"
 #include "TaskGetter.h"

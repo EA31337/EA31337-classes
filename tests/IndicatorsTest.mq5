@@ -34,14 +34,14 @@ struct DataParamEntry;
 
 // Includes.
 //#include "../ChartMt.h"
-#include "../Dict.mqh"
-#include "../DictObject.mqh"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Dict/DictObject.h"
 #include "../Indicator/Indicator.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Indicator/tests/classes/Indicators.h"
-#include "../Indicators/Bitwise/indicators.h"
+#include "../Indicators/Bitwise/includes.h"
 #include "../Indicators/Tick/Indi_TickMt.mqh"
-#include "../Indicators/indicators.h"
+#include "../Indicators/includes.h"
 #include "../Platform.h"
 #include "../Serializer/SerializerConverter.h"
 #include "../Serializer/SerializerJson.h"
@@ -152,7 +152,7 @@ void OnDeinit(const int reason) {
   }
 
   PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, num_not_tested);
-  assertTrueOrExit(num_not_tested == 0, "Not all indicators has been tested!");
+  assertTrueOrExit(num_not_tested == 0, "Not all includes.has been tested!");
 }
 
 /**
@@ -563,7 +563,7 @@ bool InitIndicators() {
   CandleParams candle_params();
   indis.Add(new Indi_Candle(candle_params));
 
-  // Push white-listed indicators here.
+  // Push white-listed includes.here.
   // whitelisted_indis.Add(_indi_test);
 
   return GetLastError() == ERR_NO_ERROR;

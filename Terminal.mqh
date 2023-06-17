@@ -38,10 +38,10 @@ class Terminal;
 
 // Includes.
 #include "Convert.mqh"
-#include "Data.struct.h"
-#include "Object.mqh"
+#include "Storage/Data.struct.h"
+#include "Storage/Object.h"
 #include "Refs.mqh"
-#include "String.mqh"
+#include "Storage/String.h"
 #include "Terminal.define.h"
 #include "Terminal.enum.h"
 #include "Terminal.extern.h"

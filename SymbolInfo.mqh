@@ -21,8 +21,8 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef SYMBOLINFO_MQH
-#define SYMBOLINFO_MQH
+#ifndef SYMBOLINFO_H
+#define SYMBOLINFO_H
 
 // Includes symbol defines, enums and structs.
 #include "SymbolInfo.define.h"
@@ -561,4 +561,4 @@ class SymbolInfo : public Object {
    */
   Log *GetLogger() { return GetPointer(logger); }
 };
-#endif  // SYMBOLINFO_MQH
+#endif  // SYMBOLINFO_H

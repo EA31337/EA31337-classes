@@ -23,7 +23,7 @@
 // Includes.
 #include "File.define.h"
 #include "Storage/MemoryFileSystem.h"
-#include "String.extern.h"
+#include "Storage/String.extern.h"
 #include "Terminal.define.h"
 
 // Define external global functions.

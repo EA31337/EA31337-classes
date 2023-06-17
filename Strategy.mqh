@@ -28,14 +28,14 @@
 class Trade;
 
 // Includes.
-#include "Data.struct.h"
-#include "Dict.mqh"
+#include "Storage/Data.struct.h"
+#include "Storage/Dict/Dict.h"
 #include "Indicator/Indicator.h"
 #include "Market.mqh"
-#include "Object.mqh"
+#include "Storage/Object.h"
 #include "Strategy.enum.h"
 #include "Strategy.struct.h"
-#include "String.mqh"
+#include "Storage/String.h"
 #include "Task/TaskManager.h"
 #include "Task/Taskable.h"
 #include "Trade.mqh"

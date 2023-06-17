@@ -31,7 +31,7 @@
 #endif
 
 // Includes.
-#include "../DictStruct.mqh"
+#include "../Storage/Dict/DictStruct.h"
 #include "../Terminal.define.h"
 #include "Task.enum.h"
 #include "Task.struct.h"

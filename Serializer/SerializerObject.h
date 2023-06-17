@@ -25,8 +25,8 @@
 #define SERIALIZER_OBJECT_MQH
 
 // Includes.
-#include "../DictBase.mqh"
-#include "../Object.mqh"
+#include "../Storage/Dict/DictBase.h"
+#include "../Storage/Object.h"
 #include "Serializer.h"
 #include "SerializerConverter.h"
 #include "SerializerNode.h"

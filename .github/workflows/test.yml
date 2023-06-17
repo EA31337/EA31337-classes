@@ -53,12 +53,8 @@ jobs:
     strategy:
       matrix:
         test:
-          - BufferStructTest
-          - BufferTest
           - ChartTest
           - CompileIndicatorsTest
-          - DatabaseTest
-          - DrawIndicatorTest
           - EATest
           - IndicatorsTest
           - MailTest
@@ -90,43 +86,6 @@ jobs:
         if: always()
     timeout-minutes: 10
 
-  Scripts-MQL4:
-    defaults:
-      run:
-        shell: bash
-        working-directory: tests
-    needs: Compile
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test:
-          #  - 3DTest
-          - CollectionTest
-          - ConfigTest
-          - ConvertTest
-          - DateTimeTest
-          - DictTest
-          - LogTest
-          - MD5Test
-          - MathTest
-          - OrderQuery
-          - ProfilerTest
-          - RefsTest
-          - TerminalTest
-          - TimerTest
-          - ValueStorageTest
-      max-parallel: 4
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: ${{ matrix.test }}
-        if: always()
-    timeout-minutes: 10
-
   Scripts-MQL4-Ignore:
     defaults:
       run:
@@ -137,8 +96,6 @@ jobs:
     strategy:
       matrix:
         test:
-          # @fixme: GH-266
-          - RedisTest
           # @fixme: GH-266
           - WebTest
     steps:
@@ -153,7 +110,7 @@ jobs:
         if: always()
     timeout-minutes: 10
 
-  Trade-Tests-MQL4:
+  Tests-MQL4:
     defaults:
       run:
         shell: bash
@@ -163,7 +120,17 @@ jobs:
     strategy:
       matrix:
         test:
-          - TradeSignalTest
+          #  - 3DTest
+          - ConfigTest
+          - ConvertTest
+          - LogTest
+          - MD5Test
+          - MathTest
+          - OrderQuery
+          - ProfilerTest
+          - RefsTest
+          - TerminalTest
+          - TimerTest
     steps:
       - uses: actions/download-artifact@v2
         with:

@@ -26,7 +26,7 @@
  */
 
 // Includes.
-#include "../DictObject.mqh"
+#include "../Storage/Dict/DictObject.h"
 #include "TradeSignal.h"
 #include "TradeSignalManager.struct.h"
 

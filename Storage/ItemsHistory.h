@@ -29,7 +29,7 @@
 #pragma once
 #endif
 
-#include "../DictStruct.mqh"
+#include "../Storage/Dict/DictStruct.h"
 #include "../Refs.mqh"
 
 /**

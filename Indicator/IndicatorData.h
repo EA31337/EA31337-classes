@@ -41,7 +41,7 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 // Includes.
 #include "../Bar.struct.h"
 #include "../Chart.struct.tf.h"
-#include "../Flags.h"
+#include "../Storage/Flags.h"
 #include "../Storage/IValueStorage.h"
 #include "../Storage/ItemsHistory.h"
 #include "../SymbolInfo.struct.h"

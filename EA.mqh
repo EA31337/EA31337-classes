@@ -31,9 +31,9 @@
 
 // Includes.
 #include "Chart.mqh"
-#include "Data.struct.h"
-#include "Dict.mqh"
-#include "DictObject.mqh"
+#include "Storage/Data.struct.h"
+#include "Storage/Dict/Dict.h"
+#include "Storage/Dict/DictObject.h"
 #include "EA.enum.h"
 #include "EA.struct.h"
 #include "Market.mqh"

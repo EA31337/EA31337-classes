@@ -21,8 +21,8 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef REFS_MQH
-#define REFS_MQH
+#ifndef REFS_H
+#define REFS_H
 
 // Includes.
 #include "Refs.rc.h"
@@ -142,4 +142,4 @@ class Dynamic {
   }
 };
 
-#endif
+#endif // REFS_H

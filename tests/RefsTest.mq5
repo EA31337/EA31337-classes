@@ -25,8 +25,8 @@
  */
 
 // Includes.
-#include "../DictObject.mqh"
-#include "../DictStruct.mqh"
+#include "../Storage/Dict/DictObject.h"
+#include "../Storage/Dict/DictStruct.h"
 #include "../Refs.mqh"
 #include "../Test.mqh"
 

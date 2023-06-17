@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../../Bar.struct.h"
-#include "../../BufferStruct.mqh"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Indicator/Indicator.define.h"
 #include "../../Indicator/Indicator.h"
 #include "../../Pattern.struct.h"

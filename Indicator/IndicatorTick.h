@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "../Buffer/BufferTick.h"
+#include "../Storage/Dict/Buffer/BufferTick.h"
 #include "Indicator.h"
 #include "Indicator.struct.h"
 #include "IndicatorTick.provider.h"

@@ -38,7 +38,7 @@
 #include "Chart.struct.h"
 #include "Chart.symboltf.h"
 #include "Data.define.h"
-#include "Dict.mqh"
+#include "Storage/Dict/Dict.h"
 #include "Log.mqh"
 #include "Refs.mqh"
 #include "Task/TaskCondition.enum.h"

@@ -36,10 +36,10 @@ class Indicator;
 struct ChartParams;
 
 // Includes.
-#include "../Array.mqh"
+#include "../Storage/Array.h"
 #include "../Chart.struct.tf.h"
-#include "../Data.struct.h"
-#include "../DateTime.struct.h"
+#include "../Storage/Data.struct.h"
+#include "../Storage/DateTime.struct.h"
 #include "../Serializer/SerializerNode.enum.h"
 #include "Indicator.enum.h"
 #include "IndicatorData.struct.cache.h"

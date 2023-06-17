@@ -31,7 +31,7 @@
 #endif
 
 // Includes.
-#include "String.mqh"
+#include "Storage/String.h"
 
 // Forward declarations.
 class Dynamic;

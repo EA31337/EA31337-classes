@@ -25,13 +25,13 @@
 #define INDI_MA_MQH
 
 // Includes.
-#include "../Dict.mqh"
-#include "../DictObject.mqh"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Dict/DictObject.h"
 #include "../Indicator/Indicator.h"
 #include "../Refs.mqh"
 #include "../Storage/Singleton.h"
 #include "../Storage/ValueStorage.h"
-#include "../String.mqh"
+#include "../Storage/String.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).

@@ -25,10 +25,12 @@
  */
 
 // Includes.
-#include "../../Common.define.h"
-#include "../../Common.extern.h"
-#include "../../Std.h"
-#include "../../String.extern.h"
 #include "../TradeSignalManager.h"
+#include "../../Platform.h"
 
-int main(int argc, char **argv) {}
+int main(int argc, char **argv) {
+
+  // @todo
+
+  return 0;
+}

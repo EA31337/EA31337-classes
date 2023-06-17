@@ -25,7 +25,7 @@
 #define ACCOUNT_H
 
 // Includes.
-#include "../BufferStruct.mqh"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Serializer/Serializer.h"
 #include "AccountBase.h"
 

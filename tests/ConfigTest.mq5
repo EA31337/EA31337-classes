@@ -26,9 +26,9 @@
 
 // Includes.
 #include "../Config.mqh"
-#include "../Data.define.h"
-#include "../Dict.mqh"
-#include "../DictObject.mqh"
+#include "../Storage/Data.define.h"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Dict/DictObject.h"
 #include "../Serializer/SerializerConverter.h"
 #include "../Serializer/SerializerCsv.h"
 #include "../Serializer/SerializerJson.h"

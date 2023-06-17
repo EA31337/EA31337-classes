@@ -30,9 +30,9 @@
 #define CONFIG_MQH
 
 // Includes.
-#include "DictStruct.mqh"
+#include "Storage/Dict/DictStruct.h"
 #include "File.mqh"
-#include "Object.mqh"
+#include "Storage/Object.h"
 #include "Serializer/Serializer.h"
 
 enum CONFIG_FORMAT { CONFIG_FORMAT_JSON, CONFIG_FORMAT_JSON_NO_WHITESPACES, CONFIG_FORMAT_INI };

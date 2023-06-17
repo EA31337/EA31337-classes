@@ -25,7 +25,7 @@
 #define INDI_ZIGZAG_COLOR_MIN_BARS 100
 
 // Includes.
-#include "../BufferStruct.mqh"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_ZigZag.mqh"

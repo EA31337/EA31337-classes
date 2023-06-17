@@ -32,13 +32,13 @@
 #endif
 
 // Includes.
-#include "../Dict.mqh"
-#include "../DictObject.mqh"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Dict/DictObject.h"
 #include "../Indicator/Indicator.h"
 #include "../Refs.mqh"
 #include "../Storage/Objects.h"
 #include "../Storage/ValueStorage.h"
-#include "../String.mqh"
+#include "../Storage/String.h"
 #include "Indi_MA.mqh"
 #include "Price/Indi_Price.mqh"
 

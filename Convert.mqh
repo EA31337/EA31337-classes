@@ -28,10 +28,10 @@
 // Includes.
 #include "Account/Account.enum.h"
 #include "Account/Account.extern.h"
-#include "Array.mqh"
+#include "Storage/Array.h"
 #include "Convert.extern.h"
-#include "DateTime.extern.h"
-#include "DateTime.mqh"
+#include "Storage/DateTime.extern.h"
+#include "Storage/DateTime.h"
 #include "Math.extern.h"
 #include "Order.enum.h"
 #include "SymbolInfo.enum.h"

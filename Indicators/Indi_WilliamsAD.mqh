@@ -25,7 +25,7 @@
 #define INDI_WAD_MIN_BARS 100
 
 // Includes.
-#include "../BufferStruct.mqh"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
 

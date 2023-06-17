@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../String.extern.h"
+#include "../Storage/String.extern.h"
 #include "Account.enum.h"
 
 // Define external global functions.

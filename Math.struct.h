@@ -29,7 +29,7 @@
 #pragma once
 #endif
 
-#include "Data.struct.h"
+#include "Storage/Data.struct.h"
 
 // Prevents processing this includes file for the second time.
 #ifndef MATH_STRUCT_H

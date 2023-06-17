@@ -26,11 +26,11 @@
 #endif
 
 // Includes.
-#include "Array.mqh"
+#include "Storage/Array.h"
 #include "Common.extern.h"
-#include "DateTime.mqh"
+#include "Storage/DateTime.h"
 #include "Std.h"
-#include "String.mqh"
+#include "Storage/String.h"
 
 /**
  * Class to provide conversion methods.

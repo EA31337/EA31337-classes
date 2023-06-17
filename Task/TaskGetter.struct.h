@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "../Data.struct.h"
+#include "../Storage/Data.struct.h"
 #include "../Serializer/Serializer.define.h"
 #include "../Std.h"
 #include "../Terminal.define.h"

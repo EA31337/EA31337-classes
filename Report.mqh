@@ -21,8 +21,8 @@
  */
 
 // Includes.
-#include "DateTime.mqh"
-#include "String.mqh"
+#include "Storage/DateTime.h"
+#include "Storage/String.h"
 
 /*
  * Class to provide report handling methods.

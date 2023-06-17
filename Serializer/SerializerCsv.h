@@ -25,12 +25,12 @@
 #define SERIALIZER_CSV_MQH
 
 // Includes.
-#include "../Dict.mqh"
-#include "../DictObject.mqh"
-#include "../DictStruct.mqh"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Dict/DictObject.h"
+#include "../Storage/Dict/DictStruct.h"
 #include "../Matrix.mqh"
 #include "../MiniMatrix.h"
-#include "../Object.mqh"
+#include "../Storage/Object.h"
 #include "SerializerConverter.h"
 #include "SerializerNode.h"
 

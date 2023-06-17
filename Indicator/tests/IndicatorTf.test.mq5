@@ -27,7 +27,7 @@
  */
 
 // Includes.
-#include "../../DictBase.mqh"
+#include "../../Storage/Dict/DictBase.h"
 #include "../../Indicators/Indi_AMA.mqh"
 #include "../../Indicators/Tick/Indi_TickMt.mqh"
 #include "../../Log.mqh"

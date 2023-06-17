@@ -31,12 +31,12 @@
 #endif
 
 // Includes.
-#include "../Array.mqh"
-#include "../BufferStruct.mqh"
+#include "../Storage/Array.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Chart.struct.tf.h"
-#include "../DateTime.mqh"
+#include "../Storage/DateTime.h"
 #include "../Log.mqh"
-#include "../Object.mqh"
+#include "../Storage/Object.h"
 #include "../Platform.extern.h"
 #include "../Refs.mqh"
 #include "../Serializer/Serializer.h"

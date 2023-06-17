@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../DictStruct.mqh"
+#include "../Storage/Dict/DictStruct.h"
 #include "../Indicator/Indicator.h"
 #include "Price/Indi_Price.mqh"
 

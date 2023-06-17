@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../BufferStruct.mqh"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
 #include "OHLC/Indi_OHLC.mqh"
 #include "Special/Indi_Math.mqh"

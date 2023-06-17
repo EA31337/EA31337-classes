@@ -29,12 +29,12 @@ template <typename K, typename V>
 class DictStruct;
 
 // Includes.
-#include "Array.mqh"
-#include "Collection.mqh"
-#include "DateTime.mqh"
-#include "DictStruct.mqh"
+#include "Storage/Array.h"
+#include "Storage/Collection.h"
+#include "Storage/DateTime.h"
+#include "Storage/Dict/DictStruct.h"
 #include "File.mqh"
-#include "Object.mqh"
+#include "Storage/Object.h"
 
 // Define assert macros.
 // Alias for function and line macros combined together.

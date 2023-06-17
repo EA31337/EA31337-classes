@@ -22,7 +22,7 @@
 
 // Includes.
 #include "Math.h"
-#include "Object.mqh"
+#include "Storage/Object.h"
 
 /**
  * Class to provide functions to deal with the timer.

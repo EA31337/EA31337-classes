@@ -26,7 +26,7 @@
 #endif
 
 // Includes.
-#include "../BufferStruct.mqh"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
 
 // Structs.

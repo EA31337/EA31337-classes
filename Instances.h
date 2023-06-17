@@ -34,7 +34,7 @@
 #ifndef INSTANCES_H
 #define INSTANCES_H
 
-#include "Dict.mqh"
+#include "Storage/Dict/Dict.h"
 #include "Util.h"
 
 template<typename T>

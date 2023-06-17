@@ -26,9 +26,9 @@
 
 // Includes.
 #include "Account/Account.enum.h"
-#include "Data.define.h"
+#include "Storage/Data.define.h"
 #include "Deal.enum.h"
-#include "Object.extern.h"
+#include "Storage/Object.extern.h"
 #include "Order.define.h"
 #include "Terminal.enum.h"
 

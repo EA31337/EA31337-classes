@@ -38,7 +38,7 @@ jobs:
           name: files-ex5
           path: '**/*.ex5'
 
-  Task-Tests-MQL4:
+  Tests-MQL4:
     defaults:
       run:
         shell: bash

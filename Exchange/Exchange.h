@@ -28,7 +28,7 @@
 
 // Includes.
 #include "../Account/Account.h"
-#include "../DictObject.mqh"
+#include "../Storage/Dict/DictObject.h"
 #include "../SymbolInfo.mqh"
 #include "../Trade.mqh"
 #include "Exchange.struct.h"

@@ -30,9 +30,9 @@ class Chart;
 class Draw;
 
 // Includes.
-#include "Data.define.h"
-#include "Object.extern.h"
-#include "Object.mqh"
+#include "Storage/Data.define.h"
+#include "Storage/Object.extern.h"
+#include "Storage/Object.h"
 #include "Platform.extern.h"
 #include "Terminal.define.h"
 #include "Terminal.enum.h"

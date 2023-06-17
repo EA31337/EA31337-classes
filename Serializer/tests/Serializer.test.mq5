@@ -27,13 +27,13 @@
  */
 
 // Includes.
-#include "../../BufferStruct.mqh"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Chart.mqh"
 #include "../../Config.mqh"
-#include "../../Data.define.h"
-#include "../../Data.struct.h"
-#include "../../Data.struct.serialize.h"
-#include "../../DictStruct.mqh"
+#include "../../Storage/Data.define.h"
+#include "../../Storage/Data.struct.h"
+#include "../../Storage/Data.struct.serialize.h"
+#include "../../Storage/Dict/DictStruct.h"
 #include "../../Test.mqh"
 #include "../Serializer.h"
 #include "../SerializerBinary.h"

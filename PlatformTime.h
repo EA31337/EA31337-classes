@@ -21,7 +21,8 @@
  */
 
 // Includes.
-#include "DateTime.enum.h"
+#include "Storage/DateTime.enum.h"
+#include "Storage/DateTime.struct.h"
 
 /**
  * @file
@@ -34,7 +35,6 @@
 #include <chrono>
 #include <ctime>
 
-#include "DateTime.struct.h"
 #endif
 
 #include "Std.h"

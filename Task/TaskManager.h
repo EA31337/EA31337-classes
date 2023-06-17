@@ -31,7 +31,7 @@
 #endif
 
 // Includes.
-#include "../DictObject.mqh"
+#include "../Storage/Dict/DictObject.h"
 #include "../Serializer/SerializerConverter.h"
 #include "../Serializer/SerializerJson.h"
 #include "Task.struct.h"

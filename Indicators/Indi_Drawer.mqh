@@ -21,9 +21,9 @@
  */
 
 // Includes.
-#include "../DictStruct.mqh"
+#include "../Storage/Dict/DictStruct.h"
 #include "../Indicator/Indicator.h"
-#include "../Redis.mqh"
+#include "../Storage/Redis.h"
 #include "../Task/TaskAction.h"
 #include "Indi_Drawer.struct.h"
 #include "Price/Indi_Price.mqh"

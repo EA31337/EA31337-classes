@@ -32,10 +32,10 @@ class Trade;
 // Includes.
 #include "Account/AccountMt.h"
 #include "Convert.mqh"
-#include "DictStruct.mqh"
+#include "Storage/Dict/DictStruct.h"
 #include "Indicator/IndicatorData.h"
 #include "Math.h"
-#include "Object.mqh"
+#include "Storage/Object.h"
 #include "Order.mqh"
 #include "OrderQuery.h"
 #include "Task/TaskManager.h"

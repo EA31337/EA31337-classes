@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../BufferStruct.mqh"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.h"
 #include "Price/Indi_Price.mqh"

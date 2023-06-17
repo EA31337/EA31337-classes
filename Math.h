@@ -26,7 +26,7 @@
 #endif
 
 // Includes.
-#include "Data.struct.h"
+#include "Storage/Data.struct.h"
 #include "Indicator/Indicator.struct.h"
 #include "Math.define.h"
 #include "Math.enum.h"

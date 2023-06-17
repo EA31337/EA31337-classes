@@ -34,8 +34,8 @@ class SymbolInfo;
 
 // Includes.
 #include "Convert.mqh"
-#include "Data.define.h"
-#include "Data.struct.h"
+#include "Storage/Data.define.h"
+#include "Storage/Data.struct.h"
 #include "Deal.enum.h"
 #include "Log.mqh"
 #include "Order.define.h"
@@ -46,7 +46,7 @@ class SymbolInfo;
 #include "Serializer/SerializerConverter.h"
 #include "Serializer/SerializerJson.h"
 #include "Std.h"
-#include "String.mqh"
+#include "Storage/String.h"
 #include "SymbolInfo.mqh"
 #include "Task/TaskAction.enum.h"
 

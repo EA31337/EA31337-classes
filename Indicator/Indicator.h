@@ -28,13 +28,13 @@
 struct IndicatorParams;
 
 // Includes.
-#include "../Array.mqh"
-#include "../BufferStruct.mqh"
-#include "../DateTime.mqh"
-#include "../DrawIndicator.mqh"
-#include "../Flags.h"
+#include "../Storage/Array.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
+#include "../Storage/DateTime.h"
+#include "../Indicators/DrawIndicator.mqh"
+#include "../Storage/Flags.h"
 #include "../Math.h"
-#include "../Object.mqh"
+#include "../Storage/Object.h"
 #include "../Refs.mqh"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerCsv.h"
