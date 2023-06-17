@@ -47,10 +47,7 @@ class Terminal;
 #include "Terminal.extern.h"
 #include "Terminal.struct.h"
 
-#ifdef __MQL5__
-// Provide backward compatibility for MQL4 in MQL5.
-//#include "MQL4.mqh"
-#else
+#ifdef __MQL4__
 // Provides forward compatibility for MQL5 in MQL4.
 #include "MQL5.mqh"
 #endif

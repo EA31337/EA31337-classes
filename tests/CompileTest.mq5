@@ -67,7 +67,6 @@ struct IndicatorParams;
 #include "../MD5.mqh"
 #include "../Storage/IValueStorage.h"
 #include "../Task/TaskCondition.h"
-//#include "../MQL4.mqh" // @removeme
 //#include "../MQL5.mqh" // @removeme
 #include "../Mail.mqh"
 #include "../Market.mqh"
