@@ -8,8 +8,12 @@
 [![Channel][tg-channel-image]][tg-channel-link]
 [![Twitter][twitter-image]][twitter-link]
 
-EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 platforms.
+EA31337 framework is designed for writing software
+for popular trading platforms such as MetaTrader (4 & 5).
+
 It can be also used to convert your MQL4 code into MQL5 with minimum code changes.
+
+The code is compatible with MQL4, MQL5 and C++ programming languages.
 
 ## Table of contents
 
@@ -33,7 +37,6 @@ It can be also used to convert your MQL4 code into MQL5 with minimum code change
     - [`Indicators/` classes](#indicators-classes)
       - [Example 1 - `AC` indicator](#example-1---ac-indicator)
       - [Example 2 - `Alligator` indicator](#example-2---alligator-indicator)
-    - [`IndicatorData` class](#indicatordata-class)
     - [`Profiler` class](#profiler-class)
       - [Example 1 - Measure execution time of function multiple times](#example-1---measure-execution-time-of-function-multiple-times)
       - [Example 2 - Measure execution time of function multiple times](#example-2---measure-execution-time-of-function-multiple-times)
@@ -262,43 +265,13 @@ Example sending e-mail on trade execution:
       delete mail;
     }
 
-### `Indicator` class
+### `Indicator/`
 
-The purpose of `Indicator` class is to provide common functionality
-across all indicators such as storing and searching for values.
-
-This class is used as a base class to handle technical indicator classes
-which can be found in [`Indicators/`](Indicators/) folder.
+Collection of indicator base classes used to implement technical indicators.
 
 ### `Indicators/` classes
 
 In [`Indicators/`](Indicators/) folder there is collection of indicator classes.
-
-#### Example 1 - `AC` indicator
-
-The example reading value from `AC` indicator:
-
-    #include <EA31337-classes/Indicators/Indi_AC.mqh>
-    int OnInit() {
-      Indi_AC ac = new Indi_AC();
-      PrintFormat("%g", ac.GetValue());
-      delete ac;
-    }
-
-#### Example 2 - `Alligator` indicator
-
-The example reading values from `Alligator` indicator:
-
-    #include <EA31337-classes/Indicators/Indi_Alligator.mqh>
-    int OnInit() {
-      AlligatorParams alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
-      Indi_Alligator alli = new Indi_Alligator(alli_params));
-      AlligatorEntry values = alli.GetEntry(0);
-      if (alli.GetFlag(INDI_ENTRY_FLAG_IS_VALID)) {
-        Print("Alligator values: ", values.ToString());
-      }
-      delete alli;
-    }
 
 ### `Profiler` class
 

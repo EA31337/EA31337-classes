@@ -155,6 +155,9 @@ with  (assuming **10** candles have passed),
 
 An abstract class (subclass of `IndicatorBase`) to implement all type of indicators.
 
+The purpose of `Indicator` class is to provide common functionality
+across all indicators such as storing and searching for values.
+
 It implements structure for storing input parameters
 and buffer for accessing cached values by a given timestamp.
 
