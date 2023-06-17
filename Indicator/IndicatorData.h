@@ -202,7 +202,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Gets an indicator property flag.
    */
-  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _rel_shift = 0) {
+  bool GetFlag(INDICATOR_DATA_ENTRY_FLAGS _prop, int _rel_shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_rel_shift);
     return _entry.CheckFlag(_prop);
   }

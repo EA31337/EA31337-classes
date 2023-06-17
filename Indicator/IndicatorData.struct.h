@@ -360,12 +360,12 @@ struct IndicatorDataEntry {
   // Setters.
   bool Resize(int _size = 0) { return _size > 0 ? ArrayResize(values, _size) > 0 : true; }
   // Value flag methods for bitwise operations.
-  bool CheckFlag(INDICATOR_ENTRY_FLAGS _prop) { return CheckFlags(_prop); }
+  bool CheckFlag(INDICATOR_DATA_ENTRY_FLAGS _prop) { return CheckFlags(_prop); }
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }
   void AddFlags(unsigned short _flags) { flags |= _flags; }
   void RemoveFlags(unsigned short _flags) { flags &= ~_flags; }
-  void SetFlag(INDICATOR_ENTRY_FLAGS _flag, bool _value) {
+  void SetFlag(INDICATOR_DATA_ENTRY_FLAGS _flag, bool _value) {
     if (_value) {
       AddFlags(_flag);
     } else {

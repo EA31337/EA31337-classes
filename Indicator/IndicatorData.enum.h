@@ -31,7 +31,7 @@
 #endif
 
 /* Indicator entry flags. */
-enum INDICATOR_ENTRY_FLAGS {
+enum INDICATOR_DATA_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_NONE = 0 << 0,
   INDI_ENTRY_FLAG_IS_BITWISE = 1 << 0,
   INDI_ENTRY_FLAG_IS_DOUBLED = 1 << 1,  // Type is doubled in size (e.g. double or long).
