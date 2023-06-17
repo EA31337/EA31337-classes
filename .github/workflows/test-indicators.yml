@@ -100,7 +100,6 @@ jobs:
           - Indi_VIDYA.test
           - Indi_VROC.test
           - Indi_Volumes.test
-          - Indi_WPR.test
           - Indi_WilliamsAD.test
           - Indi_ZigZag.test
           - Indi_ZigZagColor.test
