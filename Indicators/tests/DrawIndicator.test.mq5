@@ -113,7 +113,7 @@ bool InitIndicators() {
 #ifndef __MQL4__
   // @fixme: Make it work for MT4.
   // Current Price (used by custom indicators)  .
-  PriceIndiParams price_params();
+  IndiPriceParams price_params();
   // price_params.SetDraw(clrGreenYellow);
   Platform::AddWithDefaultBindings(new Indi_Price(price_params), "EURUSD", PERIOD_M1);
 #endif
@@ -121,7 +121,7 @@ bool InitIndicators() {
   /* @fixme: Array out of range.
   // Bollinger Bands over Price indicator.
   /*
-  PriceIndiParams price_params_4_bands();
+  IndiPriceParams price_params_4_bands();
   IndicatorBase *indi_price_4_bands = new Indi_Price(price_params_4_bands);
   IndiBandsParams bands_on_price_params();
   bands_on_price_params.SetDraw(clrCadetBlue);
@@ -131,7 +131,7 @@ bool InitIndicators() {
 
   // Moving Average (MA) over Price indicator.
   /*
-  PriceIndiParams price_params_4_ma();
+  IndiPriceParams price_params_4_ma();
   IndicatorBase *indi_price_4_ma = new Indi_Price(price_params_4_ma);
   IndiMAParams ma_on_price_params();
   ma_on_price_params.SetDraw(clrYellowGreen);
@@ -140,7 +140,7 @@ bool InitIndicators() {
   Platform::AddWithDefaultBindings(new Indi_MA(ma_on_price_params, indi_price_4_ma));
 
   // Relative Strength Index (RSI) over Price indicator.
-  PriceIndiParams price_params_4_rsi();
+  IndiPriceParams price_params_4_rsi();
   IndicatorData *indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
   IndiRSIParams rsi_on_price_params();
   rsi_on_price_params.SetDraw(clrBisque, 1);

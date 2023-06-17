@@ -27,13 +27,13 @@
 #include "../../Storage/Objects.h"
 
 // Structs.
-struct PriceIndiParams : IndicatorParams {
+struct IndiPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE ap;
   // Struct constructor.
-  PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0) : IndicatorParams(INDI_PRICE), ap(_ap) {
+  IndiPriceParams(ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0) : IndicatorParams(INDI_PRICE), ap(_ap) {
     SetShift(_shift);
   };
-  PriceIndiParams(PriceIndiParams &_params) : IndicatorParams() { THIS_REF = _params; };
+  IndiPriceParams(IndiPriceParams &_params) : IndicatorParams() { THIS_REF = _params; };
   // Getters.
   ENUM_APPLIED_PRICE GetAppliedPrice() { return ap; }
   // Setters.
@@ -43,18 +43,18 @@ struct PriceIndiParams : IndicatorParams {
 /**
  * Price Indicator.
  */
-class Indi_Price : public Indicator<PriceIndiParams> {
+class Indi_Price : public Indicator<IndiPriceParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Price(PriceIndiParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+  Indi_Price(IndiPriceParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
              int _indi_src_mode = 0)
       : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
                   _indi_src){};
   Indi_Price(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
              int _indi_src_mode = 0)
-      : Indicator(PriceIndiParams(),
+      : Indicator(IndiPriceParams(),
                   IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
                   _indi_src){};
   /**
@@ -90,7 +90,7 @@ class Indi_Price : public Indicator<PriceIndiParams> {
     string _key = _cache_key.ToString();
     Indi_Price *_indi_price;
     if (!Objects<Indi_Price>::TryGet(_key, _indi_price)) {
-      PriceIndiParams _indi_price_params(_ap, _shift);
+      IndiPriceParams _indi_price_params(_ap, _shift);
       _indi_price = Objects<Indi_Price>::Set(_key, new Indi_Price(_indi_price_params));
 
       if (_base_indi == nullptr) {
@@ -128,7 +128,7 @@ class Indi_Price : public Indicator<PriceIndiParams> {
         return GetPlatformPrices(GetSymbol(), PRICE_WEIGHTED, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
       default:
         // Trying in parent class.
-        return Indicator<PriceIndiParams>::GetSpecificValueStorage(_type);
+        return Indicator<IndiPriceParams>::GetSpecificValueStorage(_type);
     }
   }
 
@@ -149,7 +149,7 @@ class Indi_Price : public Indicator<PriceIndiParams> {
         return true;
       default:
         // Trying in parent class.
-        return Indicator<PriceIndiParams>::HasSpecificValueStorage(_type);
+        return Indicator<IndiPriceParams>::HasSpecificValueStorage(_type);
     }
   }
 };
