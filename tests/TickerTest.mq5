@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../Indicators/Tick/Indi_TickMt.mqh"
+#include "../Indicators/Tick/Indi_TickMt.h"
 #include "../Test.mqh"
 #include "../Ticker.mqh"
 

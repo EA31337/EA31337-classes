@@ -31,7 +31,7 @@
 #include "../ChartMt.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Indicators/Indi_RSI.mqh"
-#include "../Indicators/Tick/Indi_TickMt.mqh"
+#include "../Indicators/Tick/Indi_TickMt.h"
 #include "../Strategy.mqh"
 #include "../Test.mqh"
 

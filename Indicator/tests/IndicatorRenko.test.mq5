@@ -28,7 +28,7 @@
 
 // Includes.
 #include "../../Indicators/Indi_AMA.mqh"
-#include "../../Indicators/Tick/Indi_TickMt.mqh"
+#include "../../Indicators/Tick/Indi_TickMt.h"
 #include "../../Platform.h"
 #include "../../Test.mqh"
 #include "../../Util.h"

@@ -29,7 +29,7 @@
 #include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
 #include "../Util.h"
-#include "Indi_MA.mqh"
+#include "Price/Indi_MA.h"
 
 // Structs.
 struct IndiCHOParams : IndicatorParams {

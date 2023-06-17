@@ -20,12 +20,12 @@
  */
 
 // Includes.
-#include "../../Platform.h"
-#include "../../Test.mqh"
-#include "../Indi_Envelopes.mqh"
+#include "../../../Platform.h"
+#include "../../../Test.mqh"
+#include "../Indi_MA.h"
 
 /**
  * @file
- * Test functionality of Indi_Envelopes indicator class.
+ * Test functionality of Indi_MA indicator class.
  */
-TEST_INDICATOR_DEFAULT_BINDINGS(Indi_Envelopes);
+TEST_INDICATOR_DEFAULT_BINDINGS(Indi_MA);

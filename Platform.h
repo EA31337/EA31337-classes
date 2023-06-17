@@ -53,7 +53,7 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
 #include "Std.h"
 
 #ifdef __MQLBUILD__
-#include "Indicators/Tick/Indi_TickMt.mqh"
+#include "Indicators/Tick/Indi_TickMt.h"
 #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
 #else
 #include "Indicators/Tick/Indi_TickProvider.h"

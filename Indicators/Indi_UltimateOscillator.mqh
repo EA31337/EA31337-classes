@@ -25,7 +25,7 @@
 #include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_ATR.mqh"
-#include "Indi_MA.mqh"
+#include "Price/Indi_MA.h"
 
 // Structs.
 struct IndiUltimateOscillatorParams : IndicatorParams {

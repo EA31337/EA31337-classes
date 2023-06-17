@@ -39,8 +39,8 @@
 #include "../Storage/Objects.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/String.h"
-#include "Indi_MA.mqh"
-#include "Price/Indi_Price.mqh"
+#include "Price/Indi_MA.h"
+#include "Price/Indi_Price.h"
 
 // Structs.
 struct IndiDEMAParams : IndicatorParams {

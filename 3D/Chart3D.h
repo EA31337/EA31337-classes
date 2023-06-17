@@ -27,7 +27,7 @@
 
 #include "../Bar.struct.h"
 #include "../Indicator/IndicatorData.h"
-#include "../Indicators/Indi_MA.mqh"
+#include "../Indicators/Price/Indi_MA.h"
 #include "../Instances.h"
 #include "../Refs.mqh"
 #include "../Serializer/SerializerConverter.h"

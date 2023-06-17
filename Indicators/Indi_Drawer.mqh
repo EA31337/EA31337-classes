@@ -26,7 +26,7 @@
 #include "../Storage/Redis.h"
 #include "../Task/TaskAction.h"
 #include "Indi_Drawer.struct.h"
-#include "Price/Indi_Price.mqh"
+#include "Price/Indi_Price.h"
 
 /**
  * Implements the Relative Strength Index indicator.

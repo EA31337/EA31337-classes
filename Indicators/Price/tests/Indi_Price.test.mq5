@@ -22,7 +22,7 @@
 // Includes.
 #include "../../../Platform.h"
 #include "../../../Test.mqh"
-#include "../Indi_Price.mqh"
+#include "../Indi_Price.h"
 
 /**
  * @file

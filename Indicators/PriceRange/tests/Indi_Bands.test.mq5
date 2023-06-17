@@ -20,12 +20,12 @@
  */
 
 // Includes.
-#include "../../Platform.h"
-#include "../../Test.mqh"
-#include "../Indi_SAR.mqh"
+#include "../../../Platform.h"
+#include "../../../Test.mqh"
+#include "../Indi_Bands.h"
 
 /**
  * @file
- * Test functionality of Indi_SAR indicator class.
+ * Test functionality of Indi_Bands indicator class.
  */
-TEST_INDICATOR_DEFAULT_BINDINGS(Indi_SAR);
+TEST_INDICATOR_DEFAULT_BINDINGS(Indi_Bands);

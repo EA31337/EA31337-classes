@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -22,9 +22,10 @@
 
 /**
  * @file
- * Include file to include all price indicators.
+ * Include file to include all tick indicators.
  */
 
-// Price indicators.
-#include "Indi_MA.h"
-#include "Indi_Price.h"
+// Tick indicators.
+#include "Indi_TickMt.h"
+//#include "Indi_TickProvider.h" // @fixme
+#include "Indi_TickRandom.h"

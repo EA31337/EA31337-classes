@@ -40,7 +40,7 @@ struct DataParamEntry;
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Indicator/tests/classes/Indicators.h"
 #include "../Indicators/Bitwise/includes.h"
-#include "../Indicators/Tick/Indi_TickMt.mqh"
+#include "../Indicators/Tick/includes.h"
 #include "../Indicators/includes.h"
 #include "../Platform.h"
 #include "../Serializer/SerializerConverter.h"

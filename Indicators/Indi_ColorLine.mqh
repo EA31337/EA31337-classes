@@ -24,7 +24,7 @@
 #include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
-#include "Indi_MA.mqh"
+#include "Price/Indi_MA.h"
 
 // Structs.
 struct IndiColorLineParams : IndicatorParams {

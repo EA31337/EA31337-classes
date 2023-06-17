@@ -22,9 +22,10 @@
 
 /**
  * @file
- * Include file to include all price indicators.
+ * Include file to include all price range indicators.
  */
 
 // Price indicators.
-#include "Indi_MA.h"
-#include "Indi_Price.h"
+#include "Indi_Bands.h"
+#include "Indi_Envelopes.h"
+#include "Indi_SAR.h"

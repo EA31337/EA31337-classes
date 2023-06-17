@@ -31,7 +31,7 @@
 #include "../Storage/ValueStorage.volume.h"
 #include "../Util.h"
 #include "Indi_ADX.mqh"
-#include "Price/Indi_Price.mqh"
+#include "Price/Indi_Price.h"
 
 // Structs.
 struct IndiADXWParams : IndiADXParams {

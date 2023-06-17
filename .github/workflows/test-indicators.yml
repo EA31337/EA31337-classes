@@ -63,7 +63,6 @@ jobs:
           - Indi_AppliedPrice.test
           - Indi_BWMFI.test
           - Indi_BWZT.test
-          - Indi_Bands.test
           - Indi_BearsPower.test
           - Indi_BullsPower.test
           - Indi_CCI.test
@@ -77,7 +76,6 @@ jobs:
           - Indi_Demo.test
           - Indi_DetrendedPrice.test
           - Indi_Drawer.test
-          - Indi_Envelopes.test
           - Indi_Force.test
           - Indi_FractalAdaptiveMA.test
           - Indi_Fractals.test
@@ -100,7 +98,6 @@ jobs:
           - Indi_RSI.test
           - Indi_RVI.test
           - Indi_RateOfChange.test
-          - Indi_SAR.test
           - Indi_StdDev.test
           - Indi_Stochastic.test
           - Indi_TEMA.test

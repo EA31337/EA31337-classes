@@ -31,11 +31,11 @@
 #include "../../Storage/Dict/DictStruct.h"
 #include "../DrawIndicator.mqh"
 #include "../../Indicator/Indicator.struct.serialize.h"
-#include "../Indi_Bands.mqh"
+#include "../PriceRange/Indi_Bands.h"
 #include "../Indi_Demo.mqh"
-#include "../Indi_MA.mqh"
+#include "../Price/Indi_MA.h"
 #include "../Indi_RSI.mqh"
-#include "../Price/Indi_Price.mqh"
+#include "../Price/Indi_Price.h"
 #include "../../Test.mqh"
 
 // Global variables.

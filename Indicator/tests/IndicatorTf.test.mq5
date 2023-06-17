@@ -29,7 +29,7 @@
 // Includes.
 #include "../../Storage/Dict/DictBase.h"
 #include "../../Indicators/Indi_AMA.mqh"
-#include "../../Indicators/Tick/Indi_TickMt.mqh"
+#include "../../Indicators/Tick/Indi_TickMt.h"
 #include "../../Log.mqh"
 #include "../../Platform.h"
 #include "../../SymbolInfo.mqh"

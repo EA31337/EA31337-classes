@@ -21,14 +21,14 @@
  */
 
 // Includes.
-#include "../Indicator/Indicator.h"
-#include "Indi_CCI.mqh"
-#include "Indi_Envelopes.mqh"
-#include "Indi_MA.mqh"
-#include "Indi_Momentum.mqh"
-#include "Indi_RSI.mqh"
-#include "Indi_StdDev.mqh"
-#include "Price/Indi_Price.mqh"
+#include "../../Indicator/Indicator.h"
+#include "../Indi_CCI.mqh"
+#include "Indi_Envelopes.h"
+#include "../Price/Indi_MA.h"
+#include "../Indi_Momentum.mqh"
+#include "../Indi_RSI.mqh"
+#include "../Indi_StdDev.mqh"
+#include "../Price/Indi_Price.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).

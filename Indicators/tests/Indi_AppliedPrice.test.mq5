@@ -23,7 +23,7 @@
 #include "../../Platform.h"
 #include "../../Test.mqh"
 #include "../Indi_AppliedPrice.mqh"
-#include "../Price/Indi_Price.mqh"
+#include "../Price/Indi_Price.h"
 
 /**
  * @file

@@ -21,17 +21,17 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef INDI_MA_MQH
-#define INDI_MA_MQH
+#ifndef INDI_MA_H
+#define INDI_MA_H
 
 // Includes.
-#include "../Storage/Dict/Dict.h"
-#include "../Storage/Dict/DictObject.h"
-#include "../Indicator/Indicator.h"
-#include "../Refs.mqh"
-#include "../Storage/Singleton.h"
-#include "../Storage/ValueStorage.h"
-#include "../Storage/String.h"
+#include "../../Storage/Dict/Dict.h"
+#include "../../Storage/Dict/DictObject.h"
+#include "../../Indicator/Indicator.h"
+#include "../../Refs.mqh"
+#include "../../Storage/Singleton.h"
+#include "../../Storage/ValueStorage.h"
+#include "../../Storage/String.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -776,4 +776,4 @@ class Indi_MA : public Indicator<IndiMAParams> {
     iparams.applied_array = _applied_price;
   }
 };
-#endif  // INDI_MA_MQH
+#endif  // INDI_MA_H

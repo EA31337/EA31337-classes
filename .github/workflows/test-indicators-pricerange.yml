@@ -1,18 +1,18 @@
 ---
-name: Test Indicators (Price)
+name: Test Indicators (PriceRange)
 
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
       - 'Indicator**'
-      - 'Indicators/Price/**'
-      - '.github/workflows/test-indicators-price.yml'
+      - 'Indicators/PriceRange/**'
+      - '.github/workflows/test-indicators-pricerange.yml'
   push:
     paths:
       - 'Indicator**'
       - 'Indicators/Price/**'
-      - '.github/workflows/test-indicators-price.yml'
+      - '.github/workflows/test-indicators-pricerange.yml'
 
 jobs:
 
@@ -24,7 +24,7 @@ jobs:
         uses: fx31337/mql-compile-action@master
         with:
           init-platform: true
-          path: 'Indicators/Price/tests'
+          path: 'Indicators/PriceRange/tests'
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
@@ -50,8 +50,9 @@ jobs:
     strategy:
       matrix:
         test:
-          - Indi_MA.test
-          - Indi_Price.test
+          - Indi_Bands.test
+          - Indi_Envelopes.test
+          - Indi_SAR.test
     steps:
       - uses: actions/download-artifact@v2
         with:

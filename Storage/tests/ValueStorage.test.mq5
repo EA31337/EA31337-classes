@@ -28,8 +28,8 @@
 #define __debug__  // Enables debug.
 
 // Includes.
-#include "../../Indicators/Indi_MA.mqh"
-#include "../../Indicators/Price/Indi_Price.mqh"
+#include "../../Indicators/Price/Indi_MA.h"
+#include "../../Indicators/Price/Indi_Price.h"
 #include "../../Serializer/SerializerConverter.h"
 #include "../../Serializer/SerializerJson.h"
 #include "../ValueStorage.h"

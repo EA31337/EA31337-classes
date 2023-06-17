@@ -23,7 +23,7 @@
 // Includes.
 #include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
-#include "Indi_MA.mqh"
+#include "Price/Indi_MA.h"
 
 // Structs.
 struct IndiTEMAParams : IndicatorParams {

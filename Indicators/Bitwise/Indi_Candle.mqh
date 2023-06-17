@@ -26,7 +26,7 @@
 #include "../../Indicator/Indicator.h"
 #include "../../Pattern.struct.h"
 #include "../../Serializer/Serializer.h"
-#include "../Price/Indi_Price.mqh"
+#include "../Price/Indi_Price.h"
 #include "../Special/Indi_Math.mqh"
 
 // Structs.

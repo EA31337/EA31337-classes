@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../Indi_Price.mqh"
+#include "../Indi_Price.h"
 #include "../../../Platform.h"
 
 int main(int argc, char **argv) {
