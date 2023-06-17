@@ -5,7 +5,7 @@ name: Test Indicators (Bitwise)
 on:
   pull_request:
     paths:
-      - 'Indicator**'
+      - 'Indicator/**'
       - 'Indicators/Bitwise/**'
       - '.github/workflows/test-indicators-bitwise.yml'
   push:

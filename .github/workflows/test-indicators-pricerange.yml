@@ -5,7 +5,7 @@ name: Test Indicators (PriceRange)
 on:
   pull_request:
     paths:
-      - 'Indicator**'
+      - 'Indicator/**'
       - 'Indicators/PriceRange/**'
       - '.github/workflows/test-indicators-pricerange.yml'
   push:

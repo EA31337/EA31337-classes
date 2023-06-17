@@ -5,7 +5,7 @@ name: Test Indicators (OHLC)
 on:
   pull_request:
     paths:
-      - 'Indicator**'
+      - 'Indicator/**'
       - 'Indicators/OHLC/**'
       - '.github/workflows/test-indicators-special.yml'
   push:

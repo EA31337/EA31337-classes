@@ -5,7 +5,7 @@ name: Test Indicators
 on:
   pull_request:
     paths:
-      - 'Indicator**'
+      - 'Indicator/**'
       - 'Indicators/**'
       - '.github/workflows/test-indicators.yml'
   push:

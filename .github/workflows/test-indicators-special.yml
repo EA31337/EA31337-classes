@@ -5,7 +5,7 @@ name: Test Indicators (Special)
 on:
   pull_request:
     paths:
-      - 'Indicator**'
+      - 'Indicator/**'
       - 'Indicators/Special/**'
       - '.github/workflows/test-indicators-special.yml'
   push:
