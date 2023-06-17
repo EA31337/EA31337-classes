@@ -48,7 +48,7 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 #include "Indicator.enum.h"
 #include "IndicatorBase.h"
 #include "IndicatorData.enum.h"
-#include "IndicatorData.struct.cache.h"
+#include "../Storage/Cache/IndicatorCalculateCache.h"
 #include "IndicatorData.struct.h"
 #include "IndicatorData.struct.serialize.h"
 #include "IndicatorData.struct.signal.h"

@@ -48,6 +48,7 @@ jobs:
     strategy:
       matrix:
         test:
+          - IndicatorCalculateCache.test
           - ObjectsCache.test
     steps:
       - uses: actions/download-artifact@v2
