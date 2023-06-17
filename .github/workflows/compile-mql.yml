@@ -1,18 +1,20 @@
 ---
-name: Compile
+name: Compile MQL
 
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths-ignore:
       - '**.md'
+      - '.github/workflows/compile-mql.yml'
   push:
     paths-ignore:
       - '**.md'
+      - '.github/workflows/compile-mql.yml'
 
 jobs:
 
-  Compile:
+  Compile-MQL:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
