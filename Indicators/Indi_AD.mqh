@@ -86,10 +86,18 @@ class Indi_AD : public Indicator<IndiADParams> {
    */
   static double iAD(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                     IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iAD(_symbol, _tf, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iAD(_symbol, _tf, VOLUME_TICK), 0, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

@@ -104,11 +104,19 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
    */
   static double iStdDev(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method,
                         ENUM_APPLIED_PRICE _applied_price, int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price), 0,
                                       _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

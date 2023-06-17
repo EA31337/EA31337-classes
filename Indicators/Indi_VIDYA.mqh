@@ -79,9 +79,10 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
    */
   static double iVIDyA(string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period, int _ema_period, int _ma_shift,
                        ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iVIDyA(_symbol, _tf, _cmo_period, _ema_period, _ma_shift, _ap), _mode, _shift);
-#else
+#else // __MQL5__
     if (_obj == nullptr) {
       Print(
           "Indi_VIDYA::iVIDyA() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
@@ -91,6 +92,13 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
     }
 
     return iVIDyAOnIndicator(_obj, _symbol, _tf, _cmo_period, _ema_period, _ma_shift, _ap, _mode, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

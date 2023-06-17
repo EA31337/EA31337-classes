@@ -110,17 +110,18 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    */
   static double iRSI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                      ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iRSI(_symbol, _tf, _period, _applied_price, _shift);
-#else
-#ifdef __MQL5__
+#else // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iRSI(_symbol, _tf, _period, _applied_price), 0, _shift);
-#else
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
     RUNTIME_ERROR(
-        "In C++ Indi_RSI::iRSI() method couldn't be used directly. Please use an On-Indicator mode and attach "
+        "Not implemented. Please use an On-Indicator mode and attach "
         "indicator via Platform::Add/AddWithDefaultBindings().");
     return DBL_MAX;
-#endif
 #endif
   }
 

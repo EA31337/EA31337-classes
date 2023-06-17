@@ -104,10 +104,18 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
                      ENUM_APPLIED_VOLUME _applied = VOLUME_TICK,  // MT5 only.
 #endif
                      int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, _applied, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iOBV(_symbol, _tf, _applied), 0, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

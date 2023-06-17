@@ -127,6 +127,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
    */
   static double iCustomLegacyHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift = 0,
                                         IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     // Low and High prices could be in reverse order when using MT4's built-in indicator, so we need to retrieve both
     // and return correct one.
@@ -144,6 +145,13 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
     return ::iCustom(_symbol, _tf, "Heiken Ashi", _mode, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iCustom(_symbol, _tf, "Examples\\Heiken_Ashi"), _mode, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

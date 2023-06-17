@@ -107,10 +107,18 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
    */
   static double iBWMFI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                        ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iBWMFI(_symbol, _tf, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iBWMFI(_symbol, _tf, VOLUME_TICK), _mode, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

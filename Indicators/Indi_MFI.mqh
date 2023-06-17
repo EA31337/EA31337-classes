@@ -80,19 +80,35 @@ class Indi_MFI : public Indicator<IndiMFIParams> {
    */
   static double iMFI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
                      IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
     return Indi_MFI::iMFI(_symbol, _tf, _period, VOLUME_TICK, _shift, _obj);
 #endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
+#endif
   }
   static double iMFI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                      ENUM_APPLIED_VOLUME _applied_volume,  // Not used in MT4.
                      int _shift = 0, Indi_MFI *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iMFI(_symbol, _tf, _period, VOLUME_TICK), 0, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

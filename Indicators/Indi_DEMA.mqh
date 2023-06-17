@@ -103,9 +103,10 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
    */
   static double iDEMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, unsigned int _ma_shift,
                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iDEMA(_symbol, _tf, _period, _ma_shift, _applied_price), _mode, _shift);
-#else
+#else  // __MQL5__
     if (_obj == nullptr) {
       Print(
           "Indi_DEMA::iDEMA() can work without supplying pointer to IndicatorData only in MQL5. In this platform the "
@@ -115,6 +116,13 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
     }
 
     return iDEMAOnIndicator(_obj, _period, _ma_shift, _applied_price, _mode, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

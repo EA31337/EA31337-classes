@@ -140,6 +140,7 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
                            int _teeth_shift, int _lips_period, int _lips_shift, ENUM_MA_METHOD _ma_method,
                            ENUM_APPLIED_PRICE _applied_price, ENUM_ALLIGATOR_LINE _mode, int _shift = 0,
                            IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                         _ma_method, _applied_price, _mode, _shift);
@@ -147,6 +148,13 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift,
                                                    _lips_period, _lips_shift, _ma_method, _applied_price),
                                       _mode, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

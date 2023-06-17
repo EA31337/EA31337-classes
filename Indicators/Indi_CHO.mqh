@@ -86,10 +86,11 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
   static double iChaikin(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_ma_period, int _slow_ma_period,
                          ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0,
                          IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iChaikin(_symbol, _tf, _fast_ma_period, _slow_ma_period, _ma_method, _av),
                                       _mode, _shift);
-#else
+#else  // __MQL5__
     if (_obj == nullptr) {
       Print(
           "Indi_CHO::iChaikin() can work without supplying pointer to IndicatorData only in MQL5. In this platform the "
@@ -102,6 +103,13 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
         _obj, Util::MakeKey(_fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
                            _mode, _shift, _cache);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

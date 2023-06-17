@@ -126,6 +126,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
                            int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                                        // UPPER_LINE, 1 - LOWER_LINE
                            int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _ap, _deviation, _mode, _shift);
 #else  // __MQL5__
@@ -140,6 +141,13 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
 
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _ap, _deviation),
                                       _mode, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

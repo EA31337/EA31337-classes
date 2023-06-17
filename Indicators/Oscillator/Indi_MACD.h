@@ -106,6 +106,10 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
 #endif
 #else // Non-MQL.
     // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

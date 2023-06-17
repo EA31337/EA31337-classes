@@ -76,9 +76,10 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
    */
   static double iTEMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                       int _mode = 0, int _shift = 0, Indi_TEMA *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iTEMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
-#else
+#else  // __MQL5__
     if (_obj == nullptr) {
       Print(
           "Indi_TEMA::iTEMA() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
@@ -88,6 +89,13 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
     }
 
     return iTEMAOnIndicator(_obj, _ma_period, _ma_shift, _ap, _mode, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 

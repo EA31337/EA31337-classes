@@ -105,9 +105,10 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
    */
   static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = LINE_MAIN_ADX,
                            int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
-#else
+#else // __MQL5__
     if (_obj == nullptr) {
       Print(
           "Indi_ADXW::iADXWilder() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
@@ -116,6 +117,13 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
       return 0;
     }
     return iADXWilder(_obj, _ma_period, _mode, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 
