@@ -76,7 +76,7 @@ class IndicatorData : public IndicatorBase {
   // DrawIndicator* draw;
   IndicatorCalculateCache<double> cache;
   IndicatorDataParams idparams;  // Indicator data params.
-  IndicatorState istate;
+  IndicatorDataState istate;
   Ref<IndicatorData> indi_src;  // Indicator used as data source.
 
  protected:

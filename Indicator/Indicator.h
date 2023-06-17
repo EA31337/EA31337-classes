@@ -136,7 +136,7 @@ class Indicator : public IndicatorData {
   }
 
   /**
-   * Gets a value from IndicatorState struct.
+   * Gets a value from IndicatorDataState struct.
    */
   template <typename T>
   T Get(STRUCT_ENUM_INDICATOR_STATE_PROP _param) {
@@ -605,10 +605,10 @@ class Indicator : public IndicatorData {
       _entry.Resize(_max_modes);
       _entry.timestamp = GetBarTime(_rel_shift);
 #ifndef __MQL4__
-      if (IndicatorData::Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED))) {
+      if (IndicatorData::Get<bool>(STRUCT_ENUM(IndicatorDataState, INDICATOR_STATE_PROP_IS_CHANGED))) {
         // Resets the handle on any parameter changes.
-        IndicatorData::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_HANDLE), INVALID_HANDLE);
-        IndicatorData::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED), false);
+        IndicatorData::Set<int>(STRUCT_ENUM(IndicatorDataState, INDICATOR_STATE_PROP_HANDLE), INVALID_HANDLE);
+        IndicatorData::Set<int>(STRUCT_ENUM(IndicatorDataState, INDICATOR_STATE_PROP_IS_CHANGED), false);
       }
 #endif
       for (int _mode = 0; _mode < _max_modes; _mode++) {

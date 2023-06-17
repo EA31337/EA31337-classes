@@ -27,7 +27,7 @@
 
 // Defines.
 #define STRUCT_ENUM_IDATA_PARAM STRUCT_ENUM(IndicatorDataParams, ENUM_IDATA_PARAM)
-#define STRUCT_ENUM_INDICATOR_STATE_PROP STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP)
+#define STRUCT_ENUM_INDICATOR_STATE_PROP STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_STATE_PROP)
 
 // Includes.
 #include "../Serializer/SerializerConversions.h"
@@ -538,7 +538,7 @@ struct IndicatorDataParams {
 };
 
 /* Structure for indicator state. */
-struct IndicatorState {
+struct IndicatorDataState {
  public:            // @todo: Change it to protected.
   int handle;       // Indicator handle (MQL5 only).
   bool is_changed;  // Set when params has been recently changed.
@@ -550,10 +550,10 @@ struct IndicatorState {
     INDICATOR_STATE_PROP_IS_READY,
   };
   // Constructor.
-  IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
+  IndicatorDataState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
   // Getters.
   template <typename T>
-  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
+  T Get(STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_STATE_PROP) _prop) {
     switch (_prop) {
       case INDICATOR_STATE_PROP_HANDLE:
         return (T)handle;
@@ -567,7 +567,7 @@ struct IndicatorState {
   }
   // Setters.
   template <typename T>
-  void Set(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop, T _value) {
+  void Set(STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_STATE_PROP) _prop, T _value) {
     switch (_prop) {
       case INDICATOR_STATE_PROP_HANDLE:
         handle = (T)_value;

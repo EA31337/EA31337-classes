@@ -126,7 +126,7 @@ void OnTick() {
       // if (_indi.GetType() != INDI_AMA)
       // continue;
 
-      if (_indi PTR_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
+      if (_indi PTR_DEREF Get<bool>(STRUCT_ENUM(IndicatorDataState, INDICATOR_STATE_PROP_IS_READY))) {
         if (_entry.IsValid()) {
           PrintFormat("%s: bar %d: %s", _indi PTR_DEREF GetFullName(), _candles PTR_DEREF GetBars(),
                       _indi PTR_DEREF ToString());
@@ -595,7 +595,7 @@ bool PrintIndicators(string _prefix = "") {
       ResetLastError();
       continue;
     }
-    if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
+    if (_indi.Get<bool>(STRUCT_ENUM(IndicatorDataState, INDICATOR_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
     }
   }
