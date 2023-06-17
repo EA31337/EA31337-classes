@@ -27,6 +27,7 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
+#include "../Platform/Terminal.h"
 
 // Defines.
 #ifdef __MQL4__

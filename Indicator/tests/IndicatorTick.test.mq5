@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../../Platform.h"
+#include "../../Platform/Platform.h"
 #include "../../Test.mqh"
 #include "../IndicatorTick.h"
 #include "classes/IndicatorTickDummy.h"

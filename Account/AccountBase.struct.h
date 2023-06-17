@@ -37,7 +37,7 @@ class Serializer;
 // Includes.
 #include "../Serializer/Serializer.h"
 #include "../Std.h"
-#include "../Terminal.define.h"
+#include "../Platform/Terminal.define.h"
 
 // Struct for account entries.
 struct AccountBaseEntry {

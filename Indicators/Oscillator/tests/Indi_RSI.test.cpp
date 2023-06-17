@@ -27,7 +27,7 @@
 // Includes.
 #include "../Indi_RSI.h"
 
-#include "../../../Platform.h"
+#include "../../../Platform/Platform.h"
 
 int main(int argc, char **argv) {
   // @todo

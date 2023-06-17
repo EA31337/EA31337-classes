@@ -31,7 +31,7 @@
 #include "../../Indicators/Indi_AMA.mqh"
 #include "../../Indicators/Tick/Indi_TickMt.h"
 #include "../../Log.mqh"
-#include "../../Platform.h"
+#include "../../Platform/Platform.h"
 #include "../../SymbolInfo.mqh"
 #include "../../Test.mqh"
 #include "../../Util.h"

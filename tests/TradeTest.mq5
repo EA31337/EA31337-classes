@@ -33,7 +33,7 @@ struct DataParamEntry;
 // Includes.
 #include "../ChartMt.h"
 #include "../Indicators/Tick/Indi_TickMt.h"
-#include "../Platform.h"
+#include "../Platform/Platform.h"
 #include "../Test.mqh"
 #include "../Trade.mqh"
 

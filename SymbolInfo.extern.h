@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "Order.enum.h"
+#include "Platform/Order.enum.h"
 #include "SymbolInfo.enum.h"
 #include "Tick/Tick.struct.h"
 

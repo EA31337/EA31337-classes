@@ -26,7 +26,7 @@
 
 // Includes
 #include "../BufferFXT.h"
-#include "../../../../Platform.h"
+#include "../../../../Platform/Platform.h"
 #include "../../../../Test.mqh"
 
 BufferFXT *ticks;

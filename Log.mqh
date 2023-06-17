@@ -328,7 +328,7 @@ class Log : public Object {
   }
 };
 
-#include "Terminal.mqh"
+#include "Platform/Terminal.h"
 
 /**
  * Reports last error.

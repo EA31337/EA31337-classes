@@ -59,13 +59,11 @@ jobs:
           - MailTest
           - MarketTest
           - MatrixTest
-          - OrderTest
-          - OrdersTest
           - StatsTest
           - StrategyTest
           - StrategyTest-RSI
-          - SymbolInfoTest
           - SummaryReportTest
+          - SymbolInfoTest
           - TickerTest
           - TradeTest
       max-parallel: 4
@@ -101,10 +99,8 @@ jobs:
           - LogTest
           - MD5Test
           - MathTest
-          - OrderQuery
           - ProfilerTest
           - RefsTest
-          - TerminalTest
           - TimerTest
     steps:
       - uses: actions/download-artifact@v2

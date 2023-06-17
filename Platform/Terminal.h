@@ -37,11 +37,11 @@ class Terminal;
 #define TERMINAL_MQH
 
 // Includes.
-#include "Convert.mqh"
-#include "Storage/Data.struct.h"
-#include "Storage/Object.h"
-#include "Refs.mqh"
-#include "Storage/String.h"
+#include "../Convert.mqh"
+#include "../Storage/Data.struct.h"
+#include "../Storage/Object.h"
+#include "../Refs.mqh"
+#include "../Storage/String.h"
 #include "Terminal.define.h"
 #include "Terminal.enum.h"
 #include "Terminal.extern.h"

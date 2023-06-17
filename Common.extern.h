@@ -28,7 +28,7 @@
 
 #include "Chart.enum.h"
 #include "Storage/DateTime.enum.h"
-#include "Terminal.define.h"
+#include "Platform/Terminal.define.h"
 
 void DebugBreak() {
 #ifdef _MSC_VER

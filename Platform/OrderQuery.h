@@ -26,10 +26,10 @@
  */
 
 // Includes.
-#include "Storage/Dict/DictStruct.h"
-#include "Order.mqh"
-#include "Refs.mqh"
-#include "Std.h"
+#include "../Storage/Dict/DictStruct.h"
+#include "Order.h"
+#include "../Refs.mqh"
+#include "../Std.h"
 
 class OrderQuery : public Dynamic {
  protected:

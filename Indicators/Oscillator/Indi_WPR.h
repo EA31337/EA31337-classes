@@ -22,6 +22,7 @@
 
 // Includes.
 #include "../../Indicator/Indicator.h"
+#include "../../Platform/Terminal.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).

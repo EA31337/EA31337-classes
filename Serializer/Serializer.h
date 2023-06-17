@@ -26,7 +26,7 @@
 
 // Includes.
 #include "../Convert.basic.h"
-#include "../Terminal.define.h"
+#include "../Platform/Terminal.define.h"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
 #include "SerializerNode.h"

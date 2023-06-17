@@ -28,7 +28,7 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
-#include "Platform.extern.h"
+#include "Platform/Platform.extern.h"
 #endif
 
 // Forward declarations.
@@ -38,7 +38,7 @@ class Serializer;
 #include "Chart.enum.h"
 #include "Serializer/Serializer.h"
 #include "Serializer/SerializerNode.enum.h"
-#include "Terminal.define.h"
+#include "Platform/Terminal.define.h"
 
 /* Defines struct for chart timeframe. */
 struct ChartTf {

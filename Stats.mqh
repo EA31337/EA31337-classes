@@ -22,7 +22,7 @@
 
 // Includes.
 #include "Chart.mqh"
-#include "Platform.h"
+#include "Platform/Platform.h"
 
 /**
  * Class to collect ticks, bars and other data for statistical purposes.

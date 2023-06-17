@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "../../../Platform.define.h"
+#include "../../../Platform/Platform.define.h"
 #include "../../IndicatorTf.h"
 #include "../../IndicatorTf.struct.h"
 

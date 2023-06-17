@@ -33,8 +33,8 @@
 // Includes.
 #include "Chart.define.h"
 #include "Chart.symboltf.h"
-#include "Platform.extern.h"
-#include "Terminal.define.h"
+#include "Platform/Platform.extern.h"
+#include "Platform/Terminal.define.h"
 
 /* Defines struct for chart static methods. */
 struct ChartStatic {

@@ -26,7 +26,7 @@
 
 // Includes.
 #include "../OrderQuery.h"
-#include "../Test.mqh"
+#include "../../Test.mqh"
 
 bool Test01() {
   bool _result = true;

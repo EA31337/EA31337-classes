@@ -26,7 +26,7 @@
 
 // Includes.
 #include "../Math.extern.h"
-#include "../Terminal.define.h"
+#include "../Platform/Terminal.define.h"
 #include "SerializerNode.enum.h"
 #include "SerializerNodeParam.h"
 

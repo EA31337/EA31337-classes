@@ -22,7 +22,7 @@
 
 // Includes.
 #include "SymbolInfo.mqh"
-#include "Terminal.mqh"
+#include "Platform/Terminal.h"
 
 /**
  * Class to provide functions to work with the strategy tester.

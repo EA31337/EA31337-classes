@@ -38,9 +38,9 @@
 #include "File.define.h"
 #include "File.extern.h"
 #include "Std.h"
-#include "Terminal.define.h"
-#include "Terminal.enum.h"
-#include "Terminal.extern.h"
+#include "Platform/Terminal.define.h"
+#include "Platform/Terminal.enum.h"
+#include "Platform/Terminal.extern.h"
 
 /**
  * Class to provide a group of functions for working with files.

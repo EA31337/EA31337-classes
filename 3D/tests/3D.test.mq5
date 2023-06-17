@@ -42,7 +42,7 @@
 #include "../Frontends/MT5Frontend.h"
 #include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Chart.mqh"
-#include "../../Platform.h"
+#include "../../Platform/Platform.h"
 #include "../../Serializer/Serializer.h"
 #include "../../Test.mqh"
 

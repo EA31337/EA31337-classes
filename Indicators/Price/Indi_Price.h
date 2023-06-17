@@ -23,7 +23,7 @@
 // Includes.
 #include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Indicator/Indicator.h"
-#include "../../Platform.h"
+#include "../../Platform/Platform.h"
 #include "../../Storage/Objects.h"
 
 // Structs.

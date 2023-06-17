@@ -25,10 +25,10 @@
 #pragma once
 
 // Includes.
-#include "Account/Account.enum.h"
-#include "Storage/Data.define.h"
+#include "../Account/Account.enum.h"
+#include "../Storage/Data.define.h"
 #include "Deal.enum.h"
-#include "Storage/Object.extern.h"
+#include "../Storage/Object.extern.h"
 #include "Order.define.h"
 #include "Order.enum.h"
 #include "Terminal.enum.h"

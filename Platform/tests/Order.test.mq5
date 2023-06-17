@@ -25,12 +25,12 @@
  */
 
 // Includes.
-#include "../Chart.mqh"
-#include "../Order.mqh"
+#include "../../Chart.mqh"
+#include "../Order.h"
 #include "../Platform.h"
-#include "../Serializer/SerializerConverter.h"
-#include "../Serializer/SerializerJson.h"
-#include "../Test.mqh"
+#include "../../Serializer/SerializerConverter.h"
+#include "../../Serializer/SerializerJson.h"
+#include "../../Test.mqh"
 
 // Global defines.
 #define MAX_ORDERS 10

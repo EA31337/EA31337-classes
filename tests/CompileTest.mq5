@@ -65,15 +65,14 @@ struct IndicatorParams;
 #include "../MD5.mqh"
 #include "../Storage/IValueStorage.h"
 #include "../Task/TaskCondition.h"
-//#include "../MQL5.mqh" // @removeme
 #include "../Mail.mqh"
 #include "../Market.mqh"
 #include "../Math.h"
 #include "../Matrix.mqh"
 #include "../MiniMatrix.h"
 #include "../Storage/Object.h"
-#include "../Order.mqh"
-#include "../Orders.mqh"
+#include "../Platform/Order.h"
+#include "../Platform/Orders.h"
 #include "../Pattern.mqh"
 // #include "../Profiler.mqh"
 #include "../Storage/Redis.h"
@@ -98,7 +97,7 @@ struct IndicatorParams;
 #include "../Task/TaskObject.h"
 #include "../Task/TaskSetter.h"
 #include "../Task/Taskable.h"
-#include "../Terminal.mqh"
+#include "../Platform/Terminal.h"
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"
 // #include "../Tests.mqh" // @removeme

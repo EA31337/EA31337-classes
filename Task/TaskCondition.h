@@ -37,7 +37,7 @@
 // Includes.
 #include "../Storage/DateTime.h"
 #include "../Std.h"
-#include "../Terminal.define.h"
+#include "../Platform/Terminal.define.h"
 #include "TaskCondition.enum.h"
 #include "TaskCondition.struct.h"
 #include "TaskConditionBase.h"

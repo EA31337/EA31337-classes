@@ -25,9 +25,9 @@
 #pragma once
 #endif
 
-#include "MQL5.mqh"
-#include "Order.enum.h"
-#include "Platform.extern.h"
+#include "Platform/MQL5.mqh"
+#include "Platform/Order.enum.h"
+#include "Platform/Platform.extern.h"
 #include "Std.h"
 #include "SymbolInfo.enum.h"
 #include "SymbolInfo.extern.h"

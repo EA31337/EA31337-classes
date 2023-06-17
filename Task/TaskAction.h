@@ -37,7 +37,7 @@
 // Includes.
 #include "../Storage/DateTime.h"
 #include "../Std.h"
-#include "../Terminal.define.h"
+#include "../Platform/Terminal.define.h"
 #include "TaskAction.enum.h"
 #include "TaskAction.struct.h"
 #include "TaskActionBase.h"

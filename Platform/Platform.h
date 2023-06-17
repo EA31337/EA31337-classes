@@ -46,20 +46,20 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
  * Current platform's static methods.
  */
 
-#include "Indicators/DrawIndicator.mqh"
-#include "Storage/Flags.struct.h"
-#include "Indicator/IndicatorData.h"
-#include "Indicator/tests/classes/IndicatorTfDummy.h"
-#include "Std.h"
+#include "../Indicators/DrawIndicator.mqh"
+#include "../Storage/Flags.struct.h"
+#include "../Indicator/IndicatorData.h"
+#include "../Indicator/tests/classes/IndicatorTfDummy.h"
+#include "../Std.h"
 
 #ifdef __MQLBUILD__
-#include "Indicators/Tick/Indi_TickMt.h"
+#include "../Indicators/Tick/Indi_TickMt.h"
 #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
 #else
-#include "Indicators/Tick/Indi_TickProvider.h"
+#include "../Indicators/Tick/Indi_TickProvider.h"
 #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickProvider
 #endif
-#include "SymbolInfo.struct.static.h"
+#include "../SymbolInfo.struct.static.h"
 
 class Platform {
   // Whether Init() was already called.

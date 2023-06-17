@@ -31,12 +31,12 @@
 #endif
 
 // Includes.
-#include "Storage/Data.struct.h"
+#include "../Storage/Data.struct.h"
 #include "Order.enum.h"
 #include "Platform.extern.h"
-#include "Serializer/Serializer.h"
-#include "SymbolInfo.struct.static.h"
-#include "Terminal.mqh"
+#include "../Serializer/Serializer.h"
+#include "../SymbolInfo.struct.static.h"
+#include "Terminal.h"
 
 #ifndef __MQL5__
 /**

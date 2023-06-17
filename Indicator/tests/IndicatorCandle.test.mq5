@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../../Platform.h"
+#include "../../Platform/Platform.h"
 #include "../../Test.mqh"
 #include "../IndicatorCandle.h"
 

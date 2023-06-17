@@ -44,7 +44,7 @@ struct DataParamEntry;
 #include "DateTime.extern.h"
 #include "DateTime.static.h"
 #include "DateTime.struct.h"
-#include "../PlatformTime.h"
+#include "../Platform/PlatformTime.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).

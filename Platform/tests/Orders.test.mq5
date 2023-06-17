@@ -20,10 +20,18 @@
  *
  */
 
+
 /**
  * @file
  * Test functionality of Orders class.
  */
 
 // Includes.
-#include "OrdersTest.mq5"
+#include "../Orders.h"
+
+/**
+ * Implements OnInit().
+ */
+int OnInit() {
+  return (INIT_SUCCEEDED);
+}

@@ -43,7 +43,7 @@ struct ChartTf;
 #include "Chart.struct.tf.h"
 #include "Serializer/Serializer.h"
 #include "Serializer/SerializerNode.enum.h"
-#include "Terminal.define.h"
+#include "Platform/Terminal.define.h"
 
 /* Defines struct to store bar entries. */
 struct ChartEntry {

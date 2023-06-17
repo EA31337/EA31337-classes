@@ -24,13 +24,13 @@
 class Orders;
 
 // Includes.
-#include "Account/Account.h"
-#include "Chart.struct.static.h"
-#include "Log.mqh"
-#include "Math.h"
-#include "Order.mqh"
-#include "Terminal.mqh"
-#include "Trade.struct.h"
+#include "../Account/Account.h"
+#include "../Chart.struct.static.h"
+#include "../Log.mqh"
+#include "../Math.h"
+#include "Order.h"
+#include "Terminal.h"
+#include "../Trade.struct.h"
 
 /* Defines */
 

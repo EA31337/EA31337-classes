@@ -26,7 +26,7 @@
 
 // Includes.
 #include "../../Convert.mqh"
-#include "../../Terminal.mqh"
+#include "../../Platform/Terminal.h"
 #include "../../Test.mqh"
 #include "../Web.h"
 

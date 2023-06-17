@@ -25,7 +25,7 @@
 #pragma once
 
 // Includes.
-#include "Storage/String.h"
+#include "../Storage/String.h"
 #include "Terminal.define.h"
 #include "Terminal.enum.h"
 

@@ -26,7 +26,7 @@
 
 // Includes.
 #include "../Indi_OHLC.mqh"
-#include "../../../Platform.h"
+#include "../../../Platform/Platform.h"
 
 int main(int argc, char **argv) {
   // @todo

@@ -28,7 +28,7 @@
 #define INDI_CANDLE_HISTORY_SIZE 4
 
 // Includes
-#include "../../Platform.h"
+#include "../../Platform/Platform.h"
 #include "../../Test.mqh"
 #include "../ItemsHistory.h"
 

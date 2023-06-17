@@ -25,9 +25,9 @@
  */
 
 // Includes.
-#include "../Convert.mqh"
-#include "../Terminal.mqh"
-#include "../Test.mqh"
+#include "../../Convert.mqh"
+#include "../Terminal.h"
+#include "../../Test.mqh"
 
 // Variables.
 Terminal *terminal;
@@ -55,7 +55,7 @@ int OnInit() {
   assertTrueOrFail(StringLen(terminal.GetDataPath()) > 10, "Invalid data path?!");
   assertTrueOrFail(StringLen(terminal.GetExpertPath()) > 10, "Invalid Expert path?!");
   assertTrueOrFail(StringLen(terminal.GetTerminalPath()) > 10, "Invalid Terminal path?!");
-  assertTrueOrFail(Terminal::WindowExpertName() == "TerminalTest", "Invalid EA name!");
+  assertTrueOrFail(Terminal::WindowExpertName() == "Terminal.test", "Invalid EA name!");
   assertTrueOrFail(terminal.GetScreenDpi() >= 0, "Invalid screen DPI?!");
   assertTrueOrFail(terminal.GetBuild() >= 1000, "Invalid Terminal build?!");
   assertTrueOrFail(terminal.GetCodePage() >= 0, "Invalid code page?!");

@@ -55,7 +55,7 @@ extern int iMACD(
 */
 
 // Includes.
-#include "../../../Platform.h"
+#include "../../../Platform/Platform.h"
 #include "../Indi_MACD.h"
 
 int main(int argc, char **argv) {

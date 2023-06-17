@@ -116,20 +116,20 @@ Find below the table of conversion (replace code on left with the right one):
 | `iWPR()`             | `Indi_WPR::iWPR()` | `Indicators/Oscillator/Indi_WPR.h` |
 | `RefreshRates()`     | `Market::RefreshRates()` | `Market.mqh` |
 | `delete object`      | `Object::Delete(object)` | `Storage/Object.h` |
-| `GetOrderProfit()`   | `Order::GetOrderProfit()` | `Order.mqh` |
-| `OrderClose()`       | `OrderStatic::Close()` | `Order.struct.h` |
-| `OrderCloseTime()`   | `OrderStatic::CloseTime()` | `Order.struct.h` |
-| `OrderCommission()`  | `OrderStatic::Commission()` | `Order.struct.h` |
-| `OrderLots()`        | `OrderStatic::Lots()` | `Order.struct.h` |
-| `OrderMagicNumber()` | `OrderStatic::MagicNumber()` | `Order.struct.h` |
-| `OrderOpenPrice()`   | `OrderStatic::OpenPrice()` | `Order.struct.h` |
-| `OrderOpenTime()`    | `OrderStatic::OpenTime()` | `Order.struct.h` |
-| `OrderPrint()`       | `OrderStatic::Print()` | `Order.struct.h` |
-| `OrderSelect()`      | `OrderStatic::Select()` | `Order.struct.h` |
-| `OrderStopLoss()`    | `OrderStatic::StopLoss()` | `Order.struct.h` |
-| `OrderSymbol()`      | `OrderStatic::Symbol()` | `Order.struct.h` |
-| `OrderTicket()`      | `OrderStatic::Ticket()` | `Order.struct.h` |
-| `OrderType()`        | `OrderStatic::Type()` | `Order.struct.h` |
+| `GetOrderProfit()`   | `Order::GetOrderProfit()` | `Platform/Order.h` |
+| `OrderClose()`       | `OrderStatic::Close()` | `Platform/Order.struct.h` |
+| `OrderCloseTime()`   | `OrderStatic::CloseTime()` | `Platform/Order.struct.h` |
+| `OrderCommission()`  | `OrderStatic::Commission()` | `Platform/Order.struct.h` |
+| `OrderLots()`        | `OrderStatic::Lots()` | `Platform/Order.struct.h` |
+| `OrderMagicNumber()` | `OrderStatic::MagicNumber()` | `Platform/Order.struct.h` |
+| `OrderOpenPrice()`   | `OrderStatic::OpenPrice()` | `Platform/Order.struct.h` |
+| `OrderOpenTime()`    | `OrderStatic::OpenTime()` | `Platform/Order.struct.h` |
+| `OrderPrint()`       | `OrderStatic::Print()` | `Platform/Order.struct.h` |
+| `OrderSelect()`      | `OrderStatic::Select()` | `Platform/Order.struct.h` |
+| `OrderStopLoss()`    | `OrderStatic::StopLoss()` | `Platform/Order.struct.h` |
+| `OrderSymbol()`      | `OrderStatic::Symbol()` | `Platform/Order.struct.h` |
+| `OrderTicket()`      | `OrderStatic::Ticket()` | `Platform/Order.struct.h` |
+| `OrderType()`        | `OrderStatic::Type()` | `Platform/Order.struct.h` |
 | `OrdersTotal()`      | `TradeStatic::TotalActive()` | `Trade.mqh` |
 
 </details>

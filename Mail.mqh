@@ -23,7 +23,7 @@
 // Includes.
 #include "Account/AccountMt.h"
 #include "Convert.mqh"
-#include "Order.mqh"
+#include "Platform/Order.h"
 
 // Prevents processing this includes file for the second time.
 #ifndef MAIL_MQH

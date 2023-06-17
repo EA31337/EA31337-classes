@@ -32,7 +32,7 @@
 
 // Includes.
 #include "../Storage/Dict/DictStruct.h"
-#include "../Terminal.define.h"
+#include "../Platform/Terminal.define.h"
 #include "Task.enum.h"
 #include "Task.struct.h"
 #include "TaskAction.h"

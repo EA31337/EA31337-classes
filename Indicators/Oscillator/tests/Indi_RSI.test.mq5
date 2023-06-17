@@ -20,7 +20,7 @@
  */
 
 // Includes.
-#include "../../../Platform.h"
+#include "../../../Platform/Platform.h"
 #include "../../../Test.mqh"
 #include "../Indi_RSI.h"
 

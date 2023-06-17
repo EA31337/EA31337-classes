@@ -23,8 +23,8 @@
 #include "Account/AccountMt.h"
 #include "Convert.mqh"
 #include "Indicator/IndicatorData.h"
-#include "Order.struct.h"
-#include "Terminal.mqh"
+#include "Platform/Order.struct.h"
+#include "Platform/Terminal.h"
 #include "Trade.mqh"
 
 /**

@@ -33,10 +33,10 @@ class Draw;
 #include "Storage/Data.define.h"
 #include "Storage/Object.extern.h"
 #include "Storage/Object.h"
-#include "Platform.extern.h"
-#include "Terminal.define.h"
-#include "Terminal.enum.h"
-#include "Terminal.extern.h"
+#include "Platform/Platform.extern.h"
+#include "Platform/Terminal.define.h"
+#include "Platform/Terminal.enum.h"
+#include "Platform/Terminal.extern.h"
 
 #ifndef __MQL4__
 // Defines macros (for MQL4 backward compatibility).

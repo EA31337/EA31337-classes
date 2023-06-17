@@ -25,4 +25,4 @@
  */
 
 // Includes.
-#include "TerminalTest.mq5"
+#include "Terminal.test.mq5"

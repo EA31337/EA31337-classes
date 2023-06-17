@@ -34,7 +34,7 @@
 #include "../Serializer/Serializer.define.h"
 #include "../Serializer/Serializer.enum.h"
 #include "../Std.h"
-#include "../Terminal.define.h"
+#include "../Platform/Terminal.define.h"
 #include "Task.enum.h"
 
 // Forward declarations.

@@ -35,7 +35,7 @@
 
 #include "../Math.extern.h"
 #include "../Std.h"
-#include "../Terminal.define.h"
+#include "../Platform/Terminal.define.h"
 
 // Define external global functions.
 double StringToDouble(string value) { return std::stod(value); }

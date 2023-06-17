@@ -42,7 +42,7 @@ struct DataParamEntry;
 #include "../Indicators/Bitwise/includes.h"
 #include "../Indicators/Tick/includes.h"
 #include "../Indicators/includes.h"
-#include "../Platform.h"
+#include "../Platform/Platform.h"
 #include "../Serializer/SerializerConverter.h"
 #include "../Serializer/SerializerJson.h"
 #include "../Std.h"
