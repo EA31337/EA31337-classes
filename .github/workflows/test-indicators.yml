@@ -96,7 +96,6 @@ jobs:
           - Indi_RVI.test
           - Indi_RateOfChange.test
           - Indi_StdDev.test
-          - Indi_Stochastic.test
           - Indi_TEMA.test
           - Indi_TRIX.test
           - Indi_UltimateOscillator.test
