@@ -34,7 +34,7 @@
 #include "../PriceRange/Indi_Bands.h"
 #include "../Indi_Demo.mqh"
 #include "../Price/Indi_MA.h"
-#include "../Indi_RSI.mqh"
+#include "../Oscillator/Indi_RSI.h"
 #include "../Price/Indi_Price.h"
 #include "../../Test.mqh"
 

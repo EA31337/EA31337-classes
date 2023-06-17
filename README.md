@@ -103,17 +103,17 @@ Find below the table of conversion (replace code on left with the right one):
 | `iGator()`           | `Indi_Gator::iGator()` | `Indicators/Indi_Gator.mqh` |
 | `iIchimoku()`        | `Indi_Ichimoku::iIchimoku()` | `Indicators/Indi_Ichimoku.mqh` |
 | `iMA()`              | `Indi_MA::iMA()` | `Indicators/Price/Indi_MA.h` |
-| `iMACD()`            | `Indi_MAcD::iMACD()` | `Indicators/Indi_MACD.mqh` |
+| `iMACD()`            | `Indi_MACD::iMACD()` | `Indicators/Oscillator/Indi_MACD.h` |
 | `iMFI()`             | `Indi_MFI::iMFI()` | `Indicators/Indi_MFI.mqh` |
 | `iMomentum()`        | `Indi_Momentum::iMomentum()` | `Indicators/Indi_Momentum.mqh` |
 | `iOBV()`             | `Indi_OBV::iOBV()` | `Indicators/Indi_OBV.mqh` |
 | `iOsMA()`            | `Indi_OsMA::iOsMA()` | `Indicators/Indi_OsMA.mqh` |
-| `iRSI()`             | `Indi_RSI::iRSI()` | `Indicators/Indi_RSI.mqh` |
+| `iRSI()`             | `Indi_RSI::iRSI()` | `Indicators/Oscillator/Indi_RSI.h` |
 | `iRVI()`             | `Indi_RVI::iRVI()` | `Indicators/Indi_RVI.mqh` |
 | `iSAR()`             | `Indi_SAR::iSAR()` | `Indicators/PriceRange/Indi_SAR.h` |
 | `iStdDev()`          | `Indi_StdDev::iStdDev()` | `Indicators/Indi_StdDev.mqh` |
-| `iStochastic()`      | `Indi_Stochastic::iStochastic()` | `Indicators/Indi_Stochastic.mqh` |
-| `iWPR()`             | `Indi_WPR::iWPR()` | `Indicators/Indi_WPR.mqh` |
+| `iStochastic()`      | `Indi_Stochastic::iStochastic()` | `Indicators/Oscillator/Indi_Stochastic.h` |
+| `iWPR()`             | `Indi_WPR::iWPR()` | `Indicators/Oscillator/Indi_WPR.h` |
 | `RefreshRates()`     | `Market::RefreshRates()` | `Market.mqh` |
 | `delete object`      | `Object::Delete(object)` | `Storage/Object.h` |
 | `GetOrderProfit()`   | `Order::GetOrderProfit()` | `Order.mqh` |

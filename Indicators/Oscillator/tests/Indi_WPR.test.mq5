@@ -20,9 +20,9 @@
  */
 
 // Includes.
-#include "../../Platform.h"
-#include "../../Test.mqh"
-#include "../Indi_WPR.mqh"
+#include "../../../Platform.h"
+#include "../../../Test.mqh"
+#include "../Indi_WPR.h"
 
 /**
  * @file

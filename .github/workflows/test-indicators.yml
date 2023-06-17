@@ -82,8 +82,6 @@ jobs:
           - Indi_HeikenAshi.test
           - Indi_Ichimoku.test
           - Indi_Killzones.test
-          - Indi_MA.test
-          - Indi_MACD.test
           - Indi_MFI.test
           - Indi_MassIndex.test
           - Indi_Momentum.test

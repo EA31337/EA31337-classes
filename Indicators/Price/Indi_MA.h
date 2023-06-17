@@ -44,7 +44,10 @@ enum ENUM_MA_METHOD {
 };
 #endif
 
-#ifndef __MQL4__
+#ifdef __MQL5__
+// Forward declaration.
+class Indi_MA;
+
 // Defines global functions (for MQL4 backward compability).
 double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
   ResetLastError();

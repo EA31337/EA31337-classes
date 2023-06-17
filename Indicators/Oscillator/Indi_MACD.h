@@ -21,9 +21,12 @@
  */
 
 // Includes.
-#include "../Indicator/Indicator.h"
+#include "../../Indicator/Indicator.h"
 
-#ifndef __MQL4__
+#ifdef __MQL5__
+// Forward declaration.
+class Indi_MACD;
+
 // Defines global functions (for MQL4 backward compability).
 double iMACD(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_period, int _ap, int _mode, int _shift) {
   ResetLastError();
@@ -94,11 +97,15 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
       unsigned int _signal_period, ENUM_APPLIED_PRICE _applied_price,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,  // (MT4/MT5 _mode): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
       int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _mode, _shift);
-#else  // __MQL5__
+#else // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price), _mode, _shift);
+#endif
+#else // Non-MQL.
+    // @todo: Use Platform class.
 #endif
   }
 

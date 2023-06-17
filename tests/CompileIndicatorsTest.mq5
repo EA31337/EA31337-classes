@@ -28,6 +28,7 @@
 #include "../Indicators/includes.h"
 #include "../Indicators/Bitwise/includes.h"
 #include "../Indicators/OHLC/includes.h"
+#include "../Indicators/Oscillator/includes.h"
 #include "../Indicators/Price/includes.h"
 #include "../Indicators/PriceRange/includes.h"
 #include "../Indicators/Special/includes.h"

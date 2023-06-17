@@ -26,7 +26,7 @@
 #include "Indi_Envelopes.h"
 #include "../Price/Indi_MA.h"
 #include "../Indi_Momentum.mqh"
-#include "../Indi_RSI.mqh"
+#include "../Oscillator/Indi_RSI.h"
 #include "../Indi_StdDev.mqh"
 #include "../Price/Indi_Price.h"
 

@@ -20,12 +20,12 @@
  */
 
 // Includes.
-#include "../../Platform.h"
-#include "../../Test.mqh"
-#include "../Indi_Stochastic.mqh"
+#include "../../../Platform.h"
+#include "../../../Test.mqh"
+#include "../Indi_MACD.h"
 
 /**
  * @file
- * Test functionality of Indi_Stochastic indicator class.
+ * Test functionality of Indi_MACD indicator class.
  */
-TEST_INDICATOR_DEFAULT_BINDINGS(Indi_Stochastic);
+TEST_INDICATOR_DEFAULT_BINDINGS(Indi_MACD);

@@ -1,0 +1,70 @@
+---
+name: Test Indicators (Oscillator)
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Indicator/**'
+      - 'Indicators/Oscillator/**'
+      - '.github/workflows/test-indicators-oscillator.yml'
+  push:
+    paths:
+      - 'Indicator**'
+      - 'Indicators/Oscillator/**'
+      - '.github/workflows/test-indicators-oscillator.yml'
+
+jobs:
+
+  Compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
+        with:
+          init-platform: true
+          path: 'Indicators/Oscillator/tests'
+          verbose: true
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload artifacts (MQL4)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex4
+          path: '**/*.ex4'
+      - name: Upload artifacts (MQL5)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex5
+          path: '**/*.ex5'
+
+  Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Indicators/Oscillator/tests
+    needs: Compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - Indi_MACD.test
+          - Indi_RSI.test
+          - Indi_Stochastic.test
+          - Indi_WPR.test
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 4-8
+          BtMonths: 1
+          BtYears: 2021
+          GitHubApiToken: ${{ github.token }}
+          RunOnError: show_logs 200
+          TestExpert: ${{ matrix.test }}
+    timeout-minutes: 10
