@@ -300,15 +300,6 @@ The example reading values from `Alligator` indicator:
       delete alli;
     }
 
-### `IndicatorData` class
-
-The purpose of `IndicatorData` class is to store indicator data.
-It is basically alternative implementation of `Indicator` class.
-
-For more details, please read: [Class to hold indicator values](https://github.com/EA31337/EA31337-classes/issues/23).
-
-For implementation example, check [`tests/IndicatorDataTest.mq4`](tests/IndicatorDataTest.mq4).
-
 ### `Profiler` class
 
 The purpose of `Profiler` class is to profile functions by measuring its time of execution.
