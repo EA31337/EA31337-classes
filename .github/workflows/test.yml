@@ -81,7 +81,6 @@ jobs:
           BtMonths: 1
           BtYears: 2021
           GitHubApiToken: ${{ github.token }}
-          MtVersion: 4.0.0.1349
           TestExpert: ${{ matrix.test }}
           RunOnError: show_logs 200
         if: always()
