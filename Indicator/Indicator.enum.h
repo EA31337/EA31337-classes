@@ -213,11 +213,3 @@ enum ENUM_INDI_SUITABLE_DS_TYPE {
   INDI_SUITABLE_DS_TYPE_BASE_ONLY = 1 << 6,   // Required data source must be directly connected to this data source.
   INDI_SUITABLE_DS_TYPE_EXPECT_ANY = 1 << 7,  // Requires data source of any kind.
 };
-
-// Type of data source mode. Required to determine what "mode" means for the user.
-enum ENUM_INDI_DS_MODE_KIND {
-  INDI_DS_MODE_KIND_INDEX,    // Mode is a buffer index.
-  INDI_DS_MODE_KIND_VS_TYPE,  // Mode is a value from ENUM_INDI_VS_TYPE enumeration, e.g., ENUM_INDI_VS_PRICE_OPEN.
-  INDI_DS_MODE_KIND_AP,  // Mode is a value from ENUM_APPLIED_PRICE enumeration. It is used to retrieve value storage
-                         // based on ENUM_INDI_VS_TYPE enumeration, e.g., PRICE_OPEN becomes ENUM_INDI_VS_PRICE_OPEN.
-};
