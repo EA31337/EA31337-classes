@@ -3,8 +3,8 @@
 [![Tag][github-tag-image]][github-tag-link]
 [![License][license-image]][license-link]
 [![Status][gha-image-check-master]][gha-link-check-master]
-[![Status][gha-image-lint-master]][gha-link-lint-master]
-[![Status][gha-image-test-master]][gha-link-test-master]
+[![Status][gha-image-compile-cpp-master]][gha-link-compile-cpp-master]
+[![Status][gha-image-compile-mql-master]][gha-link-compile-mql-master]
 [![Channel][tg-channel-image]][tg-channel-link]
 [![Twitter][twitter-image]][twitter-link]
 
@@ -442,11 +442,11 @@ Multiple measurements:
 [gha-link-check-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ACheck+branch%3Amaster
 [gha-image-check-master]: https://github.com/EA31337/EA31337-classes/workflows/Check/badge.svg
 
-[gha-link-lint-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ALint+branch%3Amaster
-[gha-image-lint-master]: https://github.com/EA31337/EA31337-classes/workflows/Lint/badge.svg
+[gha-link-compile-cpp-master]: https://github.com/EA31337/EA31337-classes/actions/workflows/compile-cpp.yml?query=branch%3Amaster
+[gha-image-compile-cpp-master]: https://github.com/EA31337/EA31337-classes/actions/workflows/compile-cpp.yml/badge.svg
 
-[gha-link-test-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ATest+branch%3Amaster
-[gha-image-test-master]: https://github.com/EA31337/EA31337-classes/workflows/Test/badge.svg
+[gha-link-compile-mql-master]: https://github.com/EA31337/EA31337-classes/actions/workflows/compile-mql.yml?query=branch%3Amaster
+[gha-image-compile-mql-master]: https://github.com/EA31337/EA31337-classes/actions/workflows/compile-mql.yml/badge.svg
 
 [tg-channel-image]: https://img.shields.io/badge/Telegram-join-0088CC.svg?logo=telegram
 [tg-channel-link]: https://t.me/EA31337
