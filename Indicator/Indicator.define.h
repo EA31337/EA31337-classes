@@ -109,7 +109,7 @@
       SetUserError(ERR_USER_INVALID_HANDLE);                                                                      \
       return EMPTY_VALUE;                                                                                         \
     } else if (Object::IsValid(_obj)) {                                                                           \
-      _obj.SetHandle(_handle);                                                                                    \
+      _obj PTR_DEREF SetHandle(_handle);                                                                                    \
     }                                                                                                             \
   }                                                                                                               \
   if (Terminal::IsVisualMode()) {                                                                                 \

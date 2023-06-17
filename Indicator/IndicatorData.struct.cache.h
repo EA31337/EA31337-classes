@@ -244,7 +244,7 @@ class IndicatorCalculateCache : public Dynamic {
   D GetTailValue(int _buffer_index, int _shift) {
     ValueStorage<D> *_buff = GetBuffer<D>(_buffer_index);
     int _index = _buff PTR_DEREF IsSeries() ? _shift : (ArraySize(_buff) - _shift - 1);
-    return _buff[_index].Get();
+    return _buff[_index] PTR_DEREF Get();
   }
 
   /**

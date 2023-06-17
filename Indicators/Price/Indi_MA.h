@@ -33,6 +33,17 @@
 #include "../../Storage/ValueStorage.h"
 #include "../../Storage/String.h"
 
+#ifndef __MQL__
+// Enums.
+// @see: https://www.mql5.com/en/docs/constants/indicatorconstants/enum_ma_method
+enum ENUM_MA_METHOD {
+  MODE_SMA = 0,
+  MODE_EMA,
+  MODE_SMMA,
+  MODE_LWMA,
+};
+#endif
+
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
@@ -40,7 +51,7 @@ double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_metho
   return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
                       (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _abs_shift,
+double iMAOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _ma_shift, int _ma_method, int _abs_shift,
                   IndicatorCalculateCache<double> *_cache = NULL) {
   ResetLastError();
   return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
@@ -143,14 +154,14 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Calculates MA on the array of values. Cache is optional.
    */
-  static double iMAOnArray(double &price[], int total, int ma_period, int ma_shift, int ma_method, int shift,
+  static double iMAOnArray(ARRAY_REF(double, price), int total, int ma_period, int ma_shift, int ma_method, int shift,
                            IndicatorCalculateCache<double> *cache = NULL) {
 #ifdef __MQL4__
     return ::iMAOnArray(price, total, ma_period, ma_shift, ma_method, shift);
 #else
     // We're reusing the same native array for each consecutive calculation.
     NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();
-    _array_storage.SetData(price);
+    _array_storage PTR_DEREF SetData(price);
 
     return iMAOnArray((ValueStorage<double> *)_array_storage, total, ma_period, ma_shift, ma_method, shift, cache);
 #endif
@@ -164,8 +175,8 @@ class Indi_MA : public Indicator<IndiMAParams> {
     if (_cache != NULL) {
       _cache.SetPriceBuffer(price);
 
-      if (!_cache.HasBuffers()) {
-        _cache.AddBuffer<NativeValueStorage<double>>();
+      if (!_cache PTR_DEREF HasBuffers()) {
+        _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>();
       }
 
       if (recalculate) {
@@ -177,10 +188,12 @@ class Indi_MA : public Indicator<IndiMAParams> {
 
       // Returns value from the first calculation buffer.
       // Returns first value for as-series array or last value for non-as-series array.
-      return _cache.GetTailValue<double>(0, shift + ma_shift);
+      return _cache PTR_DEREF GetTailValue<double>(0, shift + ma_shift);
     }
 
-    double buf[], arr[], _result, pr, _array;
+    ARRAY(double, arr);
+    ARRAY(double, buf);
+    double _array, _result, pr;
     int pos, i, k, weight;
     double sum, lsum;
     if (total == 0) total = ArraySize(price);
@@ -613,7 +626,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
     return (rates_total);
   }
 
-  static double SimpleMA(const int position, const int period, const double &price[]) {
+  static double SimpleMA(const int position, const int period, const ARRAY_REF(double, price)) {
     double result = 0.0;
     for (int i = 0; i < period; i++) {
       result += price[i];
@@ -671,7 +684,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
       IndiMAParams _p(_period, _ma_shift, _ma_method, _ap);
       _ptr = Objects<Indi_MA>::Set(_key, new Indi_MA(_p));
       // Assigning the same candle indicator for MA as in _indi.
-      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
+      _ptr PTR_DEREF SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }
