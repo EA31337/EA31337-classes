@@ -242,7 +242,7 @@ class Indicator : public IndicatorData {
    *   cache_key.Add(period);
    *   cache_key.Add(foo_method);
    *
-   *   Ref<IndicatorCalculateCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
+   *   Ref<IndiBufferCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
    *
    *   int prev_calculated =
    *     Indi_Foo::Calculate(total, cache.Ptr().prev_calculated, 0, price, cache.Ptr().buffer1, ma_method, period);
@@ -258,21 +258,21 @@ class Indicator : public IndicatorData {
    *  WARNING: Do not use shifts when creating cache_key, as this will create many invalid buffers.
    */
   /*
-  static IndicatorCalculateCache OnCalculateProxy(string key, double& price[], int& total) {
+  static IndiBufferCache OnCalculateProxy(string key, double& price[], int& total) {
     if (total == 0) {
       total = ArraySize(price);
     }
 
     // Stores previously calculated value.
-    static DictStruct<string, IndicatorCalculateCache> cache;
+    static DictStruct<string, IndiBufferCache> cache;
 
     unsigned int position;
-    IndicatorCalculateCache cache_item;
+    IndiBufferCache cache_item;
 
     if (cache.KeyExists(key, position)) {
       cache_item = cache.GetByKey(key);
     } else {
-      IndicatorCalculateCache cache_item_new(1, ArraySize(price));
+      IndiBufferCache cache_item_new(1, ArraySize(price));
       cache_item = cache_item_new;
       cache.Set(key, cache_item);
     }

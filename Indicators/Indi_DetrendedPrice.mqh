@@ -93,7 +93,7 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
    * Calculates DPO on the array of values.
    */
   static double iDPOOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, ENUM_APPLIED_PRICE _ap, int _mode,
-                            int _abs_shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                            int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
     if (!_cache.HasBuffers()) {

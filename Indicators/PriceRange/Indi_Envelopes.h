@@ -164,7 +164,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
 
   static double iEnvelopesOnArray(double &price[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
                                   double deviation, int mode, int shift,
-                                  IndicatorCalculateCache<double> *_cache = NULL) {
+                                  IndiBufferCache<double> *_cache = NULL) {
 #ifdef __MQL4__
     return iEnvelopesOnArray(price, total, ma_period, ma_method, ma_shift, deviation, mode, shift);
 #else
@@ -178,7 +178,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
 
   static double iEnvelopesOnArray(ValueStorage<double> *_price, int _total, int _ma_period, ENUM_MA_METHOD _ma_method,
                                   int _ma_shift, double _deviation, int _mode, int _shift,
-                                  IndicatorCalculateCache<double> *_cache = NULL) {
+                                  IndiBufferCache<double> *_cache = NULL) {
     // We need 1 bar more because MA methods assumes we have historic bars.
     if (_price PTR_DEREF Size() < _shift + _ma_shift + _ma_period + 1) {
       return DBL_MIN;

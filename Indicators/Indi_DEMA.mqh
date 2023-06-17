@@ -127,7 +127,7 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
   }
 
   static double iDEMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, unsigned int _ma_period, unsigned int _ma_shift,
-                             int _mode, int _shift, IndicatorCalculateCache<double> *_cache = NULL,
+                             int _mode, int _shift, IndiBufferCache<double> *_cache = NULL,
                              bool _recalculate = false) {
     if (_cache == nullptr) {
       Print("iDEMAOnArray() cannot yet work without cache object!");

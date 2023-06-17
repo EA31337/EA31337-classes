@@ -122,7 +122,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
    * Calculates FrAMA on the array of values.
    */
   static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                              int _mode, int _abs_shift, IndicatorCalculateCache<double> *_cache,
+                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
                               bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 

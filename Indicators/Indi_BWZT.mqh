@@ -139,7 +139,7 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
    * Calculates BWZT on the array of values.
    */
   static double iBWZTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift, int _data_limit,
-                             IndicatorCalculateCache<double> *_cache, Indi_AC *_indi_ac, Indi_AO *_indi_ao,
+                             IndiBufferCache<double> *_cache, Indi_AC *_indi_ac, Indi_AO *_indi_ao,
                              bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 

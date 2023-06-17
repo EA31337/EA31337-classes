@@ -134,7 +134,7 @@ Shift passed is relative to the shift from `IndicatorParams::shift`
 All shifts passed are relative to the shift from `IndicatorParams::shift`
 (read via `Indicator::iparams.shift`).
 
-### IndicatorCalculateCache::GetValue()/GetTailValue(int _buffer_index, int _shift)
+### IndiBufferCache::GetValue()/GetTailValue(int _buffer_index, int _shift)
 
 Shift passed may be relative or absolute. It depends on the ValueStorage specialization.
 
@@ -142,7 +142,7 @@ E.g., `HistoryValueStorage` operates on relative shifts,
 but `NativeValueStorage` operates on absolute shift,
 because it is unaware for which indicator values are stored.
 
-Thus way, `IndicatorCalculateCache::GetValue()` and `IndicatorCalculateCache::GetTailValue()`
+Thus way, `IndiBufferCache::GetValue()` and `IndiBufferCache::GetTailValue()`
 also don't know which type of shift was passed.
 However, all current indicators uses `NativeValueStorage` for storing indicator values,
 so shift passed must is treated as absolute.

@@ -21,8 +21,8 @@
 
 /**
  * @file
- * Test functionality of IndicatorCalculateCache class.
+ * Test functionality of IndiBufferCache class.
  */
 
 // Includes.
-#include "IndicatorCalculateCache.test.mq5"
+#include "IndiBufferCache.test.mq5"

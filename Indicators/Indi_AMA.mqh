@@ -121,7 +121,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    */
   static double iAMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ama_period, int _fast_ema_period,
                             int _slow_ema_period, int _ama_shift, int _mode, int _abs_shift,
-                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                            IndiBufferCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
     if (!_cache.HasBuffers()) {

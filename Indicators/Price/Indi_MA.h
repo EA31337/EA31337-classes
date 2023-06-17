@@ -55,7 +55,7 @@ double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_metho
                       (ENUM_APPLIED_PRICE)_ap, _shift);
 }
 double iMAOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _ma_shift, int _ma_method, int _abs_shift,
-                  IndicatorCalculateCache<double> *_cache = NULL) {
+                  IndiBufferCache<double> *_cache = NULL) {
   ResetLastError();
   return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
 }
@@ -166,7 +166,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Calculates MA on the array of values. Cache is optional.
    */
   static double iMAOnArray(ARRAY_REF(double, price), int total, int ma_period, int ma_shift, int ma_method, int shift,
-                           IndicatorCalculateCache<double> *cache = NULL) {
+                           IndiBufferCache<double> *cache = NULL) {
 #ifdef __MQL4__
     return ::iMAOnArray(price, total, ma_period, ma_shift, ma_method, shift);
 #else
@@ -182,7 +182,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Calculates MA on the array of values.
    */
   static double iMAOnArray(ValueStorage<double> &price, int total, int ma_period, int ma_shift, int ma_method,
-                           int shift, IndicatorCalculateCache<double> *_cache = NULL, bool recalculate = false) {
+                           int shift, IndiBufferCache<double> *_cache = NULL, bool recalculate = false) {
     if (_cache != NULL) {
       _cache.SetPriceBuffer(price);
 

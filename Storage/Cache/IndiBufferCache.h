@@ -38,7 +38,7 @@
  * Holds buffers used to cache values calculated via OnCalculate methods.
  */
 template <typename C>
-class IndicatorCalculateCache : public Dynamic {
+class IndiBufferCache : public Dynamic {
  public:
   // Total number of calculated values.
   int prev_calculated;
@@ -68,12 +68,12 @@ class IndicatorCalculateCache : public Dynamic {
   ARRAY(IValueStorage *, buffers);
 
   // Auxiliary caches related to this one.
-  ARRAY(IndicatorCalculateCache<C> *, subcaches);
+  ARRAY(IndiBufferCache<C> *, subcaches);
 
   /**
    * Constructor.
    */
-  IndicatorCalculateCache(int _buffers_size = 0) {
+  IndiBufferCache(int _buffers_size = 0) {
     prev_calculated = 0;
     total = 0;
     initialized = false;
@@ -83,7 +83,7 @@ class IndicatorCalculateCache : public Dynamic {
   /**
    * Destructor.
    */
-  ~IndicatorCalculateCache() {
+  ~IndiBufferCache() {
     int i;
 
     for (i = 0; i < ArraySize(buffers); ++i) {
@@ -123,13 +123,13 @@ class IndicatorCalculateCache : public Dynamic {
    * Returns existing or new cache as a child of current one. Useful when indicator uses other indicators and requires
    * unique caches for them.
    */
-  IndicatorCalculateCache<C> *GetSubCache(int index) {
+  IndiBufferCache<C> *GetSubCache(int index) {
     if (index >= ArraySize(subcaches)) {
       ArrayResize(subcaches, index + 1, 10);
     }
 
     if (subcaches[index] == NULL) {
-      subcaches[index] = new IndicatorCalculateCache();
+      subcaches[index] = new IndiBufferCache();
     }
 
     return subcaches[index];

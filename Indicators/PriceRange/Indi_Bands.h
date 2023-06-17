@@ -162,7 +162,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
   }
 
   static double iBandsOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, double _deviation, int _bands_shift,
-                              int _mode, int _abs_shift, IndicatorCalculateCache<double> *_cache,
+                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
                               bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 

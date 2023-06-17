@@ -68,10 +68,10 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
 #define INDICATOR_CALCULATE_GET_PARAMS_SHORT _cache.GetTotal(), _cache.GetPrevCalculated(), 0, _cache.GetPriceBuffer()
 
 #define INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)                                                    \
-  IndicatorCalculateCache<double> *_cache;                                                               \
+  IndiBufferCache<double> *_cache;                                                               \
   string _key = Util::MakeKey(INDI PTR_DEREF GetId(), KEY);                                              \
-  if (!Objects<IndicatorCalculateCache<double>>::TryGet(_key, _cache)) {                                 \
-    _cache = Objects<IndicatorCalculateCache<double>>::Set(_key, new IndicatorCalculateCache<double>()); \
+  if (!Objects<IndiBufferCache<double>>::TryGet(_key, _cache)) {                                 \
+    _cache = Objects<IndiBufferCache<double>>::Set(_key, new IndiBufferCache<double>()); \
   }
 
 /**

@@ -42,7 +42,7 @@ struct ChartParams;
 #include "../Storage/DateTime.struct.h"
 #include "../Serializer/SerializerNode.enum.h"
 #include "Indicator.enum.h"
-#include "../Storage/Cache/IndicatorCalculateCache.h"
+#include "../Storage/Cache/IndiBufferCache.h"
 //#include "Indicator.struct.serialize.h"
 
 /* Structure for indicator parameters. */

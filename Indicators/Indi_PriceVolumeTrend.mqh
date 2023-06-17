@@ -85,7 +85,7 @@ class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
    * Calculates Price Volume Trend on the array of values.
    */
   static double iPVTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, ENUM_APPLIED_VOLUME _av, int _mode, int _abs_shift,
-                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                            IndiBufferCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {

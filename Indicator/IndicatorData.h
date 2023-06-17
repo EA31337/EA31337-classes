@@ -48,7 +48,7 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 #include "Indicator.enum.h"
 #include "IndicatorBase.h"
 #include "IndicatorData.enum.h"
-#include "../Storage/Cache/IndicatorCalculateCache.h"
+#include "../Storage/Cache/IndiBufferCache.h"
 #include "IndicatorData.struct.h"
 #include "IndicatorData.struct.serialize.h"
 #include "IndicatorData.struct.signal.h"
@@ -74,7 +74,7 @@ class IndicatorData : public IndicatorBase {
   BufferStruct<IndicatorDataEntry> idata;
   DictStruct<int, Ref<IndicatorData>> indicators;  // Indicators list keyed by id.
   // DrawIndicator* draw;
-  IndicatorCalculateCache<double> cache;
+  IndiBufferCache<double> cache;
   IndicatorDataParams idparams;  // Indicator data params.
   IndicatorDataState istate;
   Ref<IndicatorData> indi_src;  // Indicator used as data source.
@@ -573,7 +573,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns buffers' cache.
    */
-  IndicatorCalculateCache<double>* GetCache() { return &cache; }
+  IndiBufferCache<double>* GetCache() { return &cache; }
 
   /**
    * Get pointer to data of indicator.

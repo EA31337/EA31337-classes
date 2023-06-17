@@ -79,7 +79,7 @@ class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
    * Calculates Rate of Change on the array of values.
    */
   static double iROCOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, int _mode, int _abs_shift,
-                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                            IndiBufferCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
     if (!_cache.HasBuffers()) {

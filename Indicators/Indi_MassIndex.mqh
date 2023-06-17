@@ -98,7 +98,7 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
    * Calculates Mass Index on the array of values.
    */
   static double iMIOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _second_period, int _sum_period, int _mode,
-                           int _abs_shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                           int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {

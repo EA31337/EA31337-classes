@@ -21,20 +21,16 @@
 
 /**
  * @file
- * Test functionality of ObjectsCache class.
+ * Test C++ compilation of IndiBufferCache class.
  */
 
 // Includes.
-#include "../../../Test.mqh"
-#include "../IndicatorCalculateCache.h"
+#include "../IndiBufferCache.h"
 
-/**
- * Implements OnInit().
- */
-int OnInit() {
+int main(int argc, char **argv) {
 
   // @todo: Add more tests.
   // ...
 
-  return (GetLastError() > 0 ? INIT_FAILED : INIT_SUCCEEDED);
+  return 0;
 }

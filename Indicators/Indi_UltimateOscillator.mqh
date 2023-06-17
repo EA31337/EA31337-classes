@@ -120,7 +120,7 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
    */
   static double iUOOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_period, int _middle_period, int _slow_period,
                            int _fast_k, int _middle_k, int _slow_k, int _mode, int _abs_shift,
-                           IndicatorCalculateCache<double> *_cache, IndicatorData *_indi_atr_fast,
+                           IndiBufferCache<double> *_cache, IndicatorData *_indi_atr_fast,
                            IndicatorData *_indi_atr_middle, IndicatorData *_indi_atr_slow, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 

@@ -106,7 +106,7 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
    * Calculates iVIDyA on the array of values.
    */
   static double iVIDyAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _cmo_period, int _ema_period, int _ma_shift,
-                              int _mode, int _abs_shift, IndicatorCalculateCache<double> *_cache,
+                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
                               bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 

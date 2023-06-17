@@ -131,7 +131,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
    * Calculates ADX Wilder on the array of values.
    */
   static double iADXWilderOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _abs_shift,
-                                  IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                                  IndiBufferCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {

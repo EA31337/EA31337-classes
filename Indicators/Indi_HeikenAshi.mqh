@@ -168,7 +168,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
    * Calculates Heiken Ashi on the array of values.
    */
   static double iHeikenAshiOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
-                                   IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                                   IndiBufferCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {
