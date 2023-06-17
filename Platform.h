@@ -47,7 +47,7 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
  */
 
 #include "Indicators/DrawIndicator.mqh"
-#include "Storage/Flags.h"
+#include "Storage/Flags.struct.h"
 #include "Indicator/IndicatorData.h"
 #include "Indicator/tests/classes/IndicatorTfDummy.h"
 #include "Std.h"

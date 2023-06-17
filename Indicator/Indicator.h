@@ -32,7 +32,7 @@ struct IndicatorParams;
 #include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/DateTime.h"
 #include "../Indicators/DrawIndicator.mqh"
-#include "../Storage/Flags.h"
+#include "../Storage/Flags.struct.h"
 #include "../Math.h"
 #include "../Storage/Object.h"
 #include "../Refs.mqh"
