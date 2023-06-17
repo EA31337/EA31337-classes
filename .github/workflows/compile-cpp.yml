@@ -6,9 +6,11 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+      - '.github/workflows/compile-cpp.yml'
   push:
     paths-ignore:
       - '**.md'
+      - '.github/workflows/compile-cpp.yml'
 
 jobs:
 
@@ -17,7 +19,7 @@ jobs:
       filelist: ${{ steps.get-files.outputs.filelist }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set output with list of files
         id: get-files
         run: |
@@ -27,27 +29,28 @@ jobs:
         shell: python
       - name: Display output
         run: echo ${{ steps.get-files.outputs.filelist }}
-
-  Compile:
+  Compile-Cpp:
     runs-on: ubuntu-latest
-    needs: [FileList]
-    strategy:
-      matrix:
-        file: ${{ fromJson(needs.FileList.outputs.filelist) }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Install Emscripten toolchain
-        uses: mymindstorm/setup-emsdk@v11
+      - uses: actions/checkout@v3
       - name: Install CPP compiler
         uses: rlalik/setup-cpp-compiler@v1.1
         with:
           compiler: gcc-latest
+      - name: Compile via make
+        run: make
+  Compile-Emscripten:
+    runs-on: ubuntu-latest
+    needs: [Compile-Cpp, FileList]
+    strategy:
+      matrix:
+        file: ${{ fromJson(needs.FileList.outputs.filelist) }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Emscripten toolchain
+        uses: mymindstorm/setup-emsdk@v11
       - name: Compile ${{ matrix.file }} via emcc
-        if: always()
         run: >
           emcc -s WASM=1 -s ENVIRONMENT=node -s EXIT_RUNTIME=0 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=1 -Wall -s
           MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 --bind -s EXPORTED_FUNCTIONS="[]" -g -std=c++17
           "${{ matrix.file }}"
-      - name: Compile ${{ matrix.file }} via g++
-        if: always()
-        run: g++ -g -std=c++17 -c "${{ matrix.file }}"
