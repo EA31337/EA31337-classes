@@ -28,15 +28,16 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
-#include "../Serializer/Serializer.enum.h"
 #endif
 
 // Forward class declaration.
 class Serializer;
 
 // Includes.
-#include "../Serializer/Serializer.h"
-#include "../Platform/Terminal.define.h"
+#include "Account.enum.h"
+#include "../../Serializer/Serializer.h"
+#include "../../Serializer/Serializer.enum.h"
+#include "../../Platform/Terminal.define.h"
 
 // Struct for account entries.
 struct AccountEntry {

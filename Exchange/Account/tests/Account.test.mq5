@@ -21,19 +21,19 @@
 
 /**
  * @file
- * Test functionality of AccountForex class.
+ * Test functionality of Account class.
  */
 
 // Includes.
-#include "../../Test.mqh"
-#include "../AccountForex.h"
+#include "../../../Test.mqh"
+#include "../Account.h"
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
   bool _result = true;
-  Account<AccountForexState, AccountForexEntry> acc1;
+  Account<AccountBaseState, AccountBaseEntry> acc1;
   // ...
   return _result && GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED;
 }

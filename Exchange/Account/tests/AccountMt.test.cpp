@@ -21,12 +21,12 @@
 
 /**
  * @file
- * Test C++ compilation of AccountForex class.
+ * Test C++ compilation of AccountMt class.
  */
 
 // Includes.
-#include "../AccountForex.h"
-#include "../../Platform/Platform.h"
+#include "../AccountMt.h"
+#include "../../../Platform/Platform.h"
 
 int main(int argc, char **argv) {
 

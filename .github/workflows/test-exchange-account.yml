@@ -1,16 +1,16 @@
 ---
-name: Test Account
+name: Test Exchange/Account
 
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - 'Account/**'
-      - '.github/workflows/test-account.yml'
+      - 'Exchange/Account/**'
+      - '.github/workflows/test-exchange/account.yml'
   push:
     paths:
-      - 'Account/**'
-      - '.github/workflows/test-account.yml'
+      - 'Exchange/Account/**'
+      - '.github/workflows/test-exchange/account.yml'
 
 jobs:
 
@@ -22,7 +22,7 @@ jobs:
         uses: fx31337/mql-compile-action@master
         with:
           init-platform: true
-          path: 'Account/tests'
+          path: 'Exchange/Account/tests'
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
@@ -42,7 +42,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: Account/tests
+        working-directory: Exchange/Account/tests
     needs: Compile
     runs-on: ubuntu-latest
     strategy:

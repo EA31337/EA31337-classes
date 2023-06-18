@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -20,37 +20,11 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ACCOUNTFOREX_H
-#define ACCOUNTFOREX_H
-
 // Includes.
-#include "../Serializer/Serializer.h"
-#include "Account.h"
-#include "AccountForex.struct.h"
+#include "../../Storage/String.extern.h"
+#include "Account.enum.h"
 
-/**
- * Class to provide functions that return parameters of the current account.
- */
-class AccountForex : public Account<AccountForexState, AccountForexEntry> {
- protected:
-  // AP AccountParams;
-  /**
-   * Init code (called on constructor).
-   */
-  void Init() {
-    // ...
-  }
-
- public:
-  /**
-   * Class constructor.
-   */
-  AccountForex() { Init(); }
-
-  /**
-   * Class deconstructor.
-   */
-  ~AccountForex() {}
-};
-#endif  // ACCOUNTFOREX_H
+// Define external global functions.
+#ifndef __MQL__
+extern string AccountInfoString(ENUM_ACCOUNT_INFO_STRING property_id);
+#endif
