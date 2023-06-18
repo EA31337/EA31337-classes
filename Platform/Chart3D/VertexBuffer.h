@@ -25,7 +25,7 @@
  * Generic graphics vertex buffer.
  */
 
-#include "../Refs.mqh"
+#include "../../Refs.mqh"
 
 class VertexBuffer : public Dynamic {
   // Reference to graphics device.

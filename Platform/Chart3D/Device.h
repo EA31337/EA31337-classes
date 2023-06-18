@@ -25,8 +25,8 @@
  * Generic graphics device.
  */
 
-#include "../Refs.mqh"
-#include "../Util.h"
+#include "../../Refs.mqh"
+#include "../../Util.h"
 #include "Frontend.h"
 #include "IndexBuffer.h"
 #include "Material.h"

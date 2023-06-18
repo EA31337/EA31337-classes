@@ -25,7 +25,7 @@
  * Generic graphics shader.
  */
 
-#include "../Refs.mqh"
+#include "../../Refs.mqh"
 
 // Shader type.
 enum ENUM_SHADER_TYPE {

@@ -22,33 +22,42 @@
 
 /**
  * @file
- * 3D chart type renderer.
+ * Generic graphics index buffer.
  */
 
-#include "../Refs.mqh"
-#include "Device.h"
+#include "../../Refs.mqh"
 
-class Chart3D;
 class Device;
 
 /**
- * 3D chart type renderer.
+ * Vertices' index buffer.
  */
-class Chart3DType : public Dynamic {
- protected:
-  Chart3D* chart3d;
-  Device* device;
+class IndexBuffer : public Dynamic {
+  WeakRef<Device> device;
 
  public:
   /**
    * Constructor.
    */
-  Chart3DType(Chart3D* _chart3d, Device* _device) : chart3d(_chart3d), device(_device) {}
-
-  Device* GetDevice() { return device; }
+  IndexBuffer(Device* _device) { device = _device; }
 
   /**
-   * Renders chart.
+   * Returns base graphics device.
    */
-  virtual void Render(Device* _device) {}
+  Device* GetDevice() { return device.Ptr(); }
+
+  /**
+   * Creates index buffer.
+   */
+  virtual bool Create(void*& _data[]) = NULL;
+
+  /**
+   * Fills index buffer with indices.
+   */
+  virtual void Fill(unsigned int& _indices[]) = NULL;
+
+  /**
+   * Activates index buffer for rendering.
+   */
+  virtual void Select() = NULL;
 };

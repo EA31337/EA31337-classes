@@ -1,10 +1,12 @@
 //+------------------------------------------------------------------+
 //|                                                       DXMath.mqh |
-//|                        Copyright 2019,MetaQuotes Software Corp. |
+//|                         Copyright 2019,MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
+#ifdef __MQL__
 #property copyright "Copyright 2019,MetaQuotes Software Corp."
 #property link "https://www.mql5.com"
+#endif
 //+------------------------------------------------------------------+
 //| DirectX Math Routines                                            |
 //+------------------------------------------------------------------+

@@ -40,11 +40,11 @@
 #include "../Devices/MTDX/MTDXShader.h"
 #include "../Devices/MTDX/MTDXVertexBuffer.h"
 #include "../Frontends/MT5Frontend.h"
-#include "../../Storage/Dict/Buffer/BufferStruct.h"
-#include "../../Platform/Chart/Chart.h"
-#include "../../Platform/Platform.h"
-#include "../../Serializer/Serializer.h"
-#include "../../Test.mqh"
+#include "../../../Storage/Dict/Buffer/BufferStruct.h"
+#include "../../Chart/Chart.h"
+#include "../../Platform.h"
+#include "../../../Serializer/Serializer.h"
+#include "../../../Test.mqh"
 
 /**
  * Implements OnInit().

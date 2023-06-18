@@ -25,13 +25,13 @@
  * 3D Chart.
  */
 
-#include "../Bar.struct.h"
-#include "../Indicator/IndicatorData.h"
-#include "../Indicators/Price/Indi_MA.h"
-#include "../Instances.h"
-#include "../Refs.mqh"
-#include "../Serializer/SerializerConverter.h"
-#include "../Serializer/SerializerJson.h"
+#include "../../Bar.struct.h"
+#include "../../Indicator/IndicatorData.h"
+#include "../../Indicators/Price/Indi_MA.h"
+#include "../../Instances.h"
+#include "../../Refs.mqh"
+#include "../../Serializer/SerializerConverter.h"
+#include "../../Serializer/SerializerJson.h"
 #include "Chart3DCandles.h"
 #include "Chart3DType.h"
 #include "Cube.h"

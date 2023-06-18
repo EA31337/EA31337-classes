@@ -25,9 +25,9 @@
  * Generic graphics mesh.
  */
 
-#include "../Storage/Dict/Dict.h"
-#include "../Refs.mqh"
-#include "../Util.h"
+#include "../../Storage/Dict/Dict.h"
+#include "../../Refs.mqh"
+#include "../../Util.h"
 #include "Face.h"
 #include "IndexBuffer.h"
 #include "Material.h"

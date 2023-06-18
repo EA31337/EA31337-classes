@@ -1,0 +1,60 @@
+---
+name: Test Platform
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Platform/Chart3D/**'
+      - '.github/workflows/test-platform-chart3d.yml'
+  push:
+    paths:
+      - 'Platform/Chart3D/**'
+      - '.github/workflows/test-platform-chart3d.yml'
+
+jobs:
+
+  Compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
+        with:
+          init-platform: true
+          path: 'Platform/Chart3D/tests'
+          verbose: true
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload artifacts (MQL4)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex4
+          path: '**/*.ex4'
+      - name: Upload artifacts (MQL5)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex5
+          path: '**/*.ex5'
+
+  Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Platform/Chart3D/tests
+    needs: Compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - Chart3D.test
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: ${{ matrix.test }}
+    timeout-minutes: 10
