@@ -25,4 +25,4 @@
  */
 
 // Includes.
-#include "MathTest.mq5"
+#include "Math.test.mq5"

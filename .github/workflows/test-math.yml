@@ -1,0 +1,62 @@
+---
+name: Test Math
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Math/**'
+      - '.github/workflows/test-math.yml'
+  push:
+    paths:
+      - 'Math/**'
+      - '.github/workflows/test-math.yml'
+
+jobs:
+
+  Compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
+        with:
+          init-platform: true
+          path: 'Math/tests'
+          verbose: true
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload artifacts (MQL4)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex4
+          path: '**/*.ex4'
+      - name: Upload artifacts (MQL5)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex5
+          path: '**/*.ex5'
+
+  Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Math/tests
+    needs: Compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - Math.test
+          - Matrix.test
+          - MatrixMini.test
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: ${{ matrix.test }}
+          RunOnError: show_logs 200

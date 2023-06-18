@@ -21,8 +21,11 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef MINIMATRIX_MQH
-#define MINIMATRIX_MQH
+#ifndef MINIMATRIX_H
+#define MINIMATRIX_H
+
+// Includes.
+#include "../Platform/Platform.extern.h"
 
 template <typename T>
 class MiniMatrix2d {
@@ -57,4 +60,4 @@ class MiniMatrix2d {
   int SizeY() { return size_y; }
 };
 
-#endif
+#endif // MINIMATRIX_H

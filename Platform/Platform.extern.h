@@ -45,6 +45,13 @@ double iCustom(string symbol, int timeframe, string name, Args... args) {
 }
 
 /**
+ * Displays a message in a separate window.
+ * @docs: https://www.mql5.com/en/docs/common/alert
+ */
+extern void Alert(char* argument);
+extern void Alert(string argument);
+
+/**
  * Returns number of candles for a given symbol and time-frame.
  */
 extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);

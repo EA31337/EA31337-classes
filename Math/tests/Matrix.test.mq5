@@ -28,8 +28,8 @@
 #define USE_MQL_MATH_STAT
 
 // Includes.
-#include "../Matrix.mqh"
-#include "../Test.mqh"
+#include "../Matrix.h"
+#include "../../Test.mqh"
 
 /**
  * Implements Init event handler.

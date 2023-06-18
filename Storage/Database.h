@@ -34,7 +34,7 @@
 
 // Includes.
 #include "../Storage/Dict/DictStruct.h"
-#include "../MiniMatrix.h"
+#include "../Math/MatrixMini.h"
 #include "Database.struct.h"
 
 // Enums.

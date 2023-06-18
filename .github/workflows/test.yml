@@ -54,10 +54,8 @@ jobs:
       matrix:
         test:
           - EATest
-          - IndicatorsTest
           - MailTest
           - MarketTest
-          - MatrixTest
           - StatsTest
           - StrategyTest
           - StrategyTest-RSI
@@ -97,7 +95,6 @@ jobs:
           - ConvertTest
           - LogTest
           - MD5Test
-          - MathTest
           - ProfilerTest
           - RefsTest
           - TimerTest

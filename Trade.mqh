@@ -34,7 +34,7 @@ class Trade;
 #include "Convert.mqh"
 #include "Storage/Dict/DictStruct.h"
 #include "Indicator/IndicatorData.h"
-#include "Math.h"
+#include "Math/Math.h"
 #include "Storage/Object.h"
 #include "Platform/Order.h"
 #include "Platform/OrderQuery.h"

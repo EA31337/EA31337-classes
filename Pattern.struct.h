@@ -32,7 +32,7 @@
 
 // Includes.
 #include "Bar.struct.h"
-#include "Math.define.h"
+#include "Math/Math.define.h"
 #include "Pattern.enum.h"
 
 // Defines structure for bitwise pattern values.

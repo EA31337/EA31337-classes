@@ -27,7 +27,7 @@ class Orders;
 #include "../Exchange/Account/Account.h"
 #include "Chart/Chart.struct.static.h"
 #include "../Log.mqh"
-#include "../Math.h"
+#include "../Math/Math.h"
 #include "Order.h"
 #include "Terminal.h"
 #include "../Trade.struct.h"

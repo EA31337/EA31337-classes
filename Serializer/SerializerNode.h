@@ -25,7 +25,7 @@
 #define SERIALIZER_NODE_H
 
 // Includes.
-#include "../Math.extern.h"
+#include "../Math/Math.extern.h"
 #include "../Platform/Terminal.define.h"
 #include "SerializerNode.enum.h"
 #include "SerializerNodeParam.h"

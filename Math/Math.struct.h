@@ -21,8 +21,23 @@
 
 /**
  * @file
- * Test functionality of Matrix class.
+ * Includes Math's structs.
  */
 
-// Includes.
-#include "MatrixTest.mq5"
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
+#include "../Storage/Data.struct.h"
+
+// Prevents processing this includes file for the second time.
+#ifndef MATH_STRUCT_H
+#define MATH_STRUCT_H
+
+struct MathEquation {
+  // STRUCT_MATH_CONDITION op;
+  MqlParam args[2];
+};
+
+#endif  // MATH_STRUCT_H

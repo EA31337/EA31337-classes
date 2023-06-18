@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "Math.h"
+#include "Math/Math.h"
 #include "Storage/Object.h"
 
 /**

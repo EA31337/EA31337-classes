@@ -33,7 +33,7 @@
 #include <sstream>
 #include <tuple>
 
-#include "../Math.extern.h"
+#include "../Math/Math.extern.h"
 #include "../Std.h"
 #include "../Platform/Terminal.define.h"
 

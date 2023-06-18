@@ -26,7 +26,7 @@
 
 // Includes.
 #include "../Math.h"
-#include "../Test.mqh"
+#include "../../Test.mqh"
 
 /**
  * Implements initialization function.
