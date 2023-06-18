@@ -1,16 +1,16 @@
 ---
-name: Test Web
+name: Test Platform/Web
 
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - 'Web/**'
-      - '.github/workflows/test-web.yml'
+      - 'Platform/Web/**'
+      - '.github/workflows/test-platform-web.yml'
   push:
     paths:
-      - 'Web/**'
-      - '.github/workflows/test-web.yml'
+      - 'Platform/Web/**'
+      - '.github/workflows/test-platform-web.yml'
 
 jobs:
 
@@ -22,7 +22,7 @@ jobs:
         uses: fx31337/mql-compile-action@master
         with:
           init-platform: true
-          path: 'Web/tests'
+          path: 'Platform/Web/tests'
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
@@ -42,7 +42,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: Web/tests
+        working-directory: Platform/Web/tests
     needs: Compile
     runs-on: ubuntu-latest
     strategy:
