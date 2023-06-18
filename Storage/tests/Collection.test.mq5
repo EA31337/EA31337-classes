@@ -25,8 +25,8 @@
  */
 
 // Includes.
-#include "../Collection.h"
 #include "../../Test.mqh"
+#include "../Collection.h"
 
 // Define classes.
 class Stack : public Object {

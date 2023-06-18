@@ -31,8 +31,8 @@
 // Includes.
 #include <sstream>
 
-#include "../Storage/Dict/DictStruct.h"
 #include "../File.define.h"
+#include "../Storage/Dict/DictStruct.h"
 #include "../Storage/String.h"
 
 class MemoryFileSystemFile : public Dynamic {

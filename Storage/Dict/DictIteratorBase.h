@@ -29,9 +29,9 @@
 template <typename K, typename V>
 class DictBase;
 
+#include "../../Serializer/SerializerConversions.h"
 #include "DictBase.h"
 #include "DictSlotsRef.h"
-#include "../../Serializer/SerializerConversions.h"
 
 template <typename K, typename V>
 class DictIteratorBase {

@@ -25,14 +25,14 @@
  */
 
 // Includes.
-#include "../Dict.h"
-#include "../DictObject.h"
-#include "../DictStruct.h"
-#include "../../../Storage/Object.h"
 #include "../../../Serializer/Serializer.h"
 #include "../../../Serializer/SerializerConverter.h"
 #include "../../../Serializer/SerializerJson.h"
+#include "../../../Storage/Object.h"
 #include "../../../Test.mqh"
+#include "../Dict.h"
+#include "../DictObject.h"
+#include "../DictStruct.h"
 
 class DictTestClass {
  public:

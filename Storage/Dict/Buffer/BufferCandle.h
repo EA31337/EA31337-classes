@@ -25,10 +25,10 @@
 #define BUFFER_CANDLE_H
 
 // Includes.
-#include "BufferStruct.h"
 #include "../../../Candle.struct.h"
 #include "../../../Serializer/SerializerConverter.h"
 #include "../../../Serializer/SerializerJson.h"
+#include "BufferStruct.h"
 
 /**
  * Class to store struct data.

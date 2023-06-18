@@ -25,14 +25,14 @@
  */
 
 // Includes
-#include "../BufferStruct.h"
-#include "../../../Data.define.h"
-#include "../../../Data.struct.h"
-#include "../../../Data.struct.serialize.h"
 #include "../../../../Serializer/SerializerConverter.h"
 #include "../../../../Serializer/SerializerJSON.h"
 #include "../../../../Std.h"
 #include "../../../../Test.mqh"
+#include "../../../Data.define.h"
+#include "../../../Data.struct.h"
+#include "../../../Data.struct.serialize.h"
+#include "../BufferStruct.h"
 
 /**
  * Implements OnInit().

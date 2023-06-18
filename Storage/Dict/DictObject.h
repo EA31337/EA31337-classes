@@ -26,9 +26,9 @@
 #endif
 
 #include "../../Convert.basic.h"
-#include "DictBase.h"
 #include "../../Serializer/Serializer.h"
 #include "../../Serializer/SerializerNodeIterator.h"
+#include "DictBase.h"
 
 template <typename K, typename V>
 class DictObjectIterator : public DictIteratorBase<K, V> {

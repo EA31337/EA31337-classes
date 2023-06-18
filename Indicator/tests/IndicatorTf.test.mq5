@@ -27,11 +27,11 @@
  */
 
 // Includes.
-#include "../../Storage/Dict/DictBase.h"
 #include "../../Indicators/Indi_AMA.mqh"
 #include "../../Indicators/Tick/Indi_TickMt.h"
 #include "../../Log.mqh"
 #include "../../Platform/Platform.h"
+#include "../../Storage/Dict/DictBase.h"
 #include "../../SymbolInfo.mqh"
 #include "../../Test.mqh"
 #include "../../Util.h"

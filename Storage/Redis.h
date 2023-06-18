@@ -24,13 +24,13 @@
  * @file
  * Implements class for storing/retrieving Redis database data.
  */
-#include "Dict/Dict.h"
-#include "Object.h"
-#include "Redis.struct.h"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerConversions.h"
 #include "../Serializer/SerializerJson.h"
 #include "../Socket.mqh"
+#include "Dict/Dict.h"
+#include "Object.h"
+#include "Redis.struct.h"
 
 enum ENUM_REDIS_VALUE_SET { REDIS_VALUE_SET_ALWAYS, REDIS_VALUE_SET_IF_NOT_EXIST, REDIS_VALUE_SET_IF_ALREADY_EXIST };
 

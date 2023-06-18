@@ -28,9 +28,9 @@
 #include "../../SymbolInfo.mqh"  // FOOBAR pragma: keep
 
 // Includes.
-#include "../Dict/Buffer/BufferStruct.h"
-#include "../Database.h"
 #include "../../Test.mqh"
+#include "../Database.h"
+#include "../Dict/Buffer/BufferStruct.h"
 
 // Global variables.
 Database *db;

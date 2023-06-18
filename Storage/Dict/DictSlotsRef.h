@@ -31,11 +31,11 @@
 #endif
 
 // Includes.
+#include "../../Std.h"
 #include "../../Storage/Array.h"
+#include "../../Util.h"
 #include "Dict.enum.h"
 #include "DictSlot.h"
-#include "../../Std.h"
-#include "../../Util.h"
 
 // Forward class declaration.
 template <typename K, typename V>

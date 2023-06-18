@@ -26,11 +26,11 @@
 #endif
 
 // Includes.
-#include "Array.extern.h"
 #include "../Common.extern.h"
 #include "../Convert.extern.h"
 #include "../Math/Math.extern.h"
 #include "../Std.h"
+#include "Array.extern.h"
 #include "String.extern.h"
 
 // Defines.

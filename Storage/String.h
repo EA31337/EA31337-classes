@@ -25,9 +25,9 @@
 #define STRING_MQH
 
 // Includes.
-#include "Array.extern.h"
 #include "../Common.extern.h"
 #include "../Std.h"
+#include "Array.extern.h"
 #include "String.extern.h"
 
 // Defines.

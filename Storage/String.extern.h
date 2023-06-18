@@ -34,8 +34,8 @@
 #include <tuple>
 
 #include "../Math/Math.extern.h"
-#include "../Std.h"
 #include "../Platform/Terminal.define.h"
+#include "../Std.h"
 
 // Define external global functions.
 double StringToDouble(string value) { return std::stod(value); }

@@ -25,11 +25,11 @@
 #define DICT_H
 
 #include "../../Convert.basic.h"
-#include "DictBase.h"
-#include "DictIteratorBase.h"
 #include "../../Math/Matrix.h"
 #include "../../Serializer/Serializer.h"
 #include "../../Serializer/SerializerNodeIterator.h"
+#include "DictBase.h"
+#include "DictIteratorBase.h"
 
 template <typename K, typename V>
 class DictIterator : public DictIteratorBase<K, V> {

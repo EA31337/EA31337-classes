@@ -33,8 +33,8 @@
 #define DATABASE_H
 
 // Includes.
-#include "../Storage/Dict/DictStruct.h"
 #include "../Math/MatrixMini.h"
+#include "../Storage/Dict/DictStruct.h"
 #include "Database.struct.h"
 
 // Enums.

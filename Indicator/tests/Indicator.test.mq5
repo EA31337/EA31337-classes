@@ -25,8 +25,8 @@
  */
 
 // Includes.
-#include "../Indicator.h"
 #include "../../Test.mqh"
+#include "../Indicator.h"
 
 /**
  * Implements OnInit().

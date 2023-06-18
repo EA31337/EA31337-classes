@@ -41,6 +41,7 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 // Includes.
 #include "../Bar.struct.h"
 #include "../Platform/Chart/Chart.struct.tf.h"
+#include "../Storage/Cache/IndiBufferCache.h"
 #include "../Storage/Flags.struct.h"
 #include "../Storage/IValueStorage.h"
 #include "../Storage/ItemsHistory.h"
@@ -48,7 +49,6 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 #include "Indicator.enum.h"
 #include "IndicatorBase.h"
 #include "IndicatorData.enum.h"
-#include "../Storage/Cache/IndiBufferCache.h"
 #include "IndicatorData.struct.h"
 #include "IndicatorData.struct.serialize.h"
 #include "IndicatorData.struct.signal.h"
@@ -67,7 +67,7 @@ class IndicatorData : public IndicatorBase {
   int last_tick_index;      // Index of the last tick.
   long first_tick_time_ms;  // Time of the first ask/bid tick.
   void* mydata;
-  bool last_tick_result;             // Result of the last Tick() invocation.
+  bool last_tick_result;                  // Result of the last Tick() invocation.
   ENUM_INDI_DATA_VS_TYPE retarget_ap_av;  // Value storage type to be used as applied price/volume.
   ARRAY(Ref<IValueStorage>, value_storages);
   ARRAY(WeakRef<IndicatorData>, listeners);  // List of indicators that listens for events from this one.
@@ -854,10 +854,13 @@ class IndicatorData : public IndicatorBase {
    * Checks whether current indicator has all buffers required to be a Candle-compatible indicator.
    */
   bool IsCandleIndicator() {
-    return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_OPEN) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_HIGH) &&
-           HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_LOW) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_CLOSE) &&
-           HasSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME) &&
-           HasSpecificValueStorage(INDI_DATA_VS_TYPE_TIME) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME);
+    return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_OPEN) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_HIGH) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_LOW) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_CLOSE) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_TIME) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME);
   }
 
   /* Tick methods */
@@ -866,9 +869,9 @@ class IndicatorData : public IndicatorBase {
    * Checks whether current indicator has all buffers required to be a Tick-compatible indicator.
    */
   bool IsTickIndicator() {
-    return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_ASK) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_BID) &&
-           HasSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME) &&
-           HasSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME);
+    return HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_ASK) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_BID) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD) &&
+           HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME);
   }
 
   bool Tick(int _global_tick_index) {

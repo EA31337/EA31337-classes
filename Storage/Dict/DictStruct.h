@@ -27,10 +27,10 @@
 
 // Includes.
 #include "../../Convert.basic.h"
-#include "DictBase.h"
-#include "DictIteratorBase.h"
 #include "../../Serializer/Serializer.h"
 #include "../../Serializer/SerializerNodeIterator.h"
+#include "DictBase.h"
+#include "DictIteratorBase.h"
 
 // DictIterator could be used as DictStruct iterator.
 #define DictStructIterator DictIteratorBase

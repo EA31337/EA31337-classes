@@ -31,17 +31,17 @@
 #endif
 
 // Includes.
-#include "../Storage/Array.h"
-#include "../Storage/Dict/Buffer/BufferStruct.h"
-#include "../Platform/Chart/Chart.struct.tf.h"
-#include "../Storage/DateTime.h"
 #include "../Log.mqh"
-#include "../Storage/Object.h"
+#include "../Platform/Chart/Chart.struct.tf.h"
 #include "../Platform/Platform.extern.h"
 #include "../Refs.mqh"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerCsv.h"
 #include "../Serializer/SerializerJson.h"
+#include "../Storage/Array.h"
+#include "../Storage/DateTime.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
+#include "../Storage/Object.h"
 #include "../Util.h"
 
 /**

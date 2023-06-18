@@ -28,17 +28,17 @@
 struct IndicatorParams;
 
 // Includes.
-#include "../Storage/Array.h"
-#include "../Storage/Dict/Buffer/BufferStruct.h"
-#include "../Storage/DateTime.h"
 #include "../Indicators/DrawIndicator.mqh"
-#include "../Storage/Flags.struct.h"
 #include "../Math/Math.h"
-#include "../Storage/Object.h"
 #include "../Refs.mqh"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerCsv.h"
 #include "../Serializer/SerializerJson.h"
+#include "../Storage/Array.h"
+#include "../Storage/DateTime.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
+#include "../Storage/Flags.struct.h"
+#include "../Storage/Object.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.indicator.h"
 #include "../Storage/ValueStorage.native.h"

@@ -25,9 +25,9 @@
 
 // Includes.
 #include "../../../Exchange/Account/AccountMt.h"
-#include "../DictStruct.h"
 #include "../../../Indicator/IndicatorData.h"
 #include "../../../Storage/Object.h"
+#include "../DictStruct.h"
 
 // Defines.
 #define FXT_VERSION 405
