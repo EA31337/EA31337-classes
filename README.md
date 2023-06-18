@@ -57,6 +57,7 @@ Projects implementing this framework:
   EA strategies.
 - [EA31337-indicators-other](https://github.com/EA31337/EA31337-indicators-other):
   3rd party indicators
+- Check [EA31337 website](https://ea31337.github.io) for more.
 
 ## Conversion
 

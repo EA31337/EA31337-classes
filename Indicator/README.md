@@ -29,7 +29,7 @@ The purpose of `IndicatorData` class is to store indicator data.
 It is basically alternative implementation of `Indicator` class.
 
 For more details, please read:
-[Class to hold indicator values](https://github.com/EA31337/EA31337-classes/issues/23).
+[Class to hold indicator values]( https://ea31337.github.io/EA31337-classes/issues/23).
 
 For implementation example,
 check [`tests/IndicatorDataTest.mq5`](tests/IndicatorDataTest.mq5).
