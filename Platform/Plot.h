@@ -27,7 +27,7 @@
 
 // Class dependencies.
 class Chart;
-class Draw;
+class Plot;
 
 // Includes.
 #include "../Storage/Data.define.h"
@@ -63,9 +63,9 @@ class Draw;
 #endif
 
 /**
- * Class to provide drawing methods working with graphic objects.
+ * Class to provide plotting methods working with graphic objects.
  */
-class Draw : public Object {
+class Plot : public Object {
  protected:
   // Variables.
   long chart_id;
@@ -75,7 +75,7 @@ class Draw : public Object {
   /**
    * Class constructor.
    */
-  Draw(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : ::ChartID()) {}
+  Plot(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : ::ChartID()) {}
 
   /* Graphic object related methods */
 
@@ -90,7 +90,7 @@ class Draw : public Object {
   static string ObjectName(long _chart_id, int _pos, int _sub_window = -1, int _type = -1) {
     return ::ObjectName(_chart_id, _pos, _sub_window, _type);
   }
-  static string ObjectName(int _index) { return Draw::ObjectName(0, _index); }
+  static string ObjectName(int _index) { return Plot::ObjectName(0, _index); }
 
   /**
    * Returns the number of objects in the specified chart,
@@ -106,12 +106,12 @@ class Draw : public Object {
     return ::ObjectsTotal(chart_id, window, type);
 #endif
   }
-  static int ObjectsTotal() { return Draw::ObjectsTotal(0); }
+  static int ObjectsTotal() { return Plot::ObjectsTotal(0); }
 
   /* Setters */
 
   /**
-   * Sets drawing line description for showing in the DataWindow and in the tooltip.
+   * Sets plotting line description for showing in the DataWindow and in the tooltip.
    *
    * @return
    * If successful, returns true, otherwise false.
@@ -262,22 +262,22 @@ class Draw : public Object {
     return ::ObjectDelete(chart_id, name);
 #endif
   }
-  static bool ObjectDelete(string name) { return Draw::ObjectDelete(0, name); }
+  static bool ObjectDelete(string name) { return Plot::ObjectDelete(0, name); }
 
   /**
-   * Draw a vertical line.
+   * Plot a vertical line.
    */
   bool DrawVLine(string oname, datetime tm) {
-    bool result = Draw::ObjectCreate(NULL_VALUE, oname, OBJ_VLINE, 0, tm, 0);
+    bool result = Plot::ObjectCreate(NULL_VALUE, oname, OBJ_VLINE, 0, tm, 0);
     if (!result) PrintFormat("%(): Can't create vertical line! code #", __FUNCTION__, GetLastError());
     return (result);
   }
 
   /**
-   * Draw a horizontal line.
+   * Plot a horizontal line.
    */
   bool DrawHLine(string oname, double value) {
-    bool result = Draw::ObjectCreate(NULL_VALUE, oname, OBJ_HLINE, 0, 0, value);
+    bool result = Plot::ObjectCreate(NULL_VALUE, oname, OBJ_HLINE, 0, 0, value);
     if (!result) PrintFormat("%(): Can't create horizontal line! code #", __FUNCTION__, GetLastError());
     return (result);
   }
@@ -286,30 +286,30 @@ class Draw : public Object {
    * Delete a vertical line.
    */
   bool DeleteVertLine(string oname) {
-    bool result = Draw::ObjectDelete(NULL_VALUE, oname);
+    bool result = Plot::ObjectDelete(NULL_VALUE, oname);
     if (!result) PrintFormat("%(): Can't delete vertical line! code #", __FUNCTION__, GetLastError());
     return (result);
   }
 
   /**
-   * Draw a line given the price.
+   * Plot a line given the price.
    */
   void ShowLine(string oname, double price, int colour = Yellow) {
     /** @TODO
-    Draw::ObjectCreate(chart_id, oname, OBJ_HLINE, 0, GetBarTime(), price);
-    Draw::ObjectSet(oname, OBJPROP_COLOR, colour);
-    Draw::ObjectMove(oname, 0, GetBarTime(), price);
+    Plot::ObjectCreate(chart_id, oname, OBJ_HLINE, 0, GetBarTime(), price);
+    Plot::ObjectSet(oname, OBJPROP_COLOR, colour);
+    Plot::ObjectMove(oname, 0, GetBarTime(), price);
     */
   }
 
   /**
-   * Draw a trend line.
+   * Plot a trend line.
    */
   bool TLine(string name, double p1, double p2, datetime d1, datetime d2, color clr = clrYellow, bool ray = false,
              int window = WINDOW_MAIN) {
-    if (ObjectFind(chart_id, name) >= 0 && Draw::ObjectMove(name, 0, d1, p1)) {
-      Draw::ObjectMove(name, 1, d2, p2);
-    } else if (!Draw::ObjectCreate(chart_id, name, OBJ_TREND, window, d1, p1, d2, p2)) {
+    if (ObjectFind(chart_id, name) >= 0 && Plot::ObjectMove(name, 0, d1, p1)) {
+      Plot::ObjectMove(name, 1, d2, p2);
+    } else if (!Plot::ObjectCreate(chart_id, name, OBJ_TREND, window, d1, p1, d2, p2)) {
       // Note: In case of error, check the message by GetLastError().
       if (GetLastError() == 4206) {
         // No specified subwindow.
@@ -318,11 +318,11 @@ class Draw : public Object {
       return false;
     }
 
-    if (!Draw::ObjectSet(name, OBJPROP_RAY, ray)) {
+    if (!Plot::ObjectSet(name, OBJPROP_RAY, ray)) {
       return false;
     }
 
-    if (clr && !Draw::ObjectSet(name, OBJPROP_COLOR, clr)) {
+    if (clr && !Plot::ObjectSet(name, OBJPROP_COLOR, clr)) {
       return false;
     }
 
@@ -334,14 +334,14 @@ class Draw : public Object {
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
 bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
-  return Draw::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1);
+  return Plot::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1);
 }
-bool ObjectDelete(string _name) { return Draw::ObjectDelete(_name); }
-bool ObjectSet(string _name, int _prop_id, double _value) { return Draw::ObjectSet(_name, _prop_id, _value); }
-int ObjectsTotal(int _type = EMPTY) { return Draw::ObjectsTotal(); }
-string ObjectName(int _index) { return Draw::ObjectName(_index); }
-void SetIndexLabel(int _index, string _text) { Draw::SetIndexLabel(_index, _text); }
+bool ObjectDelete(string _name) { return Plot::ObjectDelete(_name); }
+bool ObjectSet(string _name, int _prop_id, double _value) { return Plot::ObjectSet(_name, _prop_id, _value); }
+int ObjectsTotal(int _type = EMPTY) { return Plot::ObjectsTotal(); }
+string ObjectName(int _index) { return Plot::ObjectName(_index); }
+void SetIndexLabel(int _index, string _text) { Plot::SetIndexLabel(_index, _text); }
 void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY, color _clr = CLR_NONE) {
-  Draw::SetIndexStyle(_index, _type, _style, _width, _clr);
+  Plot::SetIndexStyle(_index, _type, _style, _width, _clr);
 }
 #endif

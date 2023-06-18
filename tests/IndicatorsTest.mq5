@@ -315,7 +315,7 @@ bool InitIndicators() {
   // Standard Deviation (StdDev).
   Ref<IndicatorData> indi_price_for_stdev = new Indi_Price(IndiPriceParams());
   IndiStdDevParams stddev_on_price_params();
-  // stddev_on_price_params.SetDraw(clrBlue, 1); // @fixme
+  // stddev_on_price_params.SetPlot(clrBlue, 1); // @fixme
   Ref<Indi_StdDev> indi_stddev_on_price =
       new Indi_StdDev(stddev_on_price_params, IDATA_BUILTIN, indi_price_for_stdev.Ptr());
   indis.Add(indi_stddev_on_price.Ptr());
@@ -341,7 +341,7 @@ bool InitIndicators() {
   IndiPriceParams price_params_4_bands();
   Ref<IndicatorData> indi_price_4_bands = new Indi_Price(price_params_4_bands);
   IndiBandsParams bands_on_price_params();
-  // bands_on_price_params.SetDraw(clrCadetBlue); // @fixme
+  // bands_on_price_params.SetPlot(clrCadetBlue); // @fixme
   Ref<Indi_Bands> indi_bands_on_price = new Indi_Bands(bands_on_price_params, IDATA_BUILTIN, indi_price_4_bands.Ptr());
   indis.Add(indi_bands_on_price.Ptr());
 
@@ -352,7 +352,7 @@ bool InitIndicators() {
   Ref<IndicatorData> indi_ma_sma_for_stddev = new Indi_MA(ma_sma_params_for_stddev);
 
   IndiStdDevParams stddev_params_on_ma_sma(13, 10);
-  // stddev_params_on_ma_sma.SetDraw(true, 1); // @fixme
+  // stddev_params_on_ma_sma.SetPlot(true, 1); // @fixme
 
   Ref<Indi_StdDev> indi_stddev_on_ma_sma =
       new Indi_StdDev(stddev_params_on_ma_sma, IDATA_BUILTIN, indi_ma_sma_for_stddev.Ptr());
@@ -362,7 +362,7 @@ bool InitIndicators() {
   IndiPriceParams price_params_for_stddev_sma();
   Ref<IndicatorData> indi_price_for_stddev_sma = new Indi_Price(price_params_for_stddev_sma);
   IndiStdDevParams stddev_sma_on_price_params();
-  // stddev_sma_on_price_params.SetDraw(true, 1); // @fixme
+  // stddev_sma_on_price_params.SetPlot(true, 1); // @fixme
   Ref<Indi_StdDev> indi_stddev_on_sma =
       new Indi_StdDev(stddev_sma_on_price_params, IDATA_BUILTIN, indi_price_for_stddev_sma.Ptr());
   indis.Add(indi_stddev_on_sma.Ptr());
@@ -371,7 +371,7 @@ bool InitIndicators() {
   IndiPriceParams price_params_4_ma();
   Ref<IndicatorData> indi_price_4_ma = new Indi_Price(price_params_4_ma);
   IndiMAParams ma_on_price_params(13, 0, MODE_SMA, PRICE_OPEN, 0);
-  // ma_on_price_params.SetDraw(clrYellowGreen); // @fixme
+  // ma_on_price_params.SetPlot(clrYellowGreen); // @fixme
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
   Ref<Indi_MA> indi_ma_on_price = new Indi_MA(ma_on_price_params, IDATA_BUILTIN, indi_price_4_ma.Ptr());
   indis.Add(indi_ma_on_price.Ptr());
@@ -380,7 +380,7 @@ bool InitIndicators() {
   IndiPriceParams price_params_4_cci();
   Ref<IndicatorData> indi_price_4_cci = new Indi_Price(price_params_4_cci);
   IndiCCIParams cci_on_price_params();
-  // cci_on_price_params.SetDraw(clrYellowGreen, 1); // @fixme
+  // cci_on_price_params.SetPlot(clrYellowGreen, 1); // @fixme
   Ref<IndicatorData> indi_cci_on_price = new Indi_CCI(cci_on_price_params, IDATA_BUILTIN, indi_price_4_cci.Ptr());
   indis.Add(indi_cci_on_price.Ptr());
 
@@ -388,7 +388,7 @@ bool InitIndicators() {
   IndiPriceParams price_params_4_envelopes();
   Ref<IndicatorData> indi_price_4_envelopes = new Indi_Price(price_params_4_envelopes);
   IndiEnvelopesParams env_on_price_params();
-  // env_on_price_params.SetDraw(clrBrown); // @fixme
+  // env_on_price_params.SetPlot(clrBrown); // @fixme
   Ref<Indi_Envelopes> indi_envelopes_on_price =
       new Indi_Envelopes(env_on_price_params, IDATA_BUILTIN, indi_price_4_envelopes.Ptr());
   indis.Add(indi_envelopes_on_price.Ptr());
@@ -397,7 +397,7 @@ bool InitIndicators() {
   IndiPriceParams price_params_4_dema();
   Ref<IndicatorData> indi_price_4_dema = new Indi_Price(price_params_4_dema);
   IndiDEMAParams dema_on_price_params(13, 2, PRICE_OPEN);
-  // dema_on_price_params.SetDraw(clrRed); // @fixme
+  // dema_on_price_params.SetPlot(clrRed); // @fixme
   Ref<Indi_DEMA> indi_dema_on_price =
       new Indi_DEMA(dema_on_price_params, INDI_DEMA_DEFAULT_IDSTYPE, indi_price_4_dema.Ptr());
   // indis.Add(indi_dema_on_price.Ptr()); // @fixme
@@ -405,7 +405,7 @@ bool InitIndicators() {
   // Momentum over Price indicator.
   Ref<IndicatorData> indi_price_4_momentum = new Indi_Price();
   IndiMomentumParams mom_on_price_params();
-  // mom_on_price_params.SetDraw(clrDarkCyan); // @fixme
+  // mom_on_price_params.SetPlot(clrDarkCyan); // @fixme
   Ref<Indi_Momentum> indi_momentum_on_price =
       new Indi_Momentum(mom_on_price_params, IDATA_BUILTIN, indi_price_4_momentum.Ptr());
   indis.Add(indi_momentum_on_price.Ptr());
@@ -414,19 +414,19 @@ bool InitIndicators() {
   IndiPriceParams price_params_4_rsi();
   Ref<IndicatorData> indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
   IndiRSIParams rsi_on_price_params();
-  // rsi_on_price_params.SetDraw(clrBisque, 1); // @fixme
+  // rsi_on_price_params.SetPlot(clrBisque, 1); // @fixme
   Ref<Indi_RSI> indi_rsi_on_price = new Indi_RSI(rsi_on_price_params, IDATA_BUILTIN, indi_price_4_rsi.Ptr());
   indis.Add(indi_rsi_on_price.Ptr());
 
   // Drawer (socket-based) indicator over RSI over Price.
   IndiDrawerParams drawer_params(14, PRICE_OPEN);
-  // drawer_params.SetDraw(clrBisque, 0); // @fixme
+  // drawer_params.SetPlot(clrBisque, 0); // @fixme
   Ref<Indi_Drawer> indi_drawer_on_rsi = new Indi_Drawer(drawer_params, IDATA_BUILTIN, indi_rsi_on_price.Ptr());
   indis.Add(indi_drawer_on_rsi.Ptr());
 
   // Applied Price over OHCL indicator.
   IndiAppliedPriceParams applied_price_params();
-  // applied_price_params.SetDraw(clrAquamarine, 0); // @fixme
+  // applied_price_params.SetPlot(clrAquamarine, 0); // @fixme
   IndiOHLCParams applied_price_ohlc_params(PRICE_TYPICAL);
   Ref<Indi_AppliedPrice> indi_applied_price_on_price =
       new Indi_AppliedPrice(applied_price_params, IDATA_INDICATOR, new Indi_OHLC(applied_price_ohlc_params));
@@ -535,14 +535,14 @@ bool InitIndicators() {
 
   // Math (specialized indicator).
   IndiMathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
-  // math_params.SetDraw(clrBlue); // @fixme
+  // math_params.SetPlot(clrBlue); // @fixme
   math_params.SetName("Bands(UP - LO)");
   Ref<Indi_Math> indi_math_1 = new Indi_Math(math_params, IDATA_INDICATOR, indi_bands.Ptr());
   indis.Add(indi_math_1.Ptr());
 
   // Math (specialized indicator) via custom math method.
   IndiMathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
-  // math_custom_params.SetDraw(clrBeige); // @fixme
+  // math_custom_params.SetPlot(clrBeige); // @fixme
   math_custom_params.SetName("Bands(Custom math fn)");
   Ref<Indi_Math> indi_math_2 = new Indi_Math(math_custom_params, IDATA_INDICATOR, indi_bands.Ptr());
   indis.Add(indi_math_2.Ptr());

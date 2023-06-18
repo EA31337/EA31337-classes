@@ -54,7 +54,7 @@ class DrawPoint {
 class DrawIndicator {
  protected:
   color color_line;
-  Draw* draw;
+  Plot* draw;
   IndicatorBase* indi;
   bool enabled;
   int window;
@@ -70,7 +70,7 @@ class DrawIndicator {
    */
   DrawIndicator(IndicatorBase* _indi) : indi(_indi), enabled(false), window(0) {
     // color_line = Object::IsValid(_indi) ? _indi.GetParams().indi_color : clrRed; // @fixme
-    draw = new Draw();
+    draw = new Plot();
   }
 
   /**
@@ -112,7 +112,7 @@ class DrawIndicator {
   void SetWindow(int _window) { window = _window; }
 
   /**
-   * Draw line from the last point.
+   * Plot a line from the last point.
    */
   void DrawLineTo(string _name, datetime _time, double _value, int _window = -1) {
     if (!enabled) {

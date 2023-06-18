@@ -407,7 +407,7 @@ struct IndicatorDataParams {
  protected:
   /* Struct protected variables */
   int data_src_mode;                // Mode used as input from data source.
-  int draw_window;                  // Drawing window.
+  int plot_window;                  // Ploting window.
   ENUM_DATATYPE dtype;              // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
   unsigned int max_modes;           // Max supported indicator modes (values per entry).
   unsigned int max_buffers;         // Max buffers to store.
@@ -415,7 +415,7 @@ struct IndicatorDataParams {
   ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
   color indi_color;                 // Indicator color.
   // @todo: Move to protected.
-  bool is_draw;  // Draw active.
+  bool is_plot;  // Plot active.
   bool is_fed;   // Whether calc_start_bar is already calculated.
   int src_id;    // Id of the indicator to be used as data source.
   int src_mode;  // Mode of source indicator
@@ -440,14 +440,14 @@ struct IndicatorDataParams {
                       ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                       ENUM_IDATA_VALUE_RANGE _idvrange = IDATA_RANGE_UNKNOWN, int _data_src_mode = 0)
       : data_src_mode(_data_src_mode),
-        draw_window(0),
+        plot_window(0),
         dtype(_dtype),
         max_modes(_max_modes),
         max_buffers(10),
         idstype(_idstype),
         idvrange(_idvrange),
         indi_color(clrNONE),
-        is_draw(false),
+        is_plot(false),
         is_fed(false),
         src_id(-1),
         src_mode(-1){};
@@ -523,16 +523,16 @@ struct IndicatorDataParams {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  void SetDraw(bool _draw = true, int _window = 0) {
-    is_draw = _draw;
-    draw_window = _window;
+  void SetPlot(bool _plot = true, int _window = 0) {
+    is_plot = _plot;
+    plot_window = _window;
   }
-  void SetDraw(color _clr, int _window = 0) {
-    is_draw = true;
+  void SetPlot(color _clr, int _window = 0) {
+    is_plot = true;
     indi_color = _clr;
-    draw_window = _window;
+    plot_window = _window;
   }
-  bool IsDrawing() { return is_draw; }
+  bool IsPloting() { return is_plot; }
 
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
 };

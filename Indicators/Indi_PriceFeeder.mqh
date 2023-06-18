@@ -103,7 +103,7 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
   bool OnTick(int _global_tick_index) override {
     bool _result = Indicator<IndiPriceFeederParams>::OnTick(_global_tick_index);
 
-    if (idparams.IsDrawing()) {
+    if (idparams.IsPloting()) {
       int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
       IndicatorDataEntry _entry = GetEntry(0);
       for (int i = 0; i < _max_modes; ++i) {

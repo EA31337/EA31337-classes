@@ -114,7 +114,7 @@ bool InitIndicators() {
   // @fixme: Make it work for MT4.
   // Current Price (used by custom indicators)  .
   IndiPriceParams price_params();
-  // price_params.SetDraw(clrGreenYellow);
+  // price_params.SetPlot(clrGreenYellow);
   Platform::AddWithDefaultBindings(new Indi_Price(price_params), "EURUSD", PERIOD_M1);
 #endif
 
@@ -124,7 +124,7 @@ bool InitIndicators() {
   IndiPriceParams price_params_4_bands();
   IndicatorBase *indi_price_4_bands = new Indi_Price(price_params_4_bands);
   IndiBandsParams bands_on_price_params();
-  bands_on_price_params.SetDraw(clrCadetBlue);
+  bands_on_price_params.SetPlot(clrCadetBlue);
   // bands_on_price_params.SetDataSource(indi_price_4_bands, true, INDI_PRICE_MODE_OPEN);
   Platform::AddWithDefaultBindings(new Indi_Bands(bands_on_price_params, indi_price_4_bands, true));
   */
@@ -134,7 +134,7 @@ bool InitIndicators() {
   IndiPriceParams price_params_4_ma();
   IndicatorBase *indi_price_4_ma = new Indi_Price(price_params_4_ma);
   IndiMAParams ma_on_price_params();
-  ma_on_price_params.SetDraw(clrYellowGreen);
+  ma_on_price_params.SetPlot(clrYellowGreen);
   // ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
   Platform::AddWithDefaultBindings(new Indi_MA(ma_on_price_params, indi_price_4_ma));
@@ -143,7 +143,7 @@ bool InitIndicators() {
   IndiPriceParams price_params_4_rsi();
   IndicatorData *indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
   IndiRSIParams rsi_on_price_params();
-  rsi_on_price_params.SetDraw(clrBisque, 1);
+  rsi_on_price_params.SetPlot(clrBisque, 1);
   IndicatorBase *indi_rsi_on_price = new Indi_RSI(rsi_on_price_params, IDATA_INDICATOR, indi_price_4_rsi);
   indis.Set(INDI_RSI_ON_PRICE, indi_rsi_on_price);
   */
@@ -151,7 +151,7 @@ bool InitIndicators() {
   // We'll be drawing all indicators' values on the chart.
   for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
        ++iter) {
-    // iter.Value() REF_DEREF SetDraw(true); // @fixme
+    // iter.Value() REF_DEREF SetPlot(true); // @fixme
   }
 
   return _LastError == ERR_NO_ERROR;

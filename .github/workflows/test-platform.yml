@@ -52,6 +52,7 @@ jobs:
           - OrderQuery.test
           - Orders.test
           - Platform.test
+          - Plot.test
           - Terminal.test
     steps:
       - uses: actions/download-artifact@v3
