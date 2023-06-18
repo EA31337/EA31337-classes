@@ -30,7 +30,7 @@ class Chart;
 // Includes.
 #include "Platform/Chart/Chart.h"
 #include "Log.mqh"
-#include "SymbolInfo.mqh"
+#include "Exchange/SymbolInfo/SymbolInfo.h"
 //#include "Market.mqh"
 
 // Define an assert macros.

@@ -32,7 +32,7 @@
 #include "../../Log.mqh"
 #include "../../Platform/Platform.h"
 #include "../../Storage/Dict/DictBase.h"
-#include "../../SymbolInfo.mqh"
+#include "../../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../../Test.mqh"
 #include "../../Util.h"
 #include "../IndicatorTf.h"

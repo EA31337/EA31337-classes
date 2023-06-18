@@ -88,7 +88,7 @@ struct IndicatorParams;
 #include "../Strategy.mqh"
 #include "../Storage/String.h"
 #include "../SummaryReport.mqh"
-#include "../SymbolInfo.mqh"
+#include "../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../Task/Task.h"
 #include "../Task/TaskAction.h"
 #include "../Task/TaskCondition.h"

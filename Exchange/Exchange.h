@@ -29,7 +29,7 @@
 // Includes.
 #include "Account/Account.h"
 #include "../Storage/Dict/DictObject.h"
-#include "../SymbolInfo.mqh"
+#include "../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../Trade.mqh"
 #include "Exchange.struct.h"
 
