@@ -32,13 +32,13 @@
 #endif
 
 // Includes.
-#include "../Storage/Dict/Dict.h"
-#include "../Storage/Dict/DictObject.h"
 #include "../Indicator/Indicator.h"
 #include "../Refs.mqh"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Dict/DictObject.h"
 #include "../Storage/Objects.h"
-#include "../Storage/ValueStorage.h"
 #include "../Storage/String.h"
+#include "../Storage/ValueStorage.h"
 #include "Price/Indi_MA.h"
 #include "Price/Indi_Price.h"
 
@@ -117,7 +117,7 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
 
     return iDEMAOnIndicator(_obj, _period, _ma_shift, _applied_price, _mode, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -127,8 +127,7 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
   }
 
   static double iDEMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, unsigned int _ma_period, unsigned int _ma_shift,
-                             int _mode, int _shift, IndiBufferCache<double> *_cache = NULL,
-                             bool _recalculate = false) {
+                             int _mode, int _shift, IndiBufferCache<double> *_cache = NULL, bool _recalculate = false) {
     if (_cache == nullptr) {
       Print("iDEMAOnArray() cannot yet work without cache object!");
       DebugBreak();

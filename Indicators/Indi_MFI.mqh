@@ -86,7 +86,7 @@ class Indi_MFI : public Indicator<IndiMFIParams> {
 #else  // __MQL5__
     return Indi_MFI::iMFI(_symbol, _tf, _period, VOLUME_TICK, _shift, _obj);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -103,7 +103,7 @@ class Indi_MFI : public Indicator<IndiMFIParams> {
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iMFI(_symbol, _tf, _period, VOLUME_TICK), 0, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "

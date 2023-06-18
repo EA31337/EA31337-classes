@@ -30,8 +30,8 @@
 #define DRAW_INDICATOR_MQH
 
 // Includes.
-#include "../Storage/Dict/DictObject.h"
 #include "../Platform/Plot.h"
+#include "../Storage/Dict/DictObject.h"
 #include "../Storage/Object.h"
 
 // Forward declaration.

@@ -30,8 +30,8 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "../Storage/Cache/ObjectsCache.h"
-#include "Price/Indi_MA.h"
 #include "Indi_PriceFeeder.mqh"
+#include "Price/Indi_MA.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -111,7 +111,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price), 0,
                                       _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "

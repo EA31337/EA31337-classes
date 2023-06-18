@@ -26,8 +26,8 @@
 #endif
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 
 // Structs.
 struct IndiACParams : IndicatorParams {
@@ -101,7 +101,7 @@ class Indi_AC : public Indicator<IndiACParams> {
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iAC(_symbol, _tf), 0, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "

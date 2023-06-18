@@ -21,8 +21,8 @@
  */
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.applied_price.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.spread.h"
@@ -108,7 +108,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
 #ifdef __MQL__
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     if (_obj == nullptr) {
       Print(
           "Indi_ADXW::iADXWilder() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
@@ -118,7 +118,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
     }
     return iADXWilder(_obj, _ma_period, _mode, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "

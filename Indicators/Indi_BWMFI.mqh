@@ -113,7 +113,7 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iBWMFI(_symbol, _tf, VOLUME_TICK), _mode, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "

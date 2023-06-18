@@ -21,8 +21,8 @@
  */
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.h"
 #include "Price/Indi_Price.h"
 
@@ -107,7 +107,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
     }
     return iAMAOnIndicator(_obj, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap, _mode, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "

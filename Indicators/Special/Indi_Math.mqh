@@ -21,9 +21,9 @@
  */
 
 // Includes.
-#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Indicator/Indicator.h"
 #include "../../Math/Math.enum.h"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 
 enum ENUM_MATH_OP_MODE { MATH_OP_MODE_BUILTIN, MATH_OP_MODE_CUSTOM_FUNCTION };
 

@@ -25,8 +25,8 @@
 #define INDI_WAD_MIN_BARS 100
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -93,8 +93,8 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   /**
    * Calculates William's AD on the array of values.
    */
-  static double iWADOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
-                            IndiBufferCache<double> *_cache, bool _recalculate = false) {
+  static double iWADOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
+                            bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {

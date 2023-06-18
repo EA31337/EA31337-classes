@@ -25,8 +25,8 @@
 #define INDI_BWZT_DATA_LIMIT 100
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/IndicatorTf.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_AC.mqh"
 #include "Indi_AO.mqh"

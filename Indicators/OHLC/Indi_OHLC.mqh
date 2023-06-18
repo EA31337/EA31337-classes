@@ -21,8 +21,8 @@
  */
 
 // Includes.
-#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Indicator/Indicator.h"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Storage/Objects.h"
 
 // Enums.

@@ -95,7 +95,7 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price), 0, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "

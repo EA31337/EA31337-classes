@@ -21,8 +21,8 @@
  */
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 
 // Structs.
 struct IndiVIDYAParams : IndicatorParams {
@@ -82,7 +82,7 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
 #ifdef __MQL__
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iVIDyA(_symbol, _tf, _cmo_period, _ema_period, _ma_shift, _ap), _mode, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     if (_obj == nullptr) {
       Print(
           "Indi_VIDYA::iVIDyA() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
@@ -93,7 +93,7 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
 
     return iVIDyAOnIndicator(_obj, _symbol, _tf, _cmo_period, _ema_period, _ma_shift, _ap, _mode, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -106,8 +106,7 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
    * Calculates iVIDyA on the array of values.
    */
   static double iVIDyAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _cmo_period, int _ema_period, int _ma_shift,
-                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
-                              bool _recalculate = false) {
+                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
     if (!_cache.HasBuffers()) {

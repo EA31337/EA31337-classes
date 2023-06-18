@@ -21,8 +21,8 @@
  */
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -109,7 +109,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
     return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode,
                          _obj PTR_DEREF ToAbsShift(_rel_shift), _cache);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -122,8 +122,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
    * Calculates FrAMA on the array of values.
    */
   static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
-                              bool _recalculate = false) {
+                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {

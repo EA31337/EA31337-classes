@@ -22,11 +22,11 @@
 
 // Includes.
 #include "../../Bar.struct.h"
-#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Indicator/Indicator.define.h"
 #include "../../Indicator/Indicator.h"
 #include "../../Pattern.struct.h"
 #include "../../Serializer/Serializer.h"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Price/Indi_Price.h"
 #include "../Special/Indi_Math.mqh"
 

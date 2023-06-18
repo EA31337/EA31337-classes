@@ -25,8 +25,8 @@
 #define INDI_CHO_MIN_BARS 2
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 #include "../Util.h"
 #include "Price/Indi_MA.h"
@@ -104,7 +104,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
                            _mode, _shift, _cache);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "

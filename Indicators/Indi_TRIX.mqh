@@ -21,8 +21,8 @@
  */
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "Price/Indi_MA.h"
 
 // Structs.
@@ -88,7 +88,7 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
 
     return iTriXOnIndicator(_obj, _ma_period, _ap, _mode, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "

@@ -21,8 +21,8 @@
  */
 
 // Includes.
-#include "../Storage/Dict/DictStruct.h"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/DictStruct.h"
 #include "../Storage/Redis.h"
 #include "../Task/TaskAction.h"
 #include "Indi_Drawer.struct.h"

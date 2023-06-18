@@ -21,8 +21,8 @@
  */
 
 // Includes.
-#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Price/Indi_MA.h"
 
@@ -95,8 +95,7 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
    * Calculates Color Line on the array of values.
    */
   static double iColorLineOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
-                                  IndiBufferCache<double> *_cache, IndicatorData *_indi_ma,
-                                  bool _recalculate = false) {
+                                  IndiBufferCache<double> *_cache, IndicatorData *_indi_ma, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {

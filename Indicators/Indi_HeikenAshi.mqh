@@ -146,7 +146,7 @@ class Indi_HeikenAshi : public Indicator<IndiHeikenAshiParams> {
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iCustom(_symbol, _tf, "Examples\\Heiken_Ashi"), _mode, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
