@@ -4,13 +4,13 @@ name: Compile C++
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    paths-ignore:
-      - '**.md'
-      - '.github/workflows/compile-cpp.yml'
+    paths:
+      - '**.h'
+      - '**.mq?'
   push:
-    paths-ignore:
-      - '**.md'
-      - '.github/workflows/compile-cpp.yml'
+    paths:
+      - '**.h'
+      - '**.mq?'
 
 jobs:
 

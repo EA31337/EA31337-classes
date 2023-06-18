@@ -23,7 +23,7 @@ jobs:
   Compile:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Compile
         uses: fx31337/mql-compile-action@master
         with:
@@ -33,12 +33,12 @@ jobs:
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
         shell: powershell
       - name: Upload artifacts (MQL4)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: files-ex4
           path: '**/*.ex4'
       - name: Upload artifacts (MQL5)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: files-ex5
           path: '**/*.ex5'
@@ -65,7 +65,7 @@ jobs:
           - TradeTest
       max-parallel: 4
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: files-ex4
       - name: Run ${{ matrix.test }}
@@ -90,7 +90,6 @@ jobs:
     strategy:
       matrix:
         test:
-          #  - 3DTest
           - ConfigTest
           - ConvertTest
           - LogTest
@@ -99,7 +98,7 @@ jobs:
           - RefsTest
           - TimerTest
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: files-ex4
       - name: Run ${{ matrix.test }}
