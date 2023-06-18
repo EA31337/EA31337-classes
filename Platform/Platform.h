@@ -59,7 +59,7 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
 #include "../Indicators/Tick/Indi_TickProvider.h"
 #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickProvider
 #endif
-#include "../SymbolInfo.struct.static.h"
+#include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
 
 class Platform {
   // Whether Init() was already called.

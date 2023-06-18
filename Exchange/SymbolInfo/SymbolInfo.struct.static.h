@@ -25,13 +25,13 @@
 #pragma once
 #endif
 
-#include "Platform/MQL5.mqh"
-#include "Platform/Order.enum.h"
-#include "Platform/Platform.extern.h"
-#include "Std.h"
+#include "../../Platform/MQL5.mqh"
+#include "../../Platform/Order.enum.h"
+#include "../../Platform/Platform.extern.h"
+#include "../../Std.h"
 #include "SymbolInfo.enum.h"
 #include "SymbolInfo.extern.h"
-#include "Tick/Tick.struct.h"
+#include "../../Tick/Tick.struct.h"
 
 /**
  * Struct to provide symbol information.

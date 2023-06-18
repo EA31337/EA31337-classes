@@ -25,8 +25,8 @@
  */
 
 // Includes.
-#include "../SymbolInfo.mqh"
-#include "../Test.mqh"
+#include "../SymbolInfo.h"
+#include "../../../Test.mqh"
 
 /**
  * Implements OnInit().

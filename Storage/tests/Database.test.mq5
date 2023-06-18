@@ -25,7 +25,7 @@
  */
 
 // Need to be include before Database.h.
-#include "../../SymbolInfo.mqh"  // FOOBAR pragma: keep
+#include "../../Exchange/SymbolInfo/SymbolInfo.h"  // FOOBAR pragma: keep
 
 // Includes.
 #include "../../Test.mqh"

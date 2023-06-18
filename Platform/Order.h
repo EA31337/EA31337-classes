@@ -47,7 +47,7 @@ class SymbolInfo;
 #include "../Serializer/SerializerJson.h"
 #include "../Std.h"
 #include "../Storage/String.h"
-#include "../SymbolInfo.mqh"
+#include "../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../Task/TaskAction.enum.h"
 
 /* Defines for backward compatibility. */

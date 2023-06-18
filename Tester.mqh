@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "SymbolInfo.mqh"
+#include "Exchange/SymbolInfo/SymbolInfo.h"
 #include "Platform/Terminal.h"
 
 /**
