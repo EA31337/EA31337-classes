@@ -31,7 +31,7 @@
 
 // Includes.
 #include "../Storage/Dict/DictObject.h"
-#include "../Draw.mqh"
+#include "../Platform/Plot.h"
 #include "../Storage/Object.h"
 
 // Forward declaration.
