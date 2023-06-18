@@ -21,13 +21,15 @@
 
 /**
  * @file
- * Test C++ compilation of Serializable class.
+ * Test C++ compilation of all Buffer related classes
  */
 
 // Includes.
-#include "../Serializable.h"
-
-#include "../../Platform/Platform.h"
+#include "../../../../Platform/Platform.h"
+#include "../BufferCandle.h"
+#include "../BufferFXT.h"
+#include "../BufferStruct.h"
+#include "../BufferTick.h"
 
 int main(int argc, char **argv) {
   // @todo

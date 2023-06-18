@@ -21,16 +21,21 @@
 
 /**
  * @file
- * Test C++ compilation of DrawIndicator class.
+ * Test C++ compilation of Object class.
  */
 
 // Includes.
-#include "../DrawIndicator.mqh"
-
-#include "../../Platform/Platform.h"
+#include "../Object.h"
 
 int main(int argc, char **argv) {
-  // @todo
+  // Create a new object.
+  Object *obj = new Object();
+
+  // @todo: Add more tests.
+  // ...
+
+  // Clean up.
+  Object::Delete(obj);
 
   return 0;
 }

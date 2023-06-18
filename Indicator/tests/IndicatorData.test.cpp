@@ -21,11 +21,11 @@
 
 /**
  * @file
- * Test C++ compilation of DrawIndicator class.
+ * Test C++ compilation of IndicatorData class.
  */
 
 // Includes.
-#include "../DrawIndicator.mqh"
+#include "../IndicatorData.h"
 
 #include "../../Platform/Platform.h"
 

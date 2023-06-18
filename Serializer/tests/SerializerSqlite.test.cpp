@@ -21,11 +21,11 @@
 
 /**
  * @file
- * Test C++ compilation of Serializable class.
+ * Test C++ compilation of SerializerSqlite class.
  */
 
 // Includes.
-#include "../Serializable.h"
+#include "../SerializerSqlite.h"
 
 #include "../../Platform/Platform.h"
 

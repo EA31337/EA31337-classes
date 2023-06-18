@@ -21,13 +21,13 @@
 
 /**
  * @file
- * Test C++ compilation of DrawIndicator class.
+ * Test C++ compilation of Chart3D class.
  */
 
 // Includes.
-#include "../DrawIndicator.mqh"
+#include "../Chart3D.h"
 
-#include "../../Platform/Platform.h"
+#include "../../../Platform/Platform.h"
 
 int main(int argc, char **argv) {
   // @todo

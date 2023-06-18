@@ -21,13 +21,13 @@
 
 /**
  * @file
- * Test C++ compilation of DrawIndicator class.
+ * Test functionality of Database class.
  */
 
 // Includes.
-#include "../DrawIndicator.mqh"
+#include "../Database.h"
 
-#include "../../Platform/Platform.h"
+#include "../../Test.mqh"
 
 int main(int argc, char **argv) {
   // @todo

@@ -26,10 +26,10 @@
 
 // Includes.
 #include "../AccountMt.h"
+
 #include "../../../Platform/Platform.h"
 
 int main(int argc, char **argv) {
-
   // @todo
 
   return 0;

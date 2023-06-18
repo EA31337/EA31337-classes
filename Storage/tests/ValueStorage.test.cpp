@@ -21,11 +21,11 @@
 
 /**
  * @file
- * Test C++ compilation of DrawIndicator class.
+ * Test C++ compilation of ValueStorage class.
  */
 
 // Includes.
-#include "../DrawIndicator.mqh"
+#include "../ValueStorage.h"
 
 #include "../../Platform/Platform.h"
 

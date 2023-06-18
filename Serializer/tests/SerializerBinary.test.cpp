@@ -21,11 +21,11 @@
 
 /**
  * @file
- * Test C++ compilation of Serializable class.
+ * Test C++ compilation of SerializerBinary class.
  */
 
 // Includes.
-#include "../Serializable.h"
+#include "../SerializerBinary.h"
 
 #include "../../Platform/Platform.h"
 

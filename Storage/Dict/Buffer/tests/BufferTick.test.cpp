@@ -21,13 +21,13 @@
 
 /**
  * @file
- * Test C++ compilation of Serializable class.
+ * Test C++ compilation of Dict class.
  */
 
 // Includes.
-#include "../Serializable.h"
+#include "../BufferTick.h"
 
-#include "../../Platform/Platform.h"
+#include "../../../../Platform/Platform.h"
 
 int main(int argc, char **argv) {
   // @todo

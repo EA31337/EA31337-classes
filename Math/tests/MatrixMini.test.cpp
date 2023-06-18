@@ -21,11 +21,11 @@
 
 /**
  * @file
- * Test C++ compilation of DrawIndicator class.
+ * Test C++ compilation of MatrixMini class.
  */
 
 // Includes.
-#include "../DrawIndicator.mqh"
+#include "../MatrixMini.h"
 
 #include "../../Platform/Platform.h"
 

@@ -21,13 +21,11 @@
 
 /**
  * @file
- * Test C++ compilation of DrawIndicator class.
+ * Test C++ compilation of ItemsHistory class.
  */
 
 // Includes.
-#include "../DrawIndicator.mqh"
-
-#include "../../Platform/Platform.h"
+#include "../ItemsHistory.h"
 
 int main(int argc, char **argv) {
   // @todo

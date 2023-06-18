@@ -21,11 +21,11 @@
 
 /**
  * @file
- * Test C++ compilation of Serializable class.
+ * Test C++ compilation of SerializerNodeParam class.
  */
 
 // Includes.
-#include "../Serializable.h"
+#include "../SerializerNodeParam.h"
 
 #include "../../Platform/Platform.h"
 

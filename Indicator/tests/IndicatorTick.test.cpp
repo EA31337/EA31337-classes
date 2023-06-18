@@ -21,11 +21,11 @@
 
 /**
  * @file
- * Test C++ compilation of DrawIndicator class.
+ * Test functionality of IndicatorTick class.
  */
 
 // Includes.
-#include "../DrawIndicator.mqh"
+#include "../IndicatorTick.h"
 
 #include "../../Platform/Platform.h"
 

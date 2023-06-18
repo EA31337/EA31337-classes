@@ -28,7 +28,6 @@
 #include "../IndiBufferCache.h"
 
 int main(int argc, char **argv) {
-
   // @todo: Add more tests.
   // ...
 

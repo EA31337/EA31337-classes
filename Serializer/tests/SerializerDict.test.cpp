@@ -21,11 +21,11 @@
 
 /**
  * @file
- * Test C++ compilation of Serializable class.
+ * Test C++ compilation of SerializerDict class.
  */
 
 // Includes.
-#include "../Serializable.h"
+#include "../SerializerDict.h"
 
 #include "../../Platform/Platform.h"
 
