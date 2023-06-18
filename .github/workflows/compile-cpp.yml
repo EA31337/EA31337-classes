@@ -14,21 +14,6 @@ on:
 
 jobs:
 
-  FileList:
-    outputs:
-      filelist: ${{ steps.get-files.outputs.filelist }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set output with list of files
-        id: get-files
-        run: |
-          import glob, json, os
-          files = glob.glob("**/tests/*.cpp")
-          print("::set-output name=filelist::{}".format(json.dumps(files)))
-        shell: python
-      - name: Display output
-        run: echo ${{ steps.get-files.outputs.filelist }}
   Compile-Cpp:
     runs-on: ubuntu-latest
     steps:
@@ -41,16 +26,9 @@ jobs:
         run: make
   Compile-Emscripten:
     runs-on: ubuntu-latest
-    needs: [Compile-Cpp, FileList]
-    strategy:
-      matrix:
-        file: ${{ fromJson(needs.FileList.outputs.filelist) }}
     steps:
       - uses: actions/checkout@v3
       - name: Install Emscripten toolchain
         uses: mymindstorm/setup-emsdk@v11
-      - name: Compile ${{ matrix.file }} via emcc
-        run: >
-          emcc -s WASM=1 -s ENVIRONMENT=node -s EXIT_RUNTIME=0 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=1 -Wall -s
-          MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 --bind -s EXPORTED_FUNCTIONS="[]" -g -std=c++17
-          "${{ matrix.file }}"
+      - name: Compile via emcc
+        run: make CC=emcc
