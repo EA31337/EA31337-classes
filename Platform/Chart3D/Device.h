@@ -33,6 +33,7 @@
 #include "Math.h"
 #include "Mesh.h"
 #include "Shader.h"
+#include "ShaderVertexLayout.struct.h"
 #include "VertexBuffer.h"
 
 enum GFX_DRAW_TEXT_FLAGS { GFX_DRAW_TEXT_FLAG_NONE, GFX_DRAW_TEXT_FLAG_2D_COORD_X, GFX_DRAW_TEXT_FLAG_2D_COORD_Y };

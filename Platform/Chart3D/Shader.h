@@ -55,17 +55,6 @@ struct MVPBuffer {
   // char _unused2[1];
 };
 
-// Vertex layout used for Vertex Shaders.
-struct ShaderVertexLayout {
-  string name;
-  unsigned int index;
-  ENUM_GFX_VAR_TYPE_FLOAT type;
-  unsigned int num_components;
-  bool clamped;
-  unsigned int stride;
-  unsigned int offset;
-};
-
 /**
  * Unified vertex/pixel shader.
  */
