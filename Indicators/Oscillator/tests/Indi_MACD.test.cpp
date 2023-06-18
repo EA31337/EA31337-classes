@@ -25,7 +25,7 @@
  */
 
 // Include enumerations.
-#include "../../../Chart.enum.h"
+#include "../../../Platform/Chart/Chart.enum.h"
 
 // Define external functions.
 

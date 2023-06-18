@@ -36,7 +36,7 @@ struct IndicatorDataEntry;
 struct IndicatorParams;
 
 // Includes.
-#include "Chart.struct.h"
+#include "Platform/Chart/Chart.struct.h"
 
 /* Structure for strategy price stops. */
 struct StrategyPriceStop {

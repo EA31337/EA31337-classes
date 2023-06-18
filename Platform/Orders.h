@@ -25,7 +25,7 @@ class Orders;
 
 // Includes.
 #include "../Exchange/Account/Account.h"
-#include "../Chart.struct.static.h"
+#include "Chart/Chart.struct.static.h"
 #include "../Log.mqh"
 #include "../Math.h"
 #include "Order.h"

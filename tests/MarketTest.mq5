@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../Chart.define.h"
+#include "../Platform/Chart/Chart.define.h"
 #include "../Market.mqh"
 #include "../Test.mqh"
 

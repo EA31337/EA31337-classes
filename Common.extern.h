@@ -26,7 +26,7 @@
 #include <csignal>
 #include <string>
 
-#include "Chart.enum.h"
+#include "Platform/Chart/Chart.enum.h"
 #include "Storage/DateTime.enum.h"
 #include "Platform/Terminal.define.h"
 

@@ -26,7 +26,7 @@
  */
 
 // Includes.
-#include "../Chart.enum.h"
+#include "../Platform/Chart/Chart.enum.h"
 #include "../Serializer/SerializerConverter.h"
 #include "../Serializer/SerializerJson.h"
 

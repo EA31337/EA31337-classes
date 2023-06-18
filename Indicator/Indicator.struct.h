@@ -37,7 +37,7 @@ struct ChartParams;
 
 // Includes.
 #include "../Storage/Array.h"
-#include "../Chart.struct.tf.h"
+#include "../Platform/Chart/Chart.struct.tf.h"
 #include "../Storage/Data.struct.h"
 #include "../Storage/DateTime.struct.h"
 #include "../Serializer/SerializerNode.enum.h"

@@ -35,7 +35,7 @@
 #endif
 
 // Includes.
-#include "../Chart.struct.tf.h"
+#include "../Platform/Chart/Chart.struct.tf.h"
 #include "IndicatorCandle.h"
 #include "IndicatorRenko.provider.h"
 #include "IndicatorRenko.struct.h"

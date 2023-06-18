@@ -35,15 +35,15 @@ class Class;
 struct ChartTf;
 
 // Includes.
-#include "Storage/Array.h"
-#include "Bar.struct.h"
+#include "../../Storage/Array.h"
+#include "../../Bar.struct.h"
 #include "Chart.define.h"
 #include "Chart.enum.h"
 #include "Chart.struct.static.h"
 #include "Chart.struct.tf.h"
-#include "Serializer/Serializer.h"
-#include "Serializer/SerializerNode.enum.h"
-#include "Platform/Terminal.define.h"
+#include "../../Serializer/Serializer.h"
+#include "../../Serializer/SerializerNode.enum.h"
+#include "../Terminal.define.h"
 
 /* Defines struct to store bar entries. */
 struct ChartEntry {

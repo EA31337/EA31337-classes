@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "Chart.mqh"
+#include "Platform/Chart/Chart.h"
 #include "Platform/Platform.h"
 
 /**

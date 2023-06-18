@@ -41,7 +41,7 @@
 #include "../Devices/MTDX/MTDXVertexBuffer.h"
 #include "../Frontends/MT5Frontend.h"
 #include "../../Storage/Dict/Buffer/BufferStruct.h"
-#include "../../Chart.mqh"
+#include "../../Platform/Chart/Chart.h"
 #include "../../Platform/Platform.h"
 #include "../../Serializer/Serializer.h"
 #include "../../Test.mqh"

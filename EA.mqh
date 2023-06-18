@@ -30,7 +30,7 @@
 #define EA_MQH
 
 // Includes.
-#include "Chart.mqh"
+#include "Platform/Chart/Chart.h"
 #include "Storage/Data.struct.h"
 #include "Storage/Dict/Dict.h"
 #include "Storage/Dict/DictObject.h"

@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../../Chart.mqh"
+#include "../Chart/Chart.h"
 #include "../Order.h"
 #include "../Platform.h"
 #include "../../Serializer/SerializerConverter.h"

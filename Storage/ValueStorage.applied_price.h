@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../Chart.struct.h"
+#include "../Platform/Chart/Chart.struct.h"
 #include "Cache/ObjectsCache.h"
 #include "ValueStorage.history.h"
 

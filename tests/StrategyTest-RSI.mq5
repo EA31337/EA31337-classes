@@ -28,7 +28,7 @@
 //#define __debug_verbose__
 
 // Includes.
-#include "../ChartMt.h"
+#include "../Platform/Chart/ChartMt.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Indicators/Oscillator/Indi_RSI.h"
 #include "../Indicators/Tick/Indi_TickMt.h"

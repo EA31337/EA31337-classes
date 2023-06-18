@@ -25,9 +25,9 @@
  */
 
 // Includes.
-#include "../Chart.mqh"
-#include "../Convert.mqh"
-#include "../Test.mqh"
+#include "../Chart.h"
+#include "../../../Convert.mqh"
+#include "../../../Test.mqh"
 
 /**
  * Implements OnInit().

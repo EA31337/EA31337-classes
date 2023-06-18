@@ -21,16 +21,19 @@
 
 /**
  * @file
- * Test C++ compilation of ChartTest class.
+ * Test functionality of ChartMt class.
  */
 
 // Includes.
-#include "../Chart.mqh"
-#include "../Platform/Platform.h"
+#include "../ChartMt.h"
+#include "../../../Test.mqh"
 
-int main(int argc, char **argv) {
+/**
+ * Implements OnInit().
+ */
+int OnInit() {
 
-  // @todo
+  // @todo: Write some tests...
 
-  return 0;
+  return (INIT_SUCCEEDED);
 }

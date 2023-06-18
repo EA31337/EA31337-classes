@@ -26,7 +26,7 @@
 
 // Includes.
 #include "BufferStruct.h"
-#include "../../../Chart.enum.h"
+#include "../../../Platform/Chart/Chart.enum.h"
 #include "../../IValueStorage.h"
 #include "../../../Tick/Tick.struct.h"
 

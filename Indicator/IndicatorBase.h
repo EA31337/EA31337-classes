@@ -33,7 +33,7 @@
 // Includes.
 #include "../Storage/Array.h"
 #include "../Storage/Dict/Buffer/BufferStruct.h"
-#include "../Chart.struct.tf.h"
+#include "../Platform/Chart/Chart.struct.tf.h"
 #include "../Storage/DateTime.h"
 #include "../Log.mqh"
 #include "../Storage/Object.h"

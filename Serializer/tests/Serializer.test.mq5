@@ -28,7 +28,7 @@
 
 // Includes.
 #include "../../Storage/Dict/Buffer/BufferStruct.h"
-#include "../../Chart.mqh"
+#include "../../Platform/Chart/Chart.h"
 #include "../../Config.mqh"
 #include "../../Storage/Data.define.h"
 #include "../../Storage/Data.struct.h"

@@ -28,7 +28,7 @@
 class Chart;
 
 // Includes.
-#include "Chart.mqh"
+#include "Platform/Chart/Chart.h"
 #include "Log.mqh"
 #include "SymbolInfo.mqh"
 //#include "Market.mqh"

@@ -35,7 +35,7 @@ class Serializer;
 
 // Includes.
 #include "Bar.enum.h"
-#include "Chart.enum.h"
+#include "Platform/Chart/Chart.enum.h"
 #include "Serializer/Serializable.h"
 #include "Serializer/Serializer.enum.h"
 #include "Serializer/Serializer.h"

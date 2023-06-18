@@ -70,7 +70,7 @@ Find below the table of conversion (replace code on left with the right one):
 
 | MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
 |:---------------------|:---------------------------|:----------------------|
-| `WindowRedraw()`     | `Chart::WindowRedraw()`    | `Chart.mqh`           |
+| `WindowRedraw()`     | `Chart::WindowRedraw()`    | `Platform/Chart/Chart.h` |
 | `Day()`              | `DateTime::Day()` | `Storage/DateTime.h` |
 | `TimeDayOfWeek()`    | `DateTime::DayOfWeek()` | `Storage/DateTime.h` |
 | `DayOfWeek()`        | `DateTime::DayOfWeek()` | `Storage/DateTime.h` |
@@ -136,16 +136,16 @@ Here are the special [predefined variables](https://docs.mql4.com/predefined) co
 | MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
 |:---------------------|:-----------------------------|:--------------------|
 | `Ask`                | `SymbolInfo::GetAsk()`       | `SymbolInfo.struct.static.h` |
-| `Bars`               | `ChartStatic::iBars()`       | `Chart.struct.static.h` |
+| `Bars`               | `ChartStatic::iBars()`       | `Platform/Chart/Chart.struct.static.h` |
 | `Bid`                | `SymbolInfo::GetBid()`       | `SymbolInfo.struct.static.h` |
-| `Close[]`            | `ChartStatic::iClose()`      | `Chart.struct.static.h` |
+| `Close[]`            | `ChartStatic::iClose()`      | `Platform/Chart/Chart.struct.static.h` |
 | `Digits`             | `SymbolInfo::GetDigits()`    | `SymbolInfo.struct.static.h` |
-| `High[]`             | `ChartStatic::iHigh()`       | `Chart.struct.static.h` |
-| `Low[]`              | `ChartStatic::iLow()`        | `Chart.struct.static.h` |
-| `Open[]`             | `ChartStatic::iOpen()`       | `Chart.struct.static.h` |
+| `High[]`             | `ChartStatic::iHigh()`       | `Platform/Chart/Chart.struct.static.h` |
+| `Low[]`              | `ChartStatic::iLow()`        | `Platform/Chart/Chart.struct.static.h` |
+| `Open[]`             | `ChartStatic::iOpen()`       | `Platform/Chart/Chart.struct.static.h` |
 | `Point`              | `SymbolInfo::GetPointSize()` | `SymbolInfo.struct.static.h` |
-| `Time[]`             | `ChartStatic::iTime()`       | `Chart.struct.static.h` |
-| `Volume[]`           | `ChartStatic::iVolume()`     | `Chart.struct.static.h` |
+| `Time[]`             | `ChartStatic::iTime()`       | `Platform/Chart/Chart.struct.static.h` |
+| `Volume[]`           | `ChartStatic::iVolume()`     | `Platform/Chart/Chart.struct.static.h` |
 
 </details>
 

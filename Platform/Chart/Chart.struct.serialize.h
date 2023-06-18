@@ -22,31 +22,26 @@
 
 /**
  * @file
- * Includes SymbolTf struct.
+ * Includes Chart's struct serializers.
  */
 
-#ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
-#endif
+// Forward class declaration.
+class Serializer;
 
 // Includes.
-#include "Std.h"
+#include "../../Serializer/Serializer.h"
+#include "../../Serializer/SerializerNode.enum.h"
 
-/**
- * Represents symbol and timeframe. To be used by IndicatorBase and ChartBase classes.
- */
-struct SymbolTf {
-  const string symbol;
-  const ENUM_TIMEFRAMES tf;
-  const string symbol_tf_key;
+/* Method to serialize ChartEntry structure. */
+SerializerNodeType ChartEntry::Serialize(Serializer& _s) {
+  _s.PassStruct(THIS_REF, "bar", bar, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  return SerializerNodeObject;
+}
 
-  CONST_REF_TO(string) Key() const { return symbol_tf_key; }
-  CONST_REF_TO(string) Symbol() const { return symbol; }
-  ENUM_TIMEFRAMES Tf() const { return tf; }
-
-  SymbolTf(string _symbol, ENUM_TIMEFRAMES _tf)
-      : symbol(_symbol), tf(_tf), symbol_tf_key(_symbol + "_" + IntegerToString((int)_tf)) {}
-
-  bool operator==(const SymbolTf& _r) const { return symbol_tf_key == _r.symbol_tf_key; }
-};
+/* Method to serialize ChartParams structure. */
+SerializerNodeType ChartParams::Serialize(Serializer& s) {
+  s.Pass(THIS_REF, "id", id);
+  s.Pass(THIS_REF, "symbol", symbol);
+  // s.PassStruct(THIS_REF, "tf", tf); // @fixme
+  return SerializerNodeObject;
+}

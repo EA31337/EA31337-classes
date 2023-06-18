@@ -369,7 +369,7 @@ _NULL_VALUE::operator string() const {
 #endif
 
 #ifndef __MQL__
-#include "Chart.enum.h"
+#include "Platform/Chart/Chart.enum.h"
 /**
  * Returns currently selected period for platform.
  */

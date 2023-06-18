@@ -33,7 +33,7 @@
 // Includes.
 #include "Chart.struct.static.h"
 #include "Chart.symboltf.h"
-#include "Platform/Terminal.define.h"
+#include "../Terminal.define.h"
 
 #ifdef __DISABLED
 
