@@ -160,7 +160,7 @@ bool DropTable(string _name) {
 /**
  * Imports data into table. First row must contain column names. Strings must be enclosed with double quotes.
  */
-bool ImportData(const string _name, MiniMatrix2d<string> &data) {
+bool ImportData(const string _name, MatrixMini2d<string> &data) {
   if (data.SizeY() < 2 || data.SizeX() == 0) {
     // No data to import or there are no columns in input data (Serialize() serialized no fields).
     return true;

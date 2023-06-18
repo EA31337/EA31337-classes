@@ -50,8 +50,8 @@ class SerializerSqlite {
   static bool ConvertToFile(SerializerConverter& source, string _path, string _table, unsigned int _stringify_flags = 0,
                             void* _stub = NULL) {
     // We must have titles tree as
-    MiniMatrix2d<string> _matrix_out;
-    MiniMatrix2d<SerializerNodeParamType> _column_types;
+    MatrixMini2d<string> _matrix_out;
+    MatrixMini2d<SerializerNodeParamType> _column_types;
     string _csv = SerializerCsv::Stringify(source.root_node, _stringify_flags | SERIALIZER_CSV_INCLUDE_TITLES, _stub,
                                            &_matrix_out, &_column_types);
 

@@ -28,14 +28,14 @@
 #include "../Platform/Platform.extern.h"
 
 template <typename T>
-class MiniMatrix2d {
+class MatrixMini2d {
  public:
   ARRAY(T, data);
   int size_x;
   int size_y;
 
-  MiniMatrix2d() {}
-  MiniMatrix2d(int _size_x, int _size_y) : size_x(_size_x), size_y(_size_y) { Resize(_size_x, _size_y); }
+  MatrixMini2d() {}
+  MatrixMini2d(int _size_x, int _size_y) : size_x(_size_x), size_y(_size_y) { Resize(_size_x, _size_y); }
 
   void Resize(int _size_x, int _size_y) {
     ArrayResize(data, _size_x * _size_y);
