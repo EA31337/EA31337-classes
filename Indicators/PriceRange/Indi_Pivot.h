@@ -21,10 +21,10 @@
  */
 
 // Includes.
-#include "../Bar.struct.h"
-#include "../Indicator/Indicator.struct.h"
-#include "../Serializer/Serializer.h"
-#include "Special/Indi_Math.mqh"
+#include "../../Bar.struct.h"
+#include "../../Indicator/Indicator.struct.h"
+#include "../../Serializer/Serializer.h"
+#include "../Special/Indi_Math.mqh"
 
 // Structs.
 struct IndiPivotParams : IndicatorParams {

@@ -28,4 +28,5 @@
 // Price indicators.
 #include "Indi_Bands.h"
 #include "Indi_Envelopes.h"
+#include "Indi_Pivot.h"
 #include "Indi_SAR.h"
