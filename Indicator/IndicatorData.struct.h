@@ -25,6 +25,11 @@
  * Includes IndicatorData's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 #define STRUCT_ENUM_IDATA_PARAM STRUCT_ENUM(IndicatorDataParams, ENUM_IDATA_PARAM)
 #define STRUCT_ENUM_INDICATOR_DATA_STATE_PROP STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_DATA_STATE_PROP)

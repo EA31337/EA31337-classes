@@ -36,7 +36,7 @@ class VolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  VolumeValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<long>(_indi_candle) {}
+  VolumeValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<long>(_indi_candle) {}
 
   /**
    * Copy constructor.

@@ -27,8 +27,9 @@
 // Includes.
 #include "../Exchange/Account/Account.enum.h"
 #include "../Storage/Data.define.h"
-#include "Deal.enum.h"
+#include "../Storage/DateTime.h"
 #include "../Storage/Object.extern.h"
+#include "Deal.enum.h"
 #include "Order.define.h"
 #include "Order.enum.h"
 #include "Terminal.enum.h"
@@ -176,5 +177,9 @@ extern bool ObjectMove(int64 chart_id, string name, int point_index, datetime ti
 extern bool ObjectDelete(int64 chart_id, string name);
 
 extern int ObjectFind(int64 chart_id, string name);
+
+int GetLastError() { return _LastError; }
+
+void ResetLastError() { _LastError = 0; }
 
 #endif

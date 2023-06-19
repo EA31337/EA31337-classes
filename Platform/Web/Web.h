@@ -29,6 +29,9 @@
 #ifndef WEB_MQH
 #define WEB_MQH
 
+// Includes.
+#include "../../Platform/Platform.h"
+
 struct WebRequestParams {
   string method;
   string url;
@@ -37,18 +40,17 @@ struct WebRequestParams {
   string referer;
   int timeout;
   WebRequestParams(string _m, string _u, string _h = NULL, int _t = 500)
-    : method(_m), url(_u), headers(_h), timeout(_t) {};
+      : method(_m), url(_u), headers(_h), timeout(_t){};
   WebRequestParams(string _m, string _u, string _c, string _r = NULL, int _t = 500)
-    : method(_m), url(_u), cookie(_c), referer(_r), timeout(_t) {};
-  WebRequestParams(string _u, string _h = NULL, int _t = 500)
-    : method("GET"), url(_u), headers(_h), timeout(_t) {};
+      : method(_m), url(_u), cookie(_c), referer(_r), timeout(_t){};
+  WebRequestParams(string _u, string _h = NULL, int _t = 500) : method("GET"), url(_u), headers(_h), timeout(_t){};
 };
 
 struct WebRequestResult {
-  char data[];
-  char result[];
+  ARRAY(char, data);
+  ARRAY(char, result);
   int error;
-  int http_code; // HTTP server response code or -1 for an error.
+  int http_code;  // HTTP server response code or -1 for an error.
   string headers;
 };
 
@@ -56,39 +58,30 @@ struct WebRequestResult {
  * Implements Web class.
  */
 class Web {
+ private:
+ public:
+  /**
+   * Class constructor.
+   */
+  Web() {}
 
-  private:
-
-  public:
-
-    /**
-     * Class constructor.
-     */
-    Web() {
+  /**
+   * Web request.
+   *
+   * Note: Make sure to add URL to the list of allowed URLs in the Terminal.
+   */
+  WebRequestResult Request(const WebRequestParams &_rp) {
+    ResetLastError();
+    WebRequestResult _res;
+    if (StringLen(_rp.headers) > 0) {
+      _res.http_code = WebRequest(_rp.method, _rp.url, _rp.headers, _rp.timeout, _res.data, _res.result, _res.headers);
+    } else {
+      int _size = 0;  // @fixme: data[] array size in bytes.
+      _res.http_code = WebRequest(_rp.method, _rp.url, _rp.cookie, _rp.referer, _rp.timeout, _res.data, _size,
+                                  _res.result, _res.headers);
     }
-
-    /**
-     * Web request.
-     *
-     * Note: Make sure to add URL to the list of allowed URLs in the Terminal.
-     */
-    WebRequestResult Request(const WebRequestParams &_rp) {
-      ResetLastError();
-      WebRequestResult _res;
-      if (StringLen(_rp.headers) > 0) {
-        _res.http_code = WebRequest(
-          _rp.method, _rp.url, _rp.headers, _rp.timeout,
-          _res.data, _res.result, _res.headers);
-      }
-      else {
-        int _size = 0; // @fixme: data[] array size in bytes.
-        _res.http_code = WebRequest(
-          _rp.method, _rp.url, _rp.cookie, _rp.referer, _rp.timeout,
-          _res.data, _size, _res.result, _res.headers);
-      }
-      _res.error = GetLastError();
-      return _res;
-    }
-
+    _res.error = GetLastError();
+    return _res;
+  }
 };
 #endif

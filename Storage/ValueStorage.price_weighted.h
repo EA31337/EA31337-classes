@@ -36,7 +36,7 @@ class PriceWeightedValueStorage : public HistoryValueStorage<double> {
   /**
    * Constructor.
    */
-  PriceWeightedValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
+  PriceWeightedValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
 
   /**
    * Copy constructor.

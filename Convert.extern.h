@@ -28,6 +28,8 @@
 #include <cmath>
 #include <sstream>
 
+#include "Storage/String.h"
+
 // Define external global functions.
 double NormalizeDouble(double value, int digits) { return std::round(value / digits) * digits; }
 

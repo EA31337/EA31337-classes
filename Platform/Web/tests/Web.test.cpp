@@ -24,22 +24,34 @@
  * Test C++ compilation of Web class.
  */
 
+// Includes.
+#include "../../../Storage/String.h"
+
 // External functions.
-extern int WebRequest(const string method,    // HTTP method
-                      const string url,       // URL
-                      const string cookie,    // cookie
-                      const string referer,   // referer
-                      int timeout,            // timeout
-                      const char &data[],     // the array of the HTTP message body
-                      int data_size,          // data[] array size in bytes
-                      char &result[],         // an array containing server response data
-                      string &result_headers  // headers of server response
+extern int WebRequest(const string method,      // HTTP method
+                      const string url,         // URL
+                      const string cookie,      // cookie
+                      const string referer,     // referer
+                      int timeout,              // timeout
+                      ARRAY_REF(char, data),    // the array of the HTTP message body
+                      int data_size,            // data[] array size in bytes
+                      ARRAY_REF(char, result),  // an array containing server response data
+                      string &result_headers    // headers of server response
+);
+
+// External functions.
+extern int WebRequest(const string method,      // HTTP method
+                      const string url,         // URL
+                      const string headers,     // headers
+                      int timeout,              // timeout
+                      ARRAY_REF(char, data),    // the array of the HTTP message body
+                      ARRAY_REF(char, result),  // an array containing server response data
+                      string &result_headers    // headers of server response
 );
 
 // Includes.
-#include "../Web.h"
-
 #include "../../Platform/Platform.h"
+#include "../Web.h"
 
 int main(int argc, char **argv) {
   // @todo

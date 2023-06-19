@@ -37,21 +37,18 @@
 #include "Storage/Dict/Dict.h"
 #include "Util.h"
 
-template<typename T>
+template <typename T>
 class Instances {
-public:
-
+ public:
   static T* instances[];
-  Instances(T* _self) {
-    Util::ArrayPush(instances, _self);
-  }
+  Instances(T* _self) { Util::ArrayPush(instances, _self); }
 
   ~Instances() {
-    //Util::ArrayRemove(instances, &this);
+    // Util::ArrayRemove(instances, &this);
   }
 };
 
-template<typename T>
-T* Instances::instances[];
+template <typename T>
+T* Instances<T>::instances[];
 
 #endif  // INSTANCES_MQH

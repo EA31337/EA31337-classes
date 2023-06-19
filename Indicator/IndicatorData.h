@@ -40,12 +40,12 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 
 // Includes.
 #include "../Bar.struct.h"
+#include "../Exchange/SymbolInfo/SymbolInfo.struct.h"
 #include "../Platform/Chart/Chart.struct.tf.h"
 #include "../Storage/Cache/IndiBufferCache.h"
 #include "../Storage/Flags.struct.h"
 #include "../Storage/IValueStorage.h"
 #include "../Storage/ItemsHistory.h"
-#include "../Exchange/SymbolInfo/SymbolInfo.struct.h"
 #include "Indicator.enum.h"
 #include "IndicatorBase.h"
 #include "IndicatorData.enum.h"
@@ -1053,13 +1053,6 @@ class IndicatorData : public IndicatorBase {
     return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub);
   }
 
-  template <typename T>
-  T GetValue(int _mode = 0, int _rel_shift = 0) {
-    T _out;
-    GetEntryValue(_mode, ToAbsShift(_rel_shift)).Get(_out);
-    return _out;
-  }
-
   /* Virtual methods */
 
   /**
@@ -1151,9 +1144,14 @@ class IndicatorData : public IndicatorBase {
   virtual double GetBid(int _shift = 0) { return GetTick() PTR_DEREF GetBid(_shift); }
 
   /**
+   * Gets OHLC price values.
+   */
+  virtual BarOHLC GetOHLC(int _rel_shift = 0) { return GetCandle() PTR_DEREF GetOHLC(_rel_shift); }
+
+  /**
    * Returns the number of bars on the chart decremented by iparams.shift.
    */
-  virtual int GetBars() { return GetCandle() PTR_DEREF GetBars(); }
+  int GetBars() override { return GetCandle() PTR_DEREF GetBars(); }
 
   /**
    * Returns index of the current bar.
@@ -1163,7 +1161,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns time of the bar for a given shift.
    */
-  virtual datetime GetBarTime(int _rel_shift = 0) {
+  datetime GetBarTime(int _rel_shift = 0) override {
     IndicatorData* _indi = GetCandle(false);
 
     if (_indi == nullptr) _indi = GetTick(false);
@@ -1194,7 +1192,7 @@ class IndicatorData : public IndicatorBase {
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
    * indicator. IndicatorCandle satisfies such requirements.
    */
-  virtual IndicatorData* GetCandle(bool _warn_if_not_found = true, IndicatorData* _originator = nullptr) {
+  IndicatorData* GetCandle(bool _warn_if_not_found = true, IndicatorData* _originator = nullptr) override {
     if (_originator == nullptr) {
       _originator = THIS_PTR;
     }
@@ -1252,11 +1250,6 @@ class IndicatorData : public IndicatorBase {
   // virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = NULL;
 
   /**
-   * Returns the indicator's entry value.
-   */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) = 0;
-
-  /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
   virtual int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
@@ -1298,11 +1291,6 @@ class IndicatorData : public IndicatorBase {
   virtual double GetOpen(int _shift = 0) { return GetCandle() PTR_DEREF GetOpen(_shift); }
 
   /**
-   * Gets OHLC price values.
-   */
-  virtual BarOHLC GetOHLC(int _rel_shift = 0) { return GetCandle() PTR_DEREF GetOHLC(_rel_shift); }
-
-  /**
    * Get peak price at given number of bars.
    *
    * In case of error, check it via GetLastError().
@@ -1330,7 +1318,7 @@ class IndicatorData : public IndicatorBase {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual long GetSpread(int _shift = 0) { return GetCandle() PTR_DEREF GetSpread(_shift); }
+  long GetSpread(int _shift = 0) override { return GetCandle() PTR_DEREF GetSpread(_shift); }
 
   /**
    * Returns spread in pips.
@@ -1789,7 +1777,7 @@ class IndicatorData : public IndicatorBase {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual long GetVolume(int _shift = 0) { return GetCandle() PTR_DEREF GetVolume(_shift); }
+  long GetVolume(int _shift = 0) override { return GetCandle() PTR_DEREF GetVolume(_shift); }
 
   /**
    * Sends entry to listening indicators.
@@ -1918,16 +1906,6 @@ class IndicatorData : public IndicatorBase {
     // @todo
     return false;
   };
-
-  /**
-   * Converts relative shift into absolute one.
-   */
-  virtual int ToAbsShift(int _rel_shift) = 0;
-
-  /**
-   * Converts absolute shift into relative one.
-   */
-  virtual int ToRelShift(int _abs_shift) = 0;
 
   /**
    * Loads and validates built-in indicators whose can be used as data source.

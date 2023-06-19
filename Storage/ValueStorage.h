@@ -65,7 +65,8 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
       _cache.GetPriceBuffer(PRICE_HIGH), _cache.GetPriceBuffer(PRICE_LOW), _cache.GetPriceBuffer(PRICE_CLOSE), \
       _tick_volume, _volume, _spread
 
-#define INDICATOR_CALCULATE_GET_PARAMS_SHORT _cache.GetTotal(), _cache.GetPrevCalculated(), 0, _cache.GetPriceBuffer()
+#define INDICATOR_CALCULATE_GET_PARAMS_SHORT \
+  _cache PTR_DEREF GetTotal(), _cache PTR_DEREF GetPrevCalculated(), 0, PTR_TO_REF(_cache PTR_DEREF GetPriceBuffer())
 
 #define INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)                                    \
   IndiBufferCache<double> *_cache;                                                       \

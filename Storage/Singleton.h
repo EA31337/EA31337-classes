@@ -45,6 +45,6 @@ class Singleton {
 };
 
 template <typename C>
-C Singleton::_ref;
+C Singleton<C>::_ref;
 
 #endif  // SINGLETON_H

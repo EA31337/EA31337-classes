@@ -25,9 +25,10 @@
 #define BUFFER_TICK_H
 
 // Includes.
+#include "../../../Indicator/IndicatorData.enum.h"
 #include "../../../Platform/Chart/Chart.enum.h"
 #include "../../../Tick/Tick.struct.h"
-#include "../../IValueStorage.h"
+#include "../../ValueStorage.h"
 #include "BufferStruct.h"
 
 // Forward declarations.
