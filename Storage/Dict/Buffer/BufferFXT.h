@@ -99,8 +99,8 @@ struct BufferFXTEntry {
 
 // FXT file header.
 struct BufferFXTHeader {
-  int version;            // Header version: 405
-  char copyright[64];     // Copyright/description.
+  int version;                   // Header version: 405
+  ARRAY(char, copyright[64];     // Copyright/description.
   char description[128];  // Account server name.
                           // 196
   char symbol[12];        // Symbol pair.
@@ -209,11 +209,11 @@ struct BufferFXTHeader {
         swap_long(_source PTR_DEREF GetSymbolProps().GetSwapLong()),
         swap_short(_source PTR_DEREF GetSymbolProps().GetSwapShort()),
         swap_rollover3days(3),
-        leverage((int)_a.GetLeverage()),
+        leverage((int)_a PTR_DEREF GetLeverage()),
         free_margin_mode(MARGIN_DONT_USE),
         margin_mode(MARGIN_CALC_FOREX),
         margin_stopout(30),  // @fixme: _a.GetStopoutLevel() based on ACCOUNT_MARGIN_SO_CALL.
-        margin_stopout_mode(_a.GetStopoutMode()),
+        margin_stopout_mode(_a PTR_DEREF GetStopoutMode()),
         margin_initial(_source PTR_DEREF GetSymbolProps().GetMarginInit()),
         margin_maintenance(_source PTR_DEREF GetSymbolProps().GetMarginMaintenance()),
         margin_hedged(0),

@@ -72,27 +72,27 @@ class SerializerBinary {
         break;
       case SerializerNodeObjectProperty:
       case SerializerNodeArrayItem:
-        switch (_node PTR_DEREF GetValueParam().GetType()) {
+        switch (_node PTR_DEREF GetValueParam() PTR_DEREF GetType()) {
           case SerializerNodeParamBool:
-            bytes[offset] = _node PTR_DEREF GetValueParam()._integral._bool;
+            bytes[offset] = _node PTR_DEREF GetValueParam() PTR_DEREF _integral._bool;
             break;
           case SerializerNodeParamDouble:
-            value.Double = _node PTR_DEREF GetValueParam()._integral._double;
+            value.Double = _node PTR_DEREF GetValueParam() PTR_DEREF _integral._double;
             for (i = 0; i < sizeof(value.Double); ++i) {
               bytes[offset + i] = value.Bytes[i];
             }
             break;
           case SerializerNodeParamLong:
-            value.Long = _node PTR_DEREF GetValueParam()._integral._long;
+            value.Long = _node PTR_DEREF GetValueParam() PTR_DEREF _integral._long;
             for (i = 0; i < sizeof(value.Long); ++i) {
               bytes[offset + i] = value.Bytes[i];
             }
             break;
           case SerializerNodeParamString:
-            for (i = 0; i < StringLen(_node PTR_DEREF GetValueParam()._string); ++i) {
-              bytes[offset + i] = (unsigned char)_node PTR_DEREF GetValueParam()._string[i];
+            for (i = 0; i < StringLen(_node PTR_DEREF GetValueParam() PTR_DEREF _string); ++i) {
+              bytes[offset + i] = (unsigned char)_node PTR_DEREF GetValueParam() PTR_DEREF _string[i];
             }
-            bytes[StringLen(_node PTR_DEREF GetValueParam()._string)] = '\0';
+            bytes[StringLen(_node PTR_DEREF GetValueParam() PTR_DEREF _string)] = '\0';
             break;
         }
         break;
