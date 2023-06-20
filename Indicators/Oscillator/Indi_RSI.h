@@ -20,6 +20,11 @@
  *
  */
 
+/**
+ * @file
+ * Implements Relative Strength Index (RSI) indicator.
+ */
+
 // Includes.
 #include "../../Storage/Dict/DictStruct.h"
 #include "../../Indicator/Indicator.h"

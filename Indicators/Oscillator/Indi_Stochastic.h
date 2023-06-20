@@ -20,6 +20,11 @@
  *
  */
 
+/**
+ * @file
+ * Implements Stochastic indicator.
+ */
+
 // Includes.
 #include "../../Indicator/Indicator.h"
 #include "../Price/Indi_MA.h"

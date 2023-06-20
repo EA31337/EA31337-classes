@@ -20,6 +20,11 @@
  *
  */
 
+/**
+ * @file
+ * Implements Williams Percent Range (WPR) indicator.
+ */
+
 // Includes.
 #include "../../Indicator/Indicator.h"
 #include "../../Platform/Terminal.h"

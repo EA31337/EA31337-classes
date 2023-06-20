@@ -20,6 +20,11 @@
  *
  */
 
+/**
+ * @file
+ * Implements Moving Average Convergence Divergence (MACD) indicator.
+ */
+
 // Includes.
 #include "../../Indicator/Indicator.h"
 
