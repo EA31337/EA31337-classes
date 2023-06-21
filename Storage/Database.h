@@ -35,6 +35,8 @@
 // Includes.
 #include "../Math/MatrixMini.h"
 #include "../Storage/Dict/DictStruct.h"
+#include "Database.enum.h"
+#include "Database.extern.h"
 #include "Database.struct.h"
 
 class Database {
@@ -175,7 +177,7 @@ bool ImportData(const string _name, MatrixMini2d<string> &data) {
       for (x = 0; x < data.SizeX(); ++x) {
         _query += data.Get(x, y) + (x < data.SizeX() - 1 ? ", " : "");
       }
-      _query += ")" + (y < data.SizeY() - 1 ? ",\n" : "");
+      _query += ")" + (string)(y < data.SizeY() - 1 ? ",\n" : "");
     }
 
 #ifdef __debug__
