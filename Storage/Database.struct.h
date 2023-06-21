@@ -25,13 +25,6 @@
  *
  */
 
-// Enums.
-enum DATABASE_COLUMN_FLAGS {
-  DATABASE_COLUMN_FLAG_NONE = 0,
-  DATABASE_COLUMN_FLAG_IS_KEY = 1,
-  DATABASE_COLUMN_FLAG_IS_NULL = 2,
-};
-
 // Structs.
 struct DatabaseTableColumnEntry {
   string name;

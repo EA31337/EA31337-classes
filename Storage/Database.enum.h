@@ -20,11 +20,19 @@
  *
  */
 
+// Enums.
+
+enum ENUM_DATABASE_COLUMN_FLAGS {
+  DATABASE_COLUMN_FLAG_NONE = 0,
+  DATABASE_COLUMN_FLAG_IS_KEY = 1,
+  DATABASE_COLUMN_FLAG_IS_NULL = 2,
+};
+
 // @docs: https://www.mql5.com/en/docs/database/databaseopen#enum_database_open_flags
 enum ENUM_DATABASE_OPEN_FLAGS {
-  DATABASE_OPEN_READONLY,   // Read only.
-  DATABASE_OPEN_READWRITE,  // Open for reading and writing.
-  DATABASE_OPEN_CREATE,     // Create the file on a disk if necessary.
-  DATABASE_OPEN_MEMORY,     // Create a database in RAM.
-  DATABASE_OPEN_COMMON,     // The file is in the common folder of all terminals.
+  DATABASE_OPEN_READONLY = 0,  // Read only.
+  DATABASE_OPEN_READWRITE,     // Open for reading and writing.
+  DATABASE_OPEN_CREATE,        // Create the file on a disk if necessary.
+  DATABASE_OPEN_MEMORY,        // Create a database in RAM.
+  DATABASE_OPEN_COMMON,        // The file is in the common folder of all terminals.
 };
