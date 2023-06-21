@@ -7,7 +7,7 @@ MAKEFILES := $(wildcard **/tests/Makefile)
 all: $(MAKEFILES)
 	@for makefile in $(MAKEFILES); do \
 		echo "Compiling $$makefile"; \
-		$(MAKE) -C $$(dirname $$makefile) CFLAGS="$(CFLAGS)" EMCC_CFLAGS="$(EMCC_CFLAGS)"; \
+		$(MAKE) -C $$(dirname $$makefile) CFLAGS="$(CFLAGS)" EMCC_CFLAGS="$(EMCC_CFLAGS)" || exit $$?; \
 	done
 
 clean: $(MAKEFILES)
