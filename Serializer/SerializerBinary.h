@@ -115,7 +115,7 @@ class SerializerBinary {
 
     Serializer serializer(node, Unserialize);
 
-    if (logger != NULL) serializer.Logger().Link(logger);
+    // if (logger != NULL) serializer.Logger().Link(logger);
 
     // We don't use result. We parse data as it is.
     obj.Serialize(serializer);
