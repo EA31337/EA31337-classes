@@ -23,7 +23,7 @@
 // Includes.
 #include "../../Indicator/Indicator.h"
 
-#ifdef __MQL5__
+#ifndef __MQL4__
 // Forward declaration.
 class Indi_MACD;
 

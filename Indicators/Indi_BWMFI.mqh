@@ -24,6 +24,9 @@
 #include "../Indicator/Indicator.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_BWMFI;
+
 // Defines global functions (for MQL4 backward compability).
 double iBWMFI(string _symbol, int _tf, int _shift) {
   ResetLastError();

@@ -24,6 +24,9 @@
 #include "../Indicator/Indicator.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_RVI;
+
 // Defines global functions (for MQL4 backward compability).
 double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
   ResetLastError();

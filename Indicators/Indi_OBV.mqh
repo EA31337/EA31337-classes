@@ -24,6 +24,9 @@
 #include "../Indicator/Indicator.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_OBV;
+
 // Defines global functions (for MQL4 backward compability).
 double iOBV(string _symbol, int _tf, int _av, int _shift) {
   ResetLastError();

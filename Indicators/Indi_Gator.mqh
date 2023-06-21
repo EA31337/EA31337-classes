@@ -31,6 +31,9 @@
 #include "../Indicator/Indicator.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_Gator;
+
 // Defines global functions (for MQL4 backward compability).
 double iGator(string _symbol, int _tf, int _jp, int _js, int _tp, int _ts, int _lp, int _ls, int _ma_method, int _ap,
               int _mode, int _shift) {

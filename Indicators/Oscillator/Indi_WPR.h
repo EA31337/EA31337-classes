@@ -25,6 +25,9 @@
 #include "../../Platform/Terminal.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_WPR;
+
 // Defines global functions (for MQL4 backward compability).
 double iWPR(string _symbol, int _tf, int _period, int _shift) {
   ResetLastError();

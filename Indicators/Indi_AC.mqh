@@ -29,6 +29,17 @@
 #include "../Indicator/Indicator.h"
 #include "../Storage/Dict/Buffer/BufferStruct.h"
 
+#ifndef __MQL4__
+// Forward declaration.
+class Indi_AC;
+
+// Defines global functions (for MQL4 backward compability).
+double iAC(string _symbol, int _tf, int _shift) {
+  ResetLastError();
+  return Indi_AC::iAC(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
+}
+#endif
+
 // Structs.
 struct IndiACParams : IndicatorParams {
   // Struct constructor.
@@ -139,16 +150,8 @@ class Indi_AC : public Indicator<IndiACParams> {
     if (!Objects<Indi_AC>::TryGet(_key, _ptr)) {
       _ptr = Objects<Indi_AC>::Set(_key, new Indi_AC());
       // Assigning the same candle indicator for AC as in _indi.
-      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
+      _ptr PTR_DEREF SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }
 };
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iAC(string _symbol, int _tf, int _shift) {
-  ResetLastError();
-  return Indi_AC::iAC(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
-}
-#endif

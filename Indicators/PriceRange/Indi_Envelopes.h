@@ -28,6 +28,9 @@
 #include "../Price/Indi_Price.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_Envelopes;
+
 // Defines global functions (for MQL4 backward compability).
 double iEnvelopes(string _symbol, int _tf, int _period, int _ma_method, int _ma_shift, int _ap, double _deviation,
                   int _mode, int _shift) {

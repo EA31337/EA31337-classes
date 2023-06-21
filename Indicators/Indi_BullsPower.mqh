@@ -24,6 +24,9 @@
 #include "../Indicator/Indicator.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_BullsPower;
+
 // Defines global functions (for MQL4 backward compability).
 double iBullsPower(string _symbol, int _tf, int _period, int _ap, int _shift) {
   ResetLastError();

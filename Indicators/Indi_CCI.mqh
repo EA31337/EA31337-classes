@@ -27,6 +27,9 @@
 #include "Price/Indi_Price.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_CCI;
+
 // Defines global functions (for MQL4 backward compability).
 double iCCI(string _symbol, int _tf, int _period, int _ap, int _shift) {
   ResetLastError();

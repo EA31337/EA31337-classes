@@ -34,6 +34,9 @@ enum ENUM_STO_PRICE {
 #endif
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_Stochastic;
+
 // Defines global functions (for MQL4 backward compability).
 double iStochastic(string _symbol, int _tf, int _kperiod, int _dperiod, int _slowing, int _ma_method, int _pf,
                    int _mode, int _shift) {

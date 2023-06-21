@@ -31,6 +31,9 @@
 #include "../Price/Indi_Price.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_Bands;
+
 // Defines global functions (for MQL4 backward compability).
 double iBands(string _symbol, int _tf, int _period, double _deviation, int _bands_shift, int _ap, int _mode,
               int _shift) {

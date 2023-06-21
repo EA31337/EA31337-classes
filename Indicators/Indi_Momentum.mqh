@@ -34,6 +34,9 @@
 #include "Indi_PriceFeeder.mqh"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_Momentum;
+
 // Defines global functions (for MQL4 backward compability).
 double iMomentum(string _symbol, int _tf, int _period, int _ap, int _shift) {
   ResetLastError();

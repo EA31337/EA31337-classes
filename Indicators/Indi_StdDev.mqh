@@ -34,6 +34,9 @@
 #include "Price/Indi_MA.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_StdDev;
+
 // Defines global functions (for MQL4 backward compability).
 double iStdDev(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
   ResetLastError();

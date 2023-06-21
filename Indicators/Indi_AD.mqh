@@ -20,10 +20,18 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_AD;
+
 // Defines global functions (for MQL4 backward compability).
 double iAD(string _symbol, int _tf, int _shift) {
   ResetLastError();

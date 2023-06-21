@@ -24,6 +24,9 @@
 #include "../Indicator/Indicator.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_Fractals;
+
 // Defines global functions (for MQL4 backward compability).
 double iFractals(string _symbol, int _tf, int _mode, int _shift) {
   ResetLastError();

@@ -44,7 +44,7 @@ enum ENUM_MA_METHOD {
 };
 #endif
 
-#ifdef __MQL5__
+#ifndef __MQL4__
 // Forward declaration.
 class Indi_MA;
 

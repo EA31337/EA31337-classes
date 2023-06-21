@@ -24,6 +24,9 @@
 #include "../../Indicator/Indicator.h"
 
 #ifndef __MQL4__
+// Forward declaration.
+class Indi_SAR;
+
 // Defines global functions (for MQL4 backward compability).
 double iSAR(string _symbol, int _tf, double _step, double _max, int _shift) {
   ResetLastError();
