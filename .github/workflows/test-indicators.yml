@@ -86,7 +86,6 @@ jobs:
           - Indi_Momentum.test
           - Indi_OBV.test
           - Indi_OsMA.test
-          - Indi_Pivot.test
           - Indi_PriceChannel.test
           - Indi_PriceFeeder.test
           - Indi_PriceVolumeTrend.test

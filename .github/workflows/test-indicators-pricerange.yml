@@ -52,6 +52,7 @@ jobs:
         test:
           - Indi_Bands.test
           - Indi_Envelopes.test
+          - Indi_Pivot.test
           - Indi_SAR.test
     steps:
       - uses: actions/download-artifact@v3

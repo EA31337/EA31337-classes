@@ -62,7 +62,6 @@
 #include "Indi_Momentum.mqh"
 #include "Indi_OBV.mqh"
 #include "Indi_OsMA.mqh"
-#include "Indi_Pivot.mqh"
 #include "Indi_PriceChannel.mqh"
 #include "Indi_PriceFeeder.mqh"
 #include "Indi_PriceVolumeTrend.mqh"

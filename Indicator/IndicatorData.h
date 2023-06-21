@@ -46,6 +46,7 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 #include "../Storage/Flags.struct.h"
 #include "../Storage/IValueStorage.h"
 #include "../Storage/ItemsHistory.h"
+#include "../Exchange/SymbolInfo/SymbolInfo.struct.h"
 #include "Indicator.enum.h"
 #include "IndicatorBase.h"
 #include "IndicatorData.enum.h"
