@@ -33,16 +33,9 @@
 #define DATABASE_H
 
 // Includes.
-#include "../Storage/Dict/DictStruct.h"
 #include "../Math/MatrixMini.h"
+#include "../Storage/Dict/DictStruct.h"
 #include "Database.struct.h"
-
-// Enums.
-enum DATABASE_COLUMN_FLAGS {
-  DATABASE_COLUMN_FLAG_NONE = 0,
-  DATABASE_COLUMN_FLAG_IS_KEY = 1,
-  DATABASE_COLUMN_FLAG_IS_NULL = 2,
-};
 
 class Database {
  private:

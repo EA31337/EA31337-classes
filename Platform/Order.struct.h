@@ -35,7 +35,7 @@
 #include "Order.enum.h"
 #include "Platform.extern.h"
 #include "../Serializer/Serializer.h"
-#include "../SymbolInfo.struct.static.h"
+#include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
 #include "Terminal.h"
 
 #ifndef __MQL5__

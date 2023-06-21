@@ -40,7 +40,7 @@ struct DrawTextQueueItem {
  */
 class Frontend : public Dynamic {
  protected:
-  DrawTextQueueItem draw_text_queue[];
+  ARRAY(DrawTextQueueItem, draw_text_queue);
 
  public:
   /**

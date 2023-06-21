@@ -60,6 +60,7 @@
 #define nullptr NULL
 #define REF_DEREF .Ptr().
 #define int64 long
+#define VOID_DATA(N) void*& N[]
 #else
 #define THIS_ATTR this->
 #define THIS_PTR (this)
@@ -71,6 +72,7 @@
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
 #define REF_DEREF .Ptr()->
 #define int64 long long
+#define VOID_DATA(N) void* N
 #endif
 
 // References.
@@ -114,6 +116,7 @@
  *   ARRAY(<type of the array items>, <name of the variable>)
  */
 #define ARRAY(T, N) T N[]
+#define FIXED_ARRAY(T, N, SIZE) T N[SIZE]
 
 #else
 /**
@@ -141,6 +144,7 @@
  *   ARRAY(<type of the array items>, <name of the variable>)
  */
 #define ARRAY(T, N) ::_cpp_array<T> N
+#define FIXED_ARRAY(T, N, SIZE) T N[SIZE]
 #endif
 
 // typename(T)

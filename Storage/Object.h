@@ -25,10 +25,10 @@
 #define OBJECT_H
 
 // Includes.
-#include "Object.enum.h"
-#include "Object.extern.h"
 #include "../Refs.mqh"
 #include "../Refs.struct.h"
+#include "Object.enum.h"
+#include "Object.extern.h"
 #include "String.h"
 
 /**

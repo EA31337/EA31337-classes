@@ -25,10 +25,11 @@
 #define BUFFER_TICK_H
 
 // Includes.
-#include "BufferStruct.h"
+#include "../../../Indicator/IndicatorData.enum.h"
 #include "../../../Platform/Chart/Chart.enum.h"
-#include "../../IValueStorage.h"
 #include "../../../Tick/Tick.struct.h"
+#include "../../ValueStorage.h"
+#include "BufferStruct.h"
 
 // Forward declarations.
 template <typename TV>
@@ -40,8 +41,8 @@ class BufferTickValueStorage : ValueStorage<TV> {
   // Poiner to buffer to take tick from.
   BufferTick<TV> *buffer_tick;
 
-  // INDI_DATA_VS_TYPE_PRICE_ASK, INDI_DATA_VS_TYPE_PRICE_BID, INDI_DATA_VS_TYPE_SPREAD, INDI_DATA_VS_TYPE_TICK_VOLUME or
-  // INDI_DATA_VS_TYPE_VOLUME.
+  // INDI_DATA_VS_TYPE_PRICE_ASK, INDI_DATA_VS_TYPE_PRICE_BID, INDI_DATA_VS_TYPE_SPREAD, INDI_DATA_VS_TYPE_TICK_VOLUME
+  // or INDI_DATA_VS_TYPE_VOLUME.
   ENUM_INDI_DATA_VS_TYPE vs_type;
 
  public:

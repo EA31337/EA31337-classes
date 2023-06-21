@@ -30,8 +30,8 @@
 #endif
 
 // Includes.
-#include "../Storage/Dict/DictStruct.h"
 #include "../Refs.mqh"
+#include "../Storage/Dict/DictStruct.h"
 
 /**
  * Stores objects to be reused using a string-based key.

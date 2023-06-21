@@ -28,8 +28,8 @@
 #include "Market.struct.h"
 #include "Math/Math.h"
 #include "Serializer/Serializer.h"
-#include "SymbolInfo.mqh"
-#include "SymbolInfo.struct.static.h"
+#include "Exchange/SymbolInfo/SymbolInfo.h"
+#include "Exchange/SymbolInfo/SymbolInfo.struct.static.h"
 #include "Task/TaskCondition.enum.h"
 
 /**

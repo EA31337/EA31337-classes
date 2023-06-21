@@ -36,7 +36,7 @@ class PriceTypicalValueStorage : public HistoryValueStorage<double> {
   /**
    * Constructor.
    */
-  PriceTypicalValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
+  PriceTypicalValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
 
   /**
    * Copy constructor.

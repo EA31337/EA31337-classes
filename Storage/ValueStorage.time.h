@@ -37,7 +37,7 @@ class TimeValueStorage : public HistoryValueStorage<datetime> {
   /**
    * Constructor.
    */
-  TimeValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<datetime>(_indi_candle) {}
+  TimeValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<datetime>(_indi_candle) {}
 
   /**
    * Copy constructor.

@@ -34,11 +34,22 @@
 #include <tuple>
 
 #include "../Math/Math.extern.h"
-#include "../Std.h"
 #include "../Platform/Terminal.define.h"
+#include "../Std.h"
 
 // Define external global functions.
 double StringToDouble(string value) { return std::stod(value); }
+
+string StringTrimLeft(string text) {
+  text.erase(text.begin(), std::find_if(text.begin(), text.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+  return text;
+}
+
+string StringTrimRight(string text) {
+  text.erase(std::find_if(text.rbegin(), text.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(),
+             text.end());
+  return text;
+}
 
 auto StringFind(const string string_value, string match_substring, int start_pos = 0) -> int {
   return string_value.find(match_substring);
@@ -102,6 +113,26 @@ unsigned short StringGetCharacter(string string_value, int pos) {
   return string_value[pos];
 }
 
+bool StringInit(string& string_var, int new_len = 0, unsigned short character = 0) {
+  string_var = string(new_len, (char)character);
+  return true;
+}
+
+string CharArrayToString(ARRAY_REF(unsigned char, arr), int start = 0, int count = -1, unsigned int codepage = CP_ACP) {
+  if (count == -1) count = (arr.size() - start);
+
+  int _end = MathMin(count - start, arr.size());
+
+  string result;
+  StringInit(result, count);
+
+  for (int i = 0; i < count; ++i) {
+    result[i] = arr[i];
+  }
+
+  return result;
+}
+
 int StringToCharArray(string text_string, ARRAY_REF(unsigned char, array), int start = 0, int count = -1,
                       unsigned int codepage = CP_ACP) {
   if (count == -1) count = text_string.size();
@@ -110,11 +141,6 @@ int StringToCharArray(string text_string, ARRAY_REF(unsigned char, array), int s
     array.push((unsigned char)text_string[i]);
 
   return array.size();
-}
-
-bool StringInit(string& string_var, int new_len = 0, unsigned short character = 0) {
-  string_var = string(new_len, (char)character);
-  return true;
 }
 
 /**

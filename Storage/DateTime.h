@@ -37,6 +37,7 @@
 struct DataParamEntry;
 
 // Includes class enum and structs.
+#include "../Platform/PlatformTime.h"
 #include "Array.h"
 #include "Data.struct.h"
 #include "DateTime.entry.h"
@@ -44,7 +45,6 @@ struct DataParamEntry;
 #include "DateTime.extern.h"
 #include "DateTime.static.h"
 #include "DateTime.struct.h"
-#include "../Platform/PlatformTime.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).

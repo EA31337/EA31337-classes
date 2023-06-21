@@ -32,8 +32,8 @@
 #include "../../Indicators/Price/Indi_Price.h"
 #include "../../Serializer/SerializerConverter.h"
 #include "../../Serializer/SerializerJson.h"
-#include "../ValueStorage.h"
 #include "../../Test.mqh"
+#include "../ValueStorage.h"
 
 // Global variables.
 double _test_values[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};

@@ -36,13 +36,13 @@ class Indicator;
 struct ChartParams;
 
 // Includes.
-#include "../Storage/Array.h"
 #include "../Platform/Chart/Chart.struct.tf.h"
+#include "../Serializer/SerializerNode.enum.h"
+#include "../Storage/Array.h"
+#include "../Storage/Cache/IndiBufferCache.h"
 #include "../Storage/Data.struct.h"
 #include "../Storage/DateTime.struct.h"
-#include "../Serializer/SerializerNode.enum.h"
 #include "Indicator.enum.h"
-#include "../Storage/Cache/IndiBufferCache.h"
 //#include "Indicator.struct.serialize.h"
 
 /* Structure for indicator parameters. */

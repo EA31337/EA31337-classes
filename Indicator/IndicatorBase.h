@@ -31,18 +31,23 @@
 #endif
 
 // Includes.
-#include "../Storage/Array.h"
-#include "../Storage/Dict/Buffer/BufferStruct.h"
-#include "../Platform/Chart/Chart.struct.tf.h"
-#include "../Storage/DateTime.h"
+#include "../Bar.struct.h"
 #include "../Log.mqh"
-#include "../Storage/Object.h"
+#include "../Platform/Chart/Chart.struct.tf.h"
 #include "../Platform/Platform.extern.h"
 #include "../Refs.mqh"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerCsv.h"
 #include "../Serializer/SerializerJson.h"
+#include "../Storage/Array.h"
+#include "../Storage/DateTime.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
+#include "../Storage/Object.h"
 #include "../Util.h"
+#include "IndicatorData.struct.h"
+
+// Forward declarations.
+class IndicatorData;
 
 /**
  * Class to deal with indicators.
@@ -186,7 +191,29 @@ class IndicatorBase : public Object {
    */
   // void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
 
+  template <typename T>
+  T GetValue(int _mode = 0, int _rel_shift = 0) {
+    T _out;
+    GetEntryValue(_mode, ToAbsShift(_rel_shift)).Get(_out);
+    return _out;
+  }
+
   /* Virtual methods */
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) = 0;
+
+  /**
+   * Converts relative shift into absolute one.
+   */
+  virtual int ToAbsShift(int _rel_shift) = 0;
+
+  /**
+   * Converts absolute shift into relative one.
+   */
+  virtual int ToRelShift(int _abs_shift) = 0;
 
   /**
    * Get name of the indicator.
@@ -202,6 +229,46 @@ class IndicatorBase : public Object {
    * Get more descriptive name of the indicator.
    */
   virtual string GetDescriptiveName() { return GetName(); }
+
+  /**
+   * Traverses source indicators' hierarchy and tries to find OHLC-featured
+   * indicator. IndicatorCandle satisfies such requirements.
+   */
+  virtual IndicatorData* GetCandle(bool _warn_if_not_found = true, IndicatorData* _originator = nullptr) = 0;
+
+  /**
+   * Returns the number of bars on the chart decremented by iparams.shift.
+   */
+  virtual int GetBars() = 0;
+
+  /**
+   * Returns time of the bar for a given shift.
+   */
+  virtual datetime GetBarTime(int _rel_shift = 0) = 0;
+
+  /**
+   * Gets OHLC price values.
+   */
+  virtual BarOHLC GetOHLC(int _rel_shift = 0) = 0;
+
+  /**
+   * Returns the current price value given applied price type, symbol and timeframe.
+   */
+  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, int _rel_shift = 0) = 0;
+
+  /**
+   * Returns spread for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  virtual long GetSpread(int _shift = 0) = 0;
+
+  /**
+   * Returns volume value for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  virtual long GetVolume(int _shift = 0) = 0;
 
   /**
    * Returns indicator value for a given shift and mode.

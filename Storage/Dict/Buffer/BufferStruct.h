@@ -25,9 +25,9 @@
 #define BUFFER_STRUCT_H
 
 // Includes.
+#include "../../../Serializer/Serializer.h"
 #include "../DictBase.h"
 #include "../DictStruct.h"
-#include "../../../Serializer/Serializer.h"
 
 /**
  * Implements BufferStruct's Overflow Listener.

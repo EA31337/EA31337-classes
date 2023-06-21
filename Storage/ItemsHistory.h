@@ -29,8 +29,8 @@
 #pragma once
 #endif
 
-#include "../Storage/Dict/DictStruct.h"
 #include "../Refs.mqh"
+#include "../Storage/Dict/DictStruct.h"
 
 /**
  * Direction used by ItemsHistoryItemProvider's methods.

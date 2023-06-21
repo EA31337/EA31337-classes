@@ -31,11 +31,11 @@
 #endif
 
 // Includes.
-#include "Serializer/Serializable.h"
-#include "Serializer/Serializer.h"
-#include "Std.h"
+#include "../../Serializer/Serializable.h"
+#include "../../Serializer/Serializer.h"
+#include "../../Std.h"
 #include "SymbolInfo.struct.static.h"
-#include "Tick/Tick.struct.h"
+#include "../../Tick/Tick.struct.h"
 
 // Defines struct to store symbol data.
 struct SymbolInfoEntry

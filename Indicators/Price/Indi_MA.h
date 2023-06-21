@@ -25,22 +25,22 @@
 #define INDI_MA_H
 
 // Includes.
-#include "../../Storage/Dict/Dict.h"
-#include "../../Storage/Dict/DictObject.h"
 #include "../../Indicator/Indicator.h"
 #include "../../Refs.mqh"
+#include "../../Storage/Dict/Dict.h"
+#include "../../Storage/Dict/DictObject.h"
 #include "../../Storage/Singleton.h"
-#include "../../Storage/ValueStorage.h"
 #include "../../Storage/String.h"
+#include "../../Storage/ValueStorage.h"
 
 #ifndef __MQL__
 // Enums.
 // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/enum_ma_method
 enum ENUM_MA_METHOD {
-  MODE_SMA = 0, // Simple averaging.
-  MODE_EMA, // Exponential averaging.
-  MODE_SMMA, // Smoothed averaging.
-  MODE_LWMA, // Linear-weighted averaging.
+  MODE_SMA = 0,  // Simple averaging.
+  MODE_EMA,      // Exponential averaging.
+  MODE_SMMA,     // Smoothed averaging.
+  MODE_LWMA,     // Linear-weighted averaging.
 };
 #endif
 
@@ -140,7 +140,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price), 0,
                                       _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -153,13 +153,14 @@ class Indi_MA : public Indicator<IndiMAParams> {
    * Calculates MA on another indicator.
    */
   static double iMAOnIndicator(IndicatorData *_target, IndicatorData *_source, string symbol, ENUM_TIMEFRAMES tf,
-                               unsigned int ma_period, unsigned int ma_shift,
+                               int ma_period, int ma_shift,
                                ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                ENUM_APPLIED_PRICE _ap, int shift = 0) {
     // We need 1 bar more because MA methods assumes we have historic bars.
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_source, int(ma_period + ma_shift + shift + 1));
-    ValueStorage<double> *_data = (ValueStorage<double> *)_source.GetSpecificAppliedPriceValueStorage(_ap, _target);
-    return iMAOnArray(_data, 0, ma_period, ma_shift, ma_method, shift, _target PTR_DEREF GetCache());
+    ValueStorage<double> *_data =
+        (ValueStorage<double> *)_source PTR_DEREF GetSpecificAppliedPriceValueStorage(_ap, _target);
+    return iMAOnArray(PTR_TO_REF(_data), 0, ma_period, ma_shift, ma_method, shift, _target PTR_DEREF GetCache());
   }
 
   /**
@@ -174,7 +175,8 @@ class Indi_MA : public Indicator<IndiMAParams> {
     NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();
     _array_storage PTR_DEREF SetData(price);
 
-    return iMAOnArray((ValueStorage<double> *)_array_storage, total, ma_period, ma_shift, ma_method, shift, cache);
+    return iMAOnArray(PTR_TO_REF((ValueStorage<double> *)_array_storage), total, ma_period, ma_shift, ma_method, shift,
+                      cache);
 #endif
   }
 
@@ -184,18 +186,19 @@ class Indi_MA : public Indicator<IndiMAParams> {
   static double iMAOnArray(ValueStorage<double> &price, int total, int ma_period, int ma_shift, int ma_method,
                            int shift, IndiBufferCache<double> *_cache = NULL, bool recalculate = false) {
     if (_cache != NULL) {
-      _cache.SetPriceBuffer(price);
+      _cache PTR_DEREF SetPriceBuffer(price);
 
       if (!_cache PTR_DEREF HasBuffers()) {
         _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>();
       }
 
       if (recalculate) {
-        _cache.ResetPrevCalculated();
+        _cache PTR_DEREF ResetPrevCalculated();
       }
 
-      _cache.SetPrevCalculated(
-          Indi_MA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0), ma_method, ma_period));
+      _cache PTR_DEREF SetPrevCalculated(Indi_MA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT,
+                                                            PTR_TO_REF(_cache PTR_DEREF GetBuffer<double>(0)),
+                                                            ma_method, ma_period));
 
       // Returns value from the first calculation buffer.
       // Returns first value for as-series array or last value for non-as-series array.

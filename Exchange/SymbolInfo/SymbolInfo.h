@@ -37,9 +37,9 @@ class Log;
 class SymbolInfo;
 
 // Includes.
-#include "Log.mqh"
-#include "Serializer/Serializer.h"
-#include "Serializer/SerializerNode.enum.h"
+#include "../../Log.mqh"
+#include "../../Serializer/Serializer.h"
+#include "../../Serializer/SerializerNode.enum.h"
 
 /**
  * Class to provide symbol information.

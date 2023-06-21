@@ -24,10 +24,8 @@
  * Median price version of ValueStorage.
  */
 
-// Forward declarations.
-class IndicatorBase;
-
 // Includes.
+#include "../Indicator/IndicatorBase.h"
 #include "Cache/ObjectsCache.h"
 #include "ValueStorage.history.h"
 
@@ -39,7 +37,7 @@ class PriceMedianValueStorage : public HistoryValueStorage<double> {
   /**
    * Constructor.
    */
-  PriceMedianValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
+  PriceMedianValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
 
   /**
    * Copy constructor.

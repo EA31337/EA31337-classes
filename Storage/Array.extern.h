@@ -80,13 +80,19 @@ bool ArrayReverse(ARRAY_REF(T, _array)) {
 }
 
 template <typename T>
-extern int ArrayInitialize(ARRAY_REF(T, array), char value) {
+int ArrayInitialize(ARRAY_REF(T, array), char value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+template <typename T, int size>
+int ArrayInitialize(FIXED_ARRAY_REF(T, array, size), char value) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
 template <typename T>
-extern int ArraySort(ARRAY_REF(T, array)) {
+int ArraySort(ARRAY_REF(T, array)) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }

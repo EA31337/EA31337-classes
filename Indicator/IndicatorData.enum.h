@@ -67,7 +67,7 @@ enum ENUM_INDI_DATA_VS_TYPE {
   INDI_DATA_VS_TYPE_PRICE_WEIGHTED,  // Candle.
   INDI_DATA_VS_TYPE_PRICE_BID,       // Tick.
   INDI_DATA_VS_TYPE_PRICE_ASK,       // Tick.
-                                // Indexed value storages, available if indicator have buffer at this index:
+                                     // Indexed value storages, available if indicator have buffer at this index:
   INDI_DATA_VS_TYPE_INDEX_0,
   INDI_DATA_VS_TYPE_INDEX_1,
   INDI_DATA_VS_TYPE_INDEX_2,

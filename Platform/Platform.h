@@ -46,11 +46,11 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
  * Current platform's static methods.
  */
 
-#include "../Indicators/DrawIndicator.mqh"
-#include "../Storage/Flags.struct.h"
 #include "../Indicator/IndicatorData.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
+#include "../Indicators/DrawIndicator.mqh"
 #include "../Std.h"
+#include "../Storage/Flags.struct.h"
 
 #ifdef __MQLBUILD__
 #include "../Indicators/Tick/Indi_TickMt.h"
@@ -59,7 +59,7 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
 #include "../Indicators/Tick/Indi_TickProvider.h"
 #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickProvider
 #endif
-#include "../SymbolInfo.struct.static.h"
+#include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
 
 class Platform {
   // Whether Init() was already called.
@@ -745,10 +745,6 @@ bool ObjectDelete(int64 chart_id, string name) {
   return false;
 }
 
-int GetLastError() { return _LastError; }
-
-void ResetLastError() { _LastError = 0; }
-
 int ObjectFind(int64 chart_id, string name) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
@@ -827,29 +823,29 @@ datetime StructToTime(MqlDateTime &dt_struct) {
 /**
  * Will test given indicator class with platform-default data source bindings.
  */
-#define TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, PARAMS)                                                    \
-  Ref<C> indi = new C(PARAMS);                                                                               \
-                                                                                                             \
-  int OnInit() {                                                                                             \
-    Platform::Init();                                                                                        \
-    Platform::AddWithDefaultBindings(indi.Ptr(), "EURUSD", PERIOD_M1);                                       \
-    bool _result = true;                                                                                     \
-    assertTrueOrFail(indi REF_DEREF IsValid(), "Error on IsValid!");                                         \
-    return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);                           \
-  }                                                                                                          \
-                                                                                                             \
-  void OnTick() {                                                                                            \
-    Platform::Tick();                                                                                        \
-    if (Platform::IsNewHour()) {                                                                             \
-      IndicatorDataEntry _entry = indi REF_DEREF GetEntry();                                                 \
+#define TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, PARAMS)                                                             \
+  Ref<C> indi = new C(PARAMS);                                                                                        \
+                                                                                                                      \
+  int OnInit() {                                                                                                      \
+    Platform::Init();                                                                                                 \
+    Platform::AddWithDefaultBindings(indi.Ptr(), "EURUSD", PERIOD_M1);                                                \
+    bool _result = true;                                                                                              \
+    assertTrueOrFail(indi REF_DEREF IsValid(), "Error on IsValid!");                                                  \
+    return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);                                    \
+  }                                                                                                                   \
+                                                                                                                      \
+  void OnTick() {                                                                                                     \
+    Platform::Tick();                                                                                                 \
+    if (Platform::IsNewHour()) {                                                                                      \
+      IndicatorDataEntry _entry = indi REF_DEREF GetEntry();                                                          \
       bool _is_ready = indi REF_DEREF Get<bool>(STRUCT_ENUM(IndicatorDataState, INDICATOR_DATA_STATE_PROP_IS_READY)); \
-      bool _is_valid = _entry.IsValid();                                                                     \
-      Print(indi REF_DEREF ToString(), _is_ready ? " (Ready)" : " (Not yet ready)");                         \
-      if (_is_ready && !_is_valid) {                                                                         \
-        Print(indi REF_DEREF ToString(), " (Invalid entry!)");                                               \
-        assertTrueOrExit(_entry.IsValid(), "Invalid entry!");                                                \
-      }                                                                                                      \
-    }                                                                                                        \
+      bool _is_valid = _entry.IsValid();                                                                              \
+      Print(indi REF_DEREF ToString(), _is_ready ? " (Ready)" : " (Not yet ready)");                                  \
+      if (_is_ready && !_is_valid) {                                                                                  \
+        Print(indi REF_DEREF ToString(), " (Invalid entry!)");                                                        \
+        assertTrueOrExit(_entry.IsValid(), "Invalid entry!");                                                         \
+      }                                                                                                               \
+    }                                                                                                                 \
   }
 
 #define TEST_INDICATOR_DEFAULT_BINDINGS(C) TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, )

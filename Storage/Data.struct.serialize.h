@@ -31,8 +31,8 @@
 #endif
 
 // Includes.
-#include "Data.struct.h"
 #include "../Serializer/Serializer.h"
+#include "Data.struct.h"
 
 /* Method to serialize DataParamEntry struct. */
 SerializerNodeType DataParamEntry::Serialize(Serializer &s) {

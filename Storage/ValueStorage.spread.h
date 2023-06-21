@@ -36,7 +36,7 @@ class SpreadValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  SpreadValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<long>(_indi_candle) {}
+  SpreadValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<long>(_indi_candle) {}
 
   /**
    * Copy constructor.

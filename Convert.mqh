@@ -34,9 +34,9 @@
 #include "Storage/DateTime.h"
 #include "Math/Math.extern.h"
 #include "Platform/Order.enum.h"
-#include "SymbolInfo.enum.h"
-#include "SymbolInfo.extern.h"
-#include "SymbolInfo.struct.static.h"
+#include "Exchange/SymbolInfo/SymbolInfo.enum.h"
+#include "Exchange/SymbolInfo/SymbolInfo.extern.h"
+#include "Exchange/SymbolInfo/SymbolInfo.struct.static.h"
 
 /**
  * Class to provide conversion methods.

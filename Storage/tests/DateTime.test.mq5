@@ -25,8 +25,8 @@
  */
 
 // Includes.
-#include "../DateTime.h"
 #include "../../Test.mqh"
+#include "../DateTime.h"
 
 /**
  * Implements OnInit().

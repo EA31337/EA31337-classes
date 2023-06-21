@@ -25,9 +25,9 @@
  */
 
 // Includes.
-#include "../Redis.h"
 #include "../../Socket.mqh"
 #include "../../Test.mqh"
+#include "../Redis.h"
 
 // Properties.
 #property strict

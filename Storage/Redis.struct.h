@@ -58,7 +58,7 @@ struct RedisMessage {
   string Message;
 
   // Items of array returned from Redis.
-  string Items[];
+  ARRAY(string, Items);
 
   /**
    * Adds string value into Redis message array.

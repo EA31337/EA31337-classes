@@ -39,6 +39,7 @@
 #include "IndicatorCandle.h"
 #include "IndicatorRenko.provider.h"
 #include "IndicatorRenko.struct.h"
+#include "IndicatorTf.struct.h"
 
 /**
  * Renko candle type.

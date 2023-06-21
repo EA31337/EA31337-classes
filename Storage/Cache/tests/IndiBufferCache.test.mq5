@@ -32,7 +32,6 @@
  * Implements OnInit().
  */
 int OnInit() {
-
   // @todo: Add more tests.
   // ...
 

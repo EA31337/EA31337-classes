@@ -32,6 +32,7 @@
 
 // Includes.
 #include "../../Std.h"
+#include "../../Storage/String.extern.h"
 
 /**
  * Represents symbol and timeframe. To be used by IndicatorBase and ChartBase classes.

@@ -36,7 +36,7 @@ class TickVolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  TickVolumeValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<long>(_indi_candle) {}
+  TickVolumeValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<long>(_indi_candle) {}
 
   /**
    * Copy constructor.

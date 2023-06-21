@@ -36,7 +36,7 @@ class AccountMt;
 #include "../../Platform/Order.struct.h"
 #include "../../Platform/Orders.h"
 #include "../../Serializer/Serializer.h"
-#include "../../SymbolInfo.mqh"
+#include "../../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../../Task/TaskCondition.enum.h"
 #include "../../Trade.struct.h"
 #include "Account.define.h"

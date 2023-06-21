@@ -25,12 +25,15 @@
  */
 
 // Need to be include before Database.h.
-#include "../../SymbolInfo.mqh"  // FOOBAR pragma: keep
+#include "../../Exchange/SymbolInfo/SymbolInfo.h"  // FOOBAR pragma: keep
 
 // Includes.
+#include "../../Test.mqh"
+// clang-format off
+// Following include order is important.
 #include "../Dict/Buffer/BufferStruct.h"
 #include "../Database.h"
-#include "../../Test.mqh"
+// clang-format on
 
 // Global variables.
 Database *db;
