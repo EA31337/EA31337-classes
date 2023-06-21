@@ -99,19 +99,19 @@ struct BufferFXTEntry {
 
 // FXT file header.
 struct BufferFXTHeader {
-  int version;            // Header version: 405
-  char copyright[64];     // Copyright/description.
-  char description[128];  // Account server name.
-                          // 196
-  char symbol[12];        // Symbol pair.
-  int period;             // Period of data aggregation in minutes (timeframe).
-  int model;              // Model type: 0 - every tick, 1 - control points, 2 - bar open.
-  int bars;               // Bars - number of modeled bars in history.
-  int fromdate;           // Modelling start date - date of the first tick.
-  int todate;             // Modelling end date - date of the last tick.
-  int totalTicks;         // Total ticks. Add 4 bytes to align to the next double?
-  double modelquality;    // Modeling quality (max. 99.9).
-                          // 240
+  int version;                          // Header version: 405
+  FIXED_ARRAY(char, copyright, 64);     // Copyright/description.
+  FIXED_ARRAY(char, description, 128);  // Account server name.
+                                        // 196
+  FIXED_ARRAY(char, symbol, 12);        // Symbol pair.
+  int period;                           // Period of data aggregation in minutes (timeframe).
+  int model;                            // Model type: 0 - every tick, 1 - control points, 2 - bar open.
+  int bars;                             // Bars - number of modeled bars in history.
+  int fromdate;                         // Modelling start date - date of the first tick.
+  int todate;                           // Modelling end date - date of the last tick.
+  int totalTicks;                       // Total ticks. Add 4 bytes to align to the next double?
+  double modelquality;                  // Modeling quality (max. 99.9).
+                                        // 240
   // Market symbol properties.
   char currency[12];  // Base currency (12 bytes). Same as: StringLeft(symbol, 3)
   int spread;         // Spread in points. Same as: MarketInfo(MODE_SPREAD)
@@ -209,11 +209,11 @@ struct BufferFXTHeader {
         swap_long(_source PTR_DEREF GetSymbolProps().GetSwapLong()),
         swap_short(_source PTR_DEREF GetSymbolProps().GetSwapShort()),
         swap_rollover3days(3),
-        leverage((int)_a.GetLeverage()),
+        leverage((int)_a PTR_DEREF GetLeverage()),
         free_margin_mode(MARGIN_DONT_USE),
         margin_mode(MARGIN_CALC_FOREX),
         margin_stopout(30),  // @fixme: _a.GetStopoutLevel() based on ACCOUNT_MARGIN_SO_CALL.
-        margin_stopout_mode(_a.GetStopoutMode()),
+        margin_stopout_mode(_a PTR_DEREF GetStopoutMode()),
         margin_initial(_source PTR_DEREF GetSymbolProps().GetMarginInit()),
         margin_maintenance(_source PTR_DEREF GetSymbolProps().GetMarginMaintenance()),
         margin_hedged(0),
@@ -244,16 +244,16 @@ struct BufferFXTHeader {
 
 struct BufferFXTParams {
   AccountMt *account;
-  Ref<IndicatorBase> source;
+  Ref<IndicatorData> source;
   // Struct constructor.
-  BufferFXTParams(IndicatorBase *_source, AccountMt *_account = NULL)
+  BufferFXTParams(IndicatorData *_source, AccountMt *_account = NULL)
       : account(Object::IsValid(_account) ? _account : new AccountMt), source(_source) {}
   BufferFXTParams(BufferFXTParams &r) {
     account = r.account;
     source = r.source;
   }
   // Struct deconstructor.
-  void ~BufferFXTParams() { delete account; }
+  ~BufferFXTParams() { delete account; }
 };
 
 string ToJSON(BufferFXTEntry &_value, const bool, const unsigned int) { return _value.ToJSON(); };
@@ -269,7 +269,7 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
   /**
    * Class constructor.
    */
-  BufferFXT(IndicatorBase *_source) : params(_source) {}
+  BufferFXT(IndicatorData *_source) : params(_source) {}
   BufferFXT(BufferFXTParams &_params) : params(_params) {}
 
   /**

@@ -252,6 +252,11 @@ class IndicatorBase : public Object {
   virtual BarOHLC GetOHLC(int _rel_shift = 0) = 0;
 
   /**
+   * Returns the current price value given applied price type, symbol and timeframe.
+   */
+  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, int _rel_shift = 0) = 0;
+
+  /**
    * Returns spread for the bar.
    *
    * If local history is empty (not loaded), function returns 0.

@@ -25,6 +25,13 @@
  *
  */
 
+// Enums.
+enum DATABASE_COLUMN_FLAGS {
+  DATABASE_COLUMN_FLAG_NONE = 0,
+  DATABASE_COLUMN_FLAG_IS_KEY = 1,
+  DATABASE_COLUMN_FLAG_IS_NULL = 2,
+};
+
 // Structs.
 struct DatabaseTableColumnEntry {
   string name;
@@ -77,7 +84,7 @@ struct DatabaseTableSchema {
   DictStruct<short, DatabaseTableColumnEntry> columns;
   // Constructor.
   DatabaseTableSchema() {}
-  DatabaseTableSchema(DatabaseTableColumnEntry &_columns[]) {
+  DatabaseTableSchema(ARRAY_REF(DatabaseTableColumnEntry, _columns)) {
     for (int i = 0; i < ArraySize(_columns); i++) {
       columns.Push(_columns[i]);
     }

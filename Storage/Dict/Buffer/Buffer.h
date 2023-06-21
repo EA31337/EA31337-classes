@@ -33,7 +33,7 @@
 template <typename T>
 class Buffer : public Dict<long, T> {
  public:
-  void Buffer() {}
+  Buffer() {}
 
   /**
    * Adds new value.
