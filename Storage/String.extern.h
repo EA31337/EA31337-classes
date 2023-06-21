@@ -40,6 +40,17 @@
 // Define external global functions.
 double StringToDouble(string value) { return std::stod(value); }
 
+string StringTrimLeft(string text) {
+  text.erase(text.begin(), std::find_if(text.begin(), text.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+  return text;
+}
+
+string StringTrimRight(string text) {
+  text.erase(std::find_if(text.rbegin(), text.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(),
+             text.end());
+  return text;
+}
+
 auto StringFind(const string string_value, string match_substring, int start_pos = 0) -> int {
   return string_value.find(match_substring);
 }

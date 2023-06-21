@@ -1302,7 +1302,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the current price value given applied price type, symbol and timeframe.
    */
-  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, int _rel_shift = 0) {
+  double GetPrice(ENUM_APPLIED_PRICE _ap, int _rel_shift = 0) override {
     return GetCandle() PTR_DEREF GetPrice(_ap, _rel_shift);
   }
 

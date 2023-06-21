@@ -45,6 +45,10 @@ class Singleton {
 };
 
 template <typename C>
+#ifdef __MQL__
+C Singleton::_ref;
+#else
 C Singleton<C>::_ref;
+#endif
 
 #endif  // SINGLETON_H

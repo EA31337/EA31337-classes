@@ -42,7 +42,7 @@ typedef void (*RedisCallback)(string);
 class RedisQueue {
  protected:
   // Messages queue for simulation purposes.
-  string _queue[];
+  ARRAY(string, _queue);
 
   // Current message index to be processed. Set to 0 if all messages have been popped out.
   int _queue_index;
@@ -155,7 +155,7 @@ class Redis : public Object {
     string command_args = StringSubstr(command, StringLen(command_name) + 1);
 
     if (command_name == "SUBSCRIBE") {
-      string subscriptions[];
+      ARRAY(string, subscriptions);
       StringSplit(command_args, ' ', subscriptions);
       for (int i = 0; i < ArraySize(subscriptions); ++i) {
         _subscriptions.Set(subscriptions[i], true);
@@ -213,7 +213,7 @@ class Redis : public Object {
   string GetString(const string _key, string _default = NULL) {
     string result = Command("GET " + SerializerConversions::ValueToString(_key, true));
 
-    if (result == NULL) return _default;
+    if (result == NULL_STRING) return _default;
 
     return result;
   }
@@ -224,10 +224,10 @@ class Redis : public Object {
   bool Increment(const string _key, const int _value = 1) {
     if (_value > 0) {
       return Command("INCRBY " + SerializerConversions::ValueToString(_key, true) + " " + IntegerToString(_value)) !=
-             NULL;
+             NULL_STRING;
     } else if (_value < 0) {
       return Command("DECRBY " + SerializerConversions::ValueToString(_key, true) + " " + IntegerToString(-_value)) !=
-             NULL;
+             NULL_STRING;
     }
 
     // _value was 0. Nothing to do.
@@ -240,10 +240,10 @@ class Redis : public Object {
   bool Increment(const string _key, const float _value = 1.0f) {
     if (_value > 0.0f) {
       return Command("INCRBYFLOAT " + SerializerConversions::ValueToString(_key, true) + " " +
-                     DoubleToString(_value)) != NULL;
+                     DoubleToString(_value)) != NULL_STRING;
     } else if (_value < 0.0f) {
       return Command("DECRBYFLOAT " + SerializerConversions::ValueToString(_key, true) + " " +
-                     DoubleToString(_value)) != NULL;
+                     DoubleToString(_value)) != NULL_STRING;
     }
 
     // _value was 0. Nothing to do.
@@ -263,25 +263,27 @@ class Redis : public Object {
   /**
    * Deletes variable by given key.
    */
-  bool Delete(const string _key) { return Command("DEL " + SerializerConversions::ValueToString(_key, true)) != NULL; }
+  bool Delete(const string _key) {
+    return Command("DEL " + SerializerConversions::ValueToString(_key, true)) != NULL_STRING;
+  }
 
   /**
    * Subscribes to string-based values on the given channels (separated by space).
    *
    * After subscribe, please use TryReadString() in the loop to retrieve values.
    */
-  bool Subscribe(const string _channel_list) { return Command("SUBSCRIBE " + _channel_list) != NULL; }
+  bool Subscribe(const string _channel_list) { return Command("SUBSCRIBE " + _channel_list) != NULL_STRING; }
 
   /**
    * Unsubscribes from the given channels (separated by space).
    */
-  bool Unsubscribe(const string _channel_list) { return Command("UNSUBSCRIBE " + _channel_list) != NULL; }
+  bool Unsubscribe(const string _channel_list) { return Command("UNSUBSCRIBE " + _channel_list) != NULL_STRING; }
 
   /**
    * Publishes string-based value on the given channel (channel must be previously subscribed).
    */
   bool Publish(const string _channel, const string _value) {
-    return Command("PUBLISH " + _channel + " " + SerializerConversions::ValueToString(_value, true)) != NULL;
+    return Command("PUBLISH " + _channel + " " + SerializerConversions::ValueToString(_value, true)) != NULL_STRING;
   }
 
   /**

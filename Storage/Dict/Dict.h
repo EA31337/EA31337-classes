@@ -223,7 +223,7 @@ class Dict : public DictBase<K, V> {
 
     // If we have a slot then we can overwrite it.
     if (_slot != NULL) {
-      WriteSlot(_slot, key, value, DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+      WriteSlot(PTR_TO_REF(_slot), key, value, DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
       // We're done, we don't have to increment number of slots used.
       return true;
     }

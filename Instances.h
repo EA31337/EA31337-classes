@@ -40,7 +40,7 @@
 template <typename T>
 class Instances {
  public:
-  static T* instances[];
+  static ARRAY(T*, instances);
   Instances(T* _self) { Util::ArrayPush(instances, _self); }
 
   ~Instances() {
@@ -49,6 +49,10 @@ class Instances {
 };
 
 template <typename T>
+#ifdef __MQL__
+T* Instances::instances[];
+#else
 T* Instances<T>::instances[];
+#endif
 
 #endif  // INSTANCES_MQH
