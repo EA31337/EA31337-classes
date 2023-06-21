@@ -28,8 +28,8 @@
 // Enums.
 // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/prices
 enum ENUM_STO_PRICE {
-  STO_LOWHIGH = 0, // Calculation is based on Low/High prices.
-  STO_CLOSECLOSE, // Calculation is based on Close/Close prices.
+  STO_LOWHIGH = 0,  // Calculation is based on Low/High prices.
+  STO_CLOSECLOSE,   // Calculation is based on Close/Close prices.
 };
 #endif
 
@@ -115,11 +115,11 @@ class Indi_Stochastic : public Indicator<IndiStochParams> {
 #ifdef __MQL__
 #ifdef __MQL4__
     return ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field), _mode, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "

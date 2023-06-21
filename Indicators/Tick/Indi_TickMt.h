@@ -31,9 +31,9 @@
 #endif
 
 // Includes.
-#include "../../Platform/Chart/Chart.struct.static.h"
 #include "../../Indicator/IndicatorTick.h"
 #include "../../Indicator/IndicatorTick.provider.h"
+#include "../../Platform/Chart/Chart.struct.static.h"
 
 // Structs.
 // Params for MT patform's tick-based indicator.

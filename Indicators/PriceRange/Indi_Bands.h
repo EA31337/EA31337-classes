@@ -23,12 +23,12 @@
 // Includes.
 #include "../../Indicator/Indicator.h"
 #include "../Indi_CCI.mqh"
-#include "Indi_Envelopes.h"
-#include "../Price/Indi_MA.h"
 #include "../Indi_Momentum.mqh"
-#include "../Oscillator/Indi_RSI.h"
 #include "../Indi_StdDev.mqh"
+#include "../Oscillator/Indi_RSI.h"
+#include "../Price/Indi_MA.h"
 #include "../Price/Indi_Price.h"
+#include "Indi_Envelopes.h"
 
 #ifndef __MQL4__
 // Forward declaration.
@@ -138,7 +138,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price), _mode,
                                       _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -165,8 +165,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
   }
 
   static double iBandsOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, double _deviation, int _bands_shift,
-                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
-                              bool _recalculate = false) {
+                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
     if (!_cache.HasBuffers()) {

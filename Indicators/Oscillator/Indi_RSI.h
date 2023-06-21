@@ -21,8 +21,8 @@
  */
 
 // Includes.
-#include "../../Storage/Dict/DictStruct.h"
 #include "../../Indicator/Indicator.h"
+#include "../../Storage/Dict/DictStruct.h"
 #include "../Price/Indi_Price.h"
 
 // Structs.
@@ -113,10 +113,10 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
 #ifdef __MQL__
 #ifdef __MQL4__
     return ::iRSI(_symbol, _tf, _period, _applied_price, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iRSI(_symbol, _tf, _period, _applied_price), 0, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
