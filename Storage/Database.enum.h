@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Enums.
 
 enum ENUM_DATABASE_COLUMN_FLAGS {
@@ -27,6 +32,8 @@ enum ENUM_DATABASE_COLUMN_FLAGS {
   DATABASE_COLUMN_FLAG_IS_KEY = 1,
   DATABASE_COLUMN_FLAG_IS_NULL = 2,
 };
+
+#ifndef __MQL5__
 
 // @docs: https://www.mql5.com/en/docs/database/databaseopen#enum_database_open_flags
 enum ENUM_DATABASE_OPEN_FLAGS {
@@ -36,3 +43,5 @@ enum ENUM_DATABASE_OPEN_FLAGS {
   DATABASE_OPEN_MEMORY,        // Create a database in RAM.
   DATABASE_OPEN_COMMON,        // The file is in the common folder of all terminals.
 };
+
+#endif
