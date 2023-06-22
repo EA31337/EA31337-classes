@@ -23,17 +23,6 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_MFI;
-
-// Defines global functions (for MQL4 backward compability).
-double iMFI(string _symbol, int _tf, int _period, int _shift) {
-  ResetLastError();
-  return Indi_MFI::iMFI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
-}
-#endif
-
 // Structs.
 struct IndiMFIParams : IndicatorParams {
   unsigned int ma_period;
@@ -180,3 +169,11 @@ class Indi_MFI : public Indicator<IndiMFIParams> {
     iparams.applied_volume = _applied_volume;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iMFI(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
+  return Indi_MFI::iMFI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
+}
+#endif

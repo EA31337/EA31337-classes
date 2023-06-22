@@ -30,19 +30,6 @@
 #include "../Price/Indi_Price.h"
 #include "Indi_Envelopes.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_Bands;
-
-// Defines global functions (for MQL4 backward compability).
-double iBands(string _symbol, int _tf, int _period, double _deviation, int _bands_shift, int _ap, int _mode,
-              int _shift) {
-  ResetLastError();
-  return Indi_Bands::iBands(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _deviation, _bands_shift, (ENUM_APPLIED_PRICE)_ap,
-                            (ENUM_BANDS_LINE)_mode, _shift);
-}
-#endif
-
 // Indicator line identifiers used in Bands.
 enum ENUM_BANDS_LINE {
 #ifdef __MQL4__
@@ -392,3 +379,13 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iBands(string _symbol, int _tf, int _period, double _deviation, int _bands_shift, int _ap, int _mode,
+              int _shift) {
+  ResetLastError();
+  return Indi_Bands::iBands(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _deviation, _bands_shift, (ENUM_APPLIED_PRICE)_ap,
+                            (ENUM_BANDS_LINE)_mode, _shift);
+}
+#endif

@@ -33,17 +33,6 @@
 #include "../Indicator/Indicator.h"
 #include "Indi_PriceFeeder.mqh"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_Momentum;
-
-// Defines global functions (for MQL4 backward compability).
-double iMomentum(string _symbol, int _tf, int _period, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_Momentum::iMomentum(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
-}
-#endif
-
 // Structs.
 struct IndiMomentumParams : IndicatorParams {
   unsigned int period;
@@ -222,3 +211,11 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
     iparams.applied_price = _ap;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iMomentum(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_Momentum::iMomentum(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+#endif

@@ -27,25 +27,6 @@
 #include "../Price/Indi_MA.h"
 #include "../Price/Indi_Price.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_Envelopes;
-
-// Defines global functions (for MQL4 backward compability).
-double iEnvelopes(string _symbol, int _tf, int _period, int _ma_method, int _ma_shift, int _ap, double _deviation,
-                  int _mode, int _shift) {
-  ResetLastError();
-  return Indi_Envelopes::iEnvelopes(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_MA_METHOD)_ma_method, _ma_shift,
-                                    (ENUM_APPLIED_PRICE)_ap, _deviation, _mode, _shift);
-}
-double iEnvelopesOnArray(double &_arr[], int _total, int _ma_period, int _ma_method, int _ma_shift, double _deviation,
-                         int _mode, int _shift) {
-  ResetLastError();
-  return Indi_Envelopes::iEnvelopesOnArray(_arr, _total, _ma_period, (ENUM_MA_METHOD)_ma_method, _ma_shift, _deviation,
-                                           _mode, _shift);
-}
-#endif
-
 // Structs.
 struct IndiEnvelopesParams : IndicatorParams {
   int ma_period;
@@ -334,3 +315,19 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
     iparams.deviation = _deviation;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iEnvelopes(string _symbol, int _tf, int _period, int _ma_method, int _ma_shift, int _ap, double _deviation,
+                  int _mode, int _shift) {
+  ResetLastError();
+  return Indi_Envelopes::iEnvelopes(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_MA_METHOD)_ma_method, _ma_shift,
+                                    (ENUM_APPLIED_PRICE)_ap, _deviation, _mode, _shift);
+}
+double iEnvelopesOnArray(double &_arr[], int _total, int _ma_period, int _ma_method, int _ma_shift, double _deviation,
+                         int _mode, int _shift) {
+  ResetLastError();
+  return Indi_Envelopes::iEnvelopesOnArray(_arr, _total, _ma_period, (ENUM_MA_METHOD)_ma_method, _ma_shift, _deviation,
+                                           _mode, _shift);
+}
+#endif

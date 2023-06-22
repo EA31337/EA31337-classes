@@ -23,17 +23,6 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_Fractals;
-
-// Defines global functions (for MQL4 backward compability).
-double iFractals(string _symbol, int _tf, int _mode, int _shift) {
-  ResetLastError();
-  return Indi_Fractals::iFractals(_symbol, (ENUM_TIMEFRAMES)_tf, (ENUM_LO_UP_LINE)_mode, _shift);
-}
-#endif
-
 // Structs.
 struct IndiFractalsParams : IndicatorParams {
   // Struct constructors.
@@ -156,3 +145,11 @@ class Indi_Fractals : public Indicator<IndiFractalsParams> {
     return !_entry.HasValue(_wrong_value);
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iFractals(string _symbol, int _tf, int _mode, int _shift) {
+  ResetLastError();
+  return Indi_Fractals::iFractals(_symbol, (ENUM_TIMEFRAMES)_tf, (ENUM_LO_UP_LINE)_mode, _shift);
+}
+#endif

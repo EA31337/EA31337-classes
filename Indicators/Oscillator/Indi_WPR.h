@@ -24,17 +24,6 @@
 #include "../../Indicator/Indicator.h"
 #include "../../Platform/Terminal.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_WPR;
-
-// Defines global functions (for MQL4 backward compability).
-double iWPR(string _symbol, int _tf, int _period, int _shift) {
-  ResetLastError();
-  return Indi_WPR::iWPR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
-}
-#endif
-
 // Structs.
 struct IndiWPRParams : IndicatorParams {
   unsigned int period;
@@ -162,3 +151,11 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
     iparams.period = _period;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iWPR(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
+  return Indi_WPR::iWPR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
+}
+#endif

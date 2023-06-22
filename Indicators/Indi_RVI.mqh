@@ -23,17 +23,6 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_RVI;
-
-// Defines global functions (for MQL4 backward compability).
-double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
-  ResetLastError();
-  return Indi_RVI::iRVI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_SIGNAL_LINE)_mode, _shift);
-}
-#endif
-
 // Structs.
 struct IndiRVIParams : IndicatorParams {
   unsigned int period;
@@ -146,3 +135,11 @@ class Indi_RVI : public Indicator<IndiRVIParams> {
     iparams.period = _period;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
+  ResetLastError();
+  return Indi_RVI::iRVI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_SIGNAL_LINE)_mode, _shift);
+}
+#endif

@@ -44,23 +44,6 @@ enum ENUM_MA_METHOD {
 };
 #endif
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_MA;
-
-// Defines global functions (for MQL4 backward compability).
-double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
-                      (ENUM_APPLIED_PRICE)_ap, _shift);
-}
-double iMAOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _ma_shift, int _ma_method, int _abs_shift,
-                  IndiBufferCache<double> *_cache = NULL) {
-  ResetLastError();
-  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
-}
-#endif
-
 // Structs.
 struct IndiMAParams : IndicatorParams {
   unsigned int period;
@@ -803,4 +786,19 @@ class Indi_MA : public Indicator<IndiMAParams> {
     iparams.applied_array = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
+                      (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+double iMAOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _ma_shift, int _ma_method, int _abs_shift,
+                  IndiBufferCache<double> *_cache = NULL) {
+  ResetLastError();
+  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
+}
+#endif
+
 #endif  // INDI_MA_H

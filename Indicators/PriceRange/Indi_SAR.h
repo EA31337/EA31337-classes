@@ -23,17 +23,6 @@
 // Includes.
 #include "../../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_SAR;
-
-// Defines global functions (for MQL4 backward compability).
-double iSAR(string _symbol, int _tf, double _step, double _max, int _shift) {
-  ResetLastError();
-  return Indi_SAR::iSAR(_symbol, (ENUM_TIMEFRAMES)_tf, _step, _max, _shift);
-}
-#endif
-
 // Structs.
 struct IndiSARParams : IndicatorParams {
   double step;
@@ -147,3 +136,11 @@ class Indi_SAR : public Indicator<IndiSARParams> {
     iparams.max = _max;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iSAR(string _symbol, int _tf, double _step, double _max, int _shift) {
+  ResetLastError();
+  return Indi_SAR::iSAR(_symbol, (ENUM_TIMEFRAMES)_tf, _step, _max, _shift);
+}
+#endif

@@ -23,17 +23,6 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_BullsPower;
-
-// Defines global functions (for MQL4 backward compability).
-double iBullsPower(string _symbol, int _tf, int _period, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_BullsPower::iBullsPower(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
-}
-#endif
-
 // Structs.
 struct IndiBullsPowerParams : IndicatorParams {
   unsigned int period;
@@ -152,3 +141,11 @@ class Indi_BullsPower : public Indicator<IndiBullsPowerParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iBullsPower(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_BullsPower::iBullsPower(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+#endif

@@ -23,17 +23,6 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_BWMFI;
-
-// Defines global functions (for MQL4 backward compability).
-double iBWMFI(string _symbol, int _tf, int _shift) {
-  ResetLastError();
-  return Indi_BWMFI::iBWMFI(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
-}
-#endif
-
 // Enumerations.
 // Indicator line identifiers used in BWMFI indicators.
 enum ENUM_BWMFI_BUFFER { BWMFI_BUFFER = 0, BWMFI_HISTCOLOR = 1, FINAL_BWMFI_BUFFER_ENTRY };
@@ -199,3 +188,11 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
            !_entry.HasValue<double>(DBL_MAX);
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iBWMFI(string _symbol, int _tf, int _shift) {
+  ResetLastError();
+  return Indi_BWMFI::iBWMFI(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
+}
+#endif

@@ -33,9 +33,7 @@
 #include "../Platform/Plot.h"
 #include "../Storage/Dict/DictObject.h"
 #include "../Storage/Object.h"
-
-// Forward declaration.
-class IndicatorBase;
+#include "../Indicator/IndicatorBase.h"
 
 class DrawPoint {
  public:

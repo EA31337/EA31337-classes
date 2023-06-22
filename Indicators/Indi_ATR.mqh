@@ -23,17 +23,6 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_ATR;
-
-// Defines global functions (for MQL4 backward compability).
-double iATR(string _symbol, int _tf, int _period, int _shift) {
-  ResetLastError();
-  return Indi_ATR::iATR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
-}
-#endif
-
 // Structs.
 struct IndiATRParams : IndicatorParams {
   unsigned int period;
@@ -150,3 +139,11 @@ class Indi_ATR : public Indicator<IndiATRParams> {
     iparams.period = _period;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iATR(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
+  return Indi_ATR::iATR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
+}
+#endif

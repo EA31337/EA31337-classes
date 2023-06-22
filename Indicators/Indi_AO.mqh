@@ -23,17 +23,6 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_AO;
-
-// Defines global functions (for MQL4 backward compability).
-double iAO(string _symbol, int _tf, int _shift) {
-  ResetLastError();
-  return Indi_AO::iAO(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
-}
-#endif
-
 // Structs.
 struct IndiAOParams : IndicatorParams {
   // Struct constructor.
@@ -153,3 +142,11 @@ class Indi_AO : public Indicator<IndiAOParams> {
    */
   bool IsValidEntry(IndicatorDataEntry &_entry) override { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iAO(string _symbol, int _tf, int _shift) {
+  ResetLastError();
+  return Indi_AO::iAO(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
+}
+#endif

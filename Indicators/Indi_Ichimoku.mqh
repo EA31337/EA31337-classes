@@ -23,17 +23,6 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_Ichimoku;
-
-// Defines global functions (for MQL4 backward compability).
-double iIchimoku(string _symbol, int _tf, int _ts, int _ks, int _ssb, int _mode, int _shift) {
-  ResetLastError();
-  return Indi_Ichimoku::iIchimoku(_symbol, (ENUM_TIMEFRAMES)_tf, _ts, _ks, _ssb, _mode, _shift);
-}
-#endif
-
 #ifndef __MQLBUILD__
 // Indicator constants.
 // @docs
@@ -238,3 +227,11 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
     iparams.senkou_span_b = _senkou_span_b;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iIchimoku(string _symbol, int _tf, int _ts, int _ks, int _ssb, int _mode, int _shift) {
+  ResetLastError();
+  return Indi_Ichimoku::iIchimoku(_symbol, (ENUM_TIMEFRAMES)_tf, _ts, _ks, _ssb, _mode, _shift);
+}
+#endif

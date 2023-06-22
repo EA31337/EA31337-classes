@@ -30,19 +30,6 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_Gator;
-
-// Defines global functions (for MQL4 backward compability).
-double iGator(string _symbol, int _tf, int _jp, int _js, int _tp, int _ts, int _lp, int _ls, int _ma_method, int _ap,
-              int _mode, int _shift) {
-  ResetLastError();
-  return Indi_Gator::iGator(_symbol, (ENUM_TIMEFRAMES)_tf, _jp, _js, _tp, _ts, _lp, _ls, (ENUM_MA_METHOD)_ma_method,
-                            (ENUM_APPLIED_PRICE)_ap, (ENUM_GATOR_HISTOGRAM)_mode, _shift);
-}
-#endif
-
 #ifndef __MQLBUILD__
 // Indicator constants.
 // @docs
@@ -338,3 +325,13 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iGator(string _symbol, int _tf, int _jp, int _js, int _tp, int _ts, int _lp, int _ls, int _ma_method, int _ap,
+              int _mode, int _shift) {
+  ResetLastError();
+  return Indi_Gator::iGator(_symbol, (ENUM_TIMEFRAMES)_tf, _jp, _js, _tp, _ts, _lp, _ls, (ENUM_MA_METHOD)_ma_method,
+                            (ENUM_APPLIED_PRICE)_ap, (ENUM_GATOR_HISTOGRAM)_mode, _shift);
+}
+#endif

@@ -33,22 +33,6 @@
 #include "Indi_PriceFeeder.mqh"
 #include "Price/Indi_MA.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_StdDev;
-
-// Defines global functions (for MQL4 backward compability).
-double iStdDev(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_StdDev::iStdDev(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
-                              (ENUM_APPLIED_PRICE)_ap, _shift);
-}
-double iStdDevOnArray(double &_arr[], int _total, int _ma_period, int _ma_shift, int _ma_method, int _abs_shift) {
-  ResetLastError();
-  return Indi_StdDev::iStdDevOnArray(_arr, _total, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method, _abs_shift);
-}
-#endif
-
 // Structs.
 struct IndiStdDevParams : IndicatorParams {
   int ma_period;
@@ -332,3 +316,16 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iStdDev(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_StdDev::iStdDev(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
+                              (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+double iStdDevOnArray(double &_arr[], int _total, int _ma_period, int _ma_shift, int _ma_method, int _abs_shift) {
+  ResetLastError();
+  return Indi_StdDev::iStdDevOnArray(_arr, _total, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method, _abs_shift);
+}
+#endif

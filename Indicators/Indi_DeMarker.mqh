@@ -23,17 +23,6 @@
 // Includes.
 #include "../Indicator/Indicator.h"
 
-#ifndef __MQL4__
-// Forward declaration.
-class Indi_DeMarker;
-
-// Defines global functions (for MQL4 backward compability).
-double iDeMarker(string _symbol, int _tf, int _period, int _shift) {
-  ResetLastError();
-  return Indi_DeMarker::iDeMarker(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
-}
-#endif
-
 // Structs.
 struct IndiDeMarkerParams : IndicatorParams {
   unsigned int period;
@@ -132,3 +121,11 @@ class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
     iparams.period = _period;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iDeMarker(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
+  return Indi_DeMarker::iDeMarker(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
+}
+#endif
