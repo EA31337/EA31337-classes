@@ -40,7 +40,7 @@ struct IndiADXWParams : IndiADXParams {
                  ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : IndiADXParams(_period, _ap, _shift, _tf) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
-    if (custom_indi_name == "") {
+    if (custom_indi_name == "" || custom_indi_name == "Examples\\ADX") {
       SetCustomIndicatorName("Examples\\ADXW");
     }
   };
