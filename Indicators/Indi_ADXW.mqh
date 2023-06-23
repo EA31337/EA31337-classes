@@ -39,7 +39,7 @@ struct IndiADXWParams : IndiADXParams {
   IndiADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
       : IndiADXParams(_period, _ap, _shift) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
-    if (custom_indi_name == "") {
+    if (custom_indi_name == "" || custom_indi_name == "Examples\\ADX") {
       SetCustomIndicatorName("Examples\\ADXW");
     }
   };
