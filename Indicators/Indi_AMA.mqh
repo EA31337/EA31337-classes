@@ -145,7 +145,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   /**
    * OnInit() method for AMA indicator.
    */
-  static void CalculateInit(int InpPeriodAMA, int InpFastPeriodEMA, int InpSlowPeriodEMA, int InpShiftAMA,
+  static void CalculateInit(int InpPeriodAMA, int _period_fast_ema, int _period_slow_ema, int _ishift_ama,
                             double &ExtFastSC, double &ExtSlowSC, int &ExtPeriodAMA, int &ExtSlowPeriodEMA,
                             int &ExtFastPeriodEMA) {
     // Check for input values.
@@ -156,20 +156,20 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
           InpPeriodAMA, ExtPeriodAMA);
     } else
       ExtPeriodAMA = InpPeriodAMA;
-    if (InpSlowPeriodEMA <= 0) {
+    if (_period_slow_ema <= 0) {
       ExtSlowPeriodEMA = 30;
       PrintFormat(
-          "Input parameter InpSlowPeriodEMA has incorrect value (%d). Indicator will use value %d for calculations.",
-          InpSlowPeriodEMA, ExtSlowPeriodEMA);
+          "Input parameter _period_slow_ema has incorrect value (%d). Indicator will use value %d for calculations.",
+          _period_slow_ema, ExtSlowPeriodEMA);
     } else
-      ExtSlowPeriodEMA = InpSlowPeriodEMA;
-    if (InpFastPeriodEMA <= 0) {
+      ExtSlowPeriodEMA = _period_slow_ema;
+    if (_period_fast_ema <= 0) {
       ExtFastPeriodEMA = 2;
       PrintFormat(
-          "Input parameter InpFastPeriodEMA has incorrect value (%d). Indicator will use value %d for calculations.",
-          InpFastPeriodEMA, ExtFastPeriodEMA);
+          "Input parameter _period_fast_ema has incorrect value (%d). Indicator will use value %d for calculations.",
+          _period_fast_ema, ExtFastPeriodEMA);
     } else
-      ExtFastPeriodEMA = InpFastPeriodEMA;
+      ExtFastPeriodEMA = _period_fast_ema;
 
     // Calculate ExtFastSC & ExtSlowSC.
     ExtFastSC = 2.0 / (ExtFastPeriodEMA + 1.0);
@@ -180,14 +180,14 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    * OnCalculate() method for AMA indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &ExtAMABuffer, int InpPeriodAMA,
-                       int InpFastPeriodEMA, int InpSlowPeriodEMA, int InpShiftAMA) {
+                       int _period_fast_ema, int _period_slow_ema, int _ishift_ama) {
     double ExtFastSC;
     double ExtSlowSC;
     int ExtPeriodAMA;
     int ExtSlowPeriodEMA;
     int ExtFastPeriodEMA;
 
-    CalculateInit(InpPeriodAMA, InpFastPeriodEMA, InpSlowPeriodEMA, InpShiftAMA, ExtFastSC, ExtSlowSC, ExtPeriodAMA,
+    CalculateInit(InpPeriodAMA, _period_fast_ema, _period_slow_ema, _ishift_ama, ExtFastSC, ExtSlowSC, ExtPeriodAMA,
                   ExtSlowPeriodEMA, ExtFastPeriodEMA);
     int i;
     // Check for rates count.

@@ -132,10 +132,10 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
   /**
    * OnCalculate() method for VIDyA indicator.
    *
-   * Note that InpShift is used for drawing only and thus is unused.
+   * Note that _ishift is used for drawing only and thus is unused.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &VIDYA_Buffer, int InpPeriodCMO,
-                       int InpPeriodEMA, int InpShift) {
+                       int InpPeriodEMA, int _ishift) {
     double ExtF = 2.0 / (1.0 + InpPeriodEMA);
 
     if (rates_total < InpPeriodEMA + InpPeriodCMO - 1) return (0);

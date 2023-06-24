@@ -39,7 +39,7 @@ struct IndiADXWParams : IndiADXParams {
   IndiADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
       : IndiADXParams(_period, _ap, _shift) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
-    if (custom_indi_name == "") {
+    if (custom_indi_name == "" || custom_indi_name == "Examples\\ADX") {
       SetCustomIndicatorName("Examples\\ADXW");
     }
   };
@@ -158,33 +158,32 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * OnCalculate() method for ADXW indicator.
    */
-  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtADXWBuffer,
-                       ValueStorage<double> &ExtPDIBuffer, ValueStorage<double> &ExtNDIBuffer,
-                       ValueStorage<double> &ExtPDSBuffer, ValueStorage<double> &ExtNDSBuffer,
-                       ValueStorage<double> &ExtPDBuffer, ValueStorage<double> &ExtNDBuffer,
-                       ValueStorage<double> &ExtTRBuffer, ValueStorage<double> &ExtATRBuffer,
-                       ValueStorage<double> &ExtDXBuffer, int ExtADXWPeriod) {
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &_adxw_buff,
+                       ValueStorage<double> &_pdi_buff, ValueStorage<double> &_ndi_buff,
+                       ValueStorage<double> &_pds_buff, ValueStorage<double> &_nds_buff,
+                       ValueStorage<double> &_pdb_buff, ValueStorage<double> &_nd_buff, ValueStorage<double> &_tr_buff,
+                       ValueStorage<double> &_atr_buff, ValueStorage<double> &_dx_buff, int _adxw_period) {
     int i;
 
     // Checking for bars count.
-    if (rates_total < ExtADXWPeriod) return (0);
+    if (rates_total < _adxw_period) return (0);
     // Detect start position.
     int start;
     if (prev_calculated > 1)
       start = prev_calculated - 1;
     else {
       start = 1;
-      for (i = 0; i < ExtADXWPeriod; i++) {
-        ExtADXWBuffer[i] = 0;
-        ExtPDIBuffer[i] = 0;
-        ExtNDIBuffer[i] = 0;
-        ExtPDSBuffer[i] = 0;
-        ExtNDSBuffer[i] = 0;
-        ExtPDBuffer[i] = 0;
-        ExtNDBuffer[i] = 0;
-        ExtTRBuffer[i] = 0;
-        ExtATRBuffer[i] = 0;
-        ExtDXBuffer[i] = 0;
+      for (i = 0; i < _adxw_period; i++) {
+        _adxw_buff[i] = 0;
+        _pdi_buff[i] = 0;
+        _ndi_buff[i] = 0;
+        _pds_buff[i] = 0;
+        _nds_buff[i] = 0;
+        _pdb_buff[i] = 0;
+        _nd_buff[i] = 0;
+        _tr_buff[i] = 0;
+        _atr_buff[i] = 0;
+        _dx_buff[i] = 0;
       }
     }
     for (i = start; i < rates_total && !IsStopped(); i++) {
@@ -208,40 +207,40 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
         else
           tmp_neg = 0.0;
       }
-      ExtPDBuffer[i] = tmp_pos;
-      ExtNDBuffer[i] = tmp_neg;
+      _pdb_buff[i] = tmp_pos;
+      _nd_buff[i] = tmp_neg;
       // Define TR.
       double tr = MathMax(MathMax(MathAbs(high_price - low_price), MathAbs(high_price - prev_close)),
                           MathAbs(low_price - prev_close));
       // Write down TR to TR buffer.
-      ExtTRBuffer[i] = tr;
+      _tr_buff[i] = tr;
       // Fill smoothed positive and negative buffers and TR buffer.
-      if (i < ExtADXWPeriod) {
-        ExtATRBuffer[i] = 0.0;
-        ExtPDIBuffer[i] = 0.0;
-        ExtNDIBuffer[i] = 0.0;
+      if (i < _adxw_period) {
+        _atr_buff[i] = 0.0;
+        _pdi_buff[i] = 0.0;
+        _ndi_buff[i] = 0.0;
       } else {
-        ExtATRBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtATRBuffer[i - 1].Get(), ExtTRBuffer);
-        ExtPDSBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtPDSBuffer[i - 1].Get(), ExtPDBuffer);
-        ExtNDSBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtNDSBuffer[i - 1].Get(), ExtNDBuffer);
+        _atr_buff[i] = SmoothedMA(i, _adxw_period, _atr_buff[i - 1].Get(), _tr_buff);
+        _pds_buff[i] = SmoothedMA(i, _adxw_period, _pds_buff[i - 1].Get(), _pdb_buff);
+        _nds_buff[i] = SmoothedMA(i, _adxw_period, _nds_buff[i - 1].Get(), _nd_buff);
       }
       // Calculate PDI and NDI buffers.
-      if (ExtATRBuffer[i] != 0.0) {
-        ExtPDIBuffer[i] = 100.0 * ExtPDSBuffer[i].Get() / ExtATRBuffer[i].Get();
-        ExtNDIBuffer[i] = 100.0 * ExtNDSBuffer[i].Get() / ExtATRBuffer[i].Get();
+      if (_atr_buff[i] != 0.0) {
+        _pdi_buff[i] = 100.0 * _pds_buff[i].Get() / _atr_buff[i].Get();
+        _ndi_buff[i] = 100.0 * _nds_buff[i].Get() / _atr_buff[i].Get();
       } else {
-        ExtPDIBuffer[i] = 0.0;
-        ExtNDIBuffer[i] = 0.0;
+        _pdi_buff[i] = 0.0;
+        _ndi_buff[i] = 0.0;
       }
       // Calculate DX buffer.
-      double dTmp = ExtPDIBuffer[i] + ExtNDIBuffer[i];
+      double dTmp = _pdi_buff[i] + _ndi_buff[i];
       if (dTmp != 0.0)
-        dTmp = 100.0 * MathAbs((ExtPDIBuffer[i] - ExtNDIBuffer[i]) / dTmp);
+        dTmp = 100.0 * MathAbs((_pdi_buff[i] - _ndi_buff[i]) / dTmp);
       else
         dTmp = 0.0;
-      ExtDXBuffer[i] = dTmp;
+      _dx_buff[i] = dTmp;
       // Fill ADXW buffer as smoothed DX buffer.
-      ExtADXWBuffer[i] = SmoothedMA(i, ExtADXWPeriod, ExtADXWBuffer[i - 1].Get(), ExtDXBuffer);
+      _adxw_buff[i] = SmoothedMA(i, _adxw_period, _adxw_buff[i - 1].Get(), _dx_buff);
     }
     // OnCalculate done. Return new prev_calculated.
     return (rates_total);

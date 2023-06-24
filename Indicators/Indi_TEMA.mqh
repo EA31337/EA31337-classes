@@ -127,11 +127,11 @@ class Indi_TEMA : public Indicator<IndiTEMAParams> {
   /**
    * OnCalculate() method for TEMA indicator.
    *
-   * Note that InpShift is used for drawing only and thus is unused.
+   * Note that _ishift is used for drawing only and thus is unused.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &TemaBuffer,
                        ValueStorage<double> &Ema, ValueStorage<double> &EmaOfEma, ValueStorage<double> &EmaOfEmaOfEma,
-                       int InpPeriodEMA, int InpShift) {
+                       int InpPeriodEMA, int _ishift) {
     if (rates_total < 3 * InpPeriodEMA - 3) return (0);
     //---
     int start;
