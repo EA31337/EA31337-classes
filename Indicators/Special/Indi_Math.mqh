@@ -68,7 +68,7 @@ struct IndiMathParams : IndicatorParams {
 };
 
 /**
- * Implements the Volume Rate of Change indicator.
+ * Implements the Math indicator.
  */
 class Indi_Math : public Indicator<IndiMathParams> {
  public:

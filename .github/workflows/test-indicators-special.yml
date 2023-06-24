@@ -51,6 +51,7 @@ jobs:
       matrix:
         test:
           - Indi_Custom.test
+          - Indi_Universal.test
     steps:
       - uses: actions/download-artifact@v3
         with:
