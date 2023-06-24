@@ -26,6 +26,49 @@ In summary, oscillators are a type of indicator used in technical analysis
 that measure price momentum and provide insights into overbought or oversold conditions.
 They are considered a subset of indicators due to their specific function and characteristics.
 
+## AO (Awesome Oscillator)
+
+The Awesome Oscillator (AO) is a technical indicator designed to identify the
+momentum of a market and potential trend reversals. It displays the difference
+between a 34-period and a 5-period simple moving average (SMA) on a histogram.
+
+The calculation of the Awesome Oscillator involves subtracting the 34-period
+SMA from the 5-period SMA. The resulting value is then plotted as a histogram,
+with positive values indicating bullish momentum and negative values
+indicating bearish momentum.
+
+The AO helps traders identify the strength and direction of a trend. When
+the histogram bars are above the zero line, it suggests that bullish
+momentum is dominant, signaling a potential uptrend. Conversely, when the
+bars are below the zero line, it indicates bearish momentum, suggesting a
+potential downtrend.
+
+The AO also provides signals for potential trend reversals. A change from
+positive bars to negative bars or vice versa is considered a signal for a
+potential trend reversal. Traders often look for these transitions to
+generate buy or sell signals.
+
+Additionally, the Awesome Oscillator can be used to identify the divergence
+between the indicator and price action. Divergence occurs when the
+indicator's movement deviates from the price movement. Bullish divergence
+occurs when the price forms lower lows while the AO forms higher lows,
+suggesting a possible upward reversal. Conversely, bearish divergence
+occurs when the price forms higher highs while the AO forms lower highs,
+indicating a potential downward reversal.
+
+Traders often combine the Awesome Oscillator with other indicators or
+analysis techniques to validate signals and strengthen their trading
+strategies. It is a versatile tool that can be applied to various
+timeframes and markets.
+
+In summary, the Awesome Oscillator (AO) is a technical indicator that
+measures the momentum of a market and identifies potential trend reversals.
+It displays the difference between a 34-period and a 5-period simple moving
+average on a histogram. Positive histogram bars indicate bullish momentum,
+negative bars indicate bearish momentum, and transitions can signal
+potential trend reversals. The AO is often used in conjunction with other
+indicators and analysis techniques to enhance trading decisions.
+
 ## ASI (Accumulation Swing Index) indicator
 
 The Accumulation Swing Index (ASI) is a technical indicator that aims to gauge
@@ -63,6 +106,45 @@ In summary, it is a technical indicator that combines price action
 and volume to assess market strength and direction.
 It calculates a running cumulative total based on the relationship
 between current and previous prices, incorporating price ranges.
+
+## ATR (Average True Range)
+
+The Average True Range (ATR) is a technical indicator used to measure and
+quantify market volatility. It provides traders with information about the
+average price range or volatility of an asset over a specified period.
+
+The ATR is calculated by taking the average of the true ranges of price
+movements. The true range is the greatest of the following three values: the
+difference between the current high and the current low, the absolute value of
+the difference between the current high and the previous close, and the
+absolute value of the difference between the current low and the previous
+close.
+
+The ATR is typically displayed as a line chart or a histogram, indicating the
+level of volatility in the market. Higher ATR values suggest greater
+volatility, while lower values indicate lower volatility.
+
+Traders use the ATR in various ways. It helps determine the appropriate
+placement of stop-loss orders by considering the average volatility of the
+asset. A wider stop-loss may be used in more volatile markets to account for
+larger price fluctuations, while a tighter stop-loss may be suitable for less
+volatile markets.
+
+The ATR can also be used to identify potential trend reversals. A sudden
+increase in the ATR may indicate a shift in market sentiment or the start of a
+new trend. Traders may look for breakouts or changes in price behavior when the
+ATR rises significantly.
+
+Additionally, the ATR can be used to compare volatility across different assets
+or timeframes. By comparing ATR values, traders can assess which assets or
+timeframes are experiencing higher or lower levels of volatility.
+
+In summary, the Average True Range (ATR) is a technical indicator that measures
+market volatility by calculating the average price range over a specified
+period. It helps traders determine stop-loss levels, identify potential trend
+reversals, and compare volatility between assets or timeframes. The ATR
+provides valuable insights into market conditions and assists traders in
+managing risk and making informed trading decisions.
 
 ## MACD (Moving Average Convergence Divergence) indicator
 
