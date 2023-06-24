@@ -95,7 +95,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_OHLC,                            // OHLC (Open-High-Low-Close)
   INDI_OSMA,                            // OsMA
   INDI_PATTERN,                         // Pattern Detector
-  INDI_PIVOT,                           // Pivot Detector
+  INDI_PIVOT,                           // Pivot
   INDI_PRICE,                           // Price
   INDI_PRICE_CHANNEL,                   // Price Channel
   INDI_PRICE_FEEDER,                    // Indicator which returns prices from custom array
@@ -128,7 +128,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_VIDYA,                           // Variable Index Dynamic Average
   INDI_VOLUMES,                         // Volumes
   INDI_VROC,                            // Volume Rate of Change
-  INDI_WILLIAMS_AD,                     // Larry Williams' Accumulation/Distribution
+  INDI_WILLIAMS_AD,                     // Williams' Accumulation/Distribution
   INDI_WPR,                             // Williams' Percent Range
   INDI_ZIGZAG,                          // ZigZag
   INDI_ZIGZAG_COLOR,                    // ZigZag Color

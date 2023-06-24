@@ -50,7 +50,7 @@ struct IndiZigZagColorParams : IndicatorParams {
 };
 
 /**
- * Implements the Volume Rate of Change indicator.
+ * Implements the ZigZag Color indicator.
  */
 class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
  public:

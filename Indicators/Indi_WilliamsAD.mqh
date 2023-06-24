@@ -40,7 +40,7 @@ struct IndiWilliamsADParams : IndicatorParams {
 };
 
 /**
- * Implements the Volume Rate of Change indicator.
+ * Implements the Williams' AD indicator.
  */
 class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
  public:

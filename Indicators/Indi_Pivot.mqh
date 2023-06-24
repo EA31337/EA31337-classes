@@ -38,7 +38,7 @@ struct IndiPivotParams : IndicatorParams {
 };
 
 /**
- * Implements Pivot Detector.
+ * Implements Pivot indicator.
  */
 class Indi_Pivot : public Indicator<IndiPivotParams> {
  protected:

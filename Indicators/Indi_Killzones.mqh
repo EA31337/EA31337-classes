@@ -82,7 +82,7 @@ struct Indi_Killzones_Time : MarketTimeForex {
 };
 
 /**
- * Implements Pivot Detector.
+ * Implements Killzones indicator.
  */
 class Indi_Killzones : public Indicator<IndiKillzonesParams> {
  protected:
