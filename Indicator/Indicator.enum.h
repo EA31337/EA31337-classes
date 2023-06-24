@@ -108,6 +108,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_RVI,                             // Relative Vigor Index
   INDI_SAR,                             // Parabolic SAR
   INDI_SPECIAL_MATH,                    // Math operations over given
+  INDI_SPECIAL_UNIVERSAL,               // Universal
   INDI_STDDEV,                          // Standard Deviation
   INDI_STDDEV_ON_MA_SMA,                // Standard Deviation on Moving Average in SMA mode
   INDI_STDDEV_ON_PRICE,                 // Standard Deviation (on Price)

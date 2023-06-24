@@ -28,3 +28,4 @@
 // Special indicators.
 #include "Indi_Custom.mqh"
 #include "Indi_Math.mqh"
+#include "Indi_Universal.h"
