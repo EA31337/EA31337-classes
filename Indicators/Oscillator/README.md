@@ -26,6 +26,44 @@ In summary, oscillators are a type of indicator used in technical analysis
 that measure price momentum and provide insights into overbought or oversold conditions.
 They are considered a subset of indicators due to their specific function and characteristics.
 
+## ASI (Accumulation Swing Index) indicator
+
+The Accumulation Swing Index (ASI) is a technical indicator that aims to gauge
+the strength and direction of a market's price movement.
+It combines price action and volume to provide insights into market trends
+and potential reversals. The ASI calculates a running cumulative total,
+incorporating the relationship between the current close, previous close,
+and recent price ranges.
+
+The ASI starts with an initial value, typically zero, and then factors
+in price and volume data. If the current close is higher than the previous close,
+the indicator adds a fraction of the current range (high minus low)
+to the prior ASI value. Conversely, if the current close is lower,
+a fraction of the current range is subtracted.
+The fraction is determined based on the volume and price relationship.
+
+The ASI's cumulative total fluctuates, reflecting the strength of price movements.
+Rising ASI values indicate buying pressure and potential uptrends,
+while falling values suggest selling pressure and potential downtrends.
+Traders often analyze the ASI for divergences from price action,
+which can signal shifts in market sentiment.
+
+The ASI is typically plotted as a line chart.
+Positive values above zero indicate accumulation or buying pressure,
+while negative values below zero indicate distribution or selling pressure.
+The crossover of the ASI line with zero may be considered a signal
+for potential trend reversals.
+
+It's important to note that the ASI does not provide specific
+buy or sell signals on its own. Traders commonly use it in conjunction
+with other technical analysis tools and indicators
+to validate trading decisions and identify potential entry or exit points.
+
+In summary, it is a technical indicator that combines price action
+and volume to assess market strength and direction.
+It calculates a running cumulative total based on the relationship
+between current and previous prices, incorporating price ranges.
+
 ## MACD (Moving Average Convergence Divergence) indicator
 
 MACD measures the relationship between two moving averages
