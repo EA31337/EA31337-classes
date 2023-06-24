@@ -144,7 +144,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
   }
 
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &FrAmaBuffer, int InpPeriodFrAMA,
-                       int InpShift, ENUM_APPLIED_PRICE InpAppliedPrice) {
+                       int _ishift, ENUM_APPLIED_PRICE _applied_price) {
     if (rates_total < 2 * InpPeriodFrAMA) return (0);
 
     int start, i;
@@ -152,7 +152,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
     if (prev_calculated == 0) {
       start = 2 * InpPeriodFrAMA - 1;
       for (i = 0; i <= start; i++)
-        FrAmaBuffer[i] = AppliedPriceValueStorage::GetApplied(open, high, low, close, i, InpAppliedPrice);
+        FrAmaBuffer[i] = AppliedPriceValueStorage::GetApplied(open, high, low, close, i, _applied_price);
     } else
       start = prev_calculated - 1;
 
@@ -170,7 +170,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
       double n3 = (hi3 - lo3) / (2 * InpPeriodFrAMA);
       double d = (MathLog(n1 + n2) - MathLog(n3)) / math_log_2;
       double alfa = MathExp(-4.6 * (d - 1.0));
-      double _iprice = AppliedPriceValueStorage::GetApplied(open, high, low, close, i, InpAppliedPrice);
+      double _iprice = AppliedPriceValueStorage::GetApplied(open, high, low, close, i, _applied_price);
 
       FrAmaBuffer[i] = alfa * _iprice + (1 - alfa) * FrAmaBuffer[i - 1].Get();
     }
