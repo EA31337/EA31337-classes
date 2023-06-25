@@ -517,10 +517,6 @@ bool InitIndicators() {
   IndiZigZagColorParams zigzag_color_params();
   indis.Add(new Indi_ZigZagColor(zigzag_color_params));
 
-  // Custom Moving Average.
-  IndiCustomMovingAverageParams cma_params();
-  indis.Add(new Indi_CustomMovingAverage(cma_params));
-
   // Math (specialized indicator).
   IndiMathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
   // math_params.SetPlot(clrBlue); // @fixme

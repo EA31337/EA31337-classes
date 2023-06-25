@@ -41,7 +41,6 @@
 #include "Indi_CCI.mqh"
 #include "Indi_CHO.mqh"
 #include "Indi_CHV.mqh"
-#include "Indi_CustomMovingAverage.mqh"
 #include "Indi_DEMA.mqh"
 #include "Indi_DeMarker.mqh"
 #include "Indi_Demo.mqh"

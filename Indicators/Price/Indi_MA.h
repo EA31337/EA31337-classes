@@ -76,8 +76,14 @@ struct IndiMAParams : IndicatorParams {
   IndiMAParams(unsigned int _period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
                ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 10)
       : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap), IndicatorParams(INDI_MA) {
+    if (custom_indi_name == "") {
+#ifdef __MQL5__
+      SetCustomIndicatorName("Examples\\Custom Moving Average");
+#else
+      SetCustomIndicatorName("Custom Moving Averages");
+#endif
+    }
     shift = _shift;
-    SetCustomIndicatorName("Examples\\Moving Average");
   };
   IndiMAParams(IndiMAParams &_params) { THIS_REF = _params; };
 };
@@ -674,13 +680,15 @@ class Indi_MA : public Indicator<IndiMAParams> {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
-                         GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, ToRelShift(_abs_shift));
+                         GetMAShift(), GetMAMethod() /* ] */, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
         _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
                                          GetMAMethod(), GetAppliedPrice(), ToRelShift(_abs_shift));
         break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
     }
 
     return _value;
