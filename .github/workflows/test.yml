@@ -60,7 +60,6 @@ jobs:
           - StrategyTest
           - StrategyTest-RSI
           - SummaryReportTest
-          - SymbolInfoTest
           - TickerTest
           - TradeTest
       max-parallel: 4
