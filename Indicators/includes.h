@@ -41,7 +41,6 @@
 #include "Indi_CCI.mqh"
 #include "Indi_CHO.mqh"
 #include "Indi_CHV.mqh"
-#include "Indi_ColorBars.mqh"
 #include "Indi_ColorCandlesDaily.mqh"
 #include "Indi_ColorLine.mqh"
 #include "Indi_CustomMovingAverage.mqh"
