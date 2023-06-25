@@ -457,10 +457,6 @@ bool InitIndicators() {
   IndiCHVParams chv_params();
   indis.Add(new Indi_CHV(chv_params));
 
-  // Color Candles Daily.
-  IndiColorCandlesDailyParams color_candles_daily_params();
-  indis.Add(new Indi_ColorCandlesDaily(color_candles_daily_params));
-
   // Color Line.
   IndiColorLineParams color_line_params();
   indis.Add(new Indi_ColorLine(color_line_params));

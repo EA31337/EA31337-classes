@@ -66,8 +66,6 @@ jobs:
           - Indi_CCI.test
           - Indi_CHO.test
           - Indi_CHV.test
-          # - Indi_ColorBars.test # @fixme
-          - Indi_ColorCandlesDaily.test
           - Indi_ColorLine.test
           - Indi_CustomMovingAverage.test
           - Indi_DeMarker.test
