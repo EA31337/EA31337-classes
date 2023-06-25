@@ -457,10 +457,6 @@ bool InitIndicators() {
   IndiCHVParams chv_params();
   indis.Add(new Indi_CHV(chv_params));
 
-  // Color Line.
-  IndiColorLineParams color_line_params();
-  indis.Add(new Indi_ColorLine(color_line_params));
-
   // Detrended Price Oscillator.
   IndiDetrendedPriceParams detrended_params();
   indis.Add(new Indi_DetrendedPrice(detrended_params));
