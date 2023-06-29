@@ -34,7 +34,7 @@ int ArraySize(const ARRAY_REF(T, _array)) {
 }
 
 template <typename T, int size>
-constexpr int ArraySize(const T REF(_array)[size]) {
+constexpr int ArraySize(CONST_FIXED_ARRAY_REF(T, _array, size)) {
   return size;
 }
 
@@ -51,7 +51,7 @@ bool ArraySetAsSeries(ARRAY_REF(T, _array), bool _flag) {
 }
 
 template <typename T>
-bool ArrayGetAsSeries(ARRAY_REF(T, _array)) {
+bool ArrayGetAsSeries(CONST_ARRAY_REF(T, _array)) {
   return _array.getIsSeries();
 }
 

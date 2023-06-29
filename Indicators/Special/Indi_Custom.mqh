@@ -40,7 +40,7 @@
 
 // Defines struct to store indicator parameter values.
 struct IndiCustomParams : public IndicatorParams {
-  DataParamEntry iargs[];
+  ARRAY(DataParamEntry, iargs);
   // Struct constructors.
   IndiCustomParams(string _filepath = INDI_CUSTOM_PATH, int _shift = 0) : IndicatorParams(INDI_CUSTOM) {
     custom_indi_name = _filepath;
@@ -61,7 +61,7 @@ struct IndiCustomParams : public IndicatorParams {
     }
     iargs[_index + 1] = _entry;
   }
-  void SetParams(DataParamEntry &_entries[]) {
+  void SetParams(CONST_ARRAY_REF(DataParamEntry, _entries)) {
     for (int i = 0; i < ArraySize(_entries); i++) {
       iargs[i] = _entries[i];
     }

@@ -115,7 +115,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
                                    Indi_StdDev *_obj = NULL) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_source, _ma_period + _ma_shift + _shift)
 
-    double _indi_value_buffer[];
+    ARRAY(double, _indi_value_buffer);
     double _std_dev;
     int i;
 
@@ -137,16 +137,17 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
     return _std_dev;
   }
 
-  static double iStdDevOnArray(const double &price[], double MAprice, int period) {
+  static double iStdDevOnArray(CONST_ARRAY_REF(double, price), double MAprice, int period) {
     double std_dev = 0;
     int i;
 
-    for (i = 0; i < period; ++i) std_dev += MathPow(price[i] - MAprice, 2);
+    for (i = 0; i < period; ++i) std_dev += MathPow(price[i] - MAprice, (double)2);
 
     return MathSqrt(std_dev / period);
   }
 
-  static double iStdDevOnArray(double &array[], int total, int ma_period, int ma_shift, int ma_method, int shift) {
+  static double iStdDevOnArray(ARRAY_REF(double, array), int total, int ma_period, int ma_shift,
+                               ENUM_MA_METHOD ma_method, int shift) {
 #ifdef __MQL4__
     return ::iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift);
 #endif
@@ -189,17 +190,17 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   /**
    * Standard Deviation On Array is just a normal standard deviation over MA with a selected method.
    */
-  static double iStdDevOnArray(const double &price[], int period, ENUM_MA_METHOD ma_method = MODE_SMA) {
+  static double iStdDevOnArray(CONST_ARRAY_REF(double, price), int period, ENUM_MA_METHOD ma_method = MODE_SMA) {
     string _key = "Indi_PriceFeeder";
     Indi_PriceFeeder *_indi_price_feeder;
     if (!ObjectsCache<Indi_PriceFeeder>::TryGet(_key, _indi_price_feeder)) {
-      IndiPriceFeederParams _params();
-      IndicatorData *_indi_pf = new Indi_PriceFeeder(_params);
+      IndiPriceFeederParams _params;
+      Indi_PriceFeeder *_indi_pf = new Indi_PriceFeeder(_params);
       _indi_price_feeder = ObjectsCache<Indi_PriceFeeder>::Set(_key, _indi_pf);
     }
 
     // Filling reused price feeder.
-    _indi_price_feeder.SetPrices(price);
+    _indi_price_feeder PTR_DEREF SetPrices(price);
 
     IndiMAParams ma_params(period, 0, ma_method, PRICE_OPEN);
 
@@ -214,7 +215,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
 
     return _result;
     */
-    Print(__FUNCTION__ + " must be refactored!");
+    Print(string(__FUNCTION__) + " must be refactored!");
     DebugBreak();
     return 0;
   }
@@ -324,7 +325,8 @@ double iStdDev(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_m
   return Indi_StdDev::iStdDev(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
                               (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iStdDevOnArray(double &_arr[], int _total, int _ma_period, int _ma_shift, int _ma_method, int _abs_shift) {
+double iStdDevOnArray(ARRAY_REF(double, _arr), int _total, int _ma_period, int _ma_shift, int _ma_method,
+                      int _abs_shift) {
   ResetLastError();
   return Indi_StdDev::iStdDevOnArray(_arr, _total, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method, _abs_shift);
 }

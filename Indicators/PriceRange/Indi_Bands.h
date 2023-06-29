@@ -153,21 +153,22 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
 
   static double iBandsOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, double _deviation, int _bands_shift,
                               int _mode, int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_price);
+    _cache PTR_DEREF SetPriceBuffer(_price);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(4);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(4);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_Bands::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
-                                                   _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
-                                                   _cache.GetBuffer<double>(3), _period, _bands_shift, _deviation));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_Bands::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache PTR_DEREF GetBuffer<double>(0),
+                              _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2),
+                              _cache PTR_DEREF GetBuffer<double>(3), _period, _bands_shift, _deviation));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -293,30 +294,30 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
   virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     IndicatorData *_result = NULL;
     if (_id == INDI_BANDS) {
-      IndiBandsParams bands_params();
-      _result = Indi_Bands(bands_params);
+      IndiBandsParams bands_params;
+      _result = new Indi_Bands(bands_params);
     } else if (_id == INDI_CCI) {
-      IndiCCIParams cci_params();
+      IndiCCIParams cci_params;
       _result = new Indi_CCI(cci_params);
     } else if (_id == INDI_ENVELOPES) {
-      IndiEnvelopesParams env_params();
+      IndiEnvelopesParams env_params;
       _result = new Indi_Envelopes(env_params);
     } else if (_id == INDI_MOMENTUM) {
-      IndiMomentumParams mom_params();
+      IndiMomentumParams mom_params;
       _result = new Indi_Momentum(mom_params);
     } else if (_id == INDI_MA) {
-      IndiMAParams ma_params();
+      IndiMAParams ma_params;
       _result = new Indi_MA(ma_params);
     } else if (_id == INDI_RSI) {
-      IndiRSIParams _rsi_params();
+      IndiRSIParams _rsi_params;
       _result = new Indi_RSI(_rsi_params);
     } else if (_id == INDI_STDDEV) {
-      IndiStdDevParams stddev_params();
+      IndiStdDevParams stddev_params;
       _result = new Indi_StdDev(stddev_params);
     }
 
     if (_result != nullptr) {
-      _result.SetDataSource(GetCandle());
+      _result PTR_DEREF SetDataSource(GetCandle());
       return _result;
     }
 

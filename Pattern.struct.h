@@ -302,6 +302,12 @@ struct PatternCandle2 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+  PatternCandle2(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_2CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_2CANDLE _enum = (ENUM_PATTERN_2CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_2CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -406,6 +412,12 @@ struct PatternCandle2 : PatternCandle {
 struct PatternCandle3 : PatternCandle {
   PatternCandle3(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
   PatternCandle3(CONST_ARRAY_REF(BarOHLC, _c)) : PatternCandle(PATTERN_3CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_3CANDLE _enum = (ENUM_PATTERN_3CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+  PatternCandle3(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_3CANDLE_NONE) {
     for (int i = 0; i < sizeof(int) * 8; i++) {
       ENUM_PATTERN_3CANDLE _enum = (ENUM_PATTERN_3CANDLE)(1 << i);
       SetPattern(_enum, CheckPattern(_enum, _c));
@@ -522,6 +534,12 @@ struct PatternCandle3 : PatternCandle {
 struct PatternCandle4 : PatternCandle {
   PatternCandle4(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
   PatternCandle4(CONST_ARRAY_REF(BarOHLC, _c)) : PatternCandle(PATTERN_4CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_4CANDLE _enum = (ENUM_PATTERN_4CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+  PatternCandle4(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_4CANDLE_NONE) {
     for (int i = 0; i < sizeof(int) * 8; i++) {
       ENUM_PATTERN_4CANDLE _enum = (ENUM_PATTERN_4CANDLE)(1 << i);
       SetPattern(_enum, CheckPattern(_enum, _c));
@@ -693,6 +711,12 @@ struct PatternCandle5 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+  PatternCandle5(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_5CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_5CANDLE _enum = (ENUM_PATTERN_5CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_5CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -844,6 +868,12 @@ struct PatternCandle6 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+  PatternCandle6(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_6CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_6CANDLE _enum = (ENUM_PATTERN_6CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_6CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -858,6 +888,12 @@ struct PatternCandle6 : PatternCandle {
 struct PatternCandle7 : PatternCandle {
   PatternCandle7(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
   PatternCandle7(CONST_ARRAY_REF(BarOHLC, _c)) : PatternCandle(PATTERN_7CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_7CANDLE _enum = (ENUM_PATTERN_7CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+  PatternCandle7(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_7CANDLE_NONE) {
     for (int i = 0; i < sizeof(int) * 8; i++) {
       ENUM_PATTERN_7CANDLE _enum = (ENUM_PATTERN_7CANDLE)(1 << i);
       SetPattern(_enum, CheckPattern(_enum, _c));
@@ -882,6 +918,12 @@ struct PatternCandle8 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+  PatternCandle8(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_8CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_8CANDLE _enum = (ENUM_PATTERN_8CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_8CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -901,6 +943,12 @@ struct PatternCandle9 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+  PatternCandle9(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_9CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_9CANDLE _enum = (ENUM_PATTERN_9CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_9CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -915,6 +963,12 @@ struct PatternCandle9 : PatternCandle {
 struct PatternCandle10 : PatternCandle {
   PatternCandle10(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
   PatternCandle10(CONST_ARRAY_REF(BarOHLC, _c)) : PatternCandle(PATTERN_10CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_10CANDLE _enum = (ENUM_PATTERN_10CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+  PatternCandle10(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_10CANDLE_NONE) {
     for (int i = 0; i < sizeof(int) * 8; i++) {
       ENUM_PATTERN_10CANDLE _enum = (ENUM_PATTERN_10CANDLE)(1 << i);
       SetPattern(_enum, CheckPattern(_enum, _c));
@@ -965,7 +1019,7 @@ struct PatternEntry {
         pattern8(_c),
         pattern9(_c),
         pattern10(_c) {}
-  PatternEntry(ARRAY_REF(BarOHLC, _c))
+  PatternEntry(FIXED_ARRAY_REF(BarOHLC, _c, 8))
       : pattern1(_c[0]),
         pattern2(_c),
         pattern3(_c),

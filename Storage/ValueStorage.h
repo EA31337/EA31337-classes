@@ -60,13 +60,14 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
 #define INDICATOR_CALCULATE_METHOD_PARAMS_SHORT \
   const int rates_total, const int prev_calculated, const int begin, ValueStorage<double> &price
 
-#define INDICATOR_CALCULATE_GET_PARAMS_LONG                                                                    \
-  _cache.GetTotal(), _cache.GetPrevCalculated(), _time, _cache.GetPriceBuffer(PRICE_OPEN),                     \
-      _cache.GetPriceBuffer(PRICE_HIGH), _cache.GetPriceBuffer(PRICE_LOW), _cache.GetPriceBuffer(PRICE_CLOSE), \
-      _tick_volume, _volume, _spread
+#define INDICATOR_CALCULATE_GET_PARAMS_LONG                                                                            \
+  _cache PTR_DEREF GetTotal(), _cache PTR_DEREF GetPrevCalculated(), _time,                                            \
+      _cache PTR_DEREF GetPriceBuffer(PRICE_OPEN), _cache PTR_DEREF GetPriceBuffer(PRICE_HIGH),                        \
+      _cache PTR_DEREF GetPriceBuffer(PRICE_LOW), _cache PTR_DEREF GetPriceBuffer(PRICE_CLOSE), _tick_volume, _volume, \
+      _spread
 
 #define INDICATOR_CALCULATE_GET_PARAMS_SHORT \
-  _cache PTR_DEREF GetTotal(), _cache PTR_DEREF GetPrevCalculated(), 0, PTR_TO_REF(_cache PTR_DEREF GetPriceBuffer())
+  _cache PTR_DEREF GetTotal(), _cache PTR_DEREF GetPrevCalculated(), 0, _cache PTR_DEREF GetPriceBuffer()
 
 #define INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)                                    \
   IndiBufferCache<double> *_cache;                                                       \
@@ -82,9 +83,9 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
  * (the one that doesn't exist in the hierarchy).
  */
 #define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(INDI, APPLIED_PRICE, KEY)                                 \
-  ValueStorage<double> *_price;                                                                                       \
+  ValueStorage<double> *_price_ptr;                                                                                   \
   if (INDI PTR_DEREF GetSuitableDataSource() PTR_DEREF HasSpecificAppliedPriceValueStorage(APPLIED_PRICE, INDI)) {    \
-    _price =                                                                                                          \
+    _price_ptr =                                                                                                      \
         INDI PTR_DEREF GetSuitableDataSource() PTR_DEREF GetSpecificAppliedPriceValueStorage(APPLIED_PRICE, INDI);    \
   } else {                                                                                                            \
     Print("Source indicator ", INDI PTR_DEREF GetFullName(),                                                          \
@@ -94,26 +95,32 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
           ", AP overriden: ", EnumToString(INDI PTR_DEREF GetDataSourceAppliedType()));                               \
     DebugBreak();                                                                                                     \
   }                                                                                                                   \
+  REF_TO(ValueStorage<double>) _price = PTR_TO_REF(_price_ptr);                                                       \
   INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)
 
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(INDI, KEY)                                        \
-  IndicatorData *_suitable_ds = INDI PTR_DEREF GetSuitableDataSource();                                      \
-  ValueStorage<datetime> *_time =                                                                            \
-      (ValueStorage<datetime> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_TIME);      \
-  ValueStorage<long> *_tick_volume =                                                                         \
-      (ValueStorage<long> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME);   \
-  ValueStorage<long> *_volume =                                                                              \
-      (ValueStorage<long> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME);        \
-  ValueStorage<long> *_spread =                                                                              \
-      (ValueStorage<long> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD);        \
-  ValueStorage<double> *_price_open =                                                                        \
-      (ValueStorage<double> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_OPEN);  \
-  ValueStorage<double> *_price_high =                                                                        \
-      (ValueStorage<double> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_HIGH);  \
-  ValueStorage<double> *_price_low =                                                                         \
-      (ValueStorage<double> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_LOW);   \
-  ValueStorage<double> *_price_close =                                                                       \
-      (ValueStorage<double> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_CLOSE); \
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(INDI, KEY)                                                \
+  IndicatorData *_suitable_ds = INDI PTR_DEREF GetSuitableDataSource();                                              \
+  ValueStorage<datetime> &_time =                                                                                    \
+      (ValueStorage<datetime> &)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_TIME));            \
+  REF_TO(ValueStorage<long>)                                                                                         \
+  _tick_volume =                                                                                                     \
+      REF_CAST(ValueStorage<long>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME));   \
+  REF_TO(ValueStorage<long>)                                                                                         \
+  _volume = REF_CAST(ValueStorage<long>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME));  \
+  REF_TO(ValueStorage<long>)                                                                                         \
+  _spread = REF_CAST(ValueStorage<long>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD));  \
+  REF_TO(ValueStorage<double>)                                                                                       \
+  _price_open =                                                                                                      \
+      REF_CAST(ValueStorage<double>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_OPEN));  \
+  REF_TO(ValueStorage<double>)                                                                                       \
+  _price_high =                                                                                                      \
+      REF_CAST(ValueStorage<double>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_HIGH));  \
+  REF_TO(ValueStorage<double>)                                                                                       \
+  _price_low =                                                                                                       \
+      REF_CAST(ValueStorage<double>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_LOW));   \
+  REF_TO(ValueStorage<double>)                                                                                       \
+  _price_close =                                                                                                     \
+      REF_CAST(ValueStorage<double>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_CLOSE)); \
   INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)
 
 #define INDICATOR_CALCULATE_POPULATED_PARAMS_LONG \
@@ -250,6 +257,52 @@ int ArrayCopy(ARRAY_REF(D, _target), ValueStorage<C> &_source, int _dst_start = 
     int _source_idx = _reverse ? (ArraySize(_source) - s - 1 + _src_start) : s;
 
     _target[t] = _source[_source_idx].Get();
+  }
+
+  return _num_copied;
+}
+/**
+ * Array-Array wrapper for ArrayCopy.
+ * @note It's a copy-past of the above ArrayCopy.
+ */
+template <typename C>
+int ArrayCopy(ARRAY_REF(C, _target), CONST_ARRAY_REF(C, _source), int _dst_start = 0, int _src_start = 0,
+              int count = WHOLE_ARRAY) {
+  if (count == WHOLE_ARRAY) {
+    count = ArraySize(_source);
+  }
+
+  if (ArrayGetAsSeries(_target)) {
+    if ((ArraySize(_target) == 0 && _dst_start != 0) ||
+        (ArraySize(_target) != 0 && ArraySize(_target) < _dst_start + count)) {
+      // The receiving array is declared as AS_SERIES, and it is of insufficient size.
+      SetUserError(ERR_SMALL_ASSERIES_ARRAY);
+      ArrayResize(_target, 0);
+      return 0;
+    }
+  }
+
+  count = MathMin(count, ArraySize(_source) - _src_start);
+
+  int _dst_required_size = _dst_start + count;
+
+  if (ArraySize(_target) < _dst_required_size) {
+    ArrayResize(_target, _dst_required_size, 32);
+  }
+
+  int _num_copied, t, s;
+
+  for (_num_copied = 0, t = _dst_start, s = _src_start; _num_copied < count; ++_num_copied, ++t, ++s) {
+    if (s >= ArraySize(_source)) {
+      // No more data to copy.
+      break;
+    }
+
+    bool _reverse = ArrayGetAsSeries(_target) != ArrayGetAsSeries(_source);
+
+    int _source_idx = _reverse ? (ArraySize(_source) - s - 1 + _src_start) : s;
+
+    _target[t] = _source[_source_idx];
   }
 
   return _num_copied;

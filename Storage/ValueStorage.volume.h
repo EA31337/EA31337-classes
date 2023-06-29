@@ -24,6 +24,11 @@
  * Volume getter version of ValueStorage.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Cache/ObjectsCache.h"
 #include "ValueStorage.history.h"

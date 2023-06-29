@@ -31,11 +31,11 @@
 #endif
 
 // Includes.
+#include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
+#include "../Serializer/Serializer.h"
 #include "../Storage/Data.struct.h"
 #include "Order.enum.h"
 #include "Platform.extern.h"
-#include "../Serializer/Serializer.h"
-#include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
 #include "Terminal.h"
 
 #ifndef __MQL5__
@@ -130,7 +130,7 @@ struct OrderParams {
       bool _result = true;
       int _size = ArraySize(_cond_close);
       if (_size <= _index) {
-        _result &= ArrayResize(_cond_close, _size + 1);
+        _result &= ArrayResize(_cond_close, _size + 1) == _size + 1;
       }
       return _result;
     }

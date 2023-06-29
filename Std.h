@@ -56,6 +56,7 @@
 #define PTR_ATTRIB(O, A) O.A
 #define PTR_ATTRIB2(O, A, B) O.A.B
 #define PTR_TO_REF(PTR) PTR
+#define REF_TO_PTR(PTR) PTR
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
 #define nullptr NULL
 #define REF_DEREF .Ptr().
@@ -69,6 +70,7 @@
 #define PTR_ATTRIB(O, A) O->A
 #define PTR_ATTRIB2(O, A, B) O->A->B
 #define PTR_TO_REF(PTR) (*PTR)
+#define REF_TO_PTR(PTR) (&PTR)
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
 #define REF_DEREF .Ptr()->
 #define int64 long long
@@ -95,7 +97,10 @@
 /**
  * Reference to object.
  */
-#define CONST_REF_TO(T) const T
+
+#define REF_TO(T) T*
+#define CONST_REF_TO(T) const REF_TO(T)
+#define REF_CAST(T) (T*)
 
 /**
  * Reference to the array.
@@ -118,11 +123,15 @@
 #define ARRAY(T, N) T N[]
 #define FIXED_ARRAY(T, N, SIZE) T N[SIZE]
 
+#define CONST_FIXED_ARRAY_REF(T, N, S) const FIXED_ARRAY_REF(T, N, S)
+
 #else
 /**
  * Reference to object.
  */
-#define CONST_REF_TO(T) const T&
+#define REF_TO(T) T&
+#define CONST_REF_TO(T) const REF_TO(T)
+#define REF_CAST(T) (T&)
 
 /**
 
@@ -136,6 +145,7 @@
 #define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
 
 #define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
+#define CONST_FIXED_ARRAY_REF(T, N, S) const FIXED_ARRAY_REF(T, N, S)
 
 /**
  * Array definition.
@@ -169,7 +179,7 @@ class _cpp_array {
   _cpp_array() {}
 
   template <int size>
-  _cpp_array(const T REF(_arr)[size]) {
+  _cpp_array(CONST_FIXED_ARRAY_REF(T, _arr, size)) {
     for (const auto& _item : _arr) m_data.push_back(_item);
   }
 

@@ -79,8 +79,8 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
   unsigned int GetPossibleDataModes() override { return IDATA_INDICATOR; }
 
   static double iAppliedPriceOnIndicator(IndicatorData *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
-    double _ohlc[4];
-    _indi[_shift].GetArray(_ohlc, 4);
+    ARRAY(double, _ohlc);
+    PTR_TO_REF(_indi)[_shift].GetArray(_ohlc, 4);
     return BarOHLC::GetAppliedPrice(_applied_price, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);
   }
 
