@@ -107,20 +107,21 @@ class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
    */
   static double iVIDyAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _cmo_period, int _ema_period, int _ma_shift,
                               int _mode, int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_price);
+    _cache PTR_DEREF SetPriceBuffer(_price);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_VIDYA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
-                                                   _cmo_period, _ema_period, _ma_shift));
+    _cache PTR_DEREF SetPrevCalculated(Indi_VIDYA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT,
+                                                             _cache PTR_DEREF GetBuffer<double>(0), _cmo_period,
+                                                             _ema_period, _ma_shift));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

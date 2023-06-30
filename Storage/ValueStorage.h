@@ -98,29 +98,32 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
   REF_TO(ValueStorage<double>) _price = PTR_TO_REF(_price_ptr);                                                       \
   INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)
 
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(INDI, KEY)                                                \
-  IndicatorData *_suitable_ds = INDI PTR_DEREF GetSuitableDataSource();                                              \
-  ValueStorage<datetime> &_time =                                                                                    \
-      (ValueStorage<datetime> &)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_TIME));            \
-  REF_TO(ValueStorage<long>)                                                                                         \
-  _tick_volume =                                                                                                     \
-      REF_CAST(ValueStorage<long>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME));   \
-  REF_TO(ValueStorage<long>)                                                                                         \
-  _volume = REF_CAST(ValueStorage<long>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME));  \
-  REF_TO(ValueStorage<long>)                                                                                         \
-  _spread = REF_CAST(ValueStorage<long>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD));  \
-  REF_TO(ValueStorage<double>)                                                                                       \
-  _price_open =                                                                                                      \
-      REF_CAST(ValueStorage<double>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_OPEN));  \
-  REF_TO(ValueStorage<double>)                                                                                       \
-  _price_high =                                                                                                      \
-      REF_CAST(ValueStorage<double>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_HIGH));  \
-  REF_TO(ValueStorage<double>)                                                                                       \
-  _price_low =                                                                                                       \
-      REF_CAST(ValueStorage<double>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_LOW));   \
-  REF_TO(ValueStorage<double>)                                                                                       \
-  _price_close =                                                                                                     \
-      REF_CAST(ValueStorage<double>)(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_CLOSE)); \
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(INDI, KEY)                            \
+  IndicatorData *_suitable_ds = INDI PTR_DEREF GetSuitableDataSource();                          \
+  REF_TO(ValueStorage<datetime>)                                                                 \
+  _time = REF_CAST(ValueStorage<datetime>)                                                       \
+      PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_TIME));        \
+  REF_TO(ValueStorage<long>)                                                                     \
+  _tick_volume = REF_CAST(ValueStorage<long>)                                                    \
+      PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME)); \
+  REF_TO(ValueStorage<long>)                                                                     \
+  _volume = REF_CAST(ValueStorage<long>)                                                         \
+      PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME));      \
+  REF_TO(ValueStorage<long>)                                                                     \
+  _spread = REF_CAST(ValueStorage<long>)                                                         \
+      PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD));      \
+  REF_TO(ValueStorage<double>)                                                                   \
+  _price_open = REF_CAST(ValueStorage<double>)                                                   \
+      PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_OPEN));  \
+  REF_TO(ValueStorage<double>)                                                                   \
+  _price_high = REF_CAST(ValueStorage<double>)                                                   \
+      PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_HIGH));  \
+  REF_TO(ValueStorage<double>)                                                                   \
+  _price_low = REF_CAST(ValueStorage<double>)                                                    \
+      PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_LOW));   \
+  REF_TO(ValueStorage<double>)                                                                   \
+  _price_close = REF_CAST(ValueStorage<double>)                                                  \
+      PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_CLOSE)); \
   INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)
 
 #define INDICATOR_CALCULATE_POPULATED_PARAMS_LONG \

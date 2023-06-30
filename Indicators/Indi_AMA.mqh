@@ -122,20 +122,21 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   static double iAMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ama_period, int _fast_ema_period,
                             int _slow_ema_period, int _ama_shift, int _mode, int _abs_shift,
                             IndiBufferCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_price);
+    _cache PTR_DEREF SetPriceBuffer(_price);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_AMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
-                                                 _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift));
+    _cache PTR_DEREF SetPrevCalculated(Indi_AMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT,
+                                                           _cache PTR_DEREF GetBuffer<double>(0), _ama_period,
+                                                           _fast_ema_period, _slow_ema_period, _ama_shift));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -218,7 +219,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
       // Calculate AMA.
       double prevAMA = ExtAMABuffer[i - 1].Get();
 
-      ExtAMABuffer[i] = MathPow(currentSSC, 2) * (price[i] - prevAMA) + prevAMA;
+      ExtAMABuffer[i] = MathPow(currentSSC, 2.0) * (price[i] - prevAMA) + prevAMA;
     }
     // Return value of prev_calculated for next call.
     return (rates_total);

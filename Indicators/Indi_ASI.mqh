@@ -22,6 +22,7 @@
 
 // Includes.
 #include "../Indicator/Indicator.h"
+#include "../Platform/Platform.h"
 #include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 
@@ -116,20 +117,21 @@ class Indi_ASI : public Indicator<IndiASIParams> {
    */
   static double iASIOnArray(INDICATOR_CALCULATE_PARAMS_LONG, double _mpc, int _mode, int _abs_shift,
                             IndiBufferCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(3);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(3);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_ASI::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
-                                                 _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2), _mpc));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_ASI::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0),
+                            _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2), _mpc));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -143,6 +145,7 @@ class Indi_ASI : public Indicator<IndiASIParams> {
       ExtT = 300.0;
       PrintFormat("Input parameter T has wrong value. Indicator will use T = %f.", ExtT);
     }
+
     // Calculate ExtTpoints value.
     if (_Point > 1e-7)
       ExtTpoints = ExtT * _Point;

@@ -110,22 +110,22 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
   static double iZigZagColorOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _depth, int _deviation, int _backstep,
                                     int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
                                     bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(3 + 2);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(3 + 2);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_ZigZagColor::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG,
-                                                         _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
-                                                         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3),
-                                                         _cache.GetBuffer<double>(4), _depth, _deviation, _backstep));
+    _cache PTR_DEREF SetPrevCalculated(Indi_ZigZagColor::Calculate(
+        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0),
+        _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2),
+        _cache PTR_DEREF GetBuffer<double>(3), _cache PTR_DEREF GetBuffer<double>(4), _depth, _deviation, _backstep));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

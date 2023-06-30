@@ -134,22 +134,22 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
       return 0.0f;
     }
 
-    _cache.SetPriceBuffer(_price);
+    _cache PTR_DEREF SetPriceBuffer(_price);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(3);  // 3 buffers.
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(3);  // 3 buffers.
     }
 
     if (_recalculate) {
       // We don't want to continue calculations, but to recalculate previous one.
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_DEMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
-                                                  _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
-                                                  _ma_period));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_DEMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache PTR_DEREF GetBuffer<double>(0),
+                             _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2), _ma_period));
 
-    return _cache.GetTailValue<double>(0, _ma_shift + _shift);
+    return _cache PTR_DEREF GetTailValue<double>(0, _ma_shift + _shift);
   }
 
   /**

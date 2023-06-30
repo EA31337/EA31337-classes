@@ -69,8 +69,8 @@
 #define PTR_DEREF ->
 #define PTR_ATTRIB(O, A) O->A
 #define PTR_ATTRIB2(O, A, B) O->A->B
-#define PTR_TO_REF(PTR) (*PTR)
-#define REF_TO_PTR(PTR) (&PTR)
+#define PTR_TO_REF(PTR) (*(PTR))
+#define REF_TO_PTR(PTR) (&(PTR))
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
 #define REF_DEREF .Ptr()->
 #define int64 long long

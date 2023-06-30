@@ -96,20 +96,21 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
    */
   static double iColorLineOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
                                   IndiBufferCache<double> *_cache, IndicatorData *_indi_ma, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1 + 1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1 + 1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_ColorLine::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
-                                                       _cache.GetBuffer<double>(1), _indi_ma));
+    _cache PTR_DEREF SetPrevCalculated(Indi_ColorLine::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG,
+                                                                 _cache PTR_DEREF GetBuffer<double>(0),
+                                                                 _cache PTR_DEREF GetBuffer<double>(1), _indi_ma));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -117,7 +118,7 @@ class Indi_ColorLine : public Indicator<IndiColorLineParams> {
    */
   static double iColorLineOnIndicator(IndicatorData *_indi, int _mode, int _rel_shift, IndicatorData *_obj) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
-    Indi_MA *_indi_ma = _obj.GetDataSource(INDI_MA);
+    Indi_MA *_indi_ma = (Indi_MA *)_obj PTR_DEREF GetDataSource(INDI_MA);
     return iColorLineOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
                              _cache, _indi_ma);
   }

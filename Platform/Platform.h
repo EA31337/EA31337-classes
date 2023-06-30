@@ -440,6 +440,38 @@ class Platform {
     return period;
   }
 
+  /**
+   * Returns the point size of the current symbol in the quote currency.
+   * @see https://docs.mql4.com/check/point
+   */
+  static double GetPoint() {
+    if (symbol == PLATFORM_WRONG_SYMBOL) {
+      RUNTIME_ERROR(
+          "Retrieving _Point variable or calling Point() outside the OnTick() of the currently ticking indicator is "
+          "prohibited!");
+    }
+
+    Alert("Error: Platform::GetPoint() is not yet implemented! Returning 0.01.");
+    DebugBreak();
+    return 0.01;
+  }
+
+  /**
+   * Returns the number of decimal digits determining the accuracy of price of the current chart symbol.
+   * @see https://docs.mql4.com/check/digits
+   */
+  static int GetDigits() {
+    if (symbol == PLATFORM_WRONG_SYMBOL) {
+      RUNTIME_ERROR(
+          "Retrieving _Digits variable or calling Digits() outside the OnTick() of the currently ticking indicator is "
+          "prohibited!");
+    }
+
+    Alert("Error: Platform::GetDigits() is not yet implemented! Returning 2.");
+    DebugBreak();
+    return 2;
+  }
+
  private:
   /**
    * Sets symbol of the currently ticking indicator.
@@ -803,6 +835,12 @@ bool TimeToStruct(datetime dt, MqlDateTime &dt_struct) {
 SymbolGetter::operator string() const { return Platform::GetSymbol(); }
 
 ENUM_TIMEFRAMES Period() { return Platform::GetPeriod(); }
+
+double Point() { return Platform::GetPoint(); }
+#define _Point (Point())
+
+int Digits() { return Platform::GetDigits(); }
+#define _Digits (Digits())
 
 datetime StructToTime(MqlDateTime &dt_struct) {
   tm ltm;

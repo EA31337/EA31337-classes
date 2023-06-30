@@ -97,20 +97,21 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
    */
   static double iVolumesOnArray(INDICATOR_CALCULATE_PARAMS_LONG, ENUM_APPLIED_VOLUME _av, int _mode, int _abs_shift,
                                 IndiBufferCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1 + 1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1 + 1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_Volumes::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
-                                                     _cache.GetBuffer<double>(1), _av));
+    _cache PTR_DEREF SetPrevCalculated(Indi_Volumes::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG,
+                                                               _cache PTR_DEREF GetBuffer<double>(0),
+                                                               _cache PTR_DEREF GetBuffer<double>(1), _av));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

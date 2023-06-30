@@ -123,20 +123,20 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
    */
   static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
                               int _mode, int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_FrAMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
-                                                   _ma_period, _ma_shift, _ap));
+    _cache PTR_DEREF SetPrevCalculated(Indi_FrAMA::Calculate(
+        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0), _ma_period, _ma_shift, _ap));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

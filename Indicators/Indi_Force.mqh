@@ -33,6 +33,7 @@
 
 // Includes.
 #include "../Indicator/Indicator.h"
+#include "../Indicators/Price/Indi_MA.h"
 
 // Structs.
 struct IndiForceParams : IndicatorParams {

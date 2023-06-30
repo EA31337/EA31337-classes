@@ -98,6 +98,7 @@
 #define clrLightBlue 0x00ADD8E6
 #define clrLightCoral 0x00F08080
 #define clrLightCyan 0x00E0FFFF
+#define clrLightGoldenrod 0x00EEDC82
 #define clrLightGoldenrodYellow 0x00FAFAD2
 #define clrLightGreen 0x0090EE90
 #define clrLightGrey 0x00D3D3D3

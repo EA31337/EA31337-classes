@@ -141,22 +141,23 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   static double iBWZTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift, int _data_limit,
                              IndiBufferCache<double> *_cache, Indi_AC *_indi_ac, Indi_AO *_indi_ao,
                              bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(4 + 1 + 2);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(4 + 1 + 2);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_BWZT::Calculate(
-        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
-        _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4),
-        _cache.GetBuffer<double>(5), _cache.GetBuffer<double>(6), _data_limit, _indi_ac, _indi_ao));
+    _cache PTR_DEREF SetPrevCalculated(Indi_BWZT::Calculate(
+        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0),
+        _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2),
+        _cache PTR_DEREF GetBuffer<double>(3), _cache PTR_DEREF GetBuffer<double>(4),
+        _cache PTR_DEREF GetBuffer<double>(5), _cache PTR_DEREF GetBuffer<double>(6), _data_limit, _indi_ac, _indi_ao));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -165,10 +166,11 @@ class Indi_BWZT : public Indicator<IndiBWZTParams> {
   static double iBWZTOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _rel_shift,
                                  int _data_limit, IndicatorData *_obj) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _data_limit);
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi,
+                                                       Util::MakeKey("Indi_BWZT_ON_" + _indi PTR_DEREF GetFullName()));
 
-    Indi_AC *_indi_ac = _obj.GetDataSource(INDI_AC);
-    Indi_AO *_indi_ao = _obj.GetDataSource(INDI_AO);
+    Indi_AC *_indi_ac = (Indi_AC *)_obj PTR_DEREF GetDataSource(INDI_AC);
+    Indi_AO *_indi_ao = (Indi_AO *)_obj PTR_DEREF GetDataSource(INDI_AO);
 
     return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
                         _data_limit, _cache, _indi_ac, _indi_ao);

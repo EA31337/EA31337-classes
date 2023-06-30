@@ -44,6 +44,14 @@ T MathPow(T base, T exponent) {
   return std::pow(base, exponent);
 }
 template <typename T>
+T MathLog(T value) {
+  return std::log(value);
+}
+template <typename T>
+T MathExp(T value) {
+  return std::exp(value);
+}
+template <typename T>
 T MathSqrt(T value) {
   return std::sqrt(value);
 }

@@ -172,17 +172,17 @@ class IndiBufferCache : public Dynamic {
   REF_TO(ValueStorage<C>) GetPriceBuffer(ENUM_APPLIED_PRICE _applied_price) {
     switch (_applied_price) {
       case PRICE_OPEN:
-        return price_open_buffer;
+        return PTR_TO_REF(price_open_buffer);
       case PRICE_HIGH:
-        return price_high_buffer;
+        return PTR_TO_REF(price_high_buffer);
       case PRICE_LOW:
-        return price_low_buffer;
+        return PTR_TO_REF(price_low_buffer);
       case PRICE_CLOSE:
-        return price_close_buffer;
+        return PTR_TO_REF(price_close_buffer);
       default:
         RUNTIME_ERROR("Applied price not supported!");
     }
-    return nullptr;
+    return PTR_TO_REF((ValueStorage<C> *)nullptr);
   }
 
   /**

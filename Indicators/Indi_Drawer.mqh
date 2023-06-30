@@ -83,7 +83,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
        */
   }
 
-  virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry &_args[]) {
+  virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, CONST_ARRAY_REF(DataParamEntry, _args)) {
     int num_args = ArraySize(_args), i;
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
@@ -93,7 +93,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
       Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), num_args - 1);
 
       if (num_args - 1 > _max_modes) {
-        GetLogger().Error(
+        GetLogger() PTR_DEREF Error(
             StringFormat("Too many data for buffers for action %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
       }
@@ -187,7 +187,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
   /**
    * Performs drawing from data in array.
    */
-  static double iDrawerOnArray(double &array[], int total, int period, int shift) { return 0; }
+  static double iDrawerOnArray(CONST_ARRAY_REF(double, array), int total, int period, int shift) { return 0; }
 
   /* Getters */
 
