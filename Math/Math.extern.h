@@ -22,6 +22,7 @@
 
 // Define external global functions.
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
 #pragma once
 
 #include <algorithm>

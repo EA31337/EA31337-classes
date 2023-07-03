@@ -28,9 +28,10 @@
  * @docs https://www.mql5.com/en/docs/database
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef DATABASE_H
-#define DATABASE_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Math/MatrixMini.h"
@@ -256,4 +257,3 @@ class Database {
    */
   bool SetTableSchema(string _name, DatabaseTableSchema &_schema) { return tables.Set(_name, _schema); }
 };
-#endif  // DATABASE_H

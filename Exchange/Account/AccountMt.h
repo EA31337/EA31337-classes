@@ -20,23 +20,24 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ACCOUNT_MT_MQH
-#define ACCOUNT_MT_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Forward class declaration.
 class AccountMt;
 
 // Includes.
-#include "../../Storage/Array.h"
-#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Convert.mqh"
-#include "../../Storage/Data.struct.h"
+#include "../../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../../Indicator/Indicator.struct.h"
 #include "../../Platform/Order.struct.h"
 #include "../../Platform/Orders.h"
 #include "../../Serializer/Serializer.h"
-#include "../../Exchange/SymbolInfo/SymbolInfo.h"
+#include "../../Storage/Array.h"
+#include "../../Storage/Data.struct.h"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Task/TaskCondition.enum.h"
 #include "../../Trade.struct.h"
 #include "Account.define.h"
@@ -678,4 +679,3 @@ class AccountMt {
    */
   static string AccountInfoString(ENUM_ACCOUNT_INFO_STRING _prop_id) { return ::AccountInfoString(_prop_id); }
 };
-#endif  // ACCOUNT_MT_MQH

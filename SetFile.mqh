@@ -20,151 +20,140 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 class SetFile {
-    struct SetFileData
-    {
-         string  key;
-         string  val;
-    };
+  struct SetFileData {
+    string key;
+    string val;
+  };
 
-    int handle, count;
-    SetFileData array[];
+  int handle, count;
+  SetFileData array[];
 
-    public:
+ public:
+  bool LoadFromFile(string path) {
+    handle = FileOpen(path, FILE_READ | FILE_CSV | FILE_ANSI, '=');
 
-        bool LoadFromFile(string path) {
-               handle = FileOpen(path, FILE_READ|FILE_CSV|FILE_ANSI, '=');
+    if (handle == INVALID_HANDLE) {
+      // PrintFormat("Failed to open %s file, Error code = %d", handle,GetLastError());
+      FileClose(handle);
+      return true;
+    }
 
-              if (handle == INVALID_HANDLE) {
-                     //PrintFormat("Failed to open %s file, Error code = %d", handle,GetLastError());
-                      FileClose(handle);
-                     return true;
-              }
+    if (FileSize(handle) == 0) {
+      // PrintFormat("Failed to open %s file, Error code = %d", handle,GetLastError());
+      FileClose(handle);
+      return false;
+    }
 
-              if (FileSize(handle) == 0) {
-                     //PrintFormat("Failed to open %s file, Error code = %d", handle,GetLastError());
-                     FileClose(handle);
-                     return false;
-              }
+    count = 0;
+    while (FileIsEnding(handle) == false) {
+      ArrayResize(array, (count + 1), 100000);
 
-               count = 0;
-               while(FileIsEnding(handle)==false)
-               {
-                     ArrayResize(array,(count+1),100000);
+      array[count].key = FileReadString(handle);
+      array[count].val = FileReadString(handle);
+      count++;
+    }
 
-                     array[count].key = FileReadString(handle);
-                     array[count].val = FileReadString(handle);
-                     count++;
-               }
+    FileClose(handle);
 
-               FileClose(handle);
+    return true;
+  }
 
-               return true;
-        }
+  string GetValueString(string key) {
+    for (int i = 0; i <= ArraySize(array); i++) {
+      if (array[i].key == key) {
+        return (array[i].val);
+        break;
+      }
+    }
 
-        string GetValueString (string key) {
+    return (NULL);
+  }
 
-               for (int i = 0; i <= ArraySize(array); i++)
-               {
-                    if (array[i].key == key)
-                    {
-                        return(array[i].val);
-                        break;
-                    }
-               }
+  int GetValueInteger(string key) {
+    string value = GetValueString(key);
 
-               return(NULL);
-        }
+    if (value != NULL) {
+#ifdef MQL4
+      return (StrToInteger(value));
+#else
+      return ((int)StringToInteger(value));
+#endif
+    } else {
+      return (NULL);
+    }
+  }
 
-        int GetValueInteger (string key) {
-               string value = GetValueString(key);
+  double GetValueDouble(string key) {
+    string value = GetValueString(key);
 
-               if(value != NULL) {
-               		#ifdef MQL4
-                    	return(StrToInteger(value));
-                   	#else
-                   		return((int) StringToInteger(value));
-                   	#endif
-               } else {
-                     return(NULL);
-               }
-        }
+    if (value != NULL) {
+#ifdef MQL4
+      return (StrToDouble(value));
+#else
+      return (StringToDouble(value));
+#endif
+    } else {
+      return (NULL);
+    }
+  }
 
-        double GetValueDouble (string key) {
-               string value = GetValueString(key);
+  bool SetValue(string key, string value) {
+    int i = 0;
+    for (; i <= ArraySize(array); i++) {
+      if (array[i].key == key) {
+        array[i].val = value;
+        return true;
+        break;
+      }
+    }
 
-               if(value != NULL) {
-               		#ifdef MQL4
-                    	return(StrToDouble(value));
-                   	#else
-                   		return(StringToDouble(value));
-                   	#endif
-               } else {
-                     return(NULL);
-               }
-        }
+    ArrayResize(array, (i + 2), 100000);
 
-        bool SetValue (string key, string value) {
+    array[(i + 1)].key = key;
+    array[(i + 1)].val = value;
 
-               int i = 0;
-               for (;i <= ArraySize(array); i++)
-               {
-                    if (array[i].key == key)
-                    {
-                        array[i].val = value;
-                        return true;
-                        break;
-                    }
-               }
+    return true;
+  }
 
-               ArrayResize(array,(i+2),100000);
+  bool SetValue(string key, double value) {
+    int i = 0;
+    for (; i <= ArraySize(array); i++) {
+      if (array[i].key == key) {
+        array[i].val = DoubleToString(value);
+        return true;
+        break;
+      }
+    }
 
-               array[(i + 1)].key = key;
-               array[(i + 1)].val = value;
+    ArrayResize(array, (i + 2), 100000);
 
-               return true;
-        }
+    array[(i + 1)].key = key;
+    array[(i + 1)].val = DoubleToString(value);
 
-        bool SetValue (string key, double value) {
+    return true;
+  }
 
-               int i = 0;
-               for (;i <= ArraySize(array); i++)
-               {
-                    if (array[i].key == key)
-                    {
-                        array[i].val = DoubleToString(value);
-                        return true;
-                        break;
-                    }
-               }
+  bool SetValue(string key, int value) {
+    int i = 0;
+    for (; i <= ArraySize(array); i++) {
+      if (array[i].key == key) {
+        array[i].val = IntegerToString(value);
+        return true;
+        break;
+      }
+    }
 
-               ArrayResize(array,(i+2),100000);
+    ArrayResize(array, (i + 2), 100000);
 
-               array[(i + 1)].key = key;
-               array[(i + 1)].val = DoubleToString(value);
+    array[(i + 1)].key = key;
+    array[(i + 1)].val = IntegerToString(value);
 
-               return true;
-        }
-
-        bool SetValue (string key, int value) {
-
-               int i = 0;
-               for (;i <= ArraySize(array); i++)
-               {
-                    if (array[i].key == key)
-                    {
-                        array[i].val = IntegerToString(value);
-                        return true;
-                        break;
-                    }
-               }
-
-               ArrayResize(array,(i+2),100000);
-
-               array[(i + 1)].key = key;
-               array[(i + 1)].val = IntegerToString(value);
-
-               return true;
-        }
-
+    return true;
+  }
 };

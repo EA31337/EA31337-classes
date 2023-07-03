@@ -27,6 +27,11 @@
  * Doesn't give independent signals. Is used to define volatility (trend strength).
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"

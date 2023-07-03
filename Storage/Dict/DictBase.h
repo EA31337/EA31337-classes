@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef DICT_BASE_H
-#define DICT_BASE_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../Convert.mqh"
@@ -390,5 +391,3 @@ class DictBase {
    */
   unsigned int Hash(float x) { return (unsigned int)((unsigned long)x * 10000 % 10000); }
 };
-
-#endif

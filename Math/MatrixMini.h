@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef MINIMATRIX_H
-#define MINIMATRIX_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Platform/Platform.extern.h"
@@ -59,5 +60,3 @@ class MatrixMini2d {
 
   int SizeY() { return size_y; }
 };
-
-#endif // MINIMATRIX_H

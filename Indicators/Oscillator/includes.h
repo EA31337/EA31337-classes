@@ -25,6 +25,11 @@
  * Include file to include all oscillator indicators.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Oscillator indicators.
 #include "Indi_MACD.h"
 #include "Indi_RSI.h"

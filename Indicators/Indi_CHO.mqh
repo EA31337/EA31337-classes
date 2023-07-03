@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 2 bars was originally specified by Indicators/Examples/CHO.mq5
 #define INDI_CHO_MIN_BARS 2

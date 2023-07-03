@@ -25,6 +25,11 @@
  * Implements TradeSignalManager's structures.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 #define TSM_PROP_FREQ STRUCT_ENUM(TradeSignalManagerParams, TSM_PARAMS_PROP_FREQ)
 #define TSM_PROP_LAST_CHECK STRUCT_ENUM(TradeSignalManagerParams, TSM_PARAMS_PROP_LAST_CHECK)

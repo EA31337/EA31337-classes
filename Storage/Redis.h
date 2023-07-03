@@ -24,6 +24,12 @@
  * @file
  * Implements class for storing/retrieving Redis database data.
  */
+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerConversions.h"
 #include "../Serializer/SerializerJson.h"

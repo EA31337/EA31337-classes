@@ -3,6 +3,11 @@
 //|                         Copyright 2019,MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #ifdef __MQL__
 #property copyright "Copyright 2019,MetaQuotes Software Corp."
 #property link "https://www.mql5.com"

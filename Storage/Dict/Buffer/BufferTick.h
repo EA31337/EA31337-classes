@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef BUFFER_TICK_H
-#define BUFFER_TICK_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../../Indicator/IndicatorData.enum.h"
@@ -216,5 +217,3 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
     return NULL;
   }
 };
-
-#endif  // BUFFER_TICK_H

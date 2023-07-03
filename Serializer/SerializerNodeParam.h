@@ -20,11 +20,12 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#include "SerializerConversions.h"
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
-#ifndef SERIALIZER_NODE_PARAM_H
-#define SERIALIZER_NODE_PARAM_H
+#include "SerializerConversions.h"
 
 /**
  * Enumeration.
@@ -333,5 +334,3 @@ SerializerNodeParam* SerializerNodeParam::FromString(string& value) {
   PTR_ATTRIB(param, _string) = value;
   return param;
 }
-
-#endif  // SERIALIZER_NODE_PARAM_H

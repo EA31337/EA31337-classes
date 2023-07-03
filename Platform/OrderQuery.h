@@ -25,11 +25,16 @@
  * Implements class for querying list of orders.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../Storage/Dict/DictStruct.h"
-#include "Order.h"
 #include "../Refs.mqh"
 #include "../Std.h"
+#include "../Storage/Dict/DictStruct.h"
+#include "Order.h"
 
 class OrderQuery : public Dynamic {
  protected:

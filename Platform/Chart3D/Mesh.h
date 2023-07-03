@@ -25,8 +25,13 @@
  * Generic graphics mesh.
  */
 
-#include "../../Storage/Dict/Dict.h"
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../../Refs.mqh"
+#include "../../Storage/Dict/Dict.h"
 #include "../../Util.h"
 #include "Face.h"
 #include "IndexBuffer.h"

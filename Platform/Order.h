@@ -25,30 +25,31 @@
  * Implements class for managing orders.
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ORDER_MQH
-#define ORDER_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Forward declaration.
 class SymbolInfo;
 
 // Includes.
 #include "../Convert.mqh"
-#include "../Storage/Data.define.h"
-#include "../Storage/Data.struct.h"
-#include "Deal.enum.h"
+#include "../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../Log.mqh"
-#include "Order.define.h"
-#include "Order.enum.h"
-#include "Order.struct.h"
 #include "../Serializer/Serializer.define.h"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerConverter.h"
 #include "../Serializer/SerializerJson.h"
 #include "../Std.h"
+#include "../Storage/Data.define.h"
+#include "../Storage/Data.struct.h"
 #include "../Storage/String.h"
-#include "../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../Task/TaskAction.enum.h"
+#include "Deal.enum.h"
+#include "Order.define.h"
+#include "Order.enum.h"
+#include "Order.struct.h"
 
 /* Defines for backward compatibility. */
 
@@ -2909,5 +2910,3 @@ class Order : public SymbolInfo {
 ENUM_ORDER_SELECT_TYPE Order::selected_ticket_type = ORDER_SELECT_TYPE_NONE;
 unsigned long Order::selected_ticket_id = 0;
 #endif
-
-#endif  // ORDER_MQH

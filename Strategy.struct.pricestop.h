@@ -61,7 +61,7 @@ struct StrategyPriceStop {
   // IndicatorParams iparams;
 
   /* Constructors */
-  void StrategyPriceStop(int _method = 0, float _ivalue = 0) : method(_method), ivalue(_ivalue) {}
+  StrategyPriceStop(int _method = 0, float _ivalue = 0) : method(_method), ivalue(_ivalue) {}
   // Main methods.
   // Calculate price stop value.
   float GetValue(int _shift = 0, int _direction = -1, float _min_trade_dist = 0.0f) {
@@ -84,7 +84,7 @@ struct StrategyPriceStop {
     }
     if (CheckMethod(STRATEGY_PRICE_STOP_PRICE_PP)) {
       double _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
-      double _prices[4];
+      FIXED_ARRAY(double, _prices, 4);
       _prices[0] = _ohlc0.GetClose();
       _prices[1] = _direction > 0 ? _ohlc0.GetHigh() : _ohlc0.GetLow();
       _prices[2] = _direction > 0 ? _ohlc1.GetHigh() : _ohlc1.GetLow();

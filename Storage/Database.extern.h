@@ -24,6 +24,9 @@
 
 // Define external global functions.
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+
 // Closes a database.
 // @docs: https://www.mql5.com/en/docs/database/databaseclose
 void DatabaseClose(int database  // database handle received in DatabaseOpen
@@ -36,8 +39,8 @@ extern bool DatabaseExecute(int database,  // database handle received in Databa
 
 // Opens or creates a database in a specified file.
 // @docs: https://www.mql5.com/en/docs/database/databaseopen
-int DatabaseOpen(string filename,  // file name
-                 uint flags        // combination of flags
+int DatabaseOpen(string filename,    // file name
+                 unsigned int flags  // combination of flags
 );
 
 // Starts transaction execution.

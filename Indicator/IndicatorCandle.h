@@ -20,10 +20,6 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_CANDLE_H
-#define INDICATOR_CANDLE_H
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
@@ -409,5 +405,3 @@ class IndicatorCandle : public Indicator<TS> {
 
   /* Virtual methods */
 };
-
-#endif

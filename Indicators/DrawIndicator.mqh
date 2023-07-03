@@ -25,15 +25,16 @@
  * Group of functions intended for working with graphic objects relating to any specified chart.
  */
 
-// Ignore processing of this file if already included.
-#ifndef DRAW_INDICATOR_MQH
-#define DRAW_INDICATOR_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
+#include "../Indicator/IndicatorBase.h"
 #include "../Platform/Plot.h"
 #include "../Storage/Dict/DictObject.h"
 #include "../Storage/Object.h"
-#include "../Indicator/IndicatorBase.h"
 
 class DrawPoint {
  public:
@@ -135,4 +136,3 @@ class DrawIndicator {
     }
   }
 };
-#endif  // DRAW_INDICATOR_MQH

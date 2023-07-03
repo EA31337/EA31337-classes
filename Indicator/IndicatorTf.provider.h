@@ -20,10 +20,6 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_TF_PROVIDER_H
-#define INDICATOR_TF_PROVIDER_H
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
@@ -174,5 +170,3 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
    */
   string ToString() override { return "IndicatorTf candle provider on " + indi PTR_DEREF GetFullName(); }
 };
-
-#endif  // INDICATOR_TF_PROVIDER_H

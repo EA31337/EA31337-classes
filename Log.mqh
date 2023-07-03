@@ -20,20 +20,21 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef LOG_MQH
-#define LOG_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Forward class declaration.
 template <typename K, typename V>
 class DictStruct;
 
 // Includes.
+#include "File.mqh"
 #include "Storage/Array.h"
 #include "Storage/Collection.h"
 #include "Storage/DateTime.h"
 #include "Storage/Dict/DictStruct.h"
-#include "File.mqh"
 #include "Storage/Object.h"
 
 // Define assert macros.
@@ -339,5 +340,3 @@ bool Log::AddLastError(string prefix, string suffix) {
 bool Log::AddLastError(string prefix, long suffix) {
   return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
 }
-
-#endif

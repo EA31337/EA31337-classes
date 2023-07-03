@@ -19,9 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef BUFFER_FXT_H
-#define BUFFER_FXT_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../../Exchange/Account/AccountMt.h"
@@ -302,5 +303,3 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
     // @see: https://docs.mql4.com/files/filewritestruct
   }
 };
-
-#endif  // BUFFER_FXT_H

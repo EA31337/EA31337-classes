@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Refs.mqh"
@@ -130,4 +131,3 @@ class Object : public Dynamic {
 
 // Initialize static global variables.
 // Object *Object::list = { 0 };
-#endif  // OBJECT_H

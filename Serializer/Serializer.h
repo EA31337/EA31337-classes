@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_MQH
-#define SERIALIZER_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Convert.basic.h"
@@ -474,5 +475,3 @@ class Serializer {
     return Struct<X>(key);
   }
 };
-
-#endif  // End: SERIALIZER_MQH

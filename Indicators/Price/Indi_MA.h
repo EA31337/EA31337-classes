@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef INDI_MA_H
-#define INDI_MA_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../Indicator/Indicator.h"
@@ -800,5 +801,3 @@ double iMAOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _ma_shif
   return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
 }
 #endif
-
-#endif  // INDI_MA_H

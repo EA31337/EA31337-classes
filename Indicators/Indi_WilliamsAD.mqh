@@ -20,12 +20,18 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 2 bars was originally specified by Indicators/Examples/W_AD.mq5
 #define INDI_WAD_MIN_BARS 100
 
 // Includes.
 #include "../Indicator/Indicator.h"
+#include "../Platform/Platform.h"
 #include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 

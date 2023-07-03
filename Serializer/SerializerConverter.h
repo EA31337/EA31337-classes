@@ -25,10 +25,6 @@
 #pragma once
 #endif
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_CONVERTER_MQH
-#define SERIALIZER_CONVERTER_MQH
-
 // Forward declarations.
 class SerializerNode;
 
@@ -226,5 +222,3 @@ class SerializerConverter {
     return SerializerConverter::FromObject(stub, _serializer_flags);
   }
 };
-
-#endif

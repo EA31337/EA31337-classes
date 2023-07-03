@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SYMBOLINFO_H
-#define SYMBOLINFO_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes symbol defines, enums and structs.
 #include "SymbolInfo.define.h"
@@ -561,4 +562,3 @@ class SymbolInfo : public Object {
    */
   Log *GetLogger() { return GetPointer(logger); }
 };
-#endif  // SYMBOLINFO_H

@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef BUFFER_H
-#define BUFFER_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Dict.h"
@@ -108,4 +109,3 @@ class Buffer : public Dict<long, T> {
     return (T)median;
   }
 };
-#endif  // BUFFER_H

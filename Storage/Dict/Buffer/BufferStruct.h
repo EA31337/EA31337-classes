@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef BUFFER_STRUCT_H
-#define BUFFER_STRUCT_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../../Serializer/Serializer.h"
@@ -116,5 +117,3 @@ class BufferStruct : public DictStruct<long, TStruct> {
    */
   long GetMin() { return min; }
 };
-
-#endif  // BUFFER_STRUCT_H

@@ -20,9 +20,10 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_TICK_PROVIDER_H
-#define INDICATOR_TICK_PROVIDER_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
@@ -70,5 +71,3 @@ class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {
    */
   string ToString() override { return "IndicatorTick tick provider on " + indi PTR_DEREF GetFullName(); }
 };
-
-#endif  // INDICATOR_TICK_PROVIDER_H

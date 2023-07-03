@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef STRING_MQH
-#define STRING_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Common.extern.h"
@@ -119,4 +120,3 @@ class String {
 #endif
   }
 };
-#endif  // STRING_MQH

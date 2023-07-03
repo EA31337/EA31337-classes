@@ -121,7 +121,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
   virtual bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
     ArrayResize(_out_ticks, 0);
 
-    static MqlTick _tmp_ticks[];
+    static ARRAY(MqlTick, _tmp_ticks);
     ArrayResize(_tmp_ticks, 0);
 
     // There's no history in MQL4.
@@ -162,7 +162,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     double _bid = Bid;
     long _time = TimeCurrent();
 #else
-    static MqlTick _tmp_ticks[];
+    static ARRAY(MqlTick, _tmp_ticks);
     // Copying only the last tick.
     int _num_copied = CopyTicks(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, 0, 1);
 

@@ -25,6 +25,8 @@
 #pragma once
 
 // Includes.
+#include <thread>
+
 #include "../Exchange/Account/Account.enum.h"
 #include "../Storage/Data.define.h"
 #include "../Storage/DateTime.h"
@@ -32,12 +34,14 @@
 #include "Deal.enum.h"
 #include "Order.define.h"
 #include "Order.enum.h"
+#include "Platform.enum.h"
 #include "Terminal.enum.h"
 
 // Forward declarations.
 struct MqlTradeRequest;
 struct MqlTradeResult;
 struct MqlTradeCheckResult;
+struct MqlTick;
 
 template <typename... Args>
 double iCustom(string symbol, int timeframe, string name, Args... args) {
@@ -181,5 +185,13 @@ extern int ObjectFind(int64 chart_id, string name);
 int GetLastError() { return _LastError; }
 
 void ResetLastError() { _LastError = 0; }
+
+int CopyTicks(const string symbol_name, ARRAY_REF(MqlTick, ticks_array), unsigned int flags = COPY_TICKS_ALL,
+              int64 from = 0, unsigned int count = 0);
+
+int CopyTicksRange(const string symbol_name, ARRAY_REF(MqlTick, ticks_array), unsigned int flags = COPY_TICKS_ALL,
+                   int64 from_msc = 0, int64 to_msc = 0);
+
+void Sleep(int milliseconds) { std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds)); }
 
 #endif

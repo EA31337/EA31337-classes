@@ -20,10 +20,6 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_DATA_H
-#define INDICATOR_DATA_H
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
@@ -46,7 +42,6 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 #include "../Storage/Flags.struct.h"
 #include "../Storage/IValueStorage.h"
 #include "../Storage/ItemsHistory.h"
-#include "../Exchange/SymbolInfo/SymbolInfo.struct.h"
 #include "Indicator.enum.h"
 #include "IndicatorBase.h"
 #include "IndicatorData.enum.h"
@@ -1977,5 +1972,3 @@ EMSCRIPTEN_BINDINGS(IndicatorData) {
 }
 
 #endif
-
-#endif  // INDICATOR_DATA_H

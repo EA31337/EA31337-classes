@@ -102,6 +102,28 @@ class Array {
     }
   }
 
+  template <typename X>
+  static void ArrayFill(ARRAY_REF(X, array), int start, int count, X value) {
+    start = MathMax(start, 0);
+    int end = MathMin(ArraySize(array), start + count);
+
+    for (int i = start; i < end; ++i) {
+      array[i] = value;
+    }
+  }
+
+#ifdef __cplusplus
+  template <typename X, int size>
+  static void ArrayFill(FIXED_ARRAY_REF(X, array, size), int start, int count, X value) {
+    start = MathMax(start, 0);
+    int end = MathMin(size, start + count);
+
+    for (int i = start; i < end; ++i) {
+      array[i] = value;
+    }
+  }
+#endif
+
   template <typename T>
   static int ArrayCopy(ARRAY_REF(T, dst_array), const ARRAY_REF(T, src_array), const int dst_start = 0,
                        const int src_start = 0, const int count = WHOLE_ARRAY) {

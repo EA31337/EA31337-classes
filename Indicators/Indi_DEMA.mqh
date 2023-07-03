@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef INDI_DEMA_MQH
-#define INDI_DEMA_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Defines.
 #ifdef __MQL5__
@@ -279,4 +280,3 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
     iparams.applied_price = _applied_price;
   }
 };
-#endif  // INDI_DEMA_MQH

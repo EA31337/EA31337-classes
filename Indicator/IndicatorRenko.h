@@ -25,10 +25,6 @@
  * An abstract class to implement Renko indicators.
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_RENKO_H
-#define INDICATOR_RENKO_H
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
@@ -285,5 +281,3 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double, ItemsHistoryR
     return (datetime)last_completed_candle_ts;
   }
 };
-
-#endif

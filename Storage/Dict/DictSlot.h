@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef DICT_SLOT_H
-#define DICT_SLOT_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
 
@@ -60,5 +61,3 @@ class DictSlot {
 
   void RemoveFlags(unsigned char flags) { _flags &= (unsigned char)~flags; }
 };
-
-#endif  // DICT_SLOT_H

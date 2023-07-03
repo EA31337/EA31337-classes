@@ -20,18 +20,23 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Forward declarations.
 class Orders;
 
 // Includes.
 #include "../Exchange/Account/Account.h"
 #include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
-#include "Chart/Chart.struct.static.h"
 #include "../Log.mqh"
 #include "../Math/Math.h"
+#include "../Trade.struct.h"
+#include "Chart/Chart.struct.static.h"
 #include "Order.h"
 #include "Terminal.h"
-#include "../Trade.struct.h"
 
 /* Defines */
 

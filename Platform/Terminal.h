@@ -29,18 +29,19 @@
  * - https://www.mql5.com/en/docs/chart_operations
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Forward declaration.
 class Terminal;
 
-// Prevents processing this includes file for the second time.
-#ifndef TERMINAL_MQH
-#define TERMINAL_MQH
-
 // Includes.
 #include "../Convert.mqh"
+#include "../Refs.mqh"
 #include "../Storage/Data.struct.h"
 #include "../Storage/Object.h"
-#include "../Refs.mqh"
 #include "../Storage/String.h"
 #include "Terminal.define.h"
 #include "Terminal.enum.h"
@@ -967,5 +968,3 @@ class Terminal : public Object {
 // @docs: https://docs.mql4.com/chart_operations/windowexpertname
 string WindowExpertName(void) { return Terminal::WindowExpertName(); }
 #endif
-
-#endif  // TERMINAL_MQH

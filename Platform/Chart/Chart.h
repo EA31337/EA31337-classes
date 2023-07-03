@@ -29,19 +29,20 @@
  * - https://www.mql5.com/en/docs/series
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef CHART_H
-#define CHART_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "Chart.define.h"
-#include "Chart.enum.h"
-#include "Chart.struct.h"
-#include "Chart.struct.serialize.h"
 #include "../../Convert.mqh"
 #include "../../Market.mqh"
 #include "../../Serializer/Serializer.h"
 #include "../../Task/TaskCondition.enum.h"
+#include "Chart.define.h"
+#include "Chart.enum.h"
+#include "Chart.struct.h"
+#include "Chart.struct.serialize.h"
 
 // Forward class declaration.
 class Chart;
@@ -182,5 +183,3 @@ class Chart : public Market {
 
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
 };
-
-#endif // CHART_H

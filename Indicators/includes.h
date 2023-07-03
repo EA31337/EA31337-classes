@@ -25,6 +25,11 @@
  * Include file to include all common indicators at once.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Standard indicators.
 #include "Indi_AC.mqh"
 #include "Indi_AD.mqh"

@@ -25,6 +25,11 @@
  * Include file to include all special indicators.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Special indicators.
 #include "Indi_Custom.mqh"
 #include "Indi_Math.mqh"

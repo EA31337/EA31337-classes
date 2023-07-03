@@ -20,9 +20,10 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_MQH
-#define INDICATOR_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Forward class declaration.
 struct IndicatorParams;
@@ -712,6 +713,4 @@ int IndicatorCounted(int _value = 0) {
   prev_calculated = _value > 0 ? _value : prev_calculated;
   return prev_calculated;
 }
-#endif
-
 #endif

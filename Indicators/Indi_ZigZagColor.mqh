@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 100 bars was originally specified by Indicators/Examples/ZigzagColor.mq5
 #define INDI_ZIGZAG_COLOR_MIN_BARS 100
@@ -97,7 +102,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
    * Returns value for ZigZag Color indicator.
    */
   static double iZigZagColor(IndicatorData *_indi, int _depth, int _deviation, int _backstep,
-                             ENUM_ZIGZAG_LINE _mode = 0, int _rel_shift = 0) {
+                             ENUM_ZIGZAG_LINE _mode = ZIGZAG_BUFFER, int _rel_shift = 0) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_ZIGZAG_COLOR_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
     return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode,

@@ -20,10 +20,6 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_CANDLE_PROVIDER_H
-#define INDICATOR_CANDLE_PROVIDER_H
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
@@ -63,5 +59,3 @@ class ItemsHistoryCandleProvider : public ItemsHistoryItemProvider<CandleOCTOHLC
     DebugBreak();
   }
 };
-
-#endif

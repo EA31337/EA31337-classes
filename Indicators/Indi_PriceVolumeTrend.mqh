@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 100 bars was originally specified by Indicators/Examples/PVT.mq5
 #define INDI_PVT_MIN_BARS 2

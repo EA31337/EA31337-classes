@@ -23,11 +23,9 @@
 // Properties.
 #ifdef __MQL__
 #property strict
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
 #endif
-
-// Prevents processing this includes file for the second time.
-#ifndef WEB_MQH
-#define WEB_MQH
 
 // Includes.
 #include "../../Platform/Platform.h"
@@ -84,4 +82,3 @@ class Web {
     return _res;
   }
 };
-#endif

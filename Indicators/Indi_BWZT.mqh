@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 38 bars (DATA_LIMIT) was originally specified by Indicators/Examples/BW-ZoneTrade.mq5
 #define INDI_BWZT_DATA_LIMIT 100

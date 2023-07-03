@@ -25,29 +25,30 @@
  * Implements Expert Advisor class for writing custom trading robots.
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef EA_MQH
-#define EA_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "Platform/Chart/Chart.h"
-#include "Storage/Data.struct.h"
-#include "Storage/Dict/Dict.h"
-#include "Storage/Dict/DictObject.h"
 #include "EA.enum.h"
 #include "EA.struct.h"
 #include "Market.mqh"
+#include "Platform/Chart/Chart.h"
 #include "Platform/Platform.h"
+#include "Platform/Terminal.h"
 #include "Refs.struct.h"
 #include "Serializer/SerializerConverter.h"
 #include "Serializer/SerializerCsv.h"
 #include "Serializer/SerializerJson.h"
 #include "Serializer/SerializerSqlite.h"
+#include "Storage/Data.struct.h"
+#include "Storage/Dict/Dict.h"
+#include "Storage/Dict/DictObject.h"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task/TaskManager.h"
 #include "Task/Taskable.h"
-#include "Platform/Terminal.h"
 #include "Trade.mqh"
 #include "Trade/TradeSignal.h"
 #include "Trade/TradeSignalManager.h"
@@ -1145,4 +1146,3 @@ class EA : public Taskable<DataParamEntry> {
     return SerializerNodeObject;
   }
 };
-#endif  // EA_MQH

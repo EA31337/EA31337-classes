@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing the same indicator file twice.
-#ifndef INDI_CUSTOM_MQH
-#define INDI_CUSTOM_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Defines
 #ifndef INDI_CUSTOM_PATH
@@ -127,5 +128,3 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
     return _value;
   }
 };
-
-#endif  // INDI_CUSTOM_MQH

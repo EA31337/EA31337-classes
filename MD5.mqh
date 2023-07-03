@@ -42,9 +42,14 @@
   @see: http://www.cnblogs.com/niniwzw/archive/2009/12/05/1617685.html
 */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "Storage/Array.h"
 #include "Convert.basic.h"
+#include "Storage/Array.h"
 
 /**
  * Class to provide implementation of MD5 algorithm.

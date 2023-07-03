@@ -21,6 +21,7 @@
  */
 // Defines.
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
 #pragma once
 
 // File constants to read the whole value of char, short or int type.

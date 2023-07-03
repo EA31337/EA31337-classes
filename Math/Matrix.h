@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef MATRIX_MQH
-#define MATRIX_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 #ifdef USE_MQL_MATH_STAT
 #ifdef __MQL5__
@@ -2262,5 +2263,3 @@ class Matrix {
     return _out + "]";
   }
 };
-
-#endif

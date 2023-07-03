@@ -25,6 +25,11 @@
  * Defines ShaderVertexLayout structure.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Vertex layout used for Vertex Shaders.
 struct ShaderVertexLayout {
   string name;

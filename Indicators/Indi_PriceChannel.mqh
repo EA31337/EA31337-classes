@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "../Storage/Dict/Buffer/BufferStruct.h"
@@ -73,7 +78,8 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
     }
 
     // PC uses high and low prices only.
-    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH | PRICE_LOW);
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW);
   }
 
   /**

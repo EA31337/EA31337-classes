@@ -20,16 +20,18 @@
  *
  */
 
-// Includes.
-#include "../../Platform/Order.enum.h"
-#include "SymbolInfo.enum.h"
-#include "../../Tick/Tick.struct.h"
-
-// Define external global functions.
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
+#endif
 
+// Includes.
+#include "../../Platform/Order.enum.h"
+#include "../../Tick/Tick.struct.h"
+#include "SymbolInfo.enum.h"
+
+// Define external global functions.
+#ifndef __MQL__
 extern long SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id);
 extern bool SymbolInfoMarginRate(string name, ENUM_ORDER_TYPE order_type, double &initial_margin_rate,
                                  double &maintenance_margin_rate);

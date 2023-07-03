@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "../Storage/Dict/Buffer/BufferStruct.h"
@@ -107,9 +112,9 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
         _indi, Util::MakeKey(_fast_period, _middle_period, _slow_period, _fast_k, _middle_k, _slow_k));
 
     // Will return Indi_ATRs with the same candles source as _indi's.
-    IndicatorData *_indi_atr_fast = Indi_ATR::GetCached(_indi, _fast_period);
-    IndicatorData *_indi_atr_middle = Indi_ATR::GetCached(_indi, _middle_period);
-    IndicatorData *_indi_atr_slow = Indi_ATR::GetCached(_indi, _slow_period);
+    Indi_ATR *_indi_atr_fast = Indi_ATR::GetCached(_indi, _fast_period);
+    Indi_ATR *_indi_atr_middle = Indi_ATR::GetCached(_indi, _middle_period);
+    Indi_ATR *_indi_atr_slow = Indi_ATR::GetCached(_indi, _slow_period);
 
     return iUOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_period, _middle_period, _slow_period, _fast_k,
                       _middle_k, _slow_k, _mode, _shift, _cache, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow);
@@ -120,8 +125,8 @@ class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
    */
   static double iUOOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_period, int _middle_period, int _slow_period,
                            int _fast_k, int _middle_k, int _slow_k, int _mode, int _abs_shift,
-                           IndiBufferCache<double> *_cache, IndicatorData *_indi_atr_fast,
-                           IndicatorData *_indi_atr_middle, IndicatorData *_indi_atr_slow, bool _recalculate = false) {
+                           IndiBufferCache<double> *_cache, Indi_ATR *_indi_atr_fast, Indi_ATR *_indi_atr_middle,
+                           Indi_ATR *_indi_atr_slow, bool _recalculate = false) {
     _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache PTR_DEREF HasBuffers()) {

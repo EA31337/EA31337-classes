@@ -25,6 +25,11 @@
  * Group of functions intended for working with graphic objects relating to any specified chart.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Class dependencies.
 class Chart;
 class Plot;

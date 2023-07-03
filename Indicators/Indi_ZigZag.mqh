@@ -20,12 +20,18 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 100 bars was originally specified by Indicators/Examples/ZigZag.mq5
 #define INDI_ZIGZAG_MIN_BARS 100
 
 // Includes.
 #include "../Indicator/Indicator.h"
+#include "../Platform/Platform.h"
 #include "../Platform/Terminal.h"
 #include "../Storage/ValueStorage.all.h"
 
@@ -115,7 +121,8 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
    * Returns value for ZigZag indicator.
    */
   static double iCustomZigZag(string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _depth, int _deviation,
-                              int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
+                              int _backstep, ENUM_ZIGZAG_LINE _mode = ZIGZAG_BUFFER, int _shift = 0,
+                              IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorDataState::INDICATOR_DATA_STATE_PROP_HANDLE) : NULL;
     double _res[];
@@ -150,8 +157,8 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Returns value for ZigZag indicator.
    */
-  static double iZigZag(IndicatorData *_indi, int _depth, int _deviation, int _backstep, ENUM_ZIGZAG_LINE _mode = 0,
-                        int _rel_shift = 0) {
+  static double iZigZag(IndicatorData *_indi, int _depth, int _deviation, int _backstep,
+                        ENUM_ZIGZAG_LINE _mode = ZIGZAG_BUFFER, int _rel_shift = 0) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_ZIGZAG_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
     return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode,

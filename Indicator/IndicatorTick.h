@@ -20,10 +20,6 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_TICK_H
-#define INDICATOR_TICK_H
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
@@ -264,5 +260,3 @@ IndicatorDataEntry TickToEntry(long _timestamp, TickAB<TV>& _tick) {
   _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _tick.ask != 0 && _tick.bid != 0);
   return _entry;
 }
-
-#endif

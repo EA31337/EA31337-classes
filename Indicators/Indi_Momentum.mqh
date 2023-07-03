@@ -29,6 +29,11 @@
  * In addition, it can help to identify when the price action is losing steam to prepare for a potential trend reversal.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "Indi_PriceFeeder.mqh"
