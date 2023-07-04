@@ -34,8 +34,8 @@
 #include "../../Serializer/Serializable.h"
 #include "../../Serializer/Serializer.h"
 #include "../../Std.h"
-#include "SymbolInfo.struct.static.h"
 #include "../../Tick/Tick.struct.h"
+#include "SymbolInfo.struct.static.h"
 
 // Defines struct to store symbol data.
 struct SymbolInfoEntry
@@ -43,11 +43,11 @@ struct SymbolInfoEntry
     : public Serializable
 #endif
 {
-  double bid;            // Current Bid price.
-  double ask;            // Current Ask price.
-  double last;           // Price of the last deal.
-  double spread;         // Current spread.
-  unsigned long volume;  // Volume for the current last price.
+  double bid;     // Current Bid price.
+  double ask;     // Current Ask price.
+  double last;    // Price of the last deal.
+  double spread;  // Current spread.
+  uint64 volume;  // Volume for the current last price.
   // Constructors.
   SymbolInfoEntry() : bid(0), ask(0), last(0), spread(0), volume(0) {}
   SymbolInfoEntry(const MqlTick& _tick, const string _symbol = "") {

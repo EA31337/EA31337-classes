@@ -65,7 +65,7 @@ class MD5 {
     int index = len % 64;  // mod 64
     int count = (len - index) / 64;
 
-    long a = 0x67452301, b = 0xEFCDAB89, c = 0x98BADCFE, d = 0x10325476;
+    int64 a = 0x67452301, b = 0xEFCDAB89, c = 0x98BADCFE, d = 0x10325476;
     int buff[16], last[16], i, k = 0, last_char[4], last_index;
     string item;
     for (i = 0; i < count; i++) {
@@ -101,35 +101,35 @@ class MD5 {
     return result;
   }
 
-  static long F(long x, long y, long z) { return ((x & y) | ((~x) & z)); }
+  static int64 F(int64 x, int64 y, int64 z) { return ((x & y) | ((~x) & z)); }
 
-  static long G(long x, long y, long z) { return ((x & z) | (y & (~z))); }
+  static int64 G(int64 x, int64 y, int64 z) { return ((x & z) | (y & (~z))); }
 
-  static long H(long x, long y, long z) { return ((x ^ y ^ z)); }
+  static int64 H(int64 x, int64 y, int64 z) { return ((x ^ y ^ z)); }
 
-  static long I(long x, long y, long z) { return ((y ^ (x | (~z)))); }
+  static int64 I(int64 x, int64 y, int64 z) { return ((y ^ (x | (~z)))); }
 
-  static long AddUnsigned(long a, long b) {
-    long c = a + b;
+  static int64 AddUnsigned(int64 a, int64 b) {
+    int64 c = a + b;
     return (c);
   }
 
-  static long FF(long a, long b, long c, long d, long x, int s, long ac) {
+  static int64 FF(int64 a, int64 b, int64 c, int64 d, int64 x, int s, int64 ac) {
     a = AddUnsigned(a, AddUnsigned(AddUnsigned(F(b, c, d), x), ac));
     return (AddUnsigned(RotateLeft(a, s), b));
   }
 
-  static long GG(long a, long b, long c, long d, long x, int s, long ac) {
+  static int64 GG(int64 a, int64 b, int64 c, int64 d, int64 x, int s, int64 ac) {
     a = AddUnsigned(a, AddUnsigned(AddUnsigned(G(b, c, d), x), ac));
     return (AddUnsigned(RotateLeft(a, s), b));
   }
 
-  static long HH(long a, long b, long c, long d, long x, int s, long ac) {
+  static int64 HH(int64 a, int64 b, int64 c, int64 d, int64 x, int s, int64 ac) {
     a = AddUnsigned(a, AddUnsigned(AddUnsigned(H(b, c, d), x), ac));
     return (AddUnsigned(RotateLeft(a, s), b));
   }
 
-  static long II(long a, long b, long c, long d, long x, int s, long ac) {
+  static int64 II(int64 a, int64 b, int64 c, int64 d, int64 x, int s, int64 ac) {
     a = AddUnsigned(a, AddUnsigned(AddUnsigned(I(b, c, d), x), ac));
     return (AddUnsigned(RotateLeft(a, s), b));
   }
@@ -138,17 +138,17 @@ class MD5 {
    * Implementation of right shift operation for unsigned int.
    * See: http://www.cnblogs.com/niniwzw/archive/2009/12/04/1617130.html
    */
-  static long RotateLeft(long lValue, int iShiftBits) {
+  static int64 RotateLeft(int64 lValue, int iShiftBits) {
     if (iShiftBits == 32) return (lValue);
-    long result = (lValue << iShiftBits) | (((lValue >> 1) & 0x7fffffff) >> (31 - iShiftBits));
+    int64 result = (lValue << iShiftBits) | (((lValue >> 1) & 0x7fffffff) >> (31 - iShiftBits));
     return (result);
   }
 
   /**
    * Assume: ArraySize(x) == 16.
    */
-  static void MD5Transform(long &a, long &b, long &c, long &d, int &x[]) {
-    long AA, BB, CC, DD;
+  static void MD5Transform(int64 &a, int64 &b, int64 &c, int64 &d, int &x[]) {
+    int64 AA, BB, CC, DD;
     int S11 = 7, S12 = 12, S13 = 17, S14 = 22;
     int S21 = 5, S22 = 9, S23 = 14, S24 = 20;
     int S31 = 4, S32 = 11, S33 = 16, S34 = 23;

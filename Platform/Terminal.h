@@ -874,8 +874,8 @@ class Terminal : public Object {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
-    // long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
-    // long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
+    // int64 _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
+    // int64 _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
       case TERMINAL_COND_IS_CONNECTED:
         return !IsConnected();
@@ -884,7 +884,7 @@ class Terminal : public Object {
         return false;
     }
   }
-  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, long _arg1) {
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, int64 _arg1) {
     ARRAY(DataParamEntry, _args);
     DataParamEntry _param1 = _arg1;
     ArrayPushObject(_args, _param1);
@@ -908,9 +908,9 @@ class Terminal : public Object {
    *   Returns true when the condition is met.
    */
   bool ExecuteAction(ENUM_TERMINAL_ACTION _action, ARRAY_REF(MqlParam, _args)) {
-    // long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
-    // long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
-    // long _arg3l = ArraySize(_args) > 2 ? DataParamEntry::ToInteger(_args[2]) : WRONG_VALUE;
+    // int64 _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
+    // int64 _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
+    // int64 _arg3l = ArraySize(_args) > 2 ? DataParamEntry::ToInteger(_args[2]) : WRONG_VALUE;
     switch (_action) {
       case TERMINAL_ACTION_CRASH:
         delete THIS_PTR;

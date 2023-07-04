@@ -50,7 +50,7 @@ class ItemsHistoryRenkoCandleProvider : public ItemsHistoryCandleProvider<TV> {
   /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
-  virtual void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryRenkoCandleProvider<TV>>* _history, long _time_ms,
+  virtual void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryRenkoCandleProvider<TV>>* _history, int64 _time_ms,
                       float _ask, float _bid) {
     ++tick_index;
 
@@ -68,7 +68,7 @@ class ItemsHistoryRenkoCandleProvider : public ItemsHistoryCandleProvider<TV> {
    * Retrieves given number of items starting from the given microseconds or index (inclusive). "_dir" identifies if we
    * want previous or next items from selected starting point.
    */
-  void GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryRenkoCandleProvider<TV>>* _history, long _from_time_ms,
+  void GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryRenkoCandleProvider<TV>>* _history, int64 _from_time_ms,
                 ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items, ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
     // Method is called if there is a missing item (candle) in the history. We need to regenerate it.
 

@@ -215,7 +215,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
 
     _indi_ma.SetDataSource(_indi_price_feeder, 0);  // Using first and only mode from price feeder.
     double _result = iStdDevOnIndicator(_indi_ma, NULL, NULL, period, 0, PRICE_OPEN, 0); // Last parameter is unused.
-    // We don't want to store reference to indicator too long.
+    // We don't want to store reference to indicator too int64.
     _indi_ma.SetDataSource(NULL, 0);
 
     return _result;

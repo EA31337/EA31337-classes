@@ -32,7 +32,7 @@
 
 // Define external global functions.
 #ifndef __MQL__
-extern long SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id);
+extern int64 SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id);
 extern bool SymbolInfoMarginRate(string name, ENUM_ORDER_TYPE order_type, double &initial_margin_rate,
                                  double &maintenance_margin_rate);
 extern bool SymbolInfoTick(string symbol, MqlTick &tick);

@@ -224,7 +224,7 @@ class IndicatorCandle : public Indicator<TS> {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetVolume(int _shift = 0) override {
+  int64 GetVolume(int _shift = 0) override {
     CandleOCTOHLC<TV> _candle;
 
     if (history.TryGetItemByShift(_shift, _candle)) {
@@ -239,14 +239,14 @@ class IndicatorCandle : public Indicator<TS> {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetSpread(int _shift = 0) override { return 0; }
+  int64 GetSpread(int _shift = 0) override { return 0; }
 
   /**
    * Returns tick volume value for the bar.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetTickVolume(int _shift = 0) override { return GetVolume(); }
+  int64 GetTickVolume(int _shift = 0) override { return GetVolume(); }
 
   /**
    * Returns the indicator's data entry.
@@ -283,7 +283,7 @@ class IndicatorCandle : public Indicator<TS> {
         case INDI_CANDLE_MODE_SPREAD:
         case INDI_CANDLE_MODE_TICK_VOLUME:
         case INDI_CANDLE_MODE_VOLUME:
-          THIS_ATTR value_storages[_mode] = new IndicatorBufferValueStorage<long>(THIS_PTR, _mode);
+          THIS_ATTR value_storages[_mode] = new IndicatorBufferValueStorage<int64>(THIS_PTR, _mode);
           break;
         case INDI_CANDLE_MODE_TIME:
           THIS_ATTR value_storages[_mode] = new IndicatorBufferValueStorage<datetime>(THIS_PTR, _mode);
@@ -309,7 +309,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Converts candle into indicator's data entry.
    */
-  IndicatorDataEntry CandleToEntry(long _timestamp, CandleOCTOHLC<TV>& _candle) {
+  IndicatorDataEntry CandleToEntry(int64 _timestamp, CandleOCTOHLC<TV>& _candle) {
     IndicatorDataEntry _entry(FINAL_INDI_CANDLE_MODE_ENTRY);
     _entry.timestamp = _timestamp;
     _entry.values[INDI_CANDLE_MODE_PRICE_OPEN] = _candle.open;

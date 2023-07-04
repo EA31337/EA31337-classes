@@ -76,9 +76,9 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double, ItemsHistoryR
   // @todo Time-frame used to create candles.
   ENUM_TIMEFRAMES tf;
 
-  long last_entry_ts;
-  long last_completed_candle_ts;
-  long last_incomplete_candle_ts;
+  int64 last_entry_ts;
+  int64 last_completed_candle_ts;
+  int64 last_incomplete_candle_ts;
 
   /* Protected methods */
 

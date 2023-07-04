@@ -144,7 +144,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
     return (rates_total);
   }
 
-  static void CalculateVROC(const int pos, const int rates_total, ValueStorage<long> &volume,
+  static void CalculateVROC(const int pos, const int rates_total, ValueStorage<int64> &volume,
                             ValueStorage<double> &ExtVROCBuffer, int ExtPeriodVROC) {
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       double prev_volume = (double)(volume[i - (ExtPeriodVROC - 1)].Get());

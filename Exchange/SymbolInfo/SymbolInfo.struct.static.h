@@ -72,7 +72,7 @@ struct SymbolInfoStatic {
    *
    * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  static unsigned long GetVolume(string _symbol) { return GetTick(_symbol).volume; }
+  static uint64 GetVolume(string _symbol) { return GetTick(_symbol).volume; }
 
   /**
    * Get summary volume of current session deals.
@@ -298,7 +298,7 @@ struct SymbolInfoStatic {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  static long GetTradeStopsLevel(string _symbol) {
+  static int64 GetTradeStopsLevel(string _symbol) {
     return SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_STOPS_LEVEL);
   }
 
@@ -481,7 +481,7 @@ struct SymbolInfoStatic {
    * @param ENUM_SYMBOL_INFO_INTEGER prop_id
    *   Identifier of a property.
    *
-   * @return long
+   * @return int64
    *   Returns the value of the property.
    *   In case of error, information can be obtained using GetLastError() function.
    *
@@ -490,7 +490,7 @@ struct SymbolInfoStatic {
    * - https://www.mql5.com/en/docs/marketinformation/symbolinfointeger
    *
    */
-  static long SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id) {
+  static int64 SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id) {
     return ::SymbolInfoInteger(name, prop_id);
   }
 

@@ -77,11 +77,11 @@
 #endif
 
 #ifndef LONG_MIN
-#define LONG_MIN std::numeric_limits<long>::min()
+#define LONG_MIN std::numeric_limits<int64>::min()
 #endif
 
 #ifndef LONG_MAX
-#define LONG_MAX std::numeric_limits<long>::max()
+#define LONG_MAX std::numeric_limits<int64>::max()
 #endif
 
 #ifndef ULONG_MAX

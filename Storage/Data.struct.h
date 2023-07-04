@@ -54,7 +54,7 @@ struct MqlRates;
 struct MqlParam {
   ENUM_DATATYPE type;  // Type of the input parameter, value of ENUM_DATATYPE.
   union {
-    long integer_value;   // Field to store an integer type.
+    int64 integer_value;  // Field to store an integer type.
     double double_value;  // Field to store a double type.
     string string_value;  // Field to store a string type.
   };
@@ -88,7 +88,7 @@ struct MqlParam {
     return THIS_REF;
   }
 
-  MqlParam(long _value) {
+  MqlParam(int64 _value) {
     type = ENUM_DATATYPE::TYPE_LONG;
     integer_value = _value;
   }
@@ -122,7 +122,7 @@ struct MqlParam {
 struct DataParamEntry : public MqlParam {
  public:
   DataParamEntry() { type = InvalidEnumValue<ENUM_DATATYPE>::value(); }
-  DataParamEntry(ENUM_DATATYPE _type, long _integer_value, double _double_value, string _string_value) {
+  DataParamEntry(ENUM_DATATYPE _type, int64 _integer_value, double _double_value, string _string_value) {
     type = _type;
     integer_value = _integer_value;
     double_value = _double_value;
@@ -154,13 +154,13 @@ struct DataParamEntry : public MqlParam {
     type = TYPE_UINT;
     integer_value = _value;
   }
-  DataParamEntry(long _value) {
+  DataParamEntry(int64 _value) {
     type = TYPE_LONG;
     integer_value = _value;
   }
-  DataParamEntry(unsigned long _value) {
+  DataParamEntry(uint64 _value) {
     type = TYPE_ULONG;
-    integer_value = (long)_value;
+    integer_value = (int64)_value;
   }
 
   // Struct operators.
@@ -188,13 +188,13 @@ struct DataParamEntry : public MqlParam {
     type = TYPE_UINT;
     integer_value = _value;
   }
-  void operator=(long _value) {
+  void operator=(int64 _value) {
     type = TYPE_LONG;
     integer_value = _value;
   }
-  void operator=(unsigned long _value) {
+  void operator=(uint64 _value) {
     type = TYPE_ULONG;
-    integer_value = (long)_value;
+    integer_value = (int64)_value;
   }
 
   bool operator==(const DataParamEntry &_s) {
@@ -206,7 +206,7 @@ struct DataParamEntry : public MqlParam {
 
   /*
   DataParamEntry() {}
-  DataParamEntry(ENUM_DATATYPE _type, long _int, double _dbl, string _str) {
+  DataParamEntry(ENUM_DATATYPE _type, int64 _int, double _dbl, string _str) {
     type = _type;
     integer_value = _int;
     double_value = _dbl;
@@ -277,10 +277,10 @@ struct DataParamEntry : public MqlParam {
   }
 
   /**
-   * Gets DataParamEntry struct based on the value of long type.
+   * Gets DataParamEntry struct based on the value of int64 type.
    *
    */
-  static DataParamEntry FromValue(long _value) {
+  static DataParamEntry FromValue(int64 _value) {
     DataParamEntry _dpe;
     _dpe.type = TYPE_LONG;
     _dpe.integer_value = _value;
@@ -332,7 +332,7 @@ struct DataParamEntry : public MqlParam {
    * Converts MqlParam struct to integer.
    *
    */
-  static long ToInteger(MqlParam &param) {
+  static int64 ToInteger(MqlParam &param) {
     switch (param.type) {
       case TYPE_BOOL:
         return param.integer_value ? 1 : 0;

@@ -138,7 +138,7 @@ class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
   }
 
   static void CalculatePVT(const int pos, const int rates_total, ValueStorage<double> &close,
-                           ValueStorage<long> &volume, ValueStorage<double> &ExtPVTBuffer) {
+                           ValueStorage<int64> &volume, ValueStorage<double> &ExtPVTBuffer) {
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       double prev_close = close[i - 1].Get();
       // Calculate PVT value.

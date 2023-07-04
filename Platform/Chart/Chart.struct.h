@@ -35,15 +35,15 @@ class Class;
 struct ChartTf;
 
 // Includes.
-#include "../../Storage/Array.h"
 #include "../../Bar.struct.h"
+#include "../../Serializer/Serializer.h"
+#include "../../Serializer/SerializerNode.enum.h"
+#include "../../Storage/Array.h"
+#include "../Terminal.define.h"
 #include "Chart.define.h"
 #include "Chart.enum.h"
 #include "Chart.struct.static.h"
 #include "Chart.struct.tf.h"
-#include "../../Serializer/Serializer.h"
-#include "../../Serializer/SerializerNode.enum.h"
-#include "../Terminal.define.h"
 
 /* Defines struct to store bar entries. */
 struct ChartEntry {
@@ -64,15 +64,15 @@ struct ChartEntry {
 
 /* Defines struct for chart parameters. */
 struct ChartParams {
-  long id;
+  int64 id;
   string symbol;
   ChartTf tf;
   // Copy constructor.
   ChartParams(ChartParams& _cparams) : symbol(_cparams.symbol), tf(_cparams.tf) {}
   // Constructors.
-  ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, long _id = 0)
+  ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, int64 _id = 0)
       : id(_id), symbol(_symbol), tf(_tf){};
-  ChartParams(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL, long _id = 0) : id(_id), symbol(_symbol), tf(_tfi){};
+  ChartParams(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL, int64 _id = 0) : id(_id), symbol(_symbol), tf(_tfi){};
   // Getters.
   template <typename T>
   T Get(ENUM_CHART_PARAM _param) {
@@ -97,7 +97,7 @@ struct ChartParams {
   void Set(ENUM_CHART_PARAM _param, T _value) {
     switch (_param) {
       case CHART_PARAM_ID:
-        id = (long)_value;
+        id = (int64)_value;
         return;
       case CHART_PARAM_SYMBOL:
         symbol = (string)_value;

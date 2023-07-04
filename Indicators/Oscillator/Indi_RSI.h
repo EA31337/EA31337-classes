@@ -75,7 +75,7 @@ struct RSIGainLossData {
  * Implements the Relative Strength Index indicator.
  */
 class Indi_RSI : public Indicator<IndiRSIParams> {
-  DictStruct<long, RSIGainLossData> aux_data;
+  DictStruct<int64, RSIGainLossData> aux_data;
 
  public:
   /**
@@ -174,8 +174,8 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
                                 ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_target, _period + _shift + 1);  // +1 because of _bar_time_prev.
 
-    long _bar_time_curr = _source PTR_DEREF GetBarTime(_shift);
-    long _bar_time_prev = _source PTR_DEREF GetBarTime(_shift + 1);
+    int64 _bar_time_curr = _source PTR_DEREF GetBarTime(_shift);
+    int64 _bar_time_prev = _source PTR_DEREF GetBarTime(_shift + 1);
     if (fmin(_bar_time_curr, _bar_time_prev) < 0) {
       // Return empty value on invalid bar time.
       return EMPTY_VALUE;

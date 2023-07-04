@@ -47,15 +47,15 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
 
 #define INDICATOR_CALCULATE_PARAMS_LONG                                                                                \
   ValueStorage<datetime> &_time, ValueStorage<double> &_open, ValueStorage<double> &_high, ValueStorage<double> &_low, \
-      ValueStorage<double> &_close, ValueStorage<long> &_tick_volume, ValueStorage<long> &_volume,                     \
-      ValueStorage<long> &_spread
+      ValueStorage<double> &_close, ValueStorage<int64> &_tick_volume, ValueStorage<int64> &_volume,                   \
+      ValueStorage<int64> &_spread
 
 #define INDICATOR_CALCULATE_PARAMS_SHORT ValueStorage<double> &_price
 
 #define INDICATOR_CALCULATE_METHOD_PARAMS_LONG                                                                \
   const int rates_total, const int prev_calculated, ValueStorage<datetime> &time, ValueStorage<double> &open, \
       ValueStorage<double> &high, ValueStorage<double> &low, ValueStorage<double> &close,                     \
-      ValueStorage<long> &tick_volume, ValueStorage<long> &volume, ValueStorage<long> &spread
+      ValueStorage<int64> &tick_volume, ValueStorage<int64> &volume, ValueStorage<int64> &spread
 
 #define INDICATOR_CALCULATE_METHOD_PARAMS_SHORT \
   const int rates_total, const int prev_calculated, const int begin, ValueStorage<double> &price
@@ -103,14 +103,14 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
   REF_TO(ValueStorage<datetime>)                                                                 \
   _time = REF_CAST(ValueStorage<datetime>)                                                       \
       PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_TIME));        \
-  REF_TO(ValueStorage<long>)                                                                     \
-  _tick_volume = REF_CAST(ValueStorage<long>)                                                    \
+  REF_TO(ValueStorage<int64>)                                                                    \
+  _tick_volume = REF_CAST(ValueStorage<int64>)                                                   \
       PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME)); \
-  REF_TO(ValueStorage<long>)                                                                     \
-  _volume = REF_CAST(ValueStorage<long>)                                                         \
+  REF_TO(ValueStorage<int64>)                                                                    \
+  _volume = REF_CAST(ValueStorage<int64>)                                                        \
       PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME));      \
-  REF_TO(ValueStorage<long>)                                                                     \
-  _spread = REF_CAST(ValueStorage<long>)                                                         \
+  REF_TO(ValueStorage<int64>)                                                                    \
+  _spread = REF_CAST(ValueStorage<int64>)                                                        \
       PTR_TO_REF(_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_DATA_VS_TYPE_SPREAD));      \
   REF_TO(ValueStorage<double>)                                                                   \
   _price_open = REF_CAST(ValueStorage<double>)                                                   \

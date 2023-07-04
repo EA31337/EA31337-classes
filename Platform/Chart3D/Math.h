@@ -216,10 +216,10 @@ struct DXQuaternion {
 //| DViewport                                                        |
 //+------------------------------------------------------------------+
 struct DViewport {
-  unsigned long x;
-  unsigned long y;
-  unsigned long width;
-  unsigned long height;
+  uint64 x;
+  uint64 y;
+  uint64 width;
+  uint64 height;
   float minz;
   float maxz;
 };

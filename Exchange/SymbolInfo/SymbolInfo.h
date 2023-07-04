@@ -175,12 +175,12 @@ class SymbolInfo : public Object {
    *
    * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  unsigned long GetVolume() { return SymbolInfoStatic::GetTick(symbol).volume; }
+  uint64 GetVolume() { return SymbolInfoStatic::GetTick(symbol).volume; }
 
   /**
    * Gets the last volume for the current price (without updating).
    */
-  unsigned long GetLastVolume() { return last_tick.volume; }
+  uint64 GetLastVolume() { return last_tick.volume; }
 
   /**
    * Get summary volume of current session deals.
@@ -358,7 +358,7 @@ class SymbolInfo : public Object {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  long GetTradeStopsLevel() { return SymbolInfoStatic::SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL); }
+  int64 GetTradeStopsLevel() { return SymbolInfoStatic::SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL); }
 
   /**
    * Get a contract lot size in the base currency.

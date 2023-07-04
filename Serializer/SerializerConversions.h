@@ -31,9 +31,9 @@
 #endif
 
 #include "../Convert.extern.h"
+#include "../Refs.struct.h"
 #include "../Storage/DateTime.extern.h"
 #include "../Storage/Object.h"
-#include "../Refs.struct.h"
 
 class SerializerConversions {
  public:
@@ -53,7 +53,7 @@ class SerializerConversions {
     return string(includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(long value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
+  static string ValueToString(int64 value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
     return string(includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 

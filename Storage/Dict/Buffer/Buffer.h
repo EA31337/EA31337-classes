@@ -32,14 +32,14 @@
  * Class to store data values.
  */
 template <typename T>
-class Buffer : public Dict<long, T> {
+class Buffer : public Dict<int64, T> {
  public:
   Buffer() {}
 
   /**
    * Adds new value.
    */
-  void Add(T _value, long _dt = 0) {
+  void Add(T _value, int64 _dt = 0) {
     _dt = _dt > 0 ? _dt : TimeCurrent();
     Set(_dt, _value);
   }
@@ -50,7 +50,7 @@ class Buffer : public Dict<long, T> {
   T GetMin() {
     T min = NULL;
 
-    for (DictIterator<long, T> iter = Begin(); iter.IsValid(); ++iter)
+    for (DictIterator<int64, T> iter = Begin(); iter.IsValid(); ++iter)
       if (min == NULL || min > iter.Value()) min = iter.Value();
 
     return min;
@@ -62,7 +62,7 @@ class Buffer : public Dict<long, T> {
   T GetMax() {
     T max = NULL;
 
-    for (DictIterator<long, T> iter = Begin(); iter.IsValid(); ++iter)
+    for (DictIterator<int64, T> iter = Begin(); iter.IsValid(); ++iter)
       if (max == NULL || max < iter.Value()) max = iter.Value();
 
     return max;
@@ -75,7 +75,7 @@ class Buffer : public Dict<long, T> {
     T sum = 0;
     unsigned int numValues = 0;
 
-    for (DictIterator<long, T> iter = Begin(); iter.IsValid(); ++iter) {
+    for (DictIterator<int64, T> iter = Begin(); iter.IsValid(); ++iter) {
       sum += iter.Value();
       ++numValues;
     }
@@ -91,7 +91,7 @@ class Buffer : public Dict<long, T> {
 
     ArrayResize(array, Size());
 
-    for (DictIterator<long, T> iter = Begin(); iter.IsValid(); ++iter) {
+    for (DictIterator<int64, T> iter = Begin(); iter.IsValid(); ++iter) {
       array[iter.Index()] = iter.Value();
     }
 

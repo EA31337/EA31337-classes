@@ -156,7 +156,7 @@ class Log : public Object {
    * Reports an last error.
    */
   bool AddLastError(string prefix = "", string suffix = "");
-  bool AddLastError(string prefix, long suffix);
+  bool AddLastError(string prefix, int64 suffix);
 
   /**
    * Reports an error.
@@ -337,6 +337,6 @@ class Log : public Object {
 bool Log::AddLastError(string prefix, string suffix) {
   return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, suffix);
 }
-bool Log::AddLastError(string prefix, long suffix) {
+bool Log::AddLastError(string prefix, int64 suffix) {
   return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
 }

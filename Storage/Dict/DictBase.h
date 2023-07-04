@@ -389,5 +389,5 @@ class DictBase {
   /**
    * Specialization of hashing function.
    */
-  unsigned int Hash(float x) { return (unsigned int)((unsigned long)x * 10000 % 10000); }
+  unsigned int Hash(float x) { return (unsigned int)((uint64)x * 10000 % 10000); }
 };

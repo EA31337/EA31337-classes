@@ -20,37 +20,25 @@
  *
  */
 
-/**
- * @file
- * Includes Data's enums.
- */
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
 #endif
 
-#ifndef __MQL__
-/**
- * Enumeration for the Data type identifiers.
- *
- * @docs
- * - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
- */
-enum ENUM_DATATYPE {
-  TYPE_BOOL,      // bool
-  TYPE_CHAR,      // char
-  TYPE_COLOR,     // color
-  TYPE_DATETIME,  // datetime
-  TYPE_DOUBLE,    // double
-  TYPE_FLOAT,     // float
-  TYPE_INT,       // int
-  TYPE_LONG,      // int64
-  TYPE_SHORT,     // short
-  TYPE_STRING,    // string
-  TYPE_UCHAR,     // unsigned char
-  TYPE_UINT,      // unsigned int
-  TYPE_ULONG,     // uint64
-  TYPE_USHORT,    // unsigned short
+#ifndef __MQL4__
+// @note Values differ from the documentation at
+// https://www.mql5.com/en/docs/matrix/matrix_initialization/matrix_copyticks
+// @see https://www.mql5.com/en/forum/448933
+enum ENUM_COPY_TICKS {
+  COPY_TICKS_INFO = 1,
+  COPY_TICKS_TRADE = 2,
+  COPY_TICKS_ALL = 3,
+  COPY_TICKS_VERTICAL = 32768,
+  COPY_TICKS_TIME_MS = 65536,
+  COPY_TICKS_BID = 131072,
+  COPY_TICKS_ASK = 262144,
+  COPY_TICKS_LAST = 524288,
+  COPY_TICKS_VOLUME = 1048576,
+  COPY_TICKS_FLAGS = 2097152
 };
 #endif

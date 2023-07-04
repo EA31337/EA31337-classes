@@ -38,7 +38,7 @@
 
 class OrderQuery : public Dynamic {
  protected:
-  DictStruct<long, Ref<Order>> *orders;
+  DictStruct<int64, Ref<Order>> *orders;
 
  public:
   // Enumeration of comparison operators.
@@ -53,7 +53,7 @@ class OrderQuery : public Dynamic {
   };
 
   OrderQuery() {}
-  OrderQuery(DictStruct<long, Ref<Order>> &_orders) : orders(GetPointer(_orders)) {}
+  OrderQuery(DictStruct<int64, Ref<Order>> &_orders) : orders(GetPointer(_orders)) {}
 
   /**
    * Calculates sum of order's value based on the property's enum.
@@ -67,7 +67,7 @@ class OrderQuery : public Dynamic {
   template <typename E, typename T>
   T CalcSumByProp(E _prop) {
     T _sum = 0;
-    for (DictStructIterator<long, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
       _sum += iter.Value() REF_DEREF Get<T>(_prop);
     }
     return _sum;
@@ -82,7 +82,7 @@ class OrderQuery : public Dynamic {
   template <typename E, typename ECT, typename ECV, typename T>
   T CalcSumByPropWithCond(E _prop, ECT _prop_cond_type, ECV _prop_cond_value) {
     T _sum = 0;
-    for (DictStructIterator<long, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
       Order *_order = iter.Value().Ptr();
       if (_order PTR_DEREF Get<ECV>(_prop_cond_type) == _prop_cond_value) {
         _sum += _order PTR_DEREF Get<T>(_prop);
@@ -105,7 +105,7 @@ class OrderQuery : public Dynamic {
       return _order_ref_found;
     }
     _order_ref_found = orders PTR_DEREF Begin().Value();
-    for (DictStructIterator<long, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order_ref = iter.Value();
       if (Compare(_order_ref REF_DEREF Get<T>(_prop), _op, _order_ref_found REF_DEREF Get<T>(_prop))) {
         _order_ref_found = _order_ref;
@@ -127,7 +127,7 @@ class OrderQuery : public Dynamic {
     if (orders PTR_DEREF Size() == 0) {
       return _order_ref_found;
     }
-    for (DictStructIterator<long, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order_ref = iter.Value();
       if (Compare(_order_ref REF_DEREF Get<T>(_prop), _op, _value)) {
         _order_ref_found = _order_ref;
@@ -197,5 +197,5 @@ class OrderQuery : public Dynamic {
    * @return
    *   Returns a pointer to the new instance.
    */
-  static OrderQuery *GetInstance(DictStruct<long, Ref<Order>> &_orders) { return new OrderQuery(_orders); }
+  static OrderQuery *GetInstance(DictStruct<int64, Ref<Order>> &_orders) { return new OrderQuery(_orders); }
 };

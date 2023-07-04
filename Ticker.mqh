@@ -28,9 +28,9 @@
 class Chart;
 
 // Includes.
-#include "Platform/Chart/Chart.h"
-#include "Log.mqh"
 #include "Exchange/SymbolInfo/SymbolInfo.h"
+#include "Log.mqh"
+#include "Platform/Chart/Chart.h"
 //#include "Market.mqh"
 
 // Define an assert macros.
@@ -48,7 +48,7 @@ class Ticker {
   };
 
  protected:
-  unsigned long total_added, total_ignored, total_processed, total_saved;
+  uint64 total_added, total_ignored, total_processed, total_saved;
   // Struct variables.
   MqlTick data[];
   // Class variables.
@@ -85,22 +85,22 @@ class Ticker {
   /**
    * Get number of added ticks.
    */
-  unsigned long GetTotalAdded() { return total_added; }
+  uint64 GetTotalAdded() { return total_added; }
 
   /**
    * Get number of ignored ticks.
    */
-  unsigned long GetTotalIgnored() { return total_ignored; }
+  uint64 GetTotalIgnored() { return total_ignored; }
 
   /**
    * Get number of parsed ticks.
    */
-  unsigned long GetTotalProcessed() { return total_processed; }
+  uint64 GetTotalProcessed() { return total_processed; }
 
   /**
    * Get number of saved ticks.
    */
-  unsigned long GetTotalSaved() { return total_saved; }
+  uint64 GetTotalSaved() { return total_saved; }
 
   /* Other methods */
 

@@ -56,7 +56,7 @@ struct StrategyPriceStop {
   float ivalue;         // Indicator price value.
   unsigned int method;  // Store price stop methods (@see: ENUM_STRATEGY_PRICE_STOP).
   // unsigned int mode[2]; // Indicator modes to use.
-  Ref<IndicatorBase> indi_candle;
+  Ref<IndicatorData> indi_candle;
   // IndicatorDataEntry idata[];
   // IndicatorParams iparams;
 
@@ -103,7 +103,7 @@ struct StrategyPriceStop {
     return (float)_result;
   }
   /* Setters */
-  void SetCandleSource(IndicatorBase* _indi_candle) { indi_candle = _indi_candle; }
+  void SetCandleSource(IndicatorData* _indi_candle) { indi_candle = _indi_candle; }
   void SetIndicatorPriceValue(float _ivalue) { ivalue = _ivalue; }
   /*
   void SetIndicatorDataEntry(IndicatorDataEntry &_data[]) {
@@ -143,7 +143,8 @@ struct StrategyPriceStop {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckMethod(1 << i) ? 1 : 0;
-      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      _s.Pass(THIS_REF, IntegerToString(i + 1), _value,
+              (int)(SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE));
     }
     return SerializerNodeObject;
   }

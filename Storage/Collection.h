@@ -141,7 +141,7 @@ class Collection {
   /**
    * Returns object item by object id.
    */
-  X *GetById(long _id) {
+  X *GetById(int64 _id) {
     int i;
     X *_object = GetSize() > 0 ? data[0].Ptr() : NULL;
     for (i = 0; i < ArraySize(data); i++) {

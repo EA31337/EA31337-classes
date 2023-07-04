@@ -47,7 +47,7 @@ struct StgParams {
   bool is_suspended;               // State of the strategy (whether suspended or not)
   bool is_boosted;                 // State of the boost feature (to increase lot size).
   float weight;                    // Weight of the strategy.
-  long order_close_time;           // Order close time in mins (>0) or bars (<0).
+  int64 order_close_time;          // Order close time in mins (>0) or bars (<0).
   float order_close_loss;          // Order close loss (in pips).
   float order_close_profit;        // Order close profit (in pips).
   int signal_open_method;          // Signal open method.
@@ -72,7 +72,7 @@ struct StgParams {
   int tp_max;                      // Hard limit on maximum take profit (in pips).
   int sl_max;                      // Hard limit on maximum stop loss (in pips).
   int type;                        // Strategy type (@see: ENUM_STRATEGY).
-  long id;                         // Unique identifier of the strategy.
+  int64 id;                        // Unique identifier of the strategy.
   datetime refresh_time;           // Order refresh frequency (in sec).
   short shift;                     // Shift (relative to the current bar, 0 - default)
   ChartTf tf;                      // Main timeframe where strategy operates on.
@@ -142,7 +142,7 @@ struct StgParams {
         sl_max(0),
         type(0),
         refresh_time(0) {}
-  StgParams(StgParams &_stg_params) { this = _stg_params; }
+  StgParams(const StgParams &_stg_params) { THIS_REF = _stg_params; }
   // Deconstructor.
   ~StgParams() {}
 
@@ -212,7 +212,7 @@ struct StgParams {
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
     switch (_param) {
       case STRAT_PARAM_ID:  // ID (magic number).
-        id = (long)_value;
+        id = (int64)_value;
         return;
       case STRAT_PARAM_LS:  // Lot size
         lot_size = (float)_value;
@@ -248,7 +248,7 @@ struct StgParams {
         order_close_profit = (float)_value;
         return;
       case STRAT_PARAM_OCT:  // Order close time
-        order_close_time = (long)_value;
+        order_close_time = (int64)_value;
         return;
       case STRAT_PARAM_SOM:  // Signal open method
         signal_open_method = (int)_value;
@@ -297,7 +297,7 @@ struct StgParams {
       Set(_enum_param, _mql_param.integer_value);
     }
   }
-  void SetId(long _id) { id = _id; }
+  void SetId(int64 _id) { id = _id; }
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
     // @todo: To remove.
   }

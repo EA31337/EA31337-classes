@@ -216,7 +216,7 @@ class Database {
     _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
 #ifndef __MQL4__
     if (DatabaseTransactionBegin(handle)) {
-      for (DictStructIterator<long, TStruct> iter = _bstruct.Begin(); iter.IsValid(); ++iter) {
+      for (DictStructIterator<int64, TStruct> iter = _bstruct.Begin(); iter.IsValid(); ++iter) {
         _query = StringFormat("INSERT INTO %s(%s) VALUES (%s)", _name, _cols, iter.Value().ToCSV());
         _result &= DatabaseExecute(handle, _query);
       }

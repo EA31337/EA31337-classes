@@ -70,6 +70,18 @@ struct BarOHLC
       low = fmin(low, _prices[i]);
     }
   }
+  BarOHLC(CONST_ARRAY_REF(double, _prices, 4), datetime _time = 0) : time(_time) {
+    _time = _time == (datetime)0 ? TimeCurrent() : _time;
+    int _size = 4;
+    close = _prices[0];
+    open = _prices[_size - 1];
+    high = fmax(close, open);
+    low = fmin(close, open);
+    for (int i = 0; i < _size; i++) {
+      high = fmax(high, _prices[i]);
+      low = fmin(low, _prices[i]);
+    }
+  }
   // Struct methods.
   // Getters
   bool GetPivots(ENUM_PP_TYPE _type, double &_pp, double &_r1, double &_r2, double &_r3, double &_r4, double &_s1,

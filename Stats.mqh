@@ -34,8 +34,8 @@
  */
 class Stats {
  public:
-  unsigned long total_bars;
-  unsigned long total_ticks;
+  uint64 total_bars;
+  uint64 total_ticks;
   int curr_period;
   // int custom_int[];
   // double custom_dbl[];
@@ -60,7 +60,7 @@ class Stats {
    * Update stats on tick.
    */
   void OnTick() {
-    static long _last_bar_time = 0;
+    static int64 _last_bar_time = 0;
     total_ticks++;
     if (_last_bar_time != Platform::Timestamp()) {
       _last_bar_time = Platform::Timestamp();
@@ -78,22 +78,22 @@ class Stats {
   /**
    * Get number of counted bars.
    */
-  unsigned long GetTotalBars() { return (total_bars); }
+  uint64 GetTotalBars() { return (total_bars); }
 
   /**
    * Get number of counted ticks.
    */
-  unsigned long GetTotalTicks() { return (total_ticks); }
+  uint64 GetTotalTicks() { return (total_ticks); }
 
   /**
    * Get number of ticks per bar.
    */
-  unsigned long GetTicksPerBar() { return (total_bars > 0 ? (total_ticks / total_bars) : 0); }
+  uint64 GetTicksPerBar() { return (total_bars > 0 ? (total_ticks / total_bars) : 0); }
 
   /**
    * Get number of ticks per minute.
    */
-  unsigned long GetTicksPerMin() { return (total_bars > 0 ? (total_ticks / total_bars / curr_period) : 0); }
+  uint64 GetTicksPerMin() { return (total_bars > 0 ? (total_ticks / total_bars / curr_period) : 0); }
 
   /**
    * Get number of ticks per second.
@@ -103,10 +103,10 @@ class Stats {
   /**
    * Get number of ticks per given time period.
    */
-  unsigned long GetTicksPerPeriod(int period = PERIOD_H1) { return (GetTicksPerMin() * period); }
+  uint64 GetTicksPerPeriod(int period = PERIOD_H1) { return (GetTicksPerMin() * period); }
 
   /**
    * Get number of bars per given time period.
    */
-  unsigned long GetBarsPerPeriod(int period = PERIOD_H1) { return (total_bars / period); }
+  uint64 GetBarsPerPeriod(int period = PERIOD_H1) { return (total_bars / period); }
 };

@@ -49,7 +49,7 @@ class SerializerNodeParam {
    */
   union USerializerNodeValue {
     bool _bool;
-    long _long;
+    int64 _long;
     double _double;
   } _integral;
 
@@ -72,12 +72,12 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromBool(long value);
+  static SerializerNodeParam* FromBool(int64 value);
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromLong(long value);
+  static SerializerNodeParam* FromLong(int64 value);
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -122,7 +122,7 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(long value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(int64 value) { return FromLong(value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -147,7 +147,7 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(unsigned long value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(uint64 value) { return FromLong(value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -182,7 +182,7 @@ class SerializerNodeParam {
    */
   SerializerNodeParamType GetType() { return _type; }
 
-  long ToBool() {
+  int64 ToBool() {
     switch (_type) {
       case SerializerNodeParamBool:
         return _integral._bool;
@@ -216,18 +216,18 @@ class SerializerNodeParam {
     return 0;
   }
 
-  long ToLong() {
+  int64 ToLong() {
     switch (_type) {
       case SerializerNodeParamBool:
         return _integral._bool ? 1 : 0;
       case SerializerNodeParamLong:
         return _integral._long;
       case SerializerNodeParamDouble:
-        return (long)_integral._double;
+        return (int64)_integral._double;
       case SerializerNodeParamString:
         return StringToInteger(_string);
       default:
-        Alert("Internal Error. Cannot convert source type to long");
+        Alert("Internal Error. Cannot convert source type to int64");
     }
 
     return 0;
@@ -286,7 +286,7 @@ class SerializerNodeParam {
 
   int ConvertTo(int) { return ToInt(); }
 
-  long ConvertTo(long) { return ToInt(); }
+  int64 ConvertTo(int64) { return ToInt(); }
 
   float ConvertTo(float) { return ToFloat(); }
 
@@ -298,7 +298,7 @@ class SerializerNodeParam {
 /**
  * Returns new SerializerNodeParam object from given source value.
  */
-SerializerNodeParam* SerializerNodeParam::FromBool(long value) {
+SerializerNodeParam* SerializerNodeParam::FromBool(int64 value) {
   SerializerNodeParam* param = new SerializerNodeParam();
   PTR_ATTRIB(param, _type) = SerializerNodeParamBool;
   PTR_ATTRIB(param, _integral)._bool = value;
@@ -308,7 +308,7 @@ SerializerNodeParam* SerializerNodeParam::FromBool(long value) {
 /**
  * Returns new SerializerNodeParam object from given source value.
  */
-SerializerNodeParam* SerializerNodeParam::FromLong(long value) {
+SerializerNodeParam* SerializerNodeParam::FromLong(int64 value) {
   SerializerNodeParam* param = new SerializerNodeParam();
   PTR_ATTRIB(param, _type) = SerializerNodeParamLong;
   PTR_ATTRIB(param, _integral)._long = value;

@@ -39,7 +39,7 @@ int OnInit() {
   Ref<IndicatorTickDummy> _indi_tick = new IndicatorTickDummy(_Symbol);
   Platform::Add(_indi_tick.Ptr());
 
-  long _time = 1;
+  int64 _time = 1;
 
   for (double _price = 0.1; _price <= 2.0; _price += 0.1) {
     TickTAB<double> _tick(_time++ * 1000, _price, _price);

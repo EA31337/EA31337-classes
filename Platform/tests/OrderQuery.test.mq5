@@ -25,13 +25,13 @@
  */
 
 // Includes.
-#include "../OrderQuery.h"
 #include "../../Test.mqh"
+#include "../OrderQuery.h"
 
 bool Test01() {
   bool _result = true;
   // Initialize orders.
-  DictStruct<long, Ref<Order>> orders;
+  DictStruct<int64, Ref<Order>> orders;
   // Populate orders.
   for (int i = -10; i <= 10; i++) {
     OrderData _odata;

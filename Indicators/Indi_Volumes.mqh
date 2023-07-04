@@ -143,7 +143,7 @@ class Indi_Volumes : public Indicator<IndiVolumesParams> {
     return (rates_total);
   }
 
-  static void CalculateVolume(const int pos, const int rates_total, ValueStorage<long> &volume,
+  static void CalculateVolume(const int pos, const int rates_total, ValueStorage<int64> &volume,
                               ValueStorage<double> &ExtVolumesBuffer, ValueStorage<double> &ExtColorsBuffer) {
     ExtVolumesBuffer[0] = (double)volume[0].Get();
     ExtColorsBuffer[0] = 0.0;

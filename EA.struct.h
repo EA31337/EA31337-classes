@@ -31,6 +31,7 @@
 #endif
 
 // Includes.
+#include "Log.mqh"
 #include "Storage/DateTime.h"
 #include "Task/Task.struct.h"
 
@@ -81,7 +82,7 @@ struct EAParams {
   };
 
   // Struct special methods.
-  EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
+  EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, uint64 _magic = 0)
       : author("unknown"),
         data_store(EA_DATA_STORE_NONE),
         flags(EA_PARAM_FLAG_NONE),

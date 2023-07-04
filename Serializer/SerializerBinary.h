@@ -38,7 +38,7 @@ enum ENUM_SERIALIZER_BINARY_FLAGS { SERIALIZER_BINARY_INCLUDE_VERSION };
 union SerializerBinaryValue {
   unsigned char Bytes[8];
   double Double;
-  long Long;
+  int64 Long;
   int Integer;
   short Short;
 };

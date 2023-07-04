@@ -189,7 +189,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
     return (rates_total);
   }
 
-  static double AD(double high, double low, double close, long volume) {
+  static double AD(double high, double low, double close, int64 volume) {
     double res = 0.0;
     double sum = (close - low) - (high - close);
     if (sum != 0.0) {

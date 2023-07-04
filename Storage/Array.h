@@ -555,12 +555,12 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
    * - https://www.mql5.com/en/docs/array/arrayprint
    */
   template <typename T>
-  void ArrayPrint(ARRAY_REF(T, _arr),         // Printed array.
-                  int _digits = 0,            // Number of decimal places.
-                  const string _dlm = NULL,   // Separator of the structure field values.
-                  long _start = 0,            // First printed element index.
-                  long _count = WHOLE_ARRAY,  // Number of printed elements.
-                  long _flags = NULL) {
+  void ArrayPrint(ARRAY_REF(T, _arr),          // Printed array.
+                  int _digits = 0,             // Number of decimal places.
+                  const string _dlm = NULL,    // Separator of the structure field values.
+                  int64 _start = 0,            // First printed element index.
+                  int64 _count = WHOLE_ARRAY,  // Number of printed elements.
+                  int64 _flags = NULL) {
 #ifdef __MQL5__
     ::ArrayPrint(_arr, _digits, _dlm, _start, _count, _flags);
 #else

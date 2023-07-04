@@ -31,7 +31,7 @@
 
 // Global variables.
 Ref<IndicatorBase> indi_tick;
-unsigned long total_ticks;
+uint64 total_ticks;
 Ticker *ticker_csv;
 Ticker *ticker01;
 Ticker *ticker02;

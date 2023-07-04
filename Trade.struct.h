@@ -132,7 +132,7 @@ struct TradeParams {
   unsigned short bars_min;  // Minimum bars to trade.
   string order_comment;     // Order comment.
   float lot_size;           // Default lot size.
-  unsigned long magic_no;   // Unique magic number used for the trading.
+  uint64 magic_no;          // Unique magic number used for the trading.
   float risk_margin;        // Maximum account margin to risk (in %).
   unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
   unsigned int slippage;     // Value of the maximum price slippage in points.
@@ -147,7 +147,7 @@ struct TradeParams {
         slippage(_slippage) {
     SetLimits(0);
   }
-  TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
+  TradeParams(uint64 _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
       : bars_min(100), order_comment(""), lot_size(0), magic_no(_magic_no), log_level(_ll) {}
   TradeParams(const TradeParams &_tparams) { THIS_REF = _tparams; }
   // Deconstructor.
@@ -219,7 +219,7 @@ struct TradeParams {
         lot_size = (float)_value;
         return;
       case TRADE_PARAM_MAGIC_NO:
-        magic_no = (unsigned long)_value;
+        magic_no = (uint64)_value;
         return;
       case TRADE_PARAM_ORDER_COMMENT:
         order_comment = SerializerConversions::ValueToString(_value);
@@ -276,7 +276,7 @@ struct TradeParams {
     }
   }
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
-  void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
+  void SetMagicNo(uint64 _mn) { magic_no = _mn; }
   void SetRiskMargin(float _value) { risk_margin = _value; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}

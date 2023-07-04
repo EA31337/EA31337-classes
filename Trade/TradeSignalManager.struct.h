@@ -39,8 +39,8 @@
  */
 struct TradeSignalManagerParams {
  protected:
-  short freq;       // Signal process refresh frequency (in sec).
-  long last_check;  // Last check.
+  short freq;        // Signal process refresh frequency (in sec).
+  int64 last_check;  // Last check.
 
  public:
   /* Struct's enumerations */
@@ -84,7 +84,7 @@ struct TradeSignalManagerParams {
         freq = (short)_value;
         return;
       case TSM_PARAMS_PROP_LAST_CHECK:
-        last_check = (long)_value;
+        last_check = (int64)_value;
         return;
     }
     SetUserError(ERR_INVALID_PARAMETER);

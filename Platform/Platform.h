@@ -78,10 +78,10 @@ class Platform {
   static bool time_clear_flags;
 
   // List of added indicators.
-  static DictStruct<long, Ref<IndicatorData>> indis;
+  static DictStruct<int64, Ref<IndicatorData>> indis;
 
   // List of default Candle/Tick indicators.
-  static DictStruct<long, Ref<IndicatorData>> indis_dflt;
+  static DictStruct<int64, Ref<IndicatorData>> indis_dflt;
 
   // Result of the last tick.
   static bool last_tick_result;
@@ -121,7 +121,7 @@ class Platform {
     // Checking starting periods and updating time to current one.
     time_flags = time.GetStartedPeriods();
 
-    DictStructIterator<long, Ref<IndicatorData>> _iter;
+    DictStructIterator<int64, Ref<IndicatorData>> _iter;
 
     last_tick_result = false;
 
@@ -173,7 +173,7 @@ class Platform {
   /**
    * Returns dictionary of added indicators (keyed by unique id).
    */
-  static DictStruct<long, Ref<IndicatorData>> *GetIndicators() { return &indis; }
+  static DictStruct<int64, Ref<IndicatorData>> *GetIndicators() { return &indis; }
 
   /**
    * Adds indicator to be processed by platform.
@@ -181,7 +181,7 @@ class Platform {
   static void Add(IndicatorData *_indi) {
     Ref<IndicatorData> _ref = _indi;
 
-    DictStructIterator<long, Ref<IndicatorData>> _iter;
+    DictStructIterator<int64, Ref<IndicatorData>> _iter;
     for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
       if (_iter.Value() == _ref) {
         Alert("Warning: ", _indi PTR_DEREF GetFullName(),
@@ -411,7 +411,7 @@ class Platform {
    */
   static string IndicatorsToString(int _shift = 0) {
     string _result;
-    for (DictStructIterator<long, Ref<IndicatorData>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
+    for (DictStructIterator<int64, Ref<IndicatorData>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
       IndicatorDataEntry _entry = _iter.Value() REF_DEREF GetEntry(_shift);
       _result += _iter.Value() REF_DEREF GetFullName() + " = " + _entry.ToString<double>() + "\n";
     }
@@ -492,8 +492,8 @@ bool Platform::time_clear_flags = true;
 int Platform::global_tick_index = 0;
 string Platform::symbol = PLATFORM_WRONG_SYMBOL;
 ENUM_TIMEFRAMES Platform::period = PLATFORM_WRONG_TIMEFRAME;
-DictStruct<long, Ref<IndicatorData>> Platform::indis;
-DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
+DictStruct<int64, Ref<IndicatorData>> Platform::indis;
+DictStruct<int64, Ref<IndicatorData>> Platform::indis_dflt;
 
 #ifndef __MQL__
 // Following methods must be there are they're externed in Platform.extern.h
@@ -517,7 +517,7 @@ int CopyBuffer(int indicator_handle, int buffer_num, int start_pos, int count, A
   return 0;
 }
 
-unsigned int64 PositionGetTicket(int _index) {
+uint64 PositionGetTicket(int _index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -542,22 +542,22 @@ int HistoryDealsTotal() {
   return 0;
 }
 
-unsigned int64 HistoryDealGetTicket(int index) {
+uint64 HistoryDealGetTicket(int index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-int64 HistoryDealGetInteger(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id) {
+int64 HistoryDealGetInteger(uint64 ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-double HistoryDealGetDouble(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id) {
+double HistoryDealGetDouble(uint64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-string HistoryDealGetString(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
+string HistoryDealGetString(uint64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
   return 0;
 }
@@ -587,12 +587,12 @@ bool OrderCheck(const MqlTradeRequest &request, MqlTradeCheckResult &result) {
   return false;
 }
 
-unsigned int64 OrderGetTicket(int index) {
+uint64 OrderGetTicket(int index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-unsigned int64 HistoryOrderGetTicket(int index) {
+uint64 HistoryOrderGetTicket(int index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -602,7 +602,7 @@ bool HistorySelectByPosition(int64 position_id) {
   return false;
 }
 
-bool HistoryDealSelect(unsigned int64 ticket) {
+bool HistoryDealSelect(uint64 ticket) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
@@ -612,7 +612,7 @@ int64 OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
   return 0;
 }
 
-int64 HistoryOrderGetInteger(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id) {
+int64 HistoryOrderGetInteger(uint64 ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -622,7 +622,7 @@ double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
   return 0;
 }
 
-double HistoryOrderGetDouble(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+double HistoryOrderGetDouble(uint64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -632,7 +632,7 @@ string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
   return 0;
 }
 
-string HistoryOrderGetString(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id) {
+string HistoryOrderGetString(uint64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
   return 0;
 }
@@ -685,6 +685,26 @@ int CopyTickVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos,
 int CopyRealVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(int64, arr)) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
+}
+
+double iOpen(string symbol, int timeframe, int shift) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 1.0.");
+  return 1.0;
+}
+
+double iHigh(string symbol, int timeframe, int shift) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 1.0.");
+  return 1.0;
+}
+
+double iLow(string symbol, int timeframe, int shift) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 1.0.");
+  return 1.0;
+}
+
+double iClose(string symbol, int timeframe, int shift) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 1.0.");
+  return 1.0;
 }
 
 int ChartID() { return Platform::ChartID(); }

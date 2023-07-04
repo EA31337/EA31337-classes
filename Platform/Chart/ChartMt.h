@@ -31,9 +31,9 @@
 #endif
 
 // Includes.
+#include "../Terminal.define.h"
 #include "Chart.struct.static.h"
 #include "Chart.symboltf.h"
-#include "../Terminal.define.h"
 
 #ifdef __DISABLED
 
@@ -214,7 +214,7 @@ class ChartMt : public ChartBase {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual long GetVolume(int _shift = 0) override { return ::iVolume(GetSymbol(), GetTf(), _shift); }
+  virtual int64 GetVolume(int _shift = 0) override { return ::iVolume(GetSymbol(), GetTf(), _shift); }
 };
 
 #endif

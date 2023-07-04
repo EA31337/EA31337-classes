@@ -252,7 +252,7 @@ class IndicatorTick : public Indicator<TS> {
  * Converts TickAB into IndicatorDataEntry.
  */
 template <typename TV>
-IndicatorDataEntry TickToEntry(long _timestamp, TickAB<TV>& _tick) {
+IndicatorDataEntry TickToEntry(int64 _timestamp, TickAB<TV>& _tick) {
   IndicatorDataEntry _entry(2);
   _entry.timestamp = _timestamp;
   _entry.values[INDI_TICK_MODE_PRICE_ASK] = _tick.ask;

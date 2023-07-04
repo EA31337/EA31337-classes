@@ -61,6 +61,7 @@
 #define nullptr NULL
 #define REF_DEREF .Ptr().
 #define int64 long
+#define uint64 unsigned long
 #define VOID_DATA(N) void*& N[]
 #else
 #define THIS_ATTR this->
@@ -74,6 +75,7 @@
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
 #define REF_DEREF .Ptr()->
 #define int64 long long
+#define uint64 unsigned long long
 #define VOID_DATA(N) void* N
 #endif
 

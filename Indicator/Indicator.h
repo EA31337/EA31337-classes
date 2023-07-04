@@ -477,10 +477,10 @@ class Indicator : public IndicatorData {
    */
   virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, ARRAY_REF(DataParamEntry, _args)) {
     bool _result = true;
-    long _arg1 = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
+    int64 _arg1 = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
     switch (_action) {
       case INDI_ACTION_CLEAR_CACHE:
-        _arg1 = _arg1 != 0 ? _arg1 : (long)TimeCurrent();
+        _arg1 = _arg1 != 0 ? _arg1 : (int64)TimeCurrent();
         Print("Action not yet implemented!");
         DebugBreak();
         // idata.Clear(_arg1);
@@ -496,7 +496,7 @@ class Indicator : public IndicatorData {
     ARRAY(DataParamEntry, _args);
     return ExecuteAction(_action, _args);
   }
-  bool ExecuteAction(ENUM_INDICATOR_ACTION _action, long _arg1) {
+  bool ExecuteAction(ENUM_INDICATOR_ACTION _action, int64 _arg1) {
     ARRAY(DataParamEntry, _args);
     DataParamEntry _param1 = _arg1;
     ArrayPushObject(_args, _param1);
@@ -555,13 +555,13 @@ class Indicator : public IndicatorData {
     } else {
       if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_UNSIGNED)) {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
-          _result &= !_entry.HasValue<unsigned long>(ULONG_MAX);
+          _result &= !_entry.HasValue<uint64>(ULONG_MAX);
         } else {
           _result &= !_entry.HasValue<unsigned int>(UINT_MAX);
         }
       } else {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
-          _result &= !_entry.HasValue<long>(LONG_MAX);
+          _result &= !_entry.HasValue<int64>(LONG_MAX);
         } else {
           _result &= !_entry.HasValue<int>(INT_MAX);
         }
@@ -585,7 +585,7 @@ class Indicator : public IndicatorData {
    */
   IndicatorDataEntry GetEntry(int _rel_shift = 0) override {
     ResetLastError();
-    long _bar_time = GetBarTime(_rel_shift);
+    int64 _bar_time = GetBarTime(_rel_shift);
 
     if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_BUILTIN &&
         (GetPossibleDataModes() & IDATA_BUILTIN) == 0) {
@@ -620,13 +620,13 @@ class Indicator : public IndicatorData {
             _entry.values[_mode] = GetValue<int>(_mode, _rel_shift);
             break;
           case TYPE_LONG:
-            _entry.values[_mode] = GetValue<long>(_mode, _rel_shift);
+            _entry.values[_mode] = GetValue<int64>(_mode, _rel_shift);
             break;
           case TYPE_UINT:
             _entry.values[_mode] = GetValue<unsigned int>(_mode, _rel_shift);
             break;
           case TYPE_ULONG:
-            _entry.values[_mode] = GetValue<unsigned long>(_mode, _rel_shift);
+            _entry.values[_mode] = GetValue<uint64>(_mode, _rel_shift);
             break;
           case TYPE_DOUBLE:
             _entry.values[_mode] = GetValue<double>(_mode, _rel_shift);
