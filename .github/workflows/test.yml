@@ -27,7 +27,7 @@ jobs:
       - name: Compile
         uses: fx31337/mql-compile-action@master
         with:
-          mt-version: 4.0.0.1349
+          mt-version: 4.0.0.1359
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
@@ -85,7 +85,7 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           BtYears: 2020
-          MtVersion: 4.0.0.1349
+          MtVersion: 4.0.0.1359
           TestExpert: ${{ matrix.test }}
     timeout-minutes: 10
 
