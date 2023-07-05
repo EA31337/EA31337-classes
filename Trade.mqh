@@ -65,6 +65,9 @@ class Trade : public Taskable<DataParamEntry> {
    * Initialize class instance.
    */
   void Init() {
+    if (!chart.IsSet()) {
+      chart = new Chart(PERIOD_CURRENT, _Symbol);
+    }
     SetName();
     OrdersLoadByMagic(tparams.magic_no);
     UpdateStates();
@@ -74,7 +77,7 @@ class Trade : public Taskable<DataParamEntry> {
   /**
    * Class constructor.
    */
-  Trade() : chart(new Chart()), order_last(NULL) {
+  Trade() : order_last(NULL) {
    Init();
   };
   Trade(TradeParams &_tparams, ChartParams &_cparams)
