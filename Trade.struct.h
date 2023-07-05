@@ -327,6 +327,16 @@ struct TradeStates {
         return "Soft limit of trade margin reached";
       case TRADE_STATE_MARKET_CLOSED:
         return "Trade market closed";
+      case TRADE_STATE_MODE_DISABLED:
+        return "Trade is disabled for the symbol";
+      case TRADE_STATE_MODE_LONGONLY:
+        return "Market only allows long positions";
+      case TRADE_STATE_MODE_SHORTONLY:
+        return "Market only allows short positions";
+      case TRADE_STATE_MODE_CLOSEONLY:
+        return "Only close operations are allowed";
+      case TRADE_STATE_MODE_FULL:
+        return "No trade restrictions";
       case TRADE_STATE_MONEY_NOT_ENOUGH:
         return "Not enough money to trade";
       case TRADE_STATE_ORDERS_ACTIVE:
