@@ -1722,7 +1722,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
     if ((_periods & DATETIME_HOUR) != 0) {
       // New hour started.
-      UpdateStates();
+      UpdateStates(true);
     }
     if ((_periods & DATETIME_DAY) != 0) {
       // New day started.
