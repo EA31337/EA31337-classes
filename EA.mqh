@@ -798,7 +798,7 @@ class EA : public Taskable<DataParamEntry> {
     ResetLastError();
     for (DictObjectIterator<string, Trade> titer = trade.Begin(); titer.IsValid(); ++titer) {
       Trade *_trade = titer.Value();
-      if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+      if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && !_trade.Get<bool>(TRADE_STATE_MARKET_CLOSED)) {
         for (DictStructIterator<long, Ref<Order>> oiter = _trade.GetOrdersActive().Begin(); oiter.IsValid(); ++oiter) {
           bool _sl_valid = false, _tp_valid = false;
           double _sl_new = 0, _tp_new = 0;
@@ -843,6 +843,9 @@ class EA : public Taskable<DataParamEntry> {
             _result &= _order.OrderModify(_sl_new, _tp_new);
             if (_result) {
               _order.Set(ORDER_PROP_TIME_LAST_UPDATE, TimeCurrent());
+            }
+            else {
+               _trade.UpdateStates(true);
             }
           }
         }
