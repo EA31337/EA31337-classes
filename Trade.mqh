@@ -61,18 +61,25 @@ class Trade : public Taskable<DataParamEntry> {
   Ref<Order> order_last;
   // Strategy *strategy;  // Optional pointer to Strategy class.
 
+  /**
+   * Initialize class instance.
+   */
+  void Init() {
+    SetName();
+    OrdersLoadByMagic(tparams.magic_no);
+    UpdateStates();
+  }
+
  public:
   /**
    * Class constructor.
    */
   Trade() : chart(new Chart()), order_last(NULL) {
-    SetName();
-    OrdersLoadByMagic(tparams.magic_no);
+   Init();
   };
   Trade(TradeParams &_tparams, ChartParams &_cparams)
       : chart(new Chart(_cparams)), tparams(_tparams), order_last(NULL) {
-    SetName();
-    OrdersLoadByMagic(tparams.magic_no);
+    Init();
   };
 
   /**
@@ -82,6 +89,7 @@ class Trade : public Taskable<DataParamEntry> {
     tparams = _trade.tparams;
     tstats = _trade.tstats;
     tstates = _trade.tstates;
+    Init();
   }
 
   /**
