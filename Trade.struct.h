@@ -49,7 +49,7 @@ struct TradeParams {
   unsigned short bars_min;   // Minimum bars to trade.
   ENUM_LOG_LEVEL log_level;  // Log verbosity level.
   // Constructors.
-  TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 0, ENUM_LOG_LEVEL _ll = V_INFO)
+  TradeParams(float _lot_size = 0, float _risk_margin = 1.0f, unsigned int _slippage = 0, ENUM_LOG_LEVEL _ll = V_INFO)
       : bars_min(100),
         order_comment(""),
         log_level(_ll),
@@ -60,7 +60,7 @@ struct TradeParams {
     SetLimits(0);
   }
   TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
-      : bars_min(100), lot_size(0), order_comment(""), log_level(_ll), magic_no(_magic_no) {}
+      : bars_min(100), lot_size(0), order_comment(""), log_level(_ll), magic_no(_magic_no), risk_margin(1.0f), slippage(0) {}
   TradeParams(TradeParams &_tparams) { this = _tparams; }
   // Deconstructor.
   ~TradeParams() {}

@@ -104,12 +104,12 @@ class EA : public Taskable<DataParamEntry> {
     Init();
     // Initialize a trade instance for the current chart and symbol.
     ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
-    TradeParams _tparams;
+    TradeParams _tparams(0, 1.0f, 0, eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
     Trade _trade(_tparams, _cparams);
     trade.Set(_Symbol, _trade);
     logger.Link(_trade.GetLogger());
     logger.SetLevel(eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
-    _trade.GetLogger().SetLevel(eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
+    //_trade.GetLogger().SetLevel(eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
   }
 
   /**
