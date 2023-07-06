@@ -70,6 +70,12 @@ class Log : public Object {
       : last_entry(-1), last_flush(0), log_level(_log_level), filename(new_filename != "" ? new_filename : "Log.txt") {}
 
   /**
+   * Class copy constructor.
+   */
+  Log(const Log &_log) : filename(_log.filename), last_entry(_log.last_entry), log_level(_log.log_level) {
+  }
+
+  /**
    * Class deconstructor.
    */
   ~Log() { Flush(); }
