@@ -562,6 +562,25 @@ class IndicatorData : public IndicatorBase {
     return _is_valid;
   }
 
+#ifdef __cplusplus
+  template <typename T, int size>
+  bool CopyValues(FIXED_ARRAY_REF(T, _data, size), int _count, int _start_shift = 0, int _mode = 0) {
+    bool _is_valid = true;
+    if (size < _count) {
+      Alert("Error: CopyValues(): Provided _count = ", IntegerToString(_count), " is too much for fixed array of size ",
+            IntegerToString(size));
+      return false;
+    }
+    for (int i = 0; i < _count; i++) {
+      IndicatorDataEntry _entry = GetEntry(_start_shift + i);
+      _is_valid &= _entry.IsValid();
+      _data[i] = (T)_entry[_mode];
+    }
+    return _is_valid;
+  }
+
+#endif
+
   /* Getters */
 
   int GetBarsCalculated() { return GetBars(); }

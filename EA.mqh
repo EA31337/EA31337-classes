@@ -1136,7 +1136,7 @@ class EA : public Taskable<DataParamEntry> {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(THIS_REF, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.PassObject(THIS_REF, "account", PTR_TO_REF(account), SERIALIZER_FIELD_FLAG_DYNAMIC);
 
     for (DictStructIterator<int64, Ref<Strategy>> _iter = GetStrategies() PTR_DEREF Begin(); _iter.IsValid(); ++_iter) {
       Strategy *_strat = _iter.Value().Ptr();

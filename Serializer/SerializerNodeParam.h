@@ -158,7 +158,11 @@ class SerializerNodeParam {
    * Returns stringified version of the value. Note "forceQuotesOnString" flag.
    */
   string AsString(bool includeQuotes = false, bool forceQuotesOnString = true, bool escapeString = true,
-                  int _fp_precision = 8) {
+                  int _fp_precision = -1) {
+    if (_fp_precision == -1) {
+      _fp_precision = GetFloatingPointPrecision();
+    }
+
     switch (_type) {
       case SerializerNodeParamBool:
         return SerializerConversions::ValueToString(_integral._bool, includeQuotes, escapeString, _fp_precision);

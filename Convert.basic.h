@@ -176,4 +176,28 @@ class ConvertBasic {
     DoubleToType(_value, _out);
     return _out;
   }
+
+  template <typename T>
+  static T Convert(bool _value, T& _out) {
+    BoolToType(_value, _out);
+    return _out;
+  }
+
+  template <typename T>
+  static T Convert(int64 _value, T& _out) {
+    LongToType(_value, _out);
+    return _out;
+  }
+
+  template <typename T>
+  static T Convert(double _value, T& _out) {
+    DoubleToType(_value, _out);
+    return _out;
+  }
+
+  template <typename T>
+  static T Convert(CONST_REF_TO(string) _value, T& _out) {
+    StringToType(_value, _out);
+    return _out;
+  }
 };

@@ -93,7 +93,14 @@ class DictIteratorBase {
 
   K Key() {
     CheckValidity();
-    return PTR_ATTRIB(_dict, GetMode()) == DictModeList ? (K)_slotIdx : _dict PTR_DEREF GetSlot(_slotIdx) PTR_DEREF key;
+
+    if (PTR_ATTRIB(_dict, GetMode()) == DictModeList) {
+      K _key;
+      ConvertBasic::LongToType(_slotIdx, _key);
+      return _key;
+    }
+
+    return _dict PTR_DEREF GetSlot(_slotIdx) PTR_DEREF key;
   }
 
   string KeyAsString(bool includeQuotes = false) {

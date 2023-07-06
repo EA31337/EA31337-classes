@@ -156,7 +156,7 @@ struct TradeSignalEntry {
         strength = (float)_value;
         return;
       case TRADE_SIGNAL_PROP_TF:
-        tf = (ENUM_TIMEFRAMES)_value;
+        tf = (ENUM_TIMEFRAMES)(int)_value;
         return;
       case TRADE_SIGNAL_PROP_TIME:
         timestamp = (int64)_value;

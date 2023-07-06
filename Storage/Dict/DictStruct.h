@@ -444,7 +444,7 @@ class DictStruct : public DictBase<K, V> {
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i)
-        s.PassObject(this, THIS_ATTR GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
+        s.PassObject(THIS_REF, THIS_ATTR GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
 
       return (THIS_ATTR GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {

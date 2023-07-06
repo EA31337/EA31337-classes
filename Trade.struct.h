@@ -213,22 +213,22 @@ struct TradeParams {
   void Set(ENUM_TRADE_PARAM _param, T _value) {
     switch (_param) {
       case TRADE_PARAM_BARS_MIN:
-        bars_min = (unsigned short)_value;
+        ConvertBasic::Convert(_value, bars_min);
         return;
       case TRADE_PARAM_LOT_SIZE:
-        lot_size = (float)_value;
+        ConvertBasic::Convert(_value, lot_size);
         return;
       case TRADE_PARAM_MAGIC_NO:
-        magic_no = (uint64)_value;
+        ConvertBasic::Convert(_value, magic_no);
         return;
       case TRADE_PARAM_ORDER_COMMENT:
-        order_comment = SerializerConversions::ValueToString(_value);
+        ConvertBasic::Convert(SerializerConversions::ValueToString(_value), order_comment);
         return;
       case TRADE_PARAM_RISK_MARGIN:
-        risk_margin = (float)_value;
+        ConvertBasic::Convert(_value, risk_margin);
         return;
       case TRADE_PARAM_SLIPPAGE:
-        slippage = (unsigned int)_value;
+        ConvertBasic::Convert(_value, slippage);
         return;
       default:
         break;

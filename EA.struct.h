@@ -111,9 +111,11 @@ struct EAParams {
   // Getters.
   template <typename T>
   T Get(unsigned int _param) {
+    T _out;
     switch (_param) {
       case EA_PARAM_PROP_AUTHOR:
-        return (T)author;
+        ConvertBasic::StringToType(author, _out);
+        return _out;
       case EA_PARAM_PROP_CHART_INFO_FREQ:
         return (T)chart_info_freq;
       case EA_PARAM_PROP_DATA_EXPORT:
@@ -121,19 +123,23 @@ struct EAParams {
       case EA_PARAM_PROP_DATA_STORE:
         return (T)data_store;
       case EA_PARAM_PROP_DESC:
-        return (T)desc;
+        ConvertBasic::StringToType(desc, _out);
+        return _out;
       case EA_PARAM_PROP_LOG_LEVEL:
         return (T)log_level;
       case EA_PARAM_PROP_NAME:
-        return (T)name;
+        ConvertBasic::StringToType(name, _out);
+        return _out;
       case EA_PARAM_PROP_RISK_MARGIN_MAX:
         return (T)risk_margin_max;
       case EA_PARAM_PROP_SIGNAL_FILTER:
         return (T)signal_filter;
       case EA_PARAM_PROP_SYMBOL:
-        return (T)symbol;
+        ConvertBasic::StringToType(symbol, _out);
+        return _out;
       case EA_PARAM_PROP_VER:
-        return (T)ver;
+        ConvertBasic::StringToType(ver, _out);
+        return _out;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
@@ -145,7 +151,7 @@ struct EAParams {
         return (T)task_init;
     }
     SetUserError(ERR_INVALID_PARAMETER);
-    T _empty();
+    T _empty;
     return _empty;
   }
   // Setters.
