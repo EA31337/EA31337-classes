@@ -89,6 +89,8 @@ class Trade : public Taskable<DataParamEntry> {
    * Class copy constructor.
    */
   Trade(const Trade &_trade) {
+    // logger = _trade.GetLogger();
+    tasks = _trade.tasks;
     tparams = _trade.tparams;
     tstats = _trade.tstats;
     tstates = _trade.tstates;
@@ -682,6 +684,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
     }
     UpdateStates(_result);
+    if (logger.GetLevel() >= V_DEBUG) {
+      logger.Debug(_order.ToString(), __FUNCTION_LINE__, StringFormat("Code: %d", _last_error));
+    }
     return _result;
   }
 
