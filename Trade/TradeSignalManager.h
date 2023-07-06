@@ -45,8 +45,11 @@ class TradeSignalManager : Dynamic {
    */
   void Init() {
     signals_active.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
+    signals_active.SetOverflowListener(SignalOverflowCallback, 10);
     signals_expired.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
+    signals_expired.SetOverflowListener(SignalOverflowCallback, 10);
     signals_processed.AddFlags(DICT_FLAG_FILL_HOLES_UNSORTED);
+    signals_processed.SetOverflowListener(SignalOverflowCallback, 10);
   }
 
  public:
@@ -68,6 +71,15 @@ class TradeSignalManager : Dynamic {
   template <typename T>
   T Get(STRUCT_ENUM(TradeSignalManagerParams, ENUM_TSM_PARAMS_PROP) _prop) {
     return params.Get<T>(_prop);
+  }
+
+  /**
+   * Gets a cache ID based on the signal.
+   */
+  int GetCid(TradeSignal &_signal) {
+    return _signal.Get<int>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)) +
+           _signal.Get<int>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TF)) +
+           _signal.Get<int>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME));
   }
 
   /**
@@ -113,7 +125,7 @@ class TradeSignalManager : Dynamic {
    * Adds new signal.
    *
    */
-  void SignalAdd(TradeSignal &_signal) { signals_active.Push(_signal); }
+  void SignalAdd(TradeSignal &_signal) { signals_active.Set(GetCid(_signal), _signal); }
 
   /**
    * Refresh signals.
@@ -126,12 +138,12 @@ class TradeSignalManager : Dynamic {
       TradeSignal *_signal = iter.Value();
       if (_signal PTR_DEREF Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED))) {
         signals_active.Unset(iter);
-        signals_processed.Push(PTR_TO_REF(_signal));
+        signals_processed.Set(GetCid(_signal), PTR_TO_REF(_signal));
         continue;
       }
       if (_signal PTR_DEREF Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_EXPIRED))) {
         signals_active.Unset(iter);
-        signals_expired.Push(PTR_TO_REF(_signal));
+        signals_expired.Set(GetCid(_signal), PTR_TO_REF(_signal));
         continue;
       }
     }
@@ -152,6 +164,25 @@ class TradeSignalManager : Dynamic {
       Set<long>(TSM_PROP_LAST_CHECK, ::TimeGMT());
     }
     return _res;
+  }
+
+  /* Callback methods */
+
+  /**
+   * Function should return true if resize can be made, or false to overwrite current slot.
+   */
+  static bool SignalOverflowCallback(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
+    static int cache_limit = 100;
+    switch (_reason) {
+      case DICT_OVERFLOW_REASON_FULL:
+        // We allow resize if dictionary size is less than 86400 slots.
+        return _size < cache_limit;
+      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
+      default:
+        // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
+        break;
+    }
+    return false;
   }
 
   /* Serializers */
