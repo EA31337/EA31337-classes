@@ -35,7 +35,7 @@ bool TestSignalsExpired() {
   TradeSignalManager _tsm(_tsm_params);
   _result &= _tsm.Get<short>(TSM_PROP_FREQ) == 5;
   for (int i = 0; i < 10; i++) {
-    TradeSignalEntry _entry(i % 2 == 0 ? SIGNAL_OPEN_BUY_MAIN : SIGNAL_OPEN_SELL_MAIN);
+    TradeSignalEntry _entry(i % 2 == 0 ? SIGNAL_OPEN_BUY_MAIN : SIGNAL_OPEN_SELL_MAIN, PERIOD_CURRENT, i);
     TradeSignal _signal(_entry);
     _tsm.SignalAdd(_signal);
   }
@@ -59,7 +59,7 @@ bool TestSignalsProcessed() {
   bool _result = true;
   TradeSignalManager _tsm;
   for (int i = 0; i < 10; i++) {
-    TradeSignalEntry _entry(i % 2 == 0 ? SIGNAL_OPEN_BUY_MAIN : SIGNAL_OPEN_SELL_MAIN);
+    TradeSignalEntry _entry(i % 2 == 0 ? SIGNAL_OPEN_BUY_MAIN : SIGNAL_OPEN_SELL_MAIN, PERIOD_CURRENT, i);
     TradeSignal _signal(_entry);
     _tsm.SignalAdd(_signal);
   }

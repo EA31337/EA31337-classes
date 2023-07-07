@@ -80,7 +80,7 @@ class TradeSignalManager : Dynamic {
    *   _cid Cache ID.
    */
   TradeSignal *GetSignalByCid(int _cid) {
-    int _pos = 0;
+    unsigned int _pos = 0;
     if (signals_active.KeyExists(_cid, _pos)) {
       return signals_active.GetByPos(_pos);
     } else if (signals_processed.KeyExists(_cid, _pos)) {
@@ -166,12 +166,12 @@ class TradeSignalManager : Dynamic {
       TradeSignal *_signal = iter.Value();
       if (_signal PTR_DEREF Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED))) {
         signals_active.Unset(iter);
-        signals_processed.Set(GetCid(_signal), PTR_TO_REF(_signal));
+        signals_processed.Set(GetCid(PTR_TO_REF(_signal)), PTR_TO_REF(_signal));
         continue;
       }
       if (_signal PTR_DEREF Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_EXPIRED))) {
         signals_active.Unset(iter);
-        signals_expired.Set(GetCid(_signal), PTR_TO_REF(_signal));
+        signals_expired.Set(GetCid(PTR_TO_REF(_signal)), PTR_TO_REF(_signal));
         continue;
       }
     }

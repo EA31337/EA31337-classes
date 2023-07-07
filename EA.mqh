@@ -690,7 +690,7 @@ class EA : public Taskable<DataParamEntry> {
    * Returns signal open value after filtering.
    *
    * @return
-   *   Returns 1 when buy signal exists, -1 for sell, otherwise 0 for neutral signal.
+   *   Returns positive for buy signal, negative for sell, otherwise 0 for neutral signal.
    */
   float GetSignalOpenFiltered(TradeSignal &_signal, unsigned int _sf) {
     bool _res_sig = false;
@@ -705,13 +705,20 @@ class EA : public Taskable<DataParamEntry> {
               tsm.GetSignalByCid(_strat.Get<int>(STRAT_PARAM_ID), (int)_stf, (int)ChartStatic::iTime(_Symbol, _stf));
           TradeSignal *_hsignal1 =
               tsm.GetSignalByCid(_strat.Get<int>(STRAT_PARAM_ID), (int)_stf, (int)ChartStatic::iTime(_Symbol, _stf, 1));
-          // Increase signal by 20% if confirmed by hourly signal, otherwise decrease it by 20%.
-          if (_hsignal0 != NULL) {
-            _sig_open *= _hsignal0.GetSignalOpen() <= _sig_open || _sig_open >= _hsignal0.GetSignalOpen() ? 1.2f : 0.8f;
-          } else if (_hsignal1 != NULL) {
-            _sig_open *= _hsignal1.GetSignalOpen() <= _sig_open || _sig_open >= _hsignal1.GetSignalOpen() ? 1.2f : 0.8f;
+          // Increase signal by 50% if confirmed by hourly signal, otherwise decrease it by 20%.
+          if (_hsignal0 != NULL && _hsignal0.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
+            _sig_open *= ((_sig_open < 0) == (_hsignal0.GetSignalOpen() < 0) ||
+                          ((_sig_open > 0) == (_hsignal0.GetSignalOpen() > 0)))
+                             ? 1.5f
+                             : 0.8f;
+          } else if (_hsignal1 != NULL &&
+                     _hsignal1.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
+            _sig_open *= ((_sig_open < 0) == (_hsignal1.GetSignalOpen() < 0) ||
+                          ((_sig_open > 0) == (_hsignal1.GetSignalOpen() > 0)))
+                             ? 1.5f
+                             : 0.8f;
           } else {
-            // Decrease signal by 20% if no hourly signal is found.
+            // Decrease signal by 10% if no hourly signal is found.
             _sig_open *= 0.8f;
           }
         }
