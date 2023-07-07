@@ -74,6 +74,34 @@ class TradeSignalManager : Dynamic {
   }
 
   /**
+   * Gets a signal struct based on cache ID value.
+   *
+   * @param
+   *   _cid Cache ID.
+   */
+  TradeSignal *GetSignalByCid(int _cid) {
+    int _pos = 0;
+    if (signals_active.KeyExists(_cid, _pos)) {
+      return signals_active.GetByPos(_pos);
+    } else if (signals_processed.KeyExists(_cid, _pos)) {
+      return signals_processed.GetByPos(_pos);
+    }
+    return NULL;
+  }
+
+  /**
+   * Checks if signal exists based on provided values.
+   *
+   * @param
+   *   _magic_no Magic Number.
+   *   _tf Timeframe value.
+   *   _timestamp Timestamp.
+   */
+  TradeSignal *GetSignalByCid(int _magic_no, int _tf, int _timestamp) {
+    return GetSignalByCid(_magic_no + _tf + _timestamp);
+  }
+
+  /**
    * Gets a cache ID based on the signal.
    */
   int GetCid(TradeSignal &_signal) {
@@ -151,24 +179,6 @@ class TradeSignalManager : Dynamic {
   }
 
   /* State methods */
-
-  /**
-   * Checks if signal exists based on cache ID value.
-   *
-   * @param
-   *   _cid Cache ID.
-   */
-  bool Exists(int _cid) { return signals_active.KeyExists(_cid) || signals_processed.KeyExists(_cid); }
-
-  /**
-   * Checks if signal exists based on provided values.
-   *
-   * @param
-   *   _magic_no Magic Number.
-   *   _tf Timeframe value.
-   *   _timestamp Timestamp.
-   */
-  bool Exists(int _magic_no, int _tf, int _timestamp) { return Exists(_magic_no + _tf + _timestamp); }
 
   /**
    * Checks if signal manager is ready for signal processing based on the frequency param.

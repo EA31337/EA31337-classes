@@ -314,6 +314,8 @@ class EA : public Taskable<DataParamEntry> {
                 _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
                 break;
               }
+            } else {
+              // Signal filtered.
             }
           }
           if (_sig_open <= -0.5f) {
@@ -327,6 +329,8 @@ class EA : public Taskable<DataParamEntry> {
                 _signal.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED), true);
                 break;
               }
+            } else {
+              // Signal filtered.
             }
           }
         }
@@ -689,18 +693,31 @@ class EA : public Taskable<DataParamEntry> {
    *   Returns 1 when buy signal exists, -1 for sell, otherwise 0 for neutral signal.
    */
   float GetSignalOpenFiltered(TradeSignal &_signal, unsigned int _sf) {
-    bool _result2 = false;
-    float _result = _signal.GetSignalOpen();
+    bool _res_sig = false;
+    float _sig_open = _signal.GetSignalOpen();
     ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TF));
     if (ChartTf::TfToHours(_sig_tf) < 1 && bool(_sf & STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_IF_H))) {
-      Strategy *_strat_h1 = GetStrategyViaProp<int>(STRAT_PARAM_TF, PERIOD_H1);
-      Strategy *_strat_h4 = GetStrategyViaProp<int>(STRAT_PARAM_TF, PERIOD_H4);
-      _result2 |= tsm.Exists(_strat_h1.Get<int>(STRAT_PARAM_ID), (int) PERIOD_H1, (int) ChartStatic::iTime(_Symbol, PERIOD_H1));
-      _result2 |= tsm.Exists(_strat_h1.Get<int>(STRAT_PARAM_ID), (int) PERIOD_H1, (int) ChartStatic::iTime(_Symbol, PERIOD_H1, 1));
-      _result2 |= tsm.Exists(_strat_h4.Get<int>(STRAT_PARAM_ID), (int) PERIOD_H4, (int) ChartStatic::iTime(_Symbol, PERIOD_H4));
-      _result2 |= tsm.Exists(_strat_h4.Get<int>(STRAT_PARAM_ID), (int) PERIOD_H4, (int) ChartStatic::iTime(_Symbol, PERIOD_H4, 1));
+      for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategies().Begin(); _iter.IsValid(); ++_iter) {
+        Strategy *_strat = _iter.Value().Ptr();
+        ENUM_TIMEFRAMES _stf = _strat.Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
+        if (ChartTf::TfToHours(_stf) >= 1) {
+          TradeSignal *_hsignal0 =
+              tsm.GetSignalByCid(_strat.Get<int>(STRAT_PARAM_ID), (int)_stf, (int)ChartStatic::iTime(_Symbol, _stf));
+          TradeSignal *_hsignal1 =
+              tsm.GetSignalByCid(_strat.Get<int>(STRAT_PARAM_ID), (int)_stf, (int)ChartStatic::iTime(_Symbol, _stf, 1));
+          // Increase signal by 20% if confirmed by hourly signal, otherwise decrease it by 20%.
+          if (_hsignal0 != NULL) {
+            _sig_open *= _hsignal0.GetSignalOpen() <= _sig_open || _sig_open >= _hsignal0.GetSignalOpen() ? 1.2f : 0.8f;
+          } else if (_hsignal1 != NULL) {
+            _sig_open *= _hsignal1.GetSignalOpen() <= _sig_open || _sig_open >= _hsignal1.GetSignalOpen() ? 1.2f : 0.8f;
+          } else {
+            // Decrease signal by 20% if no hourly signal is found.
+            _sig_open *= 0.8f;
+          }
+        }
+      }
     }
-    return _result;
+    return _sig_open;
   }
 
   /* Strategy methods */
@@ -829,9 +846,8 @@ class EA : public Taskable<DataParamEntry> {
             _result &= _order.OrderModify(_sl_new, _tp_new);
             if (_result) {
               _order.Set(ORDER_PROP_TIME_LAST_UPDATE, TimeCurrent());
-            }
-            else {
-               _trade.UpdateStates(true);
+            } else {
+              _trade.UpdateStates(true);
             }
           }
         }
