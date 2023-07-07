@@ -143,3 +143,21 @@ enum ENUM_TRADE_STATE {
   TRADE_STATE_TRADE_CAN = ~TRADE_STATE_TRADE_CANNOT,
   FINAL_ENUM_TRADE_STATE,
 };
+
+#ifndef __MQL__
+// Defines enumeration for trade transaction types.
+// @docs: https://www.mql5.com/en/docs/constants/tradingconstants/enum_trade_transaction_type
+enum ENUM_TRADE_TRANSACTION_TYPE {
+  TRADE_TRANSACTION_ORDER_ADD,       // Adding a new active order
+  TRADE_TRANSACTION_ORDER_UPDATE,    // Changing an existing order
+  TRADE_TRANSACTION_ORDER_DELETE,    // Deleting an order from the list of active ones
+  TRADE_TRANSACTION_DEAL_ADD,        // Adding a deal to history
+  TRADE_TRANSACTION_DEAL_UPDATE,     // Changing a deal in history
+  TRADE_TRANSACTION_DEAL_DELETE,     // Deleting a deal from history
+  TRADE_TRANSACTION_HISTORY_ADD,     // Adding an order to history as a result of execution or cancellation
+  TRADE_TRANSACTION_HISTORY_UPDATE,  // Changing an order in the order history
+  TRADE_TRANSACTION_HISTORY_DELETE,  // Deleting an order from the order history
+  TRADE_TRANSACTION_POSITION,        // Position change not related to a trade execution
+  TRADE_TRANSACTION_REQUEST          // Notification that a trade request has been processed by the server
+};
+#endif
