@@ -306,7 +306,7 @@ class EA : public Taskable<DataParamEntry> {
           if (_sig_open >= 0.5f) {
             // Open signal for buy.
             // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-            if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
+            if (GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
               _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
               // Buy order open.
               _result_local &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
@@ -319,7 +319,7 @@ class EA : public Taskable<DataParamEntry> {
           if (_sig_open <= -0.5f) {
             // Open signal for sell.
             // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-            if (_sig_f == 0) {  // @fixme: || GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
+            if (GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
               _strat.Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
               // Sell order open.
               _result_local &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
@@ -688,34 +688,20 @@ class EA : public Taskable<DataParamEntry> {
    * @return
    *   Returns 1 when buy signal exists, -1 for sell, otherwise 0 for neutral signal.
    */
-  /* @fixme: Convert into TradeSignal format.
-  float GetSignalOpenFiltered(StrategySignal &_signal, unsigned int _sf) {
+  float GetSignalOpenFiltered(TradeSignal &_signal, unsigned int _sf) {
+    bool _result2 = false;
     float _result = _signal.GetSignalOpen();
-    ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
+    ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TF));
     if (ChartTf::TfToHours(_sig_tf) < 1 && bool(_sf & STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_IF_H))) {
-      _result = 0;
-      long _tfts[4];
-      _tfts[0] = ChartStatic::iTime(_Symbol, PERIOD_H1);
-      _tfts[1] = ChartStatic::iTime(_Symbol, PERIOD_H4);
-      _tfts[2] = ChartStatic::iTime(_Symbol, PERIOD_H1, 1);
-      _tfts[3] = ChartStatic::iTime(_Symbol, PERIOD_H4, 1);
-      for (int i = 0; i < ArraySize(_tfts); i++) {
-        DictStruct<short, StrategySignal> _ds = strat_signals.GetByKey(_tfts[i]);
-        for (DictStructIterator<short, StrategySignal> _dsi = _ds.Begin(); _dsi.IsValid(); ++_dsi) {
-          StrategySignal _dsss = _dsi.Value();
-          ENUM_TIMEFRAMES _dsss_tf = _dsss.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
-          if (ChartTf::TfToHours(_dsss_tf) >= 1) {
-            _result = _dsss.GetSignalOpen();
-            if (_result != 0) {
-              return _result;
-            }
-          }
-        }
-      }
+      Strategy *_strat_h1 = GetStrategyViaProp<int>(STRAT_PARAM_TF, PERIOD_H1);
+      Strategy *_strat_h4 = GetStrategyViaProp<int>(STRAT_PARAM_TF, PERIOD_H4);
+      _result2 |= tsm.Exists(_strat_h1.Get<int>(STRAT_PARAM_ID), (int) PERIOD_H1, (int) ChartStatic::iTime(_Symbol, PERIOD_H1));
+      _result2 |= tsm.Exists(_strat_h1.Get<int>(STRAT_PARAM_ID), (int) PERIOD_H1, (int) ChartStatic::iTime(_Symbol, PERIOD_H1, 1));
+      _result2 |= tsm.Exists(_strat_h4.Get<int>(STRAT_PARAM_ID), (int) PERIOD_H4, (int) ChartStatic::iTime(_Symbol, PERIOD_H4));
+      _result2 |= tsm.Exists(_strat_h4.Get<int>(STRAT_PARAM_ID), (int) PERIOD_H4, (int) ChartStatic::iTime(_Symbol, PERIOD_H4, 1));
     }
     return _result;
   }
-  */
 
   /* Strategy methods */
 
