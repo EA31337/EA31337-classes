@@ -153,6 +153,24 @@ class TradeSignalManager : Dynamic {
   /* State methods */
 
   /**
+   * Checks if signal exists based on cache ID value.
+   *
+   * @param
+   *   _cid Cache ID.
+   */
+  bool Exists(int _cid) { return signals_active.KeyExists(_cid) || signals_processed.KeyExists(_cid); }
+
+  /**
+   * Checks if signal exists based on provided values.
+   *
+   * @param
+   *   _magic_no Magic Number.
+   *   _tf Timeframe value.
+   *   _timestamp Timestamp.
+   */
+  bool Exists(int _magic_no, int _tf, int _timestamp) { return Exists(_magic_no + _tf + _timestamp); }
+
+  /**
    * Checks if signal manager is ready for signal processing based on the frequency param.
    *
    * @param
