@@ -227,25 +227,74 @@ struct DateTimeStatic {
   }
 };
 
-struct DateTimeEntry : MqlDateTime {
+struct DateTimeEntry : public MqlDateTime {
   int week_of_year;
   // Struct constructors.
   DateTimeEntry() { Set(); }
   DateTimeEntry(datetime _dt) { Set(_dt); }
+  DateTimeEntry(int _year, int _mon, int _day, int _hour = 0, int _min = 0, int _sec = 0) {
+    year = _year;
+    mon = _mon;
+    day = _day;
+    hour = _hour;
+    min = _min;
+    sec = _sec;
+    day_of_week = GetDayOfWeek(true);
+    day_of_year = GetDayOfYear(true);
+    week_of_year = GetWeekOfYear(true);
+  }
   DateTimeEntry(MqlDateTime& _dt) {
     Set(_dt);
+    // In MqlDateTime, 1st Jan is assigned the number value of zero.
+    day_of_year = day_of_year + 1;
 #ifndef __MQL__
     throw NotImplementedException();
 #endif
   }
   // Getters.
   int GetDayOfMonth() { return day; }
-  int GetDayOfWeek() {
+  int GetDayOfWeek(bool _recalc = true) {
     // Returns the zero-based day of week.
     // (0-Sunday, 1-Monday, ... , 6-Saturday).
+    if (!_recalc) {
+      return day_of_week;
+    }
+    // Calculates day of the week using the Tomohiko Sakamoto Algorithm.
+    // @see: https://iq.opengenus.org/tomohiko-sakamoto-algorithm/
+    // @see: https://stackoverflow.com/a/64923433/55075
+    int _days[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+    int _year = mon < 3 ? year - 1 : year;
+    day_of_week = (_year + _year / 4 - _year / 100 + _year / 400 + _days[mon - 1] + day) % 7;
     return day_of_week;
   }
-  int GetDayOfYear() { return day_of_year + 1; }  // Zero-based day of year (1st Jan = 0).
+  // Gets day of the year.
+  int GetDayOfYear(bool _recalc = false) {
+    if (!_recalc) {
+      return day_of_year;
+    }
+    int _days_to_month[2][12] = {
+        {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334},
+        {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335},
+    };
+    // @see: https://stackoverflow.com/a/19111202/55075
+    day_of_year = _days_to_month[IsLeapYear() ? 1 : 0][mon] + day;
+    return day_of_year;
+  }
+  // Calculates the week of the year based on the day of the year.
+  // @see: https://stackoverflow.com/a/274913/55075
+  int GetWeekOfYear(bool _recalc = false) {
+    if (!_recalc) {
+      return week_of_year;
+    }
+    int doy = GetDayOfYear();
+    int dow = GetDayOfWeek();
+    DateTimeEntry _dte(year, 1, 1);
+    int dow1j = _dte.GetWeekOfYear();
+    week_of_year = (doy + 6) / 7;
+    // Adjust for being after Saturday of 1st week.
+    week_of_year = dow < dow1j ? week_of_year + 1 : week_of_year;
+    return week_of_year;
+  }
   int GetHour() { return hour; }
   int GetMinute() { return min; }
   int GetMonth() { return mon; }
@@ -285,6 +334,7 @@ struct DateTimeEntry : MqlDateTime {
   }
   int GetYear() { return year; }
   datetime GetTimestamp() { return StructToTime(THIS_REF); }
+  bool IsLeapYear() { return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0); }
   // Setters.
   void Set() {
     TimeToStruct(::TimeCurrent(), THIS_REF);
