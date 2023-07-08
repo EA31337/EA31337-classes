@@ -239,9 +239,7 @@ struct DateTimeEntry : public MqlDateTime {
     hour = _hour;
     min = _min;
     sec = _sec;
-    day_of_week = GetDayOfWeek(true);
-    day_of_year = GetDayOfYear(true);
-    week_of_year = GetWeekOfYear(true);
+    Recalculate();
   }
   DateTimeEntry(MqlDateTime& _dt) {
     Set(_dt);
@@ -286,10 +284,13 @@ struct DateTimeEntry : public MqlDateTime {
     if (!_recalc) {
       return week_of_year;
     }
+    if (day == 1 && mon == 1) {
+      return 1;
+    }
     int doy = GetDayOfYear();
     int dow = GetDayOfWeek();
     DateTimeEntry _dte(year, 1, 1);
-    int dow1j = _dte.GetWeekOfYear();
+    int dow1j = _dte.GetDayOfWeek();
     week_of_year = (doy + 6) / 7;
     // Adjust for being after Saturday of 1st week.
     week_of_year = dow < dow1j ? week_of_year + 1 : week_of_year;
@@ -329,30 +330,38 @@ struct DateTimeEntry : public MqlDateTime {
       return GetDayOfMonth();
     } else if ((_unit & (DATETIME_DAY | DATETIME_YEAR)) != 0) {
       return GetDayOfYear();
+    } else if ((_unit & (DATETIME_WEEK | DATETIME_YEAR)) != 0) {
+      return GetWeekOfYear();
     }
     return GetValue((ENUM_DATETIME_UNIT)_unit);
   }
   int GetYear() { return year; }
   datetime GetTimestamp() { return StructToTime(THIS_REF); }
   bool IsLeapYear() { return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0); }
+  // Recalculate
+  void Recalculate() {
+    day_of_week = GetDayOfWeek(true);
+    day_of_year = GetDayOfYear(true);
+    week_of_year = GetWeekOfYear(true);
+  }
   // Setters.
   void Set() {
     TimeToStruct(::TimeCurrent(), THIS_REF);
-    // @fixit Should also set day of week.
+    Recalculate();
   }
   void SetGMT() {
     TimeToStruct(::TimeGMT(), THIS_REF);
-    // @fixit Should also set day of week.
+    Recalculate();
   }
   // Set date and time.
   void Set(datetime _time) {
     TimeToStruct(_time, THIS_REF);
-    // @fixit Should also set day of week.
+    Recalculate();
   }
   // Set date and time.
   void Set(MqlDateTime& _time) {
     THIS_REF = _time;
-    // @fixit Should also set day of week.
+    Recalculate();
   }
   void SetDayOfMonth(int _value) {
     day = _value;
