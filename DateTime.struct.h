@@ -275,7 +275,7 @@ struct DateTimeEntry : public MqlDateTime {
         {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335},
     };
     // @see: https://stackoverflow.com/a/19111202/55075
-    day_of_year = _days_to_month[IsLeapYear() ? 1 : 0][mon] + day;
+    day_of_year = _days_to_month[IsLeapYear() ? 1 : 0][mon - 1] + day;
     return day_of_year;
   }
   // Calculates the week of the year based on the day of the year.
