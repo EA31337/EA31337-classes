@@ -450,6 +450,26 @@ struct OrderData {
     return Get<T>((ENUM_ORDER_PROPERTY_INTEGER)_prop_name);
   }
   */
+  /*
+   * Gets a final comment for closing the order.
+   *
+   * @param
+   *   _type ENUM_ORDER_TYPE Order operation type of the order.
+   *
+   * @return
+   *   Returns a comment with reason
+   */
+  string GetCloseComment() {
+    string _result = StringFormat("%s (magic=%d,profit=%d)", GetReasonCloseText(), magic, Get<int>(ORDER_PROP_PROFIT_PIPS));
+    return _result;
+  }
+
+  /*
+   * Gets a comment with reason to close the order based on enum value.
+   *
+   * @return
+   *   Returns a comment with reason.
+   */
   string GetReasonCloseText() {
     switch (reason_close) {
       case ORDER_REASON_CLOSED_ALL:

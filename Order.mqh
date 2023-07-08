@@ -921,10 +921,11 @@ class Order : public SymbolInfo {
         return false;
       }
     }
+    Refresh(ORDER_PRICE_CURRENT);
     MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_DEAL;
-    _request.comment = _comment != "" ? _comment : odata.GetReasonCloseText();
+    _request.comment = _comment != "" ? _comment : odata.GetCloseComment();
     _request.deviation = orequest.deviation;
     _request.symbol = orequest.symbol;
     _request.type = NegateOrderType(orequest.type);
@@ -2149,7 +2150,7 @@ class Order : public SymbolInfo {
         _result = ::OrderTakeProfit();
         break;
       case ORDER_PRICE_CURRENT:
-        _result = SymbolInfoStatic::GetBid(Order::OrderSymbol());
+        _result = SymbolInfo::GetCloseOffer(::OrderType());
         break;
       case ORDER_PRICE_STOPLIMIT:
         SetUserError(ERR_INVALID_PARAMETER);
