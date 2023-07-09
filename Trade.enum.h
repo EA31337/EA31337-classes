@@ -59,6 +59,7 @@ enum ENUM_TRADE_CONDITION {
   TRADE_COND_IS_ORDER_LIMIT,         // Trade has reached order limits
   TRADE_COND_IS_PEAK,                // Market is at peak level
   TRADE_COND_IS_PIVOT,               // Market is in pivot levels
+  TRADE_COND_ORDERS_PROFIT_DBL_LOSS, // Orders' profit doubles losses
   TRADE_COND_ORDERS_PROFIT_GT_01PC,  // Equity > 1%
   TRADE_COND_ORDERS_PROFIT_LT_01PC,  // Equity < 1%
   TRADE_COND_ORDERS_PROFIT_GT_02PC,  // Equity > 2%

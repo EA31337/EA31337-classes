@@ -1808,6 +1808,20 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                       _order_types2, ORDER_PROP_PROFIT, ORDER_TYPE);
           return IsPivot(_order_type_profitable2);
         }
+      case TRADE_COND_ORDERS_PROFIT_DBL_LOSS:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 1) {
+          float _profit_buys =
+              _oquery_ref.Ptr()
+                  .CalcSumByPropWithCond<ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, ENUM_ORDER_TYPE,
+                                         float>(ORDER_PROP_PROFIT_PIPS, ORDER_TYPE, ORDER_TYPE_BUY);
+          float _profit_sells =
+              _oquery_ref.Ptr()
+                  .CalcSumByPropWithCond<ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, ENUM_ORDER_TYPE,
+                                         float>(ORDER_PROP_PROFIT_PIPS, ORDER_TYPE, ORDER_TYPE_SELL);
+          return (((_profit_buys > 1) && (_profit_sells < -1) && (_profit_buys > -(_profit_sells * 2))) ||
+                  ((_profit_sells > 1) && (_profit_buys < -1) && (_profit_sells > -(_profit_buys * 2))));
+        }
+        break;
       case TRADE_COND_ORDERS_PROFIT_GT_01PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           return CalcActiveEquityInPct() >= 1;
