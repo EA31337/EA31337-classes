@@ -217,6 +217,17 @@ struct EAProcessResult {
     ResetLastError();
     last_error = ERR_NO_ERROR;
   }
+  // Serializers.
+  SERIALIZER_EMPTY_STUB;
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.Pass(THIS_REF, "last_error", last_error);
+    _s.Pass(THIS_REF, "stg_errored", stg_errored);
+    _s.Pass(THIS_REF, "stg_processed", stg_processed);
+    _s.Pass(THIS_REF, "stg_processed_periods", stg_processed_periods);
+    _s.Pass(THIS_REF, "stg_suspended", stg_suspended);
+    _s.Pass(THIS_REF, "tasks_processed", tasks_processed);
+    return SerializerNodeObject;
+  }
   string ToString() { return StringFormat("%d", last_error); }
 };
 
