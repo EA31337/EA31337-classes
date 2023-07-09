@@ -77,9 +77,7 @@ class Trade : public Taskable<DataParamEntry> {
   /**
    * Class constructor.
    */
-  Trade() : order_last(NULL) {
-   Init();
-  };
+  Trade() : order_last(NULL) { Init(); };
   Trade(TradeParams &_tparams, ChartParams &_cparams)
       : chart(new Chart(_cparams)), tparams(_tparams), order_last(NULL) {
     Init();
@@ -1793,9 +1791,23 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_COND_IS_ORDER_LIMIT:
         return tparams.IsLimitGe(tstats);
       case TRADE_COND_IS_PEAK:
-        return IsPeak(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>());
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
+          ENUM_ORDER_TYPE _order_types1[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ENUM_ORDER_TYPE _order_type_profitable1 =
+              _oquery_ref.Ptr()
+                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+                      _order_types1, ORDER_PROP_PROFIT, ORDER_TYPE);
+          return IsPeak(_order_type_profitable1);
+        }
       case TRADE_COND_IS_PIVOT:
-        return IsPivot(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>());
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
+          ENUM_ORDER_TYPE _order_types2[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ENUM_ORDER_TYPE _order_type_profitable2 =
+              _oquery_ref.Ptr()
+                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+                      _order_types2, ORDER_PROP_PROFIT, ORDER_TYPE);
+          return IsPivot(_order_type_profitable2);
+        }
       case TRADE_COND_ORDERS_PROFIT_GT_01PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           return CalcActiveEquityInPct() >= 1;
