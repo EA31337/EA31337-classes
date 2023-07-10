@@ -1822,6 +1822,26 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                   ((_profit_sells > 1) && (_profit_buys < -1) && (_profit_sells > -(_profit_buys * 2))));
         }
         break;
+      case TRADE_COND_ORDERS_IN_TREND:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          ENUM_ORDER_TYPE _order_types3[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ENUM_ORDER_TYPE _order_type_profit1 =
+              _oquery_ref.Ptr()
+                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+                      _order_types3, ORDER_PROP_PROFIT, ORDER_TYPE);
+          return _order_type_profit1 == GetTrendOp(18, PERIOD_D1);
+        }
+        break;
+      case TRADE_COND_ORDERS_IN_TREND_NOT:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          ENUM_ORDER_TYPE _order_types4[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ENUM_ORDER_TYPE _order_type_profit2 =
+              _oquery_ref.Ptr()
+                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+                      _order_types4, ORDER_PROP_PROFIT, ORDER_TYPE);
+          return _order_type_profit2 != GetTrendOp(18, PERIOD_D1);
+        }
+        break;
       case TRADE_COND_ORDERS_PROFIT_GT_01PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           return CalcActiveEquityInPct() >= 1;
@@ -1882,8 +1902,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           return CalcActiveEquityInPct() <= tparams.Get<float>(TRADE_PARAM_RISK_MARGIN);
         }
         break;
-      // case TRADE_ORDER_CONDS_IN_TREND:
-      // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
         GetLogger().Error(StringFormat("Invalid Trade condition: %d!", _entry.GetId(), __FUNCTION_LINE__));
         SetUserError(ERR_INVALID_PARAMETER);
@@ -1973,13 +1991,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result = OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          _result = OrdersCloseViaCmd(GetTrendOp(18, PERIOD_D1), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
         break;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result = OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          _result =
+              OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(18, PERIOD_D1)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
         break;
