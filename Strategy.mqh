@@ -863,12 +863,14 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd, _method / 64);  // 1
-      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                           // 2
-      if (METHOD(_method, 2)) _result &= trade.IsPivot(_cmd, _method / 64);       // 4
-      if (METHOD(_method, 3)) _result &= !trade.HasOrderOppositeType(_cmd);       // 8
-      if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd, _method / 64);        // 16
-      if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);             // 32
+      int _shift = _method / 64;
+      if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd, _shift);     // 1
+      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                        // 2
+      if (METHOD(_method, 2)) _result &= trade.IsPivot(_cmd, _shift);          // 4
+      if (METHOD(_method, 3)) _result &= !trade.HasOrderOppositeType(_cmd);    // 8
+      if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd, _shift);           // 16
+      if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);          // 32
+      if (METHOD(_method, 6)) _result &= trade.CalcActiveProfitInValue() < 0;  // 64
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
@@ -928,6 +930,7 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     float _result = 1.0f;
     if (_method != 0) {
+      int _shift = _method / 64;
       ENUM_TIMEFRAMES _stf = Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
       if (METHOD(_method, 0))
         if (IsTrend(_cmd)) _result *= 1.1f;
@@ -936,13 +939,13 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 2))
         if (!trade.HasOrderBetter(_cmd)) _result *= 1.1f;
       if (METHOD(_method, 3))
-        if (trade.IsPeak(_cmd, _method / 64)) _result *= 1.1f;
+        if (trade.IsPeak(_cmd, _shift)) _result *= 1.1f;
       if (METHOD(_method, 4))
-        if (trade.IsPivot(_cmd, _method / 64)) _result *= 1.1f;
+        if (trade.IsPivot(_cmd, _shift)) _result *= 1.1f;
       if (METHOD(_method, 5))
         if (trade.HasOrderOppositeType(_cmd)) _result *= 1.1f;
       if (METHOD(_method, 6))
-        if (trade.HasBarOrder(_cmd, _method / 64)) _result *= 1.1f;
+        if (trade.HasBarOrder(_cmd, _shift)) _result *= 1.1f;
       // if (METHOD(_method, 7)) if (trade.IsRoundNumber(_cmd)) _result *= 1.1f;
       // if (METHOD(_method, 8)) if (trade.IsHedging(_cmd)) _result *= 1.1f;
       // if (METHOD(_method, 9)) if (trade.IsPeakBar(_cmd)) _result *= 1.1f;
@@ -978,13 +981,14 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0, int _shift = 0) {
     bool _result = _method == 0;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result |= _result || !trade.HasBarOrder(_cmd, _method / 64);  // 1
-      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                          // 2
-      if (METHOD(_method, 2)) _result |= _result || !trade.IsPivot(_cmd, _method / 64);      // 4
+      if (METHOD(_method, 0)) _result |= _result || !trade.HasBarOrder(_cmd, _shift);  // 1
+      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                    // 2
+      if (METHOD(_method, 2)) _result |= _result || !trade.IsPivot(_cmd, _shift);      // 4
       if (METHOD(_method, 3))
         _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
-      if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd, _method / 64);             // 16
+      if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd, _shift);                   // 16
       if (METHOD(_method, 5)) _result |= _result || trade.HasOrderBetter(_cmd);                   // 32
+      if (METHOD(_method, 6)) _result |= _result || trade.CalcActiveProfitInValue() > 0;          // 64
       // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
