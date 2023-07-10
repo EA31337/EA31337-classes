@@ -1862,6 +1862,26 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           return CalcActiveEquityInPct() <= -10;
         }
         break;
+      case TRADE_COND_ORDERS_PROFIT_GT_ARG:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          return CalcActiveEquityInPct() >= _entry.GetArg(0).ToValue<float>();
+        }
+        break;
+      case TRADE_COND_ORDERS_PROFIT_LT_ARG:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          return CalcActiveEquityInPct() <= _entry.GetArg(0).ToValue<float>();
+        }
+        break;
+      case TRADE_COND_ORDERS_PROFIT_GT_RISK_MARGIN:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          return CalcActiveEquityInPct() >= tparams.Get<float>(TRADE_PARAM_RISK_MARGIN);
+        }
+        break;
+      case TRADE_COND_ORDERS_PROFIT_LT_RISK_MARGIN:
+        if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+          return CalcActiveEquityInPct() <= tparams.Get<float>(TRADE_PARAM_RISK_MARGIN);
+        }
+        break;
       // case TRADE_ORDER_CONDS_IN_TREND:
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:

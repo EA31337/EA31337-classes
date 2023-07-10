@@ -60,14 +60,18 @@ enum ENUM_TRADE_CONDITION {
   TRADE_COND_IS_PEAK,                // Market is at peak level
   TRADE_COND_IS_PIVOT,               // Market is in pivot levels
   TRADE_COND_ORDERS_PROFIT_DBL_LOSS, // Orders' profit doubles losses
-  TRADE_COND_ORDERS_PROFIT_GT_01PC,  // Equity > 1%
-  TRADE_COND_ORDERS_PROFIT_LT_01PC,  // Equity < 1%
-  TRADE_COND_ORDERS_PROFIT_GT_02PC,  // Equity > 2%
-  TRADE_COND_ORDERS_PROFIT_LT_02PC,  // Equity < 2%
-  TRADE_COND_ORDERS_PROFIT_GT_05PC,  // Equity > 5%
-  TRADE_COND_ORDERS_PROFIT_LT_05PC,  // Equity < 5%
-  TRADE_COND_ORDERS_PROFIT_GT_10PC,  // Equity > 10%
-  TRADE_COND_ORDERS_PROFIT_LT_10PC,  // Equity < 10%
+  TRADE_COND_ORDERS_PROFIT_GT_01PC,  // Equity >= 1%
+  TRADE_COND_ORDERS_PROFIT_LT_01PC,  // Equity <= 1%
+  TRADE_COND_ORDERS_PROFIT_GT_02PC,  // Equity >= 2%
+  TRADE_COND_ORDERS_PROFIT_LT_02PC,  // Equity <= 2%
+  TRADE_COND_ORDERS_PROFIT_GT_05PC,  // Equity >= 5%
+  TRADE_COND_ORDERS_PROFIT_LT_05PC,  // Equity <= 5%
+  TRADE_COND_ORDERS_PROFIT_GT_10PC,  // Equity >= 10%
+  TRADE_COND_ORDERS_PROFIT_LT_10PC,  // Equity <= 10%
+  TRADE_COND_ORDERS_PROFIT_GT_ARG,   // Equity <= (arg)
+  TRADE_COND_ORDERS_PROFIT_LT_ARG,   // Equity >= (arg)
+  TRADE_COND_ORDERS_PROFIT_GT_RISK_MARGIN, // Equity >= Risk Margin
+  TRADE_COND_ORDERS_PROFIT_LT_RISK_MARGIN, // Equity <= Risk Margin
   // TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
   // TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
   FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
