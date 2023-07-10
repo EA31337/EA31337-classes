@@ -935,7 +935,7 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 0))
         if (IsTrend(_cmd)) _result *= 1.1f;
       if (METHOD(_method, 1))
-        if (trade.GetTrendOp(_cmd, _stf)) _result *= 1.1f;
+        if (trade.GetTrendOp(18, _stf)) _result *= 1.1f;
       if (METHOD(_method, 2))
         if (!trade.HasOrderBetter(_cmd)) _result *= 1.1f;
       if (METHOD(_method, 3))
