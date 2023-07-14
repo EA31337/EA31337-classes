@@ -853,7 +853,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   int OrdersCloseAll(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_ALL, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
-    _comment = _comment != "" ? _comment : __FUNCTION__;
+    _comment = _comment != "" ? _comment : "TOCA:";
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen(true)) {
@@ -883,7 +883,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                         string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
-    _comment = _comment != "" ? _comment : __FUNCTION__;
+    _comment = _comment != "" ? _comment : "TOCVC:";
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen(true)) {
@@ -921,7 +921,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                          ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
-    _comment = _comment != "" ? _comment : __FUNCTION__;
+    _comment = _comment != "" ? _comment : "TOCVP:";
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen(true)) {
@@ -957,7 +957,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                           ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
-    _comment = _comment != "" ? _comment : __FUNCTION__;
+    _comment = _comment != "" ? _comment : "TOCVP2:";
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen(true)) {

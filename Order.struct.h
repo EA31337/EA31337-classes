@@ -450,30 +450,50 @@ struct OrderData {
     return Get<T>((ENUM_ORDER_PROPERTY_INTEGER)_prop_name);
   }
   */
+  /*
+   * Gets a final comment for closing the order.
+   *
+   * @param
+   *   _type ENUM_ORDER_TYPE Order operation type of the order.
+   *
+   * @return
+   *   Returns a comment with reason
+   */
+  string GetCloseComment() {
+    string _result = StringFormat("%s (MN=%d,pips=%d)", GetReasonCloseText(), magic, Get<int>(ORDER_PROP_PROFIT_PIPS));
+    return _result;
+  }
+
+  /*
+   * Gets a comment with reason to close the order based on enum value.
+   *
+   * @return
+   *   Returns a comment with reason.
+   */
   string GetReasonCloseText() {
     switch (reason_close) {
       case ORDER_REASON_CLOSED_ALL:
-        return "Closed all";
+        return "CALL";
       case ORDER_REASON_CLOSED_BY_ACTION:
-        return "Closed by action";
+        return "CBA";
       case ORDER_REASON_CLOSED_BY_EXPIRE:
-        return "Expired";
+        return "EXP";
       case ORDER_REASON_CLOSED_BY_OPPOSITE:
-        return "Closed by opposite trade";
+        return "CBOPP";
       case ORDER_REASON_CLOSED_BY_SIGNAL:
-        return "Closed by signal";
+        return "CBSIG";
       case ORDER_REASON_CLOSED_BY_SL:
-        return "Closed by stop loss";
+        return "CBSL";
       case ORDER_REASON_CLOSED_BY_TEST:
-        return "Closed by test";
+        return "CBTEST";
       case ORDER_REASON_CLOSED_BY_TP:
-        return "Closed by take profit";
+        return "CBTP";
       case ORDER_REASON_CLOSED_BY_USER:
-        return "Closed by user";
+        return "CBU";
       case ORDER_REASON_CLOSED_UNKNOWN:
-        return "Unknown";
+        return "???";
     }
-    return "Unknown";
+    return "???";
   }
   // Setters.
   template <typename T>
