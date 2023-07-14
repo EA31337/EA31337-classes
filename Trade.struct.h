@@ -115,7 +115,7 @@ struct TradeParams {
         order_comment(""),
         log_level(_ll),
         lot_size(_lot_size),
-        magic_no(rand()),
+        magic_no(0),
         risk_margin(_risk_margin),
         slippage(_slippage) {
     SetLimits(0);

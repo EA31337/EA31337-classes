@@ -69,7 +69,9 @@ class Trade : public Taskable<DataParamEntry> {
       chart = new Chart(PERIOD_CURRENT, _Symbol);
     }
     SetName();
-    OrdersLoadByMagic(tparams.magic_no);
+    if (tparams.magic_no > 0) {
+      OrdersLoadByMagic(tparams.magic_no);
+    }
     UpdateStates();
   }
 

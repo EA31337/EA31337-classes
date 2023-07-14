@@ -1051,6 +1051,7 @@ class Order : public SymbolInfo {
     MqlTradeCheckResult _result_check = {0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_SLTP;
+    //_request.comment = StringFormat("mn=%d", GetMagicNumber());
     //_request.type = PositionTypeToOrderType();
     _request.position = _ticket;  // Position ticket.
     _request.symbol = ::PositionGetString(POSITION_SYMBOL);
