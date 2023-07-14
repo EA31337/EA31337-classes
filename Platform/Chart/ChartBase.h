@@ -133,7 +133,7 @@ class ChartBase : public Dynamic {
   /**
    * Return symbol bound to chart.
    */
-  CONST_REF_TO(string) GetSymbol() { return cparams.Get<string>(CHART_PARAM_SYMBOL); }
+  CONST_REF_TO_SIMPLE(string) GetSymbol() { return cparams.Get<string>(CHART_PARAM_SYMBOL); }
 
   /**
    * Return time-frame bound to chart.

@@ -42,8 +42,8 @@ struct SymbolTf {
   const ENUM_TIMEFRAMES tf;
   const string symbol_tf_key;
 
-  CONST_REF_TO(string) Key() const { return symbol_tf_key; }
-  CONST_REF_TO(string) Symbol() const { return symbol; }
+  RETURN_REF_TO_SIMPLE(string) Key() const { return symbol_tf_key; }
+  RETURN_REF_TO_SIMPLE(string) Symbol() const { return symbol; }
   ENUM_TIMEFRAMES Tf() const { return tf; }
 
   SymbolTf(string _symbol, ENUM_TIMEFRAMES _tf)

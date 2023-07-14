@@ -59,7 +59,7 @@ extern void Alert(string argument);
 /**
  * Returns number of candles for a given symbol and time-frame.
  */
-extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
+extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 
 /**
  * Returns the number of calculated data for the specified indicator.

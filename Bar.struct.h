@@ -70,7 +70,7 @@ struct BarOHLC
       low = fmin(low, _prices[i]);
     }
   }
-  BarOHLC(CONST_ARRAY_REF(double, _prices, 4), datetime _time = 0) : time(_time) {
+  BarOHLC(CONST_FIXED_ARRAY_REF(double, _prices, 4), datetime _time = 0) : time(_time) {
     _time = _time == (datetime)0 ? TimeCurrent() : _time;
     int _size = 4;
     close = _prices[0];

@@ -196,7 +196,7 @@ class ConvertBasic {
   }
 
   template <typename T>
-  static T Convert(CONST_REF_TO(string) _value, T& _out) {
+  static T Convert(CONST_REF_TO_SIMPLE(string) _value, T& _out) {
     StringToType(_value, _out);
     return _out;
   }

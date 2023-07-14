@@ -325,7 +325,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static datetime GetBarTime(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
+  static datetime GetBarTime(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
 #ifdef __MQL4__
     datetime _time = ::iTime(_symbol, _tf, _shift);  // Same as: Time[_shift]
 

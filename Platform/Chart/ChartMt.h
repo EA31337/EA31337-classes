@@ -300,6 +300,8 @@ struct ChartBarTime {
   ChartBarTime() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   datetime operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static datetime Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartStatic::GetBarTime(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
+    string _symbol = _symbol_tf.Symbol();
+    ENUM_TIMEFRAMES _tf = _symbol_tf.Tf();
+    return ChartStatic::GetBarTime(_symbol, _tf, _shift);
   }
 };

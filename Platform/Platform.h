@@ -36,7 +36,7 @@
 /**
  * Returns number of candles for a given symbol and time-frame.
  */
-extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
+extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 
 #endif
 
@@ -197,7 +197,7 @@ class Platform {
   /**
    * Adds indicator to be processed by platform and tries to initialize its data source(s).
    */
-  static void AddWithDefaultBindings(IndicatorData *_indi, CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+  static void AddWithDefaultBindings(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf) {
     Add(_indi);
     BindDefaultDataSource(_indi, _symbol, _tf);
   }
@@ -255,7 +255,7 @@ class Platform {
   /**
    * Returns number of candles for a given symbol and time-frame.
    */
-  static int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+  static int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf) {
     Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
     return 0;
   }
@@ -282,7 +282,7 @@ class Platform {
    * Note that some indicators may work on custom set of buffers required from data source and not on Candle or Tick
    * indicator.
    */
-  static void BindDefaultDataSource(IndicatorData *_indi, CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+  static void BindDefaultDataSource(IndicatorData *_indi, CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf) {
     Flags<unsigned int> _suitable_ds_types = _indi PTR_DEREF GetSuitableDataSourceTypes();
 
     IndicatorData *_default_indi_candle = FetchDefaultCandleIndicator(_symbol, _tf);
@@ -383,7 +383,7 @@ class Platform {
   /**
    * Returns default properties for given symbol for current platform.
    */
-  static SymbolInfoProp FetchDefaultSymbolProps(CONST_REF_TO(string) _symbol) {
+  static SymbolInfoProp FetchDefaultSymbolProps(CONST_REF_TO_SIMPLE(string) _symbol) {
     SymbolInfoProp props;
 #ifdef __MQLBUILD__
     props.pip_value = SymbolInfoStatic::GetPipValue(_symbol);
@@ -502,7 +502,7 @@ DictStruct<int64, Ref<IndicatorData>> Platform::indis_dflt;
 /**
  * Returns number of candles for a given symbol and time-frame.
  */
-int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) { return Platform::Bars(_symbol, _tf); }
+int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf) { return Platform::Bars(_symbol, _tf); }
 
 /**
  * Returns the number of calculated data for the specified indicator.

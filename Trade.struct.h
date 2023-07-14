@@ -221,9 +221,11 @@ struct TradeParams {
       case TRADE_PARAM_MAGIC_NO:
         ConvertBasic::Convert(_value, magic_no);
         return;
-      case TRADE_PARAM_ORDER_COMMENT:
-        ConvertBasic::Convert(SerializerConversions::ValueToString(_value), order_comment);
+      case TRADE_PARAM_ORDER_COMMENT: {
+        string _value_string = SerializerConversions::ValueToString(_value);
+        ConvertBasic::Convert(_value_string, order_comment);
         return;
+      }
       case TRADE_PARAM_RISK_MARGIN:
         ConvertBasic::Convert(_value, risk_margin);
         return;
