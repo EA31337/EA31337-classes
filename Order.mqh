@@ -2150,7 +2150,7 @@ class Order : public SymbolInfo {
         _result = ::OrderTakeProfit();
         break;
       case ORDER_PRICE_CURRENT:
-        _result = SymbolInfo::GetCloseOffer((ENUM_ORDER_TYPE)OrderStatic::Type());
+        _result = SymbolInfoStatic::GetCloseOffer(OrderSymbol(), (ENUM_ORDER_TYPE)OrderStatic::Type());
         break;
       case ORDER_PRICE_STOPLIMIT:
         SetUserError(ERR_INVALID_PARAMETER);
