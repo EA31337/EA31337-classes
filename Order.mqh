@@ -927,6 +927,7 @@ class Order : public SymbolInfo {
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment + ":" + odata.GetCloseComment();
     _request.deviation = orequest.deviation;
+    _request.magic = orequest.magic; // @todo: Add to odata, in case it has been changed.
     _request.symbol = orequest.symbol;
     _request.type = NegateOrderType(orequest.type);
     _request.type_filling = GetOrderFilling(orequest.symbol);
@@ -1052,8 +1053,8 @@ class Order : public SymbolInfo {
     MqlTradeCheckResult _result_check = {0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_SLTP;
-    //_request.comment = StringFormat("mn=%d", GetMagicNumber());
-    //_request.type = PositionTypeToOrderType();
+    _request.comment = ::PositionGetString(POSITION_COMMENT); // StringFormat("mn=%d", GetMagicNumber());
+    _request.magic = ::PositionGetInteger(POSITION_MAGIC);
     _request.position = _ticket;  // Position ticket.
     _request.symbol = ::PositionGetString(POSITION_SYMBOL);
     _request.sl = _stoploss;
