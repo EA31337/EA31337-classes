@@ -1080,7 +1080,7 @@ class Terminal : public Object {
            StringFormat("Terminal company: %s", GetCompany()) + _sep +
            StringFormat("Terminal connected: %s", IsConnected() ? "Yes" : "No") + _sep +
            StringFormat("Terminal language: %s", GetLanguage()) + _sep + StringFormat("Terminal name: %s", GetName()) +
-           _sep + StringFormat("Termnal max bars: %d", GetMaxBars()) + _sep +
+           _sep + StringFormat("Terminal max bars: %d", GetMaxBars()) + _sep +
            StringFormat("Trade allowed: %s", IsTradeAllowed() ? "Yes" : "No") + _sep +
            StringFormat("Trade context busy: %s", IsTradeContextBusy() ? "Yes" : "No") + _sep +
            StringFormat("Trade perm: %s", CheckPermissionToTrade() ? "Yes" : "No") + _sep +
