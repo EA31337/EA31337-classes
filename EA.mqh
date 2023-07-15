@@ -705,21 +705,23 @@ class EA : public Taskable<DataParamEntry> {
               tsm.GetSignalByCid(_strat.Get<int>(STRAT_PARAM_ID), (int)_stf, (int)ChartStatic::iTime(_Symbol, _stf));
           TradeSignal *_hsignal1 =
               tsm.GetSignalByCid(_strat.Get<int>(STRAT_PARAM_ID), (int)_stf, (int)ChartStatic::iTime(_Symbol, _stf, 1));
-          // Increase signal by 50% if confirmed by hourly signal.
+          TradeSignal *_hsignal2 =
+              tsm.GetSignalByCid(_strat.Get<int>(STRAT_PARAM_ID), (int)_stf, (int)ChartStatic::iTime(_Symbol, _stf, 2));
+          // Increase signal if confirmed by hourly signal.
           if (_hsignal0 != NULL && _hsignal0.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
-            _sig_open *= ((_sig_open < 0) == (_hsignal0.GetSignalOpen() < 0) ||
-                          ((_sig_open > 0) == (_hsignal0.GetSignalOpen() > 0)))
-                             ? 1.5f
-                             : 1.0f;
+            _sig_open += ((_sig_open > 0) == (_hsignal0.GetSignalOpen() > 0)) ? 1.0f : -1.0f;
+            _sig_open -= ((_sig_open < 0) == (_hsignal0.GetSignalOpen() < 0)) ? 1.0f : -1.0f;
           } else if (_hsignal1 != NULL &&
                      _hsignal1.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
-            _sig_open *= ((_sig_open < 0) == (_hsignal1.GetSignalOpen() < 0) ||
-                          ((_sig_open > 0) == (_hsignal1.GetSignalOpen() > 0)))
-                             ? 1.5f
-                             : 1.0f;
+            _sig_open += ((_sig_open > 0) == (_hsignal1.GetSignalOpen() > 0)) ? 0.5f : -0.5f;
+            _sig_open -= ((_sig_open < 0) == (_hsignal1.GetSignalOpen() < 0)) ? 0.5f : -0.5f;
+          } else if (_hsignal2 != NULL &&
+                     _hsignal2.Get<long>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
+            _sig_open += ((_sig_open > 0) == (_hsignal2.GetSignalOpen() > 0)) ? 0.2f : -0.2f;
+            _sig_open -= ((_sig_open < 0) == (_hsignal2.GetSignalOpen() < 0)) ? 0.2f : -0.2f;
           } else {
-            // Decrease signal by 10% if no hourly signal is found.
-            _sig_open *= 0.9f;
+            // Decrease signal by 0.1 if no hourly signal is found.
+            _sig_open -= 0.1f;
           }
         }
       }
