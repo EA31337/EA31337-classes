@@ -900,6 +900,7 @@ class Order : public SymbolInfo {
       MqlTradeCheckResult _result_check = {0};
       MqlTradeResult _result = {0};
       _request.action = TRADE_ACTION_DEAL;
+      _request.magic = ::PositionGetInteger(POSITION_MAGIC);
       _request.position = ::PositionGetInteger(POSITION_TICKET);
       _request.symbol = ::PositionGetString(POSITION_SYMBOL);
       _request.type = NegateOrderType((ENUM_POSITION_TYPE)::PositionGetInteger(POSITION_TYPE));
