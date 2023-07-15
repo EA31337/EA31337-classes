@@ -99,7 +99,7 @@
 // Const reference to object.
 #define CONST_REF_TO(T) const REF_TO(T)
 
-// Reference to simple type like bool, int, double, string.
+// Reference to simple type like bool, int, double, string or structure that is not treated as object by MT.
 #define REF_TO_SIMPLE(T) T&
 
 // Const reference to simple type like bool, int, double, string.

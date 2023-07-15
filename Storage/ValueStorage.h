@@ -83,7 +83,7 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
  * (the one that doesn't exist in the hierarchy).
  */
 #define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(INDI, APPLIED_PRICE, KEY)                                 \
-  ValueStorage<double> *_price_ptr;                                                                                   \
+  ValueStorage<double> *_price_ptr = nullptr;                                                                         \
   if (INDI PTR_DEREF GetSuitableDataSource() PTR_DEREF HasSpecificAppliedPriceValueStorage(APPLIED_PRICE, INDI)) {    \
     _price_ptr =                                                                                                      \
         INDI PTR_DEREF GetSuitableDataSource() PTR_DEREF GetSpecificAppliedPriceValueStorage(APPLIED_PRICE, INDI);    \

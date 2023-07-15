@@ -99,13 +99,9 @@ int ArraySort(ARRAY_REF(T, array)) {
 }
 
 template <typename X>
-void ArrayFill(ARRAY_REF(X, array), int start, int count, X value) {
-  Array::ArrayFill(array, start, count, value);
-}
+void ArrayFill(ARRAY_REF(X, array), int start, int count, X value);
 
 template <typename X, int size>
-void ArrayFill(FIXED_ARRAY_REF(X, array, size), int start, int count, X value) {
-  Array::ArrayFill(array, start, count, value);
-}
+void ArrayFill(FIXED_ARRAY_REF(X, array, size), int start, int count, X value);
 
 #endif

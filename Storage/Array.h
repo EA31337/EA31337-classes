@@ -802,3 +802,17 @@ void ArrayPushObject(ARRAY_REF(X, array), X& value) {
   ::ArrayResize(array, Array::ArraySize(array) + 1);
   array[Array::ArraySize(array) - 1] = value;
 }
+
+#ifndef __MQL__
+
+template <typename X>
+void ArrayFill(ARRAY_REF(X, array), int start, int count, X value) {
+  Array::ArrayFill(array, start, count, value);
+}
+
+template <typename X, int size>
+void ArrayFill(FIXED_ARRAY_REF(X, array, size), int start, int count, X value) {
+  Array::ArrayFill(array, start, count, value);
+}
+
+#endif

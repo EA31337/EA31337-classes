@@ -274,7 +274,7 @@ class DictBase {
   /**
    * Returns number of used DictSlots.
    */
-  const unsigned int Size() { return _DictSlots_ref._num_used; }
+  const unsigned int Size() const { return _DictSlots_ref._num_used; }
 
   /**
    * Returns number of all (reserved) DictSlots.

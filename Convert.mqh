@@ -223,7 +223,7 @@ class Convert {
    * Convert points into price value.
    */
   static double PointsToValue(int64 pts, string _symbol = NULL) {
-    return PointsToValue(pts, SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE));
+    return PointsToValue(pts, (int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE));
   }
 
   /**

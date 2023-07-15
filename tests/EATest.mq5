@@ -28,8 +28,8 @@
 struct DataParamEntry;
 
 // Includes.
-#include "../Exchange/Account/Account.struct.h"
 #include "../EA.mqh"
+#include "../Exchange/Account/Account.struct.h"
 #include "../Test.mqh"
 
 // Defines EA classes.

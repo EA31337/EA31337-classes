@@ -23,6 +23,7 @@
 // Properties.
 #ifdef __MQL__
 #property strict
+#else
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
 #endif

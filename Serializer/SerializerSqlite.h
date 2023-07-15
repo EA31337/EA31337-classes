@@ -80,7 +80,8 @@ class SerializerSqlite {
     }
 
     if (!_db.TableExists(_table)) {
-      if (!_db.CreateTable(_table, _db.GetTableSchema(_table))) {
+      DatabaseTableSchema _schema = _db.GetTableSchema(_table);
+      if (!_db.CreateTable(_table, _schema)) {
         return false;
       }
     }

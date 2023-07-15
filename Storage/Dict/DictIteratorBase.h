@@ -29,6 +29,7 @@
 template <typename K, typename V>
 class DictBase;
 
+#include "../../Convert.basic.h"
 #include "../../Serializer/SerializerConversions.h"
 #include "DictBase.h"
 #include "DictSlotsRef.h"
@@ -96,7 +97,7 @@ class DictIteratorBase {
 
     if (PTR_ATTRIB(_dict, GetMode()) == DictModeList) {
       K _key;
-      ConvertBasic::LongToType(_slotIdx, _key);
+      ConvertBasic::Convert(_slotIdx, _key);
       return _key;
     }
 

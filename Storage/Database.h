@@ -99,7 +99,7 @@ class Database {
   /**
    * Creates table.
    */
-  bool CreateTable(string _name, DatabaseTableSchema &_schema) {
+  bool CreateTable(string _name, REF_TO_SIMPLE(DatabaseTableSchema) _schema) {
     bool _result = false;
 #ifndef __MQL4__
     if (DatabaseTableExists(handle, _name)) {

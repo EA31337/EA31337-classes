@@ -166,7 +166,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
     */
   }
 
-  Redis *Redis() { return &redis; }
+  Redis *GetRedis() { return &redis; }
 
   /**
    * Returns the indicator value.

@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../Indi_OHLC.mqh"
+#include "../../Indicators/OHLC/Indi_OHLC.mqh"
 
 #include "../../Platform/Platform.h"
 

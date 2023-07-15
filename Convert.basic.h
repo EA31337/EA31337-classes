@@ -184,6 +184,12 @@ class ConvertBasic {
   }
 
   template <typename T>
+  static T Convert(int _value, T& _out) {
+    LongToType((long)_value, _out);
+    return _out;
+  }
+
+  template <typename T>
   static T Convert(int64 _value, T& _out) {
     LongToType(_value, _out);
     return _out;

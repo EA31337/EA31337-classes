@@ -67,8 +67,8 @@ class EA : public Taskable<DataParamEntry> {
   Dict<string, double> ddata;  // Custom user data.
   Dict<string, int> idata;     // Custom user data.
   DictObject<string, Trade> trade;
-  DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
-  DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
+  DictObject<int, BufferStruct<IndicatorDataEntry>> data_indi;
+  DictObject<int, BufferStruct<StgEntry>> data_stg;
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
