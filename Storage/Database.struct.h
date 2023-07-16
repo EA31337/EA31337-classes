@@ -93,7 +93,7 @@ struct DatabaseTableSchema {
 };
 
 // Struct table entry for SymbolInfo.
-#ifdef SYMBOLINFO_H
+#ifdef DATABASE_INCLUDE_SYMBOLINFO_STRUCT
 struct DbSymbolInfoEntry : public SymbolInfoEntry {
   DatabaseTableSchema schema;
   // Constructors.

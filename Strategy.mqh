@@ -30,6 +30,7 @@ class Trade;
 // Includes.
 #include "Indicator/Indicator.h"
 #include "Market.mqh"
+#include "Math/Math.h"
 #include "Storage/Data.struct.h"
 #include "Storage/Dict/Dict.h"
 #include "Storage/Object.h"

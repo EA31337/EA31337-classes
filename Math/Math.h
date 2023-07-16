@@ -26,8 +26,8 @@
 #endif
 
 // Includes.
-#include "../Storage/Data.struct.h"
 #include "../Indicator/Indicator.struct.h"
+#include "../Storage/Data.struct.h"
 #include "Math.define.h"
 #include "Math.enum.h"
 #include "Math.extern.h"
@@ -265,3 +265,17 @@ class Math {
     }
   }
 };
+
+#ifdef __MQL__
+
+/**
+ * Specialization of MQL's Round() to support int64 input.
+ */
+int64 MathRound(int64 _value) { return _value; }
+
+/**
+ * Specialization of MQL's round() to support int64 input.
+ */
+int64 round(int64 _value) { return MathRound(_value); }
+
+#endif

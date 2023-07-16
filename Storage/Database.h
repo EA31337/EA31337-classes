@@ -49,13 +49,13 @@ class Database {
   /**
    * Class constructor.
    */
-#ifndef __MQL4__
+#ifdef __MQL5__
   Database(string _filename, unsigned int _flags = DATABASE_OPEN_CREATE)
 #else
   Database(string _filename, unsigned int _flags = 0)
 #endif
   {
-#ifndef __MQL4__
+#ifdef __MQL5__
     handle = DatabaseOpen(_filename, _flags);
 #else
     handle = -1;
@@ -67,7 +67,7 @@ class Database {
    * Class deconstructor.
    */
   ~Database() {
-#ifndef __MQL4__
+#ifdef __MQL5__
     DatabaseClose(handle);
 #endif
   }
@@ -78,7 +78,7 @@ class Database {
    * Checks if table exists.
    */
   bool TableExists(string _name) {
-#ifndef __MQL4__
+#ifdef __MQL5__
     return DatabaseTableExists(handle, _name);
 #else
     SetUserError(ERR_USER_NOT_SUPPORTED);
@@ -101,7 +101,7 @@ class Database {
    */
   bool CreateTable(string _name, REF_TO_SIMPLE(DatabaseTableSchema) _schema) {
     bool _result = false;
-#ifndef __MQL4__
+#ifdef __MQL5__
     if (DatabaseTableExists(handle, _name)) {
       // Generic error (ERR_DATABASE_ERROR).
       SetUserError(5601);
@@ -145,7 +145,7 @@ class Database {
    */
   bool DropTable(string _name) {
     tables.Unset(_name);
-#ifndef __MQL4__
+#ifdef __MQL5__
     return DatabaseExecute(handle, "DROP TABLE IF EXISTS `" + _name + "`");
 #else
     return false;
@@ -157,7 +157,7 @@ class Database {
   /**
    * Imports data into table. First row must contain column names. Strings must be enclosed with double quotes.
    */
-  bool ImportData(const string _name, MatrixMini2d<string> &data) {
+  bool Import(const string _name, MatrixMini2d<string> &data) {
     if (data.SizeY() < 2 || data.SizeX() == 0) {
       // No data to import or there are no columns in input data (Serialize() serialized no fields).
       return true;
@@ -171,7 +171,7 @@ class Database {
       _cols += "`" + StringSubstr(key, 1, StringLen(key) - 2) + "`,";
     }
     _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
-#ifndef __MQL4__
+#ifdef __MQL5__
     if (DatabaseTransactionBegin(handle)) {
       _query = StringFormat("INSERT INTO `%s`(%s) VALUES\n", _name, _cols);
       for (int y = 1; y < data.SizeY(); ++y) {
@@ -201,7 +201,7 @@ class Database {
     return _result;
   }
 
-#ifdef BUFFER_STRUCT_H
+#ifdef DATABASE_INCLUDE_BUFFER_STRUCT
   /**
    * Imports BufferStruct records into a table.
    */
@@ -214,7 +214,7 @@ class Database {
       _cols += iter.Value().name + ",";
     }
     _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
-#ifndef __MQL4__
+#ifdef __MQL5__
     if (DatabaseTransactionBegin(handle)) {
       for (DictStructIterator<int64, TStruct> iter = _bstruct.Begin(); iter.IsValid(); ++iter) {
         _query = StringFormat("INSERT INTO %s(%s) VALUES (%s)", _name, _cols, iter.Value().ToCSV());

@@ -86,7 +86,7 @@ class SerializerSqlite {
       }
     }
 
-    if (!_db.ImportData(_table, _matrix_out)) {
+    if (!_db.Import(_table, _matrix_out)) {
       return false;
     }
 

@@ -98,7 +98,7 @@ class Stats {
   /**
    * Get number of ticks per second.
    */
-  double GetTicksPerSec() { return round(total_bars > 0 ? (total_ticks / total_bars / curr_period) / 60 : 0); }
+  uint64 GetTicksPerSec() { return round(total_bars > 0 ? (total_ticks / total_bars / curr_period) / 60 : 0); }
 
   /**
    * Get number of ticks per given time period.

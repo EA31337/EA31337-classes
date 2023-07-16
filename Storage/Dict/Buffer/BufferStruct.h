@@ -25,6 +25,9 @@
 #pragma once
 #endif
 
+// Flag for Database.struct.h so BufferStruct structure will be supported by it.
+#define DATABASE_INCLUDE_BUFFER_STRUCT
+
 // Includes.
 #include "../../../Serializer/Serializer.h"
 #include "../DictBase.h"

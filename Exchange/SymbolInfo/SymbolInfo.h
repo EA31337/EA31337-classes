@@ -25,6 +25,9 @@
 #pragma once
 #endif
 
+// Flag for Database.struct.h so SymbolInfo structure will be supported by it.
+#define DATABASE_INCLUDE_SYMBOLINFO_STRUCT
+
 // Includes symbol defines, enums and structs.
 #include "SymbolInfo.define.h"
 #include "SymbolInfo.enum.h"
