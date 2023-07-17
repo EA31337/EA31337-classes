@@ -20,11 +20,34 @@
  *
  */
 
-// Define external global functions.
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
 
+#include <cmath>
+#include <limits>
+#endif
+
+#ifdef __MQL__
+const double NaN = (double)"nan";
+#else
+const double NaN = std::nan("");
+#endif
+
+#ifdef __MQL__
+const double POSINF = (double)"inf";
+#else
+const double POSINF = std::numeric_limits<double>::infinity();
+#endif
+
+#ifdef __MQL__
+const double NEGINF = (double)"-inf";
+#else
+const double NEGINF = std::numeric_limits<double>::infinity() * -1;
+#endif
+
+// Define external global functions.
+#ifndef __MQL__
 #include <algorithm>
 #include <cmath>
 
@@ -90,4 +113,7 @@ T log10(T value) {
 }
 int MathRand() { return std::rand() % 32768; }
 // int rand() { return std::rand() % 32768; }
+
+bool MathIsValidNumber(double _number) { return (_number != NaN && _number != NEGINF && _number != POSINF); }
+
 #endif

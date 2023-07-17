@@ -38,6 +38,7 @@ struct ChartTf;
 #include "../../Bar.struct.h"
 #include "../../Serializer/Serializer.h"
 #include "../../Serializer/SerializerNode.enum.h"
+#include "../../Std.h"
 #include "../../Storage/Array.h"
 #include "../Terminal.define.h"
 #include "Chart.define.h"
@@ -54,7 +55,7 @@ struct ChartEntry {
   ChartEntry(const ChartEntry& _r) { SetBar(_r.bar); }
   // Getters.
   BarEntry GetBar() { return bar; }
-  string ToCSV() { return StringFormat("%s", bar.ToCSV()); }
+  string ToCSV() { return StringFormat("%s", C_STR(bar.ToCSV())); }
   // Setters.
   void SetBar(const BarEntry& _bar) { bar = _bar; }
   // Serializers.

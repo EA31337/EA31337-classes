@@ -98,8 +98,8 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
       Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), num_args - 1);
 
       if (num_args - 1 > _max_modes) {
-        GetLogger() PTR_DEREF Error(
-            StringFormat("Too many data for buffers for action %s!", EnumToString(_action), __FUNCTION_LINE__));
+        GetLogger() PTR_DEREF Error(StringFormat("Too many data for buffers for action %s at %s!",
+                                                 C_STR(EnumToString(_action)), __FUNCTION_LINE__));
         return false;
       }
 
