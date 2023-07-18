@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "Indi_PriceFeeder.mqh"
@@ -98,10 +103,10 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
                                 int _mode, int _shift = 0) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
 
-    _indi.ValidateDataSourceMode(_mode);
+    _indi PTR_DEREF ValidateDataSourceMode(_mode);
 
-    double _indi_value_buffer[];
-    IndicatorDataEntry _entry(_indi.GetModeCount());
+    ARRAY(double, _indi_value_buffer);
+    IndicatorDataEntry _entry(_indi PTR_DEREF GetModeCount());
 
     ArrayResize(_indi_value_buffer, _period);
 
@@ -136,12 +141,12 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
   /**
    * CCI on array.
    */
-  static double iCCIOnArray(double &array[], int total, int period, int shift) {
+  static double iCCIOnArray(CONST_ARRAY_REF(double, array), int total, int period, int shift) {
 #ifdef __MQL4__
     return ::iCCIOnArray(array, total, period, shift);
 #else
     Indi_PriceFeeder indi_price_feeder(array);
-    return iCCIOnIndicator(&indi_price_feeder, NULL, NULL, period, /*unused*/ PRICE_OPEN, shift);
+    return iCCIOnIndicator(&indi_price_feeder, NULL, PERIOD_CURRENT, period, /*unused*/ PRICE_OPEN, shift);
 #endif
   }
 
@@ -224,7 +229,7 @@ double iCCI(string _symbol, int _tf, int _period, int _ap, int _shift) {
   ResetLastError();
   return Indi_CCI::iCCI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iCCIOnArray(double &_arr[], int _total, int _period, int _abs_shift) {
+double iCCIOnArray(CONST_ARRAY_REF(double, _arr), int _total, int _period, int _abs_shift) {
   ResetLastError();
   return Indi_CCI::iCCIOnArray(_arr, _total, _period, _abs_shift);
 }

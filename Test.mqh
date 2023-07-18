@@ -25,6 +25,11 @@
  * Provides base functionality for testing purposes.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Define an assert macros.
 #define assertTrueOrFail(cond, msg)                                                         \
   if (!(cond)) {                                                                            \

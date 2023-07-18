@@ -22,13 +22,15 @@
 
 // Define external global functions.
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
 #pragma once
+
 #include <csignal>
 #include <string>
 
 #include "Platform/Chart/Chart.enum.h"
-#include "Storage/DateTime.enum.h"
 #include "Platform/Terminal.define.h"
+#include "Storage/DateTime.enum.h"
 
 void DebugBreak() {
 #ifdef _MSC_VER

@@ -20,29 +20,25 @@
  *
  */
 
-/**
- * @file
- * Includes Data's defines.
- */
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
 #endif
 
 #ifndef __MQL4__
-// --
-#ifndef DoubleToStr
-// Returns text string with the specified numerical value converted into a specified precision format.
-#define DoubleToStr(value, digits) DoubleToString(value, digits)
-#endif
-#define StringGetChar StringGetCharacter
-// --
-#define StrToTime StringToTime
-// --
-#define DOUBLE_VALUE 0
-#define FLOAT_VALUE 1
-#define LONG_VALUE INT_VALUE
-//---
-#define EMPTY -1
+// @note Values differ from the documentation at
+// https://www.mql5.com/en/docs/matrix/matrix_initialization/matrix_copyticks
+// @see https://www.mql5.com/en/forum/448933
+enum ENUM_COPY_TICKS {
+  COPY_TICKS_INFO = 1,
+  COPY_TICKS_TRADE = 2,
+  COPY_TICKS_ALL = 3,
+  COPY_TICKS_VERTICAL = 32768,
+  COPY_TICKS_TIME_MS = 65536,
+  COPY_TICKS_BID = 131072,
+  COPY_TICKS_ASK = 262144,
+  COPY_TICKS_LAST = 524288,
+  COPY_TICKS_VOLUME = 1048576,
+  COPY_TICKS_FLAGS = 2097152
+};
 #endif

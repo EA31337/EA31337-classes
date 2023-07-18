@@ -25,14 +25,19 @@
  * Includes Market's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Forward declaration.
 class Serializer;
 
 // Includes.
-#include "Storage/DateTime.entry.h"
-#include "Storage/DateTime.struct.h"
 #include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
+#include "Storage/DateTime.entry.h"
+#include "Storage/DateTime.struct.h"
 
 // Market info.
 struct MarketData {

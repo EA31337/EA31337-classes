@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 
@@ -133,7 +138,7 @@ class Indi_AO : public Indicator<IndiAOParams> {
     if (!Objects<Indi_AO>::TryGet(_key, _ptr)) {
       _ptr = Objects<Indi_AO>::Set(_key, new Indi_AO());
       // Assigning the same candle indicator for AO as in _indi.
-      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
+      _ptr PTR_DEREF SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }

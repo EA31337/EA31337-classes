@@ -25,6 +25,8 @@
 #pragma once
 
 // Includes.
+#include <thread>
+
 #include "../Exchange/Account/Account.enum.h"
 #include "../Storage/Data.define.h"
 #include "../Storage/DateTime.h"
@@ -32,12 +34,14 @@
 #include "Deal.enum.h"
 #include "Order.define.h"
 #include "Order.enum.h"
+#include "Platform.enum.h"
 #include "Terminal.enum.h"
 
 // Forward declarations.
 struct MqlTradeRequest;
 struct MqlTradeResult;
 struct MqlTradeCheckResult;
+struct MqlTick;
 
 template <typename... Args>
 double iCustom(string symbol, int timeframe, string name, Args... args) {
@@ -55,7 +59,7 @@ extern void Alert(string argument);
 /**
  * Returns number of candles for a given symbol and time-frame.
  */
-extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
+extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 
 /**
  * Returns the number of calculated data for the specified indicator.
@@ -76,7 +80,12 @@ extern int CopyLow(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos,
 extern int CopyClose(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
                      ARRAY_REF(double, close_array));
 
-extern unsigned int64 PositionGetTicket(int _index);
+extern double iOpen(string symbol, int timeframe, int shift);
+extern double iHigh(string symbol, int timeframe, int shift);
+extern double iLow(string symbol, int timeframe, int shift);
+extern double iClose(string symbol, int timeframe, int shift);
+
+extern uint64 PositionGetTicket(int _index);
 
 extern int64 PositionGetInteger(ENUM_POSITION_PROPERTY_INTEGER property_id);
 
@@ -86,13 +95,13 @@ extern string PositionGetString(ENUM_POSITION_PROPERTY_STRING property_id);
 
 extern int HistoryDealsTotal();
 
-extern unsigned int64 HistoryDealGetTicket(int index);
+extern uint64 HistoryDealGetTicket(int index);
 
-extern int64 HistoryDealGetInteger(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id);
+extern int64 HistoryDealGetInteger(uint64 ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id);
 
-extern double HistoryDealGetDouble(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id);
+extern double HistoryDealGetDouble(uint64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id);
 
-extern string HistoryDealGetString(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id);
+extern string HistoryDealGetString(uint64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id);
 
 extern bool OrderSelect(int index);
 
@@ -104,25 +113,25 @@ extern bool OrderSend(const MqlTradeRequest& request, MqlTradeResult& result);
 
 extern bool OrderCheck(const MqlTradeRequest& request, MqlTradeCheckResult& result);
 
-extern unsigned int64 OrderGetTicket(int index);
+extern uint64 OrderGetTicket(int index);
 
-extern unsigned int64 HistoryOrderGetTicket(int index);
+extern uint64 HistoryOrderGetTicket(int index);
 
 extern bool HistorySelectByPosition(int64 position_id);
 
-extern bool HistoryDealSelect(unsigned int64 ticket);
+extern bool HistoryDealSelect(uint64 ticket);
 
 extern int64 OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id);
 
-extern int64 HistoryOrderGetInteger(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id);
+extern int64 HistoryOrderGetInteger(uint64 ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id);
 
 extern double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id);
 
-extern double HistoryOrderGetDouble(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id);
+extern double HistoryOrderGetDouble(uint64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id);
 
 string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id);
 
-string HistoryOrderGetString(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id);
+string HistoryOrderGetString(uint64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id);
 
 extern int PositionsTotal();
 
@@ -181,5 +190,13 @@ extern int ObjectFind(int64 chart_id, string name);
 int GetLastError() { return _LastError; }
 
 void ResetLastError() { _LastError = 0; }
+
+int CopyTicks(const string symbol_name, ARRAY_REF(MqlTick, ticks_array), unsigned int flags = COPY_TICKS_ALL,
+              int64 from = 0, unsigned int count = 0);
+
+int CopyTicksRange(const string symbol_name, ARRAY_REF(MqlTick, ticks_array), unsigned int flags = COPY_TICKS_ALL,
+                   int64 from_msc = 0, int64 to_msc = 0);
+
+void Sleep(int milliseconds) { std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds)); }
 
 #endif

@@ -20,9 +20,13 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SYMBOLINFO_H
-#define SYMBOLINFO_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
+// Flag for Database.struct.h so SymbolInfo structure will be supported by it.
+#define DATABASE_INCLUDE_SYMBOLINFO_STRUCT
 
 // Includes symbol defines, enums and structs.
 #include "SymbolInfo.define.h"
@@ -174,12 +178,12 @@ class SymbolInfo : public Object {
    *
    * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  unsigned long GetVolume() { return SymbolInfoStatic::GetTick(symbol).volume; }
+  uint64 GetVolume() { return SymbolInfoStatic::GetTick(symbol).volume; }
 
   /**
    * Gets the last volume for the current price (without updating).
    */
-  unsigned long GetLastVolume() { return last_tick.volume; }
+  uint64 GetLastVolume() { return last_tick.volume; }
 
   /**
    * Get summary volume of current session deals.
@@ -357,7 +361,7 @@ class SymbolInfo : public Object {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  long GetTradeStopsLevel() { return SymbolInfoStatic::SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL); }
+  int64 GetTradeStopsLevel() { return SymbolInfoStatic::SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL); }
 
   /**
    * Get a contract lot size in the base currency.
@@ -561,4 +565,3 @@ class SymbolInfo : public Object {
    */
   Log *GetLogger() { return GetPointer(logger); }
 };
-#endif  // SYMBOLINFO_H

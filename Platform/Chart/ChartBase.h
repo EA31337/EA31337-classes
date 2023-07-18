@@ -38,9 +38,9 @@
 #include "Chart.struct.h"
 #include "Chart.symboltf.h"
 #include "Data.define.h"
-#include "Storage/Dict/Dict.h"
 #include "Log.mqh"
 #include "Refs.mqh"
+#include "Storage/Dict/Dict.h"
 #include "Task/TaskCondition.enum.h"
 
 /**
@@ -133,7 +133,7 @@ class ChartBase : public Dynamic {
   /**
    * Return symbol bound to chart.
    */
-  CONST_REF_TO(string) GetSymbol() { return cparams.Get<string>(CHART_PARAM_SYMBOL); }
+  CONST_REF_TO_SIMPLE(string) GetSymbol() { return cparams.Get<string>(CHART_PARAM_SYMBOL); }
 
   /**
    * Return time-frame bound to chart.
@@ -193,7 +193,7 @@ class ChartBase : public Dynamic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual long GetVolume(int _shift = 0) = 0;
+  virtual int64 GetVolume(int _shift = 0) = 0;
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -386,10 +386,10 @@ class ChartBase : public Dynamic {
     int nBarsInNearPr = 0;
     ENUM_TIMEFRAMES TimeNearPr = PERIOD_M1;
     double ModellingQuality = 0;
-    long StartGen = 0;
-    long StartBar = 0;
-    long StartGenM1 = 0;
-    long HistoryTotal = 0;
+    int64 StartGen = 0;
+    int64 StartBar = 0;
+    int64 StartGenM1 = 0;
+    int64 HistoryTotal = 0;
     datetime x = StrToTime("1971.01.01 00:00");
     datetime modeling_start_time = StrToTime("1971.01.01 00:00");
 
@@ -697,7 +697,7 @@ class ChartBase : public Dynamic {
   /**
    * Return size of BarOHLC array.
    */
-  unsigned long SizeChartEntry() { return ArraySize(chart_saves); }
+  uint64 SizeChartEntry() { return ArraySize(chart_saves); }
 
   /* Serializers */
 

@@ -31,11 +31,11 @@
 #endif
 
 // Includes.
+#include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
+#include "../Serializer/Serializer.h"
 #include "../Storage/Data.struct.h"
 #include "Order.enum.h"
 #include "Platform.extern.h"
-#include "../Serializer/Serializer.h"
-#include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
 #include "Terminal.h"
 
 #ifndef __MQL5__
@@ -59,29 +59,29 @@ struct MqlTradeCheckResult {
 // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderequest
 struct MqlTradeRequest {
   ENUM_TRADE_REQUEST_ACTIONS action;     // Trade operation type.
-  unsigned long magic;                   // Expert Advisor ID (magic number).
-  unsigned long order;                   // Order ticket.
+  uint64 magic;                          // Expert Advisor ID (magic number).
+  uint64 order;                          // Order ticket.
   string symbol;                         // Trade symbol.
   double volume;                         // Requested volume for a deal in lots.
   double price;                          // Price.
   double stoplimit;                      // StopLimit level of the order.
   double sl;                             // Stop Loss level of the order.
   double tp;                             // Take Profit level of the order.
-  unsigned long deviation;               // Maximal possible deviation from the requested price.
+  uint64 deviation;                      // Maximal possible deviation from the requested price.
   ENUM_ORDER_TYPE type;                  // Order type.
   ENUM_ORDER_TYPE_FILLING type_filling;  // Order execution type.
   ENUM_ORDER_TYPE_TIME type_time;        // Order expiration type.
   datetime expiration;                   // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
   string comment;                        // Order comment.
-  unsigned long position;                // Position ticket.
-  unsigned long position_by;             // The ticket of an opposite position.
+  uint64 position;                       // Position ticket.
+  uint64 position_by;                    // The ticket of an opposite position.
 };
 
 // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
 struct MqlTradeResult {
   unsigned int retcode;  // Operation return code.
-  unsigned long deal;    // Deal ticket, if it is performed.
-  unsigned long order;   // Order ticket, if it is placed.
+  uint64 deal;           // Deal ticket, if it is performed.
+  uint64 order;          // Order ticket, if it is placed.
   double volume;         // Deal volume, confirmed by broker.
   double price;          // Deal price, confirmed by broker.
   double bid;            // Current Bid price.
@@ -130,7 +130,7 @@ struct OrderParams {
       bool _result = true;
       int _size = ArraySize(_cond_close);
       if (_size <= _index) {
-        _result &= ArrayResize(_cond_close, _size + 1);
+        _result &= ArrayResize(_cond_close, _size + 1) == _size + 1;
       }
       return _result;
     }
@@ -232,10 +232,10 @@ struct OrderParams {
  */
 struct OrderData {
  protected:
-  unsigned long magic;                   // Magic number.
-  unsigned long position_id;             // Position ID.
-  unsigned long position_by_id;          // Position By ID.
-  unsigned long ticket;                  // Ticket number.
+  uint64 magic;                          // Magic number.
+  uint64 position_id;                    // Position ID.
+  uint64 position_by_id;                 // Position By ID.
+  uint64 ticket;                         // Ticket number.
   ENUM_ORDER_STATE state;                // State.
   string comment;                        // Comment.
   double commission;                     // Commission.
@@ -248,12 +248,12 @@ struct OrderData {
   double swap;                           // Order cumulative swap.
   datetime time_closed;                  // Closed time.
   datetime time_done;                    // Execution/cancellation time.
-  long time_done_msc;                    // The time of execution/cancellation time (in msc).
+  int64 time_done_msc;                   // The time of execution/cancellation time (in msc).
   datetime time_expiration;              // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
   datetime time_last_refresh;            // Last refresh of order values.
   datetime time_last_update;             // Last update of order stops.
   datetime time_setup;                   // Setup time.
-  long time_setup_msc;                   // The time of placing the order (in msc).
+  int64 time_setup_msc;                  // The time of placing the order (in msc).
   double total_fees;                     // Total fees.
   double sl;                             // Current Stop loss level of the order.
   double tp;                             // Current Take Profit level of the order.
@@ -373,13 +373,13 @@ struct OrderData {
       case ORDER_STATE:
         return (T)state;
       case ORDER_TIME_EXPIRATION:
-        return (T)(long)time_expiration;
+        return (T)(int64)time_expiration;
       case ORDER_TIME_DONE:
-        return (T)(long)time_done;
+        return (T)(int64)time_done;
       case ORDER_TIME_DONE_MSC:
         return (T)time_done_msc;
       case ORDER_TIME_SETUP:
-        return (T)(long)time_setup;
+        return (T)(int64)time_setup;
       case ORDER_TIME_SETUP_MSC:
         return (T)time_setup_msc;
       case ORDER_TYPE_FILLING:
@@ -507,10 +507,10 @@ struct OrderData {
         profit = (double)_value;
         return;
       case ORDER_PROP_REASON_CLOSE:
-        reason_close = (ENUM_ORDER_REASON_CLOSE)(long)_value;
+        reason_close = (ENUM_ORDER_REASON_CLOSE)(int64)_value;
         return;
       case ORDER_PROP_TICKET:
-        ticket = (unsigned long)_value;
+        ticket = (uint64)_value;
         return;
       case ORDER_PROP_TIME_CLOSED:
         time_closed = (datetime)_value;
@@ -559,7 +559,7 @@ struct OrderData {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  void Set(ENUM_ORDER_PROPERTY_INTEGER _prop_name, long _value) {
+  void Set(ENUM_ORDER_PROPERTY_INTEGER _prop_name, int64 _value) {
     switch (_prop_name) {
       case ORDER_TYPE:
         type = (ENUM_ORDER_TYPE)_value;
@@ -626,7 +626,7 @@ struct OrderData {
   }
   /*
   template <typename T>
-  T Set(long _prop_name) {
+  T Set(int64 _prop_name) {
     // MQL4 back-compatibility version for non-enum properties.
     return Set<T>((ENUM_ORDER_PROPERTY_INTEGER)_prop_name);
   }
@@ -878,7 +878,7 @@ struct OrderStatic {
    * @return
    * Identifying (magic) number of the currently selected order/position.
    */
-  static long MagicNumber() {
+  static int64 MagicNumber() {
 #ifdef __MQL4__
     return ::OrderMagicNumber();
 #else
@@ -945,7 +945,7 @@ struct OrderStatic {
    * - https://docs.mql4.com/trading/orderticket
    * - https://www.mql5.com/en/docs/trading/positiongetticket
    */
-  static unsigned long Ticket() {
+  static uint64 Ticket() {
 #ifdef __MQL4__
     return ::OrderTicket();
 #else

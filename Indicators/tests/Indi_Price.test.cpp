@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../Indi_Price.mqh"
+#include "../../Indicators/Price/Indi_Price.h"
 
 #include "../../Platform/Platform.h"
 

@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ACCOUNTBASE_H
-#define ACCOUNTBASE_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../Refs.mqh"
@@ -56,5 +57,3 @@ class AccountBase : public Dynamic {
    */
   ~AccountBase() {}
 };
-
-#endif  // ACCOUNTBASE_H

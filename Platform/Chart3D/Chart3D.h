@@ -25,6 +25,11 @@
  * 3D Chart.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../../Bar.struct.h"
 #include "../../Indicator/IndicatorData.h"
 #include "../../Indicators/Price/Indi_MA.h"

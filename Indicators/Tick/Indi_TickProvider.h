@@ -98,7 +98,7 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
   /**
    * Fetches historic ticks for a given time range.
    */
-  bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
+  bool FetchHistoryByTimeRange(int64 _from_ms, int64 _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
 #ifdef __debug_indicator__
     Print("Indi_TickProvider::FetchHistoryByTimeRange(from_ms = ", _from_ms, ", to_ms = ", _to_ms, ")");
 #endif

@@ -19,9 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef BUFFER_FXT_H
-#define BUFFER_FXT_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../../Exchange/Account/AccountMt.h"
@@ -68,7 +69,7 @@ struct BufferFXTEntry {
   double high;
   double low;
   double close;
-  long volume;
+  int64 volume;
   int ctm;   // The current time within a bar.
   int flag;  // Flag to launch an expert (0 - bar will be modified, but the expert will not be launched).
 
@@ -261,7 +262,7 @@ string ToJSON(BufferFXTEntry &_value, const bool, const unsigned int) { return _
 /**
  * Implements class to store tick data.
  */
-class BufferFXT : public DictStruct<long, BufferFXTEntry> {
+class BufferFXT : public DictStruct<int64, BufferFXTEntry> {
  protected:
   BufferFXTParams params;
 
@@ -280,7 +281,7 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
   /**
    * Adds new entry.
    */
-  void Add(BufferFXTEntry &_value, long _dt = 0) {
+  void Add(BufferFXTEntry &_value, int64 _dt = 0) {
     _dt = _dt > 0 ? _dt : TimeCurrent();
     Set(_dt, _value);
   }
@@ -302,5 +303,3 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
     // @see: https://docs.mql4.com/files/filewritestruct
   }
 };
-
-#endif  // BUFFER_FXT_H

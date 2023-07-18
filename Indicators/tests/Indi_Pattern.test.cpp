@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../Indi_Pattern.mqh"
+#include "../../Indicators/Bitwise/Indi_Pattern.mqh"
 
 #include "../../Platform/Platform.h"
 

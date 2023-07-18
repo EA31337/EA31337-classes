@@ -102,7 +102,9 @@ class IndiBufferCache : public Dynamic {
   /**
    * Returns size of the current price buffer.
    */
-  int GetTotal() { return price_buffer != NULL ? ArraySize(price_buffer) : ArraySize(price_open_buffer); }
+  int GetTotal() {
+    return price_buffer != NULL ? ArraySize(PTR_TO_REF(price_buffer)) : ArraySize(PTR_TO_REF(price_open_buffer));
+  }
 
   /**
    * Returns number of already calculated prices (bars).
@@ -154,32 +156,33 @@ class IndiBufferCache : public Dynamic {
    * Returns given calculation buffer.
    */
   template <typename D>
-  ValueStorage<D> *GetBuffer(int _index) {
-    return (ValueStorage<D> *)buffers[_index];
+  REF_TO(ValueStorage<D>)
+  GetBuffer(int _index) {
+    return PTR_TO_REF((ValueStorage<D> *)buffers[_index]);
   }
 
   /**
    * Returns main price buffer.
    */
-  ValueStorage<C> *GetPriceBuffer() { return price_buffer; }
+  REF_TO(ValueStorage<C>) GetPriceBuffer() { return PTR_TO_REF(price_buffer); }
 
   /**
    * Returns given price buffer.
    */
-  ValueStorage<C> *GetPriceBuffer(ENUM_APPLIED_PRICE _applied_price) {
+  REF_TO(ValueStorage<C>) GetPriceBuffer(ENUM_APPLIED_PRICE _applied_price) {
     switch (_applied_price) {
       case PRICE_OPEN:
-        return price_open_buffer;
+        return PTR_TO_REF(price_open_buffer);
       case PRICE_HIGH:
-        return price_high_buffer;
+        return PTR_TO_REF(price_high_buffer);
       case PRICE_LOW:
-        return price_low_buffer;
+        return PTR_TO_REF(price_low_buffer);
       case PRICE_CLOSE:
-        return price_close_buffer;
+        return PTR_TO_REF(price_close_buffer);
       default:
         RUNTIME_ERROR("Applied price not supported!");
     }
-    return nullptr;
+    return PTR_TO_REF((ValueStorage<C> *)nullptr);
   }
 
   /**
@@ -242,9 +245,9 @@ class IndiBufferCache : public Dynamic {
    */
   template <typename D>
   D GetTailValue(int _buffer_index, int _shift) {
-    ValueStorage<D> *_buff = GetBuffer<D>(_buffer_index);
-    int _index = _buff PTR_DEREF IsSeries() ? _shift : (ArraySize(_buff) - _shift - 1);
-    return _buff[_index] PTR_DEREF Get();
+    ValueStorage<D> *_buff = REF_TO_PTR(GetBuffer<D>(_buffer_index));
+    int _index = _buff PTR_DEREF IsSeries() ? _shift : (ArraySize(PTR_TO_REF(_buff)) - _shift - 1);
+    return PTR_TO_REF(_buff)[_index].Get();
   }
 
   /**

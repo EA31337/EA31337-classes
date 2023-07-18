@@ -24,7 +24,11 @@
  * @file
  * Defines common defines.
  */
+
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+
 // Data types.
 #include <string>
 typedef std::string string;

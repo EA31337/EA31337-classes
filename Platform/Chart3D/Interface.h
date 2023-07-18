@@ -25,6 +25,11 @@
  * Chart events.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../../Util.h"
 
 enum ENUM_INTERFACE_EVENT {
@@ -53,7 +58,7 @@ struct InterfaceEvent {
  *
  * Invoked when the ChartEvent event occurs.
  */
-void OnChartEvent(const int id, const long& lparam, const double& dparam, const string& sparam) {
+void OnChartEvent(const int id, const int64& lparam, const double& dparam, const string& sparam) {
   datetime _dt;
   double _mp;
   int _window = 0;

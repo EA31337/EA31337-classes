@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 
@@ -117,7 +122,7 @@ class Indi_ATR : public Indicator<IndiATRParams> {
       IndiATRParams _params(_period);
       _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_params));
       // Assigning the same candle indicator for ATR as in _indi.
-      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
+      _ptr PTR_DEREF SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }

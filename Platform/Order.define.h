@@ -25,6 +25,11 @@
  * Includes Order's defines.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #ifndef __MQL4__
 // Mode constants.
 #define MODE_TRADES 0

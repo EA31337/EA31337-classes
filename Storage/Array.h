@@ -102,6 +102,28 @@ class Array {
     }
   }
 
+  template <typename X>
+  static void ArrayFill(ARRAY_REF(X, array), int start, int count, X value) {
+    start = MathMax(start, 0);
+    int end = MathMin(ArraySize(array), start + count);
+
+    for (int i = start; i < end; ++i) {
+      array[i] = value;
+    }
+  }
+
+#ifdef __cplusplus
+  template <typename X, int size>
+  static void ArrayFill(FIXED_ARRAY_REF(X, array, size), int start, int count, X value) {
+    start = MathMax(start, 0);
+    int end = MathMin(size, start + count);
+
+    for (int i = start; i < end; ++i) {
+      array[i] = value;
+    }
+  }
+#endif
+
   template <typename T>
   static int ArrayCopy(ARRAY_REF(T, dst_array), const ARRAY_REF(T, src_array), const int dst_start = 0,
                        const int src_start = 0, const int count = WHOLE_ARRAY) {
@@ -533,12 +555,12 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
    * - https://www.mql5.com/en/docs/array/arrayprint
    */
   template <typename T>
-  void ArrayPrint(ARRAY_REF(T, _arr),         // Printed array.
-                  int _digits = 0,            // Number of decimal places.
-                  const string _dlm = NULL,   // Separator of the structure field values.
-                  long _start = 0,            // First printed element index.
-                  long _count = WHOLE_ARRAY,  // Number of printed elements.
-                  long _flags = NULL) {
+  void ArrayPrint(ARRAY_REF(T, _arr),          // Printed array.
+                  int _digits = 0,             // Number of decimal places.
+                  const string _dlm = NULL,    // Separator of the structure field values.
+                  int64 _start = 0,            // First printed element index.
+                  int64 _count = WHOLE_ARRAY,  // Number of printed elements.
+                  int64 _flags = NULL) {
 #ifdef __MQL5__
     ::ArrayPrint(_arr, _digits, _dlm, _start, _count, _flags);
 #else
@@ -780,3 +802,17 @@ void ArrayPushObject(ARRAY_REF(X, array), X& value) {
   ::ArrayResize(array, Array::ArraySize(array) + 1);
   array[Array::ArraySize(array) - 1] = value;
 }
+
+#ifndef __MQL__
+
+template <typename X>
+void ArrayFill(ARRAY_REF(X, array), int start, int count, X value) {
+  Array::ArrayFill(array, start, count, value);
+}
+
+template <typename X, int size>
+void ArrayFill(FIXED_ARRAY_REF(X, array, size), int start, int count, X value) {
+  Array::ArrayFill(array, start, count, value);
+}
+
+#endif

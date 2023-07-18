@@ -37,6 +37,13 @@
 #define fmin5(_v1, _v2, _v3, _v4, _v5) fmin(fmin(fmin(fmin(_v1, _v2), _v3), _v4), _v5)
 #define fmin6(_v1, _v2, _v3, _v4, _v5, _v6) fmin(fmin(fmin(fmin(fmin(_v1, _v2), _v3), _v4), _v5), _v6)
 
+// Math errors.
+#define MATH_ERR_OK 0
+#define MATH_ERR_ARGUMENTS_NAN 1
+#define MATH_ERR_ARGUMENTS_INVALID 2
+#define MATH_ERR_RESULT_INFINITE 3
+#define MATH_ERR_NON_CONVERGENCE 4
+
 #ifdef __cplusplus
 #include <limits>
 
@@ -77,11 +84,11 @@
 #endif
 
 #ifndef LONG_MIN
-#define LONG_MIN std::numeric_limits<long>::min()
+#define LONG_MIN std::numeric_limits<int64>::min()
 #endif
 
 #ifndef LONG_MAX
-#define LONG_MAX std::numeric_limits<long>::max()
+#define LONG_MAX std::numeric_limits<int64>::max()
 #endif
 
 #ifndef ULONG_MAX

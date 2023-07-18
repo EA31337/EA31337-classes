@@ -20,18 +20,23 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Forward declarations.
 class Orders;
 
 // Includes.
 #include "../Exchange/Account/Account.h"
 #include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
-#include "Chart/Chart.struct.static.h"
 #include "../Log.mqh"
 #include "../Math/Math.h"
+#include "../Trade.struct.h"
+#include "Chart/Chart.struct.static.h"
 #include "Order.h"
 #include "Terminal.h"
-#include "../Trade.struct.h"
 
 /* Defines */
 
@@ -119,9 +124,9 @@ class Orders {
   /**
    * Finds order in the selected pool.
    */
-  Order *SelectOrder(unsigned long _ticket) {
+  Order *SelectOrder(uint64 _ticket) {
     for (unsigned int _pos = ArraySize(orders); _pos >= 0; _pos--) {
-      if (orders[_pos] PTR_DEREF Get<unsigned long>(ORDER_PROP_TICKET) == _ticket) {
+      if (orders[_pos] PTR_DEREF Get<uint64>(ORDER_PROP_TICKET) == _ticket) {
         return orders[_pos];
       }
     }
@@ -131,7 +136,7 @@ class Orders {
   /**
    * Select order object by ticket.
    */
-  Order *SelectByTicket(unsigned long _ticket) {
+  Order *SelectByTicket(uint64 _ticket) {
     Order *_order = SelectOrder(_ticket);
     if (_order != NULL) {
       return _order;
@@ -150,7 +155,7 @@ class Orders {
   /**
    * Calculate number of lots for open positions.
    */
-  static double GetOpenLots(string _symbol = NULL_STRING, long magic_number = 0, int magic_range = 0) {
+  static double GetOpenLots(string _symbol = NULL_STRING, int64 magic_number = 0, int magic_range = 0) {
     double total_lots = 0;
     // @todo: Convert to MQL5.
     _symbol = _symbol != NULL_STRING ? _symbol : _Symbol;

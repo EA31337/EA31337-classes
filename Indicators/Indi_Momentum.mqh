@@ -29,6 +29,11 @@
  * In addition, it can help to identify when the price action is losing steam to prepare for a potential trend reversal.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "Indi_PriceFeeder.mqh"
@@ -106,8 +111,8 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
                                      int _mode, int _shift = 0) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
 
-    double _indi_value_buffer[];
-    IndicatorDataEntry _entry(_indi.GetModeCount());
+    ARRAY(double, _indi_value_buffer);
+    IndicatorDataEntry _entry(_indi PTR_DEREF GetModeCount());
 
     ArrayResize(_indi_value_buffer, _period);
 
@@ -122,12 +127,12 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
     return momentum;
   }
 
-  static double iMomentumOnArray(double &array[], int total, int period, int shift) {
+  static double iMomentumOnArray(CONST_ARRAY_REF(double, array), int total, int period, int shift) {
 #ifdef __MQL4__
     return ::iMomentumOnArray(array, total, period, shift);
 #else
     Indi_PriceFeeder indi_price_feeder(array);
-    return iMomentumOnIndicator(&indi_price_feeder, NULL, NULL, period, /*unused*/ PRICE_OPEN, shift);
+    return iMomentumOnIndicator(&indi_price_feeder, NULL, PERIOD_CURRENT, period, /*unused*/ PRICE_OPEN, shift);
 #endif
   }
 

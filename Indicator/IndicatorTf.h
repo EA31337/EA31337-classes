@@ -20,10 +20,6 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_TF_H
-#define INDICATOR_TF_H
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
@@ -84,5 +80,3 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    */
   int GetTickIndex() override { return THIS_ATTR history.GetItemProvider() PTR_DEREF GetTickIndex(); }
 };
-
-#endif  // INDICATOR_TF_H

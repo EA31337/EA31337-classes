@@ -302,6 +302,15 @@ struct PatternCandle2 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+#ifndef __MQL__
+  // In MQL we use non-fixed-array constructor.
+  PatternCandle2(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_2CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_2CANDLE _enum = (ENUM_PATTERN_2CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+#endif
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_2CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -411,6 +420,15 @@ struct PatternCandle3 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+#ifndef __MQL__
+  // In MQL we use non-fixed-array constructor.
+  PatternCandle3(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_3CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_3CANDLE _enum = (ENUM_PATTERN_3CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+#endif
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_3CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -527,6 +545,15 @@ struct PatternCandle4 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+#ifndef __MQL__
+  // In MQL we use non-fixed-array constructor.
+  PatternCandle4(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_4CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_4CANDLE _enum = (ENUM_PATTERN_4CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+#endif
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_4CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     PatternCandle3 _c3(_c);
@@ -693,6 +720,16 @@ struct PatternCandle5 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+#ifndef __MQL__
+  // In MQL we use non-fixed-array constructor.
+  PatternCandle5(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_5CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_5CANDLE _enum = (ENUM_PATTERN_5CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+#endif
+
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_5CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -844,6 +881,16 @@ struct PatternCandle6 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+#ifndef __MQL__
+  // In MQL we use non-fixed-array constructor.
+  PatternCandle6(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_6CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_6CANDLE _enum = (ENUM_PATTERN_6CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+#endif
+
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_6CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -863,6 +910,16 @@ struct PatternCandle7 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+#ifndef __MQL__
+  // In MQL we use non-fixed-array constructor.
+  PatternCandle7(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_7CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_7CANDLE _enum = (ENUM_PATTERN_7CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+#endif
+
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_7CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -882,6 +939,16 @@ struct PatternCandle8 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+#ifndef __MQL__
+  // In MQL we use non-fixed-array constructor.
+  PatternCandle8(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_8CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_8CANDLE _enum = (ENUM_PATTERN_8CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+#endif
+
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_8CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -901,6 +968,16 @@ struct PatternCandle9 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+#ifndef __MQL__
+  // In MQL we use non-fixed-array constructor.
+  PatternCandle9(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_9CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_9CANDLE _enum = (ENUM_PATTERN_9CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+#endif
+
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_9CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -920,6 +997,16 @@ struct PatternCandle10 : PatternCandle {
       SetPattern(_enum, CheckPattern(_enum, _c));
     }
   }
+#ifndef __MQL__
+  // In MQL we use non-fixed-array constructor.
+  PatternCandle10(CONST_FIXED_ARRAY_REF(BarOHLC, _c, 8)) : PatternCandle(PATTERN_10CANDLE_NONE) {
+    for (int i = 0; i < sizeof(int) * 8; i++) {
+      ENUM_PATTERN_10CANDLE _enum = (ENUM_PATTERN_10CANDLE)(1 << i);
+      SetPattern(_enum, CheckPattern(_enum, _c));
+    }
+  }
+#endif
+
   // Calculation methods.
   static bool CheckPattern(ENUM_PATTERN_10CANDLE _enum, CONST_ARRAY_REF(BarOHLC, _c)) {
     switch (_enum) {
@@ -965,7 +1052,9 @@ struct PatternEntry {
         pattern8(_c),
         pattern9(_c),
         pattern10(_c) {}
-  PatternEntry(ARRAY_REF(BarOHLC, _c))
+#ifndef __MQL__
+  // In MQL we use non-fixed-array constructor.
+  PatternEntry(FIXED_ARRAY_REF(BarOHLC, _c, 8))
       : pattern1(_c[0]),
         pattern2(_c),
         pattern3(_c),
@@ -976,6 +1065,8 @@ struct PatternEntry {
         pattern8(_c),
         pattern9(_c),
         pattern10(_c) {}
+#endif
+
   // Operator methods.
   unsigned int operator[](const int _index) const {
     switch (_index) {

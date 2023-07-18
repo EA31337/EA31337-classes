@@ -25,6 +25,11 @@
  * Include file to include all bitwise indicators.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Bitwise indicators.
 #include "Indi_Candle.mqh"
 #include "Indi_Pattern.mqh"

@@ -25,6 +25,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Structs.
 struct DatabaseTableColumnEntry {
   string name;
@@ -88,7 +93,7 @@ struct DatabaseTableSchema {
 };
 
 // Struct table entry for SymbolInfo.
-#ifdef SYMBOLINFO_H
+#ifdef DATABASE_INCLUDE_SYMBOLINFO_STRUCT
 struct DbSymbolInfoEntry : public SymbolInfoEntry {
   DatabaseTableSchema schema;
   // Constructors.

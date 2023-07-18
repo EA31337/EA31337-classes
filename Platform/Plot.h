@@ -25,6 +25,11 @@
  * Group of functions intended for working with graphic objects relating to any specified chart.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Class dependencies.
 class Chart;
 class Plot;
@@ -68,14 +73,14 @@ class Plot;
 class Plot : public Object {
  protected:
   // Variables.
-  long chart_id;
+  int64 chart_id;
   // Class variables.
 
  public:
   /**
    * Class constructor.
    */
-  Plot(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : ::ChartID()) {}
+  Plot(int64 _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : ::ChartID()) {}
 
   /* Graphic object related methods */
 
@@ -87,7 +92,7 @@ class Plot : public Object {
    * @return
    * Name of the object is returned in case of success.
    */
-  static string ObjectName(long _chart_id, int _pos, int _sub_window = -1, int _type = -1) {
+  static string ObjectName(int64 _chart_id, int _pos, int _sub_window = -1, int _type = -1) {
     return ::ObjectName(_chart_id, _pos, _sub_window, _type);
   }
   static string ObjectName(int _index) { return Plot::ObjectName(0, _index); }
@@ -99,7 +104,7 @@ class Plot : public Object {
    * @return
    * The number of objects.
    */
-  static int ObjectsTotal(long chart_id, int type = EMPTY, int window = -1) {
+  static int ObjectsTotal(int64 chart_id, int type = EMPTY, int window = -1) {
 #ifdef __MQL4__
     return ::ObjectsTotal(chart_id, window, type);
 #else
@@ -154,7 +159,7 @@ class Plot : public Object {
    * - https://docs.mql4.com/objects/objectset
    * - https://docs.mql4.com/constants/objectconstants/enum_object_property
    */
-  static bool ObjectSet(string name, int prop_id, double prop_value, long chart_id = 0) {
+  static bool ObjectSet(string name, int prop_id, double prop_value, int64 chart_id = 0) {
 #ifdef __MQL4__
     return ::ObjectSet(name, prop_id, prop_value);
 #else  // __MQL5__
@@ -165,10 +170,10 @@ class Plot : public Object {
         return ObjectSetDouble(chart_id, name, (ENUM_OBJECT_PROPERTY_DOUBLE)prop_id, (double)prop_value);
       case OBJPROP_RAY:
         // Boolean value to set/get ray flag of object.
-        return ObjectSetInteger(chart_id, name, OBJPROP_RAY_RIGHT, (long)prop_value);
+        return ObjectSetInteger(chart_id, name, OBJPROP_RAY_RIGHT, (int64)prop_value);
       case OBJPROP_FIBOLEVELS:
         // Integer value to set/get Fibonacci object level count. Can be from 0 to 32.
-        return ObjectSetInteger(chart_id, name, OBJPROP_LEVELS, (long)prop_value);
+        return ObjectSetInteger(chart_id, name, OBJPROP_LEVELS, (int64)prop_value);
       case OBJPROP_ARROWCODE:   // Arrow code for the Arrow object (char).
       case OBJPROP_BACK:        // Boolean value to set/get background drawing flag for object.
       case OBJPROP_COLOR:       // Color value to set/get object color.
@@ -183,7 +188,7 @@ class Plot : public Object {
       case OBJPROP_WIDTH:       // Integer value to set/get object line width. Can be from 1 to 5.
       case OBJPROP_XDISTANCE:   // The distance in pixels along the X axis from the binding corner (int).
       case OBJPROP_YDISTANCE:   // The distance in pixels along the Y axis from the binding corner (int).
-        return ObjectSetInteger(chart_id, name, (ENUM_OBJECT_PROPERTY_INTEGER)prop_id, (long)prop_value);
+        return ObjectSetInteger(chart_id, name, (ENUM_OBJECT_PROPERTY_INTEGER)prop_id, (int64)prop_value);
       default:
         break;
     }
@@ -192,13 +197,13 @@ class Plot : public Object {
     switch (prop_id) {
       // Datetime value to set/get first coordinate time part.
       case OBJPROP_TIME1:
-        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, (long)prop_value);
+        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, (int64)prop_value);
       // Datetime value to set/get second coordinate time part.
       case OBJPROP_TIME2:
-        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, 1, (long)prop_value);
+        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, 1, (int64)prop_value);
       // Datetime value to set/get third coordinate time part.
       case OBJPROP_TIME3:
-        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, 2, (long)prop_value);
+        return ObjectSetInteger(chart_id, name, OBJPROP_TIME, 2, (int64)prop_value);
       // Double value to set/get first coordinate price part.
       case OBJPROP_PRICE1:
         return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, (double)prop_value);
@@ -219,7 +224,7 @@ class Plot : public Object {
   /**
    * Creates an object with the specified name, type, and the initial coordinates.
    */
-  static bool ObjectCreate(long _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
+  static bool ObjectCreate(int64 _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
 #ifdef __MQL4__
     // https://docs.mql4.com/objects/objectcreate
     return ::ObjectCreate(_name, _otype, _swindow, _t1, _p1);
@@ -228,7 +233,7 @@ class Plot : public Object {
     return ::ObjectCreate(_cid, _name, _otype, _swindow, _t1, _p1);
 #endif
   }
-  static bool ObjectCreate(long _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1,
+  static bool ObjectCreate(int64 _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1,
                            datetime _t2, double _p2) {
 #ifdef __MQL4__
     // https://docs.mql4.com/objects/objectcreate
@@ -253,7 +258,7 @@ class Plot : public Object {
   /**
    * Deletes object via name.
    */
-  static bool ObjectDelete(long chart_id, string name) {
+  static bool ObjectDelete(int64 chart_id, string name) {
 #ifdef __MQL4__
     // https://docs.mql4.com/objects/objectdelete
     return ::ObjectDelete(name);

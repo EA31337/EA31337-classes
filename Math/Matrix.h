@@ -20,14 +20,9 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef MATRIX_MQH
-#define MATRIX_MQH
-
-#ifdef USE_MQL_MATH_STAT
-#ifdef __MQL5__
-#include <Math/Stat/Normal.mqh>
-#endif
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
 #endif
 
 // Includes.
@@ -1413,24 +1408,19 @@ class Matrix {
    */
   void FillRandomUniform(X _min, X _max, int _seed = -1) { FillRandom(_min, _max, _seed); }
 
-#ifdef USE_MQL_MATH_STAT
   /**
    * Initializer that generates tensors with a normal distribution.
    */
   void FillRandomNormal(X _mean, X _stddev, int _seed = -1) {
-#ifdef __MQL5__
     if (_seed != -1) {
       Print("Matrix::FillRandomNormal(): _seed parameter is not yet implemented! Please use -1 as _seed.");
     }
 
-    double _values[];
-    MathRandomNormal(_mean, _stddev, GetSize(), _values);
+    ARRAY(double, _values);
+    int _size = GetSize();
+    Math::RandomNormal(_mean, _stddev, _size, _values);
     FillFromArray(_values);
-#else
-    Print("Matrix::FillRandomNormal() is implemented only in MQL5!");
-#endif
   }
-#endif
 
   void FillFromArray(ARRAY_REF(X, _array)) {
     if (ArraySize(_array) != GetSize()) {
@@ -2262,5 +2252,3 @@ class Matrix {
     return _out + "]";
   }
 };
-
-#endif

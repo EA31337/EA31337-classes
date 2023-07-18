@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "../Storage/Dict/Buffer/BufferStruct.h"
@@ -132,25 +137,27 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
    */
   static double iADXWilderOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _abs_shift,
                                   IndiBufferCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(3 + 7);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(3 + 7);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_ADXW::Calculate(
-        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
-        _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4),
-        _cache.GetBuffer<double>(5), _cache.GetBuffer<double>(6), _cache.GetBuffer<double>(7),
-        _cache.GetBuffer<double>(8), _cache.GetBuffer<double>(9), _period));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_ADXW::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0),
+                             _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2),
+                             _cache PTR_DEREF GetBuffer<double>(3), _cache PTR_DEREF GetBuffer<double>(4),
+                             _cache PTR_DEREF GetBuffer<double>(5), _cache PTR_DEREF GetBuffer<double>(6),
+                             _cache PTR_DEREF GetBuffer<double>(7), _cache PTR_DEREF GetBuffer<double>(8),
+                             _cache PTR_DEREF GetBuffer<double>(9), _period));
 
     // Returns value from the first calculation buffer.
     // Returns first value for as-series array or last value for non-as-series array.
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

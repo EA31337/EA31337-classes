@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef DICT_H
-#define DICT_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 #include "../../Convert.basic.h"
 #include "../../Math/Matrix.h"
@@ -448,5 +449,3 @@ class Dict : public DictBase<K, V> {
     return result;
   }
 };
-
-#endif

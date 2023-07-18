@@ -25,6 +25,11 @@
  * MetaTrader DX-targeted graphics vertex buffer.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../../VertexBuffer.h"
 
 class MTDXVertexBuffer : public VertexBuffer {

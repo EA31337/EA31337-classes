@@ -38,5 +38,5 @@ struct ExchangeParams {
   // Constructors.
   ExchangeParams() {}
   ExchangeParams(const ExchangeParams &_eparams) {}
-  long id;
+  int64 id;
 };

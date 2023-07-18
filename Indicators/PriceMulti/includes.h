@@ -25,5 +25,10 @@
  * Include file to include all price multi indicators.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Price multi indicators.
 #include "Indi_Alligator.h"

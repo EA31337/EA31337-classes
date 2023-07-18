@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef INDI_MA_H
-#define INDI_MA_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../Indicator/Indicator.h"
@@ -149,8 +150,8 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Calculates MA on the array of values. Cache is optional.
    */
-  static double iMAOnArray(ARRAY_REF(double, price), int total, int ma_period, int ma_shift, int ma_method, int shift,
-                           IndiBufferCache<double> *cache = NULL) {
+  static double iMAOnArray(ARRAY_REF(double, price), int total, int ma_period, int ma_shift, ENUM_MA_METHOD ma_method,
+                           int shift, IndiBufferCache<double> *cache = NULL) {
 #ifdef __MQL4__
     return ::iMAOnArray(price, total, ma_period, ma_shift, ma_method, shift);
 #else
@@ -166,8 +167,9 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Calculates MA on the array of values.
    */
-  static double iMAOnArray(ValueStorage<double> &price, int total, int ma_period, int ma_shift, int ma_method,
-                           int shift, IndiBufferCache<double> *_cache = NULL, bool recalculate = false) {
+  static double iMAOnArray(ValueStorage<double> &price, int total, int ma_period, int ma_shift,
+                           ENUM_MA_METHOD ma_method, int shift, IndiBufferCache<double> *_cache = NULL,
+                           bool recalculate = false) {
     if (_cache != NULL) {
       _cache PTR_DEREF SetPriceBuffer(price);
 
@@ -179,9 +181,8 @@ class Indi_MA : public Indicator<IndiMAParams> {
         _cache PTR_DEREF ResetPrevCalculated();
       }
 
-      _cache PTR_DEREF SetPrevCalculated(Indi_MA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT,
-                                                            PTR_TO_REF(_cache PTR_DEREF GetBuffer<double>(0)),
-                                                            ma_method, ma_period));
+      _cache PTR_DEREF SetPrevCalculated(Indi_MA::Calculate(
+          INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache PTR_DEREF GetBuffer<double>(0), ma_method, ma_period));
 
       // Returns value from the first calculation buffer.
       // Returns first value for as-series array or last value for non-as-series array.
@@ -789,16 +790,14 @@ class Indi_MA : public Indicator<IndiMAParams> {
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
-double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
+double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, int _ap, int _shift) {
   ResetLastError();
-  return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
-                      (ENUM_APPLIED_PRICE)_ap, _shift);
+  return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, _ma_method, (ENUM_APPLIED_PRICE)_ap,
+                      _shift);
 }
-double iMAOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _ma_shift, int _ma_method, int _abs_shift,
-                  IndiBufferCache<double> *_cache = NULL) {
+double iMAOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _ma_shift, ENUM_MA_METHOD _ma_method,
+                  int _abs_shift, IndiBufferCache<double> *_cache = NULL) {
   ResetLastError();
   return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
 }
 #endif
-
-#endif  // INDI_MA_H

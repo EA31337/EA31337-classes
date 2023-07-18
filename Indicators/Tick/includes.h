@@ -25,6 +25,11 @@
  * Include file to include all tick indicators.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Tick indicators.
 #include "Indi_TickMt.h"
 //#include "Indi_TickProvider.h" // @fixme
