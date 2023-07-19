@@ -460,7 +460,7 @@ struct OrderData {
    *   Returns a comment with reason
    */
   string GetCloseComment() {
-    string _result = StringFormat("%s (MN=%d,pips=%d)", GetReasonCloseText(), magic, Get<int>(ORDER_PROP_PROFIT_PIPS));
+    string _result = StringFormat("%s (mn=%d,pips=%d)", GetReasonCloseText(), magic, Get<int>(ORDER_PROP_PROFIT_PIPS));
     return _result;
   }
 
@@ -551,6 +551,7 @@ struct OrderData {
         return;
       case ORDER_PRICE_OPEN:
         price_open = _value;
+        RefreshProfit();
         return;
       case ORDER_SL:
         sl = _value;
@@ -645,7 +646,9 @@ struct OrderData {
     ResetLastError();
     last_error = ERR_NO_ERROR;
   }
-  void RefreshProfit() { profit = (price_current - price_open) * GetTypeValue(); }
+  void RefreshProfit() {
+    profit = (price_current > 0 && price_open > 0) ? (price_current - price_open) * GetTypeValue() : 0;
+  }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "magic", magic);

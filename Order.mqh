@@ -928,7 +928,7 @@ class Order : public SymbolInfo {
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment + ":" + odata.GetCloseComment();
     _request.deviation = orequest.deviation;
-    _request.magic = orequest.magic; // @todo: Add to odata, in case it has been changed.
+    _request.magic = orequest.magic;  // @todo: Add to odata, in case it has been changed.
     _request.symbol = orequest.symbol;
     _request.type = NegateOrderType(orequest.type);
     _request.type_filling = GetOrderFilling(orequest.symbol);
@@ -943,13 +943,14 @@ class Order : public SymbolInfo {
       odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)));
       odata.Set(ORDER_PROP_LAST_ERROR, ERR_NO_ERROR);
       odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
-      Refresh();
+      Refresh(true);
       return true;
     } else {
       odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
       if (OrderSelect()) {
-        if (IsClosed()) {
-          Refresh();
+        Refresh(true);
+        if (!IsClosed()) {
+          ologger.Error(StringFormat("Issue closing order: %d!", oresult.deal, __FUNCTION_LINE__));
         }
       }
     }
@@ -1054,7 +1055,7 @@ class Order : public SymbolInfo {
     MqlTradeCheckResult _result_check = {0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_SLTP;
-    _request.comment = ::PositionGetString(POSITION_COMMENT); // StringFormat("mn=%d", GetMagicNumber());
+    _request.comment = ::PositionGetString(POSITION_COMMENT);  // StringFormat("mn=%d", GetMagicNumber());
     _request.magic = ::PositionGetInteger(POSITION_MAGIC);
     _request.position = _ticket;  // Position ticket.
     _request.symbol = ::PositionGetString(POSITION_SYMBOL);
@@ -1662,8 +1663,6 @@ class Order : public SymbolInfo {
       RefreshDummy(ORDER_TP);
       RefreshDummy(ORDER_PRICE_CURRENT);
     }
-
-    odata.Set(ORDER_PROP_PROFIT, oresult.bid - oresult.ask);
 
     // @todo: More RefreshDummy(XXX);
 
