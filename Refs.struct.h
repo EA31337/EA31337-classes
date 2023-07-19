@@ -31,6 +31,7 @@
 #endif
 
 #include "Refs.rc.h"
+#include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
 
 #ifdef EMSCRIPTEN
@@ -38,7 +39,8 @@
 #endif
 
 class Dynamic;
-// Forward class declaration.
+// Forward declarations.
+class Serializer;
 template <typename X>
 struct WeakRef;
 
@@ -282,6 +284,11 @@ struct Ref {
 
     return ptr_object PTR_DEREF ToString();
   }
+
+#ifdef __MQL__
+  template <>
+#endif
+  SerializerNodeType Serialize(Serializer& s);
 };
 
 #ifdef __cplusplus
