@@ -25,20 +25,13 @@
  * Implements Moving Average Convergence Divergence (MACD) indicator.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../../Indicator/Indicator.h"
-
-#ifdef __MQL5__
-// Forward declaration.
-class Indi_MACD;
-
-// Defines global functions (for MQL4 backward compability).
-double iMACD(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_period, int _ap, int _mode, int _shift) {
-  ResetLastError();
-  return Indi_MACD::iMACD(_symbol, (ENUM_TIMEFRAMES)_tf, _ema_fp, _ema_sp, _signal_period, (ENUM_APPLIED_PRICE)_ap,
-                          (ENUM_SIGNAL_LINE)_mode, _shift);
-}
-#endif
 
 // Structs.
 struct IndiMACDParams : IndicatorParams {
@@ -105,11 +98,11 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
 #ifdef __MQL__
 #ifdef __MQL4__
     return ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _mode, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price), _mode, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -219,3 +212,12 @@ class Indi_MACD : public Indicator<IndiMACDParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iMACD(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_period, int _ap, int _mode, int _shift) {
+  ResetLastError();
+  return Indi_MACD::iMACD(_symbol, (ENUM_TIMEFRAMES)_tf, _ema_fp, _ema_sp, _signal_period, (ENUM_APPLIED_PRICE)_ap,
+                          (ENUM_SIGNAL_LINE)_mode, _shift);
+}
+#endif

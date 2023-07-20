@@ -29,9 +29,10 @@
  * - https://www.mql5.com/en/docs/dateandtime
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef DATETIME_MQH
-#define DATETIME_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Forward declarations.
 struct DataParamEntry;
@@ -252,5 +253,3 @@ datetime TimeCurrent(MqlDateTime &dt_struct) {
 }
 
 #endif
-
-#endif  // DATETIME_MQH

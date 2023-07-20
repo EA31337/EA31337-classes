@@ -56,10 +56,12 @@
 #define PTR_ATTRIB(O, A) O.A
 #define PTR_ATTRIB2(O, A, B) O.A.B
 #define PTR_TO_REF(PTR) PTR
+#define REF_TO_PTR(PTR) PTR
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
 #define nullptr NULL
 #define REF_DEREF .Ptr().
 #define int64 long
+#define uint64 unsigned long
 #define VOID_DATA(N) void*& N[]
 #else
 #define THIS_ATTR this->
@@ -68,83 +70,138 @@
 #define PTR_DEREF ->
 #define PTR_ATTRIB(O, A) O->A
 #define PTR_ATTRIB2(O, A, B) O->A->B
-#define PTR_TO_REF(PTR) (*PTR)
+#define PTR_TO_REF(PTR) (*(PTR))
+#define REF_TO_PTR(PTR) (&(PTR))
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
 #define REF_DEREF .Ptr()->
 #define int64 long long
+#define uint64 unsigned long long
 #define VOID_DATA(N) void* N
 #endif
 
-// References.
-#ifdef __cplusplus
-#define REF(X) (&X)
-#else
+// Reference to simple type like bool, int, double, string.
+#ifdef __MQL__
 #define REF(X) X&
+#else
+#define REF(X) (&X)
 #endif
 
 // Arrays and references to arrays.
 #define _COMMA ,
+
+// Reference to object.
 #ifdef __MQL__
-#define ARRAY_DECLARATION_BRACKETS []
+#define REF_TO(T) T*
 #else
-// C++'s _cpp_array is an object, so no brackets are needed.
-#define ARRAY_DECLARATION_BRACKETS
+#define REF_TO(T) T&
 #endif
 
+// Const reference to object.
+#define CONST_REF_TO(T) const REF_TO(T)
+
+// Reference to simple type like bool, int, double, string or structure that is not treated as object by MT.
+#define REF_TO_SIMPLE(T) T&
+
+// Const reference to simple type like bool, int, double, string.
+#define CONST_REF_TO_SIMPLE(T) const REF_TO_SIMPLE(T)
+
+// Returning type for methods that returns simple types as int, double, string.
 #ifdef __MQL__
-/**
- * Reference to object.
- */
-#define CONST_REF_TO(T) const T
-
-/**
- * Reference to the array.
- *
- * @usage
- *   ARRAY_REF(<type of the array items>, <name of the variable>)
- */
-#define ARRAY_TYPE(T) T[]
-#define ARRAY_REF(T, N) REF(T) N ARRAY_DECLARATION_BRACKETS
-#define FIXED_ARRAY_REF(T, N, S) ARRAY_REF(T, N)
-
-#define CONST_ARRAY_REF(T, N) const N ARRAY_DECLARATION_BRACKETS
-
-/**
- * Array definition.
- *
- * @usage
- *   ARRAY(<type of the array items>, <name of the variable>)
- */
-#define ARRAY(T, N) T N[]
-#define FIXED_ARRAY(T, N, SIZE) T N[SIZE]
-
+#define RETURN_REF_TO_SIMPLE(T) T
 #else
-/**
- * Reference to object.
- */
-#define CONST_REF_TO(T) const T&
+#define RETURN_REF_TO_SIMPLE(T) T&
+#endif
+
+// Returning type for methods that returns simple contstant types as int, double, string.
+#define RETURN_CONST_REF_TO_SIMPLE(T) const RETURN_REF_TO_SIMPLE(T)
+
+// Casts reference to object to given type.
+#ifdef __MQL__
+#define REF_CAST(T) (T*)
+#else
+#define REF_CAST(T) (T&)
+#endif
 
 /**
-
- * Reference to the array.
- *
- * @usage
- *   ARRAY_REF(<type of the array items>, <name of the variable>)
+ * Type of the array.
+ * T = Type of the array items.
+ * Example: ARRAY_TYPE(int) items; ArrayPush(items, 1);
  */
+#ifdef __MQL__
+#define ARRAY_TYPE(T) T[]
+#else
 #define ARRAY_TYPE(T) _cpp_array<T>
-#define ARRAY_REF(T, N) ARRAY_TYPE(T) & N
-#define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
-
-#define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
+#endif
 
 /**
- * Array definition.
- *
- * @usage
- *   ARRAY(<type of the array items>, <name of the variable>)
+ * Declaration of the array of given type and name.
+ * T = Type of the array items.
+ * N = Name of the array.
+ * Example: ARRAY(int, items); ArrayPush(items, 1);
  */
+#ifdef __MQL__
+#define ARRAY(T, N) T N[]
+#else
 #define ARRAY(T, N) ::_cpp_array<T> N
+#endif
+
+/**
+ * Reference to the array of given type and name.
+ * T = Type of the array items.
+ * N = Name of the array.
+ * Example: void Append(ARRAY_REF(int, values));
+ */
+#ifdef __MQL__
+#define ARRAY_REF(T, N) REF(T) N[]
+#else
+#define ARRAY_REF(T, N) ARRAY_TYPE(T) & N
+#endif
+
+/**
+ * Reference to the constant array of given type and name.
+ * T = Type of the array items.
+ * N = Name of the array.
+ * Example: void Append(CONST_ARRAY_REF(int, values));
+ */
+#ifdef __MQL__
+#define CONST_ARRAY_REF(T, N) const T& N[]
+#else
+#define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
+#endif
+
+/**
+ * Declaration of the array of given type, name and fixed size.
+ * T = Type of the array items.
+ * N = Name of the array.
+ * S = Fixed size of the array.
+ * Example: FIXED_ARRAY(int, values, 1); values[0] = 1;
+ */
 #define FIXED_ARRAY(T, N, SIZE) T N[SIZE]
+
+/**
+ * Reference to the array of given type and name and fixed size.
+ * T = Type of the array items.
+ * N = Name of the array.
+ * S = Fixed size of the array.
+ * Example: void Append(FIXED_ARRAY_REF(int, values, 5));
+ */
+#ifdef __MQL__
+#define FIXED_ARRAY_REF(T, N, S) ARRAY_REF(T, N)
+#else
+#define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
+#endif
+
+/**
+ * Reference to the constant array of given type and name and fixed size.
+ * T = Type of the array items.
+ * N = Name of the array.
+ * S = Fixed size of the array.
+ * Example: void Append(FIXED_ARRAY_REF(int, values, 5));
+ */
+#ifdef __MQL__
+#define CONST_FIXED_ARRAY_REF(T, N, S) const FIXED_ARRAY_REF(T, N, S)
+#else
+#define CONST_FIXED_ARRAY_REF(T, N, S) const FIXED_ARRAY_REF(T, N, S)
 #endif
 
 // typename(T)
@@ -169,7 +226,7 @@ class _cpp_array {
   _cpp_array() {}
 
   template <int size>
-  _cpp_array(const T REF(_arr)[size]) {
+  _cpp_array(CONST_FIXED_ARRAY_REF(T, _arr, size)) {
     for (const auto& _item : _arr) m_data.push_back(_item);
   }
 

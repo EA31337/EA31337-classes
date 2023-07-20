@@ -261,14 +261,14 @@ class IndicatorBase : public Object {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual long GetSpread(int _shift = 0) = 0;
+  virtual int64 GetSpread(int _shift = 0) = 0;
 
   /**
    * Returns volume value for the bar.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual long GetVolume(int _shift = 0) = 0;
+  virtual int64 GetVolume(int _shift = 0) = 0;
 
   /**
    * Returns indicator value for a given shift and mode.
@@ -281,7 +281,7 @@ class IndicatorBase : public Object {
   /*
   virtual bool HasValidEntry(int _index = 0) {
     unsigned int position;
-    long bar_time = GetBarTime(_index);
+    int64 bar_time = GetBarTime(_index);
     return bar_time > 0 && idata.KeyExists(bar_time, position) ? idata.GetByPos(position).IsValid() : false;
   }
   */

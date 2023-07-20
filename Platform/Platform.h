@@ -36,7 +36,7 @@
 /**
  * Returns number of candles for a given symbol and time-frame.
  */
-extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
+extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 
 #endif
 
@@ -78,10 +78,10 @@ class Platform {
   static bool time_clear_flags;
 
   // List of added indicators.
-  static DictStruct<long, Ref<IndicatorData>> indis;
+  static DictStruct<int64, Ref<IndicatorData>> indis;
 
   // List of default Candle/Tick indicators.
-  static DictStruct<long, Ref<IndicatorData>> indis_dflt;
+  static DictStruct<int64, Ref<IndicatorData>> indis_dflt;
 
   // Result of the last tick.
   static bool last_tick_result;
@@ -121,7 +121,7 @@ class Platform {
     // Checking starting periods and updating time to current one.
     time_flags = time.GetStartedPeriods();
 
-    DictStructIterator<long, Ref<IndicatorData>> _iter;
+    DictStructIterator<int64, Ref<IndicatorData>> _iter;
 
     last_tick_result = false;
 
@@ -173,7 +173,7 @@ class Platform {
   /**
    * Returns dictionary of added indicators (keyed by unique id).
    */
-  static DictStruct<long, Ref<IndicatorData>> *GetIndicators() { return &indis; }
+  static DictStruct<int64, Ref<IndicatorData>> *GetIndicators() { return &indis; }
 
   /**
    * Adds indicator to be processed by platform.
@@ -181,7 +181,7 @@ class Platform {
   static void Add(IndicatorData *_indi) {
     Ref<IndicatorData> _ref = _indi;
 
-    DictStructIterator<long, Ref<IndicatorData>> _iter;
+    DictStructIterator<int64, Ref<IndicatorData>> _iter;
     for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
       if (_iter.Value() == _ref) {
         Alert("Warning: ", _indi PTR_DEREF GetFullName(),
@@ -197,7 +197,7 @@ class Platform {
   /**
    * Adds indicator to be processed by platform and tries to initialize its data source(s).
    */
-  static void AddWithDefaultBindings(IndicatorData *_indi, CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+  static void AddWithDefaultBindings(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf) {
     Add(_indi);
     BindDefaultDataSource(_indi, _symbol, _tf);
   }
@@ -255,7 +255,7 @@ class Platform {
   /**
    * Returns number of candles for a given symbol and time-frame.
    */
-  static int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+  static int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf) {
     Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
     return 0;
   }
@@ -282,7 +282,7 @@ class Platform {
    * Note that some indicators may work on custom set of buffers required from data source and not on Candle or Tick
    * indicator.
    */
-  static void BindDefaultDataSource(IndicatorData *_indi, CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+  static void BindDefaultDataSource(IndicatorData *_indi, CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf) {
     Flags<unsigned int> _suitable_ds_types = _indi PTR_DEREF GetSuitableDataSourceTypes();
 
     IndicatorData *_default_indi_candle = FetchDefaultCandleIndicator(_symbol, _tf);
@@ -383,7 +383,7 @@ class Platform {
   /**
    * Returns default properties for given symbol for current platform.
    */
-  static SymbolInfoProp FetchDefaultSymbolProps(CONST_REF_TO(string) _symbol) {
+  static SymbolInfoProp FetchDefaultSymbolProps(CONST_REF_TO_SIMPLE(string) _symbol) {
     SymbolInfoProp props;
 #ifdef __MQLBUILD__
     props.pip_value = SymbolInfoStatic::GetPipValue(_symbol);
@@ -411,7 +411,7 @@ class Platform {
    */
   static string IndicatorsToString(int _shift = 0) {
     string _result;
-    for (DictStructIterator<long, Ref<IndicatorData>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
+    for (DictStructIterator<int64, Ref<IndicatorData>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
       IndicatorDataEntry _entry = _iter.Value() REF_DEREF GetEntry(_shift);
       _result += _iter.Value() REF_DEREF GetFullName() + " = " + _entry.ToString<double>() + "\n";
     }
@@ -440,6 +440,38 @@ class Platform {
     return period;
   }
 
+  /**
+   * Returns the point size of the current symbol in the quote currency.
+   * @see https://docs.mql4.com/check/point
+   */
+  static double GetPoint() {
+    if (symbol == PLATFORM_WRONG_SYMBOL) {
+      RUNTIME_ERROR(
+          "Retrieving _Point variable or calling Point() outside the OnTick() of the currently ticking indicator is "
+          "prohibited!");
+    }
+
+    Alert("Error: Platform::GetPoint() is not yet implemented! Returning 0.01.");
+    DebugBreak();
+    return 0.01;
+  }
+
+  /**
+   * Returns the number of decimal digits determining the accuracy of price of the current chart symbol.
+   * @see https://docs.mql4.com/check/digits
+   */
+  static int GetDigits() {
+    if (symbol == PLATFORM_WRONG_SYMBOL) {
+      RUNTIME_ERROR(
+          "Retrieving _Digits variable or calling Digits() outside the OnTick() of the currently ticking indicator is "
+          "prohibited!");
+    }
+
+    Alert("Error: Platform::GetDigits() is not yet implemented! Returning 2.");
+    DebugBreak();
+    return 2;
+  }
+
  private:
   /**
    * Sets symbol of the currently ticking indicator.
@@ -460,8 +492,8 @@ bool Platform::time_clear_flags = true;
 int Platform::global_tick_index = 0;
 string Platform::symbol = PLATFORM_WRONG_SYMBOL;
 ENUM_TIMEFRAMES Platform::period = PLATFORM_WRONG_TIMEFRAME;
-DictStruct<long, Ref<IndicatorData>> Platform::indis;
-DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
+DictStruct<int64, Ref<IndicatorData>> Platform::indis;
+DictStruct<int64, Ref<IndicatorData>> Platform::indis_dflt;
 
 #ifndef __MQL__
 // Following methods must be there are they're externed in Platform.extern.h
@@ -470,7 +502,7 @@ DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
 /**
  * Returns number of candles for a given symbol and time-frame.
  */
-int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) { return Platform::Bars(_symbol, _tf); }
+int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf) { return Platform::Bars(_symbol, _tf); }
 
 /**
  * Returns the number of calculated data for the specified indicator.
@@ -485,7 +517,7 @@ int CopyBuffer(int indicator_handle, int buffer_num, int start_pos, int count, A
   return 0;
 }
 
-unsigned int64 PositionGetTicket(int _index) {
+uint64 PositionGetTicket(int _index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -510,22 +542,22 @@ int HistoryDealsTotal() {
   return 0;
 }
 
-unsigned int64 HistoryDealGetTicket(int index) {
+uint64 HistoryDealGetTicket(int index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-int64 HistoryDealGetInteger(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id) {
+int64 HistoryDealGetInteger(uint64 ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-double HistoryDealGetDouble(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id) {
+double HistoryDealGetDouble(uint64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-string HistoryDealGetString(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
+string HistoryDealGetString(uint64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
   return 0;
 }
@@ -555,12 +587,12 @@ bool OrderCheck(const MqlTradeRequest &request, MqlTradeCheckResult &result) {
   return false;
 }
 
-unsigned int64 OrderGetTicket(int index) {
+uint64 OrderGetTicket(int index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
 
-unsigned int64 HistoryOrderGetTicket(int index) {
+uint64 HistoryOrderGetTicket(int index) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -570,7 +602,7 @@ bool HistorySelectByPosition(int64 position_id) {
   return false;
 }
 
-bool HistoryDealSelect(unsigned int64 ticket) {
+bool HistoryDealSelect(uint64 ticket) {
   Print("Not yet implemented: ", __FUNCTION__, " returns false.");
   return false;
 }
@@ -580,7 +612,7 @@ int64 OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
   return 0;
 }
 
-int64 HistoryOrderGetInteger(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id) {
+int64 HistoryOrderGetInteger(uint64 ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -590,7 +622,7 @@ double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
   return 0;
 }
 
-double HistoryOrderGetDouble(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+double HistoryOrderGetDouble(uint64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
@@ -600,7 +632,7 @@ string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
   return 0;
 }
 
-string HistoryOrderGetString(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id) {
+string HistoryOrderGetString(uint64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
   return 0;
 }
@@ -653,6 +685,26 @@ int CopyTickVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos,
 int CopyRealVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(int64, arr)) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
+}
+
+double iOpen(string symbol, int timeframe, int shift) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 1.0.");
+  return 1.0;
+}
+
+double iHigh(string symbol, int timeframe, int shift) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 1.0.");
+  return 1.0;
+}
+
+double iLow(string symbol, int timeframe, int shift) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 1.0.");
+  return 1.0;
+}
+
+double iClose(string symbol, int timeframe, int shift) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 1.0.");
+  return 1.0;
 }
 
 int ChartID() { return Platform::ChartID(); }
@@ -803,6 +855,12 @@ bool TimeToStruct(datetime dt, MqlDateTime &dt_struct) {
 SymbolGetter::operator string() const { return Platform::GetSymbol(); }
 
 ENUM_TIMEFRAMES Period() { return Platform::GetPeriod(); }
+
+double Point() { return Platform::GetPoint(); }
+#define _Point (Point())
+
+int Digits() { return Platform::GetDigits(); }
+#define _Digits (Digits())
 
 datetime StructToTime(MqlDateTime &dt_struct) {
   tm ltm;

@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 2 bars was originally specified by Indicators/Examples/CHO.mq5
 #define INDI_CHO_MIN_BARS 2
@@ -119,21 +124,22 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
   static double iChaikinOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_ma_period, int _slow_ma_period,
                                 ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode, int _abs_shift,
                                 IndiBufferCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(4);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(4);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_CHO::Calculate(
-        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
-        _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _fast_ma_period, _slow_ma_period, _ma_method, _av));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_CHO::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0),
+                            _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2),
+                            _cache PTR_DEREF GetBuffer<double>(3), _fast_ma_period, _slow_ma_period, _ma_method, _av));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -183,7 +189,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
     return (rates_total);
   }
 
-  static double AD(double high, double low, double close, long volume) {
+  static double AD(double high, double low, double close, int64 volume) {
     double res = 0.0;
     double sum = (close - low) - (high - close);
     if (sum != 0.0) {

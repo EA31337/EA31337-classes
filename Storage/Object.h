@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Refs.mqh"
@@ -37,14 +38,14 @@
 class Object : public Dynamic {
  protected:
   void *obj;
-  long id;
+  int64 id;
 
  public:
   /**
    * Class constructor.
    */
   Object() : obj(THIS_PTR), id(rand()) {}
-  Object(void *_obj, long _id = __LINE__) {
+  Object(void *_obj, int64 _id = __LINE__) {
     obj = _obj;
     id = _id;
   }
@@ -54,14 +55,14 @@ class Object : public Dynamic {
   /**
    * Get ID of the object.
    */
-  virtual long GetId() { return id; }
+  virtual int64 GetId() { return id; }
 
   /* Setters */
 
   /**
    * Set ID of the object.
    */
-  void SetId(long _id) { id = _id; }
+  void SetId(int64 _id) { id = _id; }
 
   /**
    * Get the object handler.
@@ -130,4 +131,3 @@ class Object : public Dynamic {
 
 // Initialize static global variables.
 // Object *Object::list = { 0 };
-#endif  // OBJECT_H

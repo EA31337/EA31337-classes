@@ -20,16 +20,13 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iBearsPower(string _symbol, int _tf, int _period, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_BearsPower::iBearsPower(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
-}
-#endif
 
 // Structs.
 struct IndiBearsPowerParams : IndicatorParams {
@@ -150,3 +147,11 @@ class Indi_BearsPower : public Indicator<IndiBearsPowerParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iBearsPower(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_BearsPower::iBearsPower(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+#endif

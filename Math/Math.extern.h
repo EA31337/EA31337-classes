@@ -20,10 +20,34 @@
  *
  */
 
-// Define external global functions.
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
 #pragma once
 
+#include <cmath>
+#include <limits>
+#endif
+
+#ifdef __MQL__
+const double NaN = (double)"nan";
+#else
+const double NaN = std::nan("");
+#endif
+
+#ifdef __MQL__
+const double POSINF = (double)"inf";
+#else
+const double POSINF = std::numeric_limits<double>::infinity();
+#endif
+
+#ifdef __MQL__
+const double NEGINF = (double)"-inf";
+#else
+const double NEGINF = std::numeric_limits<double>::infinity() * -1;
+#endif
+
+// Define external global functions.
+#ifndef __MQL__
 #include <algorithm>
 #include <cmath>
 
@@ -42,6 +66,18 @@ T pow(T base, T exponent) {
 template <typename T>
 T MathPow(T base, T exponent) {
   return std::pow(base, exponent);
+}
+template <typename T>
+T MathLog(T value) {
+  return std::log(value);
+}
+template <typename T>
+T MathExp(T value) {
+  return std::exp(value);
+}
+template <typename T>
+T MathSqrt(T value) {
+  return std::sqrt(value);
 }
 template <typename T>
 T round(T value) {
@@ -77,4 +113,7 @@ T log10(T value) {
 }
 int MathRand() { return std::rand() % 32768; }
 // int rand() { return std::rand() % 32768; }
+
+bool MathIsValidNumber(double _number) { return (_number != NaN && _number != NEGINF && _number != POSINF); }
+
 #endif

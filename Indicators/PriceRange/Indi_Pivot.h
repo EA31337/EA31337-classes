@@ -20,11 +20,16 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../Bar.struct.h"
-#include "../Indicator/Indicator.struct.h"
-#include "../Serializer/Serializer.h"
-#include "Special/Indi_Math.mqh"
+#include "../../Bar.struct.h"
+#include "../../Indicator/Indicator.struct.h"
+#include "../../Serializer/Serializer.h"
+#include "../Special/Indi_Math.mqh"
 
 // Structs.
 struct IndiPivotParams : IndicatorParams {
@@ -100,7 +105,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
   virtual IndicatorDataEntry GetEntry(int _rel_shift = 0) {
-    long _bar_time = GetCandle() PTR_DEREF GetBarTime(_rel_shift);
+    int64 _bar_time = GetCandle() PTR_DEREF GetBarTime(_rel_shift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       ResetLastError();
@@ -157,10 +162,10 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
         // must have at least 4 buffers and define OHLC in the first 4 buffers.
         // Indi_Price is an example of such indicator.
         if (HasDataSource()) {
-          _ohlc.open = GetDataSource().GetValue<float>(PRICE_OPEN, _shift);
-          _ohlc.high = GetDataSource().GetValue<float>(PRICE_HIGH, _shift);
-          _ohlc.low = GetDataSource().GetValue<float>(PRICE_LOW, _shift);
-          _ohlc.close = GetDataSource().GetValue<float>(PRICE_CLOSE, _shift);
+          _ohlc.open = GetDataSource() PTR_DEREF GetValue<float>(PRICE_OPEN, _shift);
+          _ohlc.high = GetDataSource() PTR_DEREF GetValue<float>(PRICE_HIGH, _shift);
+          _ohlc.low = GetDataSource() PTR_DEREF GetValue<float>(PRICE_LOW, _shift);
+          _ohlc.close = GetDataSource() PTR_DEREF GetValue<float>(PRICE_CLOSE, _shift);
         }
         break;
       default:

@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Math/Math.h"
 #include "Storage/Object.h"
@@ -34,7 +39,7 @@ class Timer : public Object {
   int index;
   unsigned int data[];
   unsigned int start, end;
-  unsigned long max;
+  uint64 max;
 
  public:
   /**
@@ -73,7 +78,7 @@ class Timer : public Object {
   /**
    * Print the current timer times when maximum value is reached.
    */
-  Timer *PrintOnMax(unsigned long _min = 1) {
+  Timer *PrintOnMax(uint64 _min = 1) {
     return data[index] > _min && data[this PTR_DEREF index] >= this PTR_DEREF max ? PrintSummary() : GetPointer(this);
   }
 
@@ -93,9 +98,9 @@ class Timer : public Object {
   /**
    * Get the sum of all values.
    */
-  unsigned long GetSum() {
+  uint64 GetSum() {
     unsigned int _size = ArraySize(this PTR_DEREF data);
-    unsigned long _sum = 0;
+    uint64 _sum = 0;
     for (unsigned int _i = 0; _i < _size; _i++) {
       _sum += data[_i];
     }

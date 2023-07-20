@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_JSON_MQH
-#define SERIALIZER_JSON_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Storage/Dict/DictBase.h"
@@ -392,5 +393,3 @@ class SerializerJson {
     return NULL;
   }
 };
-
-#endif

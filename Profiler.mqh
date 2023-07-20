@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Storage/Collection.h"
 #include "Timer.mqh"
@@ -43,7 +48,7 @@ class Profiler {
  public:
   // Variables.
   static Collection<Timer> *timers;
-  static unsigned long min_time;
+  static uint64 min_time;
 
   /* Class methods */
 
@@ -57,4 +62,4 @@ class Profiler {
 
 // Initialize static global variables.
 Collection<Timer> *Profiler::timers = new Collection<Timer>(MQLInfoString(MQL_PROGRAM_NAME));
-unsigned long Profiler::min_time = 1;
+uint64 Profiler::min_time = 1;

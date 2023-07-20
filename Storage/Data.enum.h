@@ -45,12 +45,12 @@ enum ENUM_DATATYPE {
   TYPE_DOUBLE,    // double
   TYPE_FLOAT,     // float
   TYPE_INT,       // int
-  TYPE_LONG,      // long
+  TYPE_LONG,      // int64
   TYPE_SHORT,     // short
   TYPE_STRING,    // string
   TYPE_UCHAR,     // unsigned char
   TYPE_UINT,      // unsigned int
-  TYPE_ULONG,     // unsigned long
+  TYPE_ULONG,     // uint64
   TYPE_USHORT,    // unsigned short
 };
 #endif

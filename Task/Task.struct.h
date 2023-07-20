@@ -32,6 +32,7 @@
 
 // Includes.
 #include "../Platform/Terminal.define.h"
+#include "../Serializer/Serializer.h"
 #include "Task.enum.h"
 #include "TaskAction.struct.h"
 #include "TaskCondition.struct.h"

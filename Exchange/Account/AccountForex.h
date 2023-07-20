@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ACCOUNTFOREX_H
-#define ACCOUNTFOREX_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../Serializer/Serializer.h"
@@ -53,4 +54,3 @@ class AccountForex : public Account<AccountForexState, AccountForexEntry> {
    */
   ~AccountForex() {}
 };
-#endif  // ACCOUNTFOREX_H

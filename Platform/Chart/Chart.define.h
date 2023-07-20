@@ -25,6 +25,11 @@
  * Terminal's defines.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Defines */
 
 // Define type of timeframe periods using bitwise values.

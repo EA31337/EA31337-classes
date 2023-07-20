@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 #define ACC_OP_BALANCE 6  // Undocumented balance history statement entry.
 #define ACC_OP_CREDIT 7   // Undocumented credit history statement entry.

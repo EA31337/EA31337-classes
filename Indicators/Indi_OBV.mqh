@@ -20,16 +20,13 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iOBV(string _symbol, int _tf, int _av, int _shift) {
-  ResetLastError();
-  return Indi_OBV::iOBV(_symbol, (ENUM_TIMEFRAMES)_tf, (ENUM_APPLIED_VOLUME)_av, _shift);
-}
-#endif
 
 // Structs.
 struct IndiOBVParams : IndicatorParams {
@@ -182,3 +179,11 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
     iparams.applied_volume = _applied_volume;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iOBV(string _symbol, int _tf, int _av, int _shift) {
+  ResetLastError();
+  return Indi_OBV::iOBV(_symbol, (ENUM_TIMEFRAMES)_tf, (ENUM_APPLIED_VOLUME)_av, _shift);
+}
+#endif

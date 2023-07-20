@@ -20,16 +20,17 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_CSV_MQH
-#define SERIALIZER_CSV_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
+#include "../Math/Matrix.h"
+#include "../Math/MatrixMini.h"
 #include "../Storage/Dict/Dict.h"
 #include "../Storage/Dict/DictObject.h"
 #include "../Storage/Dict/DictStruct.h"
-#include "../Math/Matrix.h"
-#include "../Math/MatrixMini.h"
 #include "../Storage/Object.h"
 #include "SerializerConverter.h"
 #include "SerializerNode.h"
@@ -292,5 +293,3 @@ class SerializerCsv {
     return true;
   }
 };
-
-#endif

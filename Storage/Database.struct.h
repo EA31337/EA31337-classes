@@ -25,12 +25,10 @@
  *
  */
 
-// Enums.
-enum DATABASE_COLUMN_FLAGS {
-  DATABASE_COLUMN_FLAG_NONE = 0,
-  DATABASE_COLUMN_FLAG_IS_KEY = 1,
-  DATABASE_COLUMN_FLAG_IS_NULL = 2,
-};
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Structs.
 struct DatabaseTableColumnEntry {
@@ -95,7 +93,7 @@ struct DatabaseTableSchema {
 };
 
 // Struct table entry for SymbolInfo.
-#ifdef SYMBOLINFO_H
+#ifdef DATABASE_INCLUDE_SYMBOLINFO_STRUCT
 struct DbSymbolInfoEntry : public SymbolInfoEntry {
   DatabaseTableSchema schema;
   // Constructors.

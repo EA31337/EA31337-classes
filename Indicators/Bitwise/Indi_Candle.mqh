@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../Indicator/Indicator.h"
@@ -105,7 +110,7 @@ class Indi_Candle : public Indicator<CandleParams> {
         // must have at least 4 buffers and define OHLC in the first 4 buffers.
         // Indi_Price is an example of such indicator.
         if (!indi_src.IsSet()) {
-          GetLogger().Error(
+          GetLogger() PTR_DEREF Error(
               "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
               "which is a part of CandleParams structure.",
               "Indi_Candle");
@@ -117,10 +122,10 @@ class Indi_Candle : public Indicator<CandleParams> {
           break;
         }
 
-        _ohlcs[0].open = GetDataSource().GetValue<float>(PRICE_OPEN, ToRelShift(_abs_shift));
-        _ohlcs[0].high = GetDataSource().GetValue<float>(PRICE_HIGH, ToRelShift(_abs_shift));
-        _ohlcs[0].low = GetDataSource().GetValue<float>(PRICE_LOW, ToRelShift(_abs_shift));
-        _ohlcs[0].close = GetDataSource().GetValue<float>(PRICE_CLOSE, ToRelShift(_abs_shift));
+        _ohlcs[0].open = GetDataSource() PTR_DEREF GetValue<float>(PRICE_OPEN, ToRelShift(_abs_shift));
+        _ohlcs[0].high = GetDataSource() PTR_DEREF GetValue<float>(PRICE_HIGH, ToRelShift(_abs_shift));
+        _ohlcs[0].low = GetDataSource() PTR_DEREF GetValue<float>(PRICE_LOW, ToRelShift(_abs_shift));
+        _ohlcs[0].close = GetDataSource() PTR_DEREF GetValue<float>(PRICE_CLOSE, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

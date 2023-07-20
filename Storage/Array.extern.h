@@ -22,6 +22,7 @@
 
 // Define external global functions.
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
 #pragma once
 
 #include "../Common.extern.h"
@@ -34,7 +35,7 @@ int ArraySize(const ARRAY_REF(T, _array)) {
 }
 
 template <typename T, int size>
-constexpr int ArraySize(const T REF(_array)[size]) {
+constexpr int ArraySize(CONST_FIXED_ARRAY_REF(T, _array, size)) {
   return size;
 }
 
@@ -51,7 +52,7 @@ bool ArraySetAsSeries(ARRAY_REF(T, _array), bool _flag) {
 }
 
 template <typename T>
-bool ArrayGetAsSeries(ARRAY_REF(T, _array)) {
+bool ArrayGetAsSeries(CONST_ARRAY_REF(T, _array)) {
   return _array.getIsSeries();
 }
 
@@ -96,5 +97,11 @@ int ArraySort(ARRAY_REF(T, array)) {
   Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
   return 0;
 }
+
+template <typename X>
+void ArrayFill(ARRAY_REF(X, array), int start, int count, X value);
+
+template <typename X, int size>
+void ArrayFill(FIXED_ARRAY_REF(X, array, size), int start, int count, X value);
 
 #endif

@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Storage/DateTime.enum.h"
 #include "../Storage/DateTime.struct.h"
@@ -29,7 +34,6 @@
  * Platform time retrieval.
  */
 #ifndef __MQL__
-#pragma once
 
 // Includes.
 #include <chrono>

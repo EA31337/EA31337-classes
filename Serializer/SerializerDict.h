@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_DICT_MQH
-#define SERIALIZER_DICT_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "SerializerNode.h"
@@ -46,5 +47,3 @@ class SerializerDict {
     }
   }
 };
-
-#endif

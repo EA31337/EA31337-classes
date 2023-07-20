@@ -31,9 +31,9 @@
 #endif
 
 // Includes.
+#include "../Terminal.define.h"
 #include "Chart.struct.static.h"
 #include "Chart.symboltf.h"
-#include "../Terminal.define.h"
 
 #ifdef __DISABLED
 
@@ -214,7 +214,7 @@ class ChartMt : public ChartBase {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual long GetVolume(int _shift = 0) override { return ::iVolume(GetSymbol(), GetTf(), _shift); }
+  virtual int64 GetVolume(int _shift = 0) override { return ::iVolume(GetSymbol(), GetTf(), _shift); }
 };
 
 #endif
@@ -300,6 +300,8 @@ struct ChartBarTime {
   ChartBarTime() : symbol_tf(Symbol(), PERIOD_CURRENT) {}
   datetime operator[](const int _shift) const { return Get(symbol_tf, _shift); }
   static datetime Get(const SymbolTf& _symbol_tf, const int _shift) {
-    return ChartStatic::GetBarTime(_symbol_tf.Symbol(), _symbol_tf.Tf(), _shift);
+    string _symbol = _symbol_tf.Symbol();
+    ENUM_TIMEFRAMES _tf = _symbol_tf.Tf();
+    return ChartStatic::GetBarTime(_symbol, _tf, _shift);
   }
 };

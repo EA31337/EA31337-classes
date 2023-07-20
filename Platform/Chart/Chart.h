@@ -29,19 +29,20 @@
  * - https://www.mql5.com/en/docs/series
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef CHART_H
-#define CHART_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "Chart.define.h"
-#include "Chart.enum.h"
-#include "Chart.struct.h"
-#include "Chart.struct.serialize.h"
 #include "../../Convert.mqh"
 #include "../../Market.mqh"
 #include "../../Serializer/Serializer.h"
 #include "../../Task/TaskCondition.enum.h"
+#include "Chart.define.h"
+#include "Chart.enum.h"
+#include "Chart.struct.h"
+#include "Chart.struct.serialize.h"
 
 // Forward class declaration.
 class Chart;
@@ -65,21 +66,18 @@ ChartPriceOpen Open;
 int iBarShift(string _symbol, int _tf, datetime _time, bool _exact = false) {
   return ChartStatic::iBarShift(_symbol, (ENUM_TIMEFRAMES)_tf, _time, _exact);
 }
-double iClose(string _symbol, int _tf, int _shift) {
-  return ChartStatic::iClose(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
-}
 #endif
 
 #ifndef __MQL__
 struct MqlRates {
-  datetime time;     // Period start time
-  double open;       // Open price
-  double high;       // The highest price of the period
-  double low;        // The lowest price of the period
-  double close;      // Close price
-  long tick_volume;  // Tick volume
-  int spread;        // Spread
-  long real_volume;  // Trade volume
+  datetime time;      // Period start time
+  double open;        // Open price
+  double high;        // The highest price of the period
+  double low;         // The lowest price of the period
+  double close;       // Close price
+  int64 tick_volume;  // Tick volume
+  int spread;         // Spread
+  int64 real_volume;  // Trade volume
 };
 #endif
 
@@ -98,7 +96,7 @@ class Chart : public Market {
 
   // Stores indicator instances.
   // @todo
-  // Dict<long, Indicator> indis;
+  // Dict<int64, Indicator> indis;
 
   // Variables.
   datetime last_bar_time;
@@ -182,5 +180,3 @@ class Chart : public Market {
 
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
 };
-
-#endif // CHART_H

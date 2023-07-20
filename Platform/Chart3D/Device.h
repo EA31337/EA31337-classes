@@ -25,6 +25,11 @@
  * Generic graphics device.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../../Refs.mqh"
 #include "../../Util.h"
 #include "Frontend.h"

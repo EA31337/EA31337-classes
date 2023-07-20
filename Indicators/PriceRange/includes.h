@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /**
  * @file
  * Include file to include all price range indicators.
@@ -28,4 +33,5 @@
 // Price indicators.
 #include "Indi_Bands.h"
 #include "Indi_Envelopes.h"
+#include "Indi_Pivot.h"
 #include "Indi_SAR.h"

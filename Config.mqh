@@ -30,10 +30,10 @@
 #define CONFIG_MQH
 
 // Includes.
-#include "Storage/Dict/DictStruct.h"
 #include "File.mqh"
-#include "Storage/Object.h"
 #include "Serializer/Serializer.h"
+#include "Storage/Dict/DictStruct.h"
+#include "Storage/Object.h"
 
 enum CONFIG_FORMAT { CONFIG_FORMAT_JSON, CONFIG_FORMAT_JSON_NO_WHITESPACES, CONFIG_FORMAT_INI };
 
@@ -84,7 +84,7 @@ struct ConfigEntry : public MqlParam {
   ConfigEntry() { type = (ENUM_DATATYPE)-1; }
   ConfigEntry(const ConfigEntry& _r) { THIS_REF = _r; }
 
-  ConfigEntry(long _value) {
+  ConfigEntry(int64 _value) {
     type = ENUM_DATATYPE::TYPE_LONG;
     integer_value = _value;
   }
@@ -198,7 +198,7 @@ class Config : public DictStruct<string, ConfigEntry> {
     return Set(key, param);
   }
 
-  bool Set(string key, long value) {
+  bool Set(string key, int64 value) {
     ConfigEntry param = value;
     return Set(key, param);
   }

@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_NODE_H
-#define SERIALIZER_NODE_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Math/Math.extern.h"
@@ -367,5 +368,3 @@ class SerializerNode {
     return repr;
   }
 };
-
-#endif  // SERIALIZER_NODE_H

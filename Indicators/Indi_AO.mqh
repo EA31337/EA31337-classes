@@ -20,16 +20,13 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iAO(string _symbol, int _tf, int _shift) {
-  ResetLastError();
-  return Indi_AO::iAO(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
-}
-#endif
 
 // Structs.
 struct IndiAOParams : IndicatorParams {
@@ -141,7 +138,7 @@ class Indi_AO : public Indicator<IndiAOParams> {
     if (!Objects<Indi_AO>::TryGet(_key, _ptr)) {
       _ptr = Objects<Indi_AO>::Set(_key, new Indi_AO());
       // Assigning the same candle indicator for AO as in _indi.
-      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
+      _ptr PTR_DEREF SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }
@@ -150,3 +147,11 @@ class Indi_AO : public Indicator<IndiAOParams> {
    */
   bool IsValidEntry(IndicatorDataEntry &_entry) override { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iAO(string _symbol, int _tf, int _shift) {
+  ResetLastError();
+  return Indi_AO::iAO(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
+}
+#endif

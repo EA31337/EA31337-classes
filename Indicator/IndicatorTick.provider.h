@@ -20,9 +20,10 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_TICK_PROVIDER_H
-#define INDICATOR_TICK_PROVIDER_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
@@ -49,7 +50,7 @@ class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {
   /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
-  virtual void OnTick(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, long _time_ms, float _ask,
+  virtual void OnTick(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, int64 _time_ms, float _ask,
                       float _bid) {
     TickTAB<TV> _tick(_time_ms, _ask, _bid);
     _history PTR_DEREF Append(_tick);
@@ -59,7 +60,7 @@ class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {
    * Retrieves given number of items starting from the given microseconds or index (inclusive). "_dir" identifies if we
    * want previous or next items from selected starting point.
    */
-  void GetItems(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, long _from_time_ms,
+  void GetItems(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, int64 _from_time_ms,
                 ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items, ARRAY_REF(TickTAB<TV>, _out_arr)) {
     // Method is called if there is a missing item (tick) in the history. We need to regenerate it.
     indi PTR_DEREF FetchHistoryByStartTimeAndCount(_from_time_ms, _dir, _num_items, _out_arr);
@@ -70,5 +71,3 @@ class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {
    */
   string ToString() override { return "IndicatorTick tick provider on " + indi PTR_DEREF GetFullName(); }
 };
-
-#endif  // INDICATOR_TICK_PROVIDER_H

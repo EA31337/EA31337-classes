@@ -47,7 +47,7 @@ class TaskGetterTest01 : public TaskGetter<TaskGetterTest01Data> {
 
  public:
   TaskGetterTest01(){};
-  // long GetSum() { return sum; }
+  // int64 GetSum() { return sum; }
   TaskGetterTest01Data Get() { return TaskGetter<TaskGetterTest01Data>::Get(); }
   TaskGetterTest01Data Get(const TaskGetterEntry &_entry) {
     data.SetValue(_entry.GetId());

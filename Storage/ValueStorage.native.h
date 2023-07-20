@@ -24,6 +24,11 @@
  * Native array version of ValueStorage.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "ValueStorage.h"
 
@@ -33,7 +38,7 @@
 template <typename C>
 class NativeValueStorage : public ValueStorage<C> {
   // Dynamic native array.
-  C _values[];
+  ARRAY(C, _values);
 
  public:
   /**
@@ -49,7 +54,7 @@ class NativeValueStorage : public ValueStorage<C> {
   /**
    * Initializes array with given one.
    */
-  void SetData(ARRAY_REF(C, _arr)) { ArrayCopy(_values, _arr); }
+  void SetData(CONST_ARRAY_REF(C, _arr)) { ArrayCopy(_values, _arr); }
 
   /**
    * Initializes storage with given value.

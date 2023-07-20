@@ -20,18 +20,14 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "Price/Indi_Price.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iADX(string _symbol, int _tf, int _period, int _ap, int _mode, int _shift) {
-  ResetLastError();
-  return Indi_ADX::iADX(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, (ENUM_INDI_ADX_LINE)_mode,
-                        _shift);
-}
-#endif
 
 // Structs.
 struct IndiADXParams : IndicatorParams {
@@ -176,3 +172,12 @@ class Indi_ADX : public Indicator<IndiADXParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iADX(string _symbol, int _tf, int _period, int _ap, int _mode, int _shift) {
+  ResetLastError();
+  return Indi_ADX::iADX(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, (ENUM_INDI_ADX_LINE)_mode,
+                        _shift);
+}
+#endif

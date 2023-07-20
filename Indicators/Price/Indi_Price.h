@@ -20,10 +20,15 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Indicator/Indicator.h"
 #include "../../Platform/Platform.h"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Storage/Objects.h"
 
 // Structs.

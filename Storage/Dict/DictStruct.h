@@ -71,7 +71,7 @@ class DictStruct : public DictBase<K, V> {
     Clear();
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
-      this PTR_DEREF _DictSlots_ref PTR_DEREF DictSlots[i] = right._DictSlots_ref.DictSlots[i];
+      THIS_ATTR _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
     THIS_ATTR _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
     THIS_ATTR _current_id = right._current_id;
@@ -444,7 +444,7 @@ class DictStruct : public DictBase<K, V> {
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i)
-        s.PassObject(this, THIS_ATTR GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
+        s.PassObject(THIS_REF, THIS_ATTR GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
 
       return (THIS_ATTR GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {

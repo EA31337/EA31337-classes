@@ -20,12 +20,18 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 2 bars was originally specified by Indicators/Examples/W_AD.mq5
 #define INDI_WAD_MIN_BARS 100
 
 // Includes.
 #include "../Indicator/Indicator.h"
+#include "../Platform/Platform.h"
 #include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 
@@ -95,20 +101,20 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
    */
   static double iWADOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
                             bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(
-        Indi_WilliamsAD::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0)));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_WilliamsAD::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0)));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

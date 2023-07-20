@@ -20,13 +20,14 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ACCOUNT_H
-#define ACCOUNT_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Serializer/Serializer.h"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "AccountBase.h"
 
 /**
@@ -56,4 +57,3 @@ class Account : public AccountBase {
    */
   ~Account() {}
 };
-#endif  // ACCOUNT_H

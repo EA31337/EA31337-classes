@@ -31,10 +31,10 @@
 #endif
 
 // Includes.
-#include "Chart.define.h"
-#include "Chart.symboltf.h"
 #include "../Platform.extern.h"
 #include "../Terminal.define.h"
+#include "Chart.define.h"
+#include "Chart.symboltf.h"
 
 /* Defines struct for chart static methods. */
 struct ChartStatic {
@@ -304,10 +304,10 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static long iVolume(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
+  static int64 iVolume(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
 #ifdef __MQL4__
     ResetLastError();
-    long _volume = ::iVolume(_symbol, _tf, _shift);  // Same as: Volume[_shift]
+    int64 _volume = ::iVolume(_symbol, _tf, _shift);  // Same as: Volume[_shift]
     if (_LastError != ERR_NO_ERROR) {
       _volume = EMPTY_VALUE;
       ResetLastError();
@@ -325,7 +325,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static datetime GetBarTime(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
+  static datetime GetBarTime(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
 #ifdef __MQL4__
     datetime _time = ::iTime(_symbol, _tf, _shift);  // Same as: Time[_shift]
 
@@ -354,5 +354,5 @@ struct ChartStatic {
   /**
    * Gets Chart ID.
    */
-  static long ID() { return ::ChartID(); }
+  static int64 ID() { return ::ChartID(); }
 };

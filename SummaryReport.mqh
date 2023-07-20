@@ -20,8 +20,13 @@
  *
  */
 
-#include "Exchange/Account/AccountMt.h"
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "Convert.mqh"
+#include "Exchange/Account/AccountMt.h"
 #include "Indicator/IndicatorData.h"
 #include "Platform/Order.struct.h"
 #include "Platform/Terminal.h"

@@ -29,18 +29,19 @@
  * - https://www.mql5.com/en/docs/chart_operations
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Forward declaration.
 class Terminal;
 
-// Prevents processing this includes file for the second time.
-#ifndef TERMINAL_MQH
-#define TERMINAL_MQH
-
 // Includes.
 #include "../Convert.mqh"
+#include "../Refs.mqh"
 #include "../Storage/Data.struct.h"
 #include "../Storage/Object.h"
-#include "../Refs.mqh"
 #include "../Storage/String.h"
 #include "Terminal.define.h"
 #include "Terminal.enum.h"
@@ -873,8 +874,8 @@ class Terminal : public Object {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
-    // long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
-    // long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
+    // int64 _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
+    // int64 _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
       case TERMINAL_COND_IS_CONNECTED:
         return !IsConnected();
@@ -883,7 +884,7 @@ class Terminal : public Object {
         return false;
     }
   }
-  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, long _arg1) {
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, int64 _arg1) {
     ARRAY(DataParamEntry, _args);
     DataParamEntry _param1 = _arg1;
     ArrayPushObject(_args, _param1);
@@ -907,9 +908,9 @@ class Terminal : public Object {
    *   Returns true when the condition is met.
    */
   bool ExecuteAction(ENUM_TERMINAL_ACTION _action, ARRAY_REF(MqlParam, _args)) {
-    // long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
-    // long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
-    // long _arg3l = ArraySize(_args) > 2 ? DataParamEntry::ToInteger(_args[2]) : WRONG_VALUE;
+    // int64 _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
+    // int64 _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
+    // int64 _arg3l = ArraySize(_args) > 2 ? DataParamEntry::ToInteger(_args[2]) : WRONG_VALUE;
     switch (_action) {
       case TERMINAL_ACTION_CRASH:
         delete THIS_PTR;
@@ -967,5 +968,3 @@ class Terminal : public Object {
 // @docs: https://docs.mql4.com/chart_operations/windowexpertname
 string WindowExpertName(void) { return Terminal::WindowExpertName(); }
 #endif
-
-#endif  // TERMINAL_MQH

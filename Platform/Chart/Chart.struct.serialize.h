@@ -25,6 +25,11 @@
  * Includes Chart's struct serializers.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Forward class declaration.
 class Serializer;
 

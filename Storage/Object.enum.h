@@ -26,7 +26,7 @@
  */
 
 #ifndef __MQLBUILD__
-
+// Allows the preprocessor to include a header file when it is needed.
 #pragma once
 
 // Used for checking the type of the object pointer.
