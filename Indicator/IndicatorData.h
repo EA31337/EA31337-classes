@@ -1974,7 +1974,7 @@ IValueStorage* ExternInstantiateIndicatorBufferValueStorageDouble::InstantiateIn
 }
 
 #ifndef __MQL__
-int GetBarsFromStart(IndicatorData* _indi) { return _indi PTR_DEREF GetBars(); }
+int GetBarsFromStart(IndicatorBase* _indi) { return _indi PTR_DEREF GetBars(); }
 #endif
 
 #ifdef EMSCRIPTEN

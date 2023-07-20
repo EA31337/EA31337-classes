@@ -29,8 +29,6 @@
 
 #include "../Platform/Platform.h"
 
-DictStruct<string, Ref<Trade>> _trades_test;
-
 int main(int argc, char **argv) {
   // @todo
   return 0;
