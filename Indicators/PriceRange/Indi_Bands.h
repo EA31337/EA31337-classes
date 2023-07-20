@@ -20,25 +20,20 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../../Indicator/Indicator.h"
 #include "../Indi_CCI.mqh"
-#include "Indi_Envelopes.h"
-#include "../Price/Indi_MA.h"
 #include "../Indi_Momentum.mqh"
-#include "../Oscillator/Indi_RSI.h"
 #include "../Indi_StdDev.mqh"
+#include "../Oscillator/Indi_RSI.h"
+#include "../Price/Indi_MA.h"
 #include "../Price/Indi_Price.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iBands(string _symbol, int _tf, int _period, double _deviation, int _bands_shift, int _ap, int _mode,
-              int _shift) {
-  ResetLastError();
-  return Indi_Bands::iBands(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _deviation, _bands_shift, (ENUM_APPLIED_PRICE)_ap,
-                            (ENUM_BANDS_LINE)_mode, _shift);
-}
-#endif
+#include "Indi_Envelopes.h"
 
 // Indicator line identifiers used in Bands.
 enum ENUM_BANDS_LINE {
@@ -135,7 +130,7 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price), _mode,
                                       _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -162,23 +157,23 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
   }
 
   static double iBandsOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, double _deviation, int _bands_shift,
-                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
-                              bool _recalculate = false) {
-    _cache.SetPriceBuffer(_price);
+                              int _mode, int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
+    _cache PTR_DEREF SetPriceBuffer(_price);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(4);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(4);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_Bands::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
-                                                   _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
-                                                   _cache.GetBuffer<double>(3), _period, _bands_shift, _deviation));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_Bands::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache PTR_DEREF GetBuffer<double>(0),
+                              _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2),
+                              _cache PTR_DEREF GetBuffer<double>(3), _period, _bands_shift, _deviation));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -304,30 +299,30 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
   virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     IndicatorData *_result = NULL;
     if (_id == INDI_BANDS) {
-      IndiBandsParams bands_params();
-      _result = Indi_Bands(bands_params);
+      IndiBandsParams bands_params;
+      _result = new Indi_Bands(bands_params);
     } else if (_id == INDI_CCI) {
-      IndiCCIParams cci_params();
+      IndiCCIParams cci_params;
       _result = new Indi_CCI(cci_params);
     } else if (_id == INDI_ENVELOPES) {
-      IndiEnvelopesParams env_params();
+      IndiEnvelopesParams env_params;
       _result = new Indi_Envelopes(env_params);
     } else if (_id == INDI_MOMENTUM) {
-      IndiMomentumParams mom_params();
+      IndiMomentumParams mom_params;
       _result = new Indi_Momentum(mom_params);
     } else if (_id == INDI_MA) {
-      IndiMAParams ma_params();
+      IndiMAParams ma_params;
       _result = new Indi_MA(ma_params);
     } else if (_id == INDI_RSI) {
-      IndiRSIParams _rsi_params();
+      IndiRSIParams _rsi_params;
       _result = new Indi_RSI(_rsi_params);
     } else if (_id == INDI_STDDEV) {
-      IndiStdDevParams stddev_params();
+      IndiStdDevParams stddev_params;
       _result = new Indi_StdDev(stddev_params);
     }
 
     if (_result != nullptr) {
-      _result.SetDataSource(GetCandle());
+      _result PTR_DEREF SetDataSource(GetCandle());
       return _result;
     }
 
@@ -390,3 +385,13 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iBands(string _symbol, int _tf, int _period, double _deviation, int _bands_shift, int _ap, int _mode,
+              int _shift) {
+  ResetLastError();
+  return Indi_Bands::iBands(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _deviation, _bands_shift, (ENUM_APPLIED_PRICE)_ap,
+                            (ENUM_BANDS_LINE)_mode, _shift);
+}
+#endif

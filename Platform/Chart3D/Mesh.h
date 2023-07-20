@@ -25,8 +25,13 @@
  * Generic graphics mesh.
  */
 
-#include "../../Storage/Dict/Dict.h"
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../../Refs.mqh"
+#include "../../Storage/Dict/Dict.h"
 #include "../../Util.h"
 #include "Face.h"
 #include "IndexBuffer.h"
@@ -43,7 +48,7 @@ class Device;
 template <typename T>
 struct PointEntry {
   T point;
-  long key;
+  int64 key;
 
   // Default constructor.
   PointEntry() {}
@@ -61,9 +66,9 @@ struct PointEntry {
     return key == MakeKey(_r.point.Position.x, _r.point.Position.y, _r.point.Position.z);
   }
 
-  static long MakeKey(float x, float y, float z) {
-    return long(x / GFX_MESH_LOOKUP_PRECISION) + 4194304 * long(y / GFX_MESH_LOOKUP_PRECISION) +
-           17592186044416 * long(z / GFX_MESH_LOOKUP_PRECISION);
+  static int64 MakeKey(float x, float y, float z) {
+    return int64(x / GFX_MESH_LOOKUP_PRECISION) + 4194304 * int64(y / GFX_MESH_LOOKUP_PRECISION) +
+           17592186044416 * int64(z / GFX_MESH_LOOKUP_PRECISION);
   }
 };
 

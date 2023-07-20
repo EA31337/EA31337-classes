@@ -31,9 +31,9 @@
 #endif
 
 // Includes.
-#include "../../Platform/Chart/Chart.struct.static.h"
 #include "../../Indicator/IndicatorTick.h"
 #include "../../Indicator/IndicatorTick.provider.h"
+#include "../../Platform/Chart/Chart.struct.static.h"
 
 // Structs.
 // Params for MT patform's tick-based indicator.
@@ -88,7 +88,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
 
     /*
       int _ishift = _index >= 0 ? (int)_index : iparams.GetShift();
-      long _bar_time;
+      int64 _bar_time;
       _bar_time = GetBarTime(_ishift);
 
       TickAB<double> _tick = itdata.GetByKey(_bar_time);
@@ -118,10 +118,10 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
   /**
    * Fetches historic ticks for a given time range.
    */
-  virtual bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
+  virtual bool FetchHistoryByTimeRange(int64 _from_ms, int64 _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
     ArrayResize(_out_ticks, 0);
 
-    static MqlTick _tmp_ticks[];
+    static ARRAY(MqlTick, _tmp_ticks);
     ArrayResize(_tmp_ticks, 0);
 
     // There's no history in MQL4.
@@ -160,9 +160,9 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     RefreshRates();
     double _ask = Ask;
     double _bid = Bid;
-    long _time = TimeCurrent();
+    int64 _time = TimeCurrent();
 #else
-    static MqlTick _tmp_ticks[];
+    static ARRAY(MqlTick, _tmp_ticks);
     // Copying only the last tick.
     int _num_copied = CopyTicks(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, 0, 1);
 
@@ -187,8 +187,8 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
 
     double _ask = _tmp_ticks[0].ask;
     double _bid = _tmp_ticks[0].bid;
-    // long _time = _tmp_ticks[0].time;
-    long _time = TimeCurrent();
+    // int64 _time = _tmp_ticks[0].time;
+    int64 _time = TimeCurrent();
 #endif
     TickAB<double> _tick(_ask, _bid);
     IndicatorDataEntry _entry(TickToEntry(_time, _tick));

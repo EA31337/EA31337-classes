@@ -139,7 +139,7 @@ class Indi_AC : public Indicator<IndiACParams> {
     if (!Objects<Indi_AC>::TryGet(_key, _ptr)) {
       _ptr = Objects<Indi_AC>::Set(_key, new Indi_AC());
       // Assigning the same candle indicator for AC as in _indi.
-      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
+      _ptr PTR_DEREF SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }

@@ -28,13 +28,16 @@
  * @docs https://www.mql5.com/en/docs/database
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef DATABASE_H
-#define DATABASE_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Math/MatrixMini.h"
 #include "../Storage/Dict/DictStruct.h"
+#include "Database.enum.h"
+#include "Database.extern.h"
 #include "Database.struct.h"
 
 class Database {
@@ -46,212 +49,211 @@ class Database {
   /**
    * Class constructor.
    */
-#ifndef __MQL4__
-  Database(string _filename, unsigned int _flags = DATABASE_OPEN_CREATE){
+#ifdef __MQL5__
+  Database(string _filename, unsigned int _flags = DATABASE_OPEN_CREATE)
 #else
-  Database(string _filename, unsigned int _flags = 0) {
+  Database(string _filename, unsigned int _flags = 0)
 #endif
-#ifndef __MQL4__
-      handle = DatabaseOpen(_filename, _flags);
+  {
+#ifdef __MQL5__
+    handle = DatabaseOpen(_filename, _flags);
 #else
     handle = -1;
     SetUserError(ERR_USER_NOT_SUPPORTED);
 #endif
-}
+  }
 
-/**
- * Class deconstructor.
- */
-~Database() {
-#ifndef __MQL4__
-  DatabaseClose(handle);
+  /**
+   * Class deconstructor.
+   */
+  ~Database() {
+#ifdef __MQL5__
+    DatabaseClose(handle);
 #endif
-}
+  }
 
-/* Table methods */
+  /* Table methods */
 
-/**
- * Checks if table exists.
- */
-bool TableExists(string _name) {
-#ifndef __MQL4__
-  return DatabaseTableExists(handle, _name);
+  /**
+   * Checks if table exists.
+   */
+  bool TableExists(string _name) {
+#ifdef __MQL5__
+    return DatabaseTableExists(handle, _name);
 #else
     SetUserError(ERR_USER_NOT_SUPPORTED);
     return false;
 #endif
-}
-
-/**
- * Creates table if not yet exist.
- */
-bool CreateTableIfNotExist(string _name, DatabaseTableSchema &_schema) {
-  if (TableExists(_name)) {
-    return true;
   }
-  return CreateTable(_name, _schema);
-}
 
-/**
- * Creates table.
- */
-bool CreateTable(string _name, DatabaseTableSchema &_schema) {
-  bool _result = false;
-#ifndef __MQL4__
-  if (DatabaseTableExists(handle, _name)) {
-    // Generic error (ERR_DATABASE_ERROR).
-    SetUserError(5601);
+  /**
+   * Creates table if not yet exist.
+   */
+  bool CreateTableIfNotExist(string _name, DatabaseTableSchema &_schema) {
+    if (TableExists(_name)) {
+      return true;
+    }
+    return CreateTable(_name, _schema);
+  }
+
+  /**
+   * Creates table.
+   */
+  bool CreateTable(string _name, REF_TO_SIMPLE(DatabaseTableSchema) _schema) {
+    bool _result = false;
+#ifdef __MQL5__
+    if (DatabaseTableExists(handle, _name)) {
+      // Generic error (ERR_DATABASE_ERROR).
+      SetUserError(5601);
+      return _result;
+    }
+
+    string query = "", subquery = "";
+
+    if (_schema.columns.Size() == 0) {
+      // SQLite does'nt allow tables without columns;
+      subquery = "`dummy` INTEGER";
+    } else {
+      for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin(); iter.IsValid(); ++iter) {
+        subquery +=
+            StringFormat("`%s` %s %s,", iter.Value().GetName(), iter.Value().GetDatatype(), iter.Value().GetFlags());
+      }
+      subquery = StringSubstr(subquery, 0, StringLen(subquery) - 1);  // Removes extra comma.
+    }
+
+    query = StringFormat("CREATE TABLE `%s`(%s);", _name, subquery);
+
+#ifdef __debug__
+    Print("Database: Executing query:\n", query);
+#endif
+
+    if (_result = DatabaseExecute(handle, query)) {
+      ResetLastError();
+      SetTableSchema(_name, _schema);
+    } else {
+#ifdef __debug__
+      Print("Database: Query failed with error ", _LastError);
+      DebugBreak();
+#endif
+    }
+#endif
     return _result;
   }
 
-  string query = "", subquery = "";
-
-  if (_schema.columns.Size() == 0) {
-    // SQLite does'nt allow tables without columns;
-    subquery = "`dummy` INTEGER";
-  } else {
-    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin(); iter.IsValid(); ++iter) {
-      subquery +=
-          StringFormat("`%s` %s %s,", iter.Value().GetName(), iter.Value().GetDatatype(), iter.Value().GetFlags());
-    }
-    subquery = StringSubstr(subquery, 0, StringLen(subquery) - 1);  // Removes extra comma.
-  }
-
-  query = StringFormat("CREATE TABLE `%s`(%s);", _name, subquery);
-
-#ifdef __debug__
-  Print("Database: Executing query:\n", query);
-#endif
-
-  if (_result = DatabaseExecute(handle, query)) {
-    ResetLastError();
-    SetTableSchema(_name, _schema);
-  } else {
-#ifdef __debug__
-    Print("Database: Query failed with error ", _LastError);
-    DebugBreak();
-#endif
-  }
-#endif
-  return _result;
-}
-
-/**
- * Drops table.
- */
-bool DropTable(string _name) {
-  tables.Unset(_name);
-#ifndef __MQL4__
-  return DatabaseExecute(handle, "DROP TABLE IF EXISTS `" + _name + "`");
+  /**
+   * Drops table.
+   */
+  bool DropTable(string _name) {
+    tables.Unset(_name);
+#ifdef __MQL5__
+    return DatabaseExecute(handle, "DROP TABLE IF EXISTS `" + _name + "`");
 #else
     return false;
 #endif
-}
-
-/* Import methods */
-
-/**
- * Imports data into table. First row must contain column names. Strings must be enclosed with double quotes.
- */
-bool ImportData(const string _name, MatrixMini2d<string> &data) {
-  if (data.SizeY() < 2 || data.SizeX() == 0) {
-    // No data to import or there are no columns in input data (Serialize() serialized no fields).
-    return true;
   }
-  int x;
-  bool _result = true;
-  DatabaseTableSchema _schema = GetTableSchema(_name);
-  string _query = "", _cols = "", _vals = "";
-  for (x = 0; x < data.SizeX(); ++x) {
-    const string key = data.Get(x, 0);
-    _cols += "`" + StringSubstr(key, 1, StringLen(key) - 2) + "`,";
-  }
-  _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
-#ifndef __MQL4__
-  if (DatabaseTransactionBegin(handle)) {
-    _query = StringFormat("INSERT INTO `%s`(%s) VALUES\n", _name, _cols);
-    for (int y = 1; y < data.SizeY(); ++y) {
-      _query += "(";
-      for (x = 0; x < data.SizeX(); ++x) {
-        _query += data.Get(x, y) + (x < data.SizeX() - 1 ? ", " : "");
+
+  /* Import methods */
+
+  /**
+   * Imports data into table. First row must contain column names. Strings must be enclosed with double quotes.
+   */
+  bool Import(const string _name, MatrixMini2d<string> &data) {
+    if (data.SizeY() < 2 || data.SizeX() == 0) {
+      // No data to import or there are no columns in input data (Serialize() serialized no fields).
+      return true;
+    }
+    int x;
+    bool _result = true;
+    DatabaseTableSchema _schema = GetTableSchema(_name);
+    string _query = "", _cols = "", _vals = "";
+    for (x = 0; x < data.SizeX(); ++x) {
+      const string key = data.Get(x, 0);
+      _cols += "`" + StringSubstr(key, 1, StringLen(key) - 2) + "`,";
+    }
+    _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
+#ifdef __MQL5__
+    if (DatabaseTransactionBegin(handle)) {
+      _query = StringFormat("INSERT INTO `%s`(%s) VALUES\n", _name, _cols);
+      for (int y = 1; y < data.SizeY(); ++y) {
+        _query += "(";
+        for (x = 0; x < data.SizeX(); ++x) {
+          _query += data.Get(x, y) + (x < data.SizeX() - 1 ? ", " : "");
+        }
+        _query += ")" + (string)(y < data.SizeY() - 1 ? ",\n" : "");
       }
-      _query += ")" + (y < data.SizeY() - 1 ? ",\n" : "");
-    }
 
 #ifdef __debug__
-    Print("Database: Executing query:\n", _query);
+      Print("Database: Executing query:\n", _query);
 #endif
 
-    _result &= DatabaseExecute(handle, _query);
-  }
-  if (_result) {
-    DatabaseTransactionCommit(handle);
-  } else {
-    Print("Database: Query failed with error ", _LastError);
-    DebugBreak();
-    DatabaseTransactionRollback(handle);
-  }
-#else
-    return false;
-#endif
-  return _result;
-}
-
-#ifdef BUFFER_STRUCT_H
-/**
- * Imports BufferStruct records into a table.
- */
-template <typename TStruct>
-bool Import(const string _name, BufferStruct<TStruct> &_bstruct) {
-  bool _result = true;
-  DatabaseTableSchema _schema = GetTableSchema(_name);
-  string _query = "", _cols = "", _vals = "";
-  for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin(); iter.IsValid(); ++iter) {
-    _cols += iter.Value().name + ",";
-  }
-  _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
-#ifndef __MQL4__
-  if (DatabaseTransactionBegin(handle)) {
-    for (DictStructIterator<long, TStruct> iter = _bstruct.Begin(); iter.IsValid(); ++iter) {
-      _query = StringFormat("INSERT INTO %s(%s) VALUES (%s)", _name, _cols, iter.Value().ToCSV());
       _result &= DatabaseExecute(handle, _query);
     }
-  }
-  if (_result) {
-    DatabaseTransactionCommit(handle);
-  } else {
-    DatabaseTransactionRollback(handle);
-  }
+    if (_result) {
+      DatabaseTransactionCommit(handle);
+    } else {
+      Print("Database: Query failed with error ", _LastError);
+      DebugBreak();
+      DatabaseTransactionRollback(handle);
+    }
 #else
-  return false;
+    return false;
 #endif
-  return _result;
-}
+    return _result;
+  }
+
+#ifdef DATABASE_INCLUDE_BUFFER_STRUCT
+  /**
+   * Imports BufferStruct records into a table.
+   */
+  template <typename TStruct>
+  bool Import(const string _name, BufferStruct<TStruct> &_bstruct) {
+    bool _result = true;
+    DatabaseTableSchema _schema = GetTableSchema(_name);
+    string _query = "", _cols = "", _vals = "";
+    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin(); iter.IsValid(); ++iter) {
+      _cols += iter.Value().name + ",";
+    }
+    _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
+#ifdef __MQL5__
+    if (DatabaseTransactionBegin(handle)) {
+      for (DictStructIterator<int64, TStruct> iter = _bstruct.Begin(); iter.IsValid(); ++iter) {
+        _query = StringFormat("INSERT INTO %s(%s) VALUES (%s)", _name, _cols, iter.Value().ToCSV());
+        _result &= DatabaseExecute(handle, _query);
+      }
+    }
+    if (_result) {
+      DatabaseTransactionCommit(handle);
+    } else {
+      DatabaseTransactionRollback(handle);
+    }
+#else
+    return false;
+#endif
+    return _result;
+  }
 #endif
 
-/* Getters */
+  /* Getters */
 
-/**
- * Gets database handle.
- */
-int GetHandle() { return handle; }
+  /**
+   * Gets database handle.
+   */
+  int GetHandle() { return handle; }
 
-/**
- * Gets table schema.
- */
-DatabaseTableSchema GetTableSchema(string _name) { return tables.GetByKey(_name); }
+  /**
+   * Gets table schema.
+   */
+  DatabaseTableSchema GetTableSchema(string _name) { return tables.GetByKey(_name); }
 
-/**
- * Checks if table schema exists.
- */
-bool SchemaExists(string _name) { return tables.KeyExists(_name); }
+  /**
+   * Checks if table schema exists.
+   */
+  bool SchemaExists(string _name) { return tables.KeyExists(_name); }
 
-/* Setters */
+  /* Setters */
 
-/**
- * Sets table schema.
- */
-bool SetTableSchema(string _name, DatabaseTableSchema &_schema) { return tables.Set(_name, _schema); }
-}
-;
-#endif  // DATABASE_H
+  /**
+   * Sets table schema.
+   */
+  bool SetTableSchema(string _name, DatabaseTableSchema &_schema) { return tables.Set(_name, _schema); }
+};

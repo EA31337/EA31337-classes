@@ -20,10 +20,6 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_CANDLE_PROVIDER_H
-#define INDICATOR_CANDLE_PROVIDER_H
-
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
@@ -47,7 +43,7 @@ class ItemsHistoryCandleProvider : public ItemsHistoryItemProvider<CandleOCTOHLC
   /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
-  void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryItemProvider<CandleOCTOHLC<TV>>>* _history, long _time_ms,
+  void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryItemProvider<CandleOCTOHLC<TV>>>* _history, int64 _time_ms,
               float _ask, float _bid) {
     // Should be overrided.
   }
@@ -56,12 +52,10 @@ class ItemsHistoryCandleProvider : public ItemsHistoryItemProvider<CandleOCTOHLC
    * Retrieves given number of items starting from the given microseconds or index (inclusive). "_dir" identifies if we
    * want previous or next items from selected starting point.
    */
-  void GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryCandleProvider<TV>>* _history, long _from_time_ms,
+  void GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryCandleProvider<TV>>* _history, int64 _from_time_ms,
                 ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items, ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
     // Method is called if there is a missing item (candle) in the history. We need to regenerate it.
     Print("Error: Retrieving items by this item provider is not implemented!");
     DebugBreak();
   }
 };
-
-#endif

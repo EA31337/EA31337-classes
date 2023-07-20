@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 100 bars was originally specified by Indicators/Examples/PVT.mq5
 #define INDI_PVT_MIN_BARS 2
@@ -86,20 +91,20 @@ class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
    */
   static double iPVTOnArray(INDICATOR_CALCULATE_PARAMS_LONG, ENUM_APPLIED_VOLUME _av, int _mode, int _abs_shift,
                             IndiBufferCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(
-        Indi_PriceVolumeTrend::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _av));
+    _cache PTR_DEREF SetPrevCalculated(Indi_PriceVolumeTrend::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG,
+                                                                        _cache PTR_DEREF GetBuffer<double>(0), _av));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -133,7 +138,7 @@ class Indi_PriceVolumeTrend : public Indicator<IndiPriceVolumeTrendParams> {
   }
 
   static void CalculatePVT(const int pos, const int rates_total, ValueStorage<double> &close,
-                           ValueStorage<long> &volume, ValueStorage<double> &ExtPVTBuffer) {
+                           ValueStorage<int64> &volume, ValueStorage<double> &ExtPVTBuffer) {
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       double prev_close = close[i - 1].Get();
       // Calculate PVT value.

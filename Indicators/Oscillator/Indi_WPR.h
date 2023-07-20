@@ -25,17 +25,14 @@
  * Implements Williams Percent Range (WPR) indicator.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../../Indicator/Indicator.h"
 #include "../../Platform/Terminal.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iWPR(string _symbol, int _tf, int _period, int _shift) {
-  ResetLastError();
-  return Indi_WPR::iWPR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
-}
-#endif
 
 // Structs.
 struct IndiWPRParams : IndicatorParams {
@@ -92,7 +89,7 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
 #ifdef __MQL__
 #ifdef __MQL4__
     return ::iWPR(_symbol, _tf, _period, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorDataState::INDICATOR_DATA_STATE_PROP_HANDLE) : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
@@ -119,7 +116,7 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
     }
     return _res[0];
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -164,3 +161,11 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
     iparams.period = _period;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iWPR(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
+  return Indi_WPR::iWPR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
+}
+#endif

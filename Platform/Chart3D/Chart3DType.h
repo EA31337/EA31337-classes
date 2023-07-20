@@ -25,6 +25,11 @@
  * 3D chart type renderer.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../../Refs.mqh"
 #include "Device.h"
 

@@ -132,7 +132,7 @@ struct TradeParams {
   unsigned short bars_min;  // Minimum bars to trade.
   string order_comment;     // Order comment.
   float lot_size;           // Default lot size.
-  unsigned long magic_no;   // Unique magic number used for the trading.
+  uint64 magic_no;          // Unique magic number used for the trading.
   float risk_margin;        // Maximum account margin to risk (in %).
   unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
   unsigned int slippage;     // Value of the maximum price slippage in points.
@@ -147,7 +147,7 @@ struct TradeParams {
         slippage(_slippage) {
     SetLimits(0);
   }
-  TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
+  TradeParams(uint64 _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
       : bars_min(100), order_comment(""), lot_size(0), magic_no(_magic_no), log_level(_ll) {}
   TradeParams(const TradeParams &_tparams) { THIS_REF = _tparams; }
   // Deconstructor.
@@ -213,22 +213,24 @@ struct TradeParams {
   void Set(ENUM_TRADE_PARAM _param, T _value) {
     switch (_param) {
       case TRADE_PARAM_BARS_MIN:
-        bars_min = (unsigned short)_value;
+        ConvertBasic::Convert(_value, bars_min);
         return;
       case TRADE_PARAM_LOT_SIZE:
-        lot_size = (float)_value;
+        ConvertBasic::Convert(_value, lot_size);
         return;
       case TRADE_PARAM_MAGIC_NO:
-        magic_no = (unsigned long)_value;
+        ConvertBasic::Convert(_value, magic_no);
         return;
-      case TRADE_PARAM_ORDER_COMMENT:
-        order_comment = SerializerConversions::ValueToString(_value);
+      case TRADE_PARAM_ORDER_COMMENT: {
+        string _value_string = SerializerConversions::ValueToString(_value);
+        ConvertBasic::Convert(_value_string, order_comment);
         return;
+      }
       case TRADE_PARAM_RISK_MARGIN:
-        risk_margin = (float)_value;
+        ConvertBasic::Convert(_value, risk_margin);
         return;
       case TRADE_PARAM_SLIPPAGE:
-        slippage = (unsigned int)_value;
+        ConvertBasic::Convert(_value, slippage);
         return;
       default:
         break;
@@ -276,7 +278,7 @@ struct TradeParams {
     }
   }
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
-  void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
+  void SetMagicNo(uint64 _mn) { magic_no = _mn; }
   void SetRiskMargin(float _value) { risk_margin = _value; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}

@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_OBJECT_MQH
-#define SERIALIZER_OBJECT_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Storage/Dict/DictBase.h"
@@ -37,5 +38,3 @@ class SerializerObject {
  public:
   static string Stringify(SerializerNode* _root) { return "<not yet implemented>"; }
 };
-
-#endif

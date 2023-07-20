@@ -20,16 +20,13 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iMFI(string _symbol, int _tf, int _period, int _shift) {
-  ResetLastError();
-  return Indi_MFI::iMFI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
-}
-#endif
 
 // Structs.
 struct IndiMFIParams : IndicatorParams {
@@ -177,3 +174,11 @@ class Indi_MFI : public Indicator<IndiMFIParams> {
     iparams.applied_volume = _applied_volume;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iMFI(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
+  return Indi_MFI::iMFI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
+}
+#endif

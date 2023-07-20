@@ -3,6 +3,11 @@
 //|                         Copyright 2019,MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #ifdef __MQL__
 #property copyright "Copyright 2019,MetaQuotes Software Corp."
 #property link "https://www.mql5.com"
@@ -211,10 +216,10 @@ struct DXQuaternion {
 //| DViewport                                                        |
 //+------------------------------------------------------------------+
 struct DViewport {
-  unsigned long x;
-  unsigned long y;
-  unsigned long width;
-  unsigned long height;
+  uint64 x;
+  uint64 y;
+  uint64 width;
+  uint64 height;
   float minz;
   float maxz;
 };

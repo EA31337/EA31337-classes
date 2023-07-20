@@ -20,16 +20,19 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "File.define.h"
+#include "Platform/Terminal.define.h"
 #include "Storage/MemoryFileSystem.h"
 #include "Storage/String.extern.h"
-#include "Platform/Terminal.define.h"
 
 // Define external global functions.
 #ifndef __MQL__
-#pragma once
-
 MemoryFileSystem _memfs;
 
 extern bool FileIsEnding(int file_handle);

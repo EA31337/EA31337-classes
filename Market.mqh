@@ -25,11 +25,12 @@
 #define MARKET_MQH
 
 // Includes.
-#include "Market.struct.h"
-#include "Math/Math.h"
-#include "Serializer/Serializer.h"
 #include "Exchange/SymbolInfo/SymbolInfo.h"
 #include "Exchange/SymbolInfo/SymbolInfo.struct.static.h"
+#include "Market.struct.h"
+#include "Math/Math.h"
+#include "Platform/Chart/Chart.define.h"
+#include "Serializer/Serializer.h"
 #include "Task/TaskCondition.enum.h"
 
 /**

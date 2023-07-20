@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef COLLECTION_H
-#define COLLECTION_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Storage/Object.h"
@@ -140,7 +141,7 @@ class Collection {
   /**
    * Returns object item by object id.
    */
-  X *GetById(long _id) {
+  X *GetById(int64 _id) {
     int i;
     X *_object = GetSize() > 0 ? data[0].Ptr() : NULL;
     for (i = 0; i < ArraySize(data); i++) {
@@ -209,4 +210,3 @@ class Collection {
     return _out;
   }
 };
-#endif  // COLLECTION_H

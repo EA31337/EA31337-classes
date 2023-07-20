@@ -56,12 +56,12 @@ struct StrategyPriceStop {
   float ivalue;         // Indicator price value.
   unsigned int method;  // Store price stop methods (@see: ENUM_STRATEGY_PRICE_STOP).
   // unsigned int mode[2]; // Indicator modes to use.
-  Ref<IndicatorBase> indi_candle;
+  Ref<IndicatorData> indi_candle;
   // IndicatorDataEntry idata[];
   // IndicatorParams iparams;
 
   /* Constructors */
-  void StrategyPriceStop(int _method = 0, float _ivalue = 0) : method(_method), ivalue(_ivalue) {}
+  StrategyPriceStop(int _method = 0, float _ivalue = 0) : method(_method), ivalue(_ivalue) {}
   // Main methods.
   // Calculate price stop value.
   float GetValue(int _shift = 0, int _direction = -1, float _min_trade_dist = 0.0f) {
@@ -84,7 +84,7 @@ struct StrategyPriceStop {
     }
     if (CheckMethod(STRATEGY_PRICE_STOP_PRICE_PP)) {
       double _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
-      double _prices[4];
+      FIXED_ARRAY(double, _prices, 4);
       _prices[0] = _ohlc0.GetClose();
       _prices[1] = _direction > 0 ? _ohlc0.GetHigh() : _ohlc0.GetLow();
       _prices[2] = _direction > 0 ? _ohlc1.GetHigh() : _ohlc1.GetLow();
@@ -103,7 +103,7 @@ struct StrategyPriceStop {
     return (float)_result;
   }
   /* Setters */
-  void SetCandleSource(IndicatorBase* _indi_candle) { indi_candle = _indi_candle; }
+  void SetCandleSource(IndicatorData* _indi_candle) { indi_candle = _indi_candle; }
   void SetIndicatorPriceValue(float _ivalue) { ivalue = _ivalue; }
   /*
   void SetIndicatorDataEntry(IndicatorDataEntry &_data[]) {
@@ -143,7 +143,8 @@ struct StrategyPriceStop {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckMethod(1 << i) ? 1 : 0;
-      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      _s.Pass(THIS_REF, IntegerToString(i + 1), _value,
+              (int)(SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE));
     }
     return SerializerNodeObject;
   }

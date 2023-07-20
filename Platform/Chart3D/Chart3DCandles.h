@@ -25,6 +25,11 @@
  * 3D chart candles renderer.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../Chart/Chart.define.h"
 #include "Chart3DType.h"
 #include "Cube.h"

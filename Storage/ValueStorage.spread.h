@@ -24,6 +24,11 @@
  * Spread getter version of ValueStorage.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Cache/ObjectsCache.h"
 #include "ValueStorage.history.h"
@@ -31,20 +36,20 @@
 /**
  * Storage to retrieve spread.
  */
-class SpreadValueStorage : public HistoryValueStorage<long> {
+class SpreadValueStorage : public HistoryValueStorage<int64> {
  public:
   /**
    * Constructor.
    */
-  SpreadValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<long>(_indi_candle) {}
+  SpreadValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<int64>(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  SpreadValueStorage(SpreadValueStorage &_r) : HistoryValueStorage<long>(_r.indi_candle.Ptr()) {}
+  SpreadValueStorage(SpreadValueStorage &_r) : HistoryValueStorage<int64>(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  long Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetSpread(RealShift(_rel_shift)); }
+  int64 Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetSpread(RealShift(_rel_shift)); }
 };

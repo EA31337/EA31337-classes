@@ -20,14 +20,15 @@
  *
  */
 
-// Includes.
-#include "Exchange/Account/AccountMt.h"
-#include "Convert.mqh"
-#include "Platform/Order.h"
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
-// Prevents processing this includes file for the second time.
-#ifndef MAIL_MQH
-#define MAIL_MQH
+// Includes.
+#include "Convert.mqh"
+#include "Exchange/Account/AccountMt.h"
+#include "Platform/Order.h"
 
 /**
  * Implements Mail class.
@@ -136,4 +137,3 @@ class Mail {
    */
   bool SendMailExecuteOrder() { return SendMail(GetMailSubjectExecuteOrder(), GetMailBodyExecuteOrder()); }
 };
-#endif

@@ -25,5 +25,10 @@
  * Include file to include all OHLC indicators.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // OHLC indicators.
 #include "Indi_OHLC.mqh"

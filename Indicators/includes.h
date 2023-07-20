@@ -25,6 +25,11 @@
  * Include file to include all common indicators at once.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Standard indicators.
 #include "Indi_AC.mqh"
 #include "Indi_AD.mqh"
@@ -58,7 +63,6 @@
 #include "Indi_Momentum.mqh"
 #include "Indi_OBV.mqh"
 #include "Indi_OsMA.mqh"
-#include "Indi_Pivot.mqh"
 #include "Indi_PriceChannel.mqh"
 #include "Indi_PriceFeeder.mqh"
 #include "Indi_PriceVolumeTrend.mqh"

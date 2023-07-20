@@ -28,15 +28,15 @@
 //#define __debug_verbose__
 
 // Includes.
-#include "../../Storage/Dict/DictStruct.h"
-#include "../DrawIndicator.mqh"
 #include "../../Indicator/Indicator.struct.serialize.h"
-#include "../PriceRange/Indi_Bands.h"
-#include "../Indi_Demo.mqh"
-#include "../Price/Indi_MA.h"
-#include "../Oscillator/Indi_RSI.h"
-#include "../Price/Indi_Price.h"
+#include "../../Storage/Dict/DictStruct.h"
 #include "../../Test.mqh"
+#include "../DrawIndicator.mqh"
+#include "../Indi_Demo.mqh"
+#include "../Oscillator/Indi_RSI.h"
+#include "../Price/Indi_MA.h"
+#include "../Price/Indi_Price.h"
+#include "../PriceRange/Indi_Bands.h"
 
 // Global variables.
 Ref<IndicatorData> candles;
@@ -67,7 +67,7 @@ void OnTick() {
   if (candles REF_DEREF IsNewBar()) {
     bar_processed++;
 
-    for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
+    for (DictIterator<int64, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
          ++iter) {
       IndicatorData *_indi = iter.Value().Ptr();
       _indi.OnTick(Platform::GetGlobalTickIndex());
@@ -149,7 +149,7 @@ bool InitIndicators() {
   */
 
   // We'll be drawing all indicators' values on the chart.
-  for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
+  for (DictIterator<int64, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
        ++iter) {
     // iter.Value() REF_DEREF SetPlot(true); // @fixme
   }
@@ -162,7 +162,7 @@ bool InitIndicators() {
  */
 bool PrintIndicators(string _prefix = "") {
   ResetLastError();
-  for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
+  for (DictIterator<int64, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
        ++iter) {
     IndicatorData *_indi = iter.Value().Ptr();
     if (_indi.Get<bool>(STRUCT_ENUM(IndicatorDataState, INDICATOR_DATA_STATE_PROP_IS_READY))) {

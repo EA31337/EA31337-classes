@@ -31,17 +31,14 @@
  * 3. Trading volume.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iForce(string _symbol, int _tf, int _period, int _ma_method, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_Force::iForce(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_MA_METHOD)_ma_method, (ENUM_APPLIED_PRICE)_ap,
-                            _shift);
-}
-#endif
+#include "../Indicators/Price/Indi_MA.h"
 
 // Structs.
 struct IndiForceParams : IndicatorParams {
@@ -173,3 +170,12 @@ class Indi_Force : public Indicator<IndiForceParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iForce(string _symbol, int _tf, int _period, int _ma_method, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_Force::iForce(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_MA_METHOD)_ma_method, (ENUM_APPLIED_PRICE)_ap,
+                            _shift);
+}
+#endif

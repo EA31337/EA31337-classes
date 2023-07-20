@@ -64,12 +64,12 @@ class ObjectsCache {
    * Tries to retrieve pointer to object for a given key. Returns true if object did exist.
    */
   static bool TryGet(string& key, C*& out_ptr) {
-    int position;
-    if (!GetObjects().KeyExists(key, position)) {
+    unsigned int position;
+    if (!GetObjects() PTR_DEREF KeyExists(key, position)) {
       out_ptr = NULL;
       return false;
     } else {
-      out_ptr = GetObjects().GetByPos(position);
+      out_ptr = GetObjects() PTR_DEREF GetByPos(position);
       return true;
     }
   }
@@ -78,7 +78,7 @@ class ObjectsCache {
    * Stores object pointer with a given key.
    */
   static C* Set(string& key, C* ptr) {
-    GetObjects().Set(key, ptr);
+    GetObjects() PTR_DEREF Set(key, ptr);
     return ptr;
   }
 };

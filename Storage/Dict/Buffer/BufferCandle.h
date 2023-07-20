@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef BUFFER_CANDLE_H
-#define BUFFER_CANDLE_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../../Candle.struct.h"
@@ -62,5 +63,3 @@ class BufferCandle : public BufferStruct<CandleOCTOHLC<TV>> {
    */
   string ToJSON() { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 };
-
-#endif  // BUFFER_CANDLE_H

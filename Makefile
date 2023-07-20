@@ -5,13 +5,14 @@ MAKEFILES := $(wildcard **/tests/Makefile)
 .PHONY: all
 
 all: $(MAKEFILES)
-	@for makefile in $(MAKEFILES); do \
-		echo "Compiling $$makefile"; \
-		$(MAKE) -C $$(dirname $$makefile) CFLAGS="$(CFLAGS)" EMCC_CFLAGS="$(EMCC_CFLAGS)"; \
-	done
+	@ret=0; \
+	for makefile in $(MAKEFILES); do \
+		$(MAKE) -C $$(dirname $$makefile) CFLAGS="$(CFLAGS)" EMCC_CFLAGS="$(EMCC_CFLAGS)" || { ret=$$?; }; \
+	done; \
+	exit $$ret
 
 clean: $(MAKEFILES)
 	@for makefile in $(MAKEFILES); do \
-		echo "Compiling $$makefile"; \
+		echo "Cleaning $$makefile"; \
 		$(MAKE) -C $$(dirname $$makefile) clean; \
 	done

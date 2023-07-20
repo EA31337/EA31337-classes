@@ -20,8 +20,8 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
 #pragma once
 
 // Includes.
@@ -65,7 +65,7 @@ int StringSplit(const string& string_value, const unsigned short separator, ARRA
   }
   return result.size();
 }
-long StringToInteger(string value) { return std::stol(value); }
+int64 StringToInteger(string value) { return std::stol(value); }
 string IntegerToString(int64 number, int str_len = 0, unsigned short fill_symbol = ' ') {
   return std::to_string(number);
 }

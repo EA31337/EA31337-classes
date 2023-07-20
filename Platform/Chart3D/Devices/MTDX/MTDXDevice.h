@@ -25,6 +25,11 @@
  * MetaTrader DX-targeted graphics device.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../../Device.h"
 
 class MTDXDevice : public Device {

@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef DICT_BASE_H
-#define DICT_BASE_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../../Convert.mqh"
@@ -273,7 +274,7 @@ class DictBase {
   /**
    * Returns number of used DictSlots.
    */
-  const unsigned int Size() { return _DictSlots_ref._num_used; }
+  const unsigned int Size() const { return _DictSlots_ref._num_used; }
 
   /**
    * Returns number of all (reserved) DictSlots.
@@ -388,7 +389,5 @@ class DictBase {
   /**
    * Specialization of hashing function.
    */
-  unsigned int Hash(float x) { return (unsigned int)((unsigned long)x * 10000 % 10000); }
+  unsigned int Hash(float x) { return (unsigned int)((uint64)x * 10000 % 10000); }
 };
-
-#endif

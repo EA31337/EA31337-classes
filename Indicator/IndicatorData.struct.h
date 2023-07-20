@@ -44,7 +44,7 @@ union IndicatorDataEntryTypelessValue {
   double vdbl;
   float vflt;
   int vint;
-  long vlong;
+  int64 vlong;
 };
 
 // Type-aware value for IndicatorDataEntry class.
@@ -129,7 +129,7 @@ struct IndicatorDataEntryValue {
   double GetDbl() { return value.vdbl; }
   float GetFloat() { return value.vflt; }
   int GetInt() { return value.vint; }
-  long GetLong() { return value.vlong; }
+  int64 GetLong() { return value.vlong; }
   template <typename T>
   void Get(T &_out) {
     _out = Get<T>();
@@ -145,8 +145,8 @@ struct IndicatorDataEntryValue {
   void Get(float &_out) { _out = value.vflt; }
   void Get(int &_out) { _out = value.vint; }
   void Get(unsigned int &_out) { _out = (unsigned int)value.vint; }
-  void Get(long &_out) { _out = value.vlong; }
-  void Get(unsigned long &_out) { _out = (unsigned long)value.vint; }
+  void Get(int64 &_out) { _out = value.vlong; }
+  void Get(uint64 &_out) { _out = (uint64)value.vint; }
   // Setters.
   template <typename T>
   void Set(T _value) {
@@ -168,12 +168,12 @@ struct IndicatorDataEntryValue {
     value.vint = (int)_value;
     SetDataType(TYPE_UINT);
   }
-  void Set(long _value) {
+  void Set(int64 _value) {
     value.vlong = _value;
     SetDataType(TYPE_LONG);
   }
-  void Set(unsigned long _value) {
-    value.vlong = (long)_value;
+  void Set(uint64 _value) {
+    value.vlong = (int64)_value;
     SetDataType(TYPE_ULONG);
   }
   // Serializers.
@@ -188,7 +188,7 @@ struct IndicatorDataEntryValue {
 
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {
-  long timestamp;        // Timestamp of the entry's bar.
+  int64 timestamp;       // Timestamp of the entry's bar.
   unsigned short flags;  // Indicator entry flags.
   ARRAY(IndicatorDataEntryValue, values);
 
@@ -331,7 +331,7 @@ struct IndicatorDataEntry {
   int GetDayOfYear() { return DateTimeStatic::DayOfYear(timestamp); }
   int GetMonth() { return DateTimeStatic::Month(timestamp); }
   int GetYear() { return DateTimeStatic::Year(timestamp); }
-  long GetTime() { return timestamp; };
+  int64 GetTime() { return timestamp; };
   ENUM_DATATYPE GetDataType(int _mode) { return values[_mode].GetDataType(); }
   unsigned short GetDataTypeFlags(ENUM_DATATYPE _dt) {
     switch (_dt) {

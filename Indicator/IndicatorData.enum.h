@@ -34,11 +34,11 @@
 enum INDICATOR_DATA_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_NONE = 0 << 0,
   INDI_ENTRY_FLAG_IS_BITWISE = 1 << 0,
-  INDI_ENTRY_FLAG_IS_DOUBLED = 1 << 1,  // Type is doubled in size (e.g. double or long).
+  INDI_ENTRY_FLAG_IS_DOUBLED = 1 << 1,  // Type is doubled in size (e.g. double or int64).
   INDI_ENTRY_FLAG_IS_EXPIRED = 1 << 2,
   INDI_ENTRY_FLAG_IS_REAL = 1 << 3,  // Type is real (float or double).
   INDI_ENTRY_FLAG_IS_PRICE = 1 << 4,
-  INDI_ENTRY_FLAG_IS_UNSIGNED = 1 << 5,  // Type is unsigned (unsigned int or unsigned long).
+  INDI_ENTRY_FLAG_IS_UNSIGNED = 1 << 5,  // Type is unsigned (unsigned int or uint64).
   INDI_ENTRY_FLAG_IS_VALID = 1 << 6,
   INDI_ENTRY_FLAG_INSUFFICIENT_DATA = 1 << 7,  // Entry has missing value for that shift and probably won't ever have.
 };

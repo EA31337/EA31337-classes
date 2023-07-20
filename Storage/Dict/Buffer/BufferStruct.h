@@ -20,9 +20,13 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef BUFFER_STRUCT_H
-#define BUFFER_STRUCT_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
+// Flag for Database.struct.h so BufferStruct structure will be supported by it.
+#define DATABASE_INCLUDE_BUFFER_STRUCT
 
 // Includes.
 #include "../../../Serializer/Serializer.h"
@@ -53,9 +57,9 @@ bool BufferStructOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, 
  * Class to store struct data.
  */
 template <typename TStruct>
-class BufferStruct : public DictStruct<long, TStruct> {
+class BufferStruct : public DictStruct<int64, TStruct> {
  protected:
-  long min, max;
+  int64 min, max;
 
  public:
   /* Constructors */
@@ -72,8 +76,8 @@ class BufferStruct : public DictStruct<long, TStruct> {
   /**
    * Adds new value.
    */
-  void Add(TStruct& _value, long _dt = 0) {
-    _dt = _dt > 0 ? _dt : (long)TimeCurrent();
+  void Add(TStruct& _value, int64 _dt = 0) {
+    _dt = _dt > 0 ? _dt : (int64)TimeCurrent();
     if (THIS_ATTR Set(_dt, _value)) {
       min = _dt < min ? _dt : min;
       max = _dt > max ? _dt : max;
@@ -83,12 +87,12 @@ class BufferStruct : public DictStruct<long, TStruct> {
   /**
    * Clear entries older than given timestamp.
    */
-  void Clear(long _dt = 0, bool _older = true) {
+  void Clear(int64 _dt = 0, bool _older = true) {
     min = INT_MAX;
     max = INT_MIN;
     if (_dt > 0) {
-      for (DictStructIterator<long, TStruct> iter(THIS_ATTR Begin()); iter.IsValid(); ++iter) {
-        long _time = iter.Key();
+      for (DictStructIterator<int64, TStruct> iter(THIS_ATTR Begin()); iter.IsValid(); ++iter) {
+        int64 _time = iter.Key();
         if (_older && _time < _dt) {
           Unset(iter.Key());
           continue;
@@ -100,7 +104,7 @@ class BufferStruct : public DictStruct<long, TStruct> {
         max = _time > max ? _time : max;
       }
     } else {
-      DictStruct<long, TStruct>::Clear();
+      DictStruct<int64, TStruct>::Clear();
     }
   }
 
@@ -109,12 +113,10 @@ class BufferStruct : public DictStruct<long, TStruct> {
   /**
    * Gets the newest timestamp.
    */
-  long GetMax() { return max; }
+  int64 GetMax() { return max; }
 
   /**
    * Gets the oldest timestamp.
    */
-  long GetMin() { return min; }
+  int64 GetMin() { return min; }
 };
-
-#endif  // BUFFER_STRUCT_H

@@ -25,6 +25,11 @@
  * MetaTrader DX-targeted unversal graphics shader.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "../../Shader.h"
 
 class MTDXShader : public Shader {

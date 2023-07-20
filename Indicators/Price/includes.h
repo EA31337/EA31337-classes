@@ -25,6 +25,11 @@
  * Include file to include all price indicators.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Price indicators.
 #include "Indi_AppliedPrice.h"
 #include "Indi_MA.h"

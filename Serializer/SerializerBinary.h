@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_BINARY_MQH
-#define SERIALIZER_BINARY_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Storage/Dict/DictBase.h"
@@ -37,7 +38,7 @@ enum ENUM_SERIALIZER_BINARY_FLAGS { SERIALIZER_BINARY_INCLUDE_VERSION };
 union SerializerBinaryValue {
   unsigned char Bytes[8];
   double Double;
-  long Long;
+  int64 Long;
   int Integer;
   short Short;
 };
@@ -115,7 +116,7 @@ class SerializerBinary {
 
     Serializer serializer(node, Unserialize);
 
-    if (logger != NULL) serializer.Logger().Link(logger);
+    // if (logger != NULL) serializer.Logger().Link(logger);
 
     // We don't use result. We parse data as it is.
     obj.Serialize(serializer);
@@ -129,5 +130,3 @@ class SerializerBinary {
     return NULL;
   }
 };
-
-#endif

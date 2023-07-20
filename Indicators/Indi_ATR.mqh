@@ -20,16 +20,13 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iATR(string _symbol, int _tf, int _period, int _shift) {
-  ResetLastError();
-  return Indi_ATR::iATR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
-}
-#endif
 
 // Structs.
 struct IndiATRParams : IndicatorParams {
@@ -125,7 +122,7 @@ class Indi_ATR : public Indicator<IndiATRParams> {
       IndiATRParams _params(_period);
       _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_params));
       // Assigning the same candle indicator for ATR as in _indi.
-      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
+      _ptr PTR_DEREF SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }
@@ -147,3 +144,11 @@ class Indi_ATR : public Indicator<IndiATRParams> {
     iparams.period = _period;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iATR(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
+  return Indi_ATR::iATR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
+}
+#endif

@@ -20,28 +20,17 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../../Indicator/Indicator.h"
 #include "../../Storage/Singleton.h"
-#include "../Price/Indi_MA.h"
 #include "../Indi_PriceFeeder.mqh"
+#include "../Price/Indi_MA.h"
 #include "../Price/Indi_Price.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iEnvelopes(string _symbol, int _tf, int _period, int _ma_method, int _ma_shift, int _ap, double _deviation,
-                  int _mode, int _shift) {
-  ResetLastError();
-  return Indi_Envelopes::iEnvelopes(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_MA_METHOD)_ma_method, _ma_shift,
-                                    (ENUM_APPLIED_PRICE)_ap, _deviation, _mode, _shift);
-}
-double iEnvelopesOnArray(double &_arr[], int _total, int _ma_period, int _ma_method, int _ma_shift, double _deviation,
-                         int _mode, int _shift) {
-  ResetLastError();
-  return Indi_Envelopes::iEnvelopesOnArray(_arr, _total, _ma_period, (ENUM_MA_METHOD)_ma_method, _ma_shift, _deviation,
-                                           _mode, _shift);
-}
-#endif
 
 // Structs.
 struct IndiEnvelopesParams : IndicatorParams {
@@ -142,7 +131,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _ap, _deviation),
                                       _mode, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -158,19 +147,19 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
                                       int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5
                                                   // _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
                                       int _shift = 0) {
-    return iEnvelopesOnArray(_source.GetSpecificAppliedPriceValueStorage(_ap, _target), 0, _ma_period, _ma_method,
-                             _ma_shift, _deviation, _mode, _shift, _target PTR_DEREF GetCache());
+    return iEnvelopesOnArray(_source PTR_DEREF GetSpecificAppliedPriceValueStorage(_ap, _target), 0, _ma_period,
+                             _ma_method, _ma_shift, _deviation, _mode, _shift, _target PTR_DEREF GetCache());
   }
 
-  static double iEnvelopesOnArray(double &price[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
-                                  double deviation, int mode, int shift,
+  static double iEnvelopesOnArray(CONST_ARRAY_REF(double, price), int total, int ma_period, ENUM_MA_METHOD ma_method,
+                                  int ma_shift, double deviation, int mode, int shift,
                                   IndiBufferCache<double> *_cache = NULL) {
 #ifdef __MQL4__
     return iEnvelopesOnArray(price, total, ma_period, ma_method, ma_shift, deviation, mode, shift);
 #else
     // We're reusing the same native array for each consecutive calculation.
     NativeValueStorage<double> *_price = Singleton<NativeValueStorage<double> >::Get();
-    _price.SetData(price);
+    _price PTR_DEREF SetData(price);
 
     return iEnvelopesOnArray(_price, total, ma_period, ma_method, ma_shift, deviation, mode, shift);
 #endif
@@ -184,13 +173,14 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
       return DBL_MIN;
     }
 
-    double _indi_value_buffer[];
+    ARRAY(double, _indi_value_buffer);
     double _result;
 
     ArrayResize(_indi_value_buffer, _ma_period);
 
     // MA will use sub-cache of the given one.
-    _result = Indi_MA::iMAOnArray(_price, 0, _ma_period, _ma_shift, _ma_method, _shift, _cache.GetSubCache(0));
+    _result = Indi_MA::iMAOnArray(PTR_TO_REF(_price), 0, _ma_period, _ma_shift, _ma_method, _shift,
+                                  _cache PTR_DEREF GetSubCache(0));
 
     switch (_mode) {
       case LINE_UPPER:
@@ -332,3 +322,19 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
     iparams.deviation = _deviation;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iEnvelopes(string _symbol, int _tf, int _period, int _ma_method, int _ma_shift, int _ap, double _deviation,
+                  int _mode, int _shift) {
+  ResetLastError();
+  return Indi_Envelopes::iEnvelopes(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_MA_METHOD)_ma_method, _ma_shift,
+                                    (ENUM_APPLIED_PRICE)_ap, _deviation, _mode, _shift);
+}
+double iEnvelopesOnArray(CONST_ARRAY_REF(double, _arr), int _total, int _ma_period, int _ma_method, int _ma_shift,
+                         double _deviation, int _mode, int _shift) {
+  ResetLastError();
+  return Indi_Envelopes::iEnvelopesOnArray(_arr, _total, _ma_period, (ENUM_MA_METHOD)_ma_method, _ma_shift, _deviation,
+                                           _mode, _shift);
+}
+#endif

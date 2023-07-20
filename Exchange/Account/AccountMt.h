@@ -20,23 +20,24 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ACCOUNT_MT_MQH
-#define ACCOUNT_MT_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Forward class declaration.
 class AccountMt;
 
 // Includes.
-#include "../../Storage/Array.h"
-#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Convert.mqh"
-#include "../../Storage/Data.struct.h"
+#include "../../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../../Indicator/Indicator.struct.h"
 #include "../../Platform/Order.struct.h"
 #include "../../Platform/Orders.h"
 #include "../../Serializer/Serializer.h"
-#include "../../Exchange/SymbolInfo/SymbolInfo.h"
+#include "../../Storage/Array.h"
+#include "../../Storage/Data.struct.h"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Task/TaskCondition.enum.h"
 #include "../../Trade.struct.h"
 #include "Account.define.h"
@@ -219,14 +220,14 @@ class AccountMt {
   /**
    * Returns the current account number.
    */
-  static long AccountNumber() { return AccountInfoInteger(ACCOUNT_LOGIN); }
-  long GetLogin() { return AccountNumber(); }
+  static int64 AccountNumber() { return AccountInfoInteger(ACCOUNT_LOGIN); }
+  int64 GetLogin() { return AccountNumber(); }
 
   /**
    * Returns leverage of the current account.
    */
-  static long AccountLeverage() { return AccountInfoInteger(ACCOUNT_LEVERAGE); }
-  long GetLeverage() { return AccountLeverage(); }
+  static int64 AccountLeverage() { return AccountInfoInteger(ACCOUNT_LEVERAGE); }
+  int64 GetLeverage() { return AccountLeverage(); }
 
   /**
    * Returns the calculation mode for the Stop Out level.
@@ -249,9 +250,9 @@ class AccountMt {
    * @return
    *   Returns the limit orders (0 for unlimited).
    */
-  static long AccountLimitOrders() { return AccountInfoInteger(ACCOUNT_LIMIT_ORDERS); }
-  long GetLimitOrders(unsigned int _max = 999) {
-    long _limit = AccountLimitOrders();
+  static int64 AccountLimitOrders() { return AccountInfoInteger(ACCOUNT_LIMIT_ORDERS); }
+  int64 GetLimitOrders(unsigned int _max = 999) {
+    int64 _limit = AccountLimitOrders();
     return _limit > 0 ? _limit : _max;
   }
 
@@ -594,13 +595,13 @@ class AccountMt {
     ARRAY(DataParamEntry, _args);
     return AccountMt::CheckCondition(_cond, _args);
   }
-  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, long _arg1) {
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, int64 _arg1) {
     ARRAY(DataParamEntry, _args);
     DataParamEntry _param1 = _arg1;
     ArrayPushObject(_args, _param1);
     return AccountMt::CheckCondition(_cond, _args);
   }
-  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, long _arg1, long _arg2) {
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, int64 _arg1, int64 _arg2) {
     ARRAY(DataParamEntry, _args);
     DataParamEntry _param1 = _arg1;
     DataParamEntry _param2 = _arg2;
@@ -665,7 +666,7 @@ class AccountMt {
    * @docs
    * - https://www.mql5.com/en/docs/account/accountinfointeger
    */
-  static long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER _prop_id) { return ::AccountInfoInteger(_prop_id); }
+  static int64 AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER _prop_id) { return ::AccountInfoInteger(_prop_id); }
 
   /**
    * Returns the string value of the appropriate account property.
@@ -678,4 +679,3 @@ class AccountMt {
    */
   static string AccountInfoString(ENUM_ACCOUNT_INFO_STRING _prop_id) { return ::AccountInfoString(_prop_id); }
 };
-#endif  // ACCOUNT_MT_MQH

@@ -25,12 +25,12 @@
  */
 
 // Includes.
-#include "../Chart/Chart.h"
-#include "../Order.h"
-#include "../Platform.h"
 #include "../../Serializer/SerializerConverter.h"
 #include "../../Serializer/SerializerJson.h"
 #include "../../Test.mqh"
+#include "../Chart/Chart.h"
+#include "../Order.h"
+#include "../Platform.h"
 
 // Global defines.
 #define MAX_ORDERS 10
@@ -86,7 +86,7 @@ void OnTick() {
           break;
       }
       assertFalseOrExit(_order.IsOpen(true), StringFormat("Order %d not closed!", _order.OrderTicket()));
-      assertTrueOrExit(_order.Get<long>(ORDER_PROP_TIME_CLOSED) > 0,
+      assertTrueOrExit(_order.Get<int64>(ORDER_PROP_TIME_CLOSED) > 0,
                        StringFormat("Order %d close time not correct!", _order.OrderTicket()));
     }
     bar_processed++;

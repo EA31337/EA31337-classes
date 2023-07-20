@@ -20,16 +20,13 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iSAR(string _symbol, int _tf, double _step, double _max, int _shift) {
-  ResetLastError();
-  return Indi_SAR::iSAR(_symbol, (ENUM_TIMEFRAMES)_tf, _step, _max, _shift);
-}
-#endif
 
 // Structs.
 struct IndiSARParams : IndicatorParams {
@@ -86,7 +83,7 @@ class Indi_SAR : public Indicator<IndiSARParams> {
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iSAR(_symbol, _tf, _step, _max), 0, _shift);
 #endif
-#else // Non-MQL.
+#else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
@@ -144,3 +141,11 @@ class Indi_SAR : public Indicator<IndiSARParams> {
     iparams.max = _max;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iSAR(string _symbol, int _tf, double _step, double _max, int _shift) {
+  ResetLastError();
+  return Indi_SAR::iSAR(_symbol, (ENUM_TIMEFRAMES)_tf, _step, _max, _shift);
+}
+#endif
