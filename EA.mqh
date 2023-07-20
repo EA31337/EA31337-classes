@@ -66,7 +66,7 @@ class EA : public Taskable<DataParamEntry> {
   BufferStruct<SymbolInfoEntry> data_symbol;
   Dict<string, double> ddata;  // Custom user data.
   Dict<string, int> idata;     // Custom user data.
-  DictObject<string, Trade> trade;
+  DictStruct<string, Ref<Trade>> trade;
   DictObject<int, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<int, BufferStruct<StgEntry>> data_stg;
   EAParams eparams;
@@ -110,11 +110,11 @@ class EA : public Taskable<DataParamEntry> {
     // Add and process tasks.
     Init();
     // Initialize a trade instance for the current chart and symbol.
-    Ref<IndicatorData> _source = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
+    Ref<IndicatorData> _source = Platform::FetchDefaultCandleIndicator(Platform::GetSymbol(), Platform::GetPeriod());
     TradeParams _tparams;
-    Trade _trade(_tparams, _source.Ptr());
+    Ref<Trade> _trade = new Trade(_tparams, _source.Ptr());
     trade.Set(_Symbol, _trade);
-    logger.Link(_trade.GetLogger());
+    logger.Link(_trade REF_DEREF GetLogger());
   }
 
   /**
@@ -242,7 +242,7 @@ class EA : public Taskable<DataParamEntry> {
    */
   template <typename T>
   void Set(ENUM_TRADE_PARAM _param, T _value) {
-    for (DictObjectIterator<string, Trade> iter = trade.Begin(); iter.IsValid(); ++iter) {
+    for (DictObjectIterator<string, Ref<Trade>> iter = trade.Begin(); iter.IsValid(); ++iter) {
       Trade *_trade = iter.Value();
       _trade PTR_DEREF Set<T>(_param, _value);
     }
@@ -264,7 +264,7 @@ class EA : public Taskable<DataParamEntry> {
         // Ignores already processed signals.
         continue;
       }
-      Trade *_trade = trade.GetByKey(_Symbol);
+      Trade *_trade = trade.GetByKey(_Symbol).Ptr();
       Strategy *_strat =
           strats.GetByKey(_signal PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)))
               .Ptr();
@@ -358,7 +358,7 @@ class EA : public Taskable<DataParamEntry> {
    */
   virtual bool TradeRequest(ENUM_ORDER_TYPE _cmd, string _symbol = NULL, Strategy *_strat = NULL) {
     bool _result = false;
-    Trade *_trade = trade.GetByKey(_symbol);
+    Trade *_trade = trade.GetByKey(_symbol).Ptr();
     // Prepare a request.
     MqlTradeRequest _request = _trade PTR_DEREF GetTradeOpenRequest(_cmd);
     _request.comment = _strat PTR_DEREF GetOrderOpenComment();
@@ -395,7 +395,7 @@ class EA : public Taskable<DataParamEntry> {
         for (DictStructIterator<int64, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
           bool _can_trade = true;
           Strategy *_strat = iter.Value().Ptr();
-          Trade *_trade = trade.GetByKey(_Symbol);
+          Trade *_trade = trade.GetByKey(_Symbol).Ptr();
           if (_strat PTR_DEREF IsEnabled()) {
             if (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
               // Process when new periods started.
@@ -746,7 +746,7 @@ class EA : public Taskable<DataParamEntry> {
    * Loads existing trades for the given strategy.
    */
   bool StrategyLoadTrades(Strategy *_strat) {
-    Trade *_trade = trade.GetByKey(_Symbol);
+    Trade *_trade = trade.GetByKey(_Symbol).Ptr();
     return _trade PTR_DEREF OrdersLoadByMagic(_strat PTR_DEREF Get<int64>(STRAT_PARAM_ID));
   }
 
@@ -761,8 +761,8 @@ class EA : public Taskable<DataParamEntry> {
   bool ProcessTrades() {
     bool _result = true;
     ResetLastError();
-    for (DictObjectIterator<string, Trade> titer = trade.Begin(); titer.IsValid(); ++titer) {
-      Trade *_trade = titer.Value();
+    for (DictStructIterator<string, Ref<Trade>> titer = trade.Begin(); titer.IsValid(); ++titer) {
+      Trade *_trade = titer.Value().Ptr();
       if (_trade PTR_DEREF Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
         for (DictStructIterator<int64, Ref<Order>> oiter = _trade PTR_DEREF GetOrdersActive() PTR_DEREF Begin();
              oiter.IsValid(); ++oiter) {
@@ -856,7 +856,7 @@ class EA : public Taskable<DataParamEntry> {
     bool _result = false;
     if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
       // Auto calculate lot size for all strategies.
-      Trade *_trade = trade.GetByKey(_Symbol);
+      Trade *_trade = trade.GetByKey(_Symbol).Ptr();
       _result &= _trade PTR_DEREF Run(TRADE_ACTION_CALC_LOT_SIZE);
       Set(STRAT_PARAM_LS, _trade PTR_DEREF Get<float>(TRADE_PARAM_LOT_SIZE));
     }
