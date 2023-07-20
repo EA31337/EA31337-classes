@@ -936,23 +936,30 @@ class Order : public SymbolInfo {
     _request.price = SymbolInfo::GetCloseOffer(orequest.type);
     _request.volume = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);
-    if (oresult.retcode == TRADE_RETCODE_DONE) {
-      // For now, sets the current time.
-      odata.Set(ORDER_PROP_TIME_CLOSED, DateTimeStatic::TimeTradeServer());
-      // For now, sets using the actual close price.
-      odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)));
-      odata.Set(ORDER_PROP_LAST_ERROR, ERR_NO_ERROR);
-      odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
-      Refresh(true);
-      return true;
-    } else {
-      odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
-      if (OrderSelect()) {
+    switch (oresult.retcode) {
+      case TRADE_RETCODE_DONE:
+        // For now, sets the current time.
+        odata.Set(ORDER_PROP_TIME_CLOSED, DateTimeStatic::TimeTradeServer());
+        // For now, sets using the actual close price.
+        odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)));
+        odata.Set(ORDER_PROP_LAST_ERROR, ERR_NO_ERROR);
+        odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
         Refresh(true);
-        if (!IsClosed()) {
-          ologger.Error(StringFormat("Issue closing order: %d!", oresult.deal, __FUNCTION_LINE__));
+        return true;
+      case TRADE_RETCODE_INVALID:
+      default:
+        odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
+        if (OrderSelect()) {
+          Refresh(true);
+          if (!IsClosed()) {
+            ologger.Error(StringFormat("Failed to send order request %d! Error: %d (%s)", oresult.deal,
+                                       oresult_check.retcode, oresult_check.comment),
+                          __FUNCTION_LINE__);
+            if (logger.GetLevel() >= V_DEBUG) {
+              ologger.Debug(StringFormat("Failed request: %s", ToString()), __FUNCTION_LINE__);
+            }
+          }
         }
-      }
     }
     return false;
   }
