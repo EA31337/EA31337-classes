@@ -59,11 +59,6 @@ EA3 *ea3;
  * Implements OnInit().
  */
 int OnInit() {
-  Ref<Trade> _trade1 = new Trade();
-  _trades_test.Set("trade1", _trade1);
-  Print(SerializerConverter::FromObject(_trades_test).ToString<SerializerJson>());
-  return INIT_SUCCEEDED;
-
   Platform::Init();
   Platform::SetSymbolTfForTesting("EURUSD", PERIOD_M1);
 
