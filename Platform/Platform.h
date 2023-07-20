@@ -106,6 +106,26 @@ class Platform {
   }
 
   /**
+   * When testing code inside the OnInit() method symbol and tf may be
+   * undefined. This is a way to solve that problem. Use only for
+   * testing!
+   */
+  static void SetSymbolTfForTesting(string _symbol, ENUM_TIMEFRAMES _tf) {
+    if (_symbol == PLATFORM_WRONG_SYMBOL) {
+      Print("Error: SetSymbolTfForTesting() requires valid symbol. Passed \"", _symbol, "\".");
+      DebugBreak();
+    }
+
+    if (_tf == PERIOD_CURRENT || _tf == PLATFORM_WRONG_TIMEFRAME) {
+      Print("Error: SetSymbolTfForTesting() requires valid time-frame. Passed \"", EnumToString(_tf), "\".");
+      DebugBreak();
+    }
+
+    symbol = _symbol;
+    period = _tf;
+  }
+
+  /**
    * Returns global tick index.
    */
   static int GetGlobalTickIndex() { return global_tick_index; }
