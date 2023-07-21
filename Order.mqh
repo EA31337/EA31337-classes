@@ -931,7 +931,7 @@ class Order : public SymbolInfo {
     _request.type_filling = GetOrderFilling(orequest.symbol);
     _request.position = odata.Get<ulong>(ORDER_PROP_TICKET);
     _request.price = SymbolInfo::GetCloseOffer(orequest.type);
-    _request.volume = orequest.volume;
+    _request.volume = odata.Get<double>(ORDER_VOLUME_CURRENT);
     Order::OrderSend(_request, oresult, oresult_check);
     if (oresult.retcode == TRADE_RETCODE_DONE) {
       // For now, sets the current time.
@@ -1579,6 +1579,7 @@ class Order : public SymbolInfo {
 #endif
       // Update double values.
       _result &= Refresh(ORDER_PRICE_OPEN);
+      _result &= Refresh(ORDER_VOLUME_INITIAL);
       // Update string values.
       _result &= Refresh(ORDER_SYMBOL);
       _result &= Refresh(ORDER_COMMENT);
@@ -1590,9 +1591,6 @@ class Order : public SymbolInfo {
       // _result &= Refresh(ORDER_STATE); // @fixme: Error 69539
       // _result &= Refresh(ORDER_TYPE_TIME); // @fixme: Error 69539
       // _result &= Refresh(ORDER_TYPE_FILLING); // @fixme: Error 69539
-      // Update double values.
-      // _result &= Refresh(ORDER_VOLUME_INITIAL); // @fixme: false
-      // _result &= Refresh(ORDER_VOLUME_CURRENT); // @fixme: Error 69539
     }
 
     // Updates whether order is open or closed.
@@ -1606,6 +1604,7 @@ class Order : public SymbolInfo {
       _result &= Refresh(ORDER_PRICE_CURRENT);
       _result &= Refresh(ORDER_SL);
       _result &= Refresh(ORDER_TP);
+      _result &= Refresh(ORDER_VOLUME_CURRENT);
     }
     //} else if (IsPending())
     // _result &= Refresh(ORDER_PRICE_STOPLIMIT); // @fixme: Error 69539
@@ -1794,6 +1793,9 @@ class Order : public SymbolInfo {
         break;
       case ORDER_VOLUME_CURRENT:
         _result = Order::OrderGetDouble(ORDER_VOLUME_CURRENT, _value);
+        break;
+      case ORDER_VOLUME_INITIAL:
+        _result = Order::OrderGetDouble(ORDER_VOLUME_INITIAL, _value);
         break;
       default:
         return false;
@@ -2136,10 +2138,10 @@ class Order : public SymbolInfo {
 #endif
     switch (property_id) {
       case ORDER_VOLUME_INITIAL:
-        _result = ::OrderLots();  // @fixit Are we sure?
+        _result = ::OrderLots();
         break;
       case ORDER_VOLUME_CURRENT:
-        _result = ::OrderLots();  // @fixit Are we sure?
+        _result = ::OrderLots();
         break;
       case ORDER_PRICE_OPEN:
         _result = ::OrderOpenPrice();
@@ -2543,9 +2545,7 @@ class Order : public SymbolInfo {
               case ORDER_VOLUME_INITIAL:
                 return OrderGetValue(POSITION_VOLUME, _type, _out);
               case ORDER_VOLUME_CURRENT:
-                // @fixme
-                SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return OrderGetValue(POSITION_VOLUME, _type, _out);
               case ORDER_PRICE_OPEN:
                 return OrderGetValue(POSITION_PRICE_OPEN, _type, _out);
               case ORDER_SL:
