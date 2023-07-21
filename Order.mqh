@@ -1629,8 +1629,8 @@ class Order : public SymbolInfo {
     // order.position    = OrderGetPositionID();       // Position ticket.
     // order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
 
-    // Process conditions.
-    if (!_is_init) {
+    if (!_is_init && !_refresh) {
+      // Process conditions.
       ProcessConditions();
     }
 
