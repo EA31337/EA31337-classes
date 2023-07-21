@@ -927,13 +927,13 @@ class Order : public SymbolInfo {
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment + ":" + odata.GetCloseComment();
-    _request.deviation = orequest.deviation;
-    _request.magic = orequest.magic;  // @todo: Add to odata, in case it has been changed.
-    _request.symbol = orequest.symbol;
-    _request.type = NegateOrderType(orequest.type);
-    _request.type_filling = GetOrderFilling(orequest.symbol);
+    _request.deviation = orequest.deviation > 0 ? orequest.deviation : 40;
+    _request.magic = odata.Get<ulong>(ORDER_MAGIC);
+    _request.symbol = odata.Get(ORDER_SYMBOL);
+    _request.type = NegateOrderType(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
+    _request.type_filling = GetOrderFilling(odata.Get(ORDER_SYMBOL));
     _request.position = oresult.deal;
-    _request.price = SymbolInfo::GetCloseOffer(orequest.type);
+    _request.price = SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
     _request.volume = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);
     switch (oresult.retcode) {
