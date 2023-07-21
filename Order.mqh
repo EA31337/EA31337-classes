@@ -1099,6 +1099,7 @@ class Order : public SymbolInfo {
           GetLogger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).",
                                            odata.Get<long>(ORDER_PROP_TICKET), _price, _sl, _tp, _last_error),
                               __FUNCTION_LINE__, ToCSV());
+          Refresh(ORDER_PRICE_CURRENT);
           Refresh(ORDER_SL);
           Refresh(ORDER_TP);
           // TODO: Refresh(ORDER_PRI)
@@ -1114,6 +1115,7 @@ class Order : public SymbolInfo {
                       __FUNCTION_LINE__, ToCSV());
       }
     }
+    Refresh();
     return _result;
   }
 
