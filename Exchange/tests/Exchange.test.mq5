@@ -60,8 +60,8 @@ bool TestExchange01() {
   exchange REF_DEREF SymbolAdd(symbol02.Ptr(), "Symbol02");
 
   // Attach instances of dummy trades.
-  Ref<TradeDummy> trade01 = new TradeDummy(Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT));
-  Ref<TradeDummy> trade02 = new TradeDummy(Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT));
+  Ref<TradeDummy> trade01 = new TradeDummy(Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M15));
+  Ref<TradeDummy> trade02 = new TradeDummy(Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M15));
 
   exchange REF_DEREF TradeAdd(trade01.Ptr(), "Trade01");
   exchange REF_DEREF TradeAdd(trade02.Ptr(), "Trade02");
