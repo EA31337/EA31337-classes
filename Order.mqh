@@ -1321,6 +1321,9 @@ class Order : public SymbolInfo {
         // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
         // In order to obtain information about the error, call the GetLastError() function.
         odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
+#ifdef __debug_order__
+        Print(__FUNCTION_LINE__ + "(): " + SerializerConverter::FromObject(orequest).ToString<SerializerJson>());
+#endif
         _result = -1;
       }
     } else {

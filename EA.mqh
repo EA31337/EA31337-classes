@@ -340,6 +340,9 @@ class EA : public Taskable<DataParamEntry> {
           _last_error = GetLastError();
           if (_last_error > 0) {
             logger.Warning(StringFormat("Error: %d", _last_error), __FUNCTION_LINE__, _strat.GetName());
+#ifdef __debug_ea__
+            Print(__FUNCTION_LINE__ + "(): " + SerializerConverter::FromObject(_signal).ToString<SerializerJson>());
+#endif
             ResetLastError();
           }
           if (_trade.Get<bool>(TRADE_STATE_MONEY_NOT_ENOUGH)) {
@@ -401,13 +404,20 @@ class EA : public Taskable<DataParamEntry> {
     _strat.OnOrderOpen(_oparams);
     // Send the request.
     _result = _etrade.RequestSend(_request, _oparams);
-    if (!_result && _strade.IsTradeRecommended()) {
+    if (!_result) { //  && _strade.IsTradeRecommended(
+            logger.Debug(
+            StringFormat("Error while sending a trade request! Entry: %s",
+                         SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
+            __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
       if (_etrade.IsTradeRecommended() && _strade.IsTradeRecommended()) {
         logger.Debug(
             StringFormat("Error while sending a trade request! Entry: %s",
                          SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
             __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
       }
+#ifdef __debug_ea__
+      Print(__FUNCTION_LINE__ + "(): " + SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
+#endif
     }
     return _result;
   }
