@@ -28,11 +28,13 @@
 // Includes.
 #include "../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../Storage/Dict/DictObject.h"
+#include "../Task/TaskManager.h"
+#include "../Task/Taskable.h"
 #include "../Trade.mqh"
 #include "Account/Account.h"
 #include "Exchange.struct.h"
 
-class Exchange : public Dynamic {
+class Exchange : public Taskable<DataParamEntry> {
  protected:
   DictStruct<string, Ref<AccountBase>> accounts;
   DictStruct<string, Ref<SymbolInfo>> symbols;
@@ -97,4 +99,57 @@ class Exchange : public Dynamic {
    * Removes trade instance from the list.
    */
   void TradeRemove(string _name) { trades.Unset(_name); }
+
+  /* Taskable methods */
+
+  /**
+   * Checks a condition.
+   */
+  bool Check(const TaskConditionEntry &_entry) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Gets an integer value.
+   */
+  DataParamEntry Get(const TaskGetterEntry &_entry) {
+    DataParamEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  bool Run(const TaskActionEntry &_entry) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Sets an entry value.
+   */
+  bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
 };

@@ -41,16 +41,14 @@ extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 #endif
 
 // Includes.
-
-/**
- * Current platform's static methods.
- */
-
+#include "../Exchange/Exchange.h"
 #include "../Indicator/IndicatorData.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Indicators/DrawIndicator.mqh"
 #include "../Std.h"
 #include "../Storage/Flags.struct.h"
+#include "../Task/TaskManager.h"
+#include "../Task/Taskable.h"
 
 #ifdef __MQLBUILD__
 #include "../Indicators/Tick/Indi_TickMt.h"
@@ -61,7 +59,10 @@ extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 #endif
 #include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
 
-class Platform {
+class Platform : public Taskable<DataParamEntry> {
+ protected:
+  DictStruct<string, Ref<Exchange>> exchanges;
+
   // Whether Init() was already called.
   static bool initialized;
 
@@ -91,6 +92,17 @@ class Platform {
 
   // Timeframe of the currently ticking indicator.
   static ENUM_TIMEFRAMES period;
+
+ private:
+  /**
+   * Sets symbol of the currently ticking indicator.
+   **/
+  static void SetSymbol(string _symbol) { symbol = _symbol; }
+
+  /**
+   * Sets timeframe of the currently ticking indicator.
+   **/
+  static void SetPeriod(ENUM_TIMEFRAMES _period) { period = _period; }
 
  public:
   /**
@@ -492,16 +504,60 @@ class Platform {
     return 2;
   }
 
- private:
-  /**
-   * Sets symbol of the currently ticking indicator.
-   **/
-  static void SetSymbol(string _symbol) { symbol = _symbol; }
+
+  /* Taskable methods */
 
   /**
-   * Sets timeframe of the currently ticking indicator.
-   **/
-  static void SetPeriod(ENUM_TIMEFRAMES _period) { period = _period; }
+   * Checks a condition.
+   */
+  bool Check(const TaskConditionEntry &_entry) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Gets an integer value.
+   */
+  DataParamEntry Get(const TaskGetterEntry &_entry) {
+    DataParamEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  bool Run(const TaskActionEntry &_entry) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Sets an entry value.
+   */
+  bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
 };
 
 bool Platform::initialized = false;
