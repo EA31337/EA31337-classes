@@ -36,6 +36,7 @@ struct MqlParam;
 struct MqlRates;
 
 // Includes.
+#include "../Convert.extern.h"
 #include "../Serializer/Serializer.enum.h"
 #include "../Serializer/SerializerNode.enum.h"
 #include "../Std.h"
@@ -218,8 +219,29 @@ struct DataParamEntry : public MqlParam {
   /* Getters */
 
   /**
+   * Gets a string of the given type.
+   */
+  string ToString() {
+    switch (type) {
+      case TYPE_CHAR:
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        return string_value;
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return DoubleToString(double_value);
+      default:
+      case TYPE_BOOL:
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+        return IntegerToString(integer_value);
+    }
+  }
+
+  /**
    * Gets a value of the given type.
-   *
    */
   template <typename T>
   T ToValue() {
@@ -307,10 +329,14 @@ struct DataParamEntry : public MqlParam {
     switch (param.type) {
       case TYPE_BOOL:
         return param.integer_value ? 1 : 0;
+      case TYPE_COLOR:
+      case TYPE_DATETIME:
       case TYPE_INT:
       case TYPE_LONG:
+      case TYPE_SHORT:
       case TYPE_UINT:
       case TYPE_ULONG:
+      case TYPE_USHORT:
         return (double)param.integer_value;
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
@@ -319,11 +345,6 @@ struct DataParamEntry : public MqlParam {
       case TYPE_STRING:
       case TYPE_UCHAR:
         return ::StringToDouble(param.string_value);
-      case TYPE_COLOR:
-      case TYPE_DATETIME:
-      case TYPE_SHORT:
-      case TYPE_USHORT:
-        return DBL_MIN;
     }
     return DBL_MIN;
   }
@@ -342,6 +363,7 @@ struct DataParamEntry : public MqlParam {
       case TYPE_UINT:
       case TYPE_ULONG:
       case TYPE_SHORT:
+      case TYPE_USHORT:
         return param.integer_value;
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
@@ -351,10 +373,36 @@ struct DataParamEntry : public MqlParam {
       case TYPE_STRING:
       case TYPE_UCHAR:
         return ::StringToInteger(param.string_value);
-      case TYPE_USHORT:
-        return INT_MIN;
     }
     return INT_MIN;
+  }
+
+  /**
+   * Converts MqlParam struct to string.
+   *
+   */
+  static string ToString(MqlParam &param) {
+    switch (param.type) {
+      case TYPE_BOOL:
+        return param.integer_value ? "true" : "false";
+      case TYPE_DATETIME:
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+      case TYPE_SHORT:
+      case TYPE_USHORT:
+        return IntegerToString(param.integer_value);
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return DoubleToString(param.double_value);
+      case TYPE_CHAR:
+      case TYPE_COLOR:
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        return param.string_value;
+    }
+    return "";
   }
 
   /* Serializers */
