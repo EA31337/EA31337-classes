@@ -69,7 +69,7 @@ enum ENUM_TRADE_CONDITION {
   TRADE_COND_ORDERS_PROFIT_LT_10PC,  // Equity < 10%
   // TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
   // TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
-  FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
+  FINAL_ENUM_TRADE_CONDITION_ENTRY
 };
 
 // Defines enumeration for trade parameters.

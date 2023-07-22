@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Includes Exchange's structs.
+ * Includes Exchange's enumerations.
  */
 
 #ifndef __MQL__
@@ -30,20 +30,15 @@
 #pragma once
 #endif
 
-// Forward class declaration.
-class Exchange;
+// Exchange actions.
+enum ENUM_EXCHANGE_ACTION {
+  EXCHANGE_ACTION_ADD_ACCOUNT = 1,  // Add Account
+  EXCHANGE_ACTION_ADD_SYMBOL,       // Add Symbol
+  FINAL_ENUM_EXCHANGE_ACTION_ENTRY
+};
 
-/* Defines struct for Exchange parameters. */
-struct ExchangeParams {
-  // Constructors.
-  ExchangeParams(string _name = "", int64 _id = 0) : id(_id), name(_name) {}
-  ExchangeParams(const ExchangeParams &_eparams) { THIS_REF = _eparams; }
-  int64 id;
-  string name;
-  // Serializers.
-  SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(THIS_REF, "id", id);
-    s.Pass(THIS_REF, "name", name);
-    return SerializerNodeObject;
-  }
+// Exchange conditions.
+enum ENUM_EXCHANGE_CONDITION {
+  EXCHANGE_COND_IS_ACTIVE = 1,  // Is active
+  FINAL_ENUM_EXCHANGE_CONDITION_ENTRY
 };

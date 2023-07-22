@@ -30,8 +30,12 @@
 #include "../Exchange.h"
 
 // Test classes.
-class AccountDummy : public AccountBase {};  // <AccountForexState, AccountForexEntry>
-class ExchangeDummy : public Exchange {};
+class AccountDummy : public AccountForex {};  // <AccountForexState, AccountForexEntry>
+class ExchangeDummy : public Exchange {
+ public:
+  ExchangeDummy() {}
+  ExchangeDummy(ExchangeParams &_eparams) : Exchange(_eparams){};
+};
 class SymbolDummy : public SymbolInfo {};
 class TradeDummy : public Trade {
  public:
@@ -50,8 +54,8 @@ bool TestExchange01() {
   // Attach instances of dummy accounts.
   Ref<AccountDummy> account01 = new AccountDummy();
   Ref<AccountDummy> account02 = new AccountDummy();
-  exchange REF_DEREF AccountAdd(account01.Ptr(), "Account01");
-  exchange REF_DEREF AccountAdd(account02.Ptr(), "Account02");
+  exchange REF_DEREF AccountAdd(account01.Ptr(), 0);
+  exchange REF_DEREF AccountAdd(account02.Ptr(), 1);
 
   // Attach instances of dummy symbols.
   Ref<SymbolDummy> symbol01 = new SymbolDummy();
@@ -68,6 +72,21 @@ bool TestExchange01() {
   return _result;
 }
 
+// Test dummy Exchange via tasks.
+bool TestExchange02() {
+  bool _result = true;
+  // Initialize a dummy Exchange instance.
+  ExchangeParams _eparams(__FUNCTION__, 0);
+  Ref<ExchangeDummy> exchange = new ExchangeDummy(_eparams);
+  // Add account01 via task.
+  TaskActionEntry _task_add_acc_01(EXCHANGE_ACTION_ADD_ACCOUNT);
+  // DataParamEntry _acc_01_entry = "";
+  //_task_add_acc_01.ArgAdd(_acc_01_entry);
+  exchange.Ptr().Run(_task_add_acc_01);
+  Print(exchange.Ptr().ToString());
+  return _result;
+}
+
 /**
  * Implements OnInit().
  */
@@ -75,5 +94,6 @@ int OnInit() {
   Platform::Init();
   bool _result = true;
   assertTrueOrFail(TestExchange01(), "Fail!");
+  assertTrueOrFail(TestExchange02(), "Fail!");
   return _result && GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED;
 }

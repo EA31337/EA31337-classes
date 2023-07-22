@@ -28,18 +28,21 @@
 // Includes.
 #include "../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../Storage/Dict/DictObject.h"
+#include "../Storage/State.struct.h"
 #include "../Task/TaskManager.h"
 #include "../Task/Taskable.h"
 #include "../Trade.mqh"
-#include "Account/Account.h"
+#include "Account/AccountForex.h"
+#include "Exchange.enum.h"
 #include "Exchange.struct.h"
 
 class Exchange : public Taskable<DataParamEntry> {
  protected:
-  DictStruct<string, Ref<AccountBase>> accounts;
+  DictStruct<int, Ref<AccountBase>> accounts;
   DictStruct<string, Ref<SymbolInfo>> symbols;
   DictStruct<string, Ref<Trade>> trades;
   ExchangeParams eparams;
+  State estate;
 
  public:
   /**
@@ -62,9 +65,21 @@ class Exchange : public Taskable<DataParamEntry> {
   /**
    * Adds account instance to the list.
    */
-  void AccountAdd(AccountBase *_account, string _name) {
+  void AccountAdd(AccountBase *_account, int _id = 0) {
     Ref<AccountBase> _ref = _account;
-    accounts.Set(_name, _ref);
+    if (_id > 0) {
+      accounts.Set(_id, _ref);
+    } else {
+      accounts.Push(_ref);
+    }
+  }
+
+  /**
+   * Adds account instance to the list.
+   */
+  void AccountAdd(AccountParam &_aparams) {
+    AccountBase *_account = new AccountForex(/*_aparams*/);
+    AccountAdd(_account);
   }
 
   /**
@@ -83,12 +98,24 @@ class Exchange : public Taskable<DataParamEntry> {
     trades.Set(_name, _ref);
   }
 
+  /* Getters */
+
+  /**
+   * Gets DictStruct reference to accounts.
+   */
+  DictStruct<int, Ref<AccountBase>> *GetAccounts() { return GetPointer(accounts); }
+
+  /**
+   * Gets DictStruct reference to symbols.
+   */
+  DictStruct<string, Ref<SymbolInfo>> *GetSymbols() { return GetPointer(symbols); }
+
   /* Removers */
 
   /**
    * Removes account instance from the list.
    */
-  void AccountRemove(string _name) { accounts.Unset(_name); }
+  void AccountRemove(int _id) { accounts.Unset(_id); }
 
   /**
    * Removes symbol instance from the list.
@@ -116,7 +143,7 @@ class Exchange : public Taskable<DataParamEntry> {
   }
 
   /**
-   * Gets an integer value.
+   * Gets a data param entry.
    */
   DataParamEntry Get(const TaskGetterEntry &_entry) {
     DataParamEntry _result;
@@ -133,6 +160,14 @@ class Exchange : public Taskable<DataParamEntry> {
   bool Run(const TaskActionEntry &_entry) {
     bool _result = true;
     switch (_entry.GetId()) {
+      case EXCHANGE_ACTION_ADD_ACCOUNT:
+        if (!_entry.HasArgs()) {
+          AccountAdd(new AccountForex());
+        } else {
+          Ref<AccountBase> _account1_ref = new AccountForex();
+          accounts.Push(_account1_ref);
+        }
+        break;
       default:
         _result = false;
         SetUserError(ERR_INVALID_PARAMETER);
@@ -152,4 +187,22 @@ class Exchange : public Taskable<DataParamEntry> {
     }
     return _result;
   }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.PassStruct(THIS_REF, "eparams", eparams);
+    //_s.PassStruct(THIS_REF, "accounts", accounts);
+    //_s.PassStruct(THIS_REF, "symbols", symbols);
+    //_s.PassStruct(THIS_REF, "trades", trades);
+    return SerializerNodeObject;
+  }
+
+  /**
+   * Returns textual representation of the object instance.
+   */
+  string ToString() { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 };

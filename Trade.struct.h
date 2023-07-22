@@ -294,7 +294,8 @@ struct TradeParams {
 /* Structure for trade states. */
 struct TradeStates {
  protected:
-  unsigned int states;  // @todo: Move to protected.
+  unsigned int states;
+
  public:
   // Struct constructor.
   TradeStates() : states(0) {}

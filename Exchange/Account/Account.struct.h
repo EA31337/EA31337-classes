@@ -34,10 +34,10 @@
 class Serializer;
 
 // Includes.
-#include "Account.enum.h"
-#include "../../Serializer/Serializer.h"
-#include "../../Serializer/Serializer.enum.h"
 #include "../../Platform/Terminal.define.h"
+#include "../../Serializer/Serializer.enum.h"
+#include "../../Serializer/Serializer.h"
+#include "Account.enum.h"
 
 // Struct for account entries.
 struct AccountEntry {
@@ -106,5 +106,48 @@ struct AccountEntry {
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
+  }
+};
+
+// Struct for account parameters.
+struct AccountParam {
+  int id;
+  string company, currency, name, server;
+
+  // Default constructor.
+  AccountParam(string _name = "Current", string _currency = "USD", string _company = "Unknown",
+               string _server = "Unknown", int _id = 0)
+      : company(_company), currency(_currency), id(_id), name(_name), server(_server) {}
+
+  /* Getters */
+  string Get(ENUM_ACCOUNT_INFO_STRING _param) {
+    switch (_param) {
+      case ACCOUNT_NAME:
+        // Client name (string).
+        return name;
+      case ACCOUNT_COMPANY:
+        // Name of a company that serves the account (string).
+        return company;
+      case ACCOUNT_CURRENCY:
+        // Account currency (string).
+        return currency;
+      case ACCOUNT_SERVER:
+        // Trade server name (string).
+        return server;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return "";
+  }
+  // Serializers.
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+  SerializerNodeType Serialize(Serializer& _s) {
+    _s.Pass(THIS_REF, "id", id);
+    _s.Pass(THIS_REF, "name", name);
+    _s.Pass(THIS_REF, "company", company);
+    _s.Pass(THIS_REF, "currency", currency);
+    _s.Pass(THIS_REF, "server", server);
+    return SerializerNodeObject;
   }
 };

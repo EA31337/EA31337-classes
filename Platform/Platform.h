@@ -28,6 +28,7 @@
 #include "Deal.enum.h"
 #include "Order.struct.h"
 #include "Platform.define.h"
+#include "Platform.enum.h"
 
 /**
  * Extern declarations for C++.
@@ -49,6 +50,8 @@ extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 #include "../Storage/Flags.struct.h"
 #include "../Task/TaskManager.h"
 #include "../Task/Taskable.h"
+#include "Platform.enum.h"
+#include "Platform.struct.h"
 
 #ifdef __MQLBUILD__
 #include "../Indicators/Tick/Indi_TickMt.h"
@@ -61,7 +64,8 @@ extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 
 class Platform : public Taskable<DataParamEntry> {
  protected:
-  DictStruct<string, Ref<Exchange>> exchanges;
+  DictStruct<int, Ref<Exchange>> exchanges;
+  PlatformParams pparams;
 
   // Whether Init() was already called.
   static bool initialized;
@@ -105,6 +109,42 @@ class Platform : public Taskable<DataParamEntry> {
   static void SetPeriod(ENUM_TIMEFRAMES _period) { period = _period; }
 
  public:
+  /**
+   * Class constructor without parameters.
+   */
+  Platform(){};
+
+  /**
+   * Class constructor with parameters.
+   */
+  Platform(PlatformParams &_pparams) : pparams(_pparams){};
+
+  /**
+   * Class deconstructor.
+   */
+  ~Platform() {}
+
+  /* Adders */
+
+  /**
+   * Adds Exchange instance to the list.
+   */
+  void ExchangeAdd(Exchange *_Exchange, int _id = 0) {
+    Ref<Exchange> _ref = _Exchange;
+    if (_id > 0) {
+      exchanges.Set(_id, _ref);
+    } else {
+      exchanges.Push(_ref);
+    }
+  }
+
+  /**
+   * Adds Exchange instance to the list.
+   */
+  void ExchangeAdd(ExchangeParams &_eparams) { ExchangeAdd(new Exchange(_eparams)); }
+
+  /* Static methods */
+
   /**
    * Initializes platform.
    */
@@ -504,7 +544,6 @@ class Platform : public Taskable<DataParamEntry> {
     return 2;
   }
 
-
   /* Taskable methods */
 
   /**
@@ -521,7 +560,7 @@ class Platform : public Taskable<DataParamEntry> {
   }
 
   /**
-   * Gets an integer value.
+   * Gets a data param entry.
    */
   DataParamEntry Get(const TaskGetterEntry &_entry) {
     DataParamEntry _result;
@@ -538,6 +577,14 @@ class Platform : public Taskable<DataParamEntry> {
   bool Run(const TaskActionEntry &_entry) {
     bool _result = true;
     switch (_entry.GetId()) {
+      case PLATFORM_ACTION_ADD_EXCHANGE:
+        if (!_entry.HasArgs()) {
+          ExchangeAdd(new Exchange());
+        } else {
+          Ref<Exchange> _exchange1_ref = new Exchange();
+          exchanges.Push(_exchange1_ref);
+        }
+        break;
       default:
         _result = false;
         SetUserError(ERR_INVALID_PARAMETER);
@@ -558,6 +605,21 @@ class Platform : public Taskable<DataParamEntry> {
     return _result;
   }
 
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.PassStruct(THIS_REF, "params", pparams);
+    //_s.PassStruct(THIS_REF, "exchanges", exchanges);
+    return SerializerNodeObject;
+  }
+
+  /**
+   * Returns textual representation of the object instance.
+   */
+  string ToString() { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 };
 
 bool Platform::initialized = false;

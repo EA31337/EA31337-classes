@@ -34,23 +34,16 @@
 class Serializer;
 
 // Includes.
-#include "Account.enum.h"
-#include "../../Serializer/Serializer.h"
-#include "../../Serializer/Serializer.enum.h"
-#include "../../Std.h"
 #include "../../Platform/Terminal.define.h"
+#include "../../Serializer/Serializer.enum.h"
+#include "../../Serializer/Serializer.h"
+#include "../../Std.h"
+#include "Account.enum.h"
 
 // Struct for account entries.
 struct AccountBaseEntry {
   datetime dtime;
   double balance;
-  // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
-    _s.Pass(THIS_REF, "time", dtime, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(THIS_REF, "balance", balance, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    return SerializerNodeObject;
-  }
   /* Getters */
   double Get(ENUM_ACCOUNT_INFO_DOUBLE _param) {
     switch (_param) {
@@ -63,10 +56,23 @@ struct AccountBaseEntry {
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
+  // Serializers.
+  SERIALIZER_EMPTY_STUB;
+  SerializerNodeType Serialize(Serializer& _s) {
+    _s.Pass(THIS_REF, "time", dtime, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "balance", balance, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    return SerializerNodeObject;
+  }
 };
 
 // Struct for account base.
 struct AccountBaseState {
   datetime last_updated;
   double balance;
+  // Serializers.
+  SERIALIZER_EMPTY_STUB;
+  SerializerNodeType Serialize(Serializer& _s) {
+    _s.Pass(THIS_REF, "balance", balance);
+    return SerializerNodeObject;
+  }
 };

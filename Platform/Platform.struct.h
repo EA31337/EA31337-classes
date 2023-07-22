@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Includes Exchange's structs.
+ * Includes Platform's structs.
  */
 
 #ifndef __MQL__
@@ -30,19 +30,14 @@
 #pragma once
 #endif
 
-// Forward class declaration.
-class Exchange;
-
-/* Defines struct for Exchange parameters. */
-struct ExchangeParams {
+/* Defines struct for Platform parameters. */
+struct PlatformParams {
   // Constructors.
-  ExchangeParams(string _name = "", int64 _id = 0) : id(_id), name(_name) {}
-  ExchangeParams(const ExchangeParams &_eparams) { THIS_REF = _eparams; }
-  int64 id;
+  PlatformParams(string _name = "") : name(_name) {}
+  PlatformParams(const PlatformParams &_eparams) { THIS_REF = _eparams; }
   string name;
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(THIS_REF, "id", id);
     s.Pass(THIS_REF, "name", name);
     return SerializerNodeObject;
   }
