@@ -175,7 +175,7 @@ class SerializerNodeParam {
                                                     _fp_precision);
     }
 
-#ifdef __debug__
+#ifdef __debug_serializer__
     PrintFormat("%s: Error: SerializerNodeParam.AsString() called for an unknown value type: %d!", __FUNCTION__, _type);
 #endif
     return "<invalid param type " + IntegerToString(_type) + ">";
