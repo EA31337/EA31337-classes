@@ -46,6 +46,7 @@ extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 #include "../Indicator/IndicatorData.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Indicators/DrawIndicator.mqh"
+#include "../Serializer/Serializer.h"
 #include "../Std.h"
 #include "../Storage/Flags.struct.h"
 #include "../Task/TaskManager.h"
@@ -131,11 +132,7 @@ class Platform : public Taskable<DataParamEntry> {
    */
   void ExchangeAdd(Exchange *_Exchange, int _id = 0) {
     Ref<Exchange> _ref = _Exchange;
-    if (_id > 0) {
-      exchanges.Set(_id, _ref);
-    } else {
-      exchanges.Push(_ref);
-    }
+    exchanges.Set(_id, _ref);
   }
 
   /**
@@ -581,8 +578,9 @@ class Platform : public Taskable<DataParamEntry> {
         if (!_entry.HasArgs()) {
           ExchangeAdd(new Exchange());
         } else {
-          Ref<Exchange> _exchange1_ref = new Exchange();
-          exchanges.Push(_exchange1_ref);
+          ExchangeParams _eparams(_entry.GetArg(0).ToString());
+          Ref<Exchange> _exchange1_ref = new Exchange(_eparams);
+          exchanges.Set(_eparams.Get<int>(STRUCT_ENUM(ExchangeParams, EXCHANGE_PARAM_ID)), _exchange1_ref);
         }
         break;
       default:

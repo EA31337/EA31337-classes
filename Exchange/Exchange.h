@@ -27,6 +27,7 @@
 
 // Includes.
 #include "../Exchange/SymbolInfo/SymbolInfo.h"
+#include "../Serializer/Serializer.h"
 #include "../Storage/Dict/DictObject.h"
 #include "../Storage/State.struct.h"
 #include "../Task/TaskManager.h"
@@ -67,17 +68,13 @@ class Exchange : public Taskable<DataParamEntry> {
    */
   void AccountAdd(AccountBase *_account, int _id = 0) {
     Ref<AccountBase> _ref = _account;
-    if (_id > 0) {
-      accounts.Set(_id, _ref);
-    } else {
-      accounts.Push(_ref);
-    }
+    accounts.Set(_id, _ref);
   }
 
   /**
    * Adds account instance to the list.
    */
-  void AccountAdd(AccountParam &_aparams) {
+  void AccountAdd(AccountParams &_aparams) {
     AccountBase *_account = new AccountForex(/*_aparams*/);
     AccountAdd(_account);
   }
@@ -164,8 +161,9 @@ class Exchange : public Taskable<DataParamEntry> {
         if (!_entry.HasArgs()) {
           AccountAdd(new AccountForex());
         } else {
-          Ref<AccountBase> _account1_ref = new AccountForex();
-          accounts.Push(_account1_ref);
+          AccountParams _aparams(_entry.GetArg(0).ToString());
+          Ref<AccountBase> _account1_ref = new AccountForex(_aparams);
+          accounts.Set(_aparams.Get<int>(ACCOUNT_PARAM_LOGIN), _account1_ref);
         }
         break;
       default:

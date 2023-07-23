@@ -37,6 +37,8 @@ class Serializer;
 #include "../../Platform/Terminal.define.h"
 #include "../../Serializer/Serializer.enum.h"
 #include "../../Serializer/Serializer.h"
+#include "../../Serializer/SerializerConverter.h"
+#include "../../Serializer/SerializerJson.h"
 #include "Account.enum.h"
 
 // Struct for account entries.
@@ -128,36 +130,36 @@ struct AccountParams {
   AccountParams(const AccountParams& _aparams) { THIS_REF = _aparams; }
   /* Getters */
   template <typename T>
-  T Get(ENUM_ACCOUNT_INFO_INTEGER _param) {
+  T Get(ENUM_ACCOUNT_PARAM_INTEGER _param) {
     switch (_param) {
-      case ACCOUNT_CURRENCY_DIGITS:
+      case ACCOUNT_PARAM_CURRENCY_DIGITS:
         // The number of decimal places in the account currency (int).
         return (T)currency_digits;
-      case ACCOUNT_FIFO_CLOSE:
+      case ACCOUNT_PARAM_FIFO_CLOSE:
         // An indication showing that positions can only be closed by FIFO rule (bool).
         return (T)fifo_close;
-      case ACCOUNT_LEVERAGE:
+      case ACCOUNT_PARAM_LEVERAGE:
         // Account leverage (long).
         return (T)leverage;
-      case ACCOUNT_LIMIT_ORDERS:
+      case ACCOUNT_PARAM_LIMIT_ORDERS:
         // Maximum allowed number of active pending orders (int).
         return (T)limit_orders;
-      case ACCOUNT_LOGIN:
+      case ACCOUNT_PARAM_LOGIN:
         // Account number (long).
         return (T)login;
-      case ACCOUNT_MARGIN_MODE:
+      case ACCOUNT_PARAM_MARGIN_MODE:
         // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
         return (T)margin_mode;
-      case ACCOUNT_MARGIN_SO_MODE:
+      case ACCOUNT_PARAM_MARGIN_SO_MODE:
         // Mode for setting the minimal allowed margin (ENUM_ACCOUNT_STOPOUT_MODE).
         return (T)margin_so_mode;
-      case ACCOUNT_TRADE_ALLOWED:
+      case ACCOUNT_PARAM_TRADE_ALLOWED:
         // Allowed trade for the current account (bool).
         return (T)trade_allowed;
-      case ACCOUNT_TRADE_EXPERT:
+      case ACCOUNT_PARAM_TRADE_EXPERT:
         // Allowed trade for an Expert Advisor (bool).
         return (T)trade_expert;
-      case ACCOUNT_TRADE_MODE:
+      case ACCOUNT_PARAM_TRADE_MODE:
         // Account trade mode (ENUM_ACCOUNT_TRADE_MODE).
         return (T)trade_mode;
       default:
@@ -187,45 +189,45 @@ struct AccountParams {
     return "";
   }
   template <typename T>
-  void Set(ENUM_ACCOUNT_INFO_INTEGER _param, T _value) {
+  void Set(ENUM_ACCOUNT_PARAM_INTEGER _param, T _value) {
     switch (_param) {
-      case ACCOUNT_CURRENCY_DIGITS:
+      case ACCOUNT_PARAM_CURRENCY_DIGITS:
         // The number of decimal places in the account currency (int).
         ConvertBasic::Convert(_value, currency_digits);
         return;
-      case ACCOUNT_FIFO_CLOSE:
+      case ACCOUNT_PARAM_FIFO_CLOSE:
         // An indication showing that positions can only be closed by FIFO rule (bool).
         ConvertBasic::Convert(_value, fifo_close);
         return;
-      case ACCOUNT_LEVERAGE:
+      case ACCOUNT_PARAM_LEVERAGE:
         // Account leverage (long).
         ConvertBasic::Convert(_value, leverage);
         return;
-      case ACCOUNT_LIMIT_ORDERS:
+      case ACCOUNT_PARAM_LIMIT_ORDERS:
         // Maximum allowed number of active pending orders (int).
         ConvertBasic::Convert(_value, limit_orders);
         return;
-      case ACCOUNT_LOGIN:
+      case ACCOUNT_PARAM_LOGIN:
         // Account number (long).
         ConvertBasic::Convert(_value, login);
         return;
-      case ACCOUNT_MARGIN_MODE:
+      case ACCOUNT_PARAM_MARGIN_MODE:
         // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
         ConvertBasic::Convert(_value, margin_mode);
         return;
-      case ACCOUNT_MARGIN_SO_MODE:
+      case ACCOUNT_PARAM_MARGIN_SO_MODE:
         // Mode for setting the minimal allowed margin (ENUM_ACCOUNT_STOPOUT_MODE).
         ConvertBasic::Convert(_value, margin_so_mode);
         return;
-      case ACCOUNT_TRADE_ALLOWED:
+      case ACCOUNT_PARAM_TRADE_ALLOWED:
         // Allowed trade for the current account (bool).
         ConvertBasic::Convert(_value, trade_allowed);
         return;
-      case ACCOUNT_TRADE_EXPERT:
+      case ACCOUNT_PARAM_TRADE_EXPERT:
         // Allowed trade for an Expert Advisor (bool).
         ConvertBasic::Convert(_value, trade_expert);
         return;
-      case ACCOUNT_TRADE_MODE:
+      case ACCOUNT_PARAM_TRADE_MODE:
         // Account trade mode (ENUM_ACCOUNT_TRADE_MODE).
         ConvertBasic::Convert(_value, trade_mode);
         return;

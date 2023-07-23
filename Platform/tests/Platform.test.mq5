@@ -32,7 +32,7 @@
 bool TestPlatform01() {
   bool _result = true;
   // Initialize a dummy Exchange instance.
-  PlatformParams _pparams(__FUNCTION__);
+  PlatformParams _pparams;
   Ref<Platform> platform = new Platform(_pparams);
   // Add exchange01 via task.
   TaskActionEntry _task_add_ex_01(PLATFORM_ACTION_ADD_EXCHANGE);

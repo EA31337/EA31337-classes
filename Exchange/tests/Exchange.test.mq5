@@ -76,7 +76,7 @@ bool TestExchange01() {
 bool TestExchange02() {
   bool _result = true;
   // Initialize a dummy Exchange instance.
-  ExchangeParams _eparams(__FUNCTION__, 0);
+  ExchangeParams _eparams(0, __FUNCTION__);
   Ref<ExchangeDummy> exchange = new ExchangeDummy(_eparams);
   // Add account01 via task.
   TaskActionEntry _task_add_acc_01(EXCHANGE_ACTION_ADD_ACCOUNT);
