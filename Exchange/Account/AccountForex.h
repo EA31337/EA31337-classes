@@ -35,7 +35,6 @@
  */
 class AccountForex : public Account<AccountForexState, AccountForexEntry> {
  protected:
-  // AP AccountParams;
   /**
    * Init code (called on constructor).
    */
@@ -48,6 +47,11 @@ class AccountForex : public Account<AccountForexState, AccountForexEntry> {
    * Class constructor.
    */
   AccountForex() { Init(); }
+
+  /**
+   * Class constructor with account params.
+   */
+  AccountForex(AccountParams &_aparams) : Account<AccountForexState, AccountForexEntry>(_aparams) { Init(); }
 
   /**
    * Class deconstructor.

@@ -37,6 +37,7 @@
 template <typename AS, typename AE>
 class Account : public AccountBase {
  protected:
+  AccountParams aparams;
   AS state;
   BufferStruct<AE> entries;
 
@@ -56,7 +57,7 @@ class Account : public AccountBase {
   /**
    * Class constructor with parameters.
    */
-  Account(AccountParam &_aparams) /*: aparams(_aparams)*/ { Init(); }
+  Account(AccountParams &_aparams) : aparams(_aparams) { Init(); }
 
   /**
    * Class copy constructor.
