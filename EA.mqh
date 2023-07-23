@@ -538,9 +538,10 @@ class EA : public Taskable<DataParamEntry> {
       SerializerConverter _stub =
           SerializerConverter::MakeStubObject<BufferStruct<IndicatorDataEntry>>(_serializer_flags);
 
-      /*
-      for (DictStructIterator<int64, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
-        ENUM_TIMEFRAMES _itf = iter_tf.Key(); // @fixme
+      /* @todo
+      for (DictStructIterator<int64, Ref<Strategy>> _iter = GetStrategies() PTR_DEREF Begin(); _iter.IsValid(); ++_iter)
+      { int _sid = (int)_iter.Key(); Strategy *_strat = _iter.Value().Ptr();
+        // ENUM_TIMEFRAMES _itf = iter_tf.Key(); // @fixme
         if (data_indi.KeyExists(_itf)) {
           BufferStruct<IndicatorDataEntry> _indi_buff = data_indi.GetByKey(_itf);
 
@@ -573,15 +574,16 @@ class EA : public Taskable<DataParamEntry> {
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
       SerializerConverter _stub = SerializerConverter::MakeStubObject<BufferStruct<StgEntry>>(_serializer_flags);
 
-      /* @fixme
-      for (DictStructIterator<int64, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
-        ENUM_TIMEFRAMES _stf = iter_tf.Key(); // @fixme
-        if (data_stg.KeyExists(_stf)) {
-          string _key_stg = StringFormat("Strategy-%d", _stf);
-          BufferStruct<StgEntry> _stg_buff = data_stg.GetByKey(_stf);
+      for (DictStructIterator<int64, Ref<Strategy>> _iter = GetStrategies() PTR_DEREF Begin(); _iter.IsValid();
+           ++_iter) {
+        int _sid = (int)_iter.Key();
+        Strategy *_strat = _iter.Value().Ptr();
+        if (data_stg.KeyExists(_sid)) {
+          string _key_stg = StringFormat("Strategy-%d", _sid);
+          BufferStruct<StgEntry> _stg_buff = data_stg.GetByKey(_sid);
           SerializerConverter _obj = SerializerConverter::FromObject(_stg_buff, _serializer_flags);
 
-          _key_stg += StringFormat("-%d-%d-%d", _stf, _stg_buff.GetMin(), _stg_buff.GetMax());
+          _key_stg += StringFormat("-%d-%d-%d", _sid, _stg_buff.GetMin(), _stg_buff.GetMax());
           if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
             _obj.ToFile<SerializerCsv>(_key_stg + ".csv", _serializer_flags, &_stub);
           }
@@ -596,7 +598,6 @@ class EA : public Taskable<DataParamEntry> {
           _obj.Clean();
         }
       }
-      */
       // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
       _stub.Clean();
     }
@@ -941,13 +942,13 @@ class EA : public Taskable<DataParamEntry> {
     switch (_entry.GetId()) {
       case EA_ACTION_DISABLE:
         estate.Enable(false);
-        return true;
+        break;
       case EA_ACTION_ENABLE:
         estate.Enable();
-        return true;
+        break;
       case EA_ACTION_EXPORT_DATA:
         DataExport();
-        return true;
+        break;
       case EA_ACTION_STRATS_EXE_ACTION: {
         // Args:
         // 1st (i:0) - Strategy's enum action to execute.
@@ -959,16 +960,18 @@ class EA : public Taskable<DataParamEntry> {
 
           _result &= _strat PTR_DEREF Run(_entry_strat);
         }
-        return _result;
+        break;
       }
       case EA_ACTION_TASKS_CLEAN:
         // @todo
         // return tasks.Size() == 0;
         SetUserError(ERR_INVALID_PARAMETER);
-        return false;
+        _result = false;
+        break;
       default:
         GetLogger() PTR_DEREF Error(StringFormat("Invalid EA action: %d!", _entry.GetId(), __FUNCTION_LINE__));
         SetUserError(ERR_INVALID_PARAMETER);
+        _result = false;
     }
     return _result;
   }
