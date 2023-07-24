@@ -194,6 +194,8 @@ class SerializerJson {
                                                               ? SerializerNodeObjectProperty
                                                               : SerializerNodeArrayItem,
                                                           current, key, SerializerNodeParam::FromString(extracted))));
+          // Key is in use so we don't want to delete it.
+          key = NULL;
 
 #ifdef __debug_serializer__
           Print(string(__FUNCTION__) + "(): Value \"" + extracted + "\" for key " +
@@ -233,6 +235,7 @@ class SerializerJson {
 
         expectingValue = false;
         expectingKey = ch2 != '}';
+        // Key is in use so we don't want to delete it.
         key = NULL;
       } else if (ch == '}') {
         if (expectingKey || expectingValue || PTR_ATTRIB(current, GetType()) != SerializerNodeObject) {
@@ -266,6 +269,7 @@ class SerializerJson {
 
         current = node;
         expectingValue = ch2 != ']';
+        // Key is in use so we don't want to delete it.
         key = NULL;
       } else if (ch == ']') {
 #ifdef __debug_serializer__
@@ -304,7 +308,7 @@ class SerializerJson {
         // Skipping value.
         i += StringLen(extracted) - 1;
 
-        // We don't want to delete it twice.
+        // Key is in use so we don't want to delete it.
         key = NULL;
       } else if (ch == 't' || ch == 'f') {
         // Assuming true/false.
@@ -325,7 +329,7 @@ class SerializerJson {
                                                         current, key, value)));
         expectingValue = false;
 
-        // We don't want to delete it twice.
+        // Key is in use so we don't want to delete it.
         key = NULL;
       } else if (ch == ',') {
         if (expectingKey || expectingValue || expectingSemicolon) {
@@ -339,7 +343,9 @@ class SerializerJson {
       }
     }
 
-    if (key) delete key;
+    if (key) {
+      delete key;
+    }
 
     return root;
   }

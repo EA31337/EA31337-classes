@@ -24,6 +24,9 @@
  * Test functionality of Exchange class.
  */
 
+// Defines.
+#define __debug_serializer__
+
 // Includes.
 #include "../../Platform/Platform.h"
 #include "../../Test.mqh"
@@ -80,9 +83,12 @@ bool TestExchange02() {
   Ref<ExchangeDummy> exchange = new ExchangeDummy(_eparams);
   // Add account01 via task.
   TaskActionEntry _task_add_acc_01(EXCHANGE_ACTION_ADD_ACCOUNT);
-  // DataParamEntry _acc_01_entry = "";
-  //_task_add_acc_01.ArgAdd(_acc_01_entry);
   exchange.Ptr().Run(_task_add_acc_01);
+  // Add account02 via task from JSON.
+  TaskActionEntry _task_add_acc_02(EXCHANGE_ACTION_ADD_ACCOUNT);
+  DataParamEntry _acc_02_entry = "{\"id\": 1, \"name\": \"Account02\", \"currency\": \"USD\"}";
+  _task_add_acc_02.ArgAdd(_acc_02_entry);
+  exchange.Ptr().Run(_task_add_acc_02);
   Print(exchange.Ptr().ToString());
   return _result;
 }

@@ -32,13 +32,16 @@
 bool TestPlatform01() {
   bool _result = true;
   // Initialize a dummy Exchange instance.
-  PlatformParams _pparams;
+  PlatformParams _pparams("{'name': 'Platform'}");
   Ref<Platform> platform = new Platform(_pparams);
   // Add exchange01 via task.
   TaskActionEntry _task_add_ex_01(PLATFORM_ACTION_ADD_EXCHANGE);
-  // DataParamEntry _ex_01_entry = "";
-  //_task_add_ex_01.ArgAdd(_ex_01_entry);
   platform.Ptr().Run(_task_add_ex_01);
+  // Add exchange02 from JSON via task.
+  TaskActionEntry _task_add_ex_02(PLATFORM_ACTION_ADD_EXCHANGE);
+  DataParamEntry _ex_02_entry = "{'id': 1, 'name': 'exchange02'}";
+  _task_add_ex_02.ArgAdd(_ex_02_entry);
+  platform.Ptr().Run(_task_add_ex_02);
   Print(platform.Ptr().ToString());
   return _result;
 }
