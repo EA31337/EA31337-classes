@@ -127,7 +127,13 @@ struct TaskActionEntry {
     SetUserError(ERR_INVALID_PARAMETER);
     return InvalidEnumValue<STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_PROP)>::value();
   }
-  DataParamEntry GetArg(int _index) const { return args[_index]; }
+  DataParamEntry GetArg(int _index) const {
+    if (_index < 0 || _index >= ArraySize(args)) {
+      Alert(string("Error at ") + __FUNCSIG__ + ": index " + IntegerToString(_index) + " is out of bounds. There are " +
+            IntegerToString(ArraySize(args)) + " arguments in the task action.");
+    }
+    return args[_index];
+  }
   int GetId() const { return id; }
   // Setters.
   void TriesDec() {
