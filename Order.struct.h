@@ -476,6 +476,8 @@ struct OrderData {
         return "CALL";
       case ORDER_REASON_CLOSED_BY_ACTION:
         return "CBA";
+      case ORDER_REASON_CLOSED_BY_CONDITION:
+        return "CBC";
       case ORDER_REASON_CLOSED_BY_EXPIRE:
         return "EXP";
       case ORDER_REASON_CLOSED_BY_OPPOSITE:

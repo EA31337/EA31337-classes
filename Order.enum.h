@@ -93,6 +93,7 @@ enum ENUM_ORDER_PROPERTY_CUSTOM {
 enum ENUM_ORDER_REASON_CLOSE {
   ORDER_REASON_CLOSED_ALL = 0,      // Closed all
   ORDER_REASON_CLOSED_BY_ACTION,    // Closed by action
+  ORDER_REASON_CLOSED_BY_CONDITION, // Closed by condition
   ORDER_REASON_CLOSED_BY_EXPIRE,    // Closed by expiration
   ORDER_REASON_CLOSED_BY_OPPOSITE,  // Closed by opposite order
   ORDER_REASON_CLOSED_BY_SIGNAL,    // Closed by signal

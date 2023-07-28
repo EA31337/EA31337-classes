@@ -2603,12 +2603,11 @@ class Order : public SymbolInfo {
   bool ProcessConditions(bool _refresh = false) {
     bool _result = true;
     if (IsOpen(_refresh) && ShouldCloseOrder()) {
-      string _reason = "Close condition";
 #ifdef __MQL__
       // _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
 #endif
       ARRAY(DataParamEntry, _args);
-      DataParamEntry _cond = _reason;
+      DataParamEntry _cond = ORDER_REASON_CLOSED_BY_CONDITION;
       ArrayPushObject(_args, _cond);
       _result &= Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
     }
@@ -2715,13 +2714,16 @@ class Order : public SymbolInfo {
    *   Returns true when the condition is met.
    */
   bool ExecuteAction(ENUM_ORDER_ACTION _action, ARRAY_REF(DataParamEntry, _args)) {
+    bool _result = true;
     switch (_action) {
       case ORDER_ACTION_CLOSE:
         switch (oparams.dummy) {
           case false:
-            return OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
+            return ArraySize(_args) > 0 ? OrderClose((ENUM_ORDER_REASON_CLOSE)_args[0].integer_value)
+                                        : OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
           case true:
-            return OrderCloseDummy(ORDER_REASON_CLOSED_BY_ACTION);
+            return ArraySize(_args) > 0 ? OrderCloseDummy((ENUM_ORDER_REASON_CLOSE)_args[0].integer_value)
+                                        : OrderCloseDummy(ORDER_REASON_CLOSED_BY_ACTION);
         }
       case ORDER_ACTION_OPEN:
         return !oparams.dummy ? OrderSend() >= 0 : OrderSendDummy() >= 0;
@@ -2737,10 +2739,12 @@ class Order : public SymbolInfo {
           }
           oparams.AddConditionClose((ENUM_ORDER_CONDITION)_args[0].integer_value, _sargs);
         }
+        break;
       default:
         ologger.Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
+    return _result;
   }
   bool ExecuteAction(ENUM_ORDER_ACTION _action) {
     ARRAY(DataParamEntry, _args);
