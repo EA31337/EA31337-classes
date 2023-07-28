@@ -946,6 +946,10 @@ class Order : public SymbolInfo {
         odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
         Refresh(true);
         return true;
+      case TRADE_RETCODE_MARKET_CLOSED:
+        // Market is closed.
+        // @todo: Re-try closing.
+        // break;
       case TRADE_RETCODE_INVALID:
       default:
         odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
