@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -35,11 +35,14 @@
  * Class to deal with objects.
  */
 class Object : public Dynamic {
+
  protected:
+
   void *obj;
   long id;
 
  public:
+
   /**
    * Class constructor.
    */
@@ -100,7 +103,7 @@ class Object : public Dynamic {
   /**
    * Returns text representation of the object.
    */
-  virtual const string ToString() { return StringFormat("[Object #%04x]", GetPointer(this)); }
+  virtual const string ToString() { return StringFormat("[Object #%04x]", THIS_PTR); }
 
   /**
    * Returns text representation of the object.

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -156,7 +156,8 @@ class SerializerNodeParam {
    * Returns stringified version of the value. Note "forceQuotesOnString" flag.
    */
   string AsString(bool includeQuotes = false, bool forceQuotesOnString = true, bool escapeString = true,
-                  int _fp_precision = 8) {
+                  int _fp_precision = -1) {
+    _fp_precision = _fp_precision >= 0 ? _fp_precision : GetFloatingPointPrecision();
     switch (_type) {
       case SerializerNodeParamBool:
         return SerializerConversions::ValueToString(_integral._bool, includeQuotes, escapeString, _fp_precision);

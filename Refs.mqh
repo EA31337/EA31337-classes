@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -81,7 +81,7 @@ class Dynamic {
    */
   Dynamic() {
 #ifdef __MQL__
-    if (CheckPointer(GetPointer(this)) == POINTER_DYNAMIC) {
+    if (CheckPointer(THIS_PTR) == POINTER_DYNAMIC) {
 #else
     // For other languages we just assume that user knows what he does and creates all Dynamic instances on the heap.
     if (true) {

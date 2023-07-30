@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2022, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -68,6 +68,12 @@ class Log : public Object {
    */
   Log(ENUM_LOG_LEVEL _log_level = V_INFO, string new_filename = "")
       : last_entry(-1), last_flush(0), log_level(_log_level), filename(new_filename != "" ? new_filename : "Log.txt") {}
+
+  /**
+   * Class copy constructor.
+   */
+  Log(const Log &_log) : filename(_log.filename), last_entry(_log.last_entry), log_level(_log.log_level) {
+  }
 
   /**
    * Class deconstructor.

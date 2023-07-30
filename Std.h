@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -42,6 +42,7 @@
 
 // Pointers.
 #ifdef __MQL__
+#define GET_PTR(obj) GetPointer(obj)
 #define THIS_ATTR
 #define THIS_PTR (&this)
 #define THIS_REF this
@@ -52,6 +53,7 @@
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
 #define nullptr NULL
 #else
+#define GET_PTR(obj) (*obj)
 #define THIS_ATTR this->
 #define THIS_PTR (this)
 #define THIS_REF (*this)
@@ -85,7 +87,9 @@
  * @usage
  *   ARRAY_REF(<type of the array items>, <name of the variable>)
  */
+#define ARRAY_TYPE(T) T[]
 #define ARRAY_REF(T, N) REF(T) N ARRAY_DECLARATION_BRACKETS
+#define FIXED_ARRAY_REF(T, N, S) ARRAY_REF(T, N)
 
 #define CONST_ARRAY_REF(T, N) const N ARRAY_DECLARATION_BRACKETS
 
@@ -100,13 +104,14 @@
 #else
 
 /**
-
  * Reference to the array.
  *
  * @usage
  *   ARRAY_REF(<type of the array items>, <name of the variable>)
  */
-#define ARRAY_REF(T, N) _cpp_array<T>& N
+#define ARRAY_TYPE(T) _cpp_array<T>
+#define ARRAY_REF(T, N) ARRAY_TYPE(T)& N
+#define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
 
 #define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
 

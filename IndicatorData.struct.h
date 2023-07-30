@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2022, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -127,6 +127,7 @@ struct IndicatorDataEntryValue {
     Get(_v);
     return _v;
   }
+  void Get(datetime &_out) { _out = (datetime)value.vlong; }
   void Get(double &_out) { _out = value.vdbl; }
   void Get(float &_out) { _out = value.vflt; }
   void Get(int &_out) { _out = value.vint; }

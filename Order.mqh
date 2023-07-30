@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -167,7 +167,7 @@ class Order : public SymbolInfo {
    */
   ~Order() {}
 
-  Log *GetLogger() { return GetPointer(ologger); }
+  Log *GetLogger() { return GET_PTR(ologger); }
 
   /* Getters */
 
@@ -900,9 +900,11 @@ class Order : public SymbolInfo {
       MqlTradeCheckResult _result_check = {0};
       MqlTradeResult _result = {0};
       _request.action = TRADE_ACTION_DEAL;
+      _request.magic = ::PositionGetInteger(POSITION_MAGIC);
       _request.position = ::PositionGetInteger(POSITION_TICKET);
       _request.symbol = ::PositionGetString(POSITION_SYMBOL);
       _request.type = NegateOrderType((ENUM_POSITION_TYPE)::PositionGetInteger(POSITION_TYPE));
+      _request.type_filling = GetOrderFilling(_request.symbol);
       _request.volume = _lots;
       _request.price = _price;
       _request.deviation = _deviation;
@@ -920,33 +922,48 @@ class Order : public SymbolInfo {
         return false;
       }
     }
+    Refresh(ORDER_PRICE_CURRENT);
     MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_DEAL;
-    _request.comment = _comment != "" ? _comment : odata.GetReasonCloseText();
-    _request.deviation = orequest.deviation;
-    _request.type = NegateOrderType(orequest.type);
+    _request.comment = _comment + ":" + odata.GetCloseComment();
+    _request.deviation = orequest.deviation > 0 ? orequest.deviation : 40;
+    _request.magic = odata.Get<ulong>(ORDER_MAGIC);
+    _request.symbol = odata.Get(ORDER_SYMBOL);
+    _request.type = NegateOrderType(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
+    _request.type_filling = GetOrderFilling(odata.Get(ORDER_SYMBOL));
     _request.position = oresult.deal;
-    _request.price = SymbolInfo::GetCloseOffer(orequest.type);
-    _request.symbol = orequest.symbol;
-    _request.volume = orequest.volume;
+    _request.price = SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
+    _request.volume = odata.Get<double>(ORDER_VOLUME_CURRENT);
     Order::OrderSend(_request, oresult, oresult_check);
-    if (oresult.retcode == TRADE_RETCODE_DONE) {
-      // For now, sets the current time.
-      odata.Set(ORDER_PROP_TIME_CLOSED, DateTimeStatic::TimeTradeServer());
-      // For now, sets using the actual close price.
-      odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)));
-      odata.Set(ORDER_PROP_LAST_ERROR, ERR_NO_ERROR);
-      odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
-      Refresh();
-      return true;
-    } else {
-      odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
-      if (OrderSelect()) {
-        if (IsClosed()) {
-          Refresh();
+    switch (oresult.retcode) {
+      case TRADE_RETCODE_DONE:
+        // For now, sets the current time.
+        odata.Set(ORDER_PROP_TIME_CLOSED, DateTimeStatic::TimeTradeServer());
+        // For now, sets using the actual close price.
+        odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)));
+        odata.Set(ORDER_PROP_LAST_ERROR, ERR_NO_ERROR);
+        odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
+        Refresh(true);
+        return true;
+      case TRADE_RETCODE_MARKET_CLOSED:
+        // Market is closed.
+        // @todo: Re-try closing.
+        // break;
+      case TRADE_RETCODE_INVALID:
+      default:
+        odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, fmax(oresult.retcode, oresult_check.retcode));
+        if (OrderSelect()) {
+          Refresh(true);
+          if (!IsClosed()) {
+            ologger.Error(StringFormat("Failed to send order request %d! Error: %d (%s)", oresult.deal,
+                                       oresult_check.retcode, oresult_check.comment),
+                          __FUNCTION_LINE__);
+            if (logger.GetLevel() >= V_DEBUG) {
+              ologger.Debug(StringFormat("Failed request: %s", ToString()), __FUNCTION_LINE__);
+            }
+          }
         }
-      }
     }
     return false;
   }
@@ -1049,7 +1066,8 @@ class Order : public SymbolInfo {
     MqlTradeCheckResult _result_check = {0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_SLTP;
-    //_request.type = PositionTypeToOrderType();
+    _request.comment = ::PositionGetString(POSITION_COMMENT);  // StringFormat("mn=%d", GetMagicNumber());
+    _request.magic = ::PositionGetInteger(POSITION_MAGIC);
     _request.position = _ticket;  // Position ticket.
     _request.symbol = ::PositionGetString(POSITION_SYMBOL);
     _request.sl = _stoploss;
@@ -1085,6 +1103,7 @@ class Order : public SymbolInfo {
           GetLogger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).",
                                            odata.Get<long>(ORDER_PROP_TICKET), _price, _sl, _tp, _last_error),
                               __FUNCTION_LINE__, ToCSV());
+          Refresh(ORDER_PRICE_CURRENT);
           Refresh(ORDER_SL);
           Refresh(ORDER_TP);
           // TODO: Refresh(ORDER_PRI)
@@ -1100,6 +1119,7 @@ class Order : public SymbolInfo {
                       __FUNCTION_LINE__, ToCSV());
       }
     }
+    Refresh();
     return _result;
   }
 
@@ -1305,6 +1325,9 @@ class Order : public SymbolInfo {
         // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
         // In order to obtain information about the error, call the GetLastError() function.
         odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
+#ifdef __debug_order__
+        Print(__FUNCTION_LINE__ + "(): " + SerializerConverter::FromObject(orequest).ToString<SerializerJson>());
+#endif
         _result = -1;
       }
     } else {
@@ -1575,6 +1598,7 @@ class Order : public SymbolInfo {
 #endif
       // Update double values.
       _result &= Refresh(ORDER_PRICE_OPEN);
+      _result &= Refresh(ORDER_VOLUME_INITIAL);
       // Update string values.
       _result &= Refresh(ORDER_SYMBOL);
       _result &= Refresh(ORDER_COMMENT);
@@ -1586,9 +1610,6 @@ class Order : public SymbolInfo {
       // _result &= Refresh(ORDER_STATE); // @fixme: Error 69539
       // _result &= Refresh(ORDER_TYPE_TIME); // @fixme: Error 69539
       // _result &= Refresh(ORDER_TYPE_FILLING); // @fixme: Error 69539
-      // Update double values.
-      // _result &= Refresh(ORDER_VOLUME_INITIAL); // @fixme: false
-      // _result &= Refresh(ORDER_VOLUME_CURRENT); // @fixme: Error 69539
     }
 
     // Updates whether order is open or closed.
@@ -1602,6 +1623,7 @@ class Order : public SymbolInfo {
       _result &= Refresh(ORDER_PRICE_CURRENT);
       _result &= Refresh(ORDER_SL);
       _result &= Refresh(ORDER_TP);
+      _result &= Refresh(ORDER_VOLUME_CURRENT);
     }
     //} else if (IsPending())
     // _result &= Refresh(ORDER_PRICE_STOPLIMIT); // @fixme: Error 69539
@@ -1615,8 +1637,8 @@ class Order : public SymbolInfo {
     // order.position    = OrderGetPositionID();       // Position ticket.
     // order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
 
-    // Process conditions.
-    if (!_is_init) {
+    if (!_is_init && !_refresh) {
+      // Process conditions.
       ProcessConditions();
     }
 
@@ -1656,8 +1678,6 @@ class Order : public SymbolInfo {
       RefreshDummy(ORDER_TP);
       RefreshDummy(ORDER_PRICE_CURRENT);
     }
-
-    odata.Set(ORDER_PROP_PROFIT, oresult.bid - oresult.ask);
 
     // @todo: More RefreshDummy(XXX);
 
@@ -1790,6 +1810,9 @@ class Order : public SymbolInfo {
         break;
       case ORDER_VOLUME_CURRENT:
         _result = Order::OrderGetDouble(ORDER_VOLUME_CURRENT, _value);
+        break;
+      case ORDER_VOLUME_INITIAL:
+        _result = Order::OrderGetDouble(ORDER_VOLUME_INITIAL, _value);
         break;
       default:
         return false;
@@ -2132,10 +2155,10 @@ class Order : public SymbolInfo {
 #endif
     switch (property_id) {
       case ORDER_VOLUME_INITIAL:
-        _result = ::OrderLots();  // @fixit Are we sure?
+        _result = ::OrderLots();
         break;
       case ORDER_VOLUME_CURRENT:
-        _result = ::OrderLots();  // @fixit Are we sure?
+        _result = ::OrderLots();
         break;
       case ORDER_PRICE_OPEN:
         _result = ::OrderOpenPrice();
@@ -2147,7 +2170,7 @@ class Order : public SymbolInfo {
         _result = ::OrderTakeProfit();
         break;
       case ORDER_PRICE_CURRENT:
-        _result = SymbolInfoStatic::GetBid(Order::OrderSymbol());
+        _result = SymbolInfoStatic::GetCloseOffer(OrderSymbol(), (ENUM_ORDER_TYPE)OrderStatic::Type());
         break;
       case ORDER_PRICE_STOPLIMIT:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -2539,9 +2562,7 @@ class Order : public SymbolInfo {
               case ORDER_VOLUME_INITIAL:
                 return OrderGetValue(POSITION_VOLUME, _type, _out);
               case ORDER_VOLUME_CURRENT:
-                // @fixme
-                SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return OrderGetValue(POSITION_VOLUME, _type, _out);
               case ORDER_PRICE_OPEN:
                 return OrderGetValue(POSITION_PRICE_OPEN, _type, _out);
               case ORDER_SL:
@@ -2586,12 +2607,11 @@ class Order : public SymbolInfo {
   bool ProcessConditions(bool _refresh = false) {
     bool _result = true;
     if (IsOpen(_refresh) && ShouldCloseOrder()) {
-      string _reason = "Close condition";
 #ifdef __MQL__
       // _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
 #endif
       ARRAY(DataParamEntry, _args);
-      DataParamEntry _cond = _reason;
+      DataParamEntry _cond = ORDER_REASON_CLOSED_BY_CONDITION;
       ArrayPushObject(_args, _cond);
       _result &= Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
     }
@@ -2698,13 +2718,16 @@ class Order : public SymbolInfo {
    *   Returns true when the condition is met.
    */
   bool ExecuteAction(ENUM_ORDER_ACTION _action, ARRAY_REF(DataParamEntry, _args)) {
+    bool _result = true;
     switch (_action) {
       case ORDER_ACTION_CLOSE:
         switch (oparams.dummy) {
           case false:
-            return OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
+            return ArraySize(_args) > 0 ? OrderClose((ENUM_ORDER_REASON_CLOSE)_args[0].integer_value)
+                                        : OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
           case true:
-            return OrderCloseDummy(ORDER_REASON_CLOSED_BY_ACTION);
+            return ArraySize(_args) > 0 ? OrderCloseDummy((ENUM_ORDER_REASON_CLOSE)_args[0].integer_value)
+                                        : OrderCloseDummy(ORDER_REASON_CLOSED_BY_ACTION);
         }
       case ORDER_ACTION_OPEN:
         return !oparams.dummy ? OrderSend() >= 0 : OrderSendDummy() >= 0;
@@ -2720,10 +2743,12 @@ class Order : public SymbolInfo {
           }
           oparams.AddConditionClose((ENUM_ORDER_CONDITION)_args[0].integer_value, _sargs);
         }
+        break;
       default:
         ologger.Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
+    return _result;
   }
   bool ExecuteAction(ENUM_ORDER_ACTION _action) {
     ARRAY(DataParamEntry, _args);

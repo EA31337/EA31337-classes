@@ -34,6 +34,8 @@ To improve code compatibility, please use the following syntax:
 
 | MQL               | C++                     | Syntax to use              |
 |:------------------|:------------------------|:---------------------------|
+| `&this`           | `this`                  | `THIS_PTR`                 |
+| `GetPointer(obj)` | `*obj`                  | `GET_PTR(obj)`             |
 | `T name[]`        | `_cpp_array<T> name`    | `ARRAY(T, name)`           |
 | `T<A, B> N[]`     | `_cpp_array<T<A, B>> N` | `ARRAY(T<A, B>, N)`        |
 | `obj.Method()`    | `obj->Method()`         | `obj PTR_DEREF Method()`   |

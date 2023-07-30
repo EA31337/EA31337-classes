@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -37,6 +37,67 @@ struct TradeStats;
 #include "DateTime.mqh"
 #include "Trade.enum.h"
 
+#ifndef __MQL__
+
+// Defines Trade Request structure.
+// @see: https://www.mql5.com/en/docs/constants/structures/mqltraderequest
+struct MqlTradeRequest {
+  ENUM_TRADE_REQUEST_ACTIONS action;     // Trade operation type
+  ulong magic;                           // Expert Advisor ID (magic number)
+  ulong order;                           // Order ticket
+  string symbol;                         // Trade symbol
+  double volume;                         // Requested volume for a deal in lots
+  double price;                          // Price
+  double stoplimit;                      // StopLimit level of the order
+  double sl;                             // Stop Loss level of the order
+  double tp;                             // Take Profit level of the order
+  ulong deviation;                       // Maximal possible deviation from the requested price
+  ENUM_ORDER_TYPE type;                  // Order type
+  ENUM_ORDER_TYPE_FILLING type_filling;  // Order execution type
+  ENUM_ORDER_TYPE_TIME type_time;        // Order expiration type
+  datetime expiration;                   // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type)
+  string comment;                        // Order comment
+  ulong position;                        // Position ticket
+  ulong position_by;                     // The ticket of an opposite position
+};
+
+// Defines Trade Request Result structure.
+// @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
+struct MqlTradeResult {
+  uint retcode;     // Operation return code
+  ulong deal;       // Deal ticket, if it is performed
+  ulong order;      // Order ticket, if it is placed
+  double volume;    // Deal volume, confirmed by broker
+  double price;     // Deal price, confirmed by broker
+  double bid;       // Current Bid price
+  double ask;       // Current Ask price
+  string comment;   // Broker comment to operation (by default it is filled by description of trade server return code)
+  uint request_id;  // Request ID set by the terminal during the dispatch
+  int retcode_external;  // Return code of an external trading system
+};
+
+// Defines Trade Transaction structure.
+// @see: https://www.mql5.com/en/docs/constants/structures/mqltradetransaction
+struct MqlTradeTransaction {
+  ulong deal;                        // Deal ticket
+  ulong order;                       // Order ticket
+  string symbol;                     // Trade symbol name
+  ENUM_TRADE_TRANSACTION_TYPE type;  // Trade transaction type
+  ENUM_ORDER_TYPE order_type;        // Order type
+  ENUM_ORDER_STATE order_state;      // Order state
+  ENUM_DEAL_TYPE deal_type;          // Deal type
+  ENUM_ORDER_TYPE_TIME time_type;    // Order type by action period
+  datetime time_expiration;          // Order expiration time
+  double price;                      // Price
+  double price_trigger;              // Stop limit order activation price
+  double price_sl;                   // Stop Loss level
+  double price_tp;                   // Take Profit level
+  double volume;                     // Volume in lots
+  ulong position;                    // Position ticket
+  ulong position_by;                 // Ticket of an opposite position
+};
+#endif
+
 /* Structure for trade parameters. */
 struct TradeParams {
   float lot_size;        // Default lot size.
@@ -49,18 +110,24 @@ struct TradeParams {
   unsigned short bars_min;   // Minimum bars to trade.
   ENUM_LOG_LEVEL log_level;  // Log verbosity level.
   // Constructors.
-  TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 0, ENUM_LOG_LEVEL _ll = V_INFO)
+  TradeParams(float _lot_size = 0, float _risk_margin = 1.0f, unsigned int _slippage = 0, ENUM_LOG_LEVEL _ll = V_INFO)
       : bars_min(100),
         order_comment(""),
         log_level(_ll),
         lot_size(_lot_size),
-        magic_no(rand()),
+        magic_no(0),
         risk_margin(_risk_margin),
         slippage(_slippage) {
     SetLimits(0);
   }
   TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
-      : bars_min(100), lot_size(0), order_comment(""), log_level(_ll), magic_no(_magic_no) {}
+      : bars_min(100),
+        lot_size(0),
+        order_comment(""),
+        log_level(_ll),
+        magic_no(_magic_no),
+        risk_margin(1.0f),
+        slippage(0) {}
   TradeParams(TradeParams &_tparams) { this = _tparams; }
   // Deconstructor.
   ~TradeParams() {}
@@ -112,6 +179,7 @@ struct TradeParams {
     return limits_stats[(int)_type][(int)_period] > 0 && _value >= limits_stats[(int)_type][(int)_period];
   }
   bool IsLimitGe(TradeStats &_stats) {
+    // @todo: Improve code performance.
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
         unsigned int _stat_value = _stats.GetOrderStats(t, p);
@@ -298,12 +366,22 @@ struct TradeStats {
 /* Structure for trade states. */
 struct TradeStates {
  protected:
-  unsigned int states;  // @todo: Move to protected.
+  datetime last_check;
+  unsigned int states;
+
+ protected:
+  // Protected methods.
+  void UpdateCheck() {
+    // Refresh timestamp for the last access.
+    last_check = TimeCurrent();
+  }
+
  public:
   // Struct constructor.
-  TradeStates() : states(0) {}
+  TradeStates() : last_check(0), states(0) {}
   // Getters.
   bool Get(ENUM_TRADE_STATE _prop) { return CheckState(_prop); }
+  int GetLastCheckDiff() { return (int)(TimeCurrent() - last_check); }
   static string GetStateMessage(ENUM_TRADE_STATE _state) {
     switch (_state) {
       case TRADE_STATE_BARS_NOT_ENOUGH:
@@ -316,6 +394,16 @@ struct TradeStates {
         return "Soft limit of trade margin reached";
       case TRADE_STATE_MARKET_CLOSED:
         return "Trade market closed";
+      case TRADE_STATE_MODE_DISABLED:
+        return "Trade is disabled for the symbol";
+      case TRADE_STATE_MODE_LONGONLY:
+        return "Market only allows long positions";
+      case TRADE_STATE_MODE_SHORTONLY:
+        return "Market only allows short positions";
+      case TRADE_STATE_MODE_CLOSEONLY:
+        return "Only close operations are allowed";
+      case TRADE_STATE_MODE_FULL:
+        return "No trade restrictions";
       case TRADE_STATE_MONEY_NOT_ENOUGH:
         return "Not enough money to trade";
       case TRADE_STATE_ORDERS_ACTIVE:
@@ -341,7 +429,10 @@ struct TradeStates {
     }
     return "Unknown!";
   }
-  unsigned int GetStates() { return states; }
+  unsigned int GetStates() {
+    UpdateCheck();
+    return states;
+  }
   // Struct methods for bitwise operations.
   bool CheckState(unsigned int _states) { return (states & _states) != 0 || states == _states; }
   bool CheckStatesAll(unsigned int _states) { return (states & _states) == _states; }

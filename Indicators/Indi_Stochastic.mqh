@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -145,7 +145,9 @@ class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.IsWithinRange<double>(0, 101); }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return _entry.IsWithinRange<double>(0, 101);
+  }
 
   /* Getters */
 

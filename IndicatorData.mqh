@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2022, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -518,7 +518,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Get pointer to data of indicator.
    */
-  BufferStruct<IndicatorDataEntry>* GetData() { return GetPointer(idata); }
+  BufferStruct<IndicatorDataEntry>* GetData() { return GET_PTR(idata); }
 
   /**
    * Returns given data source type. Used by i*OnIndicator methods if indicator's Calculate() uses other indicators.
