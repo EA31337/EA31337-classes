@@ -952,7 +952,7 @@ class Order : public SymbolInfo {
         // break;
       case TRADE_RETCODE_INVALID:
       default:
-        odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
+        odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, fmax(oresult.retcode, oresult_check.retcode));
         if (OrderSelect()) {
           Refresh(true);
           if (!IsClosed()) {
