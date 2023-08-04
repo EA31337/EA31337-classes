@@ -254,6 +254,7 @@ struct OrderData {
   ENUM_ORDER_TYPE_TIME type_time;        // Lifetime (the order validity period).
   ENUM_ORDER_REASON reason;              // Reason or source for placing an order.
   ENUM_ORDER_REASON_CLOSE reason_close;  // Reason or source for closing an order.
+  unsigned int close_tries;              // Number of close tries.
   unsigned int last_error;               // Last error code.
   double volume_curr;                    // Current volume.
   double volume_init;                    // Initial volume.
@@ -262,7 +263,8 @@ struct OrderData {
   string symbol;                         // Symbol of the order.
  public:
   OrderData()
-      : magic(0),
+      : close_tries(0),
+        magic(0),
         position_id(0),
         position_by_id(0),
         ticket(0),
@@ -296,6 +298,8 @@ struct OrderData {
   T Get(ENUM_ORDER_PROPERTY_CUSTOM _prop_name) {
     double _tick_value = SymbolInfoStatic::GetTickValue(symbol);
     switch (_prop_name) {
+      case ORDER_PROP_CLOSE_TRIES:
+        return (T)close_tries;
       case ORDER_PROP_COMMISSION:
         return (T)commission;
       case ORDER_PROP_LAST_ERROR:
@@ -498,9 +502,15 @@ struct OrderData {
     return "???";
   }
   // Setters.
+  void IncCloseTries() {
+    close_tries++;
+  }
   template <typename T>
   void Set(ENUM_ORDER_PROPERTY_CUSTOM _prop_name, T _value) {
     switch (_prop_name) {
+      case ORDER_PROP_CLOSE_TRIES:
+        close_tries = (unsigned int)_value;
+        return;
       case ORDER_PROP_COMMISSION:
         commission = (double)_value;
         return;

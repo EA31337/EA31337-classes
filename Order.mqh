@@ -2606,14 +2606,12 @@ class Order : public SymbolInfo {
    */
   bool ProcessConditions(bool _refresh = false) {
     bool _result = true;
-    if (IsOpen(_refresh) && ShouldCloseOrder()) {
-#ifdef __MQL__
-      // _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
-#endif
+    if (IsOpen(_refresh) && (odata.Get<long>(ORDER_PROP_CLOSE_TRIES) > 0 || ShouldCloseOrder())) {
       ARRAY(DataParamEntry, _args);
       DataParamEntry _cond = ORDER_REASON_CLOSED_BY_CONDITION;
       ArrayPushObject(_args, _cond);
       _result &= Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
+      odata.IncCloseTries();
     }
     return _result;
   }
