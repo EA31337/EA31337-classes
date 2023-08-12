@@ -936,6 +936,7 @@ class Order : public SymbolInfo {
     _request.price = SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
     _request.volume = odata.Get<double>(ORDER_VOLUME_CURRENT);
     Order::OrderSend(_request, oresult, oresult_check);
+    odata.IncCloseTries();  // Increases number of closures tries.
     switch (oresult.retcode) {
       case TRADE_RETCODE_DONE:
         // For now, sets the current time.
@@ -952,18 +953,19 @@ class Order : public SymbolInfo {
         // break;
       case TRADE_RETCODE_INVALID:
       default:
-        odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, fmax(oresult.retcode, oresult_check.retcode));
         if (OrderSelect()) {
           Refresh(true);
           if (!IsClosed()) {
-            ologger.Error(StringFormat("Failed to send order request %d! Error: %d (%s)", oresult.deal,
-                                       oresult_check.retcode, oresult_check.comment),
-                          __FUNCTION_LINE__);
-            if (logger.GetLevel() >= V_DEBUG) {
+            ologger.Error(
+                StringFormat("Failed to send order request %u for deal %d! Error: %d (%s)", oresult.request_id,
+                             oresult.deal, fmax(oresult.retcode, oresult_check.retcode), oresult_check.comment),
+                __FUNCTION_LINE__);
+            if (ologger.GetLevel() >= V_DEBUG) {
               ologger.Debug(StringFormat("Failed request: %s", ToString()), __FUNCTION_LINE__);
             }
           }
         }
+        odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, fmax(oresult.retcode, oresult_check.retcode));
     }
     return false;
   }
@@ -975,6 +977,7 @@ class Order : public SymbolInfo {
    *   Returns true if successful.
    */
   bool OrderCloseDummy(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
+    odata.IncCloseTries();  // Increases number of closures tries.
     odata.Set(ORDER_PROP_LAST_ERROR, ERR_NO_ERROR);
     odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfoStatic::GetCloseOffer(symbol, odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)));
     odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
