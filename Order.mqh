@@ -932,7 +932,8 @@ class Order : public SymbolInfo {
     _request.symbol = odata.Get(ORDER_SYMBOL);
     _request.type = NegateOrderType(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
     _request.type_filling = GetOrderFilling(odata.Get(ORDER_SYMBOL));
-    _request.position = oresult.deal;
+    _request.position =
+        odata.Get<ulong>(ORDER_POSITION_ID) > 0 ? odata.Get<ulong>(ORDER_POSITION_ID) : odata.Get<ulong>(ORDER_TICKET);
     _request.price = SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
     _request.volume = odata.Get<double>(ORDER_VOLUME_CURRENT);
     Order::OrderSend(_request, oresult, oresult_check);
@@ -957,8 +958,8 @@ class Order : public SymbolInfo {
           Refresh(true);
           if (!IsClosed()) {
             ologger.Error(
-                StringFormat("Failed to send order request %u for deal %d! Error: %d (%s)", oresult.request_id,
-                             oresult.deal, fmax(oresult.retcode, oresult_check.retcode), oresult_check.comment),
+                StringFormat("Failed to send order request %u for position %d! Error: %d (%s)", oresult.request_id,
+                             _request.position, fmax(oresult.retcode, oresult_check.retcode), oresult_check.comment),
                 __FUNCTION_LINE__);
             if (ologger.GetLevel() >= V_DEBUG) {
               ologger.Debug(StringFormat("Failed request: %s", ToString()), __FUNCTION_LINE__);
