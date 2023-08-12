@@ -932,10 +932,11 @@ class Order : public SymbolInfo {
     _request.symbol = odata.Get(ORDER_SYMBOL);
     _request.type = NegateOrderType(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
     _request.type_filling = GetOrderFilling(odata.Get(ORDER_SYMBOL));
-    _request.position = oresult.deal;
+    _request.position = odata.Get<ulong>(ORDER_PROP_TICKET);
     _request.price = SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
     _request.volume = odata.Get<double>(ORDER_VOLUME_CURRENT);
     Order::OrderSend(_request, oresult, oresult_check);
+    odata.IncCloseTries();  // Increases number of closures tries.
     switch (oresult.retcode) {
       case TRADE_RETCODE_DONE:
         // For now, sets the current time.
@@ -952,18 +953,19 @@ class Order : public SymbolInfo {
         // break;
       case TRADE_RETCODE_INVALID:
       default:
-        odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, fmax(oresult.retcode, oresult_check.retcode));
         if (OrderSelect()) {
           Refresh(true);
           if (!IsClosed()) {
-            ologger.Error(StringFormat("Failed to send order request %d! Error: %d (%s)", oresult.deal,
-                                       oresult_check.retcode, oresult_check.comment),
-                          __FUNCTION_LINE__);
-            if (logger.GetLevel() >= V_DEBUG) {
+            ologger.Error(
+                StringFormat("Failed to send order request %u for position %d! Error: %d (%s)", oresult.request_id,
+                             _request.position, fmax(oresult.retcode, oresult_check.retcode), oresult_check.comment),
+                __FUNCTION_LINE__);
+            if (ologger.GetLevel() >= V_DEBUG) {
               ologger.Debug(StringFormat("Failed request: %s", ToString()), __FUNCTION_LINE__);
             }
           }
         }
+        odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, fmax(oresult.retcode, oresult_check.retcode));
     }
     return false;
   }
@@ -975,6 +977,7 @@ class Order : public SymbolInfo {
    *   Returns true if successful.
    */
   bool OrderCloseDummy(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
+    odata.IncCloseTries();  // Increases number of closures tries.
     odata.Set(ORDER_PROP_LAST_ERROR, ERR_NO_ERROR);
     odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfoStatic::GetCloseOffer(symbol, odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE)));
     odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
@@ -1177,9 +1180,9 @@ class Order : public SymbolInfo {
   }
   static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_result_check,
                         color _color = clrNONE) {
+    _result.retcode = TRADE_RETCODE_ERROR;
 #ifdef __MQL4__
     // Convert Trade Request Structure to function parameters.
-    _result.retcode = TRADE_RETCODE_ERROR;
     if (_request.position > 0) {
       if (_request.action == TRADE_ACTION_SLTP) {
         if (Order::OrderModify(_request.position, _request.price, _request.sl, _request.tp, _request.expiration,
@@ -1288,6 +1291,8 @@ class Order : public SymbolInfo {
   long OrderSend() {
     long _result = -1;
     odata.ResetError();
+    oresult.retcode = ERR_NO_ERROR;
+    oresult_check.retcode = ERR_NO_ERROR;
 #ifdef __MQL4__
     _result = Order::OrderSend(orequest.symbol,      // Symbol.
                                orequest.type,        // Operation.
@@ -2606,14 +2611,12 @@ class Order : public SymbolInfo {
    */
   bool ProcessConditions(bool _refresh = false) {
     bool _result = true;
-    if (IsOpen(_refresh) && ShouldCloseOrder()) {
-#ifdef __MQL__
-      // _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
-#endif
+    if (IsOpen(_refresh) && (odata.Get<long>(ORDER_PROP_CLOSE_TRIES) > 0 || ShouldCloseOrder())) {
       ARRAY(DataParamEntry, _args);
       DataParamEntry _cond = ORDER_REASON_CLOSED_BY_CONDITION;
       ArrayPushObject(_args, _cond);
       _result &= Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
+      odata.IncCloseTries();
     }
     return _result;
   }

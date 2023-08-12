@@ -651,6 +651,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     bool _result = false;
     unsigned int _last_error = _order.Get<unsigned int>(ORDER_PROP_LAST_ERROR);
     logger.Link(_order.GetLogger());
+    _order.GetLogger().SetLevel(tparams.Get<ENUM_LOG_LEVEL>(TRADE_PARAM_LOG_LEVEL));
     Ref<Order> _ref_order = _order;
     switch (_last_error) {
       case 69539:
@@ -800,6 +801,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     if (_order.IsOpen()) {
       // @todo: _order.IsPending()?
       _result &= orders_active.Set(_order.Get<long>(ORDER_PROP_TICKET), _order_ref);
+      logger.Link(_order.GetLogger());
+      _order.GetLogger().SetLevel(tparams.Get<ENUM_LOG_LEVEL>(TRADE_PARAM_LOG_LEVEL));
     } else {
       _result &= orders_history.Set(_order.Get<long>(ORDER_PROP_TICKET), _order_ref);
     }
@@ -817,7 +820,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         if (OrderStatic::MagicNumber() == _magic_no) {
           unsigned long _ticket = OrderStatic::Ticket();
           Ref<Order> _order = new Order(_ticket);
-          orders_active.Set(_ticket, _order);
+          OrderLoad(_order.Ptr());
         }
       }
     }
@@ -862,13 +865,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           OrderMoveToHistory(_order.Ptr());
           order_last = _order;
         } else {
-          logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR));
-          return -1;
+          logger.Error(
+              StringFormat("Failed to close the order: %d! Error: %d (%s)", _order.Ptr().Get<long>(ORDER_PROP_TICKET),
+                           _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                           Terminal::GetErrorText(_order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+              __FUNCTION_LINE__);
+          continue;
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
       }
     }
+    logger.Flush();
     return _closed;
   }
 
@@ -894,9 +902,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             OrderMoveToHistory(_order.Ptr());
             order_last = _order;
           } else {
-            logger.Error("Error while closing order!", __FUNCTION_LINE__,
-                         StringFormat("Code: %d", _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR)));
-            return -1;
+            logger.Error(
+                StringFormat("Failed to close the order: %d! Error: %d (%s)", _order.Ptr().Get<long>(ORDER_PROP_TICKET),
+                             _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                             Terminal::GetErrorText(_order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+                __FUNCTION_LINE__);
+            continue;
           }
           order_last = _order;
         }
@@ -904,6 +915,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         OrderMoveToHistory(_order.Ptr());
       }
     }
+    logger.Flush();
     return _closed;
   }
 
@@ -932,14 +944,19 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             OrderMoveToHistory(_order.Ptr());
             order_last = _order;
           } else {
-            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR));
-            return -1;
+            logger.Error(
+                StringFormat("Failed to close the order: %d! Error: %d (%s)", _order.Ptr().Get<long>(ORDER_PROP_TICKET),
+                             _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                             Terminal::GetErrorText(_order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+                __FUNCTION_LINE__);
+            continue;
           }
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
       }
     }
+    logger.Flush();
     return _closed;
   }
 
@@ -966,14 +983,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
 #ifndef __MQL4__
-            // @fixme: GH-571.
+            // @fixme: GH-571 & GH-706.
             logger.Info(__FUNCTION_LINE__, _order.Ptr().ToString());
 #endif
-            // @fixme: GH-570.
-            // logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR));
-            logger.Warning("Issue with closing the order!", __FUNCTION_LINE__);
-            ResetLastError();
-            return -1;
+            logger.Error(
+                StringFormat("Failed to close the order: %d! Error: %d (%s)", _order.Ptr().Get<long>(ORDER_PROP_TICKET),
+                             _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                             Terminal::GetErrorText(_order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+                __FUNCTION_LINE__);
+            continue;
           }
           order_last = _order;
           _closed++;
@@ -982,6 +1000,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         OrderMoveToHistory(_order.Ptr());
       }
     }
+    logger.Flush();
     return _closed;
   }
 

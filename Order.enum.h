@@ -71,6 +71,7 @@ enum ENUM_ORDER_PARAM {
  */
 enum ENUM_ORDER_PROPERTY_CUSTOM {
   ORDER_PROP_NONE = 0,
+  ORDER_PROP_CLOSE_TRIES,        // Close tries.
   ORDER_PROP_COMMISSION,         // Commission.
   ORDER_PROP_LAST_ERROR,         // Last error code.
   ORDER_PROP_PRICE_CLOSE,        // Close price.
