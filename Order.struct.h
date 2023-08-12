@@ -383,6 +383,7 @@ struct OrderData {
         return (T)type_time;
       case ORDER_MAGIC:
         return (T)magic;
+#ifndef __MQL4__
       case ORDER_POSITION_ID:
         return (T)position_id;
       case ORDER_POSITION_BY_ID:
@@ -391,6 +392,7 @@ struct OrderData {
         return (T)reason;
       case ORDER_TICKET:
         return (T)ticket;
+#endif
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
@@ -500,7 +502,9 @@ struct OrderData {
     return "???";
   }
   // Setters.
-  void IncCloseTries() { close_tries++; }
+  void IncCloseTries() {
+    close_tries++;
+  }
   template <typename T>
   void Set(ENUM_ORDER_PROPERTY_CUSTOM _prop_name, T _value) {
     switch (_prop_name) {
@@ -609,6 +613,7 @@ struct OrderData {
       case ORDER_MAGIC:
         magic = _value;
         return;
+#ifndef __MQL4__
       case ORDER_POSITION_ID:
         position_id = _value;
         return;
@@ -621,6 +626,7 @@ struct OrderData {
       case ORDER_TICKET:
         ticket = _value;
         return;
+#endif
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }

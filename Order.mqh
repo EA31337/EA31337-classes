@@ -932,8 +932,7 @@ class Order : public SymbolInfo {
     _request.symbol = odata.Get(ORDER_SYMBOL);
     _request.type = NegateOrderType(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
     _request.type_filling = GetOrderFilling(odata.Get(ORDER_SYMBOL));
-    _request.position =
-        odata.Get<ulong>(ORDER_POSITION_ID) > 0 ? odata.Get<ulong>(ORDER_POSITION_ID) : odata.Get<ulong>(ORDER_TICKET);
+    _request.position = odata.Get<ulong>(ORDER_PROP_TICKET);
     _request.price = SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
     _request.volume = odata.Get<double>(ORDER_VOLUME_CURRENT);
     Order::OrderSend(_request, oresult, oresult_check);
