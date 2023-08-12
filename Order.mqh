@@ -1180,9 +1180,9 @@ class Order : public SymbolInfo {
   }
   static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_result_check,
                         color _color = clrNONE) {
+    _result.retcode = TRADE_RETCODE_ERROR;
 #ifdef __MQL4__
     // Convert Trade Request Structure to function parameters.
-    _result.retcode = TRADE_RETCODE_ERROR;
     if (_request.position > 0) {
       if (_request.action == TRADE_ACTION_SLTP) {
         if (Order::OrderModify(_request.position, _request.price, _request.sl, _request.tp, _request.expiration,
@@ -1291,6 +1291,8 @@ class Order : public SymbolInfo {
   long OrderSend() {
     long _result = -1;
     odata.ResetError();
+    oresult.retcode = ERR_NO_ERROR;
+    oresult_check.retcode = ERR_NO_ERROR;
 #ifdef __MQL4__
     _result = Order::OrderSend(orequest.symbol,      // Symbol.
                                orequest.type,        // Operation.
