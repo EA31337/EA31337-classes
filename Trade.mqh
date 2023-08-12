@@ -863,7 +863,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           order_last = _order;
         } else {
           logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR));
-          return -1;
+          continue;
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
