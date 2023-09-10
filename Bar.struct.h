@@ -101,14 +101,16 @@ struct BarOHLC
         break;
       case PP_FIBONACCI:
         _pp = GetPivot();
-        _r1 = (double)(_pp + 0.382 * _range);
-        _r2 = (double)(_pp + 0.618 * _range);
-        _r3 = _pp + _range;
-        _r4 = _r1 + _range;  // ?
-        _s1 = (double)(_pp - 0.382 * _range);
-        _s2 = (double)(_pp - 0.618 * _range);
-        _s3 = _pp - _range;
-        _s4 = _s1 - _range;  // ?
+        _r1 = (double)(_pp + 0.236 * _range);
+        _r2 = (double)(_pp + 0.382 * _range);
+        _r3 = (double)(_pp + 0.500 * _range);
+        _r4 = (double)(_pp + 0.618 * _range);
+        // _r5 = (double)(_pp + 0.786 * _range);
+        _s1 = (double)(_pp - 0.236 * _range);
+        _s2 = (double)(_pp - 0.382 * _range);
+        _s3 = (double)(_pp - 0.500 * _range);
+        _s4 = (double)(_pp - 0.618 * _range);
+        // _s5 = (double)(_pp - 0.786 * _range);
         break;
       case PP_FLOOR:
         // Most basic and popular type of pivots used in Forex trading technical analysis.
