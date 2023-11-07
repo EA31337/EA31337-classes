@@ -171,7 +171,7 @@ class Serializer {
   /**
    * Returns child node for a given index or NULL.
    */
-  SerializerNode* GetChild(unsigned int index) { return _node ? PTR_ATTRIB(_node, GetChild(index)) : NULL; }
+  SerializerNode* GetChild(unsigned int _idx) { return _node ? PTR_ATTRIB(_node, GetChild(_idx)) : NULL; }
 
   /**
    * Returns floating-point precision.

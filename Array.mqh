@@ -753,12 +753,12 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
   }
 
   template <typename X>
-  static void ArrayStore(ARRAY_REF(X, array), int index, X value, int reserve_size = 0) {
-    if (index >= ArraySize(array)) {
-      ArrayResize(array, MathMax(index + 1, ArraySize(array)), reserve_size);
+  static void ArrayStore(ARRAY_REF(X, array), int _idx, X value, int reserve_size = 0) {
+    if (_idx >= ArraySize(array)) {
+      ArrayResize(array, MathMax(_idx + 1, ArraySize(array)), reserve_size);
     }
 
-    array[index] = value;
+    array[_idx] = value;
   }
 };
 
