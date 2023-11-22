@@ -115,13 +115,13 @@ class DictBase {
    */
   bool HasFlags(int flags) { return (_flags & flags) == flags; }
 
-  DictSlot<K, V>* GetSlot(const unsigned int index) {
-    if (index >= GetSlotCount()) {
+  DictSlot<K, V>* GetSlot(const unsigned int _idx) {
+    if (_idx >= GetSlotCount()) {
       // Index of out bounds.
       return NULL;
     }
 
-    return &_DictSlots_ref.DictSlots[index];
+    return &_DictSlots_ref.DictSlots[_idx];
   }
 
   /**

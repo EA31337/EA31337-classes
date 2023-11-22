@@ -43,13 +43,13 @@ class MiniMatrix2d {
   T Get(int _x, int _y) { return data[(size_x * _y) + _x]; }
 
   void Set(int _x, int _y, T _value) {
-    int index = (size_x * _y) + _x;
+    int _idx = (size_x * _y) + _x;
 
-    if (index < 0 || index >= (size_x * size_y)) {
+    if (_idx < 0 || _idx >= (size_x * size_y)) {
       Alert("Array out of range!");
     }
 
-    data[index] = _value;
+    data[_idx] = _value;
   }
 
   int SizeX() { return size_x; }

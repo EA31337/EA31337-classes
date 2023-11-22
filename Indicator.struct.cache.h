@@ -123,16 +123,16 @@ class IndicatorCalculateCache : public Dynamic {
    * Returns existing or new cache as a child of current one. Useful when indicator uses other indicators and requires
    * unique caches for them.
    */
-  IndicatorCalculateCache<C> *GetSubCache(int index) {
-    if (index >= ArraySize(subcaches)) {
-      ArrayResize(subcaches, index + 1, 10);
+  IndicatorCalculateCache<C> *GetSubCache(int _idx) {
+    if (_idx >= ArraySize(subcaches)) {
+      ArrayResize(subcaches, _idx + 1, 10);
     }
 
-    if (subcaches[index] == NULL) {
-      subcaches[index] = new IndicatorCalculateCache();
+    if (subcaches[_idx] == NULL) {
+      subcaches[_idx] = new IndicatorCalculateCache();
     }
 
-    return subcaches[index];
+    return subcaches[_idx];
   }
 
   /**
