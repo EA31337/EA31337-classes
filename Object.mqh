@@ -24,6 +24,10 @@
 #ifndef OBJECT_MQH
 #define OBJECT_MQH
 
+#ifdef __MQL4__
+#define nullptr NULL
+#endif
+
 // Includes.
 #include "Refs.mqh"
 #include "String.mqh"

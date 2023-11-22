@@ -32,6 +32,7 @@
 
 // Defines macros.
 #define COMMA ,
+#define SEMICOLON ;
 #define DUMMY
 
 #define ICUSTOM_DEF(SET_HANDLE, PARAMS)                                        \

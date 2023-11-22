@@ -279,7 +279,7 @@ class SerializerNode {
   /**
    * Returns pointer to the child node at given index or NULL.
    */
-  SerializerNode* GetChild(unsigned int _idx) { return _idx >= _numChildren ? NULL : _children[index]; }
+  SerializerNode* GetChild(unsigned int _idx) { return _idx >= _numChildren ? NULL : _children[_idx]; }
 
   /**
    * Removes child with given index.

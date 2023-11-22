@@ -835,11 +835,11 @@ class IndicatorBase : public Chart {
    * Returns shift at which the last known valid entry exists for a given
    * period (or from the start, when period is not specified).
    */
-  bool GetLastValidEntryShift(int& out_shift, int period = 0) {
+  bool GetLastValidEntryShift(int& out_shift, int _period = 0) {
     out_shift = 0;
 
     while (true) {
-      if ((period != 0 && out_shift >= period) || !HasValidEntry(out_shift + 1))
+      if ((_period != 0 && out_shift >= _period) || !HasValidEntry(out_shift + 1))
         return out_shift > 0;  // Current shift is always invalid.
 
       ++out_shift;
@@ -852,10 +852,10 @@ class IndicatorBase : public Chart {
    * Returns shift at which the oldest known valid entry exists for a given
    * period (or from the start, when period is not specified).
    */
-  bool GetOldestValidEntryShift(int& out_shift, int& out_num_valid, int shift = 0, int period = 0) {
+  bool GetOldestValidEntryShift(int& out_shift, int& out_num_valid, int shift = 0, int _period = 0) {
     bool found = false;
     // Counting from previous up to previous - period.
-    for (out_shift = shift + 1; out_shift < shift + period + 1; ++out_shift) {
+    for (out_shift = shift + 1; out_shift < shift + _period + 1; ++out_shift) {
       if (!HasValidEntry(out_shift)) {
         --out_shift;
         out_num_valid = out_shift - shift;
@@ -873,8 +873,8 @@ class IndicatorBase : public Chart {
    * Checks whether indicator has valid at least given number of last entries
    * (counting from given shift or 0).
    */
-  bool HasAtLeastValidLastEntries(int period, int shift = 0) {
-    for (int i = 0; i < period; ++i)
+  bool HasAtLeastValidLastEntries(int _period, int shift = 0) {
+    for (int i = 0; i < _period; ++i)
       if (!HasValidEntry(shift + i)) return false;
 
     return true;
