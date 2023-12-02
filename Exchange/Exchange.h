@@ -193,7 +193,7 @@ class Exchange : public Taskable<DataParamEntry> {
    */
   SerializerNodeType Serialize(Serializer &_s) {
     _s.PassStruct(THIS_REF, "eparams", eparams);
-    //_s.PassStruct(THIS_REF, "accounts", accounts);
+    _s.PassStruct(THIS_REF, "accounts", accounts);
     //_s.PassStruct(THIS_REF, "symbols", symbols);
     //_s.PassStruct(THIS_REF, "trades", trades);
     return SerializerNodeObject;
