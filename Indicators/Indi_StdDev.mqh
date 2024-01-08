@@ -157,7 +157,8 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
     return MathSqrt(std_dev / period);
   }
 
-  static double iStdDevOnArray(double &array[], int total, int ma_period, int ma_shift, int ma_method, int shift) {
+  static double iStdDevOnArray(double &array[], int total, int ma_period, int ma_shift, ENUM_MA_METHOD ma_method,
+                               int shift) {
 #ifdef __MQL4__
     return ::iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift);
 #endif
