@@ -12,15 +12,39 @@ on:
 
 jobs:
 
-  Compile:
+  mt4:
+    name: Installs platform (4)
+    uses: EA31337/EA-Tester/.github/workflows/platform-linux.yml@dev
+    with:
+      artifact_name: mt4
+      version: 4
+  mt5:
+    name: Installs platform (5)
+    uses: EA31337/EA-Tester/.github/workflows/platform-linux.yml@dev
+    with:
+      artifact_name: mt5
+      version: 5
+
+  compile:
+    name: Compile
+    needs: [mt4, mt5]
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: mt${{ matrix.version }}
+          path: .mt${{ matrix.version }}
       - name: Compile
         uses: fx31337/mql-compile-action@master
         with:
           init-platform: true
+          mt-path: .mt${{ matrix.version }}
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
         shell: powershell
+
+    strategy:
+      matrix:
+        version: [4, 5]
