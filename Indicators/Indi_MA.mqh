@@ -141,11 +141,96 @@ class Indi_MA : public Indicator<IndiMAParams> {
 #ifdef __MQL4__
     return ::iMAOnArray(price, total, ma_period, ma_shift, ma_method, shift);
 #else
-    // We're reusing the same native array for each consecutive calculation.
-    NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();
-    _array_storage.SetData(price);
+    if (cache != NULL) {
+      // We're reusing the same native array for each consecutive calculation.
+      NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();
+      _array_storage.SetData(price);
 
-    return iMAOnArray((ValueStorage<double> *)_array_storage, total, ma_period, ma_shift, ma_method, shift, cache);
+      return iMAOnArray((ValueStorage<double> *)_array_storage, total, ma_period, ma_shift, ma_method, shift, cache);
+    } else {
+      double buf[], arr[], _result, pr, _array;
+      int pos, i, k, weight;
+      double sum, lsum;
+      if (total == 0) total = ArraySize(price);
+      if (total > 0 && total < ma_period) return (0);
+      if (shift > total - ma_period - ma_shift) return (0);
+      bool _was_series = ArrayGetAsSeries(price);
+      ArraySetAsSeries(price, true);
+      switch (ma_method) {
+        case MODE_SMA:
+          total = ArrayCopy(arr, price, 0, shift + ma_shift, ma_period);
+          if (ArrayResize(buf, total) < 0) return (0);
+          sum = 0;
+          pos = total - 1;
+          for (i = 1; i < ma_period; i++, pos--) sum += arr[pos];
+          while (pos >= 0) {
+            sum += arr[pos];
+            buf[pos] = sum / ma_period;
+            sum -= arr[pos + ma_period - 1];
+            pos--;
+          }
+          _result = buf[0];
+          break;
+        case MODE_EMA:
+          if (ArrayResize(buf, total) < 0) return (0);
+          pr = 2.0 / (ma_period + 1);
+          pos = total - 2;
+          while (pos >= 0) {
+            if (pos == total - 2) buf[pos + 1] = price[pos + 1];
+            buf[pos] = price[pos] * pr + buf[pos + 1] * (1 - pr);
+            pos--;
+          }
+          _result = buf[0];
+          break;
+        case MODE_SMMA:
+          if (ArrayResize(buf, total) < 0) return (0);
+          sum = 0;
+          pos = total - ma_period;
+          while (pos >= 0) {
+            if (pos == total - ma_period) {
+              for (i = 0, k = pos; i < ma_period; i++, k++) {
+                sum += price[k];
+                buf[k] = 0;
+              }
+            } else
+              sum = buf[pos + 1] * (ma_period - 1) + price[pos];
+            buf[pos] = sum / ma_period;
+            pos--;
+          }
+          _result = buf[0];
+          break;
+        case MODE_LWMA:
+          if (ArrayResize(buf, total) < 0) return (0);
+          sum = 0.0;
+          lsum = 0.0;
+          weight = 0;
+          pos = total - 1;
+          for (i = 1; i <= ma_period; i++, pos--) {
+            _array = price[pos];
+            sum += _array * i;
+            lsum += _array;
+            weight += i;
+          }
+          pos++;
+          i = pos + ma_period;
+          while (pos >= 0) {
+            buf[pos] = sum / weight;
+            if (pos == 0) break;
+            pos--;
+            i--;
+            _array = price[pos];
+            sum = sum - lsum + _array * ma_period;
+            lsum -= price[i];
+            lsum += _array;
+          }
+          _result = buf[0];
+          break;
+        default:
+          _result = 0;
+      }
+      ArraySetAsSeries(price, _was_series);
+      return _result;
+    }
 #endif
   }
 

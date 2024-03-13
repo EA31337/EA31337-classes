@@ -33,9 +33,9 @@
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
-double iRSI(string _symbol, int _tf, int _period, int _ap, int _shift) {
+double iRSI(string _symbol, int _tf, int _period, ENUM_APPLIED_PRICE _ap, int _shift) {
   ResetLastError();
-  return Indi_RSI::iRSI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
+  return Indi_RSI::iRSI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _ap, _shift);
 }
 double iRSIOnArray(double &_arr[], int _total, int _period, int _shift) {
   ResetLastError();
