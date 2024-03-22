@@ -42,12 +42,13 @@ class AccountMt;
 #include "Account.define.h"
 #include "Account.enum.h"
 #include "Account.extern.h"
+#include "Account.h"
 #include "Account.struct.h"
 
 /**
  * Class to provide functions that return parameters of the current account.
  */
-class AccountMt {
+class AccountMt : public AccountBase {
  protected:
   // Struct variables.
   BufferStruct<AccountEntry> entries;
@@ -136,7 +137,7 @@ class AccountMt {
    * Returns balance value of the current account.
    */
   static double AccountBalance() { return AccountInfoDouble(ACCOUNT_BALANCE); }
-  float GetBalance() {
+  float GetBalance() override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_BALANCE, AccountBalance());
     return (float)AccountMt::AccountBalance();
@@ -146,7 +147,7 @@ class AccountMt {
    * Returns credit value of the current account.
    */
   static double AccountCredit() { return AccountInfoDouble(ACCOUNT_CREDIT); }
-  float GetCredit() {
+  float GetCredit() override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_CREDIT, AccountCredit());
     return (float)AccountMt::AccountCredit();
@@ -156,7 +157,7 @@ class AccountMt {
    * Returns profit value of the current account.
    */
   static double AccountProfit() { return AccountInfoDouble(ACCOUNT_PROFIT); }
-  float GetProfit() {
+  float GetProfit() override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_PROFIT, AccountProfit());
     return (float)AccountMt::AccountProfit();
@@ -166,7 +167,7 @@ class AccountMt {
    * Returns equity value of the current account.
    */
   static double AccountEquity() { return AccountInfoDouble(ACCOUNT_EQUITY); }
-  float GetEquity() {
+  float GetEquity() override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_EQUITY, AccountEquity());
     return (float)AccountMt::AccountEquity();
@@ -198,7 +199,7 @@ class AccountMt {
    * Returns free margin value of the current account.
    */
   static double AccountFreeMargin() { return AccountInfoDouble(ACCOUNT_MARGIN_FREE); }
-  float GetMarginFree() {
+  float GetMarginFree() override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
     return (float)AccountMt::AccountFreeMargin();
@@ -267,7 +268,7 @@ class AccountMt {
    * Get account available margin.
    */
   static double AccountAvailMargin() { return fmin(AccountFreeMargin(), AccountTotalBalance()); }
-  float GetMarginAvail() { return (float)AccountAvailMargin(); }
+  float GetMarginAvail() override { return (float)AccountAvailMargin(); }
 
   /**
    * Returns the calculation mode of free margin allowed to open orders on the current account.

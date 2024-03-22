@@ -1616,10 +1616,10 @@ class IndicatorData : public IndicatorBase {
   /**
    * Sends entry to listening indicators.
    */
-  void EmitEntry(IndicatorDataEntry& entry) {
+  void EmitEntry(IndicatorDataEntry& entry, ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) {
     for (int i = 0; i < ArraySize(listeners); ++i) {
       if (listeners[i].ObjectExists()) {
-        listeners[i].Ptr().OnDataSourceEntry(entry);
+        listeners[i].Ptr().OnDataSourceEntry(entry, type);
       }
     }
   }
@@ -1683,7 +1683,11 @@ class IndicatorData : public IndicatorBase {
   /**
    * Called when data source emits new entry (historic or future one).
    */
-  virtual void OnDataSourceEntry(IndicatorDataEntry& entry){};
+  virtual void OnDataSourceEntry(IndicatorDataEntry& entry,
+                                 ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) {
+    // Sending entry to all chilren listeners (from highest parent to lowest child).
+    EmitEntry(entry, type);
+  };
 
   virtual void OnTick() {}
 

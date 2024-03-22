@@ -32,6 +32,7 @@
 // Includes.
 #include "../Buffer/BufferCandle.h"
 #include "../Candle.struct.h"
+#include "../Indicator.enum.h"
 #include "../Indicator.mqh"
 #include "../Storage/ValueStorage.price_median.h"
 #include "../Storage/ValueStorage.price_typical.h"
@@ -310,7 +311,7 @@ class IndicatorCandle : public Indicator<TS> {
   void EmitHistory() override {
     for (DictStructIterator<long, CandleOCTOHLC<TV>> iter(icdata.Begin()); iter.IsValid(); ++iter) {
       IndicatorDataEntry _entry = CandleToEntry(iter.Key(), iter.Value());
-      EmitEntry(_entry);
+      EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_CANDLE);
     }
   }
 
@@ -342,7 +343,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Adds tick's price to the matching candle and updates its OHLC values.
    */
-  void UpdateCandle(long _tick_timestamp, double _price) {
+  CandleOCTOHLC<double> UpdateCandle(long _tick_timestamp, double _price) {
     long _candle_timestamp = CalcCandleTimestamp(_tick_timestamp);
 
 #ifdef __debug_verbose__
@@ -368,6 +369,8 @@ class IndicatorCandle : public Indicator<TS> {
     }
 
     icdata.Add(_candle, _candle_timestamp);
+
+    return _candle;
   }
 
   /**
@@ -380,12 +383,25 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Called when data source emits new entry (historic or future one).
    */
-  void OnDataSourceEntry(IndicatorDataEntry& entry) override {
-    // Updating candle from bid price.
-    UpdateCandle(entry.timestamp, entry[1]);
+  void OnDataSourceEntry(IndicatorDataEntry& entry,
+                         ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) override {
+    Indicator<TS>::OnDataSourceEntry(entry, type);
+
+    if (type != INDI_EMITTED_ENTRY_TYPE_TICK) {
+      return;
+    }
+
+    long _candle_timestamp = CalcCandleTimestamp(entry.timestamp);
 
     // Updating tick & bar indices.
-    counter.OnTick(CalcCandleTimestamp(entry.timestamp));
+    counter.OnTick(_candle_timestamp);
+
+    // Updating candle from bid price.
+    CandleOCTOHLC<double> _candle = UpdateCandle(entry.timestamp, entry[1]);
+
+    // Emitting candle for children.
+    IndicatorDataEntry _candle_entry = CandleToEntry(_candle_timestamp, _candle);
+    EmitEntry(_candle_entry, INDI_EMITTED_ENTRY_TYPE_CANDLE);
   };
 
   /**

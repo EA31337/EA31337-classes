@@ -44,6 +44,7 @@ enum ENUM_INDICATOR_ACTION {
 enum ENUM_INDICATOR_TYPE {
   INDI_NONE = 0,                        // (None)
   INDI_AC,                              // Accelerator Oscillator
+  INDI_ACCOUNT_STATS,                   // Account Stats
   INDI_AD,                              // Accumulation/Distribution
   INDI_ADX,                             // Average Directional Index
   INDI_ADXW,                            // ADX by Welles Wilder
@@ -237,8 +238,23 @@ enum ENUM_INDI_VS_TYPE {
   INDI_VS_TYPE_INDEX_8,
   INDI_VS_TYPE_INDEX_9,
   INDI_VS_TYPE_INDEX_FIRST = INDI_VS_TYPE_INDEX_0,
-  INDI_VS_TYPE_INDEX_LAST = INDI_VS_TYPE_INDEX_9
+  INDI_VS_TYPE_INDEX_LAST = INDI_VS_TYPE_INDEX_9,
+
+  // Account Stats.
+  INDI_VS_TYPE_ACCOUNT_STATS_DATE_TIME,
+  INDI_VS_TYPE_ACCOUNT_STATS_BALANCE,
+  INDI_VS_TYPE_ACCOUNT_STATS_CREDIT,
+  INDI_VS_TYPE_ACCOUNT_STATS_EQUITY,
+  INDI_VS_TYPE_ACCOUNT_STATS_PROFIT,
+  INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_USED,
+  INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_FREE,
+  INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL,
+  INDI_VS_TYPE_ACCOUNT_STATS_INDEX_FIRST = INDI_VS_TYPE_ACCOUNT_STATS_DATE_TIME,
+  INDI_VS_TYPE_ACCOUNT_STATS_INDEX_LAST = INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL,
 };
+
+#define INDI_VS_TYPE_ACCOUNT_STATS_BUFFERS_COUNT \
+  (INDI_VS_TYPE_ACCOUNT_STATS_INDEX_LAST - INDI_VS_TYPE_ACCOUNT_STATS_INDEX_FIRST + 1)
 
 // Indicator flags.
 enum ENUM_INDI_FLAGS {
@@ -268,5 +284,12 @@ enum ENUM_INDI_DS_MODE_KIND {
   INDI_DS_MODE_KIND_VS_TYPE,  // Mode is a value from ENUM_INDI_VS_TYPE enumeration, e.g., ENUM_INDI_VS_PRICE_OPEN.
   INDI_DS_MODE_KIND_AP,  // Mode is a value from ENUM_APPLIED_PRICE enumeration. It is used to retrieve value storage
                          // based on ENUM_INDI_VS_TYPE enumeration, e.g., PRICE_OPEN becomes ENUM_INDI_VS_PRICE_OPEN.
+};
+
+// Type of entry
+enum ENUM_INDI_EMITTED_ENTRY_TYPE {
+  INDI_EMITTED_ENTRY_TYPE_PARENT,  // Undetermined type of entry from direct parent indicator.
+  INDI_EMITTED_ENTRY_TYPE_TICK,
+  INDI_EMITTED_ENTRY_TYPE_CANDLE,
 };
 //+------------------------------------------------------------------+

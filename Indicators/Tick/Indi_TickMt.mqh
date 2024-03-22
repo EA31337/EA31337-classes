@@ -159,7 +159,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
                 _tmp_ticks[i].ask, ", ", _tmp_ticks[i].bid);
 #endif
 
-          EmitEntry(TickToEntry(_tmp_ticks[i].time, _tick));
+          EmitEntry(TickToEntry(_tmp_ticks[i].time, _tick), INDI_EMITTED_ENTRY_TYPE_TICK);
 
           if (_num_yet_to_copy <= 0) {
             break;
@@ -205,7 +205,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
       // DebugBreak();
       // Just emitting zeroes in case of error.
       TickAB<double> _tick(0, 0);
-      EmitEntry(TickToEntry(TimeCurrent(), _tick));
+      EmitEntry(TickToEntry(TimeCurrent(), _tick), INDI_EMITTED_ENTRY_TYPE_TICK);
       return;
     }
 
@@ -224,6 +224,6 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double> {
     TickAB<double> _tick(_ask, _bid);
     IndicatorDataEntry _entry(TickToEntry(_time, _tick));
     StoreEntry(_entry);
-    EmitEntry(_entry);
+    EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_TICK);
   }
 };

@@ -257,14 +257,6 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   }
 
   /**
-   * Called when data source emits new entry (historic or future one).
-   */
-  void OnDataSourceEntry(IndicatorDataEntry &entry) override {
-    // Just to be able to make a breakpoint here.
-    int x = 4;
-  };
-
-  /**
    * Called if data source is requested, but wasn't yet set. May be used to initialize indicators that must operate on
    * some data source.
    */

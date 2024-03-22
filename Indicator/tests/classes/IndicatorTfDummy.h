@@ -48,11 +48,13 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
 
   string GetName() override { return "IndicatorTfDummy(" + IntegerToString(iparams.spc) + ")"; }
 
-  void OnDataSourceEntry(IndicatorDataEntry& entry) override {
-    // When overriding OnDataSourceEntry() we have to remember to call parent
-    // method, because IndicatorCandle also need to invoke it in order to
-    // create/update matching candle.
-    IndicatorTf<IndicatorTfDummyParams>::OnDataSourceEntry(entry);
+  void OnDataSourceEntry(IndicatorDataEntry& entry,
+                         ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) override {
+    IndicatorTf<IndicatorTfDummyParams>::OnDataSourceEntry(entry, type);
+
+    if (type != INDI_EMITTED_ENTRY_TYPE_TICK) {
+      return;
+    }
 
 #ifdef __debug_indicator__
     Print(GetFullName(), " got new tick at ", entry.timestamp,
