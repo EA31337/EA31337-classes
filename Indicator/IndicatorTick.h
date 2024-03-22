@@ -164,7 +164,7 @@ class IndicatorTick : public Indicator<TS> {
   void EmitHistory() override {
     for (DictStructIterator<long, TickAB<TV>> iter(itdata.Begin()); iter.IsValid(); ++iter) {
       IndicatorDataEntry _entry = TickToEntry(iter.Key(), iter.Value());
-      EmitEntry(_entry);
+      EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_TICK);
     }
   }
 
