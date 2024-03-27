@@ -48,7 +48,7 @@ int OnInit() {
 
 void OnTick() {
   Platform::Tick();
-  if (Platform::IsNewHour()) {
+  if (Platform::IsNewMinute()) {
     IndicatorDataEntry _entry = indi_account_mt REF_DEREF GetEntry();
     bool _is_ready = indi_account_mt REF_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY));
     bool _is_valid = _entry.IsValid();

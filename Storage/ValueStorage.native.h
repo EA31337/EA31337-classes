@@ -84,6 +84,15 @@ class NativeValueStorage : public ValueStorage<C> {
   }
 
   /**
+   * Inserts new value at the end of the buffer. If buffer works as As-Series,
+   * then new value will act as the one at index 0.
+   */
+  void Append(C _value) override {
+    Resize(Size() + 1, 4096);
+    Store(Size() - 1, _value);
+  }
+
+  /**
    * Returns number of values available to fetch (size of the values buffer).
    */
   int Size() override { return ArraySize(_values); }
