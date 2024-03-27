@@ -145,7 +145,6 @@ class Indi_AccountStats : public Indicator<Indi_AccountStats_Params> {
    * Returns value storage of given kind.
    */
   IValueStorage *GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
-    // Returning Price indicator which provides applied price in the only buffer #0.
     switch (_type) {
       case INDI_VS_TYPE_ACCOUNT_STATS_DATE_TIME:
         return buffer_date_time.Ptr();
@@ -200,8 +199,27 @@ class Indi_AccountStats : public Indicator<Indi_AccountStats_Params> {
       return;
     }
 
-    // Adding new account stats entry.
+    // New candle means that account stats for current index 0 will be that we
+    // will now extract and store in the buffers.
 
-    Print("New candle: ", entry.ToString<double>());
+    // Extracting current account stats.
+    datetime stats_date_time = iparams.GetAccount() PTR_DEREF GetDateTime();
+    float stats_balance = iparams.GetAccount() PTR_DEREF GetBalance();
+    float stats_credit = iparams.GetAccount() PTR_DEREF GetCredit();
+    float stats_profit = iparams.GetAccount() PTR_DEREF GetProfit();
+    float stats_equity = iparams.GetAccount() PTR_DEREF GetEquity();
+    float stats_margin_used = iparams.GetAccount() PTR_DEREF GetMarginUsed();
+    float stats_margin_free = iparams.GetAccount() PTR_DEREF GetMarginFree();
+    float stats_margin_avail = iparams.GetAccount() PTR_DEREF GetMarginAvail();
+
+    // Appending account stats into buffers.
+    buffer_date_time REF_DEREF Append(stats_date_time);
+    buffer_balance REF_DEREF Append(stats_balance);
+    buffer_credit REF_DEREF Append(stats_credit);
+    buffer_profit REF_DEREF Append(stats_profit);
+    buffer_equity REF_DEREF Append(stats_equity);
+    buffer_margin_used REF_DEREF Append(stats_margin_used);
+    buffer_margin_free REF_DEREF Append(stats_margin_free);
+    buffer_margin_avail REF_DEREF Append(stats_margin_avail);
   }
 };
