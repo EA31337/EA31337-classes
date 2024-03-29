@@ -113,8 +113,14 @@ class PriceValueStorage : public HistoryValueStorage<double> {
         return _low.Fetch(_shift);
       case PRICE_CLOSE:
         return _close.Fetch(_shift);
+      case PRICE_MEDIAN:
+        return (_high.Fetch(_shift) + _low.Fetch(_shift)) / 2;
+      case PRICE_TYPICAL:
+        return (_high.Fetch(_shift) + _low.Fetch(_shift) + _close.Fetch(_shift)) / 3;
+      case PRICE_WEIGHTED:
+        return (_high.Fetch(_shift) + _low.Fetch(_shift) + (2 * _close.Fetch(_shift))) / 4;
     }
-    Alert("Wrong applied price for ValueStorage-based iPrice()!");
+    Alert("Wrong applied price for ValueStorage-based iPrice()! Got ", EnumToString(_ap));
     DebugBreak();
     return 0;
   }
