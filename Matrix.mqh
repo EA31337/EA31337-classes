@@ -24,6 +24,8 @@
 #ifndef MATRIX_MQH
 #define MATRIX_MQH
 
+#define MATRIX_USE_OPENCL
+
 #ifdef USE_MQL_MATH_STAT
 #ifdef __MQL5__
 #include <Math/Stat/Normal.mqh>
@@ -31,6 +33,7 @@
 #endif
 
 #include "Math.h"
+#include "OpenCL.h"
 
 #define MATRIX_DIMENSIONS 6
 #define MATRIX_VALUES_ARRAY_INCREMENT 500
@@ -719,6 +722,40 @@ class MatrixDimension {
   }
 };
 
+enum ENUM_MATRIX_FLAGS { MATRIX_FLAGS_NONE, MATRIX_FLAGS_USE_OPENCL };
+
+/**
+ * Buffer used for CL operations.
+ */
+template <typename X>
+struct MatrixOpenCLBuffer : Dynamic {
+  // Flattened matrix data.
+  ARRAY(X, data);
+
+  // Current version of the data.
+  long version;
+
+  // CL buffer.
+  Ref<OpenCLBuffer> buffer;
+
+ public:
+  /**
+   * Constructor.
+   */
+  MatrixBuffer() { version = 0; }
+
+  /**
+   * Prepares buffer to be used by CL. Copies flattened data from the given matrix into buffer.
+   */
+  void FillData(const Matrix<X>& src) {
+    src.GetRawArray(data);
+
+    if (!buffer.IsSet()) {
+      buffer = OpenCL::Alloc(ArraySize(data), true);
+    }
+  }
+};
+
 /**
  * Matrix class.
  */
@@ -727,6 +764,11 @@ class Matrix {
  public:
   // First/root dimension.
   MatrixDimension<X>* ptr_first_dimension;
+
+  // Map of data size -> CL buffer to be used e.g., by CL-based MatMul method.
+  DictStruct<int, Ref<MatrixOpenCLBuffer>> _cl_buffers_in_0;
+  DictStruct<int, Ref<MatrixOpenCLBuffer>> _cl_buffers_in_1;
+  DictStruct<int, Ref<MatrixOpenCLBuffer>> _cl_buffers_out;
 
   // Array with declaration of items per matrix's dimension.
   int dimensions[MATRIX_DIMENSIONS];
@@ -737,10 +779,18 @@ class Matrix {
   // Number of matrix dimensions.
   int num_dimensions;
 
+  // Flags.
+  int flags;
+
   /**
    * Constructor.
    */
-  Matrix(string _data) { FromString(_data); }
+  Matrix(string _data) {
+    FromString(_data);
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
+  }
 
   /**
    * Constructor.
@@ -748,12 +798,20 @@ class Matrix {
   Matrix(const int num_1d = 0, const int num_2d = 0, const int num_3d = 0, const int num_4d = 0, const int num_5d = 0) {
     ptr_first_dimension = NULL;
     SetShape(num_1d, num_2d, num_3d, num_4d, num_5d);
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
   }
 
   /**
    * Constructor.
    */
-  Matrix(MatrixDimension<X>* _dimension) : ptr_first_dimension(NULL) { Initialize(_dimension); }
+  Matrix(MatrixDimension<X>* _dimension) : ptr_first_dimension(NULL) {
+    Initialize(_dimension);
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
+  }
 
   /**
    * Copy constructor.
@@ -764,6 +822,9 @@ class Matrix {
     }
 
     Initialize(_right.ptr_first_dimension.Clone());
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
   }
 
   /**
@@ -773,7 +834,23 @@ class Matrix {
  private:
   Matrix(const Matrix<X>* _right) {}
 
+#ifdef MATRIX_USE_OPENCL
+
+  /**
+   *
+   */
+  void InitializeOpenCL() {}
+
+#endif
+
  public:
+  /**
+   * Returns/allocs and returns buffer of the given size to be used in CL operations as first input parameter.
+   *
+   * Buffer will be read only.
+   */
+  MatrixOpenCLBuffer* GetCLBufferInArg0(int size) { if (_) }
+
   /**
    * Matrix initializer.
    */
@@ -1247,6 +1324,11 @@ class Matrix {
   }
 
   static void MatMul(Matrix<X>& source, Matrix<X>& target, Matrix<X>& output) {
+#ifdef MATRIX_USE_OPENCL
+    MatMulCL(source, target, output);
+    return;
+#endif
+
     if (source.GetSize() != target.GetRange(1)) {
       Alert("Inconsistent size of matrices!");
     }
@@ -1262,6 +1344,21 @@ class Matrix {
         output[output_idx] += source[input_idx].Val() * target[output_idx][input_idx].Val();
       }
     }
+  }
+
+  /**
+   * Performs matrix multiplication via OpenCL. Note that MATRIX_USE_OPENCL must be defined in order matrix to use this
+   * method.
+   */
+  static void MatMulCL(Matrix<X>& source, Matrix<X>& target, Matrix<X>& output) {
+    if (source.GetSize() != target.GetRange(1)) {
+      Alert("Inconsistent size of matrices!");
+    }
+
+    int num_outputs = target.GetRange(0);
+    int num_inputs = target.GetRange(1);
+
+    output.SetShape(num_outputs);
   }
 
   /**
