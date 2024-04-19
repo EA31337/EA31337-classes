@@ -160,6 +160,7 @@ struct MatrixDimensionAccessor {
     if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {                          \
       Print("Error: Trying to use matrix", ptr_matrix.Repr(),                          \
             "'s value operator " #OP " in a dimension which doesn't contain values!"); \
+      DebugBreak();                                                                    \
       return;                                                                          \
     }                                                                                  \
                                                                                        \
@@ -177,6 +178,7 @@ struct MatrixDimensionAccessor {
   void operator=(X _value) {
     if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {
       Print("Error: Trying to set matrix", ptr_matrix.Repr(), "'s value in a dimension which doesn't contain values!");
+      DebugBreak();
       return;
     }
 
@@ -189,6 +191,7 @@ struct MatrixDimensionAccessor {
   X Val() {
     if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {
       Print("Error: Trying to get value from matrix", ptr_matrix.Repr(), "'s dimension which doesn't contain values!");
+      DebugBreak();
       return (X)EMPTY_VALUE;
     }
 
@@ -202,6 +205,7 @@ struct MatrixDimensionAccessor {
   X ValOrZero() {
     if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {
       Print("Error: Trying to get value from matrix", ptr_matrix.Repr(), "'s dimension which doesn't contain values!");
+      DebugBreak();
       return (X)EMPTY_VALUE;
     }
 
@@ -728,7 +732,7 @@ enum ENUM_MATRIX_FLAGS { MATRIX_FLAGS_NONE, MATRIX_FLAGS_USE_OPENCL };
  * Buffer used for CL operations.
  */
 template <typename X>
-struct MatrixOpenCLBuffer : Dynamic {
+class MatrixOpenCLBuffer : public Dynamic {
   // Flattened matrix data.
   ARRAY(X, data);
 
@@ -742,18 +746,24 @@ struct MatrixOpenCLBuffer : Dynamic {
   /**
    * Constructor.
    */
-  MatrixBuffer() { version = 0; }
+  MatrixOpenCLBuffer(int _size) {
+    version = 0;
+    buffer = OpenCL::Alloc(_size);
+    ArrayResize(data, _size);
+  }
 
   /**
    * Prepares buffer to be used by CL. Copies flattened data from the given matrix into buffer.
    */
   void FillData(const Matrix<X>& src) {
     src.GetRawArray(data);
-
-    if (!buffer.IsSet()) {
-      buffer = OpenCL::Alloc(ArraySize(data), true);
-    }
+    buffer REF_DEREF Write(data, version);
   }
+
+  /**
+   * Returns pointer to the CL buffer.
+   */
+  OpenCLBuffer* GetBuffer() { return buffer.Ptr(); }
 };
 
 /**
@@ -766,9 +776,9 @@ class Matrix {
   MatrixDimension<X>* ptr_first_dimension;
 
   // Map of data size -> CL buffer to be used e.g., by CL-based MatMul method.
-  DictStruct<int, Ref<MatrixOpenCLBuffer>> _cl_buffers_in_0;
-  DictStruct<int, Ref<MatrixOpenCLBuffer>> _cl_buffers_in_1;
-  DictStruct<int, Ref<MatrixOpenCLBuffer>> _cl_buffers_out;
+  static DictStruct<int, Ref<MatrixOpenCLBuffer<X>>> cl_buffers_in_0;
+  static DictStruct<int, Ref<MatrixOpenCLBuffer<X>>> cl_buffers_in_1;
+  static DictStruct<int, Ref<MatrixOpenCLBuffer<X>>> cl_buffers_out;
 
   // Array with declaration of items per matrix's dimension.
   int dimensions[MATRIX_DIMENSIONS];
@@ -782,6 +792,16 @@ class Matrix {
   // Flags.
   int flags;
 
+  // Unique id of the matrix.
+  int uuid;
+
+  // Static counter, so each matrix will have its own uuid.
+  static int uuid_counter;
+
+  // OpenCL program.
+  static Ref<OpenCLProgram> cl_program_matmul;
+  static Ref<OpenCLProgram> cl_program_matmul_single;
+
   /**
    * Constructor.
    */
@@ -790,6 +810,7 @@ class Matrix {
 #ifdef MATRIX_USE_OPENCL
     InitializeOpenCL();
 #endif
+    uuid = uuid_counter++;
   }
 
   /**
@@ -801,6 +822,7 @@ class Matrix {
 #ifdef MATRIX_USE_OPENCL
     InitializeOpenCL();
 #endif
+    uuid = uuid_counter++;
   }
 
   /**
@@ -811,6 +833,7 @@ class Matrix {
 #ifdef MATRIX_USE_OPENCL
     InitializeOpenCL();
 #endif
+    uuid = uuid_counter++;
   }
 
   /**
@@ -825,6 +848,9 @@ class Matrix {
 #ifdef MATRIX_USE_OPENCL
     InitializeOpenCL();
 #endif
+
+    // We mark new matrix as unique one, even though we clone another matrix.
+    uuid = uuid_counter++;
   }
 
   /**
@@ -839,17 +865,83 @@ class Matrix {
   /**
    *
    */
-  void InitializeOpenCL() {}
+  void InitializeOpenCL() {
+    if (cl_program_matmul.IsSet()) {
+      // Already initialized.
+      return;
+    }
+
+    cl_program_matmul = OpenCL::Compile(
+        "#pragma OPENCL EXTENSION cl_khr_fp64 : enable" NL "__kernel void matmul(" NL "	const int Mdim," NL
+        "	const int Ndim," NL "	const int Pdim," NL "	__global double* A," NL "	__global double* B," NL
+        "	__global double* C," NL "	__local double* Bwrk" NL ")" NL "{" NL "	int k, j;" NL
+        "	int i = get_global_id(0);" NL "	int iloc = get_local_id(0);" NL
+        "	int nloc = get_local_size(0);" NL "	double Awrk[1000];" NL "	double tmp;" NL "" NL
+        "	for (k = 0; k < Pdim; k++)" NL "		Awrk[k] = A[i * Ndim + k];" NL "" NL
+        "	for (j = 0; j < Mdim; j++)" NL "	{" NL "		for (k = iloc; k < Pdim; k = k + nloc)" NL
+        "			Bwrk[k] = B[k * Pdim + j];" NL "" NL "		barrier(CLK_LOCAL_MEM_FENCE);" NL "" NL
+        "		tmp = 0.0f;" NL "" NL "		for (k = 0; k < Pdim; k++)" NL
+        "			tmp += Awrk[k] * Bwrk[k];" NL "		C[i * Ndim + j] += tmp;" NL "	}" NL "}" NL,
+        "matmul");
+
+    cl_program_matmul_single = OpenCL::Compile(
+        "#pragma OPENCL EXTENSION cl_khr_fp64 : enable" NL "__kernel void matmul(" NL "const int Mdim," NL
+        "const int Ndim," NL "const int Pdim," NL "__global float *A," NL "__global float *B," NL "__global float *C" NL
+        ")" NL "{" NL "int i, j, k;" NL "for (i=0; i<Ndim; i++){" NL "for (j=0; j<Mdim; j++){" NL
+        "for (k=0; k<Pdim; k++) {" NL "C[i*Ndim+j] += A[i*Ndim+k] * B[k*Pdim+j];" NL "}" NL "}" NL "}" NL "}" NL,
+        "matmul");
+  }
 
 #endif
 
  public:
   /**
    * Returns/allocs and returns buffer of the given size to be used in CL operations as first input parameter.
-   *
-   * Buffer will be read only.
    */
-  MatrixOpenCLBuffer* GetCLBufferInArg0(int size) { if (_) }
+  static MatrixOpenCLBuffer<X>* GetCLBufferInArg0(int _size) {
+    Ref<MatrixOpenCLBuffer<X>> _buffer;
+
+    _buffer = cl_buffers_in_0.GetByKey(_size, _buffer);
+
+    if (!_buffer.IsSet()) {
+      _buffer = new MatrixOpenCLBuffer<X>(_size);
+      cl_buffers_in_0.Set(_size, _buffer);
+    }
+
+    return _buffer.Ptr();
+  }
+
+  /**
+   * Returns/allocs and returns buffer of the given size to be used in CL operations as second input parameter.
+   */
+  static MatrixOpenCLBuffer<X>* GetCLBufferInArg1(int _size) {
+    Ref<MatrixOpenCLBuffer<X>> _buffer;
+
+    _buffer = cl_buffers_in_1.GetByKey(_size, _buffer);
+
+    if (!_buffer.IsSet()) {
+      _buffer = new MatrixOpenCLBuffer<X>(_size);
+      cl_buffers_in_1.Set(_size, _buffer);
+    }
+
+    return _buffer.Ptr();
+  }
+
+  /**
+   * Returns/allocs and returns buffer of the given size to be used in CL operations as output parameter.
+   */
+  static MatrixOpenCLBuffer<X>* GetCLBufferOutArg(int _size) {
+    Ref<MatrixOpenCLBuffer<X>> _buffer;
+
+    _buffer = cl_buffers_out.GetByKey(_size, _buffer);
+
+    if (!_buffer.IsSet()) {
+      _buffer = new MatrixOpenCLBuffer<X>(_size);
+      cl_buffers_out.Set(_size, _buffer);
+    }
+
+    return _buffer.Ptr();
+  }
 
   /**
    * Matrix initializer.
@@ -876,6 +968,7 @@ class Matrix {
         break;
       } else {
         Print("Internal error: unknown dimension type!");
+        DebugBreak();
       }
     }
 
@@ -986,7 +1079,7 @@ class Matrix {
   /**
    * Returns total number of values the matrix contain of.
    */
-  int GetSize() { return size; }
+  int GetSize() const { return size; }
 
   /**
    * Returns number of matrix dimensions.
@@ -1325,7 +1418,8 @@ class Matrix {
 
   static void MatMul(Matrix<X>& source, Matrix<X>& target, Matrix<X>& output) {
 #ifdef MATRIX_USE_OPENCL
-    MatMulCL(source, target, output);
+    // MatMulCL(source, target, output);
+    MatMulCLSingle(source, target, output);
     return;
 #endif
 
@@ -1350,21 +1444,131 @@ class Matrix {
    * Performs matrix multiplication via OpenCL. Note that MATRIX_USE_OPENCL must be defined in order matrix to use this
    * method.
    */
-  static void MatMulCL(Matrix<X>& source, Matrix<X>& target, Matrix<X>& output) {
-    if (source.GetSize() != target.GetRange(1)) {
+  static void MatMulCL(Matrix<X>& _source, Matrix<X>& _target, Matrix<X>& _output) {
+    if (_source.GetSize() != _target.GetRange(1)) {
       Alert("Inconsistent size of matrices!");
     }
 
-    int num_outputs = target.GetRange(0);
-    int num_inputs = target.GetRange(1);
+    unsigned int _m_dim = _source.GetRange(0);
+    unsigned int _n_dim = _source.GetRange(1);
+    unsigned int _p_dim = _target.GetRange(1);
 
-    output.SetShape(num_outputs);
+    OpenCLBuffer* _in_1 = GetCLBufferInArg0(_source.GetSize()) PTR_DEREF GetBuffer();
+    OpenCLBuffer* _in_2 = GetCLBufferInArg1(_target.GetSize()) PTR_DEREF GetBuffer();
+    OpenCLBuffer* _out = GetCLBufferOutArg(_source.GetRange(0)) PTR_DEREF GetBuffer();
+
+    double _in_1_data[];
+    double _in_2_data[];
+    double _out_data[];
+
+    _source.GetRawArray(_in_1_data);
+    _target.GetRawArray(_in_2_data);
+
+    cl_program_matmul REF_DEREF SetArg(0, _m_dim);
+    cl_program_matmul REF_DEREF SetArg(1, _n_dim);
+    cl_program_matmul REF_DEREF SetArg(2, _p_dim);
+    cl_program_matmul REF_DEREF SetArg(3, _in_1);
+    cl_program_matmul REF_DEREF SetArg(4, _in_2);
+    cl_program_matmul REF_DEREF SetArg(5, _out);
+    cl_program_matmul REF_DEREF SetArgLocalMem(6, _p_dim * sizeof(X));
+    ARRAY(unsigned int, _global_work_offset);
+    ARRAY(unsigned int, _global_work_size);
+    ARRAY(unsigned int, _local_work_size);
+    ArrayPush(_global_work_offset, 0U);
+    ArrayPush(_global_work_size, _n_dim);
+    ArrayPush(_global_work_size, _m_dim);
+    ArrayPush(_local_work_size, _m_dim);
+
+    if (!cl_program_matmul REF_DEREF RunMany(2, _global_work_offset, _global_work_size, _local_work_size)) {
+      Alert("Errpr: Could not run Matrix::MatMulCL() over OpenCL!");
+      DebugBreak();
+    }
+
+    _out PTR_DEREF Read(_out_data);
+
+    // _output.SetShape(num_outputs);
+  }
+
+  /**
+   * Performs matrix multiplication via OpenCL. Note that MATRIX_USE_OPENCL must be defined in order matrix to use this
+   * method.
+   */
+  static void MatMulCLSingle(Matrix<X>& _source, Matrix<X>& _target, Matrix<X>& _output) {
+    if (_source.GetRange(1) != _target.GetRange(0)) {
+      Alert("Inconsistent size of matrices!");
+    }
+
+    unsigned int _m_dim = _source.GetRange(0);
+    unsigned int _n_dim = _source.GetRange(1);
+    unsigned int _p_dim = _target.GetRange(1);
+
+    OpenCLBuffer* _in_1 = GetCLBufferInArg0(_n_dim * _p_dim) PTR_DEREF GetBuffer();
+    OpenCLBuffer* _in_2 = GetCLBufferInArg1(_p_dim * _m_dim) PTR_DEREF GetBuffer();
+    OpenCLBuffer* _out = GetCLBufferOutArg(_m_dim * _p_dim) PTR_DEREF GetBuffer();
+
+    double _in_1_data[];
+    double _in_2_data[];
+    double _out_data[];
+
+    ArrayResize(_out_data, _out PTR_DEREF GetSizeItems());
+
+    _source.GetRawArray(_in_1_data);
+    _target.GetRawArray(_in_2_data);
+
+    MatMulCL_CPU(_m_dim, _n_dim, _p_dim, _in_1_data, _in_2_data, _out_data);
+
+    cl_program_matmul REF_DEREF SetArg(0, _n_dim);
+    cl_program_matmul REF_DEREF SetArg(1, _m_dim);
+    cl_program_matmul REF_DEREF SetArg(2, _p_dim);
+    cl_program_matmul REF_DEREF SetArg(3, _in_1);
+    cl_program_matmul REF_DEREF SetArg(4, _in_2);
+    cl_program_matmul REF_DEREF SetArg(5, _out);
+
+    if (!cl_program_matmul_single REF_DEREF Run()) {
+      Alert("Errpr: Could not run Matrix::MatMulCL() over OpenCL!");
+      DebugBreak();
+    }
+
+    _out PTR_DEREF Read(_out_data);
+
+    // _output.SetShape(num_outputs);
+  }
+
+  static void MatMulCL_CPU(int Mdim, int Ndim, int Pdim, double& A[], double& B[], double& C[]) {
+    /*
+      for (int i = 0; i < Mdim; ++i) {
+          for (int j = 0; j < Pdim; ++j) {
+              C[i * Pdim + j] = 0.0;
+              for (int k = 0; k < Ndim; ++k) {
+                  C[i * Pdim + j] += A[i * Ndim + k] * B[k * Pdim + j];
+              }
+          }
+      }
+      */
+
+    int i, j, k;
+    for (i = 0; i < Ndim; i++) {
+      for (j = 0; j < Mdim; j++) {
+        for (k = 0; k < Pdim; k++) {  // C(i,j) = sum(over k) A(i,k) * B(k,j)
+          C[i * Pdim + j] += A[i * Ndim + k] * B[k * Pdim + j];
+        }
+      }
+    }
   }
 
   /**
    * Performs matrix multiplication.
    */
   Matrix<X>* MatMul(Matrix<X>& target) {
+    Matrix<X>* output = new Matrix<X>();
+    MatMul(this, target, output);
+    return output;
+  }
+
+  /**
+   * Performs matrix multiplication.
+   */
+  Matrix<X>* MatMul(Matrix<X>* target) {
     Matrix<X>* output = new Matrix<X>();
     MatMul(this, target, output);
     return output;
@@ -1475,7 +1679,7 @@ class Matrix {
   /**
    * Fills array with all values from the matrix.
    */
-  void GetRawArray(X& array[]) {
+  void GetRawArray(X& array[]) const {
     ArrayResize(array, GetSize());
     int offset = 0;
     ptr_first_dimension.FillArray(array, offset);
@@ -2358,5 +2562,33 @@ class Matrix {
     return _out + "]";
   }
 };
+
+#ifdef __MQL__
+template <typename X>
+static int Matrix::uuid_counter = 0;
+template <typename X>
+static Ref<OpenCLProgram> Matrix::cl_program_matmul;
+template <typename X>
+static Ref<OpenCLProgram> Matrix::cl_program_matmul_single;
+template <typename X>
+static DictStruct<int, Ref<MatrixOpenCLBuffer<X>>> Matrix::cl_buffers_in_0;
+template <typename X>
+static DictStruct<int, Ref<MatrixOpenCLBuffer<X>>> Matrix::cl_buffers_in_1;
+template <typename X>
+static DictStruct<int, Ref<MatrixOpenCLBuffer<X>>> Matrix::cl_buffers_out;
+#else
+template <typename X>
+static int Matrix<X>::uuid_counter = 0;
+template <typename X>
+static Ref<OpenCLProgram> Matrix<X>::cl_program_matmul;
+template <typename X>
+static Ref<OpenCLProgram> Matrix<X>::cl_program_matmul_single;
+template <typename X>
+static DictStruct<int, Ref<MatrixOpenCLBuffer<X>>> Matrix<X>::cl_buffers_in_0;
+template <typename X>
+static DictStruct<int, Ref<MatrixOpenCLBuffer<X>>> Matrix<X>::cl_buffers_in_1;
+template <typename X>
+static DictStruct<int, Ref<MatrixOpenCLBuffer<X>>> Matrix<X>::cl_buffers_out;
+#endif
 
 #endif

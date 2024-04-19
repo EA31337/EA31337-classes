@@ -120,7 +120,7 @@ struct IndicatorParams {
   }
   void SetMaxParams(int _value) {
     max_params = _value;
-    ArrayResize(input_params, max_params);
+    ArrayResize(input_params, (int)max_params);
   }
   void SetName(string _name) { name = _name; };
   void SetShift(int _shift) { shift = _shift; }

@@ -20,9 +20,6 @@ class OpenCLBuffer : public Dynamic {
   // Allocated buffer size.
   int buffer_size;
 
-  // Whether buffer is global or local to the kernel otherwise.
-  bool is_global;
-
   // Buffer version. Should be incremented after each change.
   long version;
 
@@ -30,12 +27,12 @@ class OpenCLBuffer : public Dynamic {
   /**
    * Constructor.
    */
-  OpenCLBuffer(int _size, bool _is_global, unsigned int _flags = CL_MEM_READ_WRITE);
+  OpenCLBuffer(int _size, unsigned int _flags = CL_MEM_READ_WRITE);
 
   /**
    * Writes/uploads data into buffer if needed.
    */
-  void Write(const ARRAY_REF(double, _arr), int _arr_version = -1) {
+  void Write(const ARRAY_REF(double, _arr), long _arr_version = -1) {
     if (ArraySize(_arr) > buffer_size) {
       Alert("Array passed is too large for the allocated buffer. Tries to pass ", ArraySize(_arr),
             " elements into buffer of size ", buffer_size, ".");
@@ -68,9 +65,14 @@ class OpenCLBuffer : public Dynamic {
   }
 
   /**
-   * Whether buffer is global or local to the kernel otherwise.
+   * Returns buffer size in bytes.
    */
-  bool IsGlobal() { return is_global; }
+  int GetSizeBytes() { return buffer_size * sizeof(double); }
+
+  /**
+   * Returns buffer size in items.
+   */
+  int GetSizeItems() { return buffer_size; }
 
   /**
    * Returns data version.
@@ -133,6 +135,20 @@ class OpenCLProgram : public Dynamic {
   }
 
   /**
+   * Passes local memory size argument to the kernel.
+   */
+  void SetArgLocalMem(int _index, unsigned long _mem_size) { CLSetKernelArgMemLocal(kernel_handle, _index, _mem_size); }
+
+  /**
+   * Passes argument to the kernel. Will not set kernel argument if not needed.
+   *
+   * Note that buffer reuploading is to be done via OpenCLBuffer::Write() in
+   * which you can pass version of your data, so no reupload will take place if
+   * your version isn't greater that the one already set in the buffer.
+   */
+  void SetArg(int _index, double value) { CLSetKernelArg(kernel_handle, _index, value); }
+
+  /**
    * Passes argument to the kernel. Will not set kernel argument if not needed.
    *
    * Note that buffer reuploading is to be done via OpenCLBuffer::Write() in
@@ -146,11 +162,7 @@ class OpenCLProgram : public Dynamic {
       return;
     }
 
-    if (_buffer PTR_DEREF IsGlobal()) {
-      CLSetKernelArgMem(kernel_handle, _index, _buffer PTR_DEREF GetHandle());
-    } else {
-      CLSetKernelArgMemLocal(kernel_handle, _index, _buffer PTR_DEREF GetHandle());
-    }
+    CLSetKernelArgMem(kernel_handle, _index, _buffer PTR_DEREF GetHandle());
 
     // Buffer will occupy argument slot.
     arg_handles[_index] = _buffer PTR_DEREF GetHandle();
@@ -274,8 +286,9 @@ class OpenCLProgram : public Dynamic {
   /**
    * Executes multiple kernels where work is subdivided among kernels.
    */
-  bool RunMany(unsigned int _dimension, const unsigned int& _work_offset, const unsigned int& _work_size) {
-    if (!CLExecute(kernel_handle)) {
+  bool RunMany(unsigned int _dimension, const ARRAY_REF(unsigned int, _global_work_offset),
+               const ARRAY_REF(unsigned int, _global_work_size), const ARRAY_REF(unsigned int, _local_work_size)) {
+    if (!CLExecute(kernel_handle, _dimension, _global_work_offset, _global_work_size, _local_work_size)) {
       Alert("OpenCL error occured when tried to run kernel: ", GetLastError(), "!");
       return false;
     }
@@ -287,81 +300,89 @@ class OpenCLProgram : public Dynamic {
    * Executes multiple kernels where work is subdivided among kernels. Allows passing arugments to kernels.
    */
   template <typename A>
-  bool RunMany(unsigned int _dimension, const unsigned int& _work_offset, const unsigned int& _work_size, A a) {
+  bool RunMany(unsigned int _dimension, const ARRAY_REF(unsigned int, _global_work_offset),
+               const ARRAY_REF(unsigned int, _global_work_size), const ARRAY_REF(unsigned int, _local_work_size), A a) {
     SetArg(0, a);
-    return RunMany(_dimension, _work_offset, _work_size);
+    return RunMany(_dimension, _global_work_offset, _global_work_size, _local_work_size);
   }
 
   /**
    * Executes multiple kernels where work is subdivided among kernels. Allows passing arugments to kernels.
    */
   template <typename A, typename B>
-  bool RunMany(unsigned int _dimension, const unsigned int& _work_offset, const unsigned int& _work_size, A a, B b) {
+  bool RunMany(unsigned int _dimension, const ARRAY_REF(unsigned int, _global_work_offset),
+               const ARRAY_REF(unsigned int, _global_work_size), const ARRAY_REF(unsigned int, _local_work_size), A a,
+               B b) {
     SetArg(0, a);
     SetArg(1, b);
-    return RunMany(_dimension, _work_offset, _work_size);
+    return RunMany(_dimension, _global_work_offset, _global_work_size, _local_work_size);
   }
 
   /**
    * Executes multiple kernels where work is subdivided among kernels. Allows passing arugments to kernels.
    */
   template <typename A, typename B, typename C>
-  bool RunMany(unsigned int _dimension, const unsigned int& _work_offset, const unsigned int& _work_size, A a, B b,
-               C c) {
+  bool RunMany(unsigned int _dimension, const ARRAY_REF(unsigned int, _global_work_offset),
+               const ARRAY_REF(unsigned int, _global_work_size), const ARRAY_REF(unsigned int, _local_work_size), A a,
+               B b, C c) {
     SetArg(0, a);
     SetArg(1, b);
     SetArg(2, c);
-    return RunMany(_dimension, _work_offset, _work_size);
+    return RunMany(_dimension, _global_work_offset, _global_work_size, _local_work_size);
   }
 
   /**
    * Executes multiple kernels where work is subdivided among kernels. Allows passing arugments to kernels.
    */
   template <typename A, typename B, typename C, typename D>
-  bool RunMany(unsigned int _dimension, const unsigned int& _work_offset, const unsigned int& _work_size, A a, B b, C c,
-               D d) {
+  bool RunMany(unsigned int _dimension, const ARRAY_REF(unsigned int, _global_work_offset),
+               const ARRAY_REF(unsigned int, _global_work_size), const ARRAY_REF(unsigned int, _local_work_size), A a,
+               B b, C c, D d) {
     SetArg(0, a);
     SetArg(1, b);
     SetArg(2, c);
     SetArg(3, d);
-    return RunMany(_dimension, _work_offset, _work_size);
+    return RunMany(_dimension, _global_work_offset, _global_work_size, _local_work_size);
   }
 
   /**
    * Executes multiple kernels where work is subdivided among kernels. Allows passing arugments to kernels.
    */
   template <typename A, typename B, typename C, typename D, typename E>
-  bool RunMany(unsigned int _dimension, const unsigned int& _work_offset, const unsigned int& _work_size, A a, B b, C c,
-               D d, E e) {
+  bool RunMany(unsigned int _dimension, const ARRAY_REF(unsigned int, _global_work_offset),
+               const ARRAY_REF(unsigned int, _global_work_size), const ARRAY_REF(unsigned int, _local_work_size), A a,
+               B b, C c, D d, E e) {
     SetArg(0, a);
     SetArg(1, b);
     SetArg(2, c);
     SetArg(3, d);
     SetArg(4, e);
-    return RunMany(_dimension, _work_offset, _work_size);
+    return RunMany(_dimension, _global_work_offset, _global_work_size, _local_work_size);
   }
 
   /**
    * Executes multiple kernels where work is subdivided among kernels. Allows passing arugments to kernels.
    */
   template <typename A, typename B, typename C, typename D, typename E, typename F>
-  bool RunMany(unsigned int _dimension, const unsigned int& _work_offset, const unsigned int& _work_size, A a, B b, C c,
-               D d, E e, F f) {
+  bool RunMany(unsigned int _dimension, const ARRAY_REF(unsigned int, _global_work_offset),
+               const ARRAY_REF(unsigned int, _global_work_size), const ARRAY_REF(unsigned int, _local_work_size), A a,
+               B b, C c, D d, E e, F f) {
     SetArg(0, a);
     SetArg(1, b);
     SetArg(2, c);
     SetArg(3, d);
     SetArg(4, e);
     SetArg(5, f);
-    return RunMany(_dimension, _work_offset, _work_size);
+    return RunMany(_dimension, _global_work_offset, _global_work_size, _local_work_size);
   }
 
   /**
    * Executes multiple kernels where work is subdivided among kernels. Allows passing arugments to kernels.
    */
   template <typename A, typename B, typename C, typename D, typename E, typename F, typename G>
-  bool RunMany(unsigned int _dimension, const unsigned int& _work_offset, const unsigned int& _work_size, A a, B b, C c,
-               D d, E e, F f, G g) {
+  bool RunMany(unsigned int _dimension, const ARRAY_REF(unsigned int, _global_work_offset),
+               const ARRAY_REF(unsigned int, _global_work_size), const ARRAY_REF(unsigned int, _local_work_size), A a,
+               B b, C c, D d, E e, F f, G g) {
     SetArg(0, a);
     SetArg(1, b);
     SetArg(2, c);
@@ -369,15 +390,16 @@ class OpenCLProgram : public Dynamic {
     SetArg(4, e);
     SetArg(5, f);
     SetArg(6, g);
-    return RunMany(_dimension, _work_offset, _work_size);
+    return RunMany(_dimension, _global_work_offset, _global_work_size, _local_work_size);
   }
 
   /**
    * Executes multiple kernels where work is subdivided among kernels. Allows passing arugments to kernels.
    */
   template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H>
-  bool RunMany(unsigned int _dimension, const unsigned int& _work_offset, const unsigned int& _work_size, A a, B b, C c,
-               D d, E e, F f, G g, H h) {
+  bool RunMany(unsigned int _dimension, const ARRAY_REF(unsigned int, _global_work_offset),
+               const ARRAY_REF(unsigned int, _global_work_size), const ARRAY_REF(unsigned int, _local_work_size), A a,
+               B b, C c, D d, E e, F f, G g, H h) {
     SetArg(0, a);
     SetArg(1, b);
     SetArg(2, c);
@@ -386,7 +408,7 @@ class OpenCLProgram : public Dynamic {
     SetArg(5, f);
     SetArg(6, g);
     SetArg(7, h);
-    return RunMany(_dimension, _work_offset, _work_size);
+    return RunMany(_dimension, _global_work_offset, _global_work_size, _local_work_size);
   }
 
   /**
@@ -431,7 +453,7 @@ class OpenCL {
   // OpenCL handles.
   static int context_handle;
 
-  // OpenCL global memory handles.
+  // OpenCL memory handles.
   static int cl_mem_0, cl_mem_1, cl_mem_2;
 
   DictStruct<int, Ref<OpenCLProgram>> programs;
@@ -457,7 +479,7 @@ class OpenCL {
   /**
    * Allocates memory to be later passed to OpenCLProgram.
    */
-  static OpenCLBuffer* Alloc(int _size, bool _is_global = true) { return new OpenCLBuffer(_size, _is_global); }
+  static OpenCLBuffer* Alloc(int _size) { return new OpenCLBuffer(_size); }
 
   /**
    * Compiles given program and returns its id or -1 in case of error.
@@ -511,13 +533,12 @@ OpenCLLifetimeManager __opencl_lifetime_manager;
 /**
  * OpenCLBuffer constructor.
  */
-OpenCLBuffer::OpenCLBuffer(int _size, bool _is_global, unsigned int _flags) {
+OpenCLBuffer::OpenCLBuffer(int _size, unsigned int _flags) {
   buffer_handle = CLBufferCreate(OpenCL::GetContextHandle(), _size * sizeof(double), _flags);
   if (buffer_handle == INVALID_HANDLE) {
     Alert("Could not create OpenCL buffer. Error code: ", GetLastError(), ".");
     DebugBreak();
   }
   buffer_size = _size;
-  is_global = _is_global;
   version = 0;
 }
