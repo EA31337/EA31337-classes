@@ -5,10 +5,10 @@
 	"customizations": {
         "vscode": {
             "extensions": [
-				"L-I-V.mql-tools",
 				"ms-vscode.cpptools",
 				"vscodevim.vim",
-				"DavidAnson.vscode-markdownlint"
+				"DavidAnson.vscode-markdownlint",
+				"EA31337.vscode-mql-tools"
 			],
         }
     },
