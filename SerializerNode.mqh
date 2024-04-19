@@ -279,15 +279,15 @@ class SerializerNode {
   /**
    * Returns pointer to the child node at given index or NULL.
    */
-  SerializerNode* GetChild(unsigned int index) { return index >= _numChildren ? NULL : _children[index]; }
+  SerializerNode* GetChild(unsigned int _idx) { return _idx >= _numChildren ? NULL : _children[_idx]; }
 
   /**
    * Removes child with given index.
    */
-  void RemoveChild(unsigned int index) {
-    delete _children[index];
+  void RemoveChild(unsigned int _idx) {
+    delete _children[_idx];
 
-    for (unsigned int i = ArraySize(_children) - 2; i >= index; --i) {
+    for (unsigned int i = ArraySize(_children) - 2; i >= _idx; --i) {
       _children[i] = _children[i + 1];
     }
   }

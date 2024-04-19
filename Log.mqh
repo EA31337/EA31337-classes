@@ -308,10 +308,10 @@ class Log : public Object {
   }
 
   bool DeleteByTimestamp(datetime timestamp) {
-    int size = ArraySize(data);
-    if (size > 0) {
+    int _size = ArraySize(data);
+    if (_size > 0) {
       int offset = 0;
-      for (int i = 0; i < size; i++) {
+      for (int i = 0; i < _size; i++) {
         if (data[i].timestamp == timestamp) {
           Erase(data, i);
           return true;

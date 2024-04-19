@@ -46,6 +46,9 @@ class Draw;
 bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
   return Draw::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1);
 }
+bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1, datetime _t2, double _p2) {
+  return Draw::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1, _t2, _p2);
+}
 bool ObjectDelete(string _name) { return Draw::ObjectDelete(_name); }
 bool ObjectSet(string _name, int _prop_id, double _value) { return Draw::ObjectSet(_name, _prop_id, _value); }
 int ObjectsTotal(int _type = EMPTY) { return Draw::ObjectsTotal(); }
@@ -126,14 +129,14 @@ class Draw : public Chart {
    * @return
    * If successful, returns true, otherwise false.
    */
-  static bool SetIndexLabel(int index, string text) {
+  static bool SetIndexLabel(int _idx, string text) {
 #ifdef __MQL4__
     // https://docs.mql4.com/customind/setindexlabel
-    ::SetIndexLabel(index, text);
+    ::SetIndexLabel(_idx, text);
     return true;
 #else
     // https://www.mql5.com/en/docs/customind/plotindexsetstring
-    return PlotIndexSetString(index, PLOT_LABEL, text);
+    return PlotIndexSetString(_idx, PLOT_LABEL, text);
 #endif
   }
 
@@ -141,19 +144,19 @@ class Draw : public Chart {
    * Sets the new type, style, width and color for a given indicator line.
    *
    */
-  static void SetIndexStyle(int index, int type, int style = EMPTY, int width = EMPTY, color clr = CLR_NONE) {
+  static void SetIndexStyle(int _idx, int type, int style = EMPTY, int width = EMPTY, color clr = CLR_NONE) {
 #ifdef __MQL4__
     // https://docs.mql4.com/customind/setindexstyle
-    ::SetIndexStyle(index, type, style, width, clr);
+    ::SetIndexStyle(_idx, type, style, width, clr);
 #else
     if (width != EMPTY) {
-      PlotIndexSetInteger(index, PLOT_LINE_WIDTH, width);
+      PlotIndexSetInteger(_idx, PLOT_LINE_WIDTH, width);
     }
     if (clr != CLR_NONE) {
-      PlotIndexSetInteger(index, PLOT_LINE_COLOR, clr);
+      PlotIndexSetInteger(_idx, PLOT_LINE_COLOR, clr);
     }
-    PlotIndexSetInteger(index, PLOT_DRAW_TYPE, type);
-    PlotIndexSetInteger(index, PLOT_LINE_STYLE, style);
+    PlotIndexSetInteger(_idx, PLOT_DRAW_TYPE, type);
+    PlotIndexSetInteger(_idx, PLOT_LINE_STYLE, style);
 #endif
   }
 
@@ -299,9 +302,9 @@ class Draw : public Chart {
   /**
    * Draw a line given the price.
    */
-  void ShowLine(string oname, double price, int colour = Yellow) {
+  void ShowLine(string oname, double price, int _colour = Yellow) {
     Draw::ObjectCreate(chart_id, oname, OBJ_HLINE, 0, GetBarTime(), price);
-    Draw::ObjectSet(oname, OBJPROP_COLOR, colour);
+    Draw::ObjectSet(oname, OBJPROP_COLOR, _colour);
     Draw::ObjectMove(oname, 0, GetBarTime(), price);
   }
 
