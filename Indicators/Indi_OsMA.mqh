@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -58,13 +58,14 @@ struct IndiOsMAParams : IndicatorParams {
 /**
  * Implements the Moving Average of Oscillator indicator.
  */
-class Indi_OsMA : public Indicator<IndiOsMAParams> {
+class Indi_OsMA : public IndicatorTickOrCandleSource<IndiOsMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_OsMA(IndiOsMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiOsMAParams>(_p, _indi_src) {}
-  Indi_OsMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_OSMA, _tf, _shift) {}
+  Indi_OsMA(IndiOsMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_OsMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_OSMA, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -111,7 +112,7 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     double _value = EMPTY_VALUE;
     switch (iparams.idstype) {

@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -86,14 +86,14 @@ struct IndiIchimokuParams : IndicatorParams {
 /**
  * Implements the Ichimoku Kinko Hyo indicator.
  */
-class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
+class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiIchimokuParams>(_p, _indi_src) {}
-  Indi_Ichimoku(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ICHIMOKU, _tf, _shift) {}
+  Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Ichimoku(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_ICHIMOKU, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -142,7 +142,7 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -163,7 +163,7 @@ class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = -1) {
+  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
     Indicator<IndiIchimokuParams>::GetEntryAlter(_entry);
 #ifdef __MQL4__
     // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),

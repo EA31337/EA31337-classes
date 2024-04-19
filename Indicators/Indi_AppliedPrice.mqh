@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "OHLC/Indi_OHLC.mqh"
 
 // Structs.
@@ -44,7 +44,7 @@ struct IndiAppliedPriceParams : IndicatorParams {
 /**
  * Implements the "Applied Price over OHCL Indicator" indicator, e.g. over Indi_Price.
  */
-class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
+class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPriceParams> {
  protected:
   void OnInit() {
     if (!indi_src.IsSet()) {
@@ -58,10 +58,11 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
    * Class constructor.
    */
   Indi_AppliedPrice(IndiAppliedPriceParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiAppliedPriceParams>(_p, _indi_src) {
+      : IndicatorTickOrCandleSource(_p, _indi_src) {
     OnInit();
   };
-  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PRICE, _tf, _shift) {
+  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_PRICE, _tf, _shift) {
     OnInit();
   };
 
@@ -74,7 +75,7 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

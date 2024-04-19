@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Enums.
@@ -58,13 +58,14 @@ enum EnSearchMode {
 /**
  * Implements ZigZag indicator.
  */
-class Indi_ZigZag : public Indicator<IndiZigZagParams> {
+class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ZigZag(IndiZigZagParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiZigZagParams>(_p, _indi_src) {}
-  Indi_ZigZag(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_ZIGZAG, _tf, _shift) {}
+  Indi_ZigZag(IndiZigZagParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_ZigZag(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_ZIGZAG, _tf, _shift) {}
 
   /**
    * Returns value for ZigZag indicator.
@@ -133,6 +134,18 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
                                                     _deviation, _backstep));
 
     return _cache.GetTailValue<double>(_mode, _shift);
+  }
+
+  /**
+   * On-indicator version of ZigZag indicator.
+   */
+  static double iZigZagOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _depth,
+                                   int _deviation, int _backstep, int _mode = 0, int _shift = 0,
+                                   IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_ZigZag_ON_" + _indi.GetFullName(), _depth, _deviation, _backstep));
+    return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
+                          _cache);
   }
 
   /**
@@ -334,17 +347,22 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
-        _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(),
+        _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/,
                                       (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = Indi_ZigZag::iCustomZigZag(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), GetDepth(),
-                                            GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
+        _value =
+            Indi_ZigZag::iCustomZigZag(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetDepth(),
+                                       GetDeviation(), GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_ZigZag::iZigZagOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetDepth(),
+                                                 GetDeviation(), GetBackstep() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

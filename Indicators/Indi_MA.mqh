@@ -27,7 +27,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickSource.h"
 #include "../Refs.mqh"
 #include "../Storage/Singleton.h"
 #include "../Storage/ValueStorage.h"
@@ -74,13 +74,13 @@ struct IndiMAParams : IndicatorParams {
 /**
  * Implements the Moving Average indicator.
  */
-class Indi_MA : public Indicator<IndiMAParams> {
+class Indi_MA : public IndicatorTickSource<IndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMAParams>(_p, _indi_src) {}
-  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MA, _tf, _shift) {}
+  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
+  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_MA, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -712,7 +712,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -746,6 +746,35 @@ class Indi_MA : public Indicator<IndiMAParams> {
       _ptr.SetSymbol(_symbol);
     }
     return _ptr;
+  }
+
+  /**
+   * Returns value storage of given kind.
+   */
+  IValueStorage *GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+    switch (_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+      case INDI_VS_TYPE_PRICE_BID:
+        // We're returning the same buffer for ask and bid price, as target indicator probably won't bother.
+        return GetValueStorage(0);
+      default:
+        // Trying in parent class.
+        return Indicator<IndiMAParams>::GetSpecificValueStorage(_type);
+    }
+  }
+
+  /**
+   * Checks whether indicator support given value storage type.
+   */
+  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+    switch (_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+      case INDI_VS_TYPE_PRICE_BID:
+        return true;
+      default:
+        // Trying in parent class.
+        return Indicator<IndiMAParams>::HasSpecificValueStorage(_type);
+    }
   }
 
   /* Getters */

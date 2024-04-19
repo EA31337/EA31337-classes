@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 // Structs.
 struct IndiPriceFeederParams : IndicatorParams {
@@ -53,17 +53,18 @@ struct IndiPriceFeederParams : IndicatorParams {
 /**
  * Price Indicator.
  */
-class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
+class Indi_PriceFeeder : public IndicatorTickOrCandleSource<IndiPriceFeederParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_PriceFeeder(IndiPriceFeederParams& _p, IndicatorBase* _indi_src = NULL)
-      : Indicator<IndiPriceFeederParams>(_p, _indi_src){};
-  Indi_PriceFeeder(const double& _price_data[], int _total = 0) : Indicator(INDI_PRICE_FEEDER) {
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_PriceFeeder(const double& _price_data[], int _total = 0) : IndicatorTickOrCandleSource(INDI_PRICE_FEEDER) {
     ArrayCopy(iparams.price_data, _price_data);
   };
-  Indi_PriceFeeder(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_PRICE_FEEDER, _tf, _shift) {}
+  Indi_PriceFeeder(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_PRICE_FEEDER, _tf, _shift) {}
 
   void SetPrices(const double& _price_data[], int _total = 0) { iparams = IndiPriceFeederParams(_price_data, _total); }
 
@@ -75,7 +76,7 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     int data_size = ArraySize(iparams.price_data);
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
 
