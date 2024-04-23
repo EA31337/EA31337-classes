@@ -1,6 +1,9 @@
 ---
 name: Compile
 
+env:
+  ARTIFACT_PREFIX: ${{ inputs.artifact_prefix || 'mt' }}
+
 # yamllint disable-line rule:truthy
 on:
   pull_request:
@@ -9,6 +12,18 @@ on:
   push:
     paths-ignore:
       - '**.md'
+  workflow_call:
+    inputs:
+      artifact_prefix:
+        default: mt
+        description: Artifact prefix.
+        required: false
+        type: string
+      skip_cleanup:
+        default: false
+        description: Whether to skip a clean-up job.
+        required: false
+        type: boolean
 
 jobs:
 
@@ -16,14 +31,16 @@ jobs:
     name: Installs platform (4)
     uses: EA31337/EA-Tester/.github/workflows/platform-linux.yml@dev
     with:
-      artifact_name: mt4
+      artifact_name: ${{ inputs.artifact_prefix || 'mt' }}4
+      artifact_overwrite: true
       skip_cleanup: true
       version: 4
   mt5:
     name: Installs platform (5)
     uses: EA31337/EA-Tester/.github/workflows/platform-linux.yml@dev
     with:
-      artifact_name: mt5
+      artifact_name: ${{ inputs.artifact_prefix || 'mt' }}5
+      artifact_overwrite: true
       skip_cleanup: true
       version: 5
 
@@ -50,3 +67,13 @@ jobs:
     strategy:
       matrix:
         version: [4, 5]
+
+  cleanup:
+    if: inputs.skip_cleanup != true
+    name: Clean-up
+    needs: [compile-indicators]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: geekyeggo/delete-artifact@v5
+        with:
+          name: ${{ env.ARTIFACT_PREFIX }}*
