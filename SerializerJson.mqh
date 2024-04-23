@@ -337,9 +337,9 @@ class SerializerJson {
     return root;
   }
 
-  static SerializerNode* GracefulReturn(string error, unsigned int index, SerializerNode* root,
+  static SerializerNode* GracefulReturn(string error, unsigned int _idx, SerializerNode* root,
                                         SerializerNodeParam* key) {
-    Print(error + " at index ", index);
+    Print(error + " at index ", _idx);
 
     if (root != NULL) delete root;
 
@@ -348,11 +348,11 @@ class SerializerJson {
     return NULL;
   }
 
-  static bool ExtractNumber(string& data, unsigned int index, string& number) {
+  static bool ExtractNumber(string& data, unsigned int _idx, string& number) {
     string str;
 
-    for (unsigned int i = index; i < (unsigned int)StringLen(data); ++i) {
-#ifndef __MQL4__
+    for (unsigned int i = _idx; i < (unsigned int)StringLen(data); ++i) {
+#ifdef __MQL5__
       unsigned short ch = StringGetCharacter(data, i);
 #else
       unsigned short ch = StringGetChar(data, i);
@@ -361,7 +361,7 @@ class SerializerJson {
       if (ch >= '0' && ch <= '9') {
         str += ShortToString(ch);
       } else if (ch == '.') {
-        if (i == index) {
+        if (i == _idx) {
           return false;
         }
         str += ShortToString(ch);
@@ -375,12 +375,12 @@ class SerializerJson {
     return true;
   }
 
-  static string ExtractString(string& data, unsigned int index) {
-    for (unsigned int i = index; i < (unsigned int)StringLen(data); ++i) {
+  static string ExtractString(string& data, unsigned int _idx) {
+    for (unsigned int i = _idx; i < (unsigned int)StringLen(data); ++i) {
       unsigned short ch = StringGetCharacter(data, i);
 
       if (ch == '"') {
-        return StringSubstr(data, index, i - index);
+        return StringSubstr(data, _idx, i - _idx);
       }
     }
 

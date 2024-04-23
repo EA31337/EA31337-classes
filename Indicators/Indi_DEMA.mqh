@@ -183,7 +183,6 @@ class Indi_DEMA : public IndicatorTickOrCandleSource<IndiDEIndiMAParams> {
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // We're getting DEMA from Price indicator.
-
         _value = Indi_DEMA::iDEMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/,
                                   _ishift, _mode, THIS_PTR);
         break;

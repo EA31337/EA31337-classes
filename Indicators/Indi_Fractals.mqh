@@ -123,7 +123,7 @@ class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), (ENUM_LO_UP_LINE)_mode, _ishift, THIS_PTR);
+        _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), (ENUM_LO_UP_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
