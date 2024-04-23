@@ -19,8 +19,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <EA31337-classes/Test.mqh>
-#include <EA31337-classes/Trade/TradeSignal.struct.h>
+// Includes.
+#include "../../Test.mqh"
+#include "../TradeSignal.struct.h"
 
 int testEnum(){
   uint s;
@@ -62,7 +63,7 @@ int testEnum(){
   s = 0                                | 0                                  | SIGNAL_OPEN_TIME_FILTER  ; assertTrueOrFail(TRADE_SIGNAL_IS_OPEN_SELL(s)==false,"Fail!");
   s = 0                                | SIGNAL_OPEN_SELL_FILTER            | SIGNAL_OPEN_TIME_FILTER  ; assertTrueOrFail(TRADE_SIGNAL_IS_OPEN_SELL(s)==false,"Fail!");
   return INIT_SUCCEEDED;
-} 
+}
 
 /**
  * Implements OnInit().
