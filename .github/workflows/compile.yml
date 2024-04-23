@@ -17,12 +17,14 @@ jobs:
     uses: EA31337/EA-Tester/.github/workflows/platform-linux.yml@dev
     with:
       artifact_name: mt4
+      skip_cleanup: true
       version: 4
   mt5:
     name: Installs platform (5)
     uses: EA31337/EA-Tester/.github/workflows/platform-linux.yml@dev
     with:
       artifact_name: mt5
+      skip_cleanup: true
       version: 5
 
   compile:
