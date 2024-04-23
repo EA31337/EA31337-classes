@@ -59,6 +59,8 @@ jobs:
         with:
           init-platform: true
           mt-path: .mt${{ matrix.version }}
+          path-ignore: .mt${{ matrix.version }}
+          path: '**/*.mq${{ matrix.version }}'
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
