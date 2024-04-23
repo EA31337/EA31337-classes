@@ -44,6 +44,7 @@
 #include "Std.h"
 #include "String.mqh"
 #include "SymbolInfo.mqh"
+#include "Terminal.define.h"
 
 /* Defines for backward compatibility. */
 
