@@ -182,11 +182,11 @@
 
 #ifndef __MQL5__
 #define ERR_USER_ARRAY_IS_EMPTY 1
+#endif
+#define ERR_USER_INVALID_ARG 2
 #define ERR_USER_INVALID_BUFF_NUM 3
 #define ERR_USER_INVALID_HANDLE 4
 #define ERR_USER_ITEM_NOT_FOUND 5
-#endif
-#define ERR_USER_INVALID_ARG 2
 #define ERR_USER_NOT_SUPPORTED 6
 #define ERR_USER_ERROR_FIRST 65536  // User defined errors start with this code.
 
