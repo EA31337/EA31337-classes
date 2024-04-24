@@ -3,6 +3,8 @@ name: Compile
 
 env:
   ARTIFACT_PREFIX: ${{ inputs.artifact_prefix || 'mt' }}
+  COMPILE_PATH: ${{ inputs.path || '*' }}
+  SKIP_INIT: ${{ inputs.skip_init || false }}
 
 # yamllint disable-line rule:truthy
 on:
@@ -19,9 +21,19 @@ on:
         description: Artifact prefix.
         required: false
         type: string
+      path:
+        default: '*'
+        description: Path to compile.
+        required: false
+        type: string
       skip_cleanup:
         default: false
-        description: Whether to skip a clean-up job.
+        description: Skips a clean-up job.
+        required: false
+        type: boolean
+      skip_init:
+        default: true
+        description: Skips initialization of the platform.
         required: false
         type: boolean
 
@@ -57,10 +69,10 @@ jobs:
       - name: Compile
         uses: fx31337/mql-compile-action@master
         with:
-          init-platform: true
+          init-platform: ${{ ! env.SKIP_INIT }}
           mt-path: .mt${{ matrix.version }}
           path-ignore: .mt${{ matrix.version }}
-          path: '**/*.mq${{ matrix.version }}'
+          path: '${{ env.COMPILE_PATH }}/**/*.mq${{ matrix.version }}'
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
@@ -79,8 +91,4 @@ jobs:
     if: inputs.skip_cleanup != true
     name: Clean-up
     needs: [compile]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: geekyeggo/delete-artifact@v5
-        with:
-          name: ${{ env.ARTIFACT_PREFIX }}*
+    uses: ./.github/workflows/cleanup.yml

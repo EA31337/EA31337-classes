@@ -254,7 +254,7 @@ class IndicatorBase : public Chart {
   }
 
   /**
-   * Sets an indicator's state property value.
+   * Sets indicator data source.
    */
   template <typename T>
   void Set(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop, T _value) {

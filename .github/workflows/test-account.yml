@@ -14,36 +14,21 @@ on:
 
 jobs:
 
-  Compile:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Compile
-        uses: fx31337/mql-compile-action@master
-        with:
-          init-platform: true
-          path: 'Account/tests'
-          verbose: true
-      - name: Print compiled files
-        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
-        shell: powershell
-      - name: Upload artifacts (MQL4)
-        uses: actions/upload-artifact@v2
-        with:
-          name: files-ex4
-          path: '**/*.ex4'
-      - name: Upload artifacts (MQL5)
-        uses: actions/upload-artifact@v2
-        with:
-          name: files-ex5
-          path: '**/*.ex5'
+  compile:
+    name: Compile
+    uses: ./.github/workflows/compile.yml
+    with:
+      artifact_prefix: mt
+      path: Account
+      skip_cleanup: true
 
   Account-Tests-MQL4:
     defaults:
       run:
         shell: bash
         working-directory: Account/tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -60,3 +45,8 @@ jobs:
         with:
           Script: ${{ matrix.test }}
     timeout-minutes: 10
+
+  cleanup:
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml

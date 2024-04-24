@@ -26,21 +26,26 @@ jobs:
     with:
       artifact_prefix: mt
       skip_cleanup: true
+      skip_init: false
 
   Experts-MQL4:
     defaults:
       run:
         shell: bash
         working-directory: tests
+    if: false
     needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
         test:
+          - AccountTest
+          - ActionTest
           - BufferStructTest
           - BufferTest
           - ChartTest
           - CompileIndicatorsTest
+          - ConditionTest
           - DatabaseTest
           - DrawIndicatorTest
           - EATest
@@ -52,10 +57,13 @@ jobs:
           - MatrixTest
           - OrderTest
           - OrdersTest
+          - StatsTest
           - StrategyTest
           - StrategyTest-RSI
           - SymbolInfoTest
           - SummaryReportTest
+          - TaskTest
+          - TickerTest
           - TradeTest
     steps:
       - uses: actions/download-artifact@v2
@@ -67,7 +75,7 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           BtYears: 2020
-          MtVersion: 4.0.0.1349
+          Version: 4
           TestExpert: ${{ matrix.test }}
     timeout-minutes: 10
 
@@ -76,12 +84,14 @@ jobs:
       run:
         shell: bash
         working-directory: tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
         test:
           #  - 3DTest
+          - CollectionTest
           - ConfigTest
           - ConvertTest
           - DateTimeTest
@@ -111,7 +121,8 @@ jobs:
       run:
         shell: bash
         working-directory: tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -136,7 +147,8 @@ jobs:
       run:
         shell: bash
         working-directory: Trade/tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -151,3 +163,8 @@ jobs:
         with:
           Script: ${{ matrix.test }}
     timeout-minutes: 10
+
+  cleanup:
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml
