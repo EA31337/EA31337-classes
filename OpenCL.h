@@ -61,6 +61,7 @@ class OpenCLBuffer : public Dynamic {
       DebugBreak();
       return;
     }
+    ArrayResize(_arr, buffer_size);
     CLBufferRead(buffer_handle, _arr);
   }
 
@@ -147,6 +148,7 @@ class OpenCLProgram : public Dynamic {
    * your version isn't greater that the one already set in the buffer.
    */
   void SetArg(int _index, double value) { CLSetKernelArg(kernel_handle, _index, value); }
+  void SetArg(int _index, int value) { CLSetKernelArg(kernel_handle, _index, value); }
 
   /**
    * Passes argument to the kernel. Will not set kernel argument if not needed.
@@ -479,7 +481,7 @@ class OpenCL {
   /**
    * Allocates memory to be later passed to OpenCLProgram.
    */
-  static OpenCLBuffer* Alloc(int _size) { return new OpenCLBuffer(_size); }
+  static OpenCLBuffer* Alloc(int _size, unsigned int _flags) { return new OpenCLBuffer(_size, _flags); }
 
   /**
    * Compiles given program and returns its id or -1 in case of error.

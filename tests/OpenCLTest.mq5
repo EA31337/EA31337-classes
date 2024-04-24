@@ -40,7 +40,7 @@ int OnInit() {
 
   double result[] = {0};
 
-  Ref<OpenCLBuffer> buffer = OpenCL::Alloc(1 /* 1 double */);
+  Ref<OpenCLBuffer> buffer = OpenCL::Alloc(1 /* 1 double */, CL_MEM_READ_WRITE);
 
   if (!program REF_DEREF Run(buffer.Ptr())) {
     Alert("Error running program!");

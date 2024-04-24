@@ -35,6 +35,10 @@
 #include "Math.h"
 #include "OpenCL.h"
 
+#resource "Matrix.matmul.cl" as string CLSource_Matrix_MatMul
+#resource "Matrix.matmul.naive.cl" as string CLSource_Matrix_MatMul_Naive
+#resource "Matrix.matmul.test.cl" as string CLSource_Matrix_MatMul_Test
+
 #define MATRIX_DIMENSIONS 6
 #define MATRIX_VALUES_ARRAY_INCREMENT 500
 
@@ -746,9 +750,9 @@ class MatrixOpenCLBuffer : public Dynamic {
   /**
    * Constructor.
    */
-  MatrixOpenCLBuffer(int _size) {
+  MatrixOpenCLBuffer(int _size, unsigned int _flags) {
     version = 0;
-    buffer = OpenCL::Alloc(_size);
+    buffer = OpenCL::Alloc(_size, _flags);
     ArrayResize(data, _size);
   }
 
@@ -871,18 +875,7 @@ class Matrix {
       return;
     }
 
-    cl_program_matmul = OpenCL::Compile(
-        "#pragma OPENCL EXTENSION cl_khr_fp64 : enable" NL "__kernel void matmul(" NL "	const int Mdim," NL
-        "	const int Ndim," NL "	const int Pdim," NL "	__global double* A," NL "	__global double* B," NL
-        "	__global double* C," NL "	__local double* Bwrk" NL ")" NL "{" NL "	int k, j;" NL
-        "	int i = get_global_id(0);" NL "	int iloc = get_local_id(0);" NL
-        "	int nloc = get_local_size(0);" NL "	double Awrk[1000];" NL "	double tmp;" NL "" NL
-        "	for (k = 0; k < Pdim; k++)" NL "		Awrk[k] = A[i * Ndim + k];" NL "" NL
-        "	for (j = 0; j < Mdim; j++)" NL "	{" NL "		for (k = iloc; k < Pdim; k = k + nloc)" NL
-        "			Bwrk[k] = B[k * Pdim + j];" NL "" NL "		barrier(CLK_LOCAL_MEM_FENCE);" NL "" NL
-        "		tmp = 0.0f;" NL "" NL "		for (k = 0; k < Pdim; k++)" NL
-        "			tmp += Awrk[k] * Bwrk[k];" NL "		C[i * Ndim + j] += tmp;" NL "	}" NL "}" NL,
-        "matmul");
+    cl_program_matmul = OpenCL::Compile(CLSource_Matrix_MatMul_Naive, "matmul");
 
     cl_program_matmul_single = OpenCL::Compile(
         "#pragma OPENCL EXTENSION cl_khr_fp64 : enable" NL "__kernel void matmul(" NL "const int Mdim," NL
@@ -904,7 +897,7 @@ class Matrix {
     _buffer = cl_buffers_in_0.GetByKey(_size, _buffer);
 
     if (!_buffer.IsSet()) {
-      _buffer = new MatrixOpenCLBuffer<X>(_size);
+      _buffer = new MatrixOpenCLBuffer<X>(_size, CL_MEM_READ_ONLY);
       cl_buffers_in_0.Set(_size, _buffer);
     }
 
@@ -920,7 +913,7 @@ class Matrix {
     _buffer = cl_buffers_in_1.GetByKey(_size, _buffer);
 
     if (!_buffer.IsSet()) {
-      _buffer = new MatrixOpenCLBuffer<X>(_size);
+      _buffer = new MatrixOpenCLBuffer<X>(_size, CL_MEM_READ_ONLY);
       cl_buffers_in_1.Set(_size, _buffer);
     }
 
@@ -936,7 +929,7 @@ class Matrix {
     _buffer = cl_buffers_out.GetByKey(_size, _buffer);
 
     if (!_buffer.IsSet()) {
-      _buffer = new MatrixOpenCLBuffer<X>(_size);
+      _buffer = new MatrixOpenCLBuffer<X>(_size, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR);
       cl_buffers_out.Set(_size, _buffer);
     }
 
@@ -1419,7 +1412,7 @@ class Matrix {
   static void MatMul(Matrix<X>& source, Matrix<X>& target, Matrix<X>& output) {
 #ifdef MATRIX_USE_OPENCL
     // MatMulCL(source, target, output);
-    MatMulCLSingle(source, target, output);
+    MatMulCL(source, target, output);
     return;
 #endif
 
@@ -1445,48 +1438,56 @@ class Matrix {
    * method.
    */
   static void MatMulCL(Matrix<X>& _source, Matrix<X>& _target, Matrix<X>& _output) {
-    if (_source.GetSize() != _target.GetRange(1)) {
+    if (_source.GetRange(1) != _target.GetRange(0)) {
       Alert("Inconsistent size of matrices!");
     }
 
-    unsigned int _m_dim = _source.GetRange(0);
-    unsigned int _n_dim = _source.GetRange(1);
-    unsigned int _p_dim = _target.GetRange(1);
+    unsigned int _rows_a = _source.GetRange(0);
+    unsigned int _cols_a = _source.GetRange(1);
+    unsigned int _cols_b = _target.GetRange(1);
 
-    OpenCLBuffer* _in_1 = GetCLBufferInArg0(_source.GetSize()) PTR_DEREF GetBuffer();
-    OpenCLBuffer* _in_2 = GetCLBufferInArg1(_target.GetSize()) PTR_DEREF GetBuffer();
-    OpenCLBuffer* _out = GetCLBufferOutArg(_source.GetRange(0)) PTR_DEREF GetBuffer();
+    OpenCLBuffer* _in_1 = GetCLBufferInArg0(_rows_a * _cols_a) PTR_DEREF GetBuffer();
+    OpenCLBuffer* _in_2 = GetCLBufferInArg1(_cols_a * _cols_b) PTR_DEREF GetBuffer();
+    OpenCLBuffer* _out = GetCLBufferOutArg(_rows_a * _cols_b) PTR_DEREF GetBuffer();
 
     double _in_1_data[];
     double _in_2_data[];
     double _out_data[];
 
+    // ArrayResize(_out_data, _out PTR_DEREF GetSizeItems());
+
     _source.GetRawArray(_in_1_data);
     _target.GetRawArray(_in_2_data);
 
-    cl_program_matmul REF_DEREF SetArg(0, _m_dim);
-    cl_program_matmul REF_DEREF SetArg(1, _n_dim);
-    cl_program_matmul REF_DEREF SetArg(2, _p_dim);
-    cl_program_matmul REF_DEREF SetArg(3, _in_1);
-    cl_program_matmul REF_DEREF SetArg(4, _in_2);
-    cl_program_matmul REF_DEREF SetArg(5, _out);
-    cl_program_matmul REF_DEREF SetArgLocalMem(6, _p_dim * sizeof(X));
+    _in_1 PTR_DEREF Write(_in_1_data);
+    _in_2 PTR_DEREF Write(_in_2_data);
+
+    cl_program_matmul REF_DEREF SetArg(0, _in_1);
+    cl_program_matmul REF_DEREF SetArg(1, _in_2);
+    cl_program_matmul REF_DEREF SetArg(2, _out);
+    cl_program_matmul REF_DEREF SetArg(3, (int)_rows_a);
+    cl_program_matmul REF_DEREF SetArg(4, (int)_cols_a);
+    cl_program_matmul REF_DEREF SetArg(5, (int)_cols_b);
+
     ARRAY(unsigned int, _global_work_offset);
     ARRAY(unsigned int, _global_work_size);
     ARRAY(unsigned int, _local_work_size);
+
     ArrayPush(_global_work_offset, 0U);
-    ArrayPush(_global_work_size, _n_dim);
-    ArrayPush(_global_work_size, _m_dim);
-    ArrayPush(_local_work_size, _m_dim);
+    ArrayPush(_global_work_offset, 0U);
+    ArrayPush(_global_work_size, (unsigned int)_rows_a);
+    ArrayPush(_global_work_size, (unsigned int)_cols_b);
+    ArrayPush(_local_work_size, 1U);
+    ArrayPush(_local_work_size, 1U);
 
     if (!cl_program_matmul REF_DEREF RunMany(2, _global_work_offset, _global_work_size, _local_work_size)) {
-      Alert("Errpr: Could not run Matrix::MatMulCL() over OpenCL!");
+      Alert("Error: Could not run Matrix::MatMulCL() over OpenCL!");
       DebugBreak();
     }
 
     _out PTR_DEREF Read(_out_data);
 
-    // _output.SetShape(num_outputs);
+    _output.SetShape(_rows_a, _cols_b);
   }
 
   /**
@@ -1498,13 +1499,13 @@ class Matrix {
       Alert("Inconsistent size of matrices!");
     }
 
-    unsigned int _m_dim = _source.GetRange(0);
-    unsigned int _n_dim = _source.GetRange(1);
-    unsigned int _p_dim = _target.GetRange(1);
+    unsigned int _cols_a = _source.GetRange(0);
+    unsigned int _rows_a = _source.GetRange(1);
+    unsigned int _cols_b = _target.GetRange(1);
 
-    OpenCLBuffer* _in_1 = GetCLBufferInArg0(_n_dim * _p_dim) PTR_DEREF GetBuffer();
-    OpenCLBuffer* _in_2 = GetCLBufferInArg1(_p_dim * _m_dim) PTR_DEREF GetBuffer();
-    OpenCLBuffer* _out = GetCLBufferOutArg(_m_dim * _p_dim) PTR_DEREF GetBuffer();
+    OpenCLBuffer* _in_1 = GetCLBufferInArg0(_rows_a * _cols_b) PTR_DEREF GetBuffer();
+    OpenCLBuffer* _in_2 = GetCLBufferInArg1(_cols_b * _cols_a) PTR_DEREF GetBuffer();
+    OpenCLBuffer* _out = GetCLBufferOutArg(_cols_a * _cols_b) PTR_DEREF GetBuffer();
 
     double _in_1_data[];
     double _in_2_data[];
@@ -1515,16 +1516,16 @@ class Matrix {
     _source.GetRawArray(_in_1_data);
     _target.GetRawArray(_in_2_data);
 
-    MatMulCL_CPU(_m_dim, _n_dim, _p_dim, _in_1_data, _in_2_data, _out_data);
+    MatMulCL_CPU(_cols_a, _rows_a, _cols_b, _in_1_data, _in_2_data, _out_data);
 
-    cl_program_matmul REF_DEREF SetArg(0, _n_dim);
-    cl_program_matmul REF_DEREF SetArg(1, _m_dim);
-    cl_program_matmul REF_DEREF SetArg(2, _p_dim);
+    cl_program_matmul REF_DEREF SetArg(0, (int)_rows_a);
+    cl_program_matmul REF_DEREF SetArg(1, (int)_cols_a);
+    cl_program_matmul REF_DEREF SetArg(2, (int)_cols_b);
     cl_program_matmul REF_DEREF SetArg(3, _in_1);
     cl_program_matmul REF_DEREF SetArg(4, _in_2);
     cl_program_matmul REF_DEREF SetArg(5, _out);
 
-    if (!cl_program_matmul_single REF_DEREF Run()) {
+    if (!cl_program_matmul REF_DEREF Run()) {
       Alert("Errpr: Could not run Matrix::MatMulCL() over OpenCL!");
       DebugBreak();
     }
