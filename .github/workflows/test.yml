@@ -26,6 +26,7 @@ jobs:
     with:
       artifact_prefix: mt
       skip_cleanup: true
+      skip_init: false
 
   Experts-MQL4:
     defaults:

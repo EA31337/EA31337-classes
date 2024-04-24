@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/compile.yml
     with:
       artifact_prefix: mt
+      path: Account
       skip_cleanup: true
 
   Account-Tests-MQL4:

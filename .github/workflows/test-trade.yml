@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/compile.yml
     with:
       artifact_prefix: mt
+      path: Trade
       skip_cleanup: true
 
   Trade-Tests-MQL4:

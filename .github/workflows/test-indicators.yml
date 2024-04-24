@@ -21,6 +21,7 @@ jobs:
     uses: ./.github/workflows/compile.yml
     with:
       artifact_prefix: mt
+      path: Indicators
       skip_cleanup: true
 
   Indicators-Tests-MQL4:
