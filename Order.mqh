@@ -44,6 +44,7 @@
 #include "String.mqh"
 #include "SymbolInfo.mqh"
 #include "Task/TaskAction.enum.h"
+#include "Terminal.define.h"
 
 /* Defines for backward compatibility. */
 
@@ -929,7 +930,7 @@ class Order : public SymbolInfo {
     _request.symbol = orequest.symbol;
     _request.type = NegateOrderType(orequest.type);
     _request.type_filling = GetOrderFilling(orequest.symbol);
-    _request.position = oresult.deal;
+    _request.position = odata.Get<ulong>(ORDER_PROP_TICKET);
     _request.price = SymbolInfo::GetCloseOffer(orequest.type);
     _request.volume = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);

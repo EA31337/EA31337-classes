@@ -309,8 +309,8 @@ class Convert {
     int i, j;
     len = StringLen(in);
     if (len % 4 != 0) len = len - len % 4;
-    int size = ArraySize(output);
-    if (size < len / 4) {
+    int _size = ArraySize(output);
+    if (_size < len / 4) {
       ArrayResize(output, len / 4);
     }
     for (i = 0, j = 0; j < len; i++, j += 4) {

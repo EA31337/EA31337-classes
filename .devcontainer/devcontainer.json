@@ -1,0 +1,26 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+{
+	// Configure tool-specific properties.
+	"customizations": {
+        "vscode": {
+            "extensions": [
+				"L-I-V.mql-tools",
+				"ms-vscode.cpptools",
+				"vscodevim.vim"
+			],
+        }
+    },
+    // Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/actionlint:1": {},
+		"ghcr.io/devcontainers-contrib/features/ansible:2": {},
+		"ghcr.io/guiyomh/features/vim:0": {},
+		"ghcr.io/jungaretti/features/make:1": {},
+		"ghcr.io/prulloac/devcontainer-features/pre-commit:1": {},
+		"ghcr.io/hspaans/devcontainer-features/ansible-lint:1": {}
+	},
+    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    "image": "mcr.microsoft.com/devcontainers/base:jammy",
+    "name": "EA31337"
+}

@@ -25,6 +25,9 @@
  * Includes Indicator's defines.
  */
 
+// Includes.
+#include "Terminal.define.h"
+
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
@@ -32,6 +35,7 @@
 
 // Defines macros.
 #define COMMA ,
+#define SEMICOLON ;
 #define DUMMY
 
 #define ICUSTOM_DEF(SET_HANDLE, PARAMS)                                        \

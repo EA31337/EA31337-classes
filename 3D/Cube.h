@@ -77,8 +77,8 @@ class Cube : public Mesh<T> {
    * Initializes graphics device-related things.
    */
   virtual void Initialize(Device* _device) {
-    SetShaderVS(_device.VertexShader(ShaderCubeSourceVS, T::Layout));
-    SetShaderPS(_device.PixelShader(ShaderCubeSourcePS));
+    SetShaderVS(_device.CreateVertexShader(ShaderCubeSourceVS, T::Layout));
+    SetShaderPS(_device.CreatePixelShader(ShaderCubeSourcePS));
   }
 #endif
 };
