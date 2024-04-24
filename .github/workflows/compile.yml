@@ -3,6 +3,7 @@ name: Compile
 
 env:
   ARTIFACT_PREFIX: ${{ inputs.artifact_prefix || 'mt' }}
+  COMPILE_PATH: ${{ inputs.path || '*' }}
   SKIP_INIT: ${{ inputs.skip_init || false }}
 
 # yamllint disable-line rule:truthy
@@ -71,7 +72,7 @@ jobs:
           init-platform: ${{ ! env.SKIP_INIT }}
           mt-path: .mt${{ matrix.version }}
           path-ignore: .mt${{ matrix.version }}
-          path: '${{ inputs.path }}/**/*.mq${{ matrix.version }}'
+          path: '${{ env.COMPILE_PATH }}/**/*.mq${{ matrix.version }}'
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
