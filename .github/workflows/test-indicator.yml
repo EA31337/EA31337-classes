@@ -50,3 +50,8 @@ jobs:
           BtYears: 2020
           TestExpert: ${{ matrix.test }}
     timeout-minutes: 10
+
+  cleanup:
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml
