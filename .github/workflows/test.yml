@@ -26,6 +26,7 @@ jobs:
     with:
       artifact_prefix: mt
       skip_cleanup: true
+      skip_init: false
 
   Experts-MQL4:
     defaults:
@@ -162,3 +163,8 @@ jobs:
         with:
           Script: ${{ matrix.test }}
     timeout-minutes: 10
+
+  cleanup:
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml

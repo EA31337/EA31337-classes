@@ -21,6 +21,7 @@ jobs:
     uses: ./.github/workflows/compile.yml
     with:
       artifact_prefix: mt
+      path: Indicators/Tick
       skip_cleanup: true
 
   Indicators-Tests-MQL4:
@@ -47,3 +48,8 @@ jobs:
           BtYears: 2020
           TestExpert: ${{ matrix.test }}
     timeout-minutes: 10
+
+  cleanup:
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml

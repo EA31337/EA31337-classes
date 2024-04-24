@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/compile.yml
     with:
       artifact_prefix: mt
+      path: Account
       skip_cleanup: true
 
   Account-Tests-MQL4:
@@ -43,3 +44,8 @@ jobs:
         with:
           Script: ${{ matrix.test }}
     timeout-minutes: 10
+
+  cleanup:
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml
