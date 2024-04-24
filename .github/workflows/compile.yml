@@ -65,16 +65,11 @@ jobs:
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
         shell: powershell
-      - name: Upload artifacts (MQL4)
+      - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: files-ex4
-          path: '**/*.ex4'
-      - name: Upload artifacts (MQL5)
-        uses: actions/upload-artifact@v2
-        with:
-          name: files-ex5
-          path: '**/*.ex5'
+          name: files-ex${{ matrix.version }}
+          path: '**/*.ex[45]'
 
     strategy:
       matrix:
