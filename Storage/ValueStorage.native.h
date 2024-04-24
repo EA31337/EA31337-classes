@@ -34,6 +34,7 @@ template <typename C>
 class NativeValueStorage : public ValueStorage<C> {
   // Dynamic native array.
   C _values[];
+  int _values_size;
 
  public:
   /**
@@ -49,7 +50,16 @@ class NativeValueStorage : public ValueStorage<C> {
   /**
    * Initializes array with given one.
    */
-  void SetData(ARRAY_REF(C, _arr)) { ArrayCopy(_values, _arr); }
+  void SetData(ARRAY_REF(C, _arr)) {
+    bool _was_series = ArrayGetAsSeries(_arr);
+    ArraySetAsSeries(_arr, false);
+    ArraySetAsSeries(_values, false);
+    ArrayResize(_values, 0);
+    ArrayCopy(_values, _arr);
+    _values_size = ArraySize(_arr);
+    ArraySetAsSeries(_arr, _was_series);
+    ArraySetAsSeries(_values, _was_series);
+  }
 
   /**
    * Initializes storage with given value.
@@ -60,7 +70,7 @@ class NativeValueStorage : public ValueStorage<C> {
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
   virtual C Fetch(int _shift) {
-    if (_shift < 0 || _shift >= ArraySize(_values)) {
+    if (_shift < 0 || _shift >= _values_size) {
       return (C)EMPTY_VALUE;
       // Print("Invalid buffer data index: ", _shift, ". Buffer size: ", ArraySize(_values));
       // DebugBreak();
@@ -77,7 +87,7 @@ class NativeValueStorage : public ValueStorage<C> {
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  virtual int Size() const { return ArraySize(_values); }
+  virtual int Size() const { return _values_size; }
 
   /**
    * Resizes storage to given size.

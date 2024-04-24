@@ -7,12 +7,27 @@
 #pragma once
 #endif
 
+#ifdef INDICATOR_LEGACY_VERSION_MT4
+#define INDICATOR_LEGACY_VERSION_DEFINED
+#endif
+
+#ifdef INDICATOR_LEGACY_VERSION_MT5
+#define INDICATOR_LEGACY_VERSION_DEFINED
+#endif
+
+#ifndef INDICATOR_LEGACY_VERSION_DEFINED
+#define INDICATOR_LEGACY_VERSION_MT5
+#define INDICATOR_LEGACY_VERSION_DEFINED
+#endif
+
 #ifdef __MQL4__
 
 #include <EA31337-classes/IndicatorBase.h>
 #include <EA31337-classes/Std.h>
 #include <EA31337-classes/Storage/ObjectsCache.h>
 #include <EA31337-classes/Util.h>
+
+#ifdef INDICATOR_LEGACY_VERSION_MT5
 
 /**
  * Replacement for future OnCalculate(). Currently not used, but could be handy in the future.
@@ -338,8 +353,30 @@ DEFINE_LEGACY_INDICATOR_2(iAD, iAD, string, symbol, int, period);
 // int iATR(string symbol, ENUM_TIMEFRAMES period, int ma_period);
 DEFINE_LEGACY_INDICATOR_3(iATR, iATR, string, symbol, int, period, int, ma_period);
 
+// int iRSI(string symbol, ENUM_TIMEFRAMES period, int ma_period, int applied_price);
+#define T1 string
+#define N1 symbol
+#define T2 int
+#define N2 period
+#define T3 int
+#define N3 ma_period
+#define T4 int
+#define N4 applied_price
+DEFINE_LEGACY_INDICATOR_4(iRSI, iRSI)
+#undef T1
+#undef N1
+#undef T2
+#undef N2
+#undef T3
+#undef N3
+#undef T4
+#undef N4
+#undef T5
+#undef N5
+#undef T6
+#undef N6
+
 // int iMA(string symbol, ENUM_TIMEFRAMES period, int ma_period, int ma_shift, ENUM_MA_METHOD ma_method,
-// ENUM_APPLIED_PRICE applied_price);
 #define T1 string
 #define N1 symbol
 #define T2 int
@@ -366,4 +403,82 @@ DEFINE_LEGACY_INDICATOR_6(iMA, iMA)
 #undef T6
 #undef N6
 
-#endif
+#endif  // INDICATOR_LEGACY_VERSION_MT5
+#endif  // __MQL4__
+
+#ifdef __MQL5__
+#ifdef INDICATOR_LEGACY_VERSION_MT4
+
+/**
+ * Replacement for future StringConcatenate().
+ */
+#define StringConcatenate StringConcatenateMT4
+
+/**
+ * MQL5 wrapper of MQL4's StringConcatenate().
+ */
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+          typename J, typename K, typename L, typename M>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i, J _j, K _k, L _l,
+                            M _m) {
+  return (string)_a + (string)_b + (string)_c + (string)_d + (string)_e + (string)_f + (string)_g + (string)_h +
+         (string)_i + (string)_j + (string)_k + (string)_l + (string)_m;
+}
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+          typename J, typename K, typename L>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i, J _j, K _k, L _l) {
+  return (string)_a + (string)_b + (string)_c + (string)_d + (string)_e + (string)_f + (string)_g + (string)_h +
+         (string)_i + (string)_j + (string)_k + (string)_l;
+}
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+          typename J, typename K>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i, J _j, K _k) {
+  return (string)_a + (string)_b + (string)_c + (string)_d + (string)_e + (string)_f + (string)_g + (string)_h +
+         (string)_i + (string)_j + (string)_k;
+}
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+          typename J>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i, J _j) {
+  return (string)_a + (string)_b + (string)_c + (string)_d + (string)_e + (string)_f + (string)_g + (string)_h +
+         (string)_i + (string)_j;
+}
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h, I _i) {
+  return (string)_a + (string)_b + (string)_c + (string)_d + (string)_e + (string)_f + (string)_g + (string)_h +
+         (string)_i;
+}
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c, D _d, E _e, F _f, G _g, H _h) {
+  return (string)_a + (string)_b + (string)_c + (string)_d + (string)_e + (string)_f + (string)_g + (string)_h;
+}
+template <typename A, typename B, typename C, typename D, typename E, typename F, typename G>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c, D _d, E _e, F _f, G _g) {
+  return (string)_a + (string)_b + (string)_c + (string)_d + (string)_e + (string)_f + (string)_g;
+}
+template <typename A, typename B, typename C, typename D, typename E, typename F>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c, D _d, E _e, F _f) {
+  return (string)_a + (string)_b + (string)_c + (string)_d + (string)_e + (string)_f;
+}
+template <typename A, typename B, typename C, typename D, typename E>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c, D _d, E _e) {
+  return (string)_a + (string)_b + (string)_c + (string)_d + (string)_e;
+}
+template <typename A, typename B, typename C, typename D>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c, D _d) {
+  return (string)_a + (string)_b + (string)_c + (string)_d;
+}
+template <typename A, typename B, typename C>
+string StringConcatenateMT4(string& _result, A _a, B _b, C _c) {
+  return (string)_a + (string)_b + (string)_c;
+}
+template <typename A, typename B>
+string StringConcatenateMT4(string& _result, A _a, B _b) {
+  return (string)_a + (string)_b;
+}
+template <typename A>
+string StringConcatenateMT4(string& _result, A _a) {
+  return (string)_a;
+}
+
+#endif  // INDICATOR_LEGACY_VERSION_MT4
+#endif  // __MQL5__
