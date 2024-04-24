@@ -69,7 +69,7 @@ jobs:
       - name: Compile
         uses: fx31337/mql-compile-action@master
         with:
-          init-platform: ${{ env.SKIP_INIT == false }}
+          init-platform: ${{ env.SKIP_INIT == 'false' }}
           mt-path: .mt${{ matrix.version }}
           path-ignore: .mt${{ matrix.version }}
           path: '${{ env.COMPILE_PATH }}/**/*.mq${{ matrix.version }}'
