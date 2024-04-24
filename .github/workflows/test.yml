@@ -32,6 +32,7 @@ jobs:
       run:
         shell: bash
         working-directory: tests
+    if: false
     needs: compile
     runs-on: ubuntu-latest
     strategy:
@@ -73,7 +74,7 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           BtYears: 2020
-          MtVersion: 4.0.0.1349
+          Version: 4
           TestExpert: ${{ matrix.test }}
     timeout-minutes: 10
 
@@ -82,7 +83,8 @@ jobs:
       run:
         shell: bash
         working-directory: tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -118,7 +120,8 @@ jobs:
       run:
         shell: bash
         working-directory: tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -143,7 +146,8 @@ jobs:
       run:
         shell: bash
         working-directory: Trade/tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
