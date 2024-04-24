@@ -109,13 +109,13 @@ class Condition {
       if (_entry.IsActive()) {
         switch (_entry.next_statement) {
           case COND_AND:
-            _curr_result = _prev_result && this.Test(_entry);
+            _curr_result = _prev_result && this PTR_DEREF Test(_entry);
             break;
           case COND_OR:
-            _curr_result = _prev_result || this.Test(_entry);
+            _curr_result = _prev_result || this PTR_DEREF Test(_entry);
             break;
           case COND_SEQ:
-            _curr_result = this.Test(_entry);
+            _curr_result = this PTR_DEREF Test(_entry);
             if (!_curr_result) {
               // Do not check further conditions when the current condition is false.
               return false;

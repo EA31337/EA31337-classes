@@ -1206,13 +1206,12 @@ class Strategy : public Object {
     int _count = (int)fmax(fabs(_level), fabs(_method));
     int _direction = Order::OrderDirection(_cmd, _mode);
     Chart *_chart = trade.GetChart();
-    IndicatorBase *_indi = GetIndicators().Begin().Value().Ptr();
+    IndicatorData *_indi = GetIndicators().Begin().Value().Ptr();
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {
       int _ishift = 12;  // @todo: Make it dynamic or as variable.
-      float _value = 0.0f; // @todo
-      //float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
+      float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
       _value = _value + (float)Math::ChangeByPct(fabs(_value - _chart.GetCloseOffer(0)), _level) * _direction;
       _psm.SetIndicatorPriceValue(_value);
       /*

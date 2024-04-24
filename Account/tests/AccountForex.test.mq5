@@ -35,7 +35,7 @@ int OnInit() {
   bool _result = true;
   Account<AccountForexState, AccountForexEntry> acc1;
   // ...
-  return _result && GetLastError() == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED;
+  return _result && GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED;
 }
 
 /**

@@ -35,10 +35,8 @@ double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
 struct IndiRVIParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  IndiRVIParams(unsigned int _period = 10, int _shift = 0)
-      : period(_period), IndicatorParams(INDI_RVI, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
+  IndiRVIParams(unsigned int _period = 10, int _shift = 0) : period(_period), IndicatorParams(INDI_RVI) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\RVI");
   };
   IndiRVIParams(IndiRVIParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -55,7 +53,12 @@ class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
   /**
    * Class constructor.
    */
-  Indi_RVI(const IndiRVIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_RVI(const IndiRVIParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_MIXED, _indi_src_mode),
+                                    _indi_src) {}
   Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RVI, _tf, _shift) {}
 
   /**
@@ -68,7 +71,7 @@ class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
   static double iRVI(
       string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 10,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,  // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0, IndicatorBase *_obj = NULL) {
+      int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iRVI(_symbol, _tf, _period, _mode, _shift);
 #else  // __MQL5__
@@ -106,7 +109,7 @@ class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_RVI::iRVI(GetSymbol(), GetTf(), GetPeriod(), (ENUM_SIGNAL_LINE)_mode, _ishift, THIS_PTR);
         break;

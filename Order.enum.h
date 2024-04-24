@@ -114,6 +114,33 @@ enum ENUM_ORDER_REASON {
   ORDER_REASON_TP,      // The order was placed as a result of Take Profit activation.
   ORDER_REASON_WEB,     // The order was placed from a web platform.
 };
+// An order status that describes its state.
+enum ENUM_ORDER_STATE {
+  ORDER_STATE_STARTED,         // Order checked, but not yet accepted by broker
+  ORDER_STATE_PLACED,          // Order accepted
+  ORDER_STATE_CANCELED,        // Order canceled by client
+  ORDER_STATE_PARTIAL,         // Order partially executed
+  ORDER_STATE_FILLED,          // Order fully executed
+  ORDER_STATE_REJECTED,        // Order rejected
+  ORDER_STATE_EXPIRED,         // Order expired
+  ORDER_STATE_REQUEST_ADD,     // Order is being registered (placing to the trading system)
+  ORDER_STATE_REQUEST_MODIFY,  // Order is being modified (changing its parameters)
+  ORDER_STATE_REQUEST_CANCEL   // Order is being deleted (deleting from the trading system)
+};
+enum ENUM_ORDER_TYPE_FILLING {
+  // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+  ORDER_FILLING_FOK,    // An order can be filled only in the specified amount.
+  ORDER_FILLING_IOC,    // A trader agrees to execute a deal with the volume maximally available in the market.
+  ORDER_FILLING_RETURN  // In case of partial filling a market or limit order with remaining volume is not canceled but
+                        // processed further.
+};
+enum ENUM_ORDER_TYPE_TIME {
+  // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+  ORDER_TIME_GTC,           // Good till cancel order.
+  ORDER_TIME_DAY,           // Good till current trade day order.
+  ORDER_TIME_SPECIFIED,     // Good till expired order.
+  ORDER_TIME_SPECIFIED_DAY  // The order will be effective till 23:59:59 of the specified day.
+};
 #endif
 
 #ifndef __MQ4__
@@ -293,5 +320,16 @@ enum ENUM_POSITION_REASON {
 enum ENUM_POSITION_TYPE {
   POSITION_TYPE_BUY,  // Buy position.
   POSITION_TYPE_SELL  // Sell position.
+};
+
+// Trading operations.
+enum ENUM_TRADE_REQUEST_ACTIONS {
+  // @see: https://www.mql5.com/en/docs/constants/tradingconstants/enum_trade_request_actions
+  TRADE_ACTION_DEAL,     // Place a trade order for an immediate execution with the specified parameters (market order).
+  TRADE_ACTION_PENDING,  // Place a trade order for the execution under specified conditions (pending order).
+  TRADE_ACTION_SLTP,     // Modify Stop Loss and Take Profit values of an opened position.
+  TRADE_ACTION_MODIFY,   // Modify the parameters of the order placed previously.
+  TRADE_ACTION_REMOVE,   // Delete the pending order placed previously.
+  TRADE_ACTION_CLOSE_BY  // Close a position by an opposite one.
 };
 #endif

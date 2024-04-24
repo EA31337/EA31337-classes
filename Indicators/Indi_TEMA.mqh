@@ -33,9 +33,8 @@ struct IndiTEMAParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   IndiTEMAParams(int _period = 14, int _tema_shift = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : IndicatorParams(INDI_TEMA, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_TEMA) {
     applied_price = _ap;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\TEMA");
     period = _period;
     shift = _shift;
@@ -55,7 +54,11 @@ class Indi_TEMA : public IndicatorTickOrCandleSource<IndiTEMAParams> {
   /**
    * Class constructor.
    */
-  Indi_TEMA(IndiTEMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_TEMA(IndiTEMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
   Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_TEMA, _tf, _shift){};
 
@@ -98,9 +101,9 @@ class Indi_TEMA : public IndicatorTickOrCandleSource<IndiTEMAParams> {
   /**
    * On-indicator version of TEMA.
    */
-  static double iTEMAOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+  static double iTEMAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
                                  int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
-                                 IndicatorBase *_obj = NULL) {
+                                 IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
         _indi, _symbol, _tf, _ap,
         Util::MakeKey("Indi_TEMA_ON_" + _indi.GetFullName(), _ma_period, _ma_shift, (int)_ap));
@@ -142,7 +145,7 @@ class Indi_TEMA : public IndicatorTickOrCandleSource<IndiTEMAParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_TEMA::iTEMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetTEMAShift(), GetAppliedPrice() /*]*/, 0,
                                   _ishift, THIS_PTR);
