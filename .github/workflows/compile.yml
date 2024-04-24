@@ -19,6 +19,11 @@ on:
         description: Artifact prefix.
         required: false
         type: string
+      path:
+        default: '*'
+        description: Path to compile.
+        required: false
+        type: string
       skip_cleanup:
         default: false
         description: Whether to skip a clean-up job.
@@ -60,7 +65,7 @@ jobs:
           init-platform: true
           mt-path: .mt${{ matrix.version }}
           path-ignore: .mt${{ matrix.version }}
-          path: '**/*.mq${{ matrix.version }}'
+          path: '${{ inputs.path }}/**/*.mq${{ matrix.version }}'
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'

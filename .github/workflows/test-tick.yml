@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/compile.yml
     with:
       artifact_prefix: mt
+      path: Tick
       skip_cleanup: true
 
   Tick-Tests-MQL4:

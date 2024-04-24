@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/compile.yml
     with:
       artifact_prefix: mt
+      path: Buffer
       skip_cleanup: true
 
   Buffer-Tests-MQL4:
