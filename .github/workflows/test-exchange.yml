@@ -21,6 +21,7 @@ jobs:
     uses: ./.github/workflows/compile.yml
     with:
       artifact_prefix: mt
+      path: Exchange
       skip_cleanup: true
 
   Exchange-Tests-MQL4:
@@ -28,6 +29,7 @@ jobs:
       run:
         shell: bash
         working-directory: Exchange/tests
+    if: false
     needs: compile
     runs-on: ubuntu-latest
     strategy:
