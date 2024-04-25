@@ -108,7 +108,7 @@ class SerializerConverter {
 
   template <typename C>
   static SerializerConverter FromString(string arg) {
-    SerializerConverter _converter(((C*)NULL).Parse(arg), 0);
+    SerializerConverter _converter(((C*)NULL)PTR_DEREF Parse(arg), 0);
     return _converter;
   }
 
