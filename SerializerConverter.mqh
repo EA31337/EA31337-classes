@@ -30,6 +30,7 @@ class SerializerNode;
 
 // Includes.
 #include "File.mqh"
+#include "Object.mqh"
 #include "Serializer.enum.h"
 #include "Serializer.mqh"
 #include "SerializerNode.mqh"
