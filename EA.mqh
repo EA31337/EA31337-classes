@@ -343,6 +343,12 @@ class EA {
     _strat.OnOrderOpen(_oparams);
     // Send the request.
     _result = _trade.RequestSend(_request, _oparams);
+    if (!_result) {
+      logger.Debug(
+          StringFormat("Error while sending a trade request! Entry: %s",
+                       SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
+          __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
+    }
     return _result;
   }
 
@@ -766,8 +772,21 @@ class EA {
    * Loads existing trades for the given strategy.
    */
   bool StrategyLoadTrades(Strategy *_strat) {
+    bool _result = true;
     Trade *_trade = trade.GetByKey(_Symbol);
-    return _trade.OrdersLoadByMagic(_strat.Get<long>(STRAT_PARAM_ID));
+    // Load active trades.
+    _result &= _trade.OrdersLoadByMagic(_strat.Get<long>(STRAT_PARAM_ID));
+    // Load strategy-specific order parameters (e.g. conditions).
+    // This is a temporary workaround for GH-705.
+    // @todo: To move to Strategy class.
+    Ref<Order> _order;
+    for (DictStructIterator<long, Ref<Order>> iter = _trade.GetOrdersActive().Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
+      if (_order.IsSet() && _order.Ptr().IsOpen()) {
+        _strat.OnOrderLoad(_order.Ptr());
+      }
+    }
+    return _result;
   }
 
   /* Trade methods */

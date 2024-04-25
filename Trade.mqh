@@ -196,7 +196,10 @@ class Trade {
     _request.symbol = GetChart().Get<string>(CHART_PARAM_SYMBOL);
     _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _type);
     _request.type = _type;
+#ifndef __MQL4__
+    // Filling modes not supported under MQL4.
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
+#endif
     _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
     _request.volume = NormalizeLots(fmax(_request.volume, SymbolInfoStatic::GetVolumeMin(_request.symbol)));
     return _request;
@@ -842,8 +845,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           OrderMoveToHistory(_order.Ptr());
           order_last = _order;
         } else {
-          logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
-          return -1;
+          logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR));
+          continue;
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
