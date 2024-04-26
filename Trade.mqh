@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -30,7 +30,7 @@ class Trade;
 #define TRADE_MQH
 
 // Includes.
-#include "Account.mqh"
+#include "Account/AccountMt.h"
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
@@ -40,17 +40,20 @@ class Trade;
 #include "OrderQuery.h"
 #include "Task/TaskAction.enum.h"
 #include "Task/TaskCondition.enum.h"
+#include "Task/TaskManager.h"
+#include "Task/Taskable.h"
 #include "Trade.enum.h"
 #include "Trade.struct.h"
 
-class Trade {
+class Trade : public Taskable<DataParamEntry> {
  public:
-  Account account;
+  AccountMt account;
   Ref<Chart> chart;
   DictStruct<long, Ref<Order>> orders_active;
   DictStruct<long, Ref<Order>> orders_history;
   DictStruct<long, Ref<Order>> orders_pending;
   Log logger;           // Trade logger.
+  TaskManager tasks;    // Tasks.
   TradeParams tparams;  // Trade parameters.
   TradeStates tstates;  // Trade states.
   TradeStats tstats;    // Trade statistics.
@@ -191,7 +194,7 @@ class Trade {
     MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
-    _request.deviation = 10;
+    _request.deviation = tparams.Get<uint>(TRADE_PARAM_SLIPPAGE);  // The maximal price deviation, specified in points.
     _request.magic = _magic > 0 ? _magic : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
     _request.symbol = GetChart().Get<string>(CHART_PARAM_SYMBOL);
     _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _type);
@@ -278,16 +281,16 @@ class Trade {
   /**
    * Check if trading is allowed.
    */
-  bool IsTradeAllowed() {
-    UpdateStates();
+  bool IsTradeAllowed(bool _force = false) {
+    UpdateStates(_force);
     return !tstates.CheckState(TRADE_STATE_TRADE_CANNOT);
   }
 
   /**
    * Check if trading is recommended.
    */
-  bool IsTradeRecommended() {
-    UpdateStates();
+  bool IsTradeRecommended(bool _force = false) {
+    UpdateStates(_force);
     return !tstates.CheckState(TRADE_STATE_TRADE_WONT);
   }
 
@@ -602,10 +605,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns calculated lot size (volume).
    */
-  float CalcLotSize(float _risk_margin = 1,   // Risk margin in %.
-                    float _risk_ratio = 1.0,  // Risk ratio factor.
-                    uint _orders_avg = 10,    // Number of orders to use for the calculation.
-                    uint _method = 0          // Method of calculation (0-3).
+  float CalcLotSize(float _risk_margin = 1,         // Risk margin in %.
+                    float _risk_ratio = 1.0,        // Risk ratio factor.
+                    unsigned int _orders_avg = 10,  // Number of orders to use for the calculation.
+                    unsigned int _method = 0        // Method of calculation (0-3).
   ) {
     float _avail_amount = _method % 2 == 0 ? account.GetMarginAvail() : account.GetTotalBalance();
     float _lot_size_min = (float)GetChart().GetVolumeMin();
@@ -645,7 +648,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         // Pass-through.
       case ERR_NO_ERROR:  // 0
-        orders_active.Set(_order.Get<ulong>(ORDER_PROP_TICKET), _ref_order);
+        orders_active.Set(_order.Get<unsigned long>(ORDER_PROP_TICKET), _ref_order);
         order_last = _order;
         tstates.AddState(TRADE_STATE_ORDERS_ACTIVE);
         tstats.Add(TRADE_STAT_ORDERS_OPENED);
@@ -678,9 +681,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool OrderMoveToHistory(Order *_order) {
     _order.Refresh(true);
-    orders_active.Unset(_order.Get<ulong>(ORDER_PROP_TICKET));
+    orders_active.Unset(_order.Get<unsigned long>(ORDER_PROP_TICKET));
     Ref<Order> _ref_order = _order;
-    bool result = orders_history.Set(_order.Get<ulong>(ORDER_PROP_TICKET), _ref_order);
+    bool result = orders_history.Set(_order.Get<unsigned long>(ORDER_PROP_TICKET), _ref_order);
     /* @todo
     if (strategy != NULL) {
       strategy.OnOrderClose(_order);
@@ -746,8 +749,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_CLOSE_BY:
         break;
       case TRADE_ACTION_DEAL:
-        if (!IsTradeRecommended()) {
-          // logger.Warning("Trade not recommended!", __FUNCTION_LINE__, (string)tstates.GetStates());
+        if (!IsTradeRecommended(true)) {
+          logger.Debug("Trade not opened due to trading states.", __FUNCTION_LINE__, (string)tstates.GetStates());
           return _result;
         } else if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) == 0) {
           logger.Error("No free margin to open a new trade!", __FUNCTION_LINE__);
@@ -878,7 +881,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             order_last = _order;
           } else {
             logger.Error("Error while closing order!", __FUNCTION_LINE__,
-                         StringFormat("Code: %d", _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR)));
+                         StringFormat("Code: %d", _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR)));
             return -1;
           }
           order_last = _order;
@@ -915,7 +918,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             OrderMoveToHistory(_order.Ptr());
             order_last = _order;
           } else {
-            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<ulong>(ORDER_PROP_LAST_ERROR));
+            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR));
             return -1;
           }
         }
@@ -972,7 +975,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Calculate available lot size given the risk margin.
    */
   /* @fixme
-  uint CalcMaxLotSize(double risk_margin = 1.0) {
+  unsigned int CalcMaxLotSize(double risk_margin = 1.0) {
     double _avail_margin = account.AccountAvailMargin();
     double _opened_lots = GetTrades().GetOpenLots();
     // @todo
@@ -1364,6 +1367,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
       tstates.SetState(TRADE_STATE_ORDERS_MAX_HARD, OrdersTotal() == account.GetLimitOrders());
       // @todo: TRADE_STATE_ORDERS_MAX_SOFT
+      // ...
+      /* Market checks */
+      uint _tspread = int(tparams.Get<float>(TRADE_PARAM_MAX_SPREAD) * GetChart().GetPointsPerPip());
+      tstates.SetState(TRADE_STATE_SPREAD_TOO_HIGH, _tspread > 0 && GetChart().GetSpread() > _tspread);
+      /* Terminal checks */
       tstates.SetState(TRADE_STATE_TRADE_NOT_POSSIBLE,
                        // Check if the EA trading is enabled.
                        (account.IsExpertEnabled() || !Terminal::IsRealtime())
@@ -1378,7 +1386,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                        // Check if real trading is allowed.
                        (Terminal::IsRealtime() && !Terminal::IsTradeAllowed())
                            // Check the permission to trade for the current account.
-                           && !Account::IsTradeAllowed());
+                           && !AccountMt::IsTradeAllowed());
       tstates.SetState(TRADE_STATE_TRADE_TERMINAL_BUSY, Terminal::IsTradeContextBusy());
       /* Terminal checks */
       // Check if terminal is connected.
@@ -1675,7 +1683,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   virtual void OnOrderOpen(const Order &_order) {
     if (logger.GetLevel() >= V_INFO) {
-      // logger.Info(_order.ToString(), (string)_order.Get<ulong>(ORDER_TICKET)); // @fixme
+      // logger.Info(_order.ToString(), (string)_order.Get<unsigned long>(ORDER_TICKET)); // @fixme
       ResetLastError();  // @fixme: Error 69539
     }
   }
@@ -1717,44 +1725,56 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
   }
 
-  /* Conditions */
+  /* Tasks methods */
 
   /**
-   * Checks for trade condition.
-   *
-   * @param ENUM_TRADE_CONDITION _cond
-   *   Trade condition.
-   * @param MqlParam[] _args
-   *   Condition arguments.
-   * @return
-   *   Returns true when the condition is met.
+   * Add task.
    */
-  bool CheckCondition(ENUM_TRADE_CONDITION _cond, DataParamEntry &_args[]) {
+  bool AddTask(TaskEntry &_tentry) {
+    bool _is_valid = _tentry.IsValid();
+    if (_is_valid) {
+      tasks.Add(new TaskObject<Trade, Trade>(_tentry, THIS_PTR, THIS_PTR));
+    }
+    return _is_valid;
+  }
+
+  /**
+   * Add task object.
+   */
+  template <typename TA, typename TC>
+  bool AddTaskObject(TaskObject<TA, TC> *_tobj) {
+    return tasks.Add<TA, TC>(_tobj);
+  }
+
+  /**
+   * Process tasks.
+   */
+  void ProcessTasks() { tasks.Process(); }
+
+  /* Tasks */
+
+  /**
+   * Checks a condition.
+   */
+  virtual bool Check(const TaskConditionEntry &_entry) {
     bool _result = false;
-    long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
     Ref<OrderQuery> _oquery_ref;
     if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
       _oquery_ref = OrderQuery::GetInstance(orders_active);
     }
-    switch (_cond) {
+    switch (_entry.GetId()) {
       case TRADE_COND_ACCOUNT:
-        return account.CheckCondition((ENUM_ACCOUNT_CONDITION)_args[0].integer_value);
+        return account.CheckCondition(_entry.GetArg(0).ToValue<ENUM_ACCOUNT_CONDITION>());
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
       case TRADE_COND_HAS_STATE:
-        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
-        return HasState((ENUM_TRADE_STATE)_arg1l);
+        return HasState(_entry.GetArg(0).ToValue<ENUM_TRADE_STATE>());
       case TRADE_COND_IS_ORDER_LIMIT:
         return tparams.IsLimitGe(tstats);
       case TRADE_COND_IS_PEAK:
-        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
-        _arg2l = _arg2l != WRONG_VALUE ? _arg2l : 0;
-        return IsPeak((ENUM_ORDER_TYPE)_arg1l, (int)_arg2l);
+        return IsPeak(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>());
       case TRADE_COND_IS_PIVOT:
-        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
-        _arg2l = _arg2l != WRONG_VALUE ? _arg2l : 0;
-        return IsPivot((ENUM_ORDER_TYPE)_arg1l, (int)_arg2l);
+        return IsPivot(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), _entry.GetArg(1).ToValue<int>());
       case TRADE_COND_ORDERS_PROFIT_GT_01PC:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           return CalcActiveEquityInPct() >= 1;
@@ -1798,41 +1818,41 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // case TRADE_ORDER_CONDS_IN_TREND:
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
-        logger.Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid Trade condition: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
     return _result;
   }
-  bool CheckCondition(ENUM_TRADE_CONDITION _cond, long _arg1) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    ArrayPushObject(_args, _param1);
-    return Trade::CheckCondition(_cond, _args);
-  }
-  bool CheckCondition(ENUM_TRADE_CONDITION _cond) {
-    ARRAY(DataParamEntry, _args);
-    return Trade::CheckCondition(_cond, _args);
+  bool Check(int _id) {
+    TaskConditionEntry _entry(_id);
+    return Check(_entry);
   }
 
   /* TaskActions */
 
   /**
-   * Execute trade action.
-   *
-   * @param ENUM_TRADE_ACTION _action
-   *   Trade action to execute.
-   * @param MqlParam _args
-   *   Trade action arguments.
-   * @return
-   *   Returns true when the condition is met.
+   * Gets a copy of structure.
    */
-  bool ExecuteAction(ENUM_TRADE_ACTION _action, DataParamEntry &_args[]) {
+  virtual DataParamEntry Get(const TaskGetterEntry &_entry) {
+    DataParamEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  virtual bool Run(const TaskActionEntry &_entry) {
     bool _result = false;
     Ref<OrderQuery> _oquery_ref;
     if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
       _oquery_ref = OrderQuery::GetInstance(orders_active);
     }
-    switch (_action) {
+    switch (_entry.GetId()) {
       case TRADE_ACTION_CALC_LOT_SIZE:
         tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize(tparams.Get<float>(TRADE_PARAM_RISK_MARGIN)));
         return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
@@ -1871,7 +1891,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         }
         break;
       case TRADE_ACTION_ORDER_OPEN:
-        return RequestSend(GetTradeOpenRequest((ENUM_ORDER_TYPE)_args[0].integer_value));
+        return RequestSend(GetTradeOpenRequest(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>()));
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result = OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
@@ -1900,7 +1920,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          _result = OrdersCloseViaCmd((ENUM_ORDER_TYPE)_args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+          _result = OrdersCloseViaCmd(_entry.GetArg(0).ToValue<ENUM_ORDER_TYPE>(), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
         break;
@@ -1927,37 +1947,36 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       case TRADE_ACTION_ORDERS_LIMIT_SET:
         // Sets the new limits.
-        tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value,
-                          (int)_args[2].integer_value);
+        tparams.SetLimits(_entry.GetArg(0).ToValue<ENUM_TRADE_STAT_TYPE>(),
+                          _entry.GetArg(1).ToValue<ENUM_TRADE_STAT_PERIOD>(), _entry.GetArg(2).ToValue<int>());
         // Verify the new limits.
-        return tparams.GetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value,
-                                 (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value) == _args[2].integer_value;
+        return tparams.GetLimits(_entry.GetArg(0).ToValue<ENUM_TRADE_STAT_TYPE>(),
+                                 _entry.GetArg(1).ToValue<ENUM_TRADE_STAT_PERIOD>()) == _entry.GetArg(2).ToValue<int>();
       case TRADE_ACTION_STATE_ADD:
-        tstates.AddState((unsigned int)_args[0].integer_value);
+        tstates.AddState(_entry.GetArg(0).ToValue<unsigned int>());
       default:
-        logger.Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
-        _result = false;
+        GetLogger().Error(StringFormat("Invalid Trade action: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
-    return _result && GetLastError() == ERR_NO_ERROR;
+    return _result;
   }
-  bool ExecuteAction(ENUM_TRADE_ACTION _action) {
-    DataParamEntry _args[];
-    return Trade::ExecuteAction(_action, _args);
+  bool Run(int _id) {
+    TaskActionEntry _entry(_id);
+    return Run(_entry);
   }
-  bool ExecuteAction(ENUM_TRADE_ACTION _action, long _arg1) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    ArrayPushObject(_args, _param1);
-    return Trade::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_TRADE_ACTION _action, long _arg1, long _arg2) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
-    ArrayPushObject(_args, _param1);
-    ArrayPushObject(_args, _param2);
-    return Trade::ExecuteAction(_action, _args);
+
+  /**
+   * Sets an entry value.
+   */
+  virtual bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      // _entry_value.GetValue()
+      default:
+        break;
+    }
+    return _result;
   }
 
   /* Printer methods */
@@ -1965,7 +1984,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Returns textual representation of the Trade class.
    */
-  string ToString() { return StringFormat("Margin required: %g/lot", GetMarginRequired()); }
+  string ToString() const {
+    // @todo
+    // return StringFormat("Margin required: %g/lot", GetMarginRequired());
+    return "";
+  }
 
   /* Class handlers */
 

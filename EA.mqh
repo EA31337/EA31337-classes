@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -47,15 +47,17 @@
 #include "Task/Task.h"
 #include "Task/TaskAction.enum.h"
 #include "Task/TaskCondition.enum.h"
+#include "Task/TaskManager.h"
+#include "Task/Taskable.h"
 #include "Terminal.mqh"
 #include "Trade.mqh"
 #include "Trade/TradeSignal.h"
 #include "Trade/TradeSignalManager.h"
 
-class EA {
+class EA : public Taskable<DataParamEntry> {
  protected:
   // Class variables.
-  Account *account;
+  AccountMt *account;
   DictStruct<long, Ref<Strategy>> strats;
   Log logger;
   Terminal terminal;
@@ -68,30 +70,49 @@ class EA {
   DictObject<string, Trade> trade;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
-  DictStruct<int, TaskEntry> tasks;
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
+  TaskManager tasks;
   TradeSignalManager tsm;
+
+ protected:
+  /* Protected methods */
+
+  /**
+   * Init code (called on constructor).
+   */
+  void Init() { InitTask(); }
+
+  /**
+   * Process initial task (called on constructor).
+   */
+  void InitTask() {
+    // Add and process init task.
+    TaskObject<EA, EA> _taskobj_init(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)),
+                                     THIS_PTR, THIS_PTR);
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
+    _taskobj_init.Process();
+    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
+  }
 
  public:
   /**
    * Class constructor.
    */
-  EA(EAParams &_params) : account(new Account) {
+  EA(EAParams &_params) : account(new AccountMt) {
     eparams = _params;
-    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     UpdateStateFlags();
     // Add and process tasks.
-    TaskAdd(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
-    ProcessTasks();
-    estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
+    Init();
     // Initialize a trade instance for the current chart and symbol.
     ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
     TradeParams _tparams;
     Trade _trade(_tparams, _cparams);
     trade.Set(_Symbol, _trade);
     logger.Link(_trade.GetLogger());
+    logger.SetLevel(eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
+    _trade.GetLogger().SetLevel(eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
   }
 
   /**
@@ -186,6 +207,11 @@ class EA {
     return _sentry;
   }
 
+  /**
+   * Gets EA's trade instance.
+   */
+  Trade *GetTrade(string _symbol) { return trade.GetByKey(_symbol); }
+
   /* Setters */
 
   /**
@@ -220,6 +246,10 @@ class EA {
     for (DictObjectIterator<string, Trade> iter = trade.Begin(); iter.IsValid(); ++iter) {
       Trade *_trade = iter.Value();
       _trade.Set<T>(_param, _value);
+    }
+    for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+      Strategy *_strat = iter.Value().Ptr();
+      _strat.Set<T>(_param, _value);
     }
   }
 
@@ -265,6 +295,7 @@ class EA {
         }
       }
       _trade_allowed &= _trade.IsTradeAllowed();
+      _trade_allowed &= _strat.GetTrade().IsTradeAllowed(true);
       _trade_allowed &= !_strat.IsSuspended();
       if (_trade_allowed) {
         float _sig_open = _signal.GetSignalOpen();
@@ -330,19 +361,31 @@ class EA {
    */
   virtual bool TradeRequest(ENUM_ORDER_TYPE _cmd, string _symbol = NULL, Strategy *_strat = NULL) {
     bool _result = false;
-    Trade *_trade = trade.GetByKey(_symbol);
+    Trade *_etrade = trade.GetByKey(_symbol);
+    Trade *_strade = _strat.GetTrade();
     // Prepare a request.
-    MqlTradeRequest _request = _trade.GetTradeOpenRequest(_cmd);
+    MqlTradeRequest _request = _etrade.GetTradeOpenRequest(_cmd);
     _request.comment = _strat.GetOrderOpenComment();
     _request.magic = _strat.Get<long>(STRAT_PARAM_ID);
     _request.price = SymbolInfoStatic::GetOpenOffer(_symbol, _cmd);
     _request.volume = fmax(_strat.Get<float>(STRAT_PARAM_LS), SymbolInfoStatic::GetVolumeMin(_symbol));
-    _request.volume = _trade.NormalizeLots(_request.volume);
+    _request.volume = _etrade.NormalizeLots(_request.volume);
+    // Check strategy's trade states.
+    switch (_request.action) {
+      case TRADE_ACTION_DEAL:
+        if (!_strade.IsTradeRecommended()) {
+          logger.Debug(
+              StringFormat("Trade not opened due to strategy trading states (%d).", _strade.GetStates().GetStates()),
+              __FUNCTION_LINE__);
+          return _result;
+        }
+        break;
+    }
     // Prepare an order parameters.
     OrderParams _oparams;
     _strat.OnOrderOpen(_oparams);
     // Send the request.
-    _result = _trade.RequestSend(_request, _oparams);
+    _result = _etrade.RequestSend(_request, _oparams);
     if (!_result) {
       logger.Debug(
           StringFormat("Error while sending a trade request! Entry: %s",
@@ -370,21 +413,19 @@ class EA {
         for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
           bool _can_trade = true;
           Strategy *_strat = iter.Value().Ptr();
-          Trade *_trade = trade.GetByKey(_Symbol);
+          Trade *_trade = _strat.GetTrade();
           if (_strat.IsEnabled()) {
-            if (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
+            if (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
               // Process when new periods started.
               _strat.OnPeriod(estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)));
               _strat.ProcessTasks();
-              _trade.OnPeriod(estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)));
+              _trade.OnPeriod(estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)));
               eresults.stg_processed_periods++;
             }
             if (_strat.TickFilter(_tick)) {
               _can_trade &= !_strat.IsSuspended();
-              _can_trade &=
-                  !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
               TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
-              if (_sentry.Get<uint>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
+              if (_sentry.Get<unsigned int>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
                 TradeSignal _signal(_sentry);
                 if (_signal.GetSignalClose() != _signal.GetSignalOpen()) {
                   tsm.SignalAdd(_signal);  //, _tick.time);
@@ -405,13 +446,13 @@ class EA {
           // On error, print logs.
           logger.Flush();
         }
-        if (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
+        if (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
           // Process data, tasks and trades on new periods.
           ProcessTrades();
         }
       }
       estate.last_updated.Update();
-      if (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
+      if (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
         // Process data and tasks on new periods.
         ProcessData();
         ProcessTasks();
@@ -474,9 +515,9 @@ class EA {
    * Checks for new starting periods.
    */
   unsigned int ProcessPeriods() {
-    estate.Set<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS), estate.last_updated.GetStartedPeriods());
+    estate.Set<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS), estate.last_updated.GetStartedPeriods());
     OnPeriod();
-    return estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS));
+    return estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS));
   }
 
   /**
@@ -663,53 +704,6 @@ class EA {
   }
   */
 
-  /* Tasks */
-
-  /**
-   * Add task.
-   */
-  bool TaskAdd(TaskEntry &_entry) {
-    bool _result = false;
-    if (_entry.IsValid()) {
-      switch (_entry.GetConditionType()) {
-        case COND_TYPE_ACCOUNT:
-          _entry.SetConditionObject(account);
-          break;
-        case COND_TYPE_EA:
-          _entry.SetConditionObject(THIS_PTR);
-          break;
-        case COND_TYPE_TRADE:
-          _entry.SetConditionObject(trade.GetByKey(_Symbol));
-          break;
-      }
-      switch (_entry.GetActionType()) {
-        case ACTION_TYPE_EA:
-          _entry.SetActionObject(THIS_PTR);
-          break;
-        case ACTION_TYPE_TRADE:
-          _entry.SetActionObject(trade.GetByKey(_Symbol));
-          break;
-      }
-      _result |= tasks.Push(_entry);
-    }
-    return _result;
-  }
-
-  /**
-   * Process EA tasks.
-   */
-  unsigned int ProcessTasks() {
-    unsigned int _counter = 0;
-    for (DictStructIterator<int, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      bool _is_processed = false;
-      TaskEntry _entry = iter.Value();
-      _is_processed = _is_processed || Task::Process(_entry);
-      // _entry.last_process = TimeCurrent();
-      _counter += (unsigned short)_is_processed;
-    }
-    return _counter;
-  }
-
   /* Strategy methods */
 
   /**
@@ -728,6 +722,8 @@ class EA {
     _magic_no = _magic_no > 0 ? _magic_no : rand();
     Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf);
     _strat.Ptr().Set<long>(STRAT_PARAM_ID, _magic_no);
+    _strat.Ptr().Set<ENUM_LOG_LEVEL>(STRAT_PARAM_LOG_LEVEL,
+                                     eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
     _strat.Ptr().Set<ENUM_TIMEFRAMES>(STRAT_PARAM_TF, _tf);
     _strat.Ptr().Set<int>(STRAT_PARAM_TYPE, _type);
     _strat.Ptr().OnInit();
@@ -816,7 +812,7 @@ class EA {
             continue;
           }
           ENUM_ORDER_TYPE _otype = _order.Get<ENUM_ORDER_TYPE>(ORDER_TYPE);
-          Strategy *_strat = strats.GetByKey(_order.Get<ulong>(ORDER_MAGIC)).Ptr();
+          Strategy *_strat = strats.GetByKey(_order.Get<unsigned long>(ORDER_MAGIC)).Ptr();
           Strategy *_strat_sl = _strat.GetStratSl();
           Strategy *_strat_tp = _strat.GetStratTp();
           if (_strat_sl != NULL || _strat_tp != NULL) {
@@ -893,25 +889,46 @@ class EA {
     if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
       // Auto calculate lot size for all strategies.
       Trade *_trade = trade.GetByKey(_Symbol);
-      _result &= _trade.ExecuteAction(TRADE_ACTION_CALC_LOT_SIZE);
+      _result &= _trade.Run(TRADE_ACTION_CALC_LOT_SIZE);
       Set(STRAT_PARAM_LS, _trade.Get<float>(TRADE_PARAM_LOT_SIZE));
     }
     return _result;
   }
 
-  /* Conditions and actions */
+  /* Tasks methods */
 
   /**
-   * Checks for EA condition.
-   *
-   * @param ENUM_EA_CONDITION _cond
-   *   EA condition.
-   * @return
-   *   Returns true when the condition is met.
+   * Add task.
    */
-  bool CheckCondition(ENUM_EA_CONDITION _cond, DataParamEntry &_args[]) {
+  bool AddTask(TaskEntry &_tentry) {
+    bool _is_valid = _tentry.IsValid();
+    if (_is_valid) {
+      tasks.Add(new TaskObject<EA, EA>(_tentry, THIS_PTR, THIS_PTR));
+    }
+    return _is_valid;
+  }
+
+  /**
+   * Add task object.
+   */
+  template <typename TA, typename TC>
+  bool AddTaskObject(TaskObject<TA, TC> *_tobj) {
+    return EA::tasks.Add<TA, TC>(_tobj);
+  }
+
+  /**
+   * Process tasks.
+   */
+  void ProcessTasks() { tasks.Process(); }
+
+  /* Tasks */
+
+  /**
+   * Checks a condition.
+   */
+  virtual bool Check(const TaskConditionEntry &_entry) {
     bool _result = false;
-    switch (_cond) {
+    switch (_entry.GetId()) {
       case EA_COND_IS_ACTIVE:
         return estate.IsActive();
       case EA_COND_IS_ENABLED:
@@ -920,44 +937,47 @@ class EA {
         estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_CONNECTED), GetTerminal().IsConnected());
         return !estate.IsConnected();
       case EA_COND_ON_NEW_MINUTE:  // On new minute.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0;
       case EA_COND_ON_NEW_HOUR:  // On new hour.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0;
       case EA_COND_ON_NEW_DAY:  // On new day.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0;
       case EA_COND_ON_NEW_WEEK:  // On new week.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0;
       case EA_COND_ON_NEW_MONTH:  // On new month.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0;
       case EA_COND_ON_NEW_YEAR:  // On new year.
-        return (estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0;
+        return (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0;
       case EA_COND_ON_INIT:
         return estate.IsOnInit();
       case EA_COND_ON_QUIT:
         return estate.IsOnQuit();
       default:
-        logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid EA condition: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
     return _result;
   }
-  bool CheckCondition(ENUM_EA_CONDITION _cond) {
-    ARRAY(DataParamEntry, _args);
-    return EA::CheckCondition(_cond, _args);
+
+  /**
+   * Gets a copy of structure.
+   */
+  virtual DataParamEntry Get(const TaskGetterEntry &_entry) {
+    DataParamEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        break;
+    }
+    return _result;
   }
 
   /**
-   * Execute EA action.
-   *
-   * @param ENUM_EA_ACTION _action
-   *   EA action to execute.
-   * @return
-   *   Returns true when the action has been executed successfully.
+   * Runs an action.
    */
-  bool ExecuteAction(ENUM_EA_ACTION _action, DataParamEntry &_args[]) {
+  virtual bool Run(const TaskActionEntry &_entry) {
     bool _result = false;
-    long arg_size = ArraySize(_args);
-    switch (_action) {
+    switch (_entry.GetId()) {
       case EA_ACTION_DISABLE:
         estate.Enable(false);
         return true;
@@ -967,46 +987,40 @@ class EA {
       case EA_ACTION_EXPORT_DATA:
         DataExport();
         return true;
-      case EA_ACTION_STRATS_EXE_ACTION:
+      case EA_ACTION_STRATS_EXE_ACTION: {
         // Args:
         // 1st (i:0) - Strategy's enum action to execute.
         // 2nd (i:1) - Strategy's argument to pass.
+        TaskActionEntry _entry_strat = _entry;
+        _entry_strat.ArgRemove(0);
         for (DictStructIterator<long, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat.IsValid(); ++iter_strat) {
-          DataParamEntry _sargs[];
-          ArrayResize(_sargs, ArraySize(_args) - 1);
-          for (int i = 0; i < ArraySize(_sargs); i++) {
-            _sargs[i] = _args[i + 1];
-          }
           Strategy *_strat = iter_strat.Value().Ptr();
-          _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)_args[0].integer_value, _sargs);
+
+          _result &= _strat.Run(_entry_strat);
         }
         return _result;
+      }
       case EA_ACTION_TASKS_CLEAN:
-        // @todo
-        return tasks.Size() == 0;
+        tasks.GetTasks().Clear();
+        return tasks.GetTasks().Size() == 0;
       default:
-        logger.Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
-        return false;
+        GetLogger().Error(StringFormat("Invalid EA action: %d!", _entry.GetId(), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
     }
     return _result;
   }
-  bool ExecuteAction(ENUM_EA_ACTION _action) {
-    ARRAY(DataParamEntry, _args);
-    return EA::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    ArrayPushObject(_args, _param1);
-    return EA::ExecuteAction(_action, _args);
-  }
-  bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1, long _arg2) {
-    ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
-    ArrayPushObject(_args, _param1);
-    ArrayPushObject(_args, _param2);
-    return EA::ExecuteAction(_action, _args);
+
+  /**
+   * Sets an entry value.
+   */
+  virtual bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+    bool _result = false;
+    switch (_entry.GetId()) {
+      // _entry_value.GetValue()
+      default:
+        break;
+    }
+    return _result;
   }
 
   /* Getters */
@@ -1073,7 +1087,7 @@ class EA {
   /**
    * Gets pointer to account details.
    */
-  Account *Account() { return account; }
+  AccountMt *Account() { return account; }
 
   /**
    * Gets pointer to log instance.
@@ -1093,7 +1107,7 @@ class EA {
    * Executed when new time is started (like each minute).
    */
   virtual void OnPeriod() {
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MINUTE) != 0) {
       // New minute started.
 #ifndef __optimize__
       if (Terminal::IsRealtime()) {
@@ -1101,24 +1115,24 @@ class EA {
       }
 #endif
     }
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_HOUR) != 0) {
       // New hour started.
       tsm.Refresh();
     }
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_DAY) != 0) {
       // New day started.
       UpdateLotSize();
 #ifndef __optimize__
       logger.Flush();
 #endif
     }
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_WEEK) != 0) {
       // New week started.
     }
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_MONTH) != 0) {
       // New month started.
     }
-    if ((estate.Get<uint>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0) {
+    if ((estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) & DATETIME_YEAR) != 0) {
       // New year started.
     }
   }

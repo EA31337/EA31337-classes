@@ -64,7 +64,7 @@ struct DateTimeStatic {
   /**
    * Returns the current day of the month (e.g. the day of month of the last known server time).
    */
-  static int Day(datetime dt = NULL) {
+  static int Day(datetime dt = 0) {
     if (dt == 0) {
       dt = TimeCurrent();
     }
@@ -80,7 +80,7 @@ struct DateTimeStatic {
   /**
    * Returns the current zero-based day of the week of the last known server time.
    */
-  static int DayOfWeek(datetime dt = NULL) {
+  static int DayOfWeek(datetime dt = 0) {
     if (dt == 0) {
       dt = TimeCurrent();
     }
@@ -96,7 +96,7 @@ struct DateTimeStatic {
   /**
    * Returns the current day of the year (e.g. the day of year of the last known server time).
    */
-  static int DayOfYear(datetime dt = NULL) {
+  static int DayOfYear(datetime dt = 0) {
     if (dt == 0) {
       dt = TimeCurrent();
     }
@@ -112,7 +112,7 @@ struct DateTimeStatic {
   /**
    * Returns the hour of the last known server time by the moment of the program start.
    */
-  static int Hour(datetime dt = NULL) {
+  static int Hour(datetime dt = 0) {
     if (dt == 0) {
       dt = TimeCurrent();
     }
@@ -137,7 +137,7 @@ struct DateTimeStatic {
   /**
    * Returns the current minute of the last known server time by the moment of the program start.
    */
-  static int Minute(datetime dt = NULL) {
+  static int Minute(datetime dt = 0) {
     if (dt == 0) {
       dt = TimeCurrent();
     }
@@ -153,7 +153,7 @@ struct DateTimeStatic {
   /**
    * Returns the current month as number (e.g. the number of month of the last known server time).
    */
-  static int Month(datetime dt = NULL) {
+  static int Month(datetime dt = 0) {
     if (dt == 0) {
       dt = TimeCurrent();
     }
@@ -169,7 +169,7 @@ struct DateTimeStatic {
   /**
    * Returns the amount of seconds elapsed from the beginning of the current minute of the last known server time.
    */
-  static int Seconds(datetime dt = NULL) {
+  static int Seconds(datetime dt = 0) {
     if (dt == 0) {
       dt = TimeCurrent();
     }
@@ -213,7 +213,7 @@ struct DateTimeStatic {
   /**
    * Returns the current year (e.g. the year of the last known server time).
    */
-  static int Year(datetime dt = NULL) {
+  static int Year(datetime dt = 0) {
     if (dt == 0) {
       dt = TimeCurrent();
     }

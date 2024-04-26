@@ -78,8 +78,6 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     IndicatorDataEntry entry(num_args - 1);
-    // @fixit Not sure if we should enforce double.
-    // entry.AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
 
     if (_action == INDI_ACTION_SET_VALUE) {
       Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), num_args - 1);
@@ -107,6 +105,7 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
     Indicator<IndiDrawerParams>::OnTick();
 
     TaskActionEntry action(INDI_ACTION_SET_VALUE);
+    /* @fixme
     ArrayResize(action.args, 3);
     action.args[0].type = TYPE_LONG;
     action.args[0].integer_value = GetBarTime();
@@ -116,9 +115,11 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
 
     action.args[2].type = TYPE_DOUBLE;
     action.args[2].double_value = 1.25;
+    */
 
-    string json = SerializerConverter::FromObject(action).ToString<SerializerJson>(/*SERIALIZER_JSON_NO_WHITESPACES*/);
+    //string json = SerializerConverter::FromObject(action).ToString<SerializerJson>(/*SERIALIZER_JSON_NO_WHITESPACES*/);
 
+    /* @fixme
     RedisMessage msg;
     msg.Add("message");
     msg.Add("INDICATOR_DRAW");
@@ -143,6 +144,7 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
         // Drawing on the buffer.
       }
     }
+    */
   }
 
   Redis *Redis() { return &redis; }

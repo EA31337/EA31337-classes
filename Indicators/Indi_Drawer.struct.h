@@ -39,6 +39,7 @@ struct IndiDrawerParams : IndicatorParams {
       : period(_period), applied_price(_ap), IndicatorParams(INDI_DRAWER) {
     // Fetching history data is not yet implemented.
     SetCustomIndicatorName("Examples\\Drawer");
+    // Simulating a single, valid buffer.
   };
   IndiDrawerParams(IndiDrawerParams &_params, ENUM_TIMEFRAMES _tf) {
     THIS_REF = _params;

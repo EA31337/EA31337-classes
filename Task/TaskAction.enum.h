@@ -33,15 +33,6 @@
 #ifndef ACTION_ENUM_H
 #define ACTION_ENUM_H
 
-/* Defines action entry flags. */
-enum ENUM_ACTION_ENTRY_FLAGS {
-  ACTION_ENTRY_FLAG_NONE = 0,
-  ACTION_ENTRY_FLAG_IS_ACTIVE = 1,
-  ACTION_ENTRY_FLAG_IS_DONE = 2,
-  ACTION_ENTRY_FLAG_IS_FAILED = 4,
-  ACTION_ENTRY_FLAG_IS_INVALID = 8
-};
-
 /* Defines action types. */
 enum ENUM_ACTION_TYPE {
   ACTION_TYPE_NONE = 0,   // None.
