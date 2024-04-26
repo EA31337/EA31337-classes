@@ -42,7 +42,9 @@ int OnInit() {
 
   Ref<OpenCLBuffer> buffer = OpenCL::Alloc(1 /* 1 double */, CL_MEM_READ_WRITE);
 
-  if (!program REF_DEREF Run(buffer.Ptr())) {
+  program REF_DEREF SetArg(0, buffer.Ptr(), ULONG_MAX);
+
+  if (!program REF_DEREF Run()) {
     Alert("Error running program!");
   }
 
@@ -57,6 +59,7 @@ int OnInit() {
   Print("in2 shape: ", in2 PTR_DEREF GetRange(0), " x ", in2 PTR_DEREF GetRange(1));
   out = in1 PTR_DEREF MatMul(in2);
   Print("out shape: ", out PTR_DEREF GetRange(0), " x ", out PTR_DEREF GetRange(1));
+  Print("out data: ", out PTR_DEREF ToString());
 
   delete in1;
   delete in2;
