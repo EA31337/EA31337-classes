@@ -119,7 +119,7 @@ class DrawIndicator;
       _obj.SetHandle(_handle);                                                                             \
     }                                                                                                      \
   }                                                                                                        \
-  if (Terminal::IsVisualMode()) {                                                                 \
+  if (Terminal::IsVisualMode()) {                                                                          \
     /* To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND), */                                              \
     /* we check the number of calculated data only in visual mode. */                                      \
     int _bars_calc = BarsCalculated(_handle);                                                              \
@@ -131,6 +131,7 @@ class DrawIndicator;
     }                                                                                                      \
   }                                                                                                        \
   if (CopyBuffer(_handle, MODE, SHIFT, 1, _res) < 0) {                                                     \
+    Print(#NATIVE_METHOD_CALL, " = ", _res[0], ", LE = ", _LastError);                                     \
     return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;                                                    \
   }                                                                                                        \
   return _res[0];
