@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../DictStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "Indi_Bands.mqh"
 #include "Indi_CCI.mqh"
 #include "Indi_Envelopes.mqh"
@@ -33,9 +33,9 @@
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
-double iRSI(string _symbol, int _tf, int _period, int _ap, int _shift) {
+double iRSI(string _symbol, int _tf, int _period, ENUM_APPLIED_PRICE _ap, int _shift) {
   ResetLastError();
-  return Indi_RSI::iRSI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
+  return Indi_RSI::iRSI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _ap, _shift);
 }
 double iRSIOnArray(double &_arr[], int _total, int _period, int _shift) {
   ResetLastError();
@@ -89,15 +89,15 @@ struct RSIGainLossData {
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_RSI : public Indicator<IndiRSIParams> {
+class Indi_RSI : public IndicatorTickOrCandleSource<IndiRSIParams> {
   DictStruct<long, RSIGainLossData> aux_data;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_RSI(IndiRSIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRSIParams>(_p, _indi_src) {}
-  Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RSI, _tf, _shift) {}
+  Indi_RSI(IndiRSIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_RSI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RSI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -289,7 +289,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     double _res[];
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();

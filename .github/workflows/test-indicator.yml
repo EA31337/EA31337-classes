@@ -1,0 +1,52 @@
+---
+name: Test Indicator
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Indicator**'
+      - 'Indicator/**'
+      - '.github/workflows/test-indicator.yml'
+  push:
+    paths:
+      - 'Indicator**'
+      - 'Indicator/**'
+      - '.github/workflows/test-indicator.yml'
+
+jobs:
+
+  compile:
+    name: Compile
+    uses: ./.github/workflows/compile.yml
+    with:
+      artifact_prefix: mt
+      path: Indicator
+      skip_cleanup: true
+
+  Indicator-Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Indicator/tests
+    if: false
+    needs: compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - IndicatorCandle.test
+          - IndicatorTf.test
+          - IndicatorTick.test
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 4-8
+          BtMonths: 1
+          BtYears: 2020
+          TestExpert: ${{ matrix.test }}
+    timeout-minutes: 10

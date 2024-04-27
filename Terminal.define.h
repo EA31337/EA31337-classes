@@ -31,7 +31,10 @@
 // @docs
 // - https://docs.mql4.com/common/setusererror
 // - https://www.mql5.com/en/docs/common/SetUserError
+
+#ifndef __MQL5__
 #define ERR_USER_ARRAY_IS_EMPTY 1
+#endif
 #define ERR_USER_INVALID_ARG 2
 #define ERR_USER_INVALID_BUFF_NUM 3
 #define ERR_USER_INVALID_HANDLE 4

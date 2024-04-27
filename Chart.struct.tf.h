@@ -32,6 +32,7 @@
 
 // Includes.
 #include "Chart.enum.h"
+#include "Serializer.mqh"
 
 /* Defines struct for chart timeframe. */
 struct ChartTf {
@@ -185,9 +186,9 @@ struct ChartTf {
    * @param
    * _tf ENUM_TIMEFRAMES_INDEX Specify timeframe index enum.
    */
-  static ENUM_TIMEFRAMES const IndexToTf(ENUM_TIMEFRAMES_INDEX index) {
+  static ENUM_TIMEFRAMES const IndexToTf(ENUM_TIMEFRAMES_INDEX _idx) {
     // @todo: Convert it into a loop and using tf constant, see: TfToIndex().
-    switch (index) {
+    switch (_idx) {
       case M1:
         return PERIOD_M1;  // 1 minute.
       case M2:
@@ -345,8 +346,6 @@ struct ChartTf {
   // Serializers.
   SerializerNodeType Serialize(Serializer& s);
 };
-
-#include "Serializer.mqh"
 
 /* Method to serialize ChartTf structure. */
 SerializerNodeType ChartTf::Serialize(Serializer& s) {

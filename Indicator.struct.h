@@ -437,7 +437,7 @@ struct IndicatorParams {
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
         indi_data_source_id(-1),
-        indi_data_source_mode(0),
+        indi_data_source_mode(-1),
         itype(_itype),
         is_draw(false),
         indi_color(clrNONE),
@@ -454,7 +454,7 @@ struct IndicatorParams {
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
         indi_data_source_id(-1),
-        indi_data_source_mode(0),
+        indi_data_source_mode(-1),
         is_draw(false),
         indi_color(clrNONE),
         draw_window(0) {

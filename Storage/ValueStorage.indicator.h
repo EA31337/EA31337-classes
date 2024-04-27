@@ -57,5 +57,5 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual C Fetch(int _shift) { return indicator.GetValue<C>(RealShift(_shift), mode); }
+  virtual C Fetch(int _shift) { return indicator.GetValue<C>(mode, RealShift(_shift)); }
 };

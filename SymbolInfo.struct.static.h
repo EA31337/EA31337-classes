@@ -26,7 +26,7 @@
 #endif
 
 #include "MQL5.mqh"
-#include "MqlTick.h"
+#include "Tick.struct.h"
 #include "Std.h"
 
 /**

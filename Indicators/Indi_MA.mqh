@@ -27,7 +27,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickSource.h"
 #include "../Refs.mqh"
 #include "../Storage/Singleton.h"
 #include "../Storage/ValueStorage.h"
@@ -74,13 +74,13 @@ struct IndiMAParams : IndicatorParams {
 /**
  * Implements the Moving Average indicator.
  */
-class Indi_MA : public Indicator<IndiMAParams> {
+class Indi_MA : public IndicatorTickSource<IndiMAParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiMAParams>(_p, _indi_src) {}
-  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_MA, _tf, _shift) {}
+  Indi_MA(IndiMAParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
+  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_MA, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -141,11 +141,96 @@ class Indi_MA : public Indicator<IndiMAParams> {
 #ifdef __MQL4__
     return ::iMAOnArray(price, total, ma_period, ma_shift, ma_method, shift);
 #else
-    // We're reusing the same native array for each consecutive calculation.
-    NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();
-    _array_storage.SetData(price);
+    if (cache != NULL) {
+      // We're reusing the same native array for each consecutive calculation.
+      NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();
+      _array_storage.SetData(price);
 
-    return iMAOnArray((ValueStorage<double> *)_array_storage, total, ma_period, ma_shift, ma_method, shift, cache);
+      return iMAOnArray((ValueStorage<double> *)_array_storage, total, ma_period, ma_shift, ma_method, shift, cache);
+    } else {
+      double buf[], arr[], _result, pr, _array;
+      int pos, i, k, weight;
+      double sum, lsum;
+      if (total == 0) total = ArraySize(price);
+      if (total > 0 && total < ma_period) return (0);
+      if (shift > total - ma_period - ma_shift) return (0);
+      bool _was_series = ArrayGetAsSeries(price);
+      ArraySetAsSeries(price, true);
+      switch (ma_method) {
+        case MODE_SMA:
+          total = ArrayCopy(arr, price, 0, shift + ma_shift, ma_period);
+          if (ArrayResize(buf, total) < 0) return (0);
+          sum = 0;
+          pos = total - 1;
+          for (i = 1; i < ma_period; i++, pos--) sum += arr[pos];
+          while (pos >= 0) {
+            sum += arr[pos];
+            buf[pos] = sum / ma_period;
+            sum -= arr[pos + ma_period - 1];
+            pos--;
+          }
+          _result = buf[0];
+          break;
+        case MODE_EMA:
+          if (ArrayResize(buf, total) < 0) return (0);
+          pr = 2.0 / (ma_period + 1);
+          pos = total - 2;
+          while (pos >= 0) {
+            if (pos == total - 2) buf[pos + 1] = price[pos + 1];
+            buf[pos] = price[pos] * pr + buf[pos + 1] * (1 - pr);
+            pos--;
+          }
+          _result = buf[0];
+          break;
+        case MODE_SMMA:
+          if (ArrayResize(buf, total) < 0) return (0);
+          sum = 0;
+          pos = total - ma_period;
+          while (pos >= 0) {
+            if (pos == total - ma_period) {
+              for (i = 0, k = pos; i < ma_period; i++, k++) {
+                sum += price[k];
+                buf[k] = 0;
+              }
+            } else
+              sum = buf[pos + 1] * (ma_period - 1) + price[pos];
+            buf[pos] = sum / ma_period;
+            pos--;
+          }
+          _result = buf[0];
+          break;
+        case MODE_LWMA:
+          if (ArrayResize(buf, total) < 0) return (0);
+          sum = 0.0;
+          lsum = 0.0;
+          weight = 0;
+          pos = total - 1;
+          for (i = 1; i <= ma_period; i++, pos--) {
+            _array = price[pos];
+            sum += _array * i;
+            lsum += _array;
+            weight += i;
+          }
+          pos++;
+          i = pos + ma_period;
+          while (pos >= 0) {
+            buf[pos] = sum / weight;
+            if (pos == 0) break;
+            pos--;
+            i--;
+            _array = price[pos];
+            sum = sum - lsum + _array * ma_period;
+            lsum -= price[i];
+            lsum += _array;
+          }
+          _result = buf[0];
+          break;
+        default:
+          _result = 0;
+      }
+      ArraySetAsSeries(price, _was_series);
+      return _result;
+    }
 #endif
   }
 
@@ -627,7 +712,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -661,6 +746,35 @@ class Indi_MA : public Indicator<IndiMAParams> {
       _ptr.SetSymbol(_symbol);
     }
     return _ptr;
+  }
+
+  /**
+   * Returns value storage of given kind.
+   */
+  IValueStorage *GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+    switch (_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+      case INDI_VS_TYPE_PRICE_BID:
+        // We're returning the same buffer for ask and bid price, as target indicator probably won't bother.
+        return GetValueStorage(0);
+      default:
+        // Trying in parent class.
+        return Indicator<IndiMAParams>::GetSpecificValueStorage(_type);
+    }
+  }
+
+  /**
+   * Checks whether indicator support given value storage type.
+   */
+  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+    switch (_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+      case INDI_VS_TYPE_PRICE_BID:
+        return true;
+      default:
+        // Trying in parent class.
+        return Indicator<IndiMAParams>::HasSpecificValueStorage(_type);
+    }
   }
 
   /* Getters */

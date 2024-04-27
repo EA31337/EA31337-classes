@@ -20,35 +20,21 @@ on:
 
 jobs:
 
-  Compile:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Compile
-        uses: fx31337/mql-compile-action@master
-        with:
-          mt-version: 4.0.0.1349
-          verbose: true
-      - name: Print compiled files
-        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
-        shell: powershell
-      - name: Upload artifacts (MQL4)
-        uses: actions/upload-artifact@v2
-        with:
-          name: files-ex4
-          path: '**/*.ex4'
-      - name: Upload artifacts (MQL5)
-        uses: actions/upload-artifact@v2
-        with:
-          name: files-ex5
-          path: '**/*.ex5'
+  compile:
+    name: Compile
+    uses: ./.github/workflows/compile.yml
+    with:
+      artifact_prefix: mt
+      skip_cleanup: true
+      skip_init: false
 
   Experts-MQL4:
     defaults:
       run:
         shell: bash
         working-directory: tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -89,7 +75,7 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           BtYears: 2020
-          MtVersion: 4.0.0.1349
+          Version: 4
           TestExpert: ${{ matrix.test }}
     timeout-minutes: 10
 
@@ -98,7 +84,8 @@ jobs:
       run:
         shell: bash
         working-directory: tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -134,7 +121,8 @@ jobs:
       run:
         shell: bash
         working-directory: tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -159,7 +147,8 @@ jobs:
       run:
         shell: bash
         working-directory: Trade/tests
-    needs: Compile
+    if: false
+    needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:

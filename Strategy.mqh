@@ -865,6 +865,51 @@ class Strategy : public Object {
   virtual void OnInit() {
     SetStops(GetPointer(this), GetPointer(this));
     // trade.SetStrategy(&this); // @fixme
+    // Sets strategy's trade spread limit.
+    trade.Set<float>(TRADE_PARAM_MAX_SPREAD, sparams.Get<float>(STRAT_PARAM_MAX_SPREAD));
+    // Load active trades.
+    if (Get<long>(STRAT_PARAM_ID) > 0) {
+      trade.OrdersLoadByMagic(Get<long>(STRAT_PARAM_ID));
+    }
+    Ref<Order> _order;
+    for (DictStructIterator<long, Ref<Order>> iter = trade.GetOrdersActive().Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
+      if (_order.IsSet() && _order.Ptr().IsOpen()) {
+        Strategy::OnOrderLoad(_order.Ptr());
+      }
+    }
+  }
+
+  /**
+   * Event on strategy's order load.
+   *
+   * @param
+   *   _oparams Order parameters to update.
+   */
+  virtual void OnOrderLoad(Order *_order) {
+    int _index = 0;
+    ENUM_TIMEFRAMES _stf = Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
+    unsigned int _stf_secs = ChartTf::TfToSeconds(_stf);
+    if (sparams.order_close_time != 0) {
+      long _close_time_arg = sparams.order_close_time > 0 ? sparams.order_close_time * 60
+                                                          : (int)round(-sparams.order_close_time * _stf_secs);
+      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
+      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
+      _index++;
+    }
+    if (sparams.order_close_loss != 0.0f) {
+      float _loss_limit = sparams.order_close_loss;
+      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_LOSS, _index);
+      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _loss_limit, _index);
+      _index++;
+    }
+    if (sparams.order_close_profit != 0.0f) {
+      float _profit_limit = sparams.order_close_profit;
+      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_PROFIT, _index);
+      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
+      _index++;
+    }
+    _order.Set(ORDER_PARAM_UPDATE_FREQ, _stf_secs);
   }
 
   /**
@@ -1211,7 +1256,8 @@ class Strategy : public Object {
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {
       int _ishift = 12;  // @todo: Make it dynamic or as variable.
-      float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
+      float _value = 0.0f; // @todo
+      //float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
       _value = _value + (float)Math::ChangeByPct(fabs(_value - _chart.GetCloseOffer(0)), _level) * _direction;
       _psm.SetIndicatorPriceValue(_value);
       /*

@@ -94,14 +94,10 @@ class MTDXDevice : public Device {
   }
 
   /**
-   * Creates index buffer to be used by current graphics device.
-   */
-  IndexBuffer* IndexBuffer() { return NULL; }
-
-  /**
    * Creates vertex shader to be used by current graphics device.
    */
-  virtual Shader* VertexShader(string _source_code, const ShaderVertexLayout& _layout[], string _entry_point = "main") {
+  Shader* CreateVertexShader(string _source_code, const ShaderVertexLayout& _layout[],
+                             string _entry_point = "main") override {
     MTDXShader* _shader = new MTDXShader(&this);
     _shader.Create(SHADER_TYPE_VS, _source_code, _entry_point);
     _shader.SetDataLayout(_layout);
@@ -111,7 +107,7 @@ class MTDXDevice : public Device {
   /**
    * Creates pixel shader to be used by current graphics device.
    */
-  virtual Shader* PixelShader(string _source_code, string _entry_point = "main") {
+  Shader* CreatePixelShader(string _source_code, string _entry_point = "main") override {
     MTDXShader* _shader = new MTDXShader(&this);
     _shader.Create(SHADER_TYPE_PS, _source_code, _entry_point);
     return _shader;
@@ -120,12 +116,12 @@ class MTDXDevice : public Device {
   /**
    * Creates vertex buffer to be used by current graphics device.
    */
-  VertexBuffer* VertexBuffer() { return new MTDXVertexBuffer(&this); }
+  VertexBuffer* CreateVertexBuffer() override { return new MTDXVertexBuffer(&this); }
 
   /**
    * Creates index buffer to be used by current graphics device.
    */
-  virtual IndexBuffer* IndexBuffer(unsigned int& _indices[]) {
+  IndexBuffer* CreateIndexBuffer(unsigned int& _indices[]) override {
     IndexBuffer* _buffer = new MTDXIndexBuffer(&this);
     _buffer.Fill(_indices);
     return _buffer;

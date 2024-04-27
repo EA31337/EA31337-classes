@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -42,15 +42,15 @@ struct IndiColorCandlesDailyParams : IndicatorParams {
 /**
  * Implements Color Bars
  */
-class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
+class Indi_ColorCandlesDaily : public IndicatorTickOrCandleSource<IndiColorCandlesDailyParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_ColorCandlesDaily(IndiColorCandlesDailyParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiColorCandlesDailyParams>(_p, _indi_src){};
+      : IndicatorTickOrCandleSource(_p, _indi_src){};
   Indi_ColorCandlesDaily(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : Indicator(INDI_COLOR_CANDLES_DAILY, _tf, _shift){};
+      : IndicatorTickOrCandleSource(INDI_COLOR_CANDLES_DAILY, _tf, _shift){};
 
   /**
    * "Built-in" version of Color Candles Daily.
@@ -83,6 +83,16 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   }
 
   /**
+   * On-indicator version of Color Candles Daily.
+   */
+  static double iCCDOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
+                                int _shift = 0, IndicatorBase *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
+        _indi, _symbol, _tf, Util::MakeKey("Indi_ColorCandlesDaily_ON_" + _indi.GetFullName()));
+    return iCCDOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+  }
+
+  /**
    * OnCalculate() method for Color Candles Daily indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtOpenBuffer,
@@ -110,7 +120,7 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
@@ -119,6 +129,10 @@ class Indi_ColorCandlesDaily : public Indicator<IndiColorCandlesDailyParams> {
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        break;
+      case IDATA_INDICATOR:
+        _value =
+            Indi_ColorCandlesDaily::iCCDOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

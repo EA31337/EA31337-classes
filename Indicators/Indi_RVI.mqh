@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -50,13 +50,13 @@ struct IndiRVIParams : IndicatorParams {
 /**
  * Implements the Relative Vigor Index indicator.
  */
-class Indi_RVI : public Indicator<IndiRVIParams> {
+class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_RVI(const IndiRVIParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiRVIParams>(_p, _indi_src) {}
-  Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_RVI, _tf, _shift) {}
+  Indi_RVI(const IndiRVIParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RVI, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -103,7 +103,7 @@ class Indi_RVI : public Indicator<IndiRVIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

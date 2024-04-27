@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -50,13 +50,13 @@ struct IndiWPRParams : IndicatorParams {
 /**
  * Implements the Larry Williams' Percent Range.
  */
-class Indi_WPR : public Indicator<IndiWPRParams> {
+class Indi_WPR : public IndicatorTickOrCandleSource<IndiWPRParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_WPR(IndiWPRParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiWPRParams>(_p, _indi_src) {}
-  Indi_WPR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_WPR, _tf, _shift) {}
+  Indi_WPR(IndiWPRParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_WPR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_WPR, _tf, _shift) {}
 
   /**
    * Calculates the Larry Williams' Percent Range and returns its value.
@@ -101,7 +101,7 @@ class Indi_WPR : public Indicator<IndiWPRParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

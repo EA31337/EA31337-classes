@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickOrCandleSource.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -50,14 +50,14 @@ struct IndiDeMarkerParams : IndicatorParams {
 /**
  * Implements the DeMarker indicator.
  */
-class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
+class Indi_DeMarker : public IndicatorTickOrCandleSource<IndiDeMarkerParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<IndiDeMarkerParams>(_p, _indi_src) {}
-  Indi_DeMarker(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_DEMARKER, _tf, _shift) {}
+  Indi_DeMarker(IndiDeMarkerParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_DeMarker(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
+      : IndicatorTickOrCandleSource(INDI_DEMARKER, _tf, _shift) {}
 
   /**
    * Returns the indicator value.
@@ -102,7 +102,7 @@ class Indi_DeMarker : public Indicator<IndiDeMarkerParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

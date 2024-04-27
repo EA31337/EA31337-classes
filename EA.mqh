@@ -149,7 +149,7 @@ class EA {
    * @return
    *   Returns TradeSignalEntry struct.
    */
-  TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, bool _trade_allowed = true, int _shift = -1) {
+  TradeSignalEntry GetStrategySignalEntry(Strategy *_strat, bool _trade_allowed = true, int _shift = 0) {
     // float _bf = 1.0;
     float _scl = _strat.Get<float>(STRAT_PARAM_SCL);
     float _sol = _strat.Get<float>(STRAT_PARAM_SOL);
@@ -765,8 +765,21 @@ class EA {
    * Loads existing trades for the given strategy.
    */
   bool StrategyLoadTrades(Strategy *_strat) {
+    bool _result = true;
     Trade *_trade = trade.GetByKey(_Symbol);
-    return _trade.OrdersLoadByMagic(_strat.Get<long>(STRAT_PARAM_ID));
+    // Load active trades.
+    _result &= _trade.OrdersLoadByMagic(_strat.Get<long>(STRAT_PARAM_ID));
+    // Load strategy-specific order parameters (e.g. conditions).
+    // This is a temporary workaround for GH-705.
+    // @todo: To move to Strategy class.
+    Ref<Order> _order;
+    for (DictStructIterator<long, Ref<Order>> iter = _trade.GetOrdersActive().Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
+      if (_order.IsSet() && _order.Ptr().IsOpen()) {
+        _strat.OnOrderLoad(_order.Ptr());
+      }
+    }
+    return _result;
   }
 
   /* Trade methods */

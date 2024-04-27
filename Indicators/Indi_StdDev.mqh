@@ -28,7 +28,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/IndicatorTickSource.h"
 #include "../Storage/ObjectsCache.h"
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
@@ -73,13 +73,13 @@ struct IndiStdDevParams : IndicatorParams {
 /**
  * Implements the Standard Deviation indicator.
  */
-class Indi_StdDev : public Indicator<IndiStdDevParams> {
+class Indi_StdDev : public IndicatorTickSource<IndiStdDevParams> {
  public:
   /**
    * Class constructor.
    */
-  Indi_StdDev(IndiStdDevParams &_p, IndicatorBase *_indi_src = NULL) : Indicator<IndiStdDevParams>(_p, _indi_src) {}
-  Indi_StdDev(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : Indicator(INDI_STDDEV, _tf, _shift) {}
+  Indi_StdDev(IndiStdDevParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickSource(_p, _indi_src) {}
+  Indi_StdDev(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_STDDEV, _tf, _shift) {}
 
   /**
    * Calculates the Standard Deviation indicator and returns its value.
@@ -157,7 +157,8 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
     return MathSqrt(std_dev / period);
   }
 
-  static double iStdDevOnArray(double &array[], int total, int ma_period, int ma_shift, int ma_method, int shift) {
+  static double iStdDevOnArray(double &array[], int total, int ma_period, int ma_shift, ENUM_MA_METHOD ma_method,
+                               int shift) {
 #ifdef __MQL4__
     return ::iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift);
 #endif
@@ -226,7 +227,7 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {

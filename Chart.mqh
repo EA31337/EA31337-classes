@@ -224,7 +224,7 @@ class Chart : public Market {
    * @return
    *   Returns ChartEntry struct.
    */
-  ChartEntry GetEntry(unsigned int _shift = 0) {
+  ChartEntry GetEntry(int _shift = 0) {
     ChartEntry _chart_entry;
     BarOHLC _ohlc = GetOHLC(_shift);
     if (_ohlc.open > 0) {
@@ -378,23 +378,23 @@ class Chart : public Market {
    *
    * In case of error, check it via GetLastError().
    */
-  double GetPeakPrice(int bars, int mode, int index, ENUM_TIMEFRAMES timeframe = PERIOD_CURRENT) {
+  double GetPeakPrice(int bars, int mode, int _idx, ENUM_TIMEFRAMES timeframe = PERIOD_CURRENT) {
     int ibar = -1;
     // @todo: Add symbol parameter.
     double peak_price = GetOpen(0);
     switch (mode) {
       case MODE_HIGH:
-        ibar = ChartStatic::iHighest(symbol, timeframe, MODE_HIGH, bars, index);
+        ibar = ChartStatic::iHighest(symbol, timeframe, MODE_HIGH, bars, _idx);
         return ibar >= 0 ? GetHigh(timeframe, ibar) : false;
       case MODE_LOW:
-        ibar = ChartStatic::iLowest(symbol, timeframe, MODE_LOW, bars, index);
+        ibar = ChartStatic::iLowest(symbol, timeframe, MODE_LOW, bars, _idx);
         return ibar >= 0 ? GetLow(timeframe, ibar) : false;
       default:
         return false;
     }
   }
-  double GetPeakPrice(int bars, int mode = MODE_HIGH, int index = 0) {
-    return GetPeakPrice(bars, mode, index, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF));
+  double GetPeakPrice(int bars, int mode = MODE_HIGH, int _idx = 0) {
+    return GetPeakPrice(bars, mode, _idx, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF));
   }
 
   /**
