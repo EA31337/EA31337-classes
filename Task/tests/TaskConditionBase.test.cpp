@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,8 +21,15 @@
 
 /**
  * @file
- * Test functionality of Collection class.
+ * Test C++ compilation of TaskConditionBase class.
  */
 
 // Includes.
-#include "CollectionTest.mq5"
+#include "../TaskConditionBase.h"
+
+#include "../../Common.define.h"
+#include "../../Common.extern.h"
+#include "../../Std.h"
+#include "../../String.extern.h"
+
+int main(int argc, char **argv) {}

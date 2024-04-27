@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,12 +25,12 @@
 #define COLLECTION_MQH
 
 // Includes.
-#include "Object.mqh"
+#include "../Object.mqh"
 
 /**
  * Class to deal with collection of objects.
  */
-template<typename X>
+template <typename X>
 class Collection {
  protected:
   // Variables.
@@ -45,8 +45,7 @@ class Collection {
   Collection() {}
   Collection(string _name) : name(_name) {}
   Collection(void *_obj) { Add(_obj); }
-  ~Collection() {
-  }
+  ~Collection() {}
 
   /* Setters */
 
@@ -99,7 +98,7 @@ class Collection {
   /**
    * Returns pointer to the current object.
    */
-  X* GetCurrentItem() { return data[index].Ptr() != NULL ? data[index].Ptr() : NULL; }
+  X *GetCurrentItem() { return data[index].Ptr() != NULL ? data[index].Ptr() : NULL; }
 
   /**
    * Returns ID of the current object.

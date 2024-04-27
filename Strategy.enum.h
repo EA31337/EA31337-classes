@@ -51,7 +51,6 @@ enum ENUM_STRATEGY_ACTION {
   STRAT_ACTION_DISABLE = 0,  // Disables strategy.
   STRAT_ACTION_ENABLE,       // Enables strategy.
   STRAT_ACTION_SUSPEND,      // Suspend Strategy.
-  STRAT_ACTION_TRADE_EXE,    // Execute trade action.
   STRAT_ACTION_UNSUSPEND,    // Unsuspend Strategy.
   FINAL_STRATEGY_ACTION_ENTRY
 };
@@ -62,13 +61,13 @@ enum ENUM_STRATEGY_CONDITION {
   STRAT_COND_IS_SUSPENDED,    // Strategy is suspended.
   STRAT_COND_IS_TREND,        // Strategy is in trend.
   STRAT_COND_SIGNALOPEN,      // On strategy's signal to open.
-  STRAT_COND_TRADE_COND,      // On strategy's trade condition (args).
   FINAL_STRATEGY_CONDITION_ENTRY
 };
 
 // Defines enumeration for strategy parameters.
 enum ENUM_STRATEGY_PARAM {
   STRAT_PARAM_ID,          // ID (magic number)
+  STRAT_PARAM_LOG_LEVEL,   // Log level
   STRAT_PARAM_LS,          // Lot size
   STRAT_PARAM_LSF,         // Lot size factor
   STRAT_PARAM_MAX_RISK,    // Max risk

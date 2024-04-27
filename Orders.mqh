@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,12 +24,13 @@
 class Orders;
 
 // Includes.
-#include "Account.mqh"
+#include "Account/Account.h"
 #include "Chart.mqh"
 #include "Log.mqh"
 #include "Math.h"
 #include "Order.mqh"
 #include "Terminal.mqh"
+#include "Trade.struct.h"
 
 /* Defines */
 
@@ -117,9 +118,9 @@ class Orders {
   /**
    * Finds order in the selected pool.
    */
-  Order *SelectOrder(ulong _ticket) {
-    for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
-      if (orders[_pos].Get<ulong>(ORDER_PROP_TICKET) == _ticket) {
+  Order *SelectOrder(unsigned long _ticket) {
+    for (unsigned int _pos = ArraySize(orders); _pos >= 0; _pos--) {
+      if (orders[_pos].Get<unsigned long>(ORDER_PROP_TICKET) == _ticket) {
         return orders[_pos];
       }
     }
@@ -129,13 +130,13 @@ class Orders {
   /**
    * Select order object by ticket.
    */
-  Order *SelectByTicket(ulong _ticket) {
+  Order *SelectByTicket(unsigned long _ticket) {
     Order *_order = SelectOrder(_ticket);
     if (_order != NULL) {
       return _order;
     } else if ((pool == ORDERS_POOL_TRADES && Order::TryOrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)) ||
                (pool == ORDERS_POOL_HISTORY && Order::TryOrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY))) {
-      uint _size = ArraySize(orders);
+      unsigned int _size = ArraySize(orders);
       ArrayResize(orders, _size + 1, 100);
       return orders[_size] = new Order(_ticket);
     }
@@ -319,8 +320,8 @@ class Orders {
     }
 
     bool result = true;
-    uint total = OrdersTotal();
-    for (uint i = total - 1; i >= 0; i--) {
+    unsigned int total = OrdersTotal();
+    for (unsigned int i = total - 1; i >= 0; i--) {
       if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
         return (false);
       }
@@ -332,7 +333,7 @@ class Orders {
           (_magic == -1 || OrderMagicNumber() == _magic)) {
         string o_symbol = OrderSymbol();
 
-        uint _digits = SymbolInfoStatic::GetDigits(o_symbol);
+        unsigned int _digits = SymbolInfoStatic::GetDigits(o_symbol);
         bool res_one = false;
         int attempts = 10;
         while (attempts > 0) {
@@ -355,7 +356,7 @@ class Orders {
           }
 
           //---
-          uint slippage = SymbolInfoStatic::GetSpread(o_symbol);
+          unsigned int slippage = SymbolInfoStatic::GetSpread(o_symbol);
 
           //---
           if (OrderClose(OrderTicket(), OrderLots(), close_price, slippage)) {
@@ -376,9 +377,9 @@ class Orders {
 #endif
 
 #ifdef __MQL5__
-    uint total = PositionsTotal();
+    unsigned int total = PositionsTotal();
     /* @fixme
-    for (uint i = total - 1; i >= 0; i--) {
+    for (unsigned int i = total - 1; i >= 0; i--) {
       if (!position_info.SelectByIndex(i))
         return(false);
 
@@ -487,8 +488,8 @@ class Orders {
     count.sell_count=0;
 
     #ifdef __MQL4__
-    uint total = OrdersTotal();
-    for (uint i = 0; i < total; i++) {
+    unsigned int total = OrdersTotal();
+    for (unsigned int i = 0; i < total; i++) {
       if (!Order::OrderSelect(i, SELECT_BY_POS)) {
         return false;
       }
@@ -531,8 +532,8 @@ class Orders {
   /**
    * Count open positions by order type.
    */
-  static uint GetOrdersByType(ENUM_ORDER_TYPE _cmd, string _symbol = NULL) {
-    uint _counter = 0;
+  static unsigned int GetOrdersByType(ENUM_ORDER_TYPE _cmd, string _symbol = NULL) {
+    unsigned int _counter = 0;
     _symbol = _symbol != NULL ? _symbol : _Symbol;
     for (int i = 0; i < OrdersTotal(); i++) {
       if (Order::TryOrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;

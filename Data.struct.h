@@ -37,6 +37,7 @@ struct MqlRates;
 
 // Includes.
 #include "Data.enum.h"
+#include "DateTime.mqh"
 #include "Serializer.enum.h"
 #include "SerializerNode.enum.h"
 #include "Std.h"
@@ -56,7 +57,7 @@ struct MqlParam {
     double double_value;  // Field to store a double type.
     string string_value;  // Field to store a string type.
   };
-  MqlParam() { type = (ENUM_DATATYPE)WRONG_VALUE; }
+  MqlParam() { type = InvalidEnumValue<ENUM_DATATYPE>::value(); }
 
   MqlParam(const MqlParam &_r) { THIS_REF = _r; }
 
@@ -83,6 +84,7 @@ struct MqlParam {
       case TYPE_STRING:
         string_value = _r.string_value;
     }
+    return THIS_REF;
   }
 
   MqlParam(long _value) {
@@ -118,7 +120,7 @@ struct MqlParam {
  */
 struct DataParamEntry : public MqlParam {
  public:
-  DataParamEntry() { type = (ENUM_DATATYPE)WRONG_VALUE; }
+  DataParamEntry() { type = InvalidEnumValue<ENUM_DATATYPE>::value(); }
   DataParamEntry(ENUM_DATATYPE _type, long _integer_value, double _double_value, string _string_value) {
     type = _type;
     integer_value = _integer_value;
@@ -189,14 +191,14 @@ struct DataParamEntry : public MqlParam {
         return (T)::StringToDouble(string_value);
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
-        return (T)ToDouble(this);
+        return (T)ToDouble(THIS_REF);
       default:
       case TYPE_BOOL:
       case TYPE_INT:
       case TYPE_LONG:
       case TYPE_UINT:
       case TYPE_ULONG:
-        return (T)ToInteger(this);
+        return (T)ToInteger(THIS_REF);
     }
   }
 
@@ -278,6 +280,11 @@ struct DataParamEntry : public MqlParam {
       case TYPE_STRING:
       case TYPE_UCHAR:
         return ::StringToDouble(param.string_value);
+      case TYPE_COLOR:
+      case TYPE_DATETIME:
+      case TYPE_SHORT:
+      case TYPE_USHORT:
+        return DBL_MIN;
     }
     return DBL_MIN;
   }
@@ -305,6 +312,8 @@ struct DataParamEntry : public MqlParam {
       case TYPE_STRING:
       case TYPE_UCHAR:
         return ::StringToInteger(param.string_value);
+      case TYPE_USHORT:
+        return INT_MIN;
     }
     return INT_MIN;
   }

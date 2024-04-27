@@ -38,10 +38,26 @@
 class Util {
  public:
   /**
+   * Replaces content of the given array with items from another array. It is a non-const r-value version, as MQL's
+   * built-in ArrayCopy does not support such source arrays.
+   */
+  template <typename T>
+  static void ArrayCopy(ARRAY_REF(T, _dst_array), ARRAY_REF(T, _src_array)) {
+#ifdef __MQL__
+    ::ArrayResize(_dst_array, ::ArraySize(_src_array));
+    for (int i = 0; i < ArraySize(_src_array); ++i) {
+      _dst_array[i] = _src_array[i];
+    }
+#else
+    _dst_array = _src_array;
+#endif
+  }
+
+  /**
    * Resizes native array and reserves space for further items by some fixed step.
    */
   template <typename T>
-  static void ArrayResize(T& _array[], int _new_size, int _resize_pool = 32) {
+  static void ArrayResize(ARRAY_REF(T, _array), int _new_size, int _resize_pool = 32) {
     ::ArrayResize(_array, _new_size, (_new_size / _resize_pool + 1) * _resize_pool);
   }
 
@@ -49,7 +65,7 @@ class Util {
    * Pushes item into the native array and reserves space for further items by some fixed step.
    */
   template <typename T, typename V>
-  static int ArrayPush(T& _array[], V& _value, int _resize_pool = 32) {
+  static int ArrayPush(ARRAY_REF(T, _array), V& _value, int _resize_pool = 32) {
     Util::ArrayResize(_array, ArraySize(_array) + 1, _resize_pool);
     _array[ArraySize(_array) - 1] = _value;
     return ArraySize(_array) - 1;
@@ -59,7 +75,7 @@ class Util {
    * Resizes native array and reserves space for further items by some fixed step.
    */
   template <typename T>
-  static T ArrayPop(T& _array[]) {
+  static T ArrayPop(ARRAY_REF(T, _array)) {
     T _result = _array[ArraySize(_array) - 1];
     ::ArrayResize(_array, ArraySize(_array) - 1);
     return _result;
@@ -69,7 +85,7 @@ class Util {
    * Removes value from the array.
    */
   template <typename T>
-  static bool ArrayRemove(T& _array[], int index) {
+  static bool ArrayRemove(ARRAY_REF(T, _array), int index) {
     if (index < 0 || index >= ArraySize(_array)) {
       // Index out of array bounds.
       return false;
@@ -85,7 +101,7 @@ class Util {
    * Removes value from the array.
    */
   template <typename T>
-  static bool ArrayRemoveFirst(T& _array[], T& value) {
+  static bool ArrayRemoveFirst(ARRAY_REF(T, _array), T& value) {
     for (int i = 0; i < ArraySize(_array); ++i) {
       if (_array[i] == value) {
         Util::ArrayRemove(_array, i);
@@ -96,7 +112,7 @@ class Util {
   }
 
   template <typename T>
-  static T Print(T& _array[]) {
+  static T Print(ARRAY_REF(T, _array)) {
     string _result;
     for (int i = 0; i < ArraySize(_array); ++i) {
       _result += IntegerToString(i) + ": " + (string)_array[i];
@@ -123,7 +139,7 @@ class Util {
    * Checks whether array has given value.
    */
   template <typename T, typename V>
-  static bool ArrayContains(T& _array[], const V& _value) {
+  static bool ArrayContains(ARRAY_REF(T, _array), const V& _value) {
     for (int i = 0; i < ArraySize(_array); ++i) {
       if (_array[i] == _value) {
         return true;

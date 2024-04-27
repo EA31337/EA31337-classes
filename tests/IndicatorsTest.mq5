@@ -108,7 +108,7 @@ void OnTick() {
       }
 
       IndicatorData* _indi = iter.Value().Ptr();
-      // _indi.OnTick(); // @fixme
+      _indi.OnTick();
       IndicatorDataEntry _entry(_indi.GetEntry());
 
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
@@ -414,11 +414,10 @@ bool InitIndicators() {
   /* @fixme
   IndiAMAParams ama_params();
   // Will use Candle indicator by default.
-  // However, in that case we need to specifiy applied price (excluding ASK and BID).
-  ama_params.SetDataSourceType(IDATA_INDICATOR);
-  Indi_AMA* _indi_ama = new Indi_AMA(ama_params);
+  // However, in that case we need to specify applied price (excluding ASK and BID).
+  Indi_AMA* _indi_ama = new Indi_AMA(ama_params, IDATA_INDICATOR, indi_applied_price_on_price.Ptr());
   _indi_ama.SetAppliedPrice(PRICE_OPEN);
-  indis.Push(_indi_ama);
+  indis.Push(_indi_ama); // @fixme
   */
 
   // Original AMA.

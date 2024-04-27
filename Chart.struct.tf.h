@@ -127,7 +127,7 @@ struct ChartTf {
    * @return ENUM_TIMEFRAMES
    *   Returns enum representing chart's timeframe value.
    */
-  static ENUM_TIMEFRAMES SecsToTf(uint _secs = 0) {
+  static ENUM_TIMEFRAMES SecsToTf(unsigned int _secs = 0) {
     switch (_secs) {
       case 0:
         return PERIOD_CURRENT;

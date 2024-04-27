@@ -109,40 +109,6 @@ class SerializerIterator : public SerializerNodeIterator {
    */
   SerializerIterator(const SerializerIterator& r) : SerializerNodeIterator(r) { _serializer = r._serializer; }
 
-  /**
-   * Returns next value or value by given key.
-   */
-#ifdef __MQL__
-  template <>
-#endif
-  X Value(string key = "") {
-    X value;
-    _serializer PTR_DEREF Pass(PTR_TO_REF(_serializer), key, value);
-    return value;
-  }
-
-  /**
-   * Returns next object or object by given key.
-   */
-#ifdef __MQL__
-  template <>
-#endif
-  X Object(string key = "") {
-    return Struct(key);
-  }
-
-  /**
-   * Returns next structure or structure by given key.
-   */
-#ifdef __MQL__
-  template <>
-#endif
-  X Struct(string key = "") {
-    X value;
-    _serializer PTR_DEREF PassStruct(PTR_TO_REF(_serializer), key, value);
-    return value;
-  }
-
   SerializerNodeType ParentNodeType() { return _collection PTR_DEREF GetType(); }
 };
 

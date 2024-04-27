@@ -34,7 +34,7 @@
 
 // Params for dummy candle-based indicator.
 struct IndicatorTfDummyParams : IndicatorTfParams {
-  IndicatorTfDummyParams(uint _spc = 60) : IndicatorTfParams(_spc) {}
+  IndicatorTfDummyParams(unsigned int _spc = 60) : IndicatorTfParams(_spc) {}
 };
 
 /**
@@ -42,7 +42,7 @@ struct IndicatorTfDummyParams : IndicatorTfParams {
  */
 class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
  public:
-  IndicatorTfDummy(uint _spc) : IndicatorTf(_spc) {}
+  IndicatorTfDummy(unsigned int _spc) : IndicatorTf(_spc) {}
   IndicatorTfDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorTf(_tf) {}
   IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi = 0) : IndicatorTf(_tfi) {}
 
