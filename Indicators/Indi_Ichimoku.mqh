@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -183,7 +183,9 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
     // so we are duplicating it.
     _entry.values[0] = GetEntryValue(LINE_TENKANSEN, _shift);
 #endif
-    _entry.values[(int)LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _shift + 26);
+    _entry.values[LINE_SENKOUSPANA] = GetEntryValue(LINE_SENKOUSPANA, _shift + GetKijunSen());
+    _entry.values[LINE_SENKOUSPANB] = GetEntryValue(LINE_SENKOUSPANB, _shift + GetKijunSen());
+    _entry.values[LINE_CHIKOUSPAN] = GetEntryValue(LINE_CHIKOUSPAN, _shift + GetKijunSen());
   }
 
   /**

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,86 +21,76 @@
  */
 
 // Includes.
-#include "Chart.mqh"
+#include "Dict.mqh"
+
+// Enums.
+enum ENUM_STATS_TYPE { STATS_CALC_AVG, STATS_CALC_MIN, STATS_CALC_MED, STATS_CALC_MAX };
 
 /**
- * Class to collect ticks, bars and other data for statistical purposes.
+ * Class to calculate minimum, average and maximum values.
  */
+template <typename T>
 class Stats {
  public:
-  unsigned long total_bars;
-  unsigned long total_ticks;
-  int curr_period;
-  // int custom_int[];
-  // double custom_dbl[];
+  double data[];
+  double avg, min, max;
+  datetime period_start, period_end;
+  int max_buff;
 
   /**
    * Implements class constructor.
+   *
+   * @param long _periods Flags to determine periods to calculate.
    */
-  Stats(void) { Reset(); }
+  Stats(int _max_buff = 1000) : max_buff(_max_buff) {}
 
   /**
    * Implements class destructor.
    */
-  ~Stats(void) {}
+  ~Stats() {}
 
-  void Reset() {
-    curr_period = Period();
-    total_bars = 0;
-    total_ticks = 0;
+  /**
+   * Parse the new value.
+   */
+  void Add(double _value, datetime _dt = 0) {
+    period_start = fmin(_dt, period_start);
+    period_end = fmax(_dt, period_end);
+    _dt = _dt > 0 ? _dt : TimeCurrent();
+    // avg = (_value + last) / 2;
   }
 
   /**
-   * Update stats on tick.
+   * Get statistics per period.
+   *
+   * @param ENUM_STATS_TYPE _type Specify type of calculation.
    */
-  void OnTick() {
-    static long _last_bar_time = 0;
-    total_ticks++;
-    if (_last_bar_time != ChartStatic::iTime(_Symbol, 0, 0)) {
-      _last_bar_time = ChartStatic::iTime(_Symbol, 0, 0);
-      total_bars++;
-    }
+  double GetStats(ENUM_STATS_TYPE _type = STATS_CALC_AVG) {
+    // @todo
+    return WRONG_VALUE;
   }
 
   /**
-   * Update stats on deinit.
+   * Gets total count.
+   *
+   * @return
+   * Returns total count of all values.
    */
-  void OnDeinit() {}
-
-  /* Getters */
-
-  /**
-   * Get number of counted bars.
-   */
-  unsigned long GetTotalBars() { return (total_bars); }
-
-  /**
-   * Get number of counted ticks.
-   */
-  unsigned long GetTotalTicks() { return (total_ticks); }
+  int GetCount() {
+    // return data.GetCount();
+    return WRONG_VALUE;
+  }
 
   /**
-   * Get number of ticks per bar.
+   * Get average count per period.
+   *
+   * @param ENUM_TIMEFRAMES _period Specify type of calculation.
+   *
+   * @return
+   * Returns average count per period. When PERIOD_CURRENT, returns total number.
    */
-  unsigned long GetTicksPerBar() { return (total_bars > 0 ? (total_ticks / total_bars) : 0); }
-
-  /**
-   * Get number of ticks per minute.
-   */
-  unsigned long GetTicksPerMin() { return (total_bars > 0 ? (total_ticks / total_bars / curr_period) : 0); }
-
-  /**
-   * Get number of ticks per second.
-   */
-  double GetTicksPerSec() { return round(total_bars > 0 ? (total_ticks / total_bars / curr_period) / 60 : 0); }
-
-  /**
-   * Get number of ticks per given time period.
-   */
-  unsigned long GetTicksPerPeriod(int period = PERIOD_H1) { return (GetTicksPerMin() * period); }
-
-  /**
-   * Get number of bars per given time period.
-   */
-  unsigned long GetBarsPerPeriod(int period = PERIOD_H1) { return (total_bars / period); }
+  int GetCount(ENUM_TIMEFRAMES _period) {
+    double _psecs = PeriodSeconds(_period);
+    // ...data
+    return WRONG_VALUE;
+  }
 };

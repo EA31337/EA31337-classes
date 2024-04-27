@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -63,6 +63,7 @@ struct IndicatorSignal {
       : signals(0) {
     CalcSignals(_data, _idp, _cp, _m1, _m2);
   }
+
   // Main methods.
   // Calculate signal values.
   void CalcSignals(ARRAY_REF(IndicatorDataEntry, _data), IndicatorDataParams &_idp, ChartParams &_cp, int _m1 = 0,
@@ -119,6 +120,7 @@ struct IndicatorSignal {
     }
     SetSignal(INDICATOR_SIGNAL_VOLATILE, _is_vola);
   }
+
   // Signal methods for bitwise operations.
   /* Getters */
   bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }

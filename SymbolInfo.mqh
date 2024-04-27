@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -339,6 +339,11 @@ class SymbolInfo : public Object {
   unsigned int GetRealSpread() { return SymbolInfoStatic::GetRealSpread(symbol); }
 
   /**
+   * Get a trade mode for the current symbol.
+   */
+  ENUM_SYMBOL_TRADE_MODE GetTradeMode() { return SymbolInfoStatic::GetTradeMode(symbol); }
+
+  /**
    * Minimal indention in points from the current close price to place Stop orders.
    *
    * This is due that at placing of a pending order, the open price cannot be too close to the market.
@@ -559,6 +564,6 @@ class SymbolInfo : public Object {
   /**
    * Returns Log handler.
    */
-  Log *GetLogger() { return GetPointer(logger); }
+  Log *GetLogger() { return GET_PTR(logger); }
 };
 #endif  // SYMBOLINFO_MQH
