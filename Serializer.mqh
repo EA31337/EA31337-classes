@@ -29,6 +29,7 @@
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
 #include "SerializerNode.mqh"
+#include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
 #include "Terminal.define.h"
 
@@ -334,7 +335,7 @@ class Serializer {
       if (Enter(SerializerEnterArray, name)) {
         num_items = ArraySize(array);
         for (int i = 0; i < num_items; ++i) {
-          PassStruct(this, "", array[i]);
+          PassStruct(THIS_REF, "", array[i]);
         }
         Leave();
       }
@@ -350,7 +351,7 @@ class Serializer {
             // Should not happen.
           } else {
             _node = parent PTR_DEREF GetChild(si.Index());
-            array[si.Index()] = si.Struct();
+            array[si.Index()] = Struct<VT>(si.Key());
           }
         }
 
@@ -459,6 +460,34 @@ class Serializer {
     }
 
     return NULL;
+  }
+
+  /**
+   * Returns next value or value by given key.
+   */
+  template <typename X>
+  X Value(string key = "") {
+    X value;
+    Pass(THIS_REF, key, value);
+    return value;
+  }
+
+  /**
+   * Returns next structure or structure by given key.
+   */
+  template <typename X>
+  X Struct(string key = "") {
+    X value;
+    PassStruct(THIS_REF, key, value);
+    return value;
+  }
+
+  /**
+   * Returns next object or object by given key.
+   */
+  template <typename X>
+  X Object(string key = "") {
+    return Struct<X>(key);
   }
 };
 

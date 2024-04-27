@@ -6,10 +6,12 @@ on:
   pull_request:
     paths:
       - 'Trade/**.h'
+      - 'Trade/**.mq?'
       - '.github/workflows/test-trade.yml'
   push:
     paths:
       - 'Trade/**.h'
+      - 'Trade/**.mq?'
       - '.github/workflows/test-trade.yml'
 
 jobs:

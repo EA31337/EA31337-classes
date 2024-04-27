@@ -42,10 +42,15 @@ class EA2 : public EA {
   EA2(EAParams &_params) : EA(_params) {}
 };
 
+class EA3 : public EA {
+ public:
+  EA3(EAParams &_params) : EA(_params) {}
+};
+
 // Global variables.
-EA *ea;
 EA1 *ea1;
 EA2 *ea2;
+EA3 *ea3;
 
 /**
  * Implements OnInit().
@@ -54,16 +59,6 @@ int OnInit() {
   // Task to export to all possible formats once per hour.
   TaskEntry _task_export_per_hour(EA_ACTION_EXPORT_DATA, EA_COND_ON_NEW_HOUR);
 
-  /* Initialize base class EA */
-  EAParams ea_params("EA");
-  // Exporting to all possible formats once per hour.
-  ea_params.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_STORE), EA_DATA_STORE_ALL);
-  ea_params.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT), EA_DATA_EXPORT_ALL);
-  ea_params.SetTaskEntry(_task_export_per_hour);
-  ea = new EA(ea_params);
-  assertTrueOrFail(ea.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME)) == "EA",
-                   StringFormat("Invalid EA name: %s!", ea.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME))));
-
   /* Initialize 1st custom EA */
   EAParams ea_params1("EA1");
   // Exporting to all possible formats once per hour.
@@ -71,9 +66,11 @@ int OnInit() {
   ea_params1.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT), EA_DATA_EXPORT_ALL);
   ea_params1.SetTaskEntry(_task_export_per_hour);
   ea1 = new EA1(ea_params1);
-  assertTrueOrFail(ea1.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME)) == "EA1", "Invalid EA1 name!");
+  assertTrueOrFail(ea1.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME)) == "EA1",
+                   StringFormat("Invalid EA name: %s!", ea1.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME))));
+  assertTrueOrFail(ea1.Get(STRUCT_ENUM(EAState, EA_STATE_FLAG_ENABLED)), "EA should be enabled by default!");
 
-  /* Initialize 2st custom EA */
+  /* Initialize 2nd custom EA */
   EAParams ea_params2("EA2");
   // Exporting to all possible formats once per hour.
   ea_params2.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_STORE), EA_DATA_STORE_ALL);
@@ -82,6 +79,14 @@ int OnInit() {
   ea2 = new EA2(ea_params2);
   assertTrueOrFail(ea2.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME)) == "EA2", "Invalid EA2 name!");
 
+  /* Initialize 3rd custom EA */
+  EAParams ea_params3("EA3");
+  // Create an init task to disable EA when enabled.
+  TaskEntry _tentry_ea_disable(EA_ACTION_DISABLE, EA_COND_IS_ENABLED);
+  ea_params3.SetTaskEntry(_tentry_ea_disable);
+  ea3 = new EA3(ea_params3);
+  assertTrueOrFail(!ea3.Get(STRUCT_ENUM(EAState, EA_STATE_FLAG_ENABLED)), "EA should be disabled by a task!");
+
   return (INIT_SUCCEEDED);
 }
 
@@ -89,16 +94,16 @@ int OnInit() {
  * Implements OnTick().
  */
 void OnTick() {
-  ea.ProcessTick();
   ea1.ProcessTick();
   ea2.ProcessTick();
+  ea3.ProcessTick();
 }
 
 /**
  * Implements OnDeinit().
  */
 void OnDeinit(const int reason) {
-  delete ea;
   delete ea1;
   delete ea2;
+  delete ea3;
 }

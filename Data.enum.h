@@ -48,9 +48,9 @@ enum ENUM_DATATYPE {
   TYPE_LONG,      // long
   TYPE_SHORT,     // short
   TYPE_STRING,    // string
-  TYPE_UCHAR,     // uchar
-  TYPE_UINT,      // uint
-  TYPE_ULONG,     // ulong
-  TYPE_USHORT,    // ushort
+  TYPE_UCHAR,     // unsigned char
+  TYPE_UINT,      // unsigned int
+  TYPE_ULONG,     // unsigned long
+  TYPE_USHORT,    // unsigned short
 };
 #endif

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -26,7 +26,7 @@
 
 // Includes.
 #include "../Collection.mqh"
-#include "../Test.mqh"
+#include "../../Test.mqh"
 
 // Define classes.
 class Stack : public Object {

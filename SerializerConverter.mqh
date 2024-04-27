@@ -109,6 +109,10 @@ class SerializerConverter {
   template <typename C>
   static SerializerConverter FromString(string arg) {
     SerializerConverter _converter(((C*)NULL)PTR_DEREF Parse(arg), 0);
+#ifdef __debug__
+    Print("FromString(): result: ",
+          _converter.Node() != NULL ? _converter.Node().ToString(SERIALIZER_JSON_NO_WHITESPACES) : "NULL");
+#endif
     return _converter;
   }
 

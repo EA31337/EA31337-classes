@@ -47,6 +47,11 @@ class AccountBase {
   AccountBase() { Init(); }
 
   /**
+   * Class constructor.
+   */
+  AccountBase(AccountBase &_account) { THIS_REF = _account; }
+
+  /**
    * Class deconstructor.
    */
   ~AccountBase() {}

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -22,10 +22,10 @@
 
 // Includes.
 #include "Array.mqh"
-#include "Collection.mqh"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
 #include "Object.mqh"
+#include "Storage/Collection.mqh"
 
 // Prevents processing this includes file for the second time.
 #ifndef LOG_MQH
@@ -209,7 +209,7 @@ class Log : public Object {
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     // Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
-    uint _size = ArraySize(_logs);
+    unsigned int _size = ArraySize(_logs);
     if (!ArrayResize(_logs, _size + last_entry)) {
       return false;
     }
@@ -239,7 +239,7 @@ class Log : public Object {
     for (DictStructIterator<int, Ref<Log>> _li = logs.Begin(); _li.IsValid(); ++_li) {
       Log *_log = _li.Value().Ptr();
       if (Object::IsValid(_log)) {
-        PTR_ATTRIB(_log, Flush());
+        PTR_ATTRIB(_log, Flush(_freq, _dt));
       }
     }
 

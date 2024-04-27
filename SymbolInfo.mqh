@@ -48,13 +48,13 @@ class SymbolInfo : public Object {
   // Variables.
   string symbol;  // Current symbol pair.
   Log logger;
-  MqlTick last_tick;          // Stores the latest prices of the symbol.
-  ARRAY(MqlTick, tick_data);  // Stores saved ticks.
-  SymbolInfoEntry s_entry;    // Symbol entry.
-  SymbolInfoProp sprops;      // Symbol properties.
-  double pip_size;            // Value of pip size.
-  uint symbol_digits;         // Count of digits after decimal point in the symbol price.
-  // uint pts_per_pip;          // Number of points per pip.
+  MqlTick last_tick;           // Stores the latest prices of the symbol.
+  ARRAY(MqlTick, tick_data);   // Stores saved ticks.
+  SymbolInfoEntry s_entry;     // Symbol entry.
+  SymbolInfoProp sprops;       // Symbol properties.
+  double pip_size;             // Value of pip size.
+  unsigned int symbol_digits;  // Count of digits after decimal point in the symbol price.
+  // unsigned int pts_per_pip;          // Number of points per pip.
   double volume_precision;
 
  public:
@@ -173,12 +173,12 @@ class SymbolInfo : public Object {
    *
    * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  ulong GetVolume() { return SymbolInfoStatic::GetTick(symbol).volume; }
+  unsigned long GetVolume() { return SymbolInfoStatic::GetTick(symbol).volume; }
 
   /**
    * Gets the last volume for the current price (without updating).
    */
-  ulong GetLastVolume() { return last_tick.volume; }
+  unsigned long GetLastVolume() { return last_tick.volume; }
 
   /**
    * Get summary volume of current session deals.
@@ -319,7 +319,7 @@ class SymbolInfo : public Object {
    * For the current symbol, it is stored in the predefined variable Digits.
    *
    */
-  uint GetDigits() { return SymbolInfoStatic::GetDigits(symbol); }
+  unsigned int GetDigits() { return SymbolInfoStatic::GetDigits(symbol); }
 
   /**
    * Get current spread in points.
@@ -331,7 +331,7 @@ class SymbolInfo : public Object {
    * @return
    *   Return symbol trade spread level in points.
    */
-  uint GetSpread() { return SymbolInfoStatic::GetSpread(symbol); }
+  unsigned int GetSpread() { return SymbolInfoStatic::GetSpread(symbol); }
 
   /**
    * Get real spread based on the ask and bid price (in points).
@@ -403,7 +403,7 @@ class SymbolInfo : public Object {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  uint GetFreezeLevel() { return SymbolInfoStatic::GetFreezeLevel(symbol); }
+  unsigned int GetFreezeLevel() { return SymbolInfoStatic::GetFreezeLevel(symbol); }
 
   /**
    * Gets flags of allowed order filling modes.
