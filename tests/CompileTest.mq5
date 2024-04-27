@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2022, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -26,13 +26,15 @@
 
 // 3D includes (MQL5 only).
 #ifdef __MQL5__
-#include "../3D/Chart3D.h"
+/* @fixme
 #include "../3D/Cube.h"
 #include "../3D/Devices/MTDX/MTDXDevice.h"
 #include "../3D/Devices/MTDX/MTDXIndexBuffer.h"
 #include "../3D/Devices/MTDX/MTDXShader.h"
 #include "../3D/Devices/MTDX/MTDXVertexBuffer.h"
 #include "../3D/Frontends/MT5Frontend.h"
+#include "../3D/Chart3D.h"
+*/
 #endif
 
 // Includes.

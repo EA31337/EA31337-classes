@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -77,12 +77,12 @@ class Math {
    */
   static double ChangeInPct(double _v1, double _v2, bool _hundreds = false) {
     double _result = 0;
-    if (_v1 != 0 && _v2 != 0) {
-      // If values are non-zero, use the standard formula.
-      _result = (_v2 / _v1) - 1;
-    } else if (_v1 == 0 || _v2 == 0) {
+    if (_v1 == 0 || _v2 == 0) {
       // Change is zero when both values are zeros, otherwise it's 1 (100%).
       _result = _v1 == 0 && _v2 == 0 ? 0 : 1;
+    } else {
+      // If values are non-zero, use the standard formula.
+      _result = (_v2 / _v1) - 1;
     }
     _result = _v2 > _v1 ? fabs(_result) : -fabs(_result);
     return _hundreds ? _result * 100 : _result;

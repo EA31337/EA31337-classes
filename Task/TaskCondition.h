@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -104,7 +104,7 @@ class TaskCondition : public TaskConditionBase {
   /**
    * Gets a reference to the object.
    */
-  TO *GetObject() { return GetPointer(obj); }
+  TO *GetObject() { return PTR_TO_REF(obj); }
 
   /* Setters */
 

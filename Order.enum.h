@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -93,6 +93,7 @@ enum ENUM_ORDER_PROPERTY_CUSTOM {
 enum ENUM_ORDER_REASON_CLOSE {
   ORDER_REASON_CLOSED_ALL = 0,      // Closed all
   ORDER_REASON_CLOSED_BY_ACTION,    // Closed by action
+  ORDER_REASON_CLOSED_BY_CONDITION, // Closed by condition
   ORDER_REASON_CLOSED_BY_EXPIRE,    // Closed by expiration
   ORDER_REASON_CLOSED_BY_OPPOSITE,  // Closed by opposite order
   ORDER_REASON_CLOSED_BY_SIGNAL,    // Closed by signal
@@ -266,7 +267,7 @@ enum ENUM_POSITION_PROPERTY_DOUBLE {
   POSITION_VOLUME,         // Position volume (double).
 };
 
-//#define POSITION_TICKET
+// #define POSITION_TICKET
 
 /**
  * Returns integer type of the position property.

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -191,6 +191,18 @@ struct SymbolInfoStatic {
   static float GetTickSize(string _symbol) {
     // Note: In currencies a tick is always a point, but not for other markets.
     return (float)SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+  }
+
+  /**
+   * Get a trade mode for the symbol.
+   *
+   * Order execution type.
+   *
+   * @docs: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_integer
+   * @see: ENUM_SYMBOL_TRADE_MODE
+   */
+  static ENUM_SYMBOL_TRADE_MODE GetTradeMode(string _symbol) {
+    return (ENUM_SYMBOL_TRADE_MODE)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_MODE);
   }
 
   /**
