@@ -758,7 +758,7 @@ class EA : public Taskable<DataParamEntry> {
   bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _magic_no = 0, int _type = 0) {
     bool _result = true;
     _magic_no = _magic_no > 0 ? _magic_no : rand();
-    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf);
+    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, THIS_PTR);
     _strat.Ptr().Set<long>(STRAT_PARAM_ID, _magic_no);
     _strat.Ptr().Set<long>(TRADE_PARAM_MAGIC_NO, _magic_no);
     _strat.Ptr().Set<ENUM_LOG_LEVEL>(STRAT_PARAM_LOG_LEVEL,

@@ -449,7 +449,7 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   void SetId(long _id) {
     sparams.id = _id;
-    ((Object *)GetPointer(this)).SetId(_id);
+    ((Object *)THIS_PTR).SetId(_id);
   }
 
   /**
