@@ -28,88 +28,63 @@
 struct DataParamEntry;
 
 // Includes.
-#include "../../Chart.mqh"
-#include "../../DictObject.mqh"
-#include "../../EA.mqh"
-#include "../TaskAction.h"
-#include "../TaskCondition.h"
 #include "../../Test.mqh"
 #include "../Task.h"
 
-// Global variables.
-Chart *chart;
-EA *ea;
-DictObject<short, Task> tasks;
-
-// Define strategy classes.
-class Stg1 : public Strategy {
+// Define test classes.
+class ConditionType1 : public TaskConditionBase {
  public:
-  void Stg1(StgParams &_params, TradeParams &_tparams, ChartParams &_cparams, string _name = "Stg1")
-      : Strategy(_params, _tparams, _cparams, _name) {}
-  static Stg1 *Init(ENUM_TIMEFRAMES _tf = NULL, unsigned long _magic_no = 0, ENUM_LOG_LEVEL _log_level = V_INFO) {
-    ChartParams _cparams(_tf);
-    TradeParams _tparams(_magic_no, _log_level);
-    Strategy *_strat = new Stg1(stg_params_defaults, _tparams, _cparams, __FUNCTION__);
-    return _strat;
-  }
-  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return true; }
-  bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
-  float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0f; }
-  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return true; }
-  float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
-    return _level;
-  }
+  bool Check(const TaskConditionEntry &_entry) { return true; }
 };
+class ConditionType2 : public TaskConditionBase {
+ public:
+  bool Check(const TaskConditionEntry &_entry) { return true; }
+};
+class ActionType1 : public TaskActionBase {
+ public:
+  bool Run(const TaskActionEntry &_entry) { return true; }
+};
+class ActionType2 : public TaskActionBase {
+ public:
+  bool Run(const TaskActionEntry &_entry) { return true; }
+};
+class TaskType1 : public Taskable<MqlParam> {
+  bool Check(const TaskConditionEntry &_entry) { return true; }
+  MqlParam Get(const TaskGetterEntry &_entry) {
+    MqlParam _result;
+    return _result;
+  }
+  bool Run(const TaskActionEntry &_entry) { return true; }
+  bool Set(const TaskSetterEntry &_entry, const MqlParam &_entry_value) { return true; }
+};
+
+// Test 1.
+bool TestTask01() {
+  bool _result = true;
+  Task _task1;
+  TaskAction<ActionType1> _taction1;
+  TaskAction<ActionType2> _taction2;
+  TaskCondition<ConditionType1> _tcond1;
+  TaskCondition<ConditionType2> _tcond2;
+  return _result;
+}
 
 /**
  * Implements Init event handler.
  */
 int OnInit() {
   bool _result = true;
-  // Initializes chart.
-  chart = new Chart();
-  // Initializes EA.
-  EAParams ea_params(__FILE__);
-  ea = new EA(ea_params);
-  //_result &= ea.StrategyAdd<Stg1>(127);
-  _result &= GetLastError() == ERR_NO_ERROR;
+  _result &= TestTask01();
+  _result &= GetLastError() == 0;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
 /**
  * Implements Tick event handler.
  */
-void OnTick() {
-  chart.OnTick();
-  if (chart.IsNewBar()) {
-    unsigned int _bar_index = chart.GetBarIndex();
-    switch (_bar_index) {
-      case 1:
-        break;
-      case 2:
-        break;
-      case 3:
-        break;
-      case 4:
-        break;
-      case 5:
-        break;
-      case 6:
-        break;
-      case 7:
-        break;
-      case 8:
-        break;
-      case 9:
-        break;
-    }
-  }
-}
+void OnTick() {}
 
 /**
  * Implements Deinit event handler.
  */
-void OnDeinit(const int reason) {
-  delete chart;
-  delete ea;
-}
+void OnDeinit(const int reason) {}

@@ -29,7 +29,9 @@
 #define STRUCT_ENUM_IDATA_PARAM STRUCT_ENUM(IndicatorDataParams, ENUM_IDATA_PARAM)
 
 // Includes.
+#include "Indicator.struct.cache.h"
 #include "SerializerNode.enum.h"
+#include "Storage/ValueStorage.indicator.h"
 
 // Type-less value for IndicatorDataEntryValue structure.
 union IndicatorDataEntryTypelessValue {

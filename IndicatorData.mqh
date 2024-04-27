@@ -176,6 +176,16 @@ class IndicatorData : public IndicatorBase {
     return _price;
   }
 
+  /* Setters */
+
+  /**
+   * Sets a value in IndicatorDataParams struct.
+   */
+  template <typename T>
+  void Set(STRUCT_ENUM_IDATA_PARAM _param, T _value) {
+    idparams.Set<T>(_param, _value);
+  }
+
   /* State methods */
 
   /**

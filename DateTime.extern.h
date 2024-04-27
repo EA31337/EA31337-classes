@@ -42,10 +42,10 @@ class datetime {
   datetime();
   datetime(const long& _time);
   datetime(const int& _time);
-  bool operator==(const int& _time) const;
+  bool operator==(const int _time) const;
   bool operator==(const datetime& _time) const;
-  bool operator<(const int& _time) const;
-  bool operator>(const int& _time) const;
+  bool operator<(const int _time) const;
+  bool operator>(const int _time) const;
   bool operator<(const datetime& _time);
   bool operator>(const datetime& _time);
   operator long() const;

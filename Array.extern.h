@@ -24,6 +24,8 @@
 #ifndef __MQL__
 #pragma once
 
+#include "Std.h"
+
 template <typename T>
 extern int ArraySize(const ARRAY_REF(T, _array));
 

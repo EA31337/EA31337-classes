@@ -193,8 +193,6 @@ class DateTime {
       dt_last = dt_curr;
       Update();
     }
-    int _prev_secs = dt_last.GetSeconds();
-    int _curr_secs = dt_curr.GetSeconds();
     if (dt_curr.GetSeconds() < dt_last.GetSeconds()) {
       _result = true;
     }

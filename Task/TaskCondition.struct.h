@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Includes Condition's structs.
+ * Includes TaskCondition's structures.
  */
 
 #ifndef __MQL__
@@ -30,50 +30,131 @@
 #endif
 
 // Includes.
-#include "../Account/Account.enum.h"
-#include "../Chart.enum.h"
-#include "../DateTime.enum.h"
-#include "../EA.enum.h"
-#include "../Indicator.enum.h"
-//#include "Market.enum.h"
-#include "../Order.enum.h"
-#include "../Strategy.enum.h"
-#include "../Trade.enum.h"
+#include "../Data.struct.h"
+#include "../Std.h"
+#include "../Terminal.define.h"
 #include "Task.enum.h"
 
 struct TaskConditionEntry {
-  unsigned char flags;                           // Condition flags.
-  datetime last_check;                           // Time of the latest check.
-  datetime last_success;                         // Time of the last success.
-  int frequency;                                 // How often to check.
-  long cond_id;                                  // Condition ID.
-  short tries;                                   // Number of successful tries left.
-  void *obj;                                     // Reference to associated object.
-  ENUM_TASK_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
-  ENUM_TASK_CONDITION_TYPE type;                 // Task's condition type.
-  DataParamEntry args[];                         // Task's condition arguments.
-  // Constructors.
-  void TaskConditionEntry() : type(FINAL_CONDITION_TYPE_ENTRY), cond_id(WRONG_VALUE) { Init(); }
-  void TaskConditionEntry(long _cond_id, ENUM_TASK_CONDITION_TYPE _type) : type(_type), cond_id(_cond_id) { Init(); }
-  void TaskConditionEntry(TaskConditionEntry &_ce) { this = _ce; }
-  void TaskConditionEntry(ENUM_ACCOUNT_CONDITION _cond_id) : type(COND_TYPE_ACCOUNT), cond_id(_cond_id) { Init(); }
-  void TaskConditionEntry(ENUM_CHART_CONDITION _cond_id) : type(COND_TYPE_CHART), cond_id(_cond_id) { Init(); }
-  void TaskConditionEntry(ENUM_DATETIME_CONDITION _cond_id) : type(COND_TYPE_DATETIME), cond_id(_cond_id) { Init(); }
-  void TaskConditionEntry(ENUM_EA_CONDITION _cond_id) : type(COND_TYPE_EA), cond_id(_cond_id) { Init(); }
-  void TaskConditionEntry(ENUM_INDICATOR_CONDITION _cond_id) : type(COND_TYPE_INDICATOR), cond_id(_cond_id) { Init(); }
-  void TaskConditionEntry(ENUM_MARKET_CONDITION _cond_id) : type(COND_TYPE_MARKET), cond_id(_cond_id) { Init(); }
-  void TaskConditionEntry(ENUM_ORDER_CONDITION _cond_id) : type(COND_TYPE_ORDER), cond_id(_cond_id) { Init(); }
-  void TaskConditionEntry(ENUM_STRATEGY_CONDITION _cond_id) : type(COND_TYPE_STRATEGY), cond_id(_cond_id) { Init(); }
-  void TaskConditionEntry(ENUM_TASK_CONDITION _cond_id) : type(COND_TYPE_TASK), cond_id(_cond_id) { Init(); }
-  void TaskConditionEntry(ENUM_TRADE_CONDITION _cond_id) : type(COND_TYPE_TRADE), cond_id(_cond_id) { Init(); }
-  // Deconstructor.
-  void ~TaskConditionEntry() {
-    // Object::Delete(obj);
+ public:
+  /* Enumerations */
+
+  // Defines condition entry properties.
+  enum ENUM_TASK_CONDITION_ENTRY_PROP {
+    TASK_CONDITION_ENTRY_FLAGS,
+    TASK_CONDITION_ENTRY_FREQUENCY,
+    TASK_CONDITION_ENTRY_ID,
+    TASK_CONDITION_ENTRY_TRIES,
+    TASK_CONDITION_ENTRY_TIME_LAST_CHECK,
+    TASK_CONDITION_ENTRY_TIME_LAST_SUCCESS,
+  };
+
+  // Defines condition entry flags..
+  enum ENUM_TASK_CONDITION_ENTRY_FLAGS {
+    TASK_CONDITION_ENTRY_FLAG_NONE = 0 << 0,
+    TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE = 1 << 0,
+    TASK_CONDITION_ENTRY_FLAG_IS_EXPIRED = 1 << 1,
+    TASK_CONDITION_ENTRY_FLAG_IS_INVALID = 1 << 2,
+    TASK_CONDITION_ENTRY_FLAG_IS_READY = 1 << 3,
+  };
+
+ protected:
+  ARRAY(DataParamEntry, args);  // Task's condition arguments.
+  unsigned char flags;          // Condition flags.
+  int freq;                     // How often to run (0 for no limit).
+  int id;                       // Condition ID.
+  datetime last_check;          // Time of the latest check.
+  datetime last_success;        // Time of the last success.
+  short tries;                  // Number of successful tries left (-1 for unlimited).
+  // ENUM_TASK_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
+  // ENUM_TASK_CONDITION_TYPE type;                 // Task's condition type.
+ protected:
+  // Protected methods.
+  void Init() {
+    SetFlag(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID),
+            id == InvalidEnumValue<int>::value());
   }
+
+ public:
+  // Constructors.
+  TaskConditionEntry() : flags(0), freq(60), id(InvalidEnumValue<int>::value()), tries(-1) { Init(); }
+  TaskConditionEntry(int _id)
+      : flags(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE)),
+        freq(60),
+        id(_id),
+        last_check(0),
+        last_success(0),
+        tries(-1) {
+    Init();
+  }
+  TaskConditionEntry(const TaskConditionEntry &_ae) { THIS_REF = _ae; }
+  // Deconstructor.
+  ~TaskConditionEntry() {}
+  // Getters.
+  bool Get(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_FLAGS) _flag) const { return HasFlag(_flag); }
+  template <typename T>
+  T Get(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_PROP) _prop) const {
+    switch (_prop) {
+      case TASK_CONDITION_ENTRY_FLAGS:
+        return (T)flags;
+      case TASK_CONDITION_ENTRY_FREQUENCY:
+        return (T)freq;
+      case TASK_CONDITION_ENTRY_ID:
+        return (T)id;
+      case TASK_CONDITION_ENTRY_TRIES:
+        return (T)tries;
+      case TASK_CONDITION_ENTRY_TIME_LAST_CHECK:
+        return (T)last_check;
+      case TASK_CONDITION_ENTRY_TIME_LAST_SUCCESS:
+        return (T)last_success;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return InvalidEnumValue<T>::value();
+  }
+  DataParamEntry GetArg(int _index) const { return args[_index]; }
+  int GetId() const { return id; }
+  // Setters.
+  void TriesDec() {
+    if (tries > 0) --tries;
+  }
+  void Set(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_FLAGS) _flag, bool _value = true) {
+    SetFlag(_flag, _value);
+  }
+  template <typename T>
+  void Set(STRUCT_ENUM(TaskConditionEntry, ENUM_TASK_CONDITION_ENTRY_PROP) _prop, T _value) {
+    switch (_prop) {
+      case TASK_CONDITION_ENTRY_FLAGS:  // ID (magic number).
+        flags = (unsigned char)_value;
+        return;
+      case TASK_CONDITION_ENTRY_FREQUENCY:
+        freq = (int)_value;
+        return;
+      case TASK_CONDITION_ENTRY_ID:
+        id = (int)_value;
+        SetFlag(STRUCT_ENUM(TaskConditionEntry, TASK_CONDITION_ENTRY_FLAG_IS_INVALID),
+                id == InvalidEnumValue<int>::value());
+        return;
+      case TASK_CONDITION_ENTRY_TRIES:
+        tries = (short)_value;
+        return;
+      case TASK_CONDITION_ENTRY_TIME_LAST_CHECK:
+        last_check = (datetime)_value;
+        return;
+      case TASK_CONDITION_ENTRY_TIME_LAST_SUCCESS:
+        last_success = (datetime)_value;
+        return;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
+  void SetTries(short _count) { tries = _count; }
   // Flag methods.
-  bool HasFlag(unsigned char _flag) { return bool(flags & _flag); }
+  bool HasFlag(unsigned char _flag) const { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void RemoveFlags(unsigned char _flags) { flags &= (unsigned char)~_flags; }
   void SetFlag(ENUM_TASK_CONDITION_ENTRY_FLAGS _flag, bool _value) {
     if (_value)
       AddFlags(_flag);
@@ -82,30 +163,51 @@ struct TaskConditionEntry {
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // State methods.
-  bool IsActive() { return HasFlag(COND_ENTRY_FLAG_IS_ACTIVE); }
-  bool IsExpired() { return HasFlag(COND_ENTRY_FLAG_IS_EXPIRED); }
-  bool IsReady() { return HasFlag(COND_ENTRY_FLAG_IS_READY); }
-  bool IsInvalid() { return HasFlag(COND_ENTRY_FLAG_IS_INVALID); }
-  bool IsValid() { return !IsInvalid(); }
-  // Getters.
-  long GetId() { return cond_id; }
-  ENUM_TASK_CONDITION_TYPE GetType() { return type; }
-  // Setters.
-  void AddArg(MqlParam &_arg) {
-    // @todo: Add another value to args[].
+  bool HasTriesLeft() const { return tries > 0 || tries == -1; }
+  bool IsActive() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_ACTIVE); }
+  bool IsExpired() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_EXPIRED); }
+  bool IsReady() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_READY); }
+  bool IsInvalid() const { return HasFlag(TASK_CONDITION_ENTRY_FLAG_IS_INVALID); }
+  bool IsValid() const { return !IsInvalid(); }
+  // Methods for arguments.
+  void ArgAdd(DataParamEntry &_arg) { ArgSet(_arg, ::ArraySize(args)); }
+  void ArgsGet(ARRAY_REF(DataParamEntry, _args)) {
+    ::ArrayResize(_args, ::ArraySize(args));
+    for (int i = 0; i < ::ArraySize(_args); i++) {
+      _args[i] = args[i];
+    }
   }
-  void Init() {
-    flags = COND_ENTRY_FLAG_NONE;
-    frequency = 60;
-    SetFlag(COND_ENTRY_FLAG_IS_ACTIVE, cond_id != WRONG_VALUE);
-    SetFlag(COND_ENTRY_FLAG_IS_INVALID, cond_id == WRONG_VALUE);
-    last_check = last_success = 0;
-    next_statement = COND_AND;
-    tries = 1;
+  void ArgSet(DataParamEntry &_arg, int _index = 0) {
+    if (::ArraySize(args) <= _index) {
+      ::ArrayResize(args, _index + 1);
+    }
+    args[_index] = _arg;
   }
-  void SetArgs(MqlParam &_args[]) {
-    // @todo: for().
+  void ArgsSet(ARRAY_REF(DataParamEntry, _args)) {
+    ::ArrayResize(args, ::ArraySize(_args));
+    for (int i = 0; i < ::ArraySize(_args); i++) {
+      args[i] = _args[i];
+    }
   }
-  void SetObject(void *_obj) { obj = _obj; }
-  void SetTries(short _count) { tries = _count; }
+  void ArgRemove(int _index) {
+    for (int i = 1; i < ::ArraySize(args); i++) {
+      ArgSet(args[i], i - 1);
+    }
+    ::ArrayResize(args, _index - 1);
+  }
+
+ public:
+  // Serializers
+  SerializerNodeType Serialize(Serializer &s) {
+    s.Pass(THIS_REF, "flags", flags);
+    s.Pass(THIS_REF, "id", id);
+    s.Pass(THIS_REF, "last_check", last_check);
+    s.Pass(THIS_REF, "last_success", last_success);
+    s.Pass(THIS_REF, "tries", tries);
+    s.PassEnum(THIS_REF, "freq", freq);
+    s.PassArray(THIS_REF, "args", args);
+    return SerializerNodeObject;
+  }
+
+  SERIALIZER_EMPTY_STUB;
 };

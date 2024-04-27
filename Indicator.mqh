@@ -153,6 +153,7 @@ class Indicator : public IndicatorData {
       : IndicatorData(IndicatorDataParams::GetInstance()) {
     iparams.SetIndicatorType(_itype);
     iparams.SetShift(_shift);
+    iparams.SetTf(_tf);
     Init();
   }
 
@@ -695,11 +696,11 @@ class Indicator : public IndicatorData {
     } else {
       if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_UNSIGNED)) {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
-          _result &= !_entry.HasValue<ulong>(ULONG_MAX);
-          _result &= !_entry.HasValue<ulong>(NULL);
+          _result &= !_entry.HasValue<unsigned long>(ULONG_MAX);
+          _result &= !_entry.HasValue<unsigned long>(NULL);
         } else {
-          _result &= !_entry.HasValue<uint>(UINT_MAX);
-          _result &= !_entry.HasValue<uint>(NULL);
+          _result &= !_entry.HasValue<unsigned int>(UINT_MAX);
+          _result &= !_entry.HasValue<unsigned int>(NULL);
         }
       } else {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
@@ -770,10 +771,10 @@ class Indicator : public IndicatorData {
             _entry.values[_mode] = GetValue<long>(_mode, _ishift);
             break;
           case TYPE_UINT:
-            _entry.values[_mode] = GetValue<uint>(_mode, _ishift);
+            _entry.values[_mode] = GetValue<unsigned int>(_mode, _ishift);
             break;
           case TYPE_ULONG:
-            _entry.values[_mode] = GetValue<ulong>(_mode, _ishift);
+            _entry.values[_mode] = GetValue<unsigned long>(_mode, _ishift);
             break;
           case TYPE_DOUBLE:
             _entry.values[_mode] = GetValue<double>(_mode, _ishift);

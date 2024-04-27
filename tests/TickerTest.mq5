@@ -31,7 +31,7 @@
 // Global variables.
 Chart *chart;
 SymbolInfo *symbol;
-ulong total_ticks;
+unsigned long total_ticks;
 Ticker *ticker_csv;
 Ticker *ticker01;
 Ticker *ticker02;

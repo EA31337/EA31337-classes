@@ -32,9 +32,9 @@ class Timer : public Object {
   // Variables.
   string name;
   int index;
-  uint data[];
-  uint start, end;
-  ulong max;
+  unsigned int data[];
+  unsigned int start, end;
+  unsigned long max;
 
  public:
   /**
@@ -73,7 +73,7 @@ class Timer : public Object {
   /**
    * Print the current timer times when maximum value is reached.
    */
-  Timer *PrintOnMax(ulong _min = 1) {
+  Timer *PrintOnMax(unsigned long _min = 1) {
     return data[index] > _min && data[this PTR_DEREF index] >= this PTR_DEREF max ? PrintSummary() : GetPointer(this);
   }
 
@@ -82,8 +82,8 @@ class Timer : public Object {
   /**
    * Stop the timer.
    */
-  uint GetTime(uint _index) { return data[_index]; }
-  uint GetTime() { return GetTickCount() - this PTR_DEREF start; }
+  unsigned int GetTime(unsigned int _index) { return data[_index]; }
+  unsigned int GetTime() { return GetTickCount() - this PTR_DEREF start; }
 
   /**
    * Returns timer name.
@@ -93,10 +93,10 @@ class Timer : public Object {
   /**
    * Get the sum of all values.
    */
-  ulong GetSum() {
-    uint _size = ArraySize(this PTR_DEREF data);
-    ulong _sum = 0;
-    for (uint _i = 0; _i < _size; _i++) {
+  unsigned long GetSum() {
+    unsigned int _size = ArraySize(this PTR_DEREF data);
+    unsigned long _sum = 0;
+    for (unsigned int _i = 0; _i < _size; _i++) {
       _sum += data[_i];
     }
     return _sum;
@@ -105,7 +105,7 @@ class Timer : public Object {
   /**
    * Get the median of all values.
    */
-  uint GetMedian() {
+  unsigned int GetMedian() {
     if (this PTR_DEREF index >= 0) {
       ArraySort(this PTR_DEREF data);
     }
@@ -115,12 +115,14 @@ class Timer : public Object {
   /**
    * Get the minimum time value.
    */
-  uint GetMin() { return this PTR_DEREF index >= 0 ? this PTR_DEREF data[ArrayMinimum(this PTR_DEREF data)] : 0; }
+  unsigned int GetMin() {
+    return this PTR_DEREF index >= 0 ? this PTR_DEREF data[ArrayMinimum(this PTR_DEREF data)] : 0;
+  }
 
   /**
    * Get the maximal time value.
    */
-  uint GetMax() {
+  unsigned int GetMax() {
     int _index = this PTR_DEREF index >= 0 ? ArrayMaximum(this PTR_DEREF data) : -1;
     return _index >= 0 ? data[_index] : 0;
   }

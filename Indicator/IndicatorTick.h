@@ -253,11 +253,11 @@ class IndicatorTick : public Indicator<TS> {
     } else {
       if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_UNSIGNED)) {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
-          _result &= !_entry.HasValue<ulong>(ULONG_MAX);
-          _result &= !_entry.HasValue<ulong>(NULL);
+          _result &= !_entry.HasValue<unsigned long>(ULONG_MAX);
+          _result &= !_entry.HasValue<unsigned long>(NULL);
         } else {
-          _result &= !_entry.HasValue<uint>(UINT_MAX);
-          _result &= !_entry.HasValue<uint>(NULL);
+          _result &= !_entry.HasValue<unsigned int>(UINT_MAX);
+          _result &= !_entry.HasValue<unsigned int>(NULL);
         }
       } else {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {

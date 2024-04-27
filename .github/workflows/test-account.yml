@@ -35,6 +35,7 @@ jobs:
         test:
           - Account.test
           - AccountForex.test
+          - AccountMt.test
     steps:
       - uses: actions/download-artifact@v2
         with:
