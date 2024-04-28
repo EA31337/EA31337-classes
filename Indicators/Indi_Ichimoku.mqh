@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -73,23 +73,20 @@ struct IndiIchimokuParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\Ichimoku");
   };
-  IndiIchimokuParams(IndiIchimokuParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiIchimokuParams(IndiIchimokuParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Ichimoku Kinko Hyo indicator.
  */
-class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
+class Indi_Ichimoku : public Indicator<IndiIchimokuParams> {
  protected:
   /* Protected methods */
 
   /**
    * Initialize.
    */
-  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_ICHIMOKU_LINE_ENTRY); }
+  void Init() {}
 
  public:
   /**
@@ -97,16 +94,31 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
    */
   Indi_Ichimoku(IndiIchimokuParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE, _idstype,
-                                                                     IDATA_RANGE_PRICE, _indi_src_mode),
-                                    _indi_src) {
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE,
+                                                   _indi_src_mode),
+                  _indi_src) {
     Init();
   }
-  Indi_Ichimoku(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_ICHIMOKU, _tf, _shift) {
+  Indi_Ichimoku(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                int _indi_src_mode = 0)
+      : Indicator(IndiIchimokuParams(),
+                  IndicatorDataParams::GetInstance(FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE,
+                                                   _indi_src_mode),
+                  _indi_src) {
     Init();
   }
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+ public:
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
    * Returns the indicator value.
@@ -155,7 +167,7 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -176,8 +188,8 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
-    Indicator<IndiIchimokuParams>::GetEntryAlter(_entry);
+  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
+    Indicator<IndiIchimokuParams>::GetEntryAlter(_entry, _shift);
 #ifdef __MQL4__
     // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
     // so we are duplicating it.

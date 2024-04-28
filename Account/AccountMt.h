@@ -317,46 +317,6 @@ class AccountMt {
    */
   static string GetType() { return AccountMt::GetServerName() != "" ? (IsDemo() ? "Demo" : "Live") : "Off-line"; }
 
-  /* Setters */
-
-  double UpdateStats(ENUM_ACC_STAT_VALUE _type, double _value) {
-    static datetime _last_check = TimeCurrent();
-    bool _stats_rotate = false;
-    int _tindex = (int)_type;
-    for (unsigned int _pindex = 0; _pindex < FINAL_ENUM_ACC_STAT_PERIOD; _pindex++) {
-      acc_stats[_tindex][_pindex][(int)ACC_VALUE_MIN][(int)ACC_VALUE_CURR] =
-          fmin(acc_stats[_tindex][_pindex][(int)ACC_VALUE_MIN][(int)ACC_VALUE_CURR], _value);
-      acc_stats[_tindex][_pindex][(int)ACC_VALUE_MAX][(int)ACC_VALUE_CURR] =
-          fmin(acc_stats[_tindex][_pindex][(int)ACC_VALUE_MAX][(int)ACC_VALUE_CURR], _value);
-      acc_stats[_tindex][_pindex][(int)ACC_VALUE_AVG][(int)ACC_VALUE_CURR] =
-          (acc_stats[_tindex][_pindex][(int)ACC_VALUE_AVG][(int)ACC_VALUE_CURR] + _value) / 2;
-      switch (_pindex) {
-        case ACC_DAILY:
-          _stats_rotate = _last_check < ChartStatic::iTime(_Symbol, PERIOD_D1);
-          break;
-        case ACC_WEEKLY:
-          _stats_rotate = _last_check < ChartStatic::iTime(_Symbol, PERIOD_W1);
-          break;
-        case ACC_MONTHLY:
-          _stats_rotate = _last_check < ChartStatic::iTime(_Symbol, PERIOD_MN1);
-          break;
-      }
-      if (_stats_rotate) {
-        acc_stats[_tindex][_pindex][(int)ACC_VALUE_MIN][(int)ACC_VALUE_PREV] =
-            acc_stats[_tindex][_pindex][(int)ACC_VALUE_MIN][(int)ACC_VALUE_CURR];
-        acc_stats[_tindex][_pindex][(int)ACC_VALUE_MAX][(int)ACC_VALUE_PREV] =
-            acc_stats[_tindex][_pindex][(int)ACC_VALUE_MAX][(int)ACC_VALUE_CURR];
-        acc_stats[_tindex][_pindex][(int)ACC_VALUE_AVG][(int)ACC_VALUE_PREV] =
-            acc_stats[_tindex][_pindex][(int)ACC_VALUE_AVG][(int)ACC_VALUE_CURR];
-        acc_stats[_tindex][_pindex][(int)ACC_VALUE_MIN][(int)ACC_VALUE_CURR] = _value;
-        acc_stats[_tindex][_pindex][(int)ACC_VALUE_MAX][(int)ACC_VALUE_CURR] = _value;
-        acc_stats[_tindex][_pindex][(int)ACC_VALUE_AVG][(int)ACC_VALUE_CURR] = _value;
-        _last_check = TimeCurrent();
-      }
-    }
-    return _value;
-  }
-
   /* Class getters */
 
   /**

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -27,6 +27,7 @@
 
 // Includes.
 #include "../Indicator.struct.h"
+#include "../SerializerNode.enum.h"
 
 // Structs.
 
@@ -39,12 +40,8 @@ struct IndiDrawerParams : IndicatorParams {
       : period(_period), applied_price(_ap), IndicatorParams(INDI_DRAWER) {
     // Fetching history data is not yet implemented.
     SetCustomIndicatorName("Examples\\Drawer");
-    // Simulating a single, valid buffer.
   };
-  IndiDrawerParams(IndiDrawerParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiDrawerParams(IndiDrawerParams &_params) { THIS_REF = _params; };
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &s);

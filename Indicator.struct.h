@@ -44,7 +44,9 @@ struct ChartParams;
 #include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
+#include "Indicator.struct.cache.h"
 #include "SerializerNode.enum.h"
+#include "Storage/ValueStorage.indicator.h"
 
 /* Structure for indicator parameters. */
 struct IndicatorParams {
@@ -52,13 +54,11 @@ struct IndicatorParams {
   string name;                          // Name of the indicator.
   int shift;                            // Shift (relative to the current bar, 0 - default).
   unsigned int max_params;              // Max supported input params.
-  ChartTf tf;                           // Chart's timeframe.
   ENUM_INDICATOR_TYPE itype;            // Indicator type (e.g. INDI_RSI).
   color indi_color;                     // Indicator color.
   ARRAY(DataParamEntry, input_params);  // Indicator input params.
-  bool is_draw;                         // Draw active.
-  int draw_window;                      // Drawing window.
   string custom_indi_name;              // Name of the indicator passed to iCustom() method.
+  string symbol;                        // Symbol used by indicator.
  public:
   /* Special methods */
   // Constructor.
@@ -72,43 +72,17 @@ struct IndicatorParams {
         // idvrange(IDATA_RANGE_UNKNOWN),
         // indi_data_source_id(-1),
         // indi_data_source_mode(-1),
-        itype(_itype),
-        is_draw(false),
-        indi_color(clrNONE),
-        draw_window(0),
-        tf(_tf) {
+        itype(_itype) {
     Init();
   };
-  IndicatorParams(string _name)
-      : custom_indi_name(""),
-        name(_name),
-        shift(0),
-        // max_modes(1),
-        // max_buffers(10),
-        // idstype(_idstype),
-        // idvrange(IDATA_RANGE_UNKNOWN),
-        // indi_data_source_id(-1),
-        // indi_data_source_mode(-1),
-        is_draw(false),
-        indi_color(clrNONE),
-        draw_window(0) {
-    Init();
-  };
-  // Copy constructor.
-  IndicatorParams(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    THIS_REF = _params;
-    if (_tf != PERIOD_CURRENT) {
-      tf.SetTf(_tf);
-    }
-  }
+  IndicatorParams(string _name) : custom_indi_name(""), name(_name), shift(0) { Init(); };
   void Init() {}
   /* Getters */
   string GetCustomIndicatorName() const { return custom_indi_name; }
-  color GetIndicatorColor() const { return indi_color; }
   int GetMaxParams() const { return (int)max_params; }
   int GetShift() const { return shift; }
+  string GetSymbol() const { return symbol; }
   ENUM_INDICATOR_TYPE GetIndicatorType() { return itype; }
-  ENUM_TIMEFRAMES GetTf() const { return tf.GetTf(); }
   template <typename T>
   T GetInputParam(int _index, T _default) const {
     DataParamEntry _param = input_params[_index];
@@ -136,16 +110,6 @@ struct IndicatorParams {
   }
   /* Setters */
   void SetCustomIndicatorName(string _name) { custom_indi_name = _name; }
-  void SetDraw(bool _draw = true, int _window = 0) {
-    is_draw = _draw;
-    draw_window = _window;
-  }
-  void SetDraw(color _clr, int _window = 0) {
-    is_draw = true;
-    indi_color = _clr;
-    draw_window = _window;
-  }
-  void SetIndicatorColor(color _clr) { indi_color = _clr; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetInputParams(ARRAY_REF(DataParamEntry, _params)) {
     int _asize = ArraySize(_params);
@@ -160,7 +124,7 @@ struct IndicatorParams {
   }
   void SetName(string _name) { name = _name; };
   void SetShift(int _shift) { shift = _shift; }
-  void SetTf(ENUM_TIMEFRAMES _tf) { tf.SetTf(_tf); }
+  void SetSymbol(string _symbol) { symbol = _symbol; }
   // Serializers.
   // SERIALIZER_EMPTY_STUB;
   // template <>

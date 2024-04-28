@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickSource.h"
+#include "../Indicator.mqh"
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
 #include "Price/Indi_Price.mqh"
@@ -48,26 +48,39 @@ struct IndiCCIParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\CCI");
   };
-  IndiCCIParams(IndiCCIParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiCCIParams(IndiCCIParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Commodity Channel Index indicator.
  */
-class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
+class Indi_CCI : public Indicator<IndiCCIParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_CCI(IndiCCIParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
            int _indi_src_mode = 0)
-      : IndicatorTickSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src) {}
-  Indi_CCI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_CCI, _tf, _shift) {}
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
+  Indi_CCI(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiCCIParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
 
   /**
    * Returns the indicator value.
@@ -148,7 +161,7 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     double _value = EMPTY_VALUE;
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -156,6 +169,11 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _ishift /* + iparams.shift*/,
                                 THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        // @fixit Somehow shift isn't used neither in MT4 nor MT5.
+        _value =
+            Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), _ishift /* + iparams.shift*/);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
@@ -165,9 +183,8 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
         ValidateSelectedDataSource();
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
-                                           Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)),
-                                           _ishift /* + iparams.shift*/);
+        _value =
+            Indi_CCI::iCCIOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), _ishift /* + iparams.shift*/);
         break;
     }
     return _value;
@@ -183,7 +200,7 @@ class Indi_CCI : public IndicatorTickSource<IndiCCIParams> {
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

@@ -262,7 +262,7 @@ class Log : public Object {
  }
  */
 
-  virtual const string ToString() {
+  string const ToString() override {
     string result;
 
     unsigned int lid;

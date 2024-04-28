@@ -37,6 +37,7 @@ class Tests {
     double _bands[3] = {};
     int _periods[5] = {1, 5, 15, 30, 60};
     int _modes[3] = {BAND_LOWER, BAND_BASE, BAND_UPPER};
+    /* @fixme
     Chart *_chart = new Chart(_tf, _symbol);
     unsigned int _digits = _chart.GetDigits();
     double _bid = _chart.GetBid();
@@ -51,6 +52,7 @@ class Tests {
       PrintFormat("Bid/Ask           : %g/%g", NormalizeDouble(_bid, _digits), NormalizeDouble(_ask, _digits));
       PrintFormat("Close/Open        : %g/%g", NormalizeDouble(_close, _digits), NormalizeDouble(_open, _digits));
     }
+    */
     for (int p = 0; p < ArraySize(_periods); p++) {
       for (int m = 0; m < ArraySize(_modes); m++) {
 #ifdef __MQL4__

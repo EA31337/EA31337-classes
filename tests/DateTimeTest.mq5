@@ -67,18 +67,26 @@ int OnInit() {
   entry = dt.GetEntry();
   assertTrueOrFail(curr_dt == entry.GetTimestamp(), "Timestamp not match!");
   // Test IsNewMinute() method.
+  entry.SetMinute(0);
   entry.SetSeconds(1);
   dt.SetEntry(entry);
-  assertFalseOrFail(dt.IsNewMinute(false), "IsNewMinute() test failed.");
+  assertFalseOrFail(dt.IsNewMinute(), "IsNewMinute() test failed.");
+  entry.SetMinute(0);
   entry.SetSeconds(10);
   dt.SetEntry(entry);
-  assertFalseOrFail(dt.IsNewMinute(false), "IsNewMinute() test failed.");
+  assertFalseOrFail(dt.IsNewMinute(), "IsNewMinute() test failed.");
+  entry.SetMinute(1);
   entry.SetSeconds(0);
   dt.SetEntry(entry);
-  assertTrueOrFail(dt.IsNewMinute(false), "IsNewMinute() test failed.");
+  assertTrueOrFail(dt.IsNewMinute(), "IsNewMinute() test failed.");
+  entry.SetMinute(1);
   entry.SetSeconds(1);
   dt.SetEntry(entry);
-  assertFalseOrFail(dt.IsNewMinute(false), "IsNewMinute() test failed.");
+  assertFalseOrFail(dt.IsNewMinute(), "IsNewMinute() test failed.");
+  entry.SetMinute(1);
+  entry.SetSeconds(3);
+  dt.SetEntry(entry);
+  assertFalseOrFail(dt.IsNewMinute(), "IsNewMinute() test failed.");
   delete dt;
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
 }

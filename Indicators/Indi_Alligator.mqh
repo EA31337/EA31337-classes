@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -85,27 +85,37 @@ struct IndiAlligatorParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\Alligator");
   };
-  IndiAlligatorParams(IndiAlligatorParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiAlligatorParams(IndiAlligatorParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Alligator indicator.
  */
-class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
+class Indi_Alligator : public Indicator<IndiAlligatorParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_Alligator(IndiAlligatorParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                  IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
+      : Indicator(
             _p, IndicatorDataParams::GetInstance(FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE),
             _indi_src, _indi_src_mode) {}
-  Indi_Alligator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift){};
+  Indi_Alligator(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                 int _indi_src_mode = 0)
+      : Indicator(
+            IndiAlligatorParams(),
+            IndicatorDataParams::GetInstance(FINAL_ALLIGATOR_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE),
+            _indi_src, _indi_src_mode){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
    * Returns the indicator value.
@@ -165,7 +175,7 @@ class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
 #ifdef __MQL4__
@@ -241,7 +251,7 @@ class Indi_Alligator : public IndicatorTickOrCandleSource<IndiAlligatorParams> {
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Class setters */
 

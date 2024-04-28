@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 // Structs.
 struct IndiPriceFeederParams : IndicatorParams {
@@ -40,33 +40,43 @@ struct IndiPriceFeederParams : IndicatorParams {
    * @todo Use more modes (full OHCL).
    */
   IndiPriceFeederParams(const double& _price_data[], int _total = 0) : IndicatorParams(INDI_PRICE_FEEDER) {
-    tf = PERIOD_CURRENT;
     ArrayCopy(price_data, _price_data, 0, 0, _total == 0 ? WHOLE_ARRAY : _total);
   };
-  IndiPriceFeederParams(IndiPriceFeederParams& _params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiPriceFeederParams(IndiPriceFeederParams& _params) { THIS_REF = _params; };
 };
 
 /**
  * Price Indicator.
  */
-class Indi_PriceFeeder : public IndicatorTickOrCandleSource<IndiPriceFeederParams> {
+class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_PriceFeeder(IndiPriceFeederParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                    IndicatorData* _indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
-            _indi_src){};
-  Indi_PriceFeeder(const double& _price_data[], int _total = 0) : IndicatorTickOrCandleSource(INDI_PRICE_FEEDER) {
-    ArrayCopy(iparams.price_data, _price_data);
-  };
-  Indi_PriceFeeder(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_PRICE_FEEDER, _tf, _shift) {}
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src){};
+  Indi_PriceFeeder(const double& _price_data[], int _total = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                   IndicatorData* _indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(IndiPriceFeederParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
+  Indi_PriceFeeder(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData* _indi_src = NULL,
+                   int _indi_src_mode = 0)
+      : Indicator(IndiPriceFeederParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN; }
 
   void SetPrices(const double& _price_data[], int _total = 0) { iparams = IndiPriceFeederParams(_price_data, _total); }
 
@@ -78,7 +88,7 @@ class Indi_PriceFeeder : public IndicatorTickOrCandleSource<IndiPriceFeederParam
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int data_size = ArraySize(iparams.price_data);
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
 
@@ -91,7 +101,7 @@ class Indi_PriceFeeder : public IndicatorTickOrCandleSource<IndiPriceFeederParam
   void OnTick() {
     Indicator<IndiPriceFeederParams>::OnTick();
 
-    if (iparams.is_draw) {
+    if (idparams.is_draw) {
       int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
       IndicatorDataEntry _entry = GetEntry(0);
       for (int i = 0; i < _max_modes; ++i) {

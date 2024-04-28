@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -39,16 +39,13 @@ struct IndiACParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
   };
-  IndiACParams(IndiACParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiACParams(IndiACParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_AC : public IndicatorTickOrCandleSource<IndiACParams> {
+class Indi_AC : public Indicator<IndiACParams> {
  protected:
   /* Protected methods */
 
@@ -69,14 +66,28 @@ class Indi_AC : public IndicatorTickOrCandleSource<IndiACParams> {
    */
   Indi_AC(IndiACParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
           int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src) {
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
     Init();
-  };
-  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AC, _tf, _shift) {
+  }
+
+  Indi_AC(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : Indicator(IndiACParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
     Init();
-  };
+  }
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+ public:
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
    * Returns the indicator value.
@@ -90,39 +101,14 @@ class Indi_AC : public IndicatorTickOrCandleSource<IndiACParams> {
 #ifdef __MQL4__
     return ::iAC(_symbol, _tf, _shift);
 #else  // __MQL5__
-    int _handle =
-        Object::IsValid(_obj) ? _obj.Get<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_HANDLE)) : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iAC(_symbol, _tf)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = ::BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
-    }
-    return _res[0];
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iAC(_symbol, _tf), 0, _shift);
 #endif
   }
 
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) override {
     IndicatorDataEntryValue _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -139,13 +125,16 @@ class Indi_AC : public IndicatorTickOrCandleSource<IndiACParams> {
   }
 
   /**
-   * Returns reusable indicator for a given symbol and time-frame.
+   * Returns reusable indicator with the same candle indicator as given indicator's one.
    */
-  static Indi_AC *GetCached(string _symbol, ENUM_TIMEFRAMES _tf) {
+  static Indi_AC *GetCached(IndicatorData *_indi) {
     Indi_AC *_ptr;
-    string _key = Util::MakeKey(_symbol, (int)_tf);
+    // There will be only one Indi_AC per IndicatorCandle instance.
+    string _key = Util::MakeKey(_indi PTR_DEREF GetCandle() PTR_DEREF GetId());
     if (!Objects<Indi_AC>::TryGet(_key, _ptr)) {
-      _ptr = Objects<Indi_AC>::Set(_key, new Indi_AC(_tf));
+      _ptr = Objects<Indi_AC>::Set(_key, new Indi_AC());
+      // Assigning the same candle indicator for AC as in _indi.
+      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }

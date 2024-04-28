@@ -25,8 +25,9 @@
  */
 
 // Includes.
-#include "../Dict.mqh"
+#include "../DictStruct.mqh"
 #include "../DrawIndicator.mqh"
+#include "../Indicator.struct.serialize.h"
 #include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_MA.mqh"
@@ -35,20 +36,19 @@
 #include "../Test.mqh"
 
 // Global variables.
-Chart *chart;
-DictStruct<long, Ref<IndicatorData>> indis;
+Ref<IndicatorData> candles;
 int bar_processed;
 
 /**
  * Implements Init event handler.
  */
 int OnInit() {
+  Platform::Init();
+  candles = Platform::FetchDefaultCandleIndicator();
   bool _result = true;
-  // Initialize chart.
-  chart = new Chart();
   // Initialize indicators.
   _result &= InitIndicators();
-  Print("Indicators to test: ", indis.Size());
+  Print("Indicators to test: ", Platform::GetIndicators().Size());
   // Check for any errors.
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
@@ -59,12 +59,13 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-  chart.OnTick();
+  Platform::Tick();
 
-  if (chart.IsNewBar()) {
+  if (candles REF_DEREF IsNewBar()) {
     bar_processed++;
 
-    for (DictStructIterator<long, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
+         ++iter) {
       IndicatorData *_indi = iter.Value().Ptr();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
@@ -78,7 +79,7 @@ void OnTick() {
 /**
  * Implements Deinit event handler.
  */
-void OnDeinit(const int reason) { delete chart; }
+void OnDeinit(const int reason) {}
 
 /**
  * Initialize indicators.
@@ -88,48 +89,50 @@ bool InitIndicators() {
 
   // Bollinger Bands.
   IndiBandsParams bands_params(20, 2, 0, PRICE_MEDIAN);
-  Ref<IndicatorData> indi_bands = new Indi_Bands(bands_params);
-  indis.Set(INDI_BANDS, indi_bands);
+  Platform::AddWithDefaultBindings(new Indi_Bands(bands_params));
 
   // Moving Average.
   IndiMAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
-  Ref<IndicatorData> indi_ma = new Indi_MA(ma_params);
-  indis.Set(INDI_MA, indi_ma);
+  Platform::AddWithDefaultBindings(new Indi_MA(ma_params));
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_params(14, PRICE_OPEN);
-  Ref<IndicatorData> indi_rsi = new Indi_RSI(rsi_params);
-  indis.Set(INDI_RSI, indi_rsi);
+  Platform::AddWithDefaultBindings(new Indi_RSI(rsi_params));
 
   /* Special indicators */
 
   // Demo/Dummy Indicator.
   IndiDemoParams demo_params;
-  Ref<IndicatorData> indi_demo = new Indi_Demo(demo_params);
-  indis.Set(INDI_DEMO, indi_demo);
+  Platform::AddWithDefaultBindings(new Indi_Demo(demo_params));
 
+#ifndef __MQL4__
+  // @fixme: Make it work for MT4.
   // Current Price (used by custom indicators)  .
   PriceIndiParams price_params();
-  price_params.SetDraw(clrGreenYellow);
-  Ref<IndicatorData> indi_price = new Indi_Price(price_params);
-  indis.Set(INDI_PRICE, indi_price);
+  // price_params.SetDraw(clrGreenYellow);
+  Platform::AddWithDefaultBindings(new Indi_Price(price_params));
+#endif
 
-  /* @fixme: Convert to new syntax. Array out of range.
+  /* @fixme: Array out of range.
   // Bollinger Bands over Price indicator.
+  /*
   PriceIndiParams price_params_4_bands();
-  IndicatorData *indi_price_4_bands = new Indi_Price(price_params_4_bands);
+  IndicatorBase *indi_price_4_bands = new Indi_Price(price_params_4_bands);
   IndiBandsParams bands_on_price_params();
   bands_on_price_params.SetDraw(clrCadetBlue);
-  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params, IDATA_INDICATOR, indi_price_4_bands));
+  // bands_on_price_params.SetDataSource(indi_price_4_bands, true, INDI_PRICE_MODE_OPEN);
+  Platform::AddWithDefaultBindings(new Indi_Bands(bands_on_price_params, indi_price_4_bands, true));
+  */
 
   // Moving Average (MA) over Price indicator.
+  /*
   PriceIndiParams price_params_4_ma();
-  IndicatorData *indi_price_4_ma = new Indi_Price(price_params_4_ma);
+  IndicatorBase *indi_price_4_ma = new Indi_Price(price_params_4_ma);
   IndiMAParams ma_on_price_params();
   ma_on_price_params.SetDraw(clrYellowGreen);
+  // ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
-  IndicatorData *indi_ma_on_price = new Indi_MA(ma_on_price_params, IDATA_INDICATOR, indi_price_4_ma);
-  indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
+  Platform::AddWithDefaultBindings(new Indi_MA(ma_on_price_params, indi_price_4_ma));
 
   // Relative Strength Index (RSI) over Price indicator.
   PriceIndiParams price_params_4_rsi();
@@ -140,6 +143,12 @@ bool InitIndicators() {
   indis.Set(INDI_RSI_ON_PRICE, indi_rsi_on_price);
   */
 
+  // We'll be drawing all indicators' values on the chart.
+  for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
+       ++iter) {
+    // iter.Value() REF_DEREF SetDraw(true); // @fixme
+  }
+
   return _LastError == ERR_NO_ERROR;
 }
 
@@ -148,7 +157,8 @@ bool InitIndicators() {
  */
 bool PrintIndicators(string _prefix = "") {
   ResetLastError();
-  for (DictStructIterator<long, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
+       ++iter) {
     IndicatorData *_indi = iter.Value().Ptr();
     if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());

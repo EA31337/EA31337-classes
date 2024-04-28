@@ -32,7 +32,7 @@
  * Implements OnInit().
  */
 int OnInit() {
-  IndicatorTickDummy _indi_tick(PERIOD_CURRENT);
+  IndicatorTickDummy _indi_tick(_Symbol);
   long _time = 1;
   for (double _price = 0.1; _price <= 2.0; _price += 0.1) {
     MqlTick _tick;

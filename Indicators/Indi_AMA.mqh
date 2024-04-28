@@ -22,10 +22,8 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
-#include "../Indicator/tests/classes/IndicatorTfDummy.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.h"
-#include "../Storage/ValueStorage.price.h"
 #include "Price/Indi_Price.mqh"
 
 // Structs.
@@ -42,35 +40,52 @@ struct IndiAMAParams : IndicatorParams {
         fast_period(_fast_period),
         slow_period(_slow_period),
         ama_shift(_ama_shift),
-        applied_price(_ap) {
+        applied_price(_ap),
+        IndicatorParams(INDI_AMA) {
     // Defaulting to on-indicator mode (will use real ticks from platform via IndicatorTickReal).
     SetShift(_shift);
     if (custom_indi_name == "") {
       SetCustomIndicatorName("Examples\\AMA");
     }
   };
-  IndiAMAParams(IndiAMAParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  }
+  IndiAMAParams(IndiAMAParams &_params) { THIS_REF = _params; }
 };
 
 /**
  * Implements the AMA indicator.
  */
-class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
+class Indi_AMA : public Indicator<IndiAMAParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_AMA(IndiAMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
            int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
-            _indi_src) {
-    iparams.SetIndicatorType(INDI_AMA);
-  };
-  Indi_AMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AMA, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src){};
+
+  Indi_AMA(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiAMAParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+#ifdef __MQL5__
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+#else
+    return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+#endif
+  }
 
   /**
    * Built-in version of AMA.
@@ -82,11 +97,14 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iAMA(_symbol, _tf, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap), _mode, _shift);
 #else
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
-        _symbol, _tf, _ap,
-        Util::MakeKey("Indi_AMA", _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
-    return iAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ama_period, _fast_ema_period, _slow_ema_period,
-                       _ama_shift, _mode, _shift, _cache);
+    if (_obj == nullptr) {
+      Print(
+          "Indi_AMA::iAMA() can work without supplying pointer to IndicatorData only in MQL5. In this platform the "
+          "pointer is required.");
+      DebugBreak();
+      return 0;
+    }
+    return iAMAOnIndicator(_obj, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap, _mode, _shift);
 #endif
   }
 
@@ -115,13 +133,10 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
   /**
    * On-indicator version of AMA.
    */
-  static double iAMAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period,
-                                int _fast_ema_period, int _slow_ema_period, int _ama_shift, ENUM_APPLIED_PRICE _ap,
-                                int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(
-        _indi, _symbol, _tf, _ap,
-        Util::MakeKey("Indi_AMA_ON_" + _indi.GetFullName(), _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift,
-                      (int)_ap));
+  static double iAMAOnIndicator(IndicatorData *_indi, int _ama_period, int _fast_ema_period, int _slow_ema_period,
+                                int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
+        _indi, _ap, Util::MakeKey(_ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
     return iAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ama_period, _fast_ema_period, _slow_ema_period,
                        _ama_shift, _mode, _shift, _cache);
   }
@@ -173,14 +188,6 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
 
     CalculateInit(InpPeriodAMA, InpFastPeriodEMA, InpSlowPeriodEMA, InpShiftAMA, ExtFastSC, ExtSlowSC, ExtPeriodAMA,
                   ExtSlowPeriodEMA, ExtFastPeriodEMA);
-
-#ifdef __debug__
-    for (int x = prev_calculated; x < rates_total; ++x) {
-      Print("price[", x, "] = ", price[x].Get(),
-            ", O = ", iOpen(Symbol(), PERIOD_CURRENT, Bars(Symbol(), PERIOD_CURRENT) - x - 1));
-    }
-#endif
-
     int i;
     // Check for rates count.
     if (rates_total < ExtPeriodAMA + begin) return (0);
@@ -222,7 +229,7 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -235,10 +242,13 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
                          GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _ishift);
 
         break;
+      case IDATA_ONCALCULATE:
+        _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift(),
+                                           GetAppliedPrice() /*]*/, _mode, _ishift);
+        break;
       case IDATA_INDICATOR:
-        _value = Indi_AMA::iAMAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(),
-                                           GetSlowPeriod(), GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift,
-                                           THIS_PTR);
+        _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift(),
+                                           GetAppliedPrice() /*]*/, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -285,7 +295,7 @@ class Indi_AMA : public IndicatorTickOrCandleSource<IndiAMAParams> {
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

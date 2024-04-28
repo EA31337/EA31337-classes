@@ -22,8 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
-#include "../Storage/ValueStorage.price.h"
+#include "../Indicator.mqh"
 
 // Structs.
 struct IndiRateOfChangeParams : IndicatorParams {
@@ -37,35 +36,41 @@ struct IndiRateOfChangeParams : IndicatorParams {
     period = _period;
     shift = _shift;
   };
-  IndiRateOfChangeParams(IndiRateOfChangeParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiRateOfChangeParams(IndiRateOfChangeParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Rate of Change indicator.
  */
-class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangeParams> {
+class Indi_RateOfChange : public Indicator<IndiRateOfChangeParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_RateOfChange(IndiRateOfChangeParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                     IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src){};
-  Indi_RateOfChange(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_RATE_OF_CHANGE, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_RateOfChange(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                    int _indi_src_mode = 0)
+      : Indicator(IndiRateOfChangeParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
 
   /**
-   * Built-in version of Rate of Change.
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
-  static double iROC(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                     int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
-                                                        Util::MakeKey("Indi_RateOfChange", _period, (int)_ap));
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  double iROC(IndicatorData *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, (int)_ap));
     return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);
   }
 
@@ -93,10 +98,9 @@ class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangePar
   /**
    * On-indicator version of Rate of Change.
    */
-  static double iROCOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
-        _indi, _symbol, _tf, _ap, Util::MakeKey("Indi_RateOfChange_ON_" + _indi.GetFullName(), _period, (int)_ap));
+  static double iROCOnIndicator(IndicatorData *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
+                                int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, (int)_ap));
     return iROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _mode, _shift, _cache);
   }
 
@@ -122,21 +126,20 @@ class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangePar
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_RateOfChange::iROC(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode,
-                                         _ishift, THIS_PTR);
+      case IDATA_ONCALCULATE:
+        _value = iROC(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_RateOfChange::iROCOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(),
-                                                    GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = iROC(THIS_PTR, GetPeriod(), GetAppliedPrice(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -149,7 +152,7 @@ class Indi_RateOfChange : public IndicatorTickOrCandleSource<IndiRateOfChangePar
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /**
    * Get period.

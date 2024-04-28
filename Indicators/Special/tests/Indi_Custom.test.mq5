@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                 Copyright 2016-2022, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -20,6 +20,7 @@
  */
 
 // Includes.
+#include "../../../Platform.h"
 #include "../../../Test.mqh"
 #include "../Indi_Custom.mqh"
 
@@ -27,39 +28,4 @@
  * @file
  * Test functionality of Indi_Custom indicator class.
  */
-
-Indi_Custom indi(PERIOD_CURRENT);
-
-/**
- * Implements Init event handler.
- */
-int OnInit() {
-  bool _result = true;
-  assertTrueOrFail(indi.IsValid(), "Error on IsValid!");
-  // assertTrueOrFail(indi.IsValidEntry(), "Error on IsValidEntry!");
-  // Overrides indicator params.
-  DataParamEntry _iparam_rsi_period = 12;
-  IndiCustomParams _iparams(INDI_CUSTOM_PATH);
-  _iparams.AddParam(_iparam_rsi_period);
-  indi.SetParams(_iparams);
-  return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
-}
-
-/**
- * Implements Tick event handler.
- */
-void OnTick() {
-  static MqlTick _tick_last;
-  MqlTick _tick_new = SymbolInfoStatic::GetTick(_Symbol);
-  if (_tick_new.time % 60 < _tick_last.time % 60) {
-    // Process ticks each minute.
-    if (_tick_new.time % 3600 < _tick_last.time % 3600) {
-      // Print indicator values every hour.
-      Print(indi.ToString());
-      if (indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
-        assertTrueOrExit(indi.GetEntry().IsValid(), "Invalid entry!");
-      }
-    }
-  }
-  _tick_last = _tick_new;
-}
+TEST_INDICATOR_DEFAULT_BINDINGS(Indi_Custom);

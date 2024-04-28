@@ -37,6 +37,9 @@
 */
 #endif
 
+// Forward declaration.
+struct IndicatorParams;
+
 // Includes.
 #include "../Account/AccountMt.h"
 #include "../Array.mqh"
@@ -64,7 +67,7 @@
 #include "../Indicator.mqh"
 #include "../IndicatorBase.h"
 #include "../IndicatorData.mqh"
-#include "../Inet.mqh"
+// #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
 #include "../Storage/Collection.mqh"
@@ -82,7 +85,7 @@
 #include "../Order.mqh"
 #include "../Orders.mqh"
 #include "../Pattern.mqh"
-#include "../Profiler.mqh"
+// #include "../Profiler.mqh"
 #include "../Redis.mqh"
 #include "../Refs.mqh"
 #include "../Registry.mqh"
@@ -123,6 +126,7 @@
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"
 #include "../Tests.mqh"
+// #include "../Tests.mqh" // @removeme
 #include "../Timer.mqh"
 #include "../Trade.mqh"
 #include "../Util.h"

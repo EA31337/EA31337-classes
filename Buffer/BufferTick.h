@@ -30,34 +30,48 @@
 #include "../Storage/IValueStorage.h"
 #include "../Tick.struct.h"
 
-template <typename TV>
+// TV = Type of price stored by BufferTick. RV = Type of property to be retrieved from BufferTick.
+template <typename TV, typename RV>
 class BufferTickValueStorage : ValueStorage<TV> {
   // Poiner to buffer to take tick from.
   BufferTick<TV> *buffer_tick;
 
-  // PRICE_ASK or PRICE_BID.
-  int applied_price;
+  // INDI_VS_TYPE_PRICE_ASK, INDI_VS_TYPE_PRICE_BID, INDI_VS_TYPE_SPREAD, INDI_VS_TYPE_TICK_VOLUME or
+  // INDI_VS_TYPE_VOLUME.
+  ENUM_INDI_VS_TYPE vs_type;
 
  public:
   /**
    * Constructor.
    */
-  BufferTickValueStorage(BufferTick<TV> *_buffer_tick, int _applied_price)
-      : buffer_tick(_buffer_tick), applied_price(_applied_price) {}
+  BufferTickValueStorage(BufferTick<TV> *_buffer_tick, ENUM_INDI_VS_TYPE _vs_type)
+      : buffer_tick(_buffer_tick), vs_type(_vs_type) {}
 
   /**
-   * Fetches value from a given shift. Takes into consideration as-series flag.
+   * Fetches value from a given datetime. Takes into consideration as-series flag.
    */
-  TV Fetch(int _shift) override {
-    Print("BufferTickValueStorage: Fetching " + (applied_price == PRICE_ASK ? "Ask" : "Bid") + " price from shift ",
-          _shift);
-    return 0;
+  TV Fetch(datetime _dt) override {
+    switch (vs_type) {
+      case INDI_VS_TYPE_PRICE_ASK:
+        return (TV)buffer_tick PTR_DEREF GetByKey(_dt).ask;
+      case INDI_VS_TYPE_PRICE_BID:
+        return (TV)buffer_tick PTR_DEREF GetByKey(_dt).bid;
+      case INDI_VS_TYPE_SPREAD:
+        // return (TV)buffer_tick PTR_DEREF GetByKey(_dt).spread;
+      case INDI_VS_TYPE_TICK_VOLUME:
+        // return (TV)buffer_tick PTR_DEREF GetByKey(_dt).tick_volume;
+      case INDI_VS_TYPE_VOLUME:
+        // return (TV)buffer_tick PTR_DEREF GetByKey(_dt).volume;
+        break;
+    }
+    Print("Not yet supported value storage to fetch: ", EnumToString(vs_type), ".");
+    return (RV)0;
   }
 
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  int Size() const override { return (int)buffer_tick.Size(); }
+  int Size() override { return (int)buffer_tick.Size(); }
 };
 
 /**
@@ -67,10 +81,19 @@ template <typename TV>
 class BufferTick : public BufferStruct<TickAB<TV>> {
  protected:
   // Ask prices ValueStorage proxy.
-  BufferTickValueStorage<TV> *_vs_ask;
+  BufferTickValueStorage<TV, TV> *_vs_ask;
 
   // Bid prices ValueStorage proxy.
-  BufferTickValueStorage<TV> *_vs_bid;
+  BufferTickValueStorage<TV, TV> *_vs_bid;
+
+  // Spread ValueStorage proxy.
+  BufferTickValueStorage<TV, TV> *_vs_spread;
+
+  // Volume ValueStorage proxy.
+  BufferTickValueStorage<TV, int> *_vs_volume;
+
+  // Tick Volume ValueStorage proxy.
+  BufferTickValueStorage<TV, int> *_vs_tick_volume;
 
  protected:
   /* Protected methods */
@@ -83,6 +106,9 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
   void Init() {
     _vs_ask = NULL;
     _vs_bid = NULL;
+    _vs_spread = NULL;
+    _vs_volume = NULL;
+    _vs_tick_volume = NULL;
     SetOverflowListener(BufferTickOverflowListener, 10);
   }
 
@@ -108,14 +134,23 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
     if (_vs_bid != NULL) {
       delete _vs_bid;
     }
+    if (_vs_spread != NULL) {
+      delete _vs_spread;
+    }
+    if (_vs_volume != NULL) {
+      delete _vs_volume;
+    }
+    if (_vs_tick_volume != NULL) {
+      delete _vs_tick_volume;
+    }
   }
 
   /**
    * Returns Ask prices ValueStorage proxy.
    */
-  BufferTickValueStorage<TV> *GetAskValueStorage() {
+  BufferTickValueStorage<TV, TV> *GetAskValueStorage() {
     if (_vs_ask == NULL) {
-      _vs_ask = new BufferTickValueStorage<TV>(THIS_PTR, PRICE_ASK);
+      _vs_ask = new BufferTickValueStorage<TV, TV>(THIS_PTR, INDI_VS_TYPE_PRICE_ASK);
     }
     return _vs_ask;
   }
@@ -123,11 +158,41 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
   /**
    * Returns Bid prices ValueStorage proxy.
    */
-  BufferTickValueStorage<TV> *GetBidValueStorage() {
+  BufferTickValueStorage<TV, TV> *GetBidValueStorage() {
     if (_vs_bid == NULL) {
-      _vs_bid = new BufferTickValueStorage<TV>(THIS_PTR, PRICE_BID);
+      _vs_bid = new BufferTickValueStorage<TV, TV>(THIS_PTR, INDI_VS_TYPE_PRICE_BID);
     }
     return _vs_bid;
+  }
+
+  /**
+   * Returns Spread ValueStorage proxy.
+   */
+  BufferTickValueStorage<TV, TV> *GetSpreadValueStorage() {
+    if (_vs_spread == NULL) {
+      _vs_spread = new BufferTickValueStorage<TV, TV>(THIS_PTR, INDI_VS_TYPE_SPREAD);
+    }
+    return _vs_spread;
+  }
+
+  /**
+   * Returns Volume ValueStorage proxy.
+   */
+  BufferTickValueStorage<TV, int> *GetVolumeValueStorage() {
+    if (_vs_volume == NULL) {
+      _vs_volume = new BufferTickValueStorage<TV, int>(THIS_PTR, INDI_VS_TYPE_VOLUME);
+    }
+    return _vs_volume;
+  }
+
+  /**
+   * Returns Tick Volume ValueStorage proxy.
+   */
+  BufferTickValueStorage<TV, int> *GetTickVolumeValueStorage() {
+    if (_vs_tick_volume == NULL) {
+      _vs_tick_volume = new BufferTickValueStorage<TV, int>(THIS_PTR, INDI_VS_TYPE_TICK_VOLUME);
+    }
+    return _vs_tick_volume;
   }
 
   /* Grouping methods */

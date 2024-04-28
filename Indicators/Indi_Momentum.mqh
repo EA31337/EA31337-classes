@@ -30,7 +30,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "Indi_PriceFeeder.mqh"
 
 #ifndef __MQL4__
@@ -51,27 +51,40 @@ struct IndiMomentumParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\Momentum");
   };
-  IndiMomentumParams(IndiMomentumParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiMomentumParams(IndiMomentumParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Momentum indicator.
  */
-class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
+class Indi_Momentum : public Indicator<IndiMomentumParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_Momentum(IndiMomentumParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src) {}
-  Indi_Momentum(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_MOMENTUM, _tf, _shift) {}
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
+  Indi_Momentum(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                int _indi_src_mode = 0)
+      : Indicator(IndiMomentumParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
 
   /**
    * Returns the indicator value.
@@ -127,7 +140,8 @@ class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
       _indi_value_buffer[i] = _indi[i].GetValue<double>(_mode);
     }
 
-    double momentum = (_indi_value_buffer[0] / _indi_value_buffer[_period - 1]) * 100;
+    double _last_value = _indi_value_buffer[_period - 1];
+    double momentum = _last_value != 0.0 ? (_indi_value_buffer[0] / _last_value) * 100 : 0.0;
 
     return momentum;
   }
@@ -144,7 +158,7 @@ class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -152,6 +166,14 @@ class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), iparams.shift + _ishift,
                                           THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        // @fixit Somehow shift isn't used neither in MT4 nor MT5.
+        _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
+                                                     iparams.shift + _shift);
+        if (idparams.is_draw) {
+          draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + _shift), _value, 1);
+        }
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
@@ -162,9 +184,8 @@ class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
 
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
-                                                     Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)),
                                                      iparams.shift + _shift);
-        if (iparams.is_draw) {
+        if (idparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + _shift), _value, 1);
         }
         break;
@@ -186,7 +207,7 @@ class Indi_Momentum : public IndicatorTickOrCandleSource<IndiMomentumParams> {
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

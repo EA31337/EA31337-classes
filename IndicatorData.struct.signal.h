@@ -37,8 +37,7 @@ struct IndicatorDataParams;
 struct IndicatorParams;
 
 // Includes.
-//#include "IndicatorData.enum.h"
-//#include "Indicator.struct.h"
+#include "Indicator.struct.h"
 
 /* Structure for indicator signals. */
 struct IndicatorSignal {
@@ -58,16 +57,15 @@ struct IndicatorSignal {
 
   // Constructors.
   IndicatorSignal(int _signals = 0) : signals(_signals) {}
-  IndicatorSignal(ARRAY_REF(IndicatorDataEntry, _data), IndicatorDataParams &_idp, ChartParams &_cp, int _m1 = 0,
-                  int _m2 = 0)
+  IndicatorSignal(ARRAY_REF(IndicatorDataEntry, _data), IndicatorDataParams &_idp, string _symbol, ENUM_TIMEFRAMES _tf,
+                  int _m1 = 0, int _m2 = 0)
       : signals(0) {
-    CalcSignals(_data, _idp, _cp, _m1, _m2);
+    CalcSignals(_data, _idp, _symbol, _tf, _m1, _m2);
   }
-
   // Main methods.
   // Calculate signal values.
-  void CalcSignals(ARRAY_REF(IndicatorDataEntry, _data), IndicatorDataParams &_idp, ChartParams &_cp, int _m1 = 0,
-                   int _m2 = 0) {
+  void CalcSignals(ARRAY_REF(IndicatorDataEntry, _data), IndicatorDataParams &_idp, string _symbol, ENUM_TIMEFRAMES _tf,
+                   int _m1 = 0, int _m2 = 0) {
     int _size = ArraySize(_data);
     // INDICATOR_SIGNAL_CROSSOVER
     bool _is_cross = false;
@@ -82,10 +80,10 @@ struct IndicatorSignal {
     }
     SetSignal(INDICATOR_SIGNAL_CROSSOVER, _is_cross);
     // INDICATOR_SIGNAL_DIVERGENCE
-    int _shift0 = ChartStatic::iBarShift(_cp.symbol, _cp.tf.GetTf(), _data[0].timestamp);
-    int _shift1 = ChartStatic::iBarShift(_cp.symbol, _cp.tf.GetTf(), _data[_size - 1].timestamp);
-    double _price_w0 = ChartStatic::iPrice(PRICE_WEIGHTED, _cp.symbol, _cp.tf.GetTf(), _shift0);
-    double _price_w1 = ChartStatic::iPrice(PRICE_WEIGHTED, _cp.symbol, _cp.tf.GetTf(), _shift1);
+    int _shift0 = ChartStatic::iBarShift(_symbol, _tf, _data[0].timestamp);
+    int _shift1 = ChartStatic::iBarShift(_symbol, _tf, _data[_size - 1].timestamp);
+    double _price_w0 = ChartStatic::iPrice(PRICE_WEIGHTED, _symbol, _tf, _shift0);
+    double _price_w1 = ChartStatic::iPrice(PRICE_WEIGHTED, _symbol, _tf, _shift1);
     SetSignal(INDICATOR_SIGNAL_DIVERGENCE,
               ((_price_w0 - _price_w1 > 0) && (_data[0][_m1] - _data[_size - 1][_m1]) < 0) ||
                   ((_price_w0 - _price_w1) < 0 && (_data[0][_m1] - _data[_size - 1][_m1]) > 0));
@@ -120,7 +118,6 @@ struct IndicatorSignal {
     }
     SetSignal(INDICATOR_SIGNAL_VOLATILE, _is_vola);
   }
-
   // Signal methods for bitwise operations.
   /* Getters */
   bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }

@@ -22,8 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
-#include "../Storage/ValueStorage.price.h"
+#include "../Indicator.mqh"
 #include "Indi_MA.mqh"
 
 // Structs.
@@ -38,27 +37,37 @@ struct IndiTRIXParams : IndicatorParams {
     period = _period;
     shift = _shift;
   };
-  IndiTRIXParams(IndiTRIXParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiTRIXParams(IndiTRIXParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Triple Exponential Average indicator.
  */
-class Indi_TRIX : public IndicatorTickOrCandleSource<IndiTRIXParams> {
+class Indi_TRIX : public Indicator<IndiTRIXParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_TRIX(IndiTRIXParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
             int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src){};
-  Indi_TRIX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_TRIX, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_TRIX(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiTRIXParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
 
   /**
    * Built-in version of TriX.
@@ -68,9 +77,15 @@ class Indi_TRIX : public IndicatorTickOrCandleSource<IndiTRIXParams> {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iTriX(_symbol, _tf, _ma_period, _ap), _mode, _shift);
 #else
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
-                                                        Util::MakeKey("Indi_TRIX", _ma_period, (int)_ap));
-    return iTriXOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _mode, _shift, _cache);
+    if (_obj == nullptr) {
+      Print(
+          "Indi_TRIX::iTriX() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
+          "the pointer is required.");
+      DebugBreak();
+      return 0;
+    }
+
+    return iTriXOnIndicator(_obj, _ma_period, _ap, _mode, _shift);
 #endif
   }
 
@@ -99,10 +114,9 @@ class Indi_TRIX : public IndicatorTickOrCandleSource<IndiTRIXParams> {
   /**
    * On-indicator version of TriX.
    */
-  static double iTriXOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
-                                 ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
-        _indi, _symbol, _tf, _ap, Util::MakeKey("Indi_TriX_ON_" + _indi.GetFullName(), _ma_period, (int)_ap));
+  static double iTriXOnIndicator(IndicatorData *_indi, int _ma_period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
+                                 int _shift = 0, IndicatorData *_obj = NULL) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_ma_period, (int)_ap));
     return iTriXOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _mode, _shift, _cache);
   }
 
@@ -140,7 +154,7 @@ class Indi_TRIX : public IndicatorTickOrCandleSource<IndiTRIXParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -148,13 +162,15 @@ class Indi_TRIX : public IndicatorTickOrCandleSource<IndiTRIXParams> {
         _value = Indi_TRIX::iTriX(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode, _ishift,
                                   THIS_PTR);
         break;
+      case IDATA_ONCALCULATE:
+        _value = Indi_TRIX::iTriXOnIndicator(GetDataSource(), GetPeriod(), GetAppliedPrice(), _mode, _ishift);
+        break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_TRIX::iTriXOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(),
-                                             GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_TRIX::iTriXOnIndicator(GetDataSource(), GetPeriod(), GetAppliedPrice(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -172,7 +188,7 @@ class Indi_TRIX : public IndicatorTickOrCandleSource<IndiTRIXParams> {
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

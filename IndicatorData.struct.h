@@ -29,9 +29,7 @@
 #define STRUCT_ENUM_IDATA_PARAM STRUCT_ENUM(IndicatorDataParams, ENUM_IDATA_PARAM)
 
 // Includes.
-#include "Indicator.struct.cache.h"
 #include "SerializerNode.enum.h"
-#include "Storage/ValueStorage.indicator.h"
 
 // Type-less value for IndicatorDataEntryValue structure.
 union IndicatorDataEntryTypelessValue {
@@ -45,6 +43,13 @@ union IndicatorDataEntryTypelessValue {
 struct IndicatorDataEntryValue {
   unsigned char flags;
   IndicatorDataEntryTypelessValue value;
+
+  // Constructors.
+  template <typename T>
+  IndicatorDataEntryValue(T _value, unsigned char _flags = 0) : flags(_flags) {
+    Set(_value);
+  }
+  IndicatorDataEntryValue(unsigned char _flags = 0) : flags(_flags) {}
 
   // Returns type of the value.
   ENUM_DATATYPE GetDataType() { return (ENUM_DATATYPE)((flags & 0xF0) >> 4); }
@@ -392,10 +397,15 @@ struct IndicatorDataEntry {
 
 /* Structure for indicator data parameters. */
 struct IndicatorDataParams {
+ public:
+  // @todo: Move to protected.
+  bool is_draw;      // Draw active.
+  color indi_color;  // Indicator color.
  protected:
   /* Struct protected variables */
   bool is_fed;                      // Whether calc_start_bar is already calculated.
   int data_src_mode;                // Mode used as input from data source.
+  int draw_window;                  // Drawing window.
   int src_id;                       // Id of the indicator to be used as data source.
   int src_mode;                     // Mode of source indicator
   unsigned int max_buffers;         // Max buffers to store.
@@ -424,11 +434,14 @@ struct IndicatorDataParams {
                       ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                       ENUM_IDATA_VALUE_RANGE _idvrange = IDATA_RANGE_UNKNOWN, int _data_src_mode = 0)
       : data_src_mode(_data_src_mode),
+        draw_window(0),
         dtype(_dtype),
         max_modes(_max_modes),
         max_buffers(10),
         idstype(_idstype),
         idvrange(_idvrange),
+        indi_color(clrNONE),
+        is_draw(false),
         is_fed(false),
         src_id(-1),
         src_mode(-1){};
@@ -462,6 +475,7 @@ struct IndicatorDataParams {
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }
+  color GetIndicatorColor() const { return indi_color; }
   static IndicatorDataParams GetInstance(unsigned int _max_modes = 1, ENUM_DATATYPE _dtype = TYPE_DOUBLE,
                                          ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                                          ENUM_IDATA_VALUE_RANGE _idvrange = IDATA_RANGE_UNKNOWN,
@@ -503,4 +517,14 @@ struct IndicatorDataParams {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
+  void SetDraw(bool _draw = true, int _window = 0) {
+    is_draw = _draw;
+    draw_window = _window;
+  }
+  void SetDraw(color _clr, int _window = 0) {
+    is_draw = true;
+    indi_color = _clr;
+    draw_window = _window;
+  }
+  void SetIndicatorColor(color _clr) { indi_color = _clr; }
 };

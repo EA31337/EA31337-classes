@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "indicatorcandle.h": "c"
+        "indicatorcandle.h": "c",
+        "*.mqh": "c"
     }
 }

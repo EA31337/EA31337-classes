@@ -51,6 +51,7 @@
 #define PTR_ATTRIB2(O, A, B) O.A.B
 #define PTR_TO_REF(PTR) PTR
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
+#define REF_DEREF .Ptr().
 #else
 #define GET_PTR(obj) (*obj)
 #define THIS_ATTR this->
@@ -61,6 +62,7 @@
 #define PTR_ATTRIB2(O, A, B) O->A->B
 #define PTR_TO_REF(PTR) (*PTR)
 #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
+#define REF_DEREF .Ptr()->
 #endif
 
 // References.
@@ -81,6 +83,11 @@
 
 #ifdef __MQL__
 /**
+ * Reference to object.
+ */
+#define CONST_REF_TO(T) const T
+
+/**
  * Reference to the array.
  *
  * @usage
@@ -98,9 +105,13 @@
  * @usage
  *   ARRAY(<type of the array items>, <name of the variable>)
  */
-#define ARRAY(T, N) T N[];
+#define ARRAY(T, N) T N[]
 
 #else
+/**
+ * Reference to object.
+ */
+#define CONST_REF_TO(T) const T&
 
 /**
  * Reference to the array.

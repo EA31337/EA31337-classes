@@ -302,10 +302,12 @@ class Draw : public Chart {
   /**
    * Draw a line given the price.
    */
-  void ShowLine(string oname, double price, int _colour = Yellow) {
+  void ShowLine(string oname, double price, int colour = Yellow) {
+    /** @TODO
     Draw::ObjectCreate(chart_id, oname, OBJ_HLINE, 0, GetBarTime(), price);
     Draw::ObjectSet(oname, OBJPROP_COLOR, _colour);
     Draw::ObjectMove(oname, 0, GetBarTime(), price);
+    */
   }
 
   /**

@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -38,16 +38,13 @@ struct IndiAOParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
   };
-  IndiAOParams(IndiAOParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiAOParams(IndiAOParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Awesome oscillator.
  */
-class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
+class Indi_AO : public Indicator<IndiAOParams> {
  protected:
   /* Protected methods */
 
@@ -68,14 +65,27 @@ class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
    */
   Indi_AO(IndiAOParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
           int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src) {
+      : Indicator(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
     Init();
   };
-  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_AO, _tf, _shift) {
+  Indi_AO(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : Indicator(IndiAOParams(),
+                  IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
     Init();
   };
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+ public:
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
    * Returns the indicator value.
@@ -121,7 +131,7 @@ class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -138,21 +148,21 @@ class Indi_AO : public IndicatorTickOrCandleSource<IndiAOParams> {
   }
 
   /**
-   * Returns reusable indicator for a given symbol and time-frame.
+   * Returns reusable indicator with the same candle indicator as given indicator's one.
    */
-  static Indi_AO *GetCached(string _symbol, ENUM_TIMEFRAMES _tf) {
+  static Indi_AO *GetCached(IndicatorData *_indi) {
     Indi_AO *_ptr;
-    string _key = Util::MakeKey(_symbol, (int)_tf);
+    // There will be only one Indi_AO per IndicatorCandle instance.
+    string _key = Util::MakeKey(_indi PTR_DEREF GetCandle() PTR_DEREF GetId());
     if (!Objects<Indi_AO>::TryGet(_key, _ptr)) {
-      _ptr = Objects<Indi_AO>::Set(_key, new Indi_AO(_tf));
+      _ptr = Objects<Indi_AO>::Set(_key, new Indi_AO());
+      // Assigning the same candle indicator for AO as in _indi.
+      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }
-
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return _entry.values[0].Get<double>() != EMPTY_VALUE;
-  }
+  bool IsValidEntry(IndicatorDataEntry &_entry) override { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
 };

@@ -25,6 +25,7 @@
  */
 
 // Includes.
+#include "../../Platform.h"
 #include "../../Test.mqh"
 #include "../Exchange.h"
 
@@ -32,7 +33,10 @@
 class AccountDummy : public AccountBase {};  // <AccountForexState, AccountForexEntry>
 class ExchangeDummy : public Exchange {};
 class SymbolDummy : public SymbolInfo {};
-class TradeDummy : public Trade {};
+class TradeDummy : public Trade {
+ public:
+  TradeDummy(IndicatorBase *_indi_candle) : Trade(_indi_candle) {}
+};
 
 // Global variables.
 ExchangeDummy ex_dummy;
@@ -41,22 +45,26 @@ ExchangeDummy ex_dummy;
 bool TestExchange01() {
   bool _result = true;
   // Initialize a dummy Exchange instance.
-  ExchangeDummy exchange;
+  Ref<ExchangeDummy> exchange = new ExchangeDummy();
+
   // Attach instances of dummy accounts.
-  AccountDummy account01;
-  AccountDummy account02;
-  exchange.AccountAdd(account01, "Account01");
-  exchange.AccountAdd(account02, "Account02");
+  Ref<AccountDummy> account01 = new AccountDummy();
+  Ref<AccountDummy> account02 = new AccountDummy();
+  exchange REF_DEREF AccountAdd(account01.Ptr(), "Account01");
+  exchange REF_DEREF AccountAdd(account02.Ptr(), "Account02");
+
   // Attach instances of dummy symbols.
-  SymbolDummy symbol01;
-  SymbolDummy symbol02;
-  exchange.SymbolAdd(symbol01, "Symbol01");
-  exchange.SymbolAdd(symbol02, "Symbol02");
+  Ref<SymbolDummy> symbol01 = new SymbolDummy();
+  Ref<SymbolDummy> symbol02 = new SymbolDummy();
+  exchange REF_DEREF SymbolAdd(symbol01.Ptr(), "Symbol01");
+  exchange REF_DEREF SymbolAdd(symbol02.Ptr(), "Symbol02");
+
   // Attach instances of dummy trades.
-  TradeDummy trade01;
-  TradeDummy trade02;
-  exchange.TradeAdd(trade01, "Trade01");
-  exchange.TradeAdd(trade02, "Trade02");
+  Ref<TradeDummy> trade01 = new TradeDummy(Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT));
+  Ref<TradeDummy> trade02 = new TradeDummy(Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT));
+
+  exchange REF_DEREF TradeAdd(trade01.Ptr(), "Trade01");
+  exchange REF_DEREF TradeAdd(trade02.Ptr(), "Trade02");
   return _result;
 }
 
@@ -64,6 +72,7 @@ bool TestExchange01() {
  * Implements OnInit().
  */
 int OnInit() {
+  Platform::Init();
   bool _result = true;
   assertTrueOrFail(TestExchange01(), "Fail!");
   return _result && GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED;

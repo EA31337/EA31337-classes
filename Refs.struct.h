@@ -126,7 +126,7 @@ struct Ref {
   /**
    * Returns pointer to target object.
    */
-  X* Ptr() const { return ptr_object; }
+  X* Ptr() { return ptr_object; }
 
   /**
    * Checks whether any object is referenced.
@@ -292,10 +292,10 @@ struct WeakRef {
 
   bool ObjectExists() { return ptr_ref_counter != NULL && !PTR_ATTRIB(ptr_ref_counter, deleted); }
 
-  X* Ptr() { return ObjectExists() ? (X*)PTR_ATTRIB(ptr_ref_counter, ptr_object) : NULL; }
+  X* Ptr() { return ObjectExists() ? (X*)(PTR_ATTRIB(ptr_ref_counter, ptr_object)) : NULL; }
 
   /**
-   * Makes a strong reference to the given object.
+   * Makes a weak reference to the given object.
    */
   X* operator=(X* _ptr) {
     if (ptr_ref_counter == (_ptr == NULL ? NULL : PTR_ATTRIB(_ptr, ptr_ref_counter))) {

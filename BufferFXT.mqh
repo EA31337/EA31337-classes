@@ -27,6 +27,7 @@
 #include "Account/AccountMt.h"
 #include "Chart.mqh"
 #include "DictStruct.mqh"
+#include "IndicatorBase.h"
 #include "Object.mqh"
 
 // Defines.
@@ -169,39 +170,39 @@ struct BufferFXTHeader {
   //----
   int reserved[60];  // Reserved - space for future use.
   // Struct constructor.
-  BufferFXTHeader(Chart *_c, AccountMt *_a)
+  BufferFXTHeader(IndicatorData *_source, AccountMt *_a)
       : version(405),
-        period(_c.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
+        period(_source PTR_DEREF GetTick() PTR_DEREF GetTf()),
         model(0),
         bars(0),
         fromdate(0),
         todate(0),
         totalTicks(0),
         modelquality(0),
-        spread((int)_c.GetSpread()),
-        digits((int)_c.GetDigits()),
-        point(_c.GetPointSize()),
-        lot_min(int(_c.GetVolumeMin() * 100)),
-        lot_max(int(_c.GetVolumeMax() * 100)),
-        lot_step(int(_c.GetVolumeStep() * 100)),
+        spread((int)_source PTR_DEREF GetSpread()),
+        digits((int)_source PTR_DEREF GetSymbolProps().GetDigits()),
+        point(_source PTR_DEREF GetSymbolProps().GetPointSize()),
+        lot_min(int(_source PTR_DEREF GetSymbolProps().GetVolumeMin() * 100)),
+        lot_max(int(_source PTR_DEREF GetSymbolProps().GetVolumeMax() * 100)),
+        lot_step(int(_source PTR_DEREF GetSymbolProps().GetVolumeStep() * 100)),
         stops_level(0),  // @todo: Add MODE_STOPLEVEL to Account.
         gtc_pendings(false),
         contract_size(10000),
-        tick_value(_c.GetTickValue()),
-        tick_size(_c.GetTickSize()),
+        tick_value(_source PTR_DEREF GetSymbolProps().GetTickValue()),
+        tick_size(_source PTR_DEREF GetSymbolProps().GetTickSize()),
         profit_mode(PROFIT_CALC_FOREX),
         swap_enable(true),
         swap_type(SWAP_BY_POINTS),  // @todo: Add _c.GetSwapType() to SymbolInfo.
-        swap_long(_c.GetSwapLong()),
-        swap_short(_c.GetSwapShort()),
+        swap_long(_source PTR_DEREF GetSymbolProps().GetSwapLong()),
+        swap_short(_source PTR_DEREF GetSymbolProps().GetSwapShort()),
         swap_rollover3days(3),
         leverage((int)_a.GetLeverage()),
         free_margin_mode(MARGIN_DONT_USE),
         margin_mode(MARGIN_CALC_FOREX),
         margin_stopout(30),  // @fixme: _a.GetStopoutLevel() based on ACCOUNT_MARGIN_SO_CALL.
         margin_stopout_mode(_a.GetStopoutMode()),
-        margin_initial(_c.GetMarginInit()),
-        margin_maintenance(_c.GetMarginMaintenance()),
+        margin_initial(_source PTR_DEREF GetSymbolProps().GetMarginInit()),
+        margin_maintenance(_source PTR_DEREF GetSymbolProps().GetMarginMaintenance()),
         margin_hedged(0),
         margin_divider(0),
         comm_base(0.0),
@@ -217,7 +218,7 @@ struct BufferFXTHeader {
         start_period_h4(0),
         set_from(0),
         set_to(0),
-        freeze_level((int)_c.GetFreezeLevel()),
+        freeze_level((int)_source PTR_DEREF GetSymbolProps().GetFreezeLevel()),
         generating_errors(0) {
     ArrayInitialize(copyright, 0);
     // currency = StringSubstr(_m.GetSymbol(), 0, 3); // @fixme
@@ -230,16 +231,16 @@ struct BufferFXTHeader {
 
 struct BufferFXTParams {
   AccountMt *account;
-  Chart *chart;
+  Ref<IndicatorBase> source;
   // Struct constructor.
-  void BufferFXTParams(Chart *_chart = NULL, AccountMt *_account = NULL)
-      : account(Object::IsValid(_account) ? _account : new AccountMt),
-        chart(Object::IsValid(_chart) ? _chart : new Chart) {}
-  // Struct deconstructor.
-  void ~BufferFXTParams() {
-    delete account;
-    delete chart;
+  BufferFXTParams(IndicatorBase *_source, AccountMt *_account = NULL)
+      : account(Object::IsValid(_account) ? _account : new AccountMt), source(_source) {}
+  BufferFXTParams(BufferFXTParams &r) {
+    account = r.account;
+    source = r.source;
   }
+  // Struct deconstructor.
+  void ~BufferFXTParams() { delete account; }
 };
 
 string ToJSON(BufferFXTEntry &_value, const bool, const unsigned int) { return _value.ToJSON(); };
@@ -255,8 +256,8 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
   /**
    * Class constructor.
    */
-  BufferFXT() {}
-  BufferFXT(const BufferFXTParams &_params) { params = _params; }
+  BufferFXT(IndicatorBase *_source) : params(_source) {}
+  BufferFXT(BufferFXTParams &_params) : params(_params) {}
 
   /**
    * Class deconstructor.
@@ -283,7 +284,7 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
    * Save data into file.
    */
   void SaveToFile() {
-    BufferFXTHeader header(params.chart, params.account);
+    BufferFXTHeader header(params.source.Ptr(), params.account);
     // @todo: Save BufferFXTHeader, then foreach BufferFXTEntry.
     // @see: https://docs.mql4.com/files/filewritestruct
   }

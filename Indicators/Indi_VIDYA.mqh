@@ -22,8 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
-#include "../Storage/ValueStorage.price.h"
+#include "../Indicator.mqh"
 
 // Structs.
 struct IndiVIDYAParams : IndicatorParams {
@@ -43,27 +42,37 @@ struct IndiVIDYAParams : IndicatorParams {
     shift = _shift;
     vidya_shift = _vidya_shift;
   };
-  IndiVIDYAParams(IndiVIDYAParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiVIDYAParams(IndiVIDYAParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Variable Index Dynamic Average indicator.
  */
-class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
+class Indi_VIDYA : public Indicator<IndiVIDYAParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_VIDYA(IndiVIDYAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
              int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src){};
-  Indi_VIDYA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_VIDYA, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_VIDYA(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : Indicator(IndiVIDYAParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
 
   /**
    * Built-in version of iVIDyA.
@@ -73,10 +82,15 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iVIDyA(_symbol, _tf, _cmo_period, _ema_period, _ma_shift, _ap), _mode, _shift);
 #else
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
-        _symbol, _tf, _ap, Util::MakeKey("Indi_VIDYA", _cmo_period, _ema_period, _ma_shift, (int)_ap));
-    return iVIDyAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _cmo_period, _ema_period, _ma_shift, _mode, _shift,
-                         _cache);
+    if (_obj == nullptr) {
+      Print(
+          "Indi_VIDYA::iVIDyA() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
+          "the pointer is required.");
+      DebugBreak();
+      return 0;
+    }
+
+    return iVIDyAOnIndicator(_obj, _symbol, _tf, _cmo_period, _ema_period, _ma_shift, _ap, _mode, _shift);
 #endif
   }
 
@@ -108,9 +122,8 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
   static double iVIDyAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _cmo_period,
                                   int _ema_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
                                   IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
-        _indi, _symbol, _tf, _ap,
-        Util::MakeKey("Indi_VIDYA_ON_" + _indi.GetFullName(), _cmo_period, _ema_period, _ma_shift, (int)_ap));
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap,
+                                                        Util::MakeKey(_cmo_period, _ema_period, _ma_shift, (int)_ap));
     return iVIDyAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _cmo_period, _ema_period, _ma_shift, _mode, _shift,
                          _cache);
   }
@@ -164,13 +177,18 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_VIDYA::iVIDyA(GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(), GetVIDYAShift(),
                                     GetAppliedPrice() /*]*/, 0, _ishift, THIS_PTR);
+        break;
+      case IDATA_ONCALCULATE:
+        _value =
+            Indi_VIDYA::iVIDyAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetCMOPeriod(), GetMAPeriod(),
+                                          GetVIDYAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
@@ -210,7 +228,7 @@ class Indi_VIDYA : public IndicatorTickOrCandleSource<IndiVIDYAParams> {
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

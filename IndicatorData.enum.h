@@ -30,15 +30,15 @@
 #pragma once
 #endif
 
-/* Defines type of source data for */
+/* Defines type of source data for. Also used for Indicator::GetPossibleDataModes(). */
 enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILTIN = 0,     // Platform built-in
-  IDATA_CHART,           // Chart calculation
-  IDATA_ICUSTOM,         // iCustom: Custom indicator file
-  IDATA_ICUSTOM_LEGACY,  // iCustom: Custom, legacy, provided by MT indicator file
-  IDATA_INDICATOR,       // OnIndicator: Another indicator as a source of data
-  IDATA_ONCALCULATE,     // OnCalculate: Custom calculation function
-  IDATA_MATH             // Math-based indicator
+  IDATA_BUILTIN = 1 << 0,         // Platform built-in
+  IDATA_CHART = 1 << 1,           // Chart calculation
+  IDATA_ICUSTOM = 1 << 2,         // iCustom: Custom indicator file
+  IDATA_ICUSTOM_LEGACY = 1 << 3,  // iCustom: Custom, legacy, provided by MT indicator file
+  IDATA_INDICATOR = 1 << 4,       // OnIndicator: Another indicator as a source of data
+  IDATA_ONCALCULATE = 1 << 5,     // OnCalculate: Custom calculation function
+  IDATA_MATH = 1 << 6             // Math-based indicator
 };
 
 /* Defines range value data type for indicator storage. */

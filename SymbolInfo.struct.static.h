@@ -363,8 +363,8 @@ struct SymbolInfoStatic {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  static unsigned int GetFreezeLevel(string _symbol) {
-    return (unsigned int)SymbolInfoStatic::SymbolInfoInteger(
+  static int GetFreezeLevel(string _symbol) {
+    return (int)SymbolInfoStatic::SymbolInfoInteger(
         _symbol, SYMBOL_TRADE_FREEZE_LEVEL);  // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
   }
 

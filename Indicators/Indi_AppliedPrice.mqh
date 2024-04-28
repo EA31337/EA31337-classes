@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "OHLC/Indi_OHLC.mqh"
 
 // Structs.
@@ -33,16 +33,13 @@ struct IndiAppliedPriceParams : IndicatorParams {
       : applied_price(_applied_price), IndicatorParams(INDI_APPLIED_PRICE) {
     shift = _shift;
   };
-  IndiAppliedPriceParams(IndiAppliedPriceParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiAppliedPriceParams(IndiAppliedPriceParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the "Applied Price over OHCL Indicator" indicator, e.g. over Indi_Price.
  */
-class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPriceParams> {
+class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
  protected:
   void OnInit() {
     if (!indi_src.IsSet()) {
@@ -57,15 +54,29 @@ class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPricePar
    */
   Indi_AppliedPrice(IndiAppliedPriceParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR,
                     IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
-            _indi_src) {
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {
     OnInit();
   };
-  Indi_AppliedPrice(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_PRICE, _tf, _shift) {
+  Indi_AppliedPrice(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData *_indi_src = NULL,
+                    int _indi_src_mode = 0)
+      : Indicator(IndiAppliedPriceParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {
     OnInit();
   };
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_AP | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_INDICATOR; }
 
   static double iAppliedPriceOnIndicator(IndicatorData *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];
@@ -76,15 +87,12 @@ class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPricePar
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_INDICATOR:
         if (HasDataSource()) {
-          // Future validation of indi_src will check if we set mode for source indicator
-          // (e.g. for applied price of Indi_Price).
-          Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE), GetAppliedPrice());
           _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _ishift);
         }
         break;
@@ -119,7 +127,7 @@ class Indi_AppliedPrice : public IndicatorTickOrCandleSource<IndiAppliedPricePar
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

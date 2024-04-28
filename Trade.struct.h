@@ -286,12 +286,12 @@ struct TradeStats {
   /* Getters */
   // Get order stats for the given type and period.
   unsigned int GetOrderStats(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, bool _reset = true) {
-#ifdef __debug__
+#ifdef __debug_verbose__
     Print("GetOrderStats: type ", EnumToString(_type), ", period ", EnumToString(_period), ", reset = ", _reset);
 #endif
     if (_reset && _period > TRADE_STAT_ALL) {
       unsigned int _periods_started = dt[(int)_type][(int)_period].GetStartedPeriods(true, false);
-#ifdef __debug__
+#ifdef __debug_verbose__
       Print("GetOrderStats: _periods_started = ", _periods_started);
 #endif
       if (_periods_started >= DATETIME_HOUR) {
@@ -333,7 +333,7 @@ struct TradeStats {
   void ResetStats(ENUM_TRADE_STAT_PERIOD _period) {
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       order_stats[(int)t][(int)_period] = 0;
-#ifdef __debug__
+#ifdef __debug_verbose__
       Print("Resetting trade counter for type ", EnumToString(t), " and  period ", EnumToString(_period));
 #endif
       dt[(int)t][(int)_period].GetStartedPeriods(true, true);
@@ -343,7 +343,7 @@ struct TradeStats {
   void ResetStats(ENUM_TRADE_STAT_TYPE _type) {
     for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
       order_stats[(int)_type][(int)p] = 0;
-#ifdef __debug__
+#ifdef __debug_vebose__
       Print("Resetting trade counter for type ", EnumToString(_type), " and  period ", EnumToString(p));
 #endif
       dt[(int)_type][(int)p].GetStartedPeriods(true, true);
@@ -354,7 +354,7 @@ struct TradeStats {
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
         order_stats[(int)t][(int)p] = 0;
-#ifdef __debug__
+#ifdef __debug_verbose__
         Print("Resetting trade counter for type ", EnumToString(t), " and  period ", EnumToString(p));
 #endif
         dt[(int)t][(int)p].GetStartedPeriods(true, true);

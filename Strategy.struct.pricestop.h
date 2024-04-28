@@ -55,7 +55,7 @@ struct StrategyPriceStop {
   float ivalue;         // Indicator price value.
   unsigned int method;  // Store price stop methods (@see: ENUM_STRATEGY_PRICE_STOP).
   // unsigned int mode[2]; // Indicator modes to use.
-  ChartParams cparams;
+  Ref<IndicatorBase> indi_candle;
   // IndicatorDataEntry idata[];
   // IndicatorParams iparams;
 
@@ -64,9 +64,9 @@ struct StrategyPriceStop {
   // Main methods.
   // Calculate price stop value.
   float GetValue(int _shift = 0, int _direction = -1, float _min_trade_dist = 0.0f) {
-    float _result = ivalue, _trail = _min_trade_dist;
-    BarOHLC _ohlc0 = Chart::GetOHLC(cparams.tf.GetTf(), 0, cparams.symbol);
-    BarOHLC _ohlc1 = Chart::GetOHLC(cparams.tf.GetTf(), _shift, cparams.symbol);
+    double _result = ivalue, _trail = _min_trade_dist;
+    BarOHLC _ohlc0 = GetCandleSource() PTR_DEREF GetOHLC(0);
+    BarOHLC _ohlc1 = GetCandleSource() PTR_DEREF GetOHLC(_shift);
     if (CheckMethod(STRATEGY_PRICE_STOP_INDI_PRICE)) {
       _result = ivalue;
     }
@@ -78,12 +78,12 @@ struct StrategyPriceStop {
         // On peak, use low or high prices instead.
         _ap = _direction > 0 ? PRICE_HIGH : PRICE_LOW;
       }
-      _price = (float)ChartStatic::iPrice(_ap, cparams.symbol, cparams.tf.GetTf(), _shift);
+      _price = (float)GetCandleSource() PTR_DEREF GetPrice(_ap, _shift);
       _result = _direction > 0 ? fmax(_price, _result) : fmin(_price, _result);
     }
     if (CheckMethod(STRATEGY_PRICE_STOP_PRICE_PP)) {
-      float _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
-      float _prices[4];
+      double _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
+      double _prices[4];
       _prices[0] = _ohlc0.GetClose();
       _prices[1] = _direction > 0 ? _ohlc0.GetHigh() : _ohlc0.GetLow();
       _prices[2] = _direction > 0 ? _ohlc1.GetHigh() : _ohlc1.GetLow();
@@ -99,10 +99,10 @@ struct StrategyPriceStop {
       _trail += _ohlc1.GetRange();
     }
     _result = _result > 0 ? (_direction > 0 ? _result + _trail : _result - _trail) : 0;
-    return _result;
+    return (float)_result;
   }
   /* Setters */
-  void SetChartParams(ChartParams &_cparams) { cparams = _cparams; }
+  void SetCandleSource(IndicatorBase* _indi_candle) { indi_candle = _indi_candle; }
   void SetIndicatorPriceValue(float _ivalue) { ivalue = _ivalue; }
   /*
   void SetIndicatorDataEntry(IndicatorDataEntry &_data[]) {
@@ -117,6 +117,9 @@ struct StrategyPriceStop {
     mode[1] = _m2;
   }
   */
+  /* Getters */
+  IndicatorData* GetCandleSource() { return indi_candle.Ptr(); }
+
   /* Flag getters */
   bool CheckMethod(unsigned int _flags) { return (method & _flags) != 0; }
   bool CheckMethodsXor(unsigned int _flags) { return (method ^ _flags) != 0; }
@@ -135,7 +138,7 @@ struct StrategyPriceStop {
   }
   void SetMethod(unsigned int _flags) { method = _flags; }
   /* Serializers */
-  SerializerNodeType Serialize(Serializer &_s) {
+  SerializerNodeType Serialize(Serializer& _s) {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckMethod(1 << i) ? 1 : 0;

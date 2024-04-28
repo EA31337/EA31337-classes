@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -48,26 +48,47 @@ struct IndiOBVParams : IndicatorParams {
   IndiOBVParams(ENUM_APPLIED_PRICE _ap, int _shift = 0) : applied_price(_ap), IndicatorParams(INDI_OBV) {
     shift = _shift;
   };
-  IndiOBVParams(IndiOBVParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiOBVParams(IndiOBVParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the On Balance Volume indicator.
  */
-class Indi_OBV : public IndicatorTickOrCandleSource<IndiOBVParams> {
+class Indi_OBV : public Indicator<IndiOBVParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_OBV(IndiOBVParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
            int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src) {}
-  Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_OBV, _tf, _shift) {}
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
+  Indi_OBV(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiOBVParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiOBVParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // Volume uses volume only.
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+  }
 
   /**
    * Returns the indicator value.
@@ -117,7 +138,7 @@ class Indi_OBV : public IndicatorTickOrCandleSource<IndiOBVParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -145,12 +166,12 @@ class Indi_OBV : public IndicatorTickOrCandleSource<IndiOBVParams> {
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /**
    * Get applied volume type (MT5 only).
    */
-  ENUM_APPLIED_VOLUME GetAppliedVolume() { return iparams.applied_volume; }
+  ENUM_APPLIED_VOLUME GetAppliedVolume() override { return iparams.applied_volume; }
 
   /* Setters */
 

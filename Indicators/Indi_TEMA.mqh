@@ -22,8 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
-#include "../Storage/ValueStorage.price.h"
+#include "../Indicator.mqh"
 #include "Indi_MA.mqh"
 
 // Structs.
@@ -40,27 +39,37 @@ struct IndiTEMAParams : IndicatorParams {
     shift = _shift;
     tema_shift = _tema_shift;
   };
-  IndiTEMAParams(IndiTEMAParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiTEMAParams(IndiTEMAParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Triple Exponential Moving Average indicator.
  */
-class Indi_TEMA : public IndicatorTickOrCandleSource<IndiTEMAParams> {
+class Indi_TEMA : public Indicator<IndiTEMAParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_TEMA(IndiTEMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
             int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src){};
-  Indi_TEMA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_TEMA, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_TEMA(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiTEMAParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
 
   /**
    * Built-in version of TEMA.
@@ -70,9 +79,15 @@ class Indi_TEMA : public IndicatorTickOrCandleSource<IndiTEMAParams> {
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iTEMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
 #else
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_symbol, _tf, _ap,
-                                                        Util::MakeKey("Indi_TEMA", _ma_period, _ma_shift, (int)_ap));
-    return iTEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _ma_shift, _mode, _shift, _cache);
+    if (_obj == nullptr) {
+      Print(
+          "Indi_TEMA::iTEMA() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
+          "the pointer is required.");
+      DebugBreak();
+      return 0;
+    }
+
+    return iTEMAOnIndicator(_obj, _ma_period, _ma_shift, _ap, _mode, _shift);
 #endif
   }
 
@@ -101,12 +116,9 @@ class Indi_TEMA : public IndicatorTickOrCandleSource<IndiTEMAParams> {
   /**
    * On-indicator version of TEMA.
    */
-  static double iTEMAOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
-                                 int _ma_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
-                                 IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(
-        _indi, _symbol, _tf, _ap,
-        Util::MakeKey("Indi_TEMA_ON_" + _indi.GetFullName(), _ma_period, _ma_shift, (int)_ap));
+  static double iTEMAOnIndicator(IndicatorData *_indi, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
+                                 int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
     return iTEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _ma_shift, _mode, _shift, _cache);
   }
 
@@ -142,21 +154,22 @@ class Indi_TEMA : public IndicatorTickOrCandleSource<IndiTEMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_TEMA::iTEMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetTEMAShift(), GetAppliedPrice() /*]*/, 0,
-                                  _ishift, THIS_PTR);
+        _value = Indi_TEMA::iTEMA(GetSymbol(), GetTf(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), 0, _ishift,
+                                  THIS_PTR);
         break;
+      case IDATA_ONCALCULATE:
+        _value = iTEMAOnIndicator(GetDataSource(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
                          GetTEMAShift() /*]*/, 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_TEMA::iTEMAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetTEMAShift(),
-                                             GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = iTEMAOnIndicator(GetDataSource(), GetPeriod(), GetTEMAShift(), GetAppliedPrice(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -187,7 +200,7 @@ class Indi_TEMA : public IndicatorTickOrCandleSource<IndiTEMAParams> {
   /**
    * Get applied price.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

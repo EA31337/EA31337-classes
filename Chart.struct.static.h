@@ -25,6 +25,11 @@
  * Includes Chart's static structs.
  */
 
+// Includes.
+#include "Chart.define.h"
+#include "Chart.symboltf.h"
+#include "Terminal.define.h"
+
 /* Defines struct for chart static methods. */
 struct ChartStatic {
   /**
@@ -33,11 +38,19 @@ struct ChartStatic {
   static int iBars(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
 #ifdef __MQL4__
     // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
-    return ::iBars(_symbol, _tf);
+    int _bars = ::iBars(_symbol, _tf);
 #else  // _MQL5__
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
-    return ::Bars(_symbol, _tf);
+    int _bars = ::Bars(_symbol, _tf);
 #endif
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing ::[i]Bars in ChartStatic::iBars(", _symbol, ", ", EnumToString(_tf),
+            ")");
+      DebugBreak();
+    }
+
+    return _bars;
   }
 
   /**
@@ -46,25 +59,47 @@ struct ChartStatic {
    * Returns the index of the bar which covers the specified time.
    */
   static int iBarShift(string _symbol, ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
+    int _bar_shift;
 #ifdef __MQL4__
-    return ::iBarShift(_symbol, _tf, _time, _exact);
+    _bar_shift = ::iBarShift(_symbol, _tf, _time, _exact);
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing ::iBarShift() in ChartStatic::iBarShift(", _symbol, ", ",
+            EnumToString(_tf), ", ", TimeToString(_time), ", ", _exact, ")");
+      DebugBreak();
+    }
+    return _bar_shift;
 #else  // __MQL5__
     if (_time < 0) return (-1);
     ARRAY(datetime, arr);
     datetime _time0;
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     CopyTime(_symbol, _tf, 0, 1, arr);
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing 1st CopyTime() in ChartStatic::iBarShift(", _symbol, ", ",
+            EnumToString(_tf), ", ", TimeToString(_time), ", ", _exact, ")");
+      DebugBreak();
+    }
+
     _time0 = arr[0];
     if (CopyTime(_symbol, _tf, _time, _time0, arr) > 0) {
       if (ArraySize(arr) > 2) {
-        return ArraySize(arr) - 1;
+        _bar_shift = ArraySize(arr) - 1;
       } else {
-        return _time < _time0 ? 1 : 0;
+        _bar_shift = _time < _time0 ? 1 : 0;
       }
     } else {
-      return -1;
+      _bar_shift = -1;
+    }
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing 2nd CopyTime in ChartStatic::iBarShift(", _symbol, ", ",
+            EnumToString(_tf), ", ", TimeToString(_time), ", ", _exact, ")");
+      DebugBreak();
     }
 #endif
+
+    return _bar_shift;
   }
 
   /**
@@ -102,37 +137,37 @@ struct ChartStatic {
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
-  static int iHighest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_HIGH,
-                      unsigned int _count = WHOLE_ARRAY, int _start = 0) {
+  static int iHighest(const SymbolTf& _symbol_tf, int _type = MODE_HIGH, unsigned int _count = WHOLE_ARRAY,
+                      int _start = 0) {
 #ifdef __MQL4__
-    return ::iHighest(_symbol, _tf, _type, _count, _start);
+    return ::iHighest(_symbol_tf.Symbol(), _symbol_tf.Tf(), _type, _count, _start);
 #else  // __MQL5__
     if (_start < 0) return (-1);
-    _count = (_count <= 0 ? ChartStatic::iBars(_symbol, _tf) : _count);
+    _count = (_count <= 0 ? ChartStatic::iBars(_symbol_tf.Symbol(), _symbol_tf.Tf()) : _count);
     ARRAY(double, arr_d);
     ARRAY(long, arr_l);
     ARRAY(datetime, arr_dt);
     ArraySetAsSeries(arr_d, true);
     switch (_type) {
       case MODE_OPEN:
-        CopyOpen(_symbol, _tf, _start, _count, arr_d);
+        CopyOpen(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_d);
         break;
       case MODE_LOW:
-        CopyLow(_symbol, _tf, _start, _count, arr_d);
+        CopyLow(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_d);
         break;
       case MODE_HIGH:
-        CopyHigh(_symbol, _tf, _start, _count, arr_d);
+        CopyHigh(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_d);
         break;
       case MODE_CLOSE:
-        CopyClose(_symbol, _tf, _start, _count, arr_d);
+        CopyClose(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_d);
         break;
       case MODE_VOLUME:
         ArraySetAsSeries(arr_l, true);
-        CopyTickVolume(_symbol, _tf, _start, _count, arr_l);
+        CopyTickVolume(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_l);
         return (ArrayMaximum(arr_l, 0, _count) + _start);
       case MODE_TIME:
         ArraySetAsSeries(arr_dt, true);
-        CopyTime(_symbol, _tf, _start, _count, arr_dt);
+        CopyTime(_symbol_tf.Symbol(), _symbol_tf.Tf(), _start, _count, arr_dt);
         return (ArrayMaximum(arr_dt, 0, _count) + _start);
       default:
         break;
@@ -291,6 +326,37 @@ struct ChartStatic {
     ArraySetAsSeries(_arr, true);
     return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif
+  }
+
+  /**
+   * Returns open time price value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  static datetime GetBarTime(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
+#ifdef __MQL4__
+    datetime _time = ::iTime(_symbol, _tf, _shift);  // Same as: Time[_shift]
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing ::iTime() in ChartStatic::GetBarTime(", _symbol, ", ",
+            EnumToString(_tf), ", ", _shift, ")");
+      DebugBreak();
+    }
+#else  // __MQL5__
+    ARRAY(datetime, _arr);
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    // @todo: Improves performance by caching values.
+
+    datetime _time = (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
+
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Error: ", _LastError, " while doing CopyTime() in ChartStatic::GetBarTime(", _symbol, ", ",
+            EnumToString(_tf), ", ", _shift, ")");
+      DebugBreak();
+    }
+#endif
+
+    return _time;
   }
 
   /**

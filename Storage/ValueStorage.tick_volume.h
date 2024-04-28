@@ -36,28 +36,15 @@ class TickVolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  TickVolumeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : HistoryValueStorage(_symbol, _tf) {}
+  TickVolumeValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  TickVolumeValueStorage(const TickVolumeValueStorage &_r) : HistoryValueStorage(_r.symbol, _r.tf) {}
-
-  /**
-   * Returns pointer to TickVolumeValueStorage of a given symbol and time-frame.
-   */
-  static TickVolumeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
-    TickVolumeValueStorage *_storage;
-    string _key = _symbol + "/" + IntegerToString((int)_tf);
-    if (!ObjectsCache<TickVolumeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<TickVolumeValueStorage>::Set(_key, new TickVolumeValueStorage(_symbol, _tf));
-    }
-    return _storage;
-  }
+  TickVolumeValueStorage(TickVolumeValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual long Fetch(int _shift) { return ChartStatic::iVolume(symbol, tf, RealShift(_shift)); }
+  long Fetch(int _shift) override { return indi_candle REF_DEREF GetVolume(RealShift(_shift)); }
 };

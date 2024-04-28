@@ -62,6 +62,7 @@ class DateTime {
    * Class constructor.
    */
   DateTime() { TimeToStruct(TimeCurrent(), dt_curr); }
+  DateTime(DateTime &r) : dt_curr(r.dt_curr), dt_last(r.dt_last) {}
   DateTime(DateTimeEntry &_dt) { dt_curr = _dt; }
   DateTime(MqlDateTime &_dt) { dt_curr = _dt; }
   DateTime(datetime _dt) { dt_curr.Set(_dt); }
@@ -114,8 +115,9 @@ class DateTime {
       _result |= DATETIME_SECOND;
     }
 
-    if (dt_curr.GetValue(DATETIME_DAY | DATETIME_WEEK) <= 1) {
-      // Check if it's a new week (Sunday/Monday).
+    if (dt_curr.GetValue(DATETIME_DAY | DATETIME_WEEK) == 0) {
+      // It's the first day of the week (Sunday).
+      // Note that GetValue() for the above flags just returns value of GetDayOfWeek().
       // @see https://docs.mql4.com/dateandtime/dayofweek
       if (dt_curr.GetValue(DATETIME_DAY | DATETIME_WEEK) != dt_last.GetValue(DATETIME_DAY | DATETIME_WEEK)) {
         // New week started.
@@ -123,7 +125,7 @@ class DateTime {
       }
     }
 
-#ifdef __debug__
+#ifdef __debug_verbose__
     string _passed =
         "time now " + (string)dt_curr.GetTimestamp() + ", time last " + (string)dt_last.GetTimestamp() + " ";
 
@@ -176,28 +178,22 @@ class DateTime {
   /**
    * Sets the new DateTimeEntry struct.
    */
-  void SetEntry(DateTimeEntry &_dt) { dt_curr = _dt; }
+  void SetEntry(DateTimeEntry &_dt) {
+    dt_last = dt_curr;
+    dt_curr = _dt;
+  }
 
   /* Dynamic methods */
 
   /**
    * Checks if new minute started.
-   *
-   * @return bool
-   * Returns true when new minute started.
    */
-  bool IsNewMinute(bool _update = true) {
-    bool _result = false;
-    if (_update) {
-      dt_last = dt_curr;
-      Update();
-    }
-    if (dt_curr.GetSeconds() < dt_last.GetSeconds()) {
-      _result = true;
-    }
-    dt_last = dt_curr;
-    return _result;
-  }
+  bool IsNewMinute() { return (GetStartedPeriods(false, false) & DATETIME_MINUTE) != 0; }
+
+  /**
+   * Checks if new hour started.
+   */
+  bool IsNewHour() { return (GetStartedPeriods(false, false) & DATETIME_HOUR) != 0; }
 
   /**
    * Updates datetime to the current one.

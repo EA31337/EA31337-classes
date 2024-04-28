@@ -41,9 +41,6 @@ class IndicatorData;
  */
 template <typename C>
 class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
-  // Pointer to indicator to access data from.
-  IndicatorData *indicator;
-
   // Mode of the target indicator.
   int mode;
 
@@ -51,11 +48,11 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   /**
    * Constructor.
    */
-  IndicatorBufferValueStorage(IndicatorData *_indi, int _mode = 0, ENUM_TIMEFRAMES _tf = NULL, bool _is_series = false)
-      : indicator(_indi), mode(_mode), HistoryValueStorage(_indi.GetSymbol(), _tf) {}
+  IndicatorBufferValueStorage(IndicatorBase *_indi_candle, int _mode = 0, bool _is_series = false)
+      : mode(_mode), HistoryValueStorage(_indi_candle) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual C Fetch(int _shift) { return indicator.GetValue<C>(mode, RealShift(_shift)); }
+  C Fetch(int _shift) override { return indi_candle REF_DEREF GetValue<C>(mode, RealShift(_shift)); }
 };

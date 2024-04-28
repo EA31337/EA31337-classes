@@ -212,6 +212,7 @@ enum INDICATOR_ENTRY_FLAGS {
 
 // Storage type for IndicatorBase::GetSpecificValueStorage().
 enum ENUM_INDI_VS_TYPE {
+  INDI_VS_TYPE_NONE,            // Not set.
   INDI_VS_TYPE_TIME,            // Candle.
   INDI_VS_TYPE_TICK_VOLUME,     // Candle.
   INDI_VS_TYPE_VOLUME,          // Candle.
@@ -225,6 +226,18 @@ enum ENUM_INDI_VS_TYPE {
   INDI_VS_TYPE_PRICE_WEIGHTED,  // Candle.
   INDI_VS_TYPE_PRICE_BID,       // Tick.
   INDI_VS_TYPE_PRICE_ASK,       // Tick.
+                                // Indexed value storages, available if indicator have buffer at this index:
+  INDI_VS_TYPE_INDEX_0,
+  INDI_VS_TYPE_INDEX_1,
+  INDI_VS_TYPE_INDEX_2,
+  INDI_VS_TYPE_INDEX_4,
+  INDI_VS_TYPE_INDEX_5,
+  INDI_VS_TYPE_INDEX_6,
+  INDI_VS_TYPE_INDEX_7,
+  INDI_VS_TYPE_INDEX_8,
+  INDI_VS_TYPE_INDEX_9,
+  INDI_VS_TYPE_INDEX_FIRST = INDI_VS_TYPE_INDEX_0,
+  INDI_VS_TYPE_INDEX_LAST = INDI_VS_TYPE_INDEX_9
 };
 
 // Indicator flags.
@@ -234,3 +247,26 @@ enum ENUM_INDI_FLAGS {
   INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT,     // Source indicator must be indexable by shift.
   INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_TIMESTAMP  // Source indicator must be indexable by timestamp.
 };
+
+// Flags indicating which data sources are required to be provided in order indicator to work.
+enum ENUM_INDI_SUITABLE_DS_TYPE {
+  INDI_SUITABLE_DS_TYPE_EXPECT_NONE = 1 << 0,
+  INDI_SUITABLE_DS_TYPE_TICK = 1 << 1,    // Indicator requires Tick-based data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_CANDLE = 1 << 2,  // Indicator requires Candle-based data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_CUSTOM = 1 << 3,  // Indicator requires parent data source to have custom set of buffers/modes.
+  INDI_SUITABLE_DS_TYPE_AP =
+      1 << 4,  // Indicator requires single, targetted (by applied price) buffer from data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_AV =
+      1 << 5,  // Indicator requires single, targetted (by applied volume) buffer from data source in the hierarchy.
+  INDI_SUITABLE_DS_TYPE_BASE_ONLY = 1 << 6,   // Required data source must be directly connected to this data source.
+  INDI_SUITABLE_DS_TYPE_EXPECT_ANY = 1 << 7,  // Requires data source of any kind.
+};
+
+// Type of data source mode. Required to determine what "mode" means for the user.
+enum ENUM_INDI_DS_MODE_KIND {
+  INDI_DS_MODE_KIND_INDEX,    // Mode is a buffer index.
+  INDI_DS_MODE_KIND_VS_TYPE,  // Mode is a value from ENUM_INDI_VS_TYPE enumeration, e.g., ENUM_INDI_VS_PRICE_OPEN.
+  INDI_DS_MODE_KIND_AP,  // Mode is a value from ENUM_APPLIED_PRICE enumeration. It is used to retrieve value storage
+                         // based on ENUM_INDI_VS_TYPE enumeration, e.g., PRICE_OPEN becomes ENUM_INDI_VS_PRICE_OPEN.
+};
+//+------------------------------------------------------------------+

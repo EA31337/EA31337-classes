@@ -23,7 +23,7 @@
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../BufferStruct.mqh"
-#include "../../Indicator/IndicatorTickOrCandleSource.h"
+#include "../../Indicator.mqh"
 #include "../../Pattern.struct.h"
 #include "../../Serializer.mqh"
 #include "../Price/Indi_Price.mqh"
@@ -33,32 +33,57 @@
 struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
   IndiPatternParams(int _shift = 0) : IndicatorParams(INDI_PATTERN) { shift = _shift; };
-  IndiPatternParams(IndiPatternParams& _params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiPatternParams(IndiPatternParams& _params) { THIS_REF = _params; };
 };
 
 /**
  * Implements Pattern Detector.
  */
-class Indi_Pattern : public IndicatorTickOrCandleSource<IndiPatternParams> {
+class Indi_Pattern : public Indicator<IndiPatternParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_Pattern(IndiPatternParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData* _indi_src = NULL,
                int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(5, TYPE_UINT, _idstype, IDATA_RANGE_BITWISE, _indi_src_mode),
-            _indi_src){};
-  Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_PATTERN, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(5, TYPE_UINT, _idstype, IDATA_RANGE_BITWISE, _indi_src_mode),
+                  _indi_src) {}
+
+  Indi_Pattern(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData* _indi_src = NULL,
+               int _indi_src_mode = 0)
+      : Indicator(IndiPatternParams(),
+                  IndicatorDataParams::GetInstance(5, TYPE_UINT, _idstype, IDATA_RANGE_BITWISE, _indi_src_mode),
+                  _indi_src) {}
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData* _ds) override {
+    if (Indicator<IndiPatternParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // Patter uses OHLC.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_OPEN) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
 
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int i;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
@@ -66,9 +91,9 @@ class Indi_Pattern : public IndicatorTickOrCandleSource<IndiPatternParams> {
 
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        // In this mode, price is fetched from chart.
+        // In this mode, price is fetched from candle.
         for (i = 0; i < _max_modes; ++i) {
-          _ohlcs[i] = Chart::GetOHLC(_ishift + i);
+          _ohlcs[i] = GetCandle() PTR_DEREF GetOHLC(_ishift + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
             return WRONG_VALUE;
@@ -114,9 +139,9 @@ class Indi_Pattern : public IndicatorTickOrCandleSource<IndiPatternParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _shift = 0) {
+  void GetEntryAlter(IndicatorDataEntry& _entry, int _shift) override {
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
-    Indicator<IndiPatternParams>::GetEntryAlter(_entry);
+    Indicator<IndiPatternParams>::GetEntryAlter(_entry, _shift);
   }
 
   /**

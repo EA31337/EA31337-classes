@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -38,16 +38,13 @@ struct IndiFractalsParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Fractals");
     shift = _shift;
   };
-  IndiFractalsParams(IndiFractalsParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiFractalsParams(IndiFractalsParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Fractals indicator.
  */
-class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
+class Indi_Fractals : public Indicator<IndiFractalsParams> {
  protected:
   /* Protected methods */
 
@@ -62,16 +59,29 @@ class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
    */
   Indi_Fractals(IndiFractalsParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                 IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE, _idstype,
-                                                                     IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
-                                    _indi_src) {
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                   IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
+                  _indi_src) {
     Init();
   }
-  Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_FRACTALS, _tf, _shift) {
-    Init();
-  }
+  Indi_Fractals(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                int _indi_src_mode = 0)
+      : Indicator(IndiFractalsParams(),
+                  IndicatorDataParams::GetInstance(FINAL_LO_UP_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                   IDATA_RANGE_PRICE_ON_SIGNAL, _indi_src_mode),
+                  _indi_src) {}
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+ public:
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
    * Returns the indicator value.
@@ -118,12 +128,12 @@ class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), (ENUM_LO_UP_LINE)_mode, _ishift, THIS_PTR);
+        _value = _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), (ENUM_LO_UP_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
@@ -137,8 +147,8 @@ class Indi_Fractals : public IndicatorTickOrCandleSource<IndiFractalsParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
-    Indicator<IndiFractalsParams>::GetEntryAlter(_entry);
+  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
+    Indicator<IndiFractalsParams>::GetEntryAlter(_entry, _shift);
 #ifdef __MQL4__
     // In MT4 line identifiers starts from 1, so populating also at 0.
     _entry.values[0] = _entry.values[LINE_UPPER];
