@@ -37,11 +37,13 @@
 */
 #endif
 
+// Forward declaration.
+struct IndicatorParams;
+
 // Includes.
 #include "../Account/AccountMt.h"
 #include "../Array.mqh"
 #include "../Task/TaskAction.h"
-//#include "../BasicTrade.mqh" // @removeme
 #include "../Buffer.mqh"
 #include "../BufferFXT.mqh"
 #include "../BufferStruct.mqh"
@@ -65,7 +67,7 @@
 #include "../Indicator.mqh"
 #include "../IndicatorBase.h"
 #include "../IndicatorData.mqh"
-#include "../Inet.mqh"
+// #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
 #include "../Storage/Collection.mqh"
@@ -83,7 +85,7 @@
 #include "../Order.mqh"
 #include "../Orders.mqh"
 #include "../Pattern.mqh"
-#include "../Profiler.mqh"
+// #include "../Profiler.mqh"
 #include "../Redis.mqh"
 #include "../Refs.mqh"
 #include "../Registry.mqh"
@@ -91,7 +93,6 @@
 #include "../Report.mqh"
 #include "../Storage/Objects.h"
 #include "../Storage/ObjectsCache.h"
-// #include "../SVG.mqh" // @removeme
 #include "../Serializer.mqh"
 #include "../SerializerBinary.mqh"
 #include "../SerializerConversions.h"
@@ -107,7 +108,6 @@
 #include "../Session.mqh"
 #include "../SetFile.mqh"
 #include "../Socket.mqh"
-#include "../Stats.mqh"
 #include "../Std.h"
 #include "../Storage/Singleton.h"
 #include "../Strategy.mqh"
@@ -126,7 +126,7 @@
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"
 #include "../Tests.mqh"
-#include "../Ticker.mqh"
+// #include "../Tests.mqh" // @removeme
 #include "../Timer.mqh"
 #include "../Trade.mqh"
 #include "../Util.h"

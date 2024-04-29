@@ -41,10 +41,8 @@ struct IndicatorTickDummyParams : IndicatorParams {
 // Dummy tick-based indicator.
 class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double> {
  public:
-  IndicatorTickDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, string _name = "")
-      : IndicatorTick(INDI_TICK, _tf, _shift, _name) {
-    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
-  }
+  IndicatorTickDummy(string _symbol, int _shift = 0, string _name = "")
+      : IndicatorTick(_symbol, INDI_TICK, _shift, _name) {}
 
   string GetName() override { return "IndicatorTickDummy"; }
 

@@ -408,7 +408,7 @@ class SymbolInfo : public Object {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  unsigned int GetFreezeLevel() { return SymbolInfoStatic::GetFreezeLevel(symbol); }
+  int GetFreezeLevel() { return SymbolInfoStatic::GetFreezeLevel(symbol); }
 
   /**
    * Gets flags of allowed order filling modes.
@@ -518,7 +518,7 @@ class SymbolInfo : public Object {
   /**
    * Returns symbol information in string format.
    */
-  const string ToString() {
+  string const ToString() override {
     return StringFormat(
         string("Symbol: %s, Last Ask/Bid: %g/%g, Last Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, ") +
             "Tick size: %g (%g pts), Tick value: %g (%g/%g), " + "Digits: %d, Spread: %d pts, Trade stops level: %d, " +

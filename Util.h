@@ -382,7 +382,7 @@ class Util {
   /**
    * Creates string with separator if string was not empty.
    */
-  static string SeparatedMaybe(string _value, string _separator = "/") {
+  static string SeparatedMaybe(string _value, string _separator = ", ") {
     return _value == "" ? "" : (_value + _separator);
   }
 };

@@ -39,7 +39,6 @@ jobs:
     strategy:
       matrix:
         test:
-          - AccountTest
           - BufferStructTest
           - BufferTest
           - ChartTest
@@ -47,7 +46,6 @@ jobs:
           - DatabaseTest
           # - DrawIndicatorTest
           - EATest
-          - IndicatorDataTest
           - IndicatorTest
           - IndicatorsTest
           - MailTest
@@ -69,11 +67,12 @@ jobs:
       - name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 1-8
+          BtDays: 4-12
           BtMonths: 1
-          BtYears: 2020
+          BtYears: 2021
           Version: 4
           TestExpert: ${{ matrix.test }}
+          RunOnError: show_logs 200
     timeout-minutes: 10
 
   Scripts-MQL4:

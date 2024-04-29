@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_MA.mqh"
 
@@ -35,37 +35,58 @@ struct IndiColorLineParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\ColorLine");
     shift = _shift;
   };
-  IndiColorLineParams(IndiColorLineParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiColorLineParams(IndiColorLineParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements Color Bars
  */
-class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
+class Indi_ColorLine : public Indicator<IndiColorLineParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_ColorLine(IndiColorLineParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                  IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src){};
-  Indi_ColorLine(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_COLOR_LINE, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_ColorLine(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                 int _indi_src_mode = 0)
+      : Indicator(IndiColorLineParams(),
+                  IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   *
+   * @fixit Should require Candle data source?
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CANDLE; }
 
   /**
-   * "Built-in" version of Color Line.
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
-  static double iColorLine(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0,
-                           IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_ColorLine");
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
 
-    Indi_MA *_indi_ma = Indi_MA::GetCached(_symbol, _tf, 10, 0, MODE_EMA, PRICE_CLOSE);
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiColorLineParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
 
+    // Volume uses volume only.
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+  }
+
+  /**
+   * OnCalculate-based version of Color Line as there is no built-in one.
+   */
+  static double iColorLine(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
+    // Will return Indi_MA with the same candles source as _indi's.
+    // @fixit There should be Candle attached to MA!
+    Indi_MA *_indi_ma = Indi_MA::GetCached(_indi, 10, 0, MODE_EMA, PRICE_CLOSE);
     return iColorLineOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ma);
   }
 
@@ -94,13 +115,9 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
   /**
    * On-indicator version of Color Line.
    */
-  static double iColorLineOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                      int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
-                                                          Util::MakeKey("Indi_ColorLine_ON_" + _indi.GetFullName()));
-
+  static double iColorLineOnIndicator(IndicatorData *_indi, int _mode, int _shift, IndicatorData *_obj) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     Indi_MA *_indi_ma = _obj.GetDataSource(INDI_MA);
-
     return iColorLineOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ma);
   }
 
@@ -201,18 +218,19 @@ class Indi_ColorLine : public IndicatorTickOrCandleSource<IndiColorLineParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_ColorLine::iColorLine(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+      case IDATA_ONCALCULATE:
+        _value = iColorLine(THIS_PTR, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ColorLine::iColorLineOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = iColorLine(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

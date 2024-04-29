@@ -52,23 +52,20 @@ struct IndiBWZTParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\BW-ZoneTrade");
     shift = _shift;
   };
-  IndiBWZTParams(IndiBWZTParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiBWZTParams(IndiBWZTParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Bill Williams' Zone Trade.
  */
-class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
+class Indi_BWZT : public Indicator<IndiBWZTParams> {
  protected:
   /* Protected methods */
 
   /**
    * Initialize.
    */
-  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_INDI_BWZT_MODE_ENTRY); }
+  void Init() {}
 
  public:
   /**
@@ -76,25 +73,59 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
    */
   Indi_BWZT(IndiBWZTParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
             int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE, _idstype,
-                                                                     IDATA_RANGE_MIXED, _indi_src_mode),
-                                    _indi_src) {
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED,
+                                                   _indi_src_mode),
+                  _indi_src) {
     Init();
   };
-  Indi_BWZT(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_BWZT, _tf, _shift) {
+  Indi_BWZT(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiBWZTParams(),
+                  IndicatorDataParams::GetInstance(FINAL_INDI_BWZT_MODE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED,
+                                                   _indi_src_mode),
+                  _indi_src) {
     Init();
   };
 
   /**
-   * Built-in version of BWZT.
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  static double iBWZT(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_BWZT");
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
 
-    Indi_AC *_indi_ac = Indi_AC::GetCached(_symbol, _tf);
-    Indi_AO *_indi_ao = Indi_AO::GetCached(_symbol, _tf);
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiBWZTParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // RS uses OHLC.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_OPEN) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
+  /**
+   * OnCalculate-based version of BWZT as there is no built-in one.
+   */
+  static double iBWZT(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
+
+    // Will return Indi_AC with the same candles source as _indi's.
+    Indi_AC *_indi_ac = Indi_AC::GetCached(_indi);
+
+    // Will return Indi_AO with the same candles source as _indi's.
+    Indi_AO *_indi_ao = Indi_AO::GetCached(_indi);
 
     return iBWZTOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache, _indi_ac, _indi_ao);
   }
@@ -128,8 +159,7 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
    */
   static double iBWZTOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode, int _shift,
                                  IndicatorData *_obj) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
-                                                          Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey("Indi_BWZT_ON_" + _indi.GetFullName()));
 
     Indi_AC *_indi_ac = _obj.GetDataSource(INDI_AC);
     Indi_AO *_indi_ao = _obj.GetDataSource(INDI_AO);
@@ -221,18 +251,19 @@ class Indi_BWZT : public IndicatorTickOrCandleSource<IndiBWZTParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_BWZT::iBWZT(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+      case IDATA_ONCALCULATE:
+        _value = Indi_BWZT::iBWZT(THIS_PTR, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_BWZT::iBWZTOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = Indi_BWZT::iBWZT(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

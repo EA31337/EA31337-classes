@@ -34,12 +34,11 @@ class Trade;
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
+#include "IndicatorData.mqh"
 #include "Math.h"
 #include "Object.mqh"
 #include "Order.mqh"
 #include "OrderQuery.h"
-#include "Task/TaskAction.enum.h"
-#include "Task/TaskCondition.enum.h"
 #include "Task/TaskManager.h"
 #include "Task/Taskable.h"
 #include "Trade.enum.h"
@@ -48,7 +47,7 @@ class Trade;
 class Trade : public Taskable<DataParamEntry> {
  public:
   AccountMt account;
-  Ref<Chart> chart;
+  Ref<IndicatorBase> indi_candle;
   DictStruct<long, Ref<Order>> orders_active;
   DictStruct<long, Ref<Order>> orders_history;
   DictStruct<long, Ref<Order>> orders_pending;
@@ -67,9 +66,6 @@ class Trade : public Taskable<DataParamEntry> {
    * Initialize class instance.
    */
   void Init() {
-    if (!chart.IsSet()) {
-      chart = new Chart(PERIOD_CURRENT, _Symbol);
-    }
     SetName();
     if (tparams.magic_no > 0) {
       OrdersLoadByMagic(tparams.magic_no);
@@ -81,14 +77,22 @@ class Trade : public Taskable<DataParamEntry> {
   /**
    * Class constructor.
    */
-  Trade() : order_last(NULL) { Init(); };
-  Trade(TradeParams &_tparams, ChartParams &_cparams)
-      : chart(new Chart(_cparams)), tparams(_tparams), order_last(NULL) {
+  Trade(IndicatorBase *_indi_candle) : indi_candle(_indi_candle), order_last(NULL) {
+    SetName();
+    OrdersLoadByMagic(tparams.magic_no);
+  };
+  Trade(TradeParams &_tparams, IndicatorBase *_indi_candle)
+      : indi_candle(_indi_candle), tparams(_tparams), order_last(NULL) {
     Init();
   };
 
   /**
-   * Class copy constructor.
+   * Default constructor.
+   */
+  Trade() {}
+
+  /**
+   * Copy constructor.
    */
   Trade(const Trade &_trade) {
     // logger = _trade.GetLogger();
@@ -135,7 +139,7 @@ class Trade : public Taskable<DataParamEntry> {
    */
   template <typename T>
   T Get(ENUM_CHART_PARAM _param) {
-    return GetChart().Get<T>(_param);
+    return GetSource() PTR_DEREF Get<T>(_param);
   }
 
   /**
@@ -209,15 +213,29 @@ class Trade : public Taskable<DataParamEntry> {
     _request.comment = _comment;
     _request.deviation = tparams.Get<uint>(TRADE_PARAM_SLIPPAGE);  // The maximal price deviation, specified in points.
     _request.magic = _magic > 0 ? _magic : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
-    _request.symbol = GetChart().Get<string>(CHART_PARAM_SYMBOL);
-    _request.price = SymbolInfoStatic::GetOpenOffer(_request.symbol, _type);
+    _request.symbol = GetSource() PTR_DEREF GetSymbol();
+    _request.price = GetSource() PTR_DEREF GetOpenOffer(_type);
     _request.type = _type;
 #ifndef __MQL4__
     // Filling modes not supported under MQL4.
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
 #endif
     _request.volume = _volume > 0 ? _volume : tparams.Get<float>(TRADE_PARAM_LOT_SIZE);
-    _request.volume = NormalizeLots(fmax(_request.volume, SymbolInfoStatic::GetVolumeMin(_request.symbol)));
+    _request.volume = NormalizeLots(fmax(_request.volume, GetSource() PTR_DEREF GetSymbolProps().GetVolumeMin()));
+
+#ifdef __debug__
+    MqlTick _tick;  // Structure to get the latest prices.
+    SymbolInfoTick(GetSource() PTR_DEREF GetSymbol(), _tick);
+
+    Print("------------------------");
+    Print("C Price: ", GetSource() PTR_DEREF GetOpenOffer(_type));
+    Print("C   Ask: ", GetSource() PTR_DEREF GetTick() PTR_DEREF GetAsk());
+    Print("C   Bid: ", GetSource() PTR_DEREF GetTick() PTR_DEREF GetBid());
+
+    Print("R   Ask: ", _tick.ask);
+    Print("R   Bid: ", _tick.bid);
+#endif
+
     return _request;
   }
 
@@ -235,8 +253,7 @@ class Trade : public Taskable<DataParamEntry> {
    * Sets default name of trade instance.
    */
   void SetName() {
-    name = StringFormat("%s@%s", GetChart().Get<string>(CHART_PARAM_SYMBOL),
-                        ChartTf::TfToString(GetChart().Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
+    name = StringFormat("%s@%s", GetSource() PTR_DEREF GetSymbol(), ChartTf::TfToString(GetSource() PTR_DEREF GetTf()));
   }
 
   /**
@@ -253,9 +270,9 @@ class Trade : public Taskable<DataParamEntry> {
    */
   bool IsPeak(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
     bool _result = false;
-    double _high = GetChart().GetHigh(_shift + 1);
-    double _low = GetChart().GetLow(_shift + 1);
-    double _open = GetChart().GetOpenOffer(_cmd);
+    double _high = GetSource() PTR_DEREF GetHigh(_shift + 1);
+    double _low = GetSource() PTR_DEREF GetLow(_shift + 1);
+    double _open = GetSource() PTR_DEREF GetOpenOffer(_cmd);
     if (_low != _high) {
       switch (_cmd) {
         case ORDER_TYPE_BUY:
@@ -274,17 +291,17 @@ class Trade : public Taskable<DataParamEntry> {
    */
   bool IsPivot(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
     bool _result = false;
-    double _high = GetChart().GetHigh(_shift + 1);
-    double _low = GetChart().GetLow(_shift + 1);
-    double _close = GetChart().GetClose(_shift + 1);
+    double _high = GetSource() PTR_DEREF GetHigh(_shift + 1);
+    double _low = GetSource() PTR_DEREF GetLow(_shift + 1);
+    double _close = GetSource() PTR_DEREF GetClose(_shift + 1);
     if (_close > 0 && _low != _high) {
       float _pp = (float)(_high + _low + _close) / 3;
       switch (_cmd) {
         case ORDER_TYPE_BUY:
-          _result = GetChart().GetOpenOffer(_cmd) > _pp;
+          _result = GetSource() PTR_DEREF GetOpenOffer(_cmd) > _pp;
           break;
         case ORDER_TYPE_SELL:
-          _result = GetChart().GetOpenOffer(_cmd) < _pp;
+          _result = GetSource() PTR_DEREF GetOpenOffer(_cmd) < _pp;
           break;
       }
     }
@@ -310,7 +327,7 @@ class Trade : public Taskable<DataParamEntry> {
   /**
    * Check if trading instance is valid.
    */
-  bool IsValid() { return GetChart().IsValidTf(); }
+  bool IsValid() { return GetSource() PTR_DEREF IsValid(); }
 
   /**
    * Check if this trade instance has active orders.
@@ -325,7 +342,7 @@ class Trade : public Taskable<DataParamEntry> {
     Ref<Order> _order = order_last;
 
     if (_order.IsSet() && _order.Ptr().Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd &&
-        _order.Ptr().Get<long>(ORDER_TIME_SETUP) > GetChart().GetBarTime()) {
+        _order.Ptr().Get<long>(ORDER_TIME_SETUP) > GetSource() PTR_DEREF GetBarTime()) {
       _result |= true;
     }
 
@@ -334,8 +351,8 @@ class Trade : public Taskable<DataParamEntry> {
         _order = iter.Value();
         if (_order.Ptr().Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd) {
           long _time_opened = _order.Ptr().Get<long>(ORDER_TIME_SETUP);
-          _result |= _shift > 0 && _time_opened < GetChart().GetBarTime(_shift - 1);
-          _result |= _time_opened >= GetChart().GetBarTime(_shift);
+          _result |= _shift > 0 && _time_opened < GetSource() PTR_DEREF GetBarTime(_shift - 1);
+          _result |= _time_opened >= GetSource() PTR_DEREF GetBarTime(_shift);
           if (_result) {
             break;
           }
@@ -352,7 +369,7 @@ class Trade : public Taskable<DataParamEntry> {
     bool _result = false;
     Ref<Order> _order = order_last;
     OrderData _odata;
-    double _price_curr = GetChart().GetOpenOffer(_cmd);
+    double _price_curr = GetSource() PTR_DEREF GetOpenOffer(_cmd);
 
     if (_order.IsSet() && _order.Ptr().IsOpen()) {
       if (_odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd) {
@@ -396,7 +413,7 @@ class Trade : public Taskable<DataParamEntry> {
     bool _result = false;
     Ref<Order> _order = order_last;
     OrderData _odata;
-    double _price_curr = GetChart().GetOpenOffer(_cmd);
+    double _price_curr = GetSource() PTR_DEREF GetOpenOffer(_cmd);
 
     if (_order.IsSet()) {
       _result = _odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) != _cmd;
@@ -510,7 +527,7 @@ class Trade : public Taskable<DataParamEntry> {
 #endif
   }
   float GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
-    return (float)GetMarginRequired(GetChart().GetSymbol(), _cmd);
+    return (float)GetMarginRequired(GetSource() PTR_DEREF GetSymbol(), _cmd);
   }
 
   /* Lot size methods */
@@ -531,11 +548,10 @@ class Trade : public Taskable<DataParamEntry> {
   double GetMaxLotSize(double _sl, ENUM_ORDER_TYPE _cmd = NULL) {
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     double risk_amount = account.GetTotalBalance() / 100 * tparams.risk_margin;
-    double _ticks = fabs(_sl - GetChart().GetOpenOffer(_cmd)) / GetChart().GetTickSize();
+    double _ticks =
+        fabs(_sl - GetSource() PTR_DEREF GetOpenOffer(_cmd)) / GetSource() PTR_DEREF GetSymbolProps().GetTickSize();
     double lot_size1 = fmin(_sl, _ticks) > 0 ? risk_amount / (_sl * (_ticks / 100.0)) : 1;
-    lot_size1 *= GetChart().GetVolumeMin();
-    // double lot_size2 = 1 / (GetChart().GetTickValue() * sl / risk_margin);
-    // PrintFormat("SL=%g: 1 = %g, 2 = %g", sl, lot_size1, lot_size2);
+    lot_size1 *= GetSource() PTR_DEREF GetSymbolProps().GetVolumeMin();
     return NormalizeLots(lot_size1);
   }
   double GetMaxLotSize(unsigned int _pips, ENUM_ORDER_TYPE _cmd = NULL) {
@@ -581,7 +597,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         Print(__FUNCTION__, ": Error in history!");
         break;
       }
-      if (deal.Symbol() != GetChart().GetSymbol()) continue;
+      if (deal.Symbol() != GetSource() PTR_DEREF GetSymbol()) continue;
       double profit = deal.Profit();
       */
       double profit = 0;
@@ -624,7 +640,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                     unsigned int _method = 0        // Method of calculation (0-3).
   ) {
     float _avail_amount = _method % 2 == 0 ? account.GetMarginAvail() : account.GetTotalBalance();
-    float _lot_size_min = (float)GetChart().GetVolumeMin();
+    float _lot_size_min = (float)GetSource() PTR_DEREF GetSymbolProps().GetVolumeMin();
     float _lot_size = _lot_size_min;
     float _risk_value = (float)account.GetLeverage();
     if (_method == 0 || _method == 1) {
@@ -635,12 +651,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       }
     } else {
       float _risk_amount = _avail_amount / 100 * _risk_margin;
-      float _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, GetChart().GetSymbol());
-      float _tick_value = GetChart().GetTickSize();
+      float _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, GetSource() PTR_DEREF GetSymbol());
+      float _tick_value = (float)GetSource() PTR_DEREF GetSymbolProps().GetTickSize();
       // @todo: Improves calculation logic.
       _lot_size = _money_value * _tick_value * _risk_ratio / _risk_value / 100;
     }
-    _lot_size = (float)fmin(_lot_size, GetChart().GetVolumeMax());
+    _lot_size = (float)fmin(_lot_size, GetSource() PTR_DEREF GetSymbolProps().GetVolumeMax());
     return (float)NormalizeLots(_lot_size);
   }
 
@@ -653,6 +669,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     bool _result = false;
     unsigned int _last_error = _order.Get<unsigned int>(ORDER_PROP_LAST_ERROR);
     logger.Link(_order.GetLogger());
+    _order.GetLogger().SetLevel(tparams.Get<ENUM_LOG_LEVEL>(TRADE_PARAM_LOG_LEVEL));
     Ref<Order> _ref_order = _order;
     switch (_last_error) {
       case 69539:
@@ -802,6 +819,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     if (_order.IsOpen()) {
       // @todo: _order.IsPending()?
       _result &= orders_active.Set(_order.Get<long>(ORDER_PROP_TICKET), _order_ref);
+      logger.Link(_order.GetLogger());
+      _order.GetLogger().SetLevel(tparams.Get<ENUM_LOG_LEVEL>(TRADE_PARAM_LOG_LEVEL));
     } else {
       _result &= orders_history.Set(_order.Get<long>(ORDER_PROP_TICKET), _order_ref);
     }
@@ -819,7 +838,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         if (OrderStatic::MagicNumber() == _magic_no) {
           unsigned long _ticket = OrderStatic::Ticket();
           Ref<Order> _order = new Order(_ticket);
-          orders_active.Set(_ticket, _order);
+          OrderLoad(_order.Ptr());
         }
       }
     }
@@ -864,13 +883,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           OrderMoveToHistory(_order.Ptr());
           order_last = _order;
         } else {
-          logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR));
+          logger.Error(
+              StringFormat("Failed to close the order: %d! Error: %d (%s)", _order.Ptr().Get<long>(ORDER_PROP_TICKET),
+                           _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                           Terminal::GetErrorText(_order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+              __FUNCTION_LINE__);
           continue;
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
       }
     }
+    logger.Flush();
     return _closed;
   }
 
@@ -896,9 +920,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             OrderMoveToHistory(_order.Ptr());
             order_last = _order;
           } else {
-            logger.Error("Error while closing order!", __FUNCTION_LINE__,
-                         StringFormat("Code: %d", _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR)));
-            return -1;
+            logger.Error(
+                StringFormat("Failed to close the order: %d! Error: %d (%s)", _order.Ptr().Get<long>(ORDER_PROP_TICKET),
+                             _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                             Terminal::GetErrorText(_order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+                __FUNCTION_LINE__);
+            continue;
           }
           order_last = _order;
         }
@@ -906,6 +933,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         OrderMoveToHistory(_order.Ptr());
       }
     }
+    logger.Flush();
     return _closed;
   }
 
@@ -934,14 +962,19 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             OrderMoveToHistory(_order.Ptr());
             order_last = _order;
           } else {
-            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR));
-            return -1;
+            logger.Error(
+                StringFormat("Failed to close the order: %d! Error: %d (%s)", _order.Ptr().Get<long>(ORDER_PROP_TICKET),
+                             _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                             Terminal::GetErrorText(_order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+                __FUNCTION_LINE__);
+            continue;
           }
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
       }
     }
+    logger.Flush();
     return _closed;
   }
 
@@ -968,14 +1001,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
 #ifndef __MQL4__
-            // @fixme: GH-571.
+            // @fixme: GH-571 & GH-706.
             logger.Info(__FUNCTION_LINE__, _order.Ptr().ToString());
 #endif
-            // @fixme: GH-570.
-            // logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR));
-            logger.Warning("Issue with closing the order!", __FUNCTION_LINE__);
-            ResetLastError();
-            return -1;
+            logger.Error(
+                StringFormat("Failed to close the order: %d! Error: %d (%s)", _order.Ptr().Get<long>(ORDER_PROP_TICKET),
+                             _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                             Terminal::GetErrorText(_order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+                __FUNCTION_LINE__);
+            continue;
           }
           order_last = _order;
           _closed++;
@@ -984,6 +1018,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         OrderMoveToHistory(_order.Ptr());
       }
     }
+    logger.Flush();
     return _closed;
   }
 
@@ -1033,7 +1068,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   ) {
     float _max_value1 = _max_pips > 0 ? CalcOrderSLTP(_max_pips, _cmd, _mode) : 0;
     float _max_value2 = tparams.risk_margin > 0 ? GetMaxSLTP(_cmd, _lot_size, _mode) : 0;
-    float _res = (float)GetChart().NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
+    float _res = (float)GetSource() PTR_DEREF GetSymbolProps().NormalizePrice(
+        GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
     // PrintFormat("%s/%s: Value: %g", EnumToString(_cmd), EnumToString(_mode), _value);
     // PrintFormat("%s/%s: Max value 1: %g", EnumToString(_cmd), EnumToString(_mode), _max_value1);
     // PrintFormat("%s/%s: Max value 2: %g", EnumToString(_cmd), EnumToString(_mode), _max_value2);
@@ -1048,12 +1084,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                       ENUM_ORDER_TYPE _cmd,        // Order type (e.g. buy or sell).
                       ENUM_ORDER_TYPE_VALUE _mode  // Type of value (stop loss or take profit).
   ) {
-    double _price = _cmd == NULL ? Order::OrderOpenPrice() : GetChart().GetOpenOffer(_cmd);
+    double _pip_size = SymbolInfoStatic::GetPipSize(GetSource() PTR_DEREF GetSymbol());
+    double _price = _cmd == NULL ? Order::OrderOpenPrice() : GetSource() PTR_DEREF GetOpenOffer(_cmd);
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
-    // PrintFormat("#%d: %s/%s: %g (%g/%g) + %g * %g * %g = %g", Order::OrderTicket(), EnumToString(_cmd),
-    // EnumToString(_mode), _price, Bid, Ask, _value, GetChart().GetPipSize(), Order::OrderDirection(_cmd, _mode),
-    // GetChart().GetOpenOffer(_cmd) + _value * GetChart().GetPipSize() * Order::OrderDirection(_cmd, _mode));
-    return _value > 0 ? float(_price + _value * GetChart().GetPipSize() * Order::OrderDirection(_cmd, _mode)) : 0;
+    return _value > 0 ? float(_price + _value * _pip_size * Order::OrderDirection(_cmd, _mode)) : 0;
   }
   float CalcOrderSL(float _value, ENUM_ORDER_TYPE _cmd) { return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_SL); }
   float CalcOrderTP(float _value, ENUM_ORDER_TYPE _cmd) { return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_TP); }
@@ -1072,14 +1106,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   float GetMaxSLTP(ENUM_ORDER_TYPE _cmd = NULL, float _lot_size = 0, ENUM_ORDER_TYPE_VALUE _mode = ORDER_TYPE_SL,
                    float _risk_margin = 1.0) {
-    double _price = _cmd == NULL ? Order::OrderOpenPrice() : GetChart().GetOpenOffer(_cmd);
+    double _price = _cmd == NULL ? Order::OrderOpenPrice() : GetSource() PTR_DEREF GetOpenOffer(_cmd);
     // For the new orders, use the available margin for calculation, otherwise use the account balance.
     float _margin = Convert::MoneyToValue(
         (_cmd == NULL ? account.GetMarginAvail() : account.GetTotalBalance()) / 100 * _risk_margin, _lot_size,
-        GetChart().GetSymbol());
+        GetSource() PTR_DEREF GetSymbol());
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     // @fixme
-    // _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), GetChart().GetVolumeMin()) : _lot_size;
+    // _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), GetSource() PTR_DEREF GetVolumeMin()) : _lot_size;
     return (float)_price +
            GetTradeDistanceInValue()
            // + Convert::MoneyToValue(account.GetTotalBalance() / 100 * _risk_margin, _lot_size)
@@ -1162,7 +1196,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   static long GetTradeDistanceInPts(string _symbol) {
     return fmax(SymbolInfoStatic::GetTradeStopsLevel(_symbol), SymbolInfoStatic::GetFreezeLevel(_symbol));
   }
-  long GetTradeDistanceInPts() { return GetTradeDistanceInPts(GetChart().GetSymbol()); }
+  long GetTradeDistanceInPts() { return GetTradeDistanceInPts(GetSource() PTR_DEREF GetSymbol()); }
 
   /**
    * Get a market distance in pips.
@@ -1175,7 +1209,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     unsigned int _pts_per_pip = SymbolInfoStatic::GetPointsPerPip(_symbol);
     return (double)(_pts_per_pip > 0 ? (GetTradeDistanceInPts(_symbol) / _pts_per_pip) : 0);
   }
-  double GetTradeDistanceInPips() { return GetTradeDistanceInPips(GetChart().GetSymbol()); }
+  double GetTradeDistanceInPips() { return GetTradeDistanceInPips(GetSource() PTR_DEREF GetSymbol()); }
 
   /**
    * Get a market gap in value.
@@ -1187,7 +1221,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   static double GetTradeDistanceInValue(string _symbol) {
     return Trade::GetTradeDistanceInPts(_symbol) * SymbolInfoStatic::GetPointSize(_symbol);
   }
-  float GetTradeDistanceInValue() { return (float)GetTradeDistanceInValue(GetChart().GetSymbol()); }
+  float GetTradeDistanceInValue() { return (float)GetTradeDistanceInValue(GetSource() PTR_DEREF GetSymbol()); }
 
   /* Trend methods */
 
@@ -1212,8 +1246,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   double GetTrend(int method, ENUM_TIMEFRAMES _tf = NULL, bool simple = false) {
     static datetime _last_trend_check = 0;
     static double _last_trend = 0;
-    string symbol = GetChart().GetSymbol();
-    if (_last_trend_check == Chart().GetBarTime(_tf)) {
+    string symbol = GetSource() PTR_DEREF GetSymbol();
+    if (_last_trend_check == ChartStatic::GetBarTime(symbol, _tf, 0)) {
       return _last_trend;
     }
     double bull = 0, bear = 0;
@@ -1221,113 +1255,121 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
 
     if (simple && method != 0) {
       if ((method & 1) != 0) {
-        if (Chart().GetOpen(PERIOD_MN1, 0) > Chart().GetClose(PERIOD_MN1, 1)) bull++;
-        if (Chart().GetOpen(PERIOD_MN1, 0) < Chart().GetClose(PERIOD_MN1, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_MN1, 0) > ChartStatic::iClose(symbol, PERIOD_MN1, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_MN1, 0) < ChartStatic::iClose(symbol, PERIOD_MN1, 1)) bear++;
       }
       if ((method & 2) != 0) {
-        if (Chart().GetOpen(PERIOD_W1, 0) > Chart().GetClose(PERIOD_W1, 1)) bull++;
-        if (Chart().GetOpen(PERIOD_W1, 0) < Chart().GetClose(PERIOD_W1, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_W1, 0) > ChartStatic::iClose(symbol, PERIOD_W1, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_W1, 0) < ChartStatic::iClose(symbol, PERIOD_W1, 1)) bear++;
       }
       if ((method & 4) != 0) {
-        if (Chart().GetOpen(PERIOD_D1, 0) > Chart().GetClose(PERIOD_D1, 1)) bull++;
-        if (Chart().GetOpen(PERIOD_D1, 0) < Chart().GetClose(PERIOD_D1, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_D1, 0) > ChartStatic::iClose(symbol, PERIOD_D1, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_D1, 0) < ChartStatic::iClose(symbol, PERIOD_D1, 1)) bear++;
       }
       if ((method & 8) != 0) {
-        if (Chart().GetOpen(PERIOD_H4, 0) > Chart().GetClose(PERIOD_H4, 1)) bull++;
-        if (Chart().GetOpen(PERIOD_H4, 0) < Chart().GetClose(PERIOD_H4, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_H4, 0) > ChartStatic::iClose(symbol, PERIOD_H4, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_H4, 0) < ChartStatic::iClose(symbol, PERIOD_H4, 1)) bear++;
       }
       if ((method & 16) != 0) {
-        if (Chart().GetOpen(PERIOD_H1, 0) > Chart().GetClose(PERIOD_H1, 1)) bull++;
-        if (Chart().GetOpen(PERIOD_H1, 0) < Chart().GetClose(PERIOD_H1, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_H1, 0) > ChartStatic::iClose(symbol, PERIOD_H1, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_H1, 0) < ChartStatic::iClose(symbol, PERIOD_H1, 1)) bear++;
       }
       if ((method & 32) != 0) {
-        if (Chart().GetOpen(PERIOD_M30, 0) > Chart().GetClose(PERIOD_M30, 1)) bull++;
-        if (Chart().GetOpen(PERIOD_M30, 0) < Chart().GetClose(PERIOD_M30, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M30, 0) > ChartStatic::iClose(symbol, PERIOD_M30, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M30, 0) < ChartStatic::iClose(symbol, PERIOD_M30, 1)) bear++;
       }
       if ((method & 64) != 0) {
-        if (Chart().GetOpen(PERIOD_M15, 0) > Chart().GetClose(PERIOD_M15, 1)) bull++;
-        if (Chart().GetOpen(PERIOD_M15, 0) < Chart().GetClose(PERIOD_M15, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M15, 0) > ChartStatic::iClose(symbol, PERIOD_M15, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M15, 0) < ChartStatic::iClose(symbol, PERIOD_M15, 1)) bear++;
       }
       if ((method & 128) != 0) {
-        if (Chart().GetOpen(PERIOD_M5, 0) > Chart().GetClose(PERIOD_M5, 1)) bull++;
-        if (Chart().GetOpen(PERIOD_M5, 0) < Chart().GetClose(PERIOD_M5, 1)) bear++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M5, 0) > ChartStatic::iClose(symbol, PERIOD_M5, 1)) bull++;
+        if (ChartStatic::iOpen(symbol, PERIOD_M5, 0) < ChartStatic::iClose(symbol, PERIOD_M5, 1)) bear++;
       }
-      // if (Chart().GetOpen(PERIOD_H12, 0) > Chart().GetClose(PERIOD_H12, 1)) bull++;
-      // if (Chart().GetOpen(PERIOD_H12, 0) < Chart().GetClose(PERIOD_H12, 1)) bear++;
-      // if (Chart().GetOpen(PERIOD_H8, 0) > Chart().GetClose(PERIOD_H8, 1)) bull++;
-      // if (Chart().GetOpen(PERIOD_H8, 0) < Chart().GetClose(PERIOD_H8, 1)) bear++;
-      // if (Chart().GetOpen(PERIOD_H6, 0) > Chart().GetClose(PERIOD_H6, 1)) bull++;
-      // if (Chart().GetOpen(PERIOD_H6, 0) < Chart().GetClose(PERIOD_H6, 1)) bear++;
-      // if (Chart().GetOpen(PERIOD_H2, 0) > Chart().GetClose(PERIOD_H2, 1)) bull++;
-      // if (Chart().GetOpen(PERIOD_H2, 0) < Chart().GetClose(PERIOD_H2, 1)) bear++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H12, 0) > ChartStatic::iClose(symbol, PERIOD_H12, 1)) bull++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H12, 0) < ChartStatic::iClose(symbol, PERIOD_H12, 1)) bear++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H8, 0) > ChartStatic::iClose(symbol, PERIOD_H8, 1)) bull++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H8, 0) < ChartStatic::iClose(symbol, PERIOD_H8, 1)) bear++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H6, 0) > ChartStatic::iClose(symbol, PERIOD_H6, 1)) bull++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H6, 0) < ChartStatic::iClose(symbol, PERIOD_H6, 1)) bear++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H2, 0) > ChartStatic::iClose(symbol, PERIOD_H2, 1)) bull++;
+      // if (ChartStatic::iOpen(symbol, PERIOD_H2, 0) < ChartStatic::iClose(symbol, PERIOD_H2, 1)) bear++;
     } else if (method != 0) {
       if ((method % 1) == 0) {
         for (_counter = 0; _counter < 3; _counter++) {
-          if (Chart().GetOpen(PERIOD_MN1, _counter) > Chart().GetClose(PERIOD_MN1, _counter + 1))
+          if (ChartStatic::iOpen(symbol, PERIOD_MN1, _counter) > ChartStatic::iClose(symbol, PERIOD_MN1, _counter + 1))
             bull += 30;
-          else if (Chart().GetOpen(PERIOD_MN1, _counter) < Chart().GetClose(PERIOD_MN1, _counter + 1))
+          else if (ChartStatic::iOpen(symbol, PERIOD_MN1, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_MN1, _counter + 1))
             bear += 30;
         }
       }
       if ((method % 2) == 0) {
         for (_counter = 0; _counter < 8; _counter++) {
-          if (Chart().GetOpen(PERIOD_W1, _counter) > Chart().GetClose(PERIOD_W1, _counter + 1))
+          if (ChartStatic::iOpen(symbol, PERIOD_W1, _counter) > ChartStatic::iClose(symbol, PERIOD_W1, _counter + 1))
             bull += 7;
-          else if (Chart().GetOpen(PERIOD_W1, _counter) < Chart().GetClose(PERIOD_W1, _counter + 1))
+          else if (ChartStatic::iOpen(symbol, PERIOD_W1, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_W1, _counter + 1))
             bear += 7;
         }
       }
       if ((method % 4) == 0) {
         for (_counter = 0; _counter < 7; _counter++) {
-          if (Chart().GetOpen(PERIOD_D1, _counter) > Chart().GetClose(PERIOD_D1, _counter + 1))
+          if (ChartStatic::iOpen(symbol, PERIOD_D1, _counter) > ChartStatic::iClose(symbol, PERIOD_D1, _counter + 1))
             bull += 1440 / 1440;
-          else if (Chart().GetOpen(PERIOD_D1, _counter) < Chart().GetClose(PERIOD_D1, _counter + 1))
+          else if (ChartStatic::iOpen(symbol, PERIOD_D1, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_D1, _counter + 1))
             bear += 1440 / 1440;
         }
       }
       if ((method % 8) == 0) {
         for (_counter = 0; _counter < 24; _counter++) {
-          if (Chart().GetOpen(PERIOD_H4, _counter) > Chart().GetClose(PERIOD_H4, _counter + 1))
+          if (ChartStatic::iOpen(symbol, PERIOD_H4, _counter) > ChartStatic::iClose(symbol, PERIOD_H4, _counter + 1))
             bull += 240 / 1440;
-          else if (Chart().GetOpen(PERIOD_H4, _counter) < Chart().GetClose(PERIOD_H4, _counter + 1))
+          else if (ChartStatic::iOpen(symbol, PERIOD_H4, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_H4, _counter + 1))
             bear += 240 / 1440;
         }
       }
       if ((method % 16) == 0) {
         for (_counter = 0; _counter < 24; _counter++) {
-          if (Chart().GetOpen(PERIOD_H1, _counter) > Chart().GetClose(PERIOD_H1, _counter + 1))
+          if (ChartStatic::iOpen(symbol, PERIOD_H1, _counter) > ChartStatic::iClose(symbol, PERIOD_H1, _counter + 1))
             bull += 60 / 1440;
-          else if (Chart().GetOpen(PERIOD_H1, _counter) < Chart().GetClose(PERIOD_H1, _counter + 1))
+          else if (ChartStatic::iOpen(symbol, PERIOD_H1, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_H1, _counter + 1))
             bear += 60 / 1440;
         }
       }
       if ((method % 32) == 0) {
         for (_counter = 0; _counter < 48; _counter++) {
-          if (Chart().GetOpen(PERIOD_M30, _counter) > Chart().GetClose(PERIOD_M30, _counter + 1))
+          if (ChartStatic::iOpen(symbol, PERIOD_M30, _counter) > ChartStatic::iClose(symbol, PERIOD_M30, _counter + 1))
             bull += 30 / 1440;
-          else if (Chart().GetOpen(PERIOD_M30, _counter) < Chart().GetClose(PERIOD_M30, _counter + 1))
+          else if (ChartStatic::iOpen(symbol, PERIOD_M30, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_M30, _counter + 1))
             bear += 30 / 1440;
         }
       }
       if ((method % 64) == 0) {
         for (_counter = 0; _counter < 96; _counter++) {
-          if (Chart().GetOpen(PERIOD_M15, _counter) > Chart().GetClose(PERIOD_M15, _counter + 1))
+          if (ChartStatic::iOpen(symbol, PERIOD_M15, _counter) > ChartStatic::iClose(symbol, PERIOD_M15, _counter + 1))
             bull += 15 / 1440;
-          else if (Chart().GetOpen(PERIOD_M15, _counter) < Chart().GetClose(PERIOD_M15, _counter + 1))
+          else if (ChartStatic::iOpen(symbol, PERIOD_M15, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_M15, _counter + 1))
             bear += 15 / 1440;
         }
       }
       if ((method % 128) == 0) {
         for (_counter = 0; _counter < 288; _counter++) {
-          if (Chart().GetOpen(PERIOD_M5, _counter) > Chart().GetClose(PERIOD_M5, _counter + 1))
+          if (ChartStatic::iOpen(symbol, PERIOD_M5, _counter) > ChartStatic::iClose(symbol, PERIOD_M5, _counter + 1))
             bull += 5 / 1440;
-          else if (Chart().GetOpen(PERIOD_M5, _counter) < Chart().GetClose(PERIOD_M5, _counter + 1))
+          else if (ChartStatic::iOpen(symbol, PERIOD_M5, _counter) <
+                   ChartStatic::iClose(symbol, PERIOD_M5, _counter + 1))
             bear += 5 / 1440;
         }
       }
     }
     _last_trend = (bull - bear);
-    _last_trend_check = Chart().GetBarTime(_tf, 0);
+    _last_trend_check = ChartStatic::GetBarTime(symbol, _tf, 0);
     logger.Debug(StringFormat("%s: %g", __FUNCTION__, _last_trend));
     return _last_trend;
   }
@@ -1385,8 +1427,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // @todo: TRADE_STATE_ORDERS_MAX_SOFT
       // ...
       /* Market checks */
-      uint _tspread = int(tparams.Get<float>(TRADE_PARAM_MAX_SPREAD) * GetChart().GetPointsPerPip());
-      tstates.SetState(TRADE_STATE_SPREAD_TOO_HIGH, _tspread > 0 && GetChart().GetSpread() > _tspread);
+      // uint _tspread = int(tparams.Get<float>(TRADE_PARAM_MAX_SPREAD) * GetChart().GetPointsPerPip());
+      // tstates.SetState(TRADE_STATE_SPREAD_TOO_HIGH, _tspread > 0 && GetChart().GetSpread() > _tspread);
       /* Terminal checks */
       tstates.SetState(TRADE_STATE_TRADE_NOT_POSSIBLE,
                        // Check if the EA trading is enabled.
@@ -1396,14 +1438,21 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                            // Check if auto trading is enabled.
                            && (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()));
       /* Chart checks */
-      tstates.SetState(TRADE_STATE_BARS_NOT_ENOUGH, GetChart().GetBars() < tparams.GetBarsMin());
+      // tstates.SetState(TRADE_STATE_BARS_NOT_ENOUGH, GetChart().GetBars() < tparams.GetBarsMin());
       /* Symbol trade modes */
+      /*
       ENUM_SYMBOL_TRADE_MODE _trade_mode = GetChart().GetTradeMode();
       tstates.SetState(TRADE_STATE_MODE_DISABLED, _trade_mode == SYMBOL_TRADE_MODE_DISABLED);
       tstates.SetState(TRADE_STATE_MODE_LONGONLY, _trade_mode == SYMBOL_TRADE_MODE_LONGONLY);
       tstates.SetState(TRADE_STATE_MODE_SHORTONLY, _trade_mode == SYMBOL_TRADE_MODE_SHORTONLY);
       tstates.SetState(TRADE_STATE_MODE_CLOSEONLY, _trade_mode == SYMBOL_TRADE_MODE_CLOSEONLY);
       tstates.SetState(TRADE_STATE_MODE_FULL, _trade_mode == SYMBOL_TRADE_MODE_FULL);
+      */
+#ifdef __debug__
+      Print("Trade: Bars in data source: ", GetSource() PTR_DEREF GetBars(),
+            ", minimum required bars: ", tparams.GetBarsMin());
+#endif
+      tstates.SetState(TRADE_STATE_BARS_NOT_ENOUGH, GetSource() PTR_DEREF GetBars() < tparams.GetBarsMin());
       /* Terminal checks */
       tstates.SetState(TRADE_STATE_TRADE_NOT_ALLOWED,
                        // Check if real trading is allowed.
@@ -1436,15 +1485,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   double NormalizeLots(double _lots, bool _ceil = false) {
     double _lot_size = _lots;
-    double _vol_min = GetChart().GetVolumeMin();
-    double _vol_step = GetChart().GetVolumeStep() > 0.0 ? GetChart().GetVolumeStep() : _vol_min;
+    double _vol_min = GetSource() PTR_DEREF GetSymbolProps().GetVolumeMin();
+    double _vol_step = GetSource() PTR_DEREF GetSymbolProps().GetVolumeStep() > 0.0
+                           ? GetSource() PTR_DEREF GetSymbolProps().GetVolumeStep()
+                           : _vol_min;
     if (_vol_step > 0) {
       // Related: https://www.mql5.com/en/forum/139338
       double _precision = 1 / _vol_step;
       // Edge case when step is higher than minimum.
       _lot_size = _ceil ? ceil(_lots * _precision) / _precision : floor(_lots * _precision) / _precision;
-      double _min_lot = fmax(GetChart().GetVolumeMin(), GetChart().GetVolumeStep());
-      _lot_size = fmin(fmax(_lot_size, _min_lot), GetChart().GetVolumeMax());
+      double _min_lot = fmax(GetSource() PTR_DEREF GetSymbolProps().GetVolumeMin(),
+                             GetSource() PTR_DEREF GetSymbolProps().GetVolumeStep());
+      _lot_size = fmin(fmax(_lot_size, _min_lot), GetSource() PTR_DEREF GetSymbolProps().GetVolumeMax());
     }
     return NormalizeDouble(_lot_size, Math::FloatDigits(_vol_min));
   }
@@ -1465,10 +1517,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         switch (_mode) {
           // Bid - StopLoss >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_SL:
-            return fmin(_value, GetChart().GetBid() - GetTradeDistanceInValue());
+            return fmin(_value, GetSource() PTR_DEREF GetBid() - GetTradeDistanceInValue());
           // TakeProfit - Bid >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_TP:
-            return fmax(_value, GetChart().GetBid() + GetTradeDistanceInValue());
+            return fmax(_value, GetSource() PTR_DEREF GetBid() + GetTradeDistanceInValue());
           default:
             logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
@@ -1480,10 +1532,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         switch (_mode) {
           // StopLoss - Ask >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_SL:
-            return fmax(_value, GetChart().GetAsk() + GetTradeDistanceInValue());
+            return fmax(_value, GetSource() PTR_DEREF GetAsk() + GetTradeDistanceInValue());
           // Ask - TakeProfit >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_TP:
-            return fmin(_value, GetChart().GetAsk() - GetTradeDistanceInValue());
+            return fmin(_value, GetSource() PTR_DEREF GetAsk() - GetTradeDistanceInValue());
           default:
             logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
@@ -1493,11 +1545,17 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
     return NULL;
   }
+
   double NormalizeSL(double _value, ENUM_ORDER_TYPE _cmd) {
-    return _value > 0 ? GetChart().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL)) : 0;
+    return _value > 0
+               ? GetSource() PTR_DEREF GetSymbolProps().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL))
+               : 0;
   }
+
   double NormalizeTP(double _value, ENUM_ORDER_TYPE _cmd) {
-    return _value > 0 ? GetChart().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP)) : 0;
+    return _value > 0
+               ? GetSource() PTR_DEREF GetSymbolProps().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP))
+               : 0;
   }
 
   /* Validation methods */
@@ -1533,7 +1591,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         // SL-Ask >= StopLevel && Ask-TP >= StopLevel
         // OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
         // PrintFormat("%g > %g", fmin(fabs(GetBid() - price), fabs(GetAsk() - price)), distance);
-        return price > 0 && fmin(fabs(GetChart().GetBid() - price), fabs(GetChart().GetAsk() - price)) > distance;
+        return price > 0 && fmin(fabs(GetSource() PTR_DEREF GetBid() - price),
+                                 fabs(GetSource() PTR_DEREF GetAsk() - price)) > distance;
       default:
         return (true);
     }
@@ -1548,8 +1607,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       return _is_valid;
     }
     double _min_distance = GetTradeDistanceInPips();
-    double _price = GetChart().GetOpenOffer(_cmd);
-    unsigned int _digits = GetChart().GetDigits();
+    double _price = GetSource() PTR_DEREF GetOpenOffer(_cmd);
+    unsigned int _digits = GetSource() PTR_DEREF GetSymbolProps().GetDigits();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         _is_valid &= _value < _price && Convert::GetValueDiffInPips(_price, _value, true, _digits) > _min_distance;
@@ -1594,10 +1653,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @see: https://www.mql5.com/en/articles/2555#invalid_SL_TP_for_position
    */
   double IsValidOrderSLTP(ENUM_ORDER_TYPE _cmd, double sl, double tp) {
-    double ask = GetChart().GetAsk();
-    double bid = GetChart().GetBid();
-    double openprice = GetChart().GetOpenOffer(_cmd);
-    double closeprice = GetChart().GetCloseOffer(_cmd);
+    double ask = GetSource() PTR_DEREF GetAsk();
+    double bid = GetSource() PTR_DEREF GetBid();
+    double openprice = GetSource() PTR_DEREF GetOpenOffer(_cmd);
+    double closeprice = GetSource() PTR_DEREF GetCloseOffer(_cmd);
     // The minimum distance of SYMBOL_TRADE_STOPS_LEVEL taken into account.
     double distance = GetTradeDistanceInValue();
     // bool result;
@@ -1668,8 +1727,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       return _is_valid;
     }
     double _min_distance = GetTradeDistanceInPips();
-    double _price = GetChart().GetOpenOffer(_cmd);
-    unsigned int _digits = GetChart().GetDigits();
+    double _price = GetSource() PTR_DEREF GetOpenOffer(_cmd);
+    unsigned int _digits = GetSource() PTR_DEREF GetSymbolProps().GetDigits();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         _is_valid &= _value > _price && Convert::GetValueDiffInPips(_value, _price, true, _digits) > _min_distance;
@@ -1918,8 +1977,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     return Check(_entry);
   }
 
-  /* TaskActions */
-
   /**
    * Gets a copy of structure.
    */
@@ -1931,6 +1988,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
     return _result;
   }
+
+  /* TaskActions */
 
   /**
    * Runs an action.
@@ -1990,7 +2049,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_ORDERS_CLOSE_IN_PROFIT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
           _result = OrdersCloseViaProp<ENUM_ORDER_PROPERTY_CUSTOM, int>(
-                        ORDER_PROP_PROFIT_PIPS, (int)chart.Ptr().GetSpreadInPips(), MATH_COND_GT,
+                        ORDER_PROP_PROFIT_PIPS, (int)GetSource() PTR_DEREF GetSpreadInPips(), MATH_COND_GT,
                         ORDER_REASON_CLOSED_BY_ACTION) >= 0;
           RefreshActiveOrders(true);
         }
@@ -2074,18 +2133,28 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Returns textual representation of the Trade class.
    */
-  string ToString() const {
-    // @todo
-    // return StringFormat("Margin required: %g/lot", GetMarginRequired());
-    return "";
-  }
+  string const ToString() { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 
   /* Class handlers */
 
   /**
-   * Returns pointer to Chart class.
+   * Returns pointer to IndicatorCandle-based class.
    */
-  Chart *GetChart() { return chart.Ptr(); }
+  IndicatorData *GetSource() {
+    if (!indi_candle.IsSet()) {
+      Print(
+          "Error: Trade has no Candle-based indicator bound. Please pass such object in Trade's constructor or via "
+          "SetSource() method.");
+      DebugBreak();
+    }
+
+    return indi_candle.Ptr();
+  }
+
+  /**
+   * Binds IndicatorCandle-based class.
+   */
+  void SetSource(IndicatorBase *_indi_candle) { indi_candle = _indi_candle; }
 
   /**
    * Returns pointer to Log class.
@@ -2094,12 +2163,16 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
 
   /* Serializers */
 
+  SERIALIZER_EMPTY_STUB
+
   /**
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    // ChartEntry _centry = GetEntry();
-    // _s.PassStruct(THIS_REF, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.PassStruct(THIS_REF, "trade-params", tparams);
+    _s.PassStruct(THIS_REF, "trade-states", tstates);
+    // @todo
+    // _s.PassStruct(THIS_REF, "trade-stats", tstats);
     return SerializerNodeObject;
   }
 };

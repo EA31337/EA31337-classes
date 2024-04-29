@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Market.struct.h"
 
 // Defines enumerations.
@@ -51,12 +51,8 @@ struct IndiKillzonesParams : IndicatorParams {
   // Struct constructor.
   IndiKillzonesParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_PIVOT) {
     SetShift(_shift);
-    tf = _tf;
   };
-  IndiKillzonesParams(IndiKillzonesParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiKillzonesParams(IndiKillzonesParams &_params) { THIS_REF = _params; };
 };
 
 struct Indi_Killzones_Time : MarketTimeForex {
@@ -88,7 +84,7 @@ struct Indi_Killzones_Time : MarketTimeForex {
 /**
  * Implements Pivot Detector.
  */
-class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
+class Indi_Killzones : public Indicator<IndiKillzonesParams> {
  protected:
   Indi_Killzones_Time ikt;
 
@@ -98,17 +94,44 @@ class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
    */
   Indi_Killzones(IndiKillzonesParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_CHART,
                  IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_INDI_KILLZONES_MODE_ENTRY, TYPE_FLOAT,
-                                                                     _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
-                                    _indi_src) {}
-  Indi_Killzones(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_KILLZONES, _tf, _shift) {}
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_INDI_KILLZONES_MODE_ENTRY, TYPE_FLOAT, _idstype,
+                                                   IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
+  Indi_Killzones(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_CHART, IndicatorData *_indi_src = NULL,
+                 int _indi_src_mode = 0)
+      : Indicator(IndiKillzonesParams(),
+                  IndicatorDataParams::GetInstance(FINAL_INDI_KILLZONES_MODE_ENTRY, TYPE_FLOAT, _idstype,
+                                                   IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_CHART; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiKillzonesParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // Killzones uses high and low prices only.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW);
+  }
 
   /**
    * Returns the indicator's value.
    */
-  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     float _value = FLT_MAX;
     int _index = (int)_mode / 2;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
@@ -121,7 +144,9 @@ class Indi_Killzones : public IndicatorTickOrCandleSource<IndiKillzonesParams> {
         ikt.Set(::TimeGMT());
         if (ikt.CheckHours(_index)) {
           // Pass values to check for new highs or lows.
-          ikt.Update(_mode % 2 == 0 ? (float)GetHigh(_ishift) : (float)GetLow(_ishift), _index);
+          ikt.Update(_mode % 2 == 0 ? (float)GetCandle() PTR_DEREF GetHigh(_ishift)
+                                    : (float)GetCandle() PTR_DEREF GetLow(_ishift),
+                     _index);
         }
         // Set a final value.
         _value = _mode % 2 == 0 ? ikt.GetHigh(_index) : ikt.GetLow(_index);

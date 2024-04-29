@@ -29,10 +29,13 @@
 #include "ObjectsCache.h"
 #include "ValueStorage.history.h"
 
+// Forward declarations.
+class ChartBase;
+
 /**
- * Storage to retrieve OHLC.
+ * Storage to retrieve OHLC from Candle indicator.
  */
-class PriceValueStorage : public HistoryValueStorage<double> {
+class AppliedPriceValueStorage : public HistoryValueStorage<double> {
   // Time-frame to fetch price for.
   ENUM_APPLIED_PRICE ap;
 
@@ -40,35 +43,18 @@ class PriceValueStorage : public HistoryValueStorage<double> {
   /**
    * Constructor.
    */
-  PriceValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, ENUM_APPLIED_PRICE _ap = PRICE_OPEN)
-      : ap(_ap), HistoryValueStorage(_symbol, _tf) {}
+  AppliedPriceValueStorage(IndicatorBase *_indi_candle, ENUM_APPLIED_PRICE _ap = PRICE_OPEN)
+      : ap(_ap), HistoryValueStorage(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  PriceValueStorage(const PriceValueStorage &_r) : ap(_r.ap), HistoryValueStorage(_r.symbol, _r.tf) {}
-
-  /**
-   * Returns pointer to PriceValueStorage of a given symbol and time-frame.
-   */
-  static PriceValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_APPLIED_PRICE _ap) {
-    PriceValueStorage *_storage;
-    string _key = Util::MakeKey(_symbol, (int)_tf, (int)_ap);
-    if (!ObjectsCache<PriceValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<PriceValueStorage>::Set(_key, new PriceValueStorage(_symbol, _tf, _ap));
-    }
-
-    if (CheckPointer(_storage) == POINTER_INVALID) {
-      Print("Failure while getting point to object from cache!");
-    }
-
-    return _storage;
-  }
+  AppliedPriceValueStorage(AppliedPriceValueStorage &_r) : ap(_r.ap), HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual double Fetch(int _shift) {
+  double Fetch(int _shift) override {
     switch (ap) {
       case PRICE_OPEN:
       case PRICE_HIGH:
@@ -88,19 +74,7 @@ class PriceValueStorage : public HistoryValueStorage<double> {
     return 0.0;
   }
 
-  double Fetch(ENUM_APPLIED_PRICE _ap, int _shift) {
-    switch (_ap) {
-      case PRICE_OPEN:
-        return iOpen(symbol, tf, RealShift(_shift));
-      case PRICE_HIGH:
-        return iHigh(symbol, tf, RealShift(_shift));
-      case PRICE_LOW:
-        return iLow(symbol, tf, RealShift(_shift));
-      case PRICE_CLOSE:
-        return iClose(symbol, tf, RealShift(_shift));
-    }
-    return 0;
-  }
+  double Fetch(ENUM_APPLIED_PRICE _ap, int _shift) { return indi_candle REF_DEREF GetPrice(_ap, RealShift(_shift)); }
 
   static double GetApplied(ValueStorage<double> &_open, ValueStorage<double> &_high, ValueStorage<double> &_low,
                            ValueStorage<double> &_close, int _shift, ENUM_APPLIED_PRICE _ap) {

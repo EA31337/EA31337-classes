@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "OHLC/Indi_OHLC.mqh"
 #include "Special/Indi_Math.mqh"
 
@@ -34,16 +34,13 @@ struct IndiRSParams : IndicatorParams {
     applied_volume = _applied_volume;
     shift = _shift;
   };
-  IndiRSParams(IndiRSParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiRSParams(IndiRSParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_RS : public IndicatorTickOrCandleSource<IndiRSParams> {
+class Indi_RS : public Indicator<IndiRSParams> {
   DictStruct<int, Ref<Indi_Math>> imath;
 
  public:
@@ -52,29 +49,53 @@ class Indi_RS : public IndicatorTickOrCandleSource<IndiRSParams> {
    */
   Indi_RS(IndiRSParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_MATH, IndicatorData *_indi_src = NULL,
           int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_DIFF, _indi_src_mode),
-            _indi_src) {
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_DIFF, _indi_src_mode),
+                  _indi_src) {
     Init();
   };
-  Indi_RS(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RS, _tf, _shift) {
+  Indi_RS(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_MATH, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : Indicator(IndiRSParams(),
+                  IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE_DIFF, _indi_src_mode),
+                  _indi_src) {
     Init();
   };
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_MATH; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiRSParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // RS uses OHLC.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_OPEN) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
 
   void Init() {
     if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_MATH) {
       IndiOHLCParams _iohlc_params();
-      // @todo Symbol should be already defined for a chart.
-      // @todo If it's not, move initialization to GetValue()/GetEntry() method.
-      Indi_OHLC *_iohlc = Indi_OHLC::GetCached(GetSymbol(), GetTf(), 0);
       IndiMathParams _imath0_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 0, INDI_OHLC_CLOSE, 1);
       IndiMathParams _imath1_p(MATH_OP_SUB, INDI_OHLC_CLOSE, 1, INDI_OHLC_CLOSE, 0);
-      _imath0_p.SetTf(GetTf());
-      _imath1_p.SetTf(GetTf());
       Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_p);
       Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_p);
-      _imath0.Ptr().SetDataSource(_iohlc, 0);
-      _imath1.Ptr().SetDataSource(_iohlc, 0);
       imath.Set(0, _imath0);
       imath.Set(1, _imath1);
     }
@@ -83,10 +104,13 @@ class Indi_RS : public IndicatorTickOrCandleSource<IndiRSParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_MATH:
+        // Updating Maths' data sources to be the same as RS data source.
+        imath.GetByKey(0) REF_DEREF SetDataSource(GetDataSource());
+        imath.GetByKey(1) REF_DEREF SetDataSource(GetDataSource());
         return imath[_mode].Ptr().GetEntryValue();
         break;
       default:
@@ -100,21 +124,4 @@ class Indi_RS : public IndicatorTickOrCandleSource<IndiRSParams> {
    * Checks if indicator entry values are valid.
    */
   virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return true; }
-
-  /* Getters */
-
-  /**
-   * Get applied volume.
-   */
-  ENUM_APPLIED_VOLUME GetAppliedVolume() { return iparams.applied_volume; }
-
-  /* Setters */
-
-  /**
-   * Set applied volume.
-   */
-  void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
-    istate.is_changed = true;
-    iparams.applied_volume = _applied_volume;
-  }
 };

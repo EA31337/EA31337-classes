@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -32,33 +32,55 @@ struct IndiWilliamsADParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\W_AD");
     shift = _shift;
   };
-  IndiWilliamsADParams(IndiWilliamsADParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiWilliamsADParams(IndiWilliamsADParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams> {
+class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_WilliamsAD(IndiWilliamsADParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                   IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src){};
-  Indi_WilliamsAD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_WILLIAMS_AD, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_WilliamsAD(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                  int _indi_src_mode = 0)
+      : Indicator(IndiWilliamsADParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
 
   /**
-   * Built-in version of Williams' AD.
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
-  static double iWAD(string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, "Indi_WilliamsAD");
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiWilliamsADParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // WAD use only high, low and close price.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
+  /**
+   * OnCalculate-based version of Williams' AD as there is no built-in one.
+   */
+  static double iWAD(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
     return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
@@ -81,16 +103,6 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
         Indi_WilliamsAD::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0)));
 
     return _cache.GetTailValue<double>(_mode, _shift);
-  }
-
-  /**
-   * On-indicator version of Williams' AD.
-   */
-  static double iWADOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _mode = 0,
-                                int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(_indi, _symbol, _tf,
-                                                          Util::MakeKey("Indi_WilliamsAD_ON_" + _indi.GetFullName()));
-    return iWADOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
   }
 
   /**
@@ -137,18 +149,19 @@ class Indi_WilliamsAD : public IndicatorTickOrCandleSource<IndiWilliamsADParams>
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_WilliamsAD::iWAD(GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+      case IDATA_ONCALCULATE:
+        _value = iWAD(THIS_PTR, _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), 0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_WilliamsAD::iWADOnIndicator(GetDataSource(), GetSymbol(), GetTf(), _mode, _ishift, THIS_PTR);
+        _value = iWAD(THIS_PTR, _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

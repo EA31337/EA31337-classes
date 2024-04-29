@@ -34,6 +34,7 @@
 #include "ValueStorage.h"
 
 // Forward declarations.
+class IndicatorBase;
 template <typename C>
 class ValueStorage;
 
@@ -43,14 +44,8 @@ class ValueStorage;
 template <typename C>
 class HistoryValueStorage : public ValueStorage<C> {
  protected:
-  // Symbol to fetch history for.
-  string symbol;
-
-  // Time-frame to fetch history for.
-  ENUM_TIMEFRAMES tf;
-
-  // Time of the first bar possible to fetch.
-  datetime start_bar_time;
+  // Indicator used as an OHLC source, e.g. IndicatorCandle.
+  WeakRef<IndicatorData> indi_candle;
 
   // Whether storage operates in as-series mode.
   bool is_series;
@@ -59,9 +54,12 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Constructor.
    */
-  HistoryValueStorage(string _symbol, ENUM_TIMEFRAMES _tf, bool _is_series = false)
-      : symbol(_symbol), tf(_tf), is_series(_is_series) {
-    start_bar_time = ChartStatic::iTime(_symbol, _tf, BarsFromStart() - 1);
+  HistoryValueStorage(IndicatorBase* _indi_candle, bool _is_series = false)
+      : indi_candle(_indi_candle), is_series(_is_series) {
+    if (_indi_candle == nullptr) {
+      Print("You have to pass IndicatorCandle-compatible indicator as parameter to HistoryValueStorage!");
+      DebugBreak();
+    }
   }
 
   /**
@@ -86,17 +84,22 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Number of bars passed from the start. There will be a single bar at the start.
    */
-  int BarsFromStart() const { return Bars(symbol, tf); }
+  int BarsFromStart() {
+    if (!indi_candle.ObjectExists()) {
+      return 0;
+    }
+    return indi_candle REF_DEREF GetBars();
+  }
 
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  virtual int Size() const { return BarsFromStart(); }
+  int Size() override { return BarsFromStart(); }
 
   /**
    * Resizes storage to given size.
    */
-  virtual void Resize(int _size, int _reserve) {
+  void Resize(int _size, int _reserve) override {
     Print("HistoryValueStorage does not implement Resize()!");
     DebugBreak();
   }
@@ -104,12 +107,12 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Checks whether storage operates in as-series mode.
    */
-  virtual bool IsSeries() const { return is_series; }
+  bool IsSeries() const override { return is_series; }
 
   /**
    * Sets storage's as-series mode on or off.
    */
-  virtual bool SetSeries(bool _value) {
+  bool SetSeries(bool _value) override {
     is_series = _value;
     return true;
   }

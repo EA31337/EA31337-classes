@@ -31,12 +31,14 @@
 
 // Includes.
 #include "Chart.mqh"
+#include "./Chart.struct.static.h"
 #include "Data.struct.h"
 #include "Dict.mqh"
 #include "DictObject.mqh"
 #include "EA.enum.h"
 #include "EA.struct.h"
 #include "Market.mqh"
+#include "Platform.h"
 #include "Refs.struct.h"
 #include "SerializerConverter.mqh"
 #include "SerializerCsv.mqh"
@@ -82,7 +84,12 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Init code (called on constructor).
    */
-  void Init() { InitTask(); }
+  void Init() {
+    // Ensuring Platform singleton is already initialized.
+    Platform::Init();
+
+    InitTask();
+  }
 
   /**
    * Process initial task (called on constructor).
@@ -106,9 +113,9 @@ class EA : public Taskable<DataParamEntry> {
     // Add and process tasks.
     Init();
     // Initialize a trade instance for the current chart and symbol.
-    ChartParams _cparams((ENUM_TIMEFRAMES)_Period, _Symbol);
+    Ref<IndicatorBase> _source = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
     TradeParams _tparams(0, 1.0f, 0, eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
-    Trade _trade(_tparams, _cparams);
+    Trade _trade(_tparams, _source.Ptr());
     trade.Set(_Symbol, _trade);
     logger.Link(_trade.GetLogger());
     logger.SetLevel(eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
@@ -201,7 +208,7 @@ class EA : public Taskable<DataParamEntry> {
     _signals |= _strat.SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss) ? SIGNAL_CLOSE_SELL_MAIN : 0;
     _signals |= !_strat.SignalCloseFilter(ORDER_TYPE_SELL, _scfm) ? SIGNAL_CLOSE_SELL_FILTER : 0;
     _signals |= !_strat.SignalCloseFilterTime(_scft) ? SIGNAL_CLOSE_TIME_FILTER : 0;
-    TradeSignalEntry _sentry(_signals, _strat.Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF), _strat.Get<long>(STRAT_PARAM_ID));
+    TradeSignalEntry _sentry(_signals, _strat.GetSource() PTR_DEREF GetTf(), _strat.Get<long>(STRAT_PARAM_ID));
     _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_STRENGTH), _strat.SignalOpen(_sofm, _sol, _ss));
     _sentry.Set(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME), ::TimeGMT());
     return _sentry;
@@ -278,7 +285,7 @@ class EA : public Taskable<DataParamEntry> {
         string _comment_close =
             _strat != NULL && _sig_close != 0.0f ? _strat.GetOrderCloseComment() : __FUNCTION_LINE__;
         // Check if we should close the orders.
-        _trade_allowed &= _strat.GetTrade().IsTradeAllowed(_sig_close != 0.0f);
+        // _trade_allowed &= _strat.GetTrade().IsTradeAllowed(_sig_close != 0.0f);
         if (_sig_close != 0.0f && _trade_allowed) {
           if (_sig_close >= 0.5f) {
             // Close signal for buy order.
@@ -304,7 +311,7 @@ class EA : public Taskable<DataParamEntry> {
         unsigned int _sig_f = eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER));
         string _comment_open = _strat != NULL && _sig_open != 0.0f ? _strat.GetOrderOpenComment() : __FUNCTION_LINE__;
         // Open orders on signals.
-        _trade_allowed &= _strat.GetTrade().IsTradeAllowed(_sig_open != 0.0f);
+        // _trade_allowed &= _strat.GetTrade().IsTradeAllowed(_sig_open != 0.0f);
         if (_sig_open != 0.0f && _trade_allowed) {
           if (_sig_open >= 0.5f) {
             // Open signal for buy.
@@ -373,29 +380,24 @@ class EA : public Taskable<DataParamEntry> {
    */
   virtual bool TradeRequest(ENUM_ORDER_TYPE _cmd, string _symbol = NULL, Strategy *_strat = NULL) {
     bool _result = false;
-    Trade *_etrade = trade.GetByKey(_symbol);
-    Trade *_strade = _strat.GetTrade();
+    Trade *_trade = trade.GetByKey(_symbol);
     // Prepare a request.
-    MqlTradeRequest _request = _etrade.GetTradeOpenRequest(_cmd);
+    MqlTradeRequest _request = _trade.GetTradeOpenRequest(_cmd);
     _request.comment = _strat.GetOrderOpenComment();
     _request.magic = _strat.Get<long>(STRAT_PARAM_ID);
     _request.price = SymbolInfoStatic::GetOpenOffer(_symbol, _cmd);
     _request.volume = fmax(_strat.Get<float>(STRAT_PARAM_LS), SymbolInfoStatic::GetVolumeMin(_symbol));
-    _request.volume = _etrade.NormalizeLots(_request.volume);
+
+    // @fixit Uncomment
+    // _request.volume = _trade.NormalizeLots(_request.volume);
+
     // Check strategy's trade states.
     switch (_request.action) {
       case TRADE_ACTION_DEAL:
-        if (!_etrade.IsTradeRecommended()) {
+        if (!_trade.IsTradeRecommended()) {
           if (logger.GetLevel() > V_INFO) {
             logger.Debug(
-                StringFormat("Trade not opened due to EA trading states (%d).", _strade.GetStates().GetStates()),
-                __FUNCTION_LINE__);
-          }
-          return _result;
-        } else if (!_strade.IsTradeRecommended()) {
-          if (logger.GetLevel() > V_INFO) {
-            logger.Debug(
-                StringFormat("Trade not opened due to strategy trading states (%d).", _strade.GetStates().GetStates()),
+                StringFormat("Trade not opened due to EA trading states (%d).", _trade.GetStates().GetStates()),
                 __FUNCTION_LINE__);
           }
           return _result;
@@ -406,13 +408,13 @@ class EA : public Taskable<DataParamEntry> {
     OrderParams _oparams;
     _strat.OnOrderOpen(_oparams);
     // Send the request.
-    _result = _etrade.RequestSend(_request, _oparams);
+    _result = _trade.RequestSend(_request, _oparams);
     if (!_result) { //  && _strade.IsTradeRecommended(
             logger.Debug(
             StringFormat("Error while sending a trade request! Entry: %s",
                          SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
             __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
-      if (_etrade.IsTradeRecommended() && _strade.IsTradeRecommended()) {
+      if (_trade.IsTradeRecommended()) {
         logger.Debug(
             StringFormat("Error while sending a trade request! Entry: %s",
                          SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
@@ -441,8 +443,9 @@ class EA : public Taskable<DataParamEntry> {
         ProcessPeriods();
         // Process all enabled strategies and retrieve their signals.
         for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+          bool _can_trade = true;
           Strategy *_strat = iter.Value().Ptr();
-          Trade *_trade = _strat.GetTrade();
+          Trade *_trade = trade.GetByKey(_Symbol);
           if (_strat.IsEnabled()) {
             if (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
               // Process when new periods started.
@@ -452,7 +455,7 @@ class EA : public Taskable<DataParamEntry> {
               eresults.stg_processed_periods++;
             }
             if (_strat.TickFilter(_tick)) {
-              bool _can_trade = !_trade.HasState(TRADE_STATE_MODE_DISABLED);
+              _can_trade &= !_trade.HasState(TRADE_STATE_MODE_DISABLED);
               _can_trade &= !_strat.IsSuspended();
               TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat.Get<int>(STRAT_PARAM_SHIFT));
               if (_sentry.Get<unsigned int>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
@@ -505,7 +508,7 @@ class EA : public Taskable<DataParamEntry> {
         Strategy *_strati = iter.Value().Ptr();
         IndicatorData *_indi = _strati.GetIndicator();
         if (_indi != NULL) {
-          ENUM_TIMEFRAMES _itf = _indi.GetParams().tf.GetTf();
+          ENUM_TIMEFRAMES _itf = _indi PTR_DEREF GetTf();
           IndicatorDataEntry _ientry = _indi.GetEntry();
           if (!data_indi.KeyExists(_itf)) {
             // Create new timeframe buffer if does not exist.
@@ -758,7 +761,7 @@ class EA : public Taskable<DataParamEntry> {
   bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _magic_no = 0, int _type = 0) {
     bool _result = true;
     _magic_no = _magic_no > 0 ? _magic_no : rand();
-    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf);
+    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, THIS_PTR);
     _strat.Ptr().Set<long>(STRAT_PARAM_ID, _magic_no);
     _strat.Ptr().Set<long>(TRADE_PARAM_MAGIC_NO, _magic_no);
     _strat.Ptr().Set<ENUM_LOG_LEVEL>(STRAT_PARAM_LOG_LEVEL,

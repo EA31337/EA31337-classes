@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../../BufferStruct.mqh"
-#include "../../Indicator/IndicatorTickOrCandleSource.h"
+#include "../../Indicator.mqh"
 #include "../../Math.enum.h"
 
 enum ENUM_MATH_OP_MODE { MATH_OP_MODE_BUILTIN, MATH_OP_MODE_CUSTOM_FUNCTION };
@@ -41,8 +41,7 @@ struct IndiMathParams : IndicatorParams {
 
   // Struct constructor.
   IndiMathParams(ENUM_MATH_OP _op = MATH_OP_SUB, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
-                 unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
-                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+                 unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0)
       : IndicatorParams(INDI_SPECIAL_MATH) {
     mode_1 = _mode_1;
     mode_2 = _mode_2;
@@ -51,13 +50,11 @@ struct IndiMathParams : IndicatorParams {
     shift = _shift;
     shift_1 = _shift_1;
     shift_2 = _shift_2;
-    tf = _tf;
   };
 
   // Struct constructor.
   IndiMathParams(MathCustomOpFunction _op, unsigned int _mode_1 = 0, unsigned int _mode_2 = 1,
-                 unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0,
-                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+                 unsigned int _shift_1 = 0, unsigned int _shift_2 = 0, int _shift = 0)
       : IndicatorParams(INDI_SPECIAL_MATH) {
     mode_1 = _mode_1;
     mode_2 = _mode_2;
@@ -66,34 +63,58 @@ struct IndiMathParams : IndicatorParams {
     shift = _shift;
     shift_1 = _shift_1;
     shift_2 = _shift_2;
-    tf = _tf;
   };
-  IndiMathParams(IndiMathParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiMathParams(IndiMathParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Volume Rate of Change indicator.
  */
-class Indi_Math : public IndicatorTickOrCandleSource<IndiMathParams> {
+class Indi_Math : public Indicator<IndiMathParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_Math(IndiMathParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData *_indi_src = NULL,
             int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src){};
-  Indi_Math(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_SPECIAL_MATH, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_Math(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : Indicator(IndiMathParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiMathParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // RS uses OHLC.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_OPEN) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
 
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {

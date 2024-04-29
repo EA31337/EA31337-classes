@@ -36,31 +36,19 @@ class VolumeValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  VolumeValueStorage(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : HistoryValueStorage(_symbol, _tf) {}
+  VolumeValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  VolumeValueStorage(const VolumeValueStorage &_r) : HistoryValueStorage(_r.symbol, _r.tf) {}
-
-  /**
-   * Returns pointer to VolumeValueStorage of a given symbol and time-frame.
-   */
-  static VolumeValueStorage *GetInstance(string _symbol, ENUM_TIMEFRAMES _tf) {
-    VolumeValueStorage *_storage;
-    string _key = _symbol + "/" + IntegerToString((int)_tf);
-    if (!ObjectsCache<VolumeValueStorage>::TryGet(_key, _storage)) {
-      _storage = ObjectsCache<VolumeValueStorage>::Set(_key, new VolumeValueStorage(_symbol, _tf));
-    }
-    return _storage;
-  }
+  VolumeValueStorage(VolumeValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual long Fetch(int _shift) {
+  long Fetch(int _shift) override {
     ResetLastError();
-    long _volume = iVolume(symbol, tf, RealShift(_shift));
+    long _volume = indi_candle REF_DEREF GetVolume(RealShift(_shift));
     if (_LastError != ERR_NO_ERROR) {
       Print("Cannot fetch iVolume! Error: ", _LastError);
       DebugBreak();

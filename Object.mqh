@@ -110,7 +110,7 @@ class Object : public Dynamic {
   /**
    * Returns text representation of the object.
    */
-  virtual const string ToJSON() { return StringFormat("{ \"type\": \"%s\" }", typename(this)); }
+  virtual string ToJSON() { return StringFormat("{ \"type\": \"%s\" }", typename(this)); }
 
   /**
    * Safely delete the object.

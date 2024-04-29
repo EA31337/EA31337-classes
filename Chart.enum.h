@@ -55,8 +55,8 @@ enum ENUM_APPLIED_PRICE {
 enum ENUM_CHART_PARAM {
   CHART_PARAM_NONE = 0,  // None
   CHART_PARAM_ID,        // Chart ID
-  CHART_PARAM_SYMBOL,    // Symbol
-  CHART_PARAM_TF,        // Timeframe
+                         //  CHART_PARAM_SYMBOL,    // Symbol
+                         //  CHART_PARAM_TF,        // Timeframe
   CHART_PARAM_TFI,       // Timeframe index
   FINAL_ENUM_CHART_PARAM
 };

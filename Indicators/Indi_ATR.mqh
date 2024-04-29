@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -39,10 +39,7 @@ struct IndiATRParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\ATR");
   };
-  IndiATRParams(IndiATRParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiATRParams(IndiATRParams &_params) { THIS_REF = _params; };
 };
 
 /**
@@ -50,17 +47,29 @@ struct IndiATRParams : IndicatorParams {
  *
  * Note: It doesn't give independent signals. It is used to define volatility (trend strength).
  */
-class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
+class Indi_ATR : public Indicator<IndiATRParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_ATR(IndiATRParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
            int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src) {}
-  Indi_ATR(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ATR, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {}
+  Indi_ATR(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiATRParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
    * Returns the indicator value.
@@ -105,7 +114,7 @@ class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -122,15 +131,17 @@ class Indi_ATR : public IndicatorTickOrCandleSource<IndiATRParams> {
   }
 
   /**
-   * Returns reusable indicator for a given parameters.
+   * Returns reusable indicator with the same candle indicator as given indicator's one.
    */
-  static Indi_ATR *GetCached(string _symbol, ENUM_TIMEFRAMES _tf, int _period) {
+  static Indi_ATR *GetCached(IndicatorData *_indi, int _period) {
     Indi_ATR *_ptr;
-    string _key = Util::MakeKey(_symbol, (int)_tf, _period);
+    // There will be only one Indi_ATR per IndicatorCandle instance.
+    string _key = Util::MakeKey(_indi PTR_DEREF GetCandle() PTR_DEREF GetId());
     if (!Objects<Indi_ATR>::TryGet(_key, _ptr)) {
-      IndiATRParams _p(_period, _tf);
-      _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_p));
-      _ptr.SetSymbol(_symbol);
+      IndiATRParams _params(_period);
+      _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_params));
+      // Assigning the same candle indicator for ATR as in _indi.
+      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }

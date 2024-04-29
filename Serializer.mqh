@@ -449,7 +449,7 @@ class Serializer {
               Convert::StringToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _string), value);
               break;
             default:
-              Print("Error: Wrong param type!");
+              Print("Error: Wrong param type ", paramType, "!");
               SetUserError(ERR_INVALID_PARAMETER);
               DebugBreak();
           }

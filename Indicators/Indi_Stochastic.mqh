@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -52,28 +52,38 @@ struct IndiStochParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\Stochastic");
   };
-  IndiStochParams(IndiStochParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiStochParams(IndiStochParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Stochastic Oscillator.
  */
-class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
+class Indi_Stochastic : public Indicator<IndiStochParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_Stochastic(IndiStochParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
                   int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype,
-                                                                     IDATA_RANGE_RANGE, _indi_src_mode),
-                                    _indi_src) {}
-  Indi_Stochastic(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_STOCHASTIC, _tf, _shift) {}
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
+                                                   _indi_src_mode),
+                  _indi_src) {}
+  Indi_Stochastic(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                  int _indi_src_mode = 0)
+      : Indicator(IndiStochParams(),
+                  IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
+                                                   _indi_src_mode),
+                  _indi_src) {}
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
    * Calculates the Stochastic Oscillator and returns its value.
@@ -124,7 +134,7 @@ class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -145,9 +155,7 @@ class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return _entry.IsWithinRange<double>(0, 101);
-  }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return _entry.IsWithinRange<double>(0, 101); }
 
   /* Getters */
 

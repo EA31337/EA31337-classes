@@ -26,12 +26,13 @@
 
 // Includes.
 //#include "../Serializer.mqh"
+#include "../Refs.mqh"
 #include "AccountBase.struct.h"
 
 /**
  * Class to provide functions that return parameters of the current account.
  */
-class AccountBase {
+class AccountBase : public Dynamic {
  protected:
   /**
    * Init code (called on constructor).

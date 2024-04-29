@@ -37,13 +37,18 @@ class Chart;
 #include "Array.mqh"
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
+#include "Chart.struct.tf.h"
+#include "ChartBase.h"
+#include "ChartMt.h"
 #include "DateTime.mqh"
 #include "DrawIndicator.mqh"
+#include "Flags.h"
 #include "Indicator.define.h"
 #include "Indicator.enum.h"
 #include "Indicator.struct.cache.h"
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
+#include "Log.mqh"
 #include "Object.mqh"
 #include "Refs.mqh"
 #include "Serializer.mqh"
@@ -54,14 +59,10 @@ class Chart;
 /**
  * Class to deal with indicators.
  */
-class IndicatorBase : public Chart {
+class IndicatorBase : public Object {
  protected:
   IndicatorState istate;
-  void* mydata;
-  int calc_start_bar;  // Index of the first valid bar (from 0).
-  bool indicator_builtin;
-  long last_tick_time;  // Time of the last Tick() call.
-  int flags;            // Flags such as INDI_FLAG_INDEXABLE_BY_SHIFT.
+  Ref<Log> logger;
 
  public:
   /* Indicator enumerations */
@@ -81,27 +82,14 @@ class IndicatorBase : public Chart {
   /**
    * Class constructor.
    */
-  IndicatorBase(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : Chart(_tf, _symbol) {
-    // By default, indicator is indexable only by shift and data source must be also indexable by shift.
-    flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
-    calc_start_bar = 0;
-    last_tick_time = 0;
-  }
-
-  /**
-   * Class constructor.
-   */
-  IndicatorBase(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : Chart(_tfi, _symbol) {
-    // By default, indicator is indexable only by shift and data source must be also indexable by shift.
-    flags = INDI_FLAG_INDEXABLE_BY_SHIFT | INDI_FLAG_SOURCE_REQ_INDEXABLE_BY_SHIFT;
-    calc_start_bar = 0;
-    last_tick_time = 0;
-  }
+  IndicatorBase() {}
 
   /**
    * Class deconstructor.
    */
   virtual ~IndicatorBase() { ReleaseHandle(); }
+
+  /* Operator overloading methods */
 
   /* Buffer methods */
 
@@ -181,77 +169,26 @@ class IndicatorBase : public Chart {
   /* Getters */
 
   /**
-   * Returns indicator's flags.
-   */
-  int GetFlags() { return flags; }
-
-  /**
-   * Gets an indicator's chart parameter value.
-   */
-  template <typename T>
-  T Get(ENUM_CHART_PARAM _param) {
-    return Chart::Get<T>(_param);
-  }
-
-  /**
    * Gets an indicator's state property value.
    */
   template <typename T>
-  T Get(STRUCT_ENUM_INDICATOR_STATE_PROP _prop) {
+  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
     return istate.Get<T>(_prop);
   }
 
   /**
-   * Gets number of modes available to retrieve by GetValue().
+   * Returns logger.
    */
-  virtual int GetModeCount() { return 0; }
+  Log* GetLogger() {
+    if (!logger.IsSet()) {
+      logger = new Log();
+    }
+    return logger.Ptr();
+  }
 
   /* Getters */
 
-  /**
-   * Whether data source is selected.
-   */
-  virtual bool HasDataSource(bool _try_initialize = false) { return false; }
-
-  /**
-   * Returns currently selected data source doing validation.
-   */
-  virtual IndicatorBase* GetDataSource() { return NULL; }
-
-  /**
-   * Get indicator type.
-   */
-  virtual ENUM_INDICATOR_TYPE GetType() { return INDI_NONE; }
-
-  /**
-   * Get data type of indicator.
-   */
-  virtual ENUM_DATATYPE GetDataType() { return (ENUM_DATATYPE)-1; }
-
-  /**
-   * Get name of the indicator.
-   */
-  virtual string GetName() { return EnumToString(GetType()); }
-
-  /**
-   * Get full name of the indicator (with "over ..." part).
-   */
-  virtual string GetFullName() { return GetName(); }
-
-  /**
-   * Get more descriptive name of the indicator.
-   */
-  virtual string GetDescriptiveName() { return GetName(); }
-
   /* Setters */
-
-  /**
-   * Sets an indicator's chart parameter value.
-   */
-  template <typename T>
-  void Set(ENUM_CHART_PARAM _param, T _value) {
-    Chart::Set<T>(_param, _value);
-  }
 
   /**
    * Sets an indicator's state property value.
@@ -276,7 +213,7 @@ class IndicatorBase : public Chart {
   /**
    * Sets indicator's symbol.
    */
-  void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
+  // void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
 
   /* Other methods */
 
@@ -300,6 +237,21 @@ class IndicatorBase : public Chart {
   /* Virtual methods */
 
   /**
+   * Get name of the indicator.
+   */
+  virtual string GetName() = NULL;
+
+  /**
+   * Get full name of the indicator (with "over ..." part).
+   */
+  virtual string GetFullName() { return GetName(); }
+
+  /**
+   * Get more descriptive name of the indicator.
+   */
+  virtual string GetDescriptiveName() { return GetName(); }
+
+  /**
    * Returns indicator value for a given shift and mode.
    */
   // virtual double GetValue(int _shift = 0, int _mode = 0) = NULL;
@@ -319,11 +271,6 @@ class IndicatorBase : public Chart {
    * Returns stored data in human-readable format.
    */
   // virtual bool ToString() = NULL; // @fixme?
-
-  /**
-   * Gets indicator's symbol.
-   */
-  string GetSymbol() { return Get<string>(CHART_PARAM_SYMBOL); }
 
   /* Defines MQL backward compatible methods */
 

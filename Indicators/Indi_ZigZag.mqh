@@ -21,8 +21,15 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
+
+// Defines.
+#ifdef __MQL4__
+#define INDI_ZIGZAG_PATH "ZigZag"
+#else
+#define INDI_ZIGZAG_PATH "Examples\\ZigZag"
+#endif
 
 // Enums.
 // Indicator mode identifiers used in ZigZag indicator.
@@ -37,12 +44,9 @@ struct IndiZigZagParams : IndicatorParams {
   IndiZigZagParams(unsigned int _depth = 12, unsigned int _deviation = 5, unsigned int _backstep = 3, int _shift = 0)
       : depth(_depth), deviation(_deviation), backstep(_backstep), IndicatorParams(INDI_ZIGZAG) {
     shift = _shift;
-    SetCustomIndicatorName("Examples\\ZigZag");
+    SetCustomIndicatorName(INDI_ZIGZAG_PATH);
   };
-  IndiZigZagParams(IndiZigZagParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiZigZagParams(IndiZigZagParams &_params) { THIS_REF = _params; };
 };
 
 enum EnSearchMode {
@@ -54,19 +58,53 @@ enum EnSearchMode {
 /**
  * Implements ZigZag indicator.
  */
-class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
+class Indi_ZigZag : public Indicator<IndiZigZagParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_ZigZag(IndiZigZagParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
               int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE, _idstype,
-                                                                     IDATA_RANGE_PRICE_ON_SIGNAL),
-                                    _indi_src) {}
-  Indi_ZigZag(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_ZIGZAG, _tf, _shift) {}
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                   IDATA_RANGE_PRICE_ON_SIGNAL),
+                  _indi_src) {}
+  Indi_ZigZag(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(IndiZigZagParams(),
+                  IndicatorDataParams::GetInstance(FINAL_ZIGZAG_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                   IDATA_RANGE_PRICE_ON_SIGNAL),
+                  _indi_src) {}
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+#ifdef __MQL__
+    return IDATA_ICUSTOM | IDATA_ONCALCULATE | IDATA_INDICATOR;
+#else
+    return IDATA_ONCALCULATE | IDATA_INDICATOR | IDATA_ICUSTOM;
+#endif
+  }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiZigZagParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // ZigZag uses only high and low prices.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW);
+  }
 
   /**
    * Returns value for ZigZag indicator.
@@ -107,10 +145,9 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
   /**
    * Returns value for ZigZag indicator.
    */
-  static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep,
-                        ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, Indi_ZigZag *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf,
-                                                       Util::MakeKey("Indi_ZigZag", _depth, _deviation, _backstep));
+  static double iZigZag(IndicatorData *_indi, int _depth, int _deviation, int _backstep, ENUM_ZIGZAG_LINE _mode = 0,
+                        int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
     return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
                           _cache);
   }
@@ -135,18 +172,6 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
                                                     _deviation, _backstep));
 
     return _cache.GetTailValue<double>(_mode, _shift);
-  }
-
-  /**
-   * On-indicator version of ZigZag indicator.
-   */
-  static double iZigZagOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _depth,
-                                   int _deviation, int _backstep, int _mode = 0, int _shift = 0,
-                                   IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf, Util::MakeKey("Indi_ZigZag_ON_" + _indi.GetFullName(), _depth, _deviation, _backstep));
-    return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
-                          _cache);
   }
 
   /**
@@ -211,7 +236,7 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
         if ((low[shift] - val) > InpDeviation * _Point) {
           val = 0.0;
         } else {
-          for (back = 1; back <= InpBackstep; back++) {
+          for (back = InpBackstep; back >= 1 && shift >= back; back--) {
             res = LowMapBuffer[shift - back].Get();
             if ((res != 0) && (res > val)) LowMapBuffer[shift - back] = 0.0;
           }
@@ -227,7 +252,7 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
         if ((val - high[shift].Get()) > InpDeviation * _Point) {
           val = 0.0;
         } else {
-          for (back = 1; back <= InpBackstep; back++) {
+          for (back = InpBackstep; back >= 1 && shift >= back; back--) {
             res = HighMapBuffer[shift - back].Get();
             if ((res != 0) && (res < val)) HighMapBuffer[shift - back] = 0.0;
           }
@@ -348,13 +373,13 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), /*[*/ GetDepth(), GetDeviation(), GetBackstep() /*]*/,
-                                      (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
+      case IDATA_ONCALCULATE:
+        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value =
@@ -362,8 +387,7 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
                                        GetDeviation(), GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ZigZag::iZigZagOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetDepth(),
-                                                 GetDeviation(), GetBackstep() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -374,9 +398,7 @@ class Indi_ZigZag : public IndicatorTickOrCandleSource<IndiZigZagParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return !_entry.HasValue<double>(EMPTY_VALUE);
-  }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return !_entry.HasValue<double>(EMPTY_VALUE); }
 
   /* Getters */
 

@@ -48,7 +48,7 @@ class Objects {
   /**
    * Tries to retrieve pointer to object for a given key. Returns true if object did exist.
    */
-  static bool TryGet(string& key, C*& out_ptr) {
+  static bool TryGet(CONST_REF_TO(string) key, C*& out_ptr) {
     int position;
     if (!GetObjects().KeyExists(key, position)) {
       out_ptr = NULL;
@@ -62,7 +62,7 @@ class Objects {
   /**
    * Stores object pointer with a given key.
    */
-  static C* Set(string& key, C* ptr) {
+  static C* Set(CONST_REF_TO(string) key, C* ptr) {
     Ref<C> _ref(ptr);
     GetObjects().Set(key, _ref);
     return ptr;

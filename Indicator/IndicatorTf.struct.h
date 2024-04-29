@@ -35,6 +35,7 @@
 
 /* Structure for IndicatorTf class parameters. */
 struct IndicatorTfParams : IndicatorParams {
+  ChartTf tf;
   unsigned int spc;  // Seconds per candle.
   // Struct constructor.
   IndicatorTfParams(unsigned int _spc = 60) : spc(_spc) {}

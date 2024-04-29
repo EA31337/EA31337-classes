@@ -221,32 +221,34 @@ class DictObject : public DictBase<K, V> {
     DictSlot<K, V>* keySlot = this PTR_DEREF GetSlotByKey(dictSlotsRef, key, position);
 
     if (keySlot == NULL && !this PTR_DEREF IsGrowUpAllowed()) {
-      // Resize is prohibited.
-      return false;
+      // Resize is prohibited, so we will just overwrite some slot.
+      allow_resize = false;
     }
 
-    // Will resize dict if there were performance problems before.
-    if (allow_resize && this PTR_DEREF IsGrowUpAllowed() && !dictSlotsRef.IsPerformant()) {
-      if (!GrowUp()) {
-        return false;
-      }
-      // We now have new positions of slots, so we have to take the corrent slot again.
-      keySlot = this PTR_DEREF GetSlotByKey(dictSlotsRef, key, position);
-    }
-
-    if (keySlot == NULL && dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {
-      // No DictSlotsRef.DictSlots available.
-      if (this PTR_DEREF overflow_listener != NULL) {
-        if (!this PTR_DEREF overflow_listener(DICT_OVERFLOW_REASON_FULL, dictSlotsRef._num_used, 0)) {
-          // Overwriting slot pointed exactly by key's position in the hash table (we don't check for possible
-          // conflicts).
-          keySlot = &dictSlotsRef.DictSlots[this PTR_DEREF Hash(key) % ArraySize(dictSlotsRef.DictSlots)];
+    if (allow_resize) {
+      // Will resize dict if there were performance problems before or there is no slots.
+      if (this PTR_DEREF IsGrowUpAllowed() && !dictSlotsRef.IsPerformant()) {
+        if (!GrowUp()) {
+          return false;
         }
+        // We now have new positions of slots, so we have to take the corrent slot again.
+        keySlot = this PTR_DEREF GetSlotByKey(dictSlotsRef, key, position);
       }
 
-      if (keySlot == NULL) {
-        // We need to expand array of DictSlotsRef.DictSlots.
-        if (!GrowUp()) return false;
+      if (keySlot == NULL && dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {
+        // No DictSlotsRef.DictSlots available.
+        if (this PTR_DEREF overflow_listener != NULL) {
+          if (!this PTR_DEREF overflow_listener(DICT_OVERFLOW_REASON_FULL, dictSlotsRef._num_used, 0)) {
+            // Overwriting slot pointed exactly by key's position in the hash table (we don't check for possible
+            // conflicts).
+            keySlot = &dictSlotsRef.DictSlots[this PTR_DEREF Hash(key) % ArraySize(dictSlotsRef.DictSlots)];
+          }
+        }
+
+        if (keySlot == NULL) {
+          // We need to expand array of DictSlotsRef.DictSlots.
+          if (!GrowUp()) return false;
+        }
       }
     }
 
@@ -284,8 +286,8 @@ class DictObject : public DictBase<K, V> {
       if (_overwrite_slot) {
         // Overwriting starting position for faster further lookup.
         position = _starting_position;
-      } else {
-        // Slot overwrite is not needed. Using empty slot PTR_DEREF
+      } else if (!dictSlotsRef.DictSlots[position].IsUsed()) {
+        // If slot isn't already used then we increment number of used slots.
         ++dictSlotsRef._num_used;
       }
 

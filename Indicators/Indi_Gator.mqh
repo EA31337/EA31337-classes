@@ -28,7 +28,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -93,16 +93,13 @@ struct IndiGatorParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\Gator");
   };
-  IndiGatorParams(IndiGatorParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiGatorParams(IndiGatorParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Gator oscillator.
  */
-class Indi_Gator : public IndicatorTickOrCandleSource<IndiGatorParams> {
+class Indi_Gator : public Indicator<IndiGatorParams> {
  protected:
   /* Protected methods */
 
@@ -117,16 +114,31 @@ class Indi_Gator : public IndicatorTickOrCandleSource<IndiGatorParams> {
    */
   Indi_Gator(IndiGatorParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
              int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_GATOR_LINE_HISTOGRAM_ENTRY, TYPE_DOUBLE,
-                                                                     _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-                                    _indi_src) {
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_GATOR_LINE_HISTOGRAM_ENTRY, TYPE_DOUBLE, _idstype,
+                                                   IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
     Init();
   }
-  Indi_Gator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_GATOR, _tf, _shift) {
+  Indi_Gator(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : Indicator(IndiGatorParams(),
+                  IndicatorDataParams::GetInstance(FINAL_GATOR_LINE_HISTOGRAM_ENTRY, TYPE_DOUBLE, _idstype,
+                                                   IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
     Init();
   }
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+ public:
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
    * Returns the indicator value.
@@ -186,7 +198,7 @@ class Indi_Gator : public IndicatorTickOrCandleSource<IndiGatorParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -212,8 +224,8 @@ class Indi_Gator : public IndicatorTickOrCandleSource<IndiGatorParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
-    Indicator<IndiGatorParams>::GetEntryAlter(_entry);
+  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
+    Indicator<IndiGatorParams>::GetEntryAlter(_entry, _shift);
 #ifdef __MQL4__
     // @todo: Can we calculate upper and lower histogram color in MT4?
     // @see: https://docs.mql4.com/indicators/igator
@@ -271,7 +283,7 @@ class Indi_Gator : public IndicatorTickOrCandleSource<IndiGatorParams> {
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

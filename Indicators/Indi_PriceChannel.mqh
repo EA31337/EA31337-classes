@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "Indi_ZigZag.mqh"
 
 // Structs.
@@ -34,34 +34,53 @@ struct IndiPriceChannelParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Price_Channel");
     shift = _shift;
   };
-  IndiPriceChannelParams(IndiPriceChannelParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiPriceChannelParams(IndiPriceChannelParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements Price Channel indicator.
  */
-class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelParams> {
+class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_PriceChannel(IndiPriceChannelParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                     IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src){};
-  Indi_PriceChannel(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_PRICE_CHANNEL, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_PriceChannel(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                    int _indi_src_mode = 0)
+      : Indicator(IndiPriceChannelParams(),
+                  IndicatorDataParams::GetInstance(3, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
 
   /**
-   * Returns value for Price Channel indicator.
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
-  static double iPriceChannel(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _mode = 0, int _shift = 0,
-                              IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_PriceChannel", _period));
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiPriceChannelParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // PC uses high and low prices only.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH | PRICE_LOW);
+  }
+
+  /**
+   * OnCalculate-based version of Price Channel indicator as there is no built-in one.
+   */
+  static double iPriceChannel(IndicatorData *_indi, int _period, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period));
     return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
   }
 
@@ -88,16 +107,6 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
   }
 
   /**
-   * On-indicator version of Price Channel.
-   */
-  static double iPriceChannelOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                         int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf, Util::MakeKey("Indi_PriceChannel_ON_" + _indi.GetFullName(), _period));
-    return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
-  }
-
-  /**
    * OnCalculate() method for Price Channel indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &ExtHighBuffer,
@@ -117,20 +126,20 @@ class Indi_PriceChannel : public IndicatorTickOrCandleSource<IndiPriceChannelPar
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_PriceChannel::iPriceChannel(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
+      case IDATA_ONCALCULATE:
+        _value = iPriceChannel(THIS_PTR, GetPeriod(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_PriceChannel::iPriceChannelOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
-                                                             /*[*/ GetPeriod() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = iPriceChannel(THIS_PTR, GetPeriod(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

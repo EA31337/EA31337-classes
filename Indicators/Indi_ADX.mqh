@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "Price/Indi_Price.mqh"
 
 #ifndef __MQL4__
@@ -38,24 +38,19 @@ struct IndiADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  IndiADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0,
-                ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+  IndiADXParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
       : period(_period), applied_price(_ap), IndicatorParams(INDI_ADX) {
     SetShift(_shift);
     if (custom_indi_name == "") {
       SetCustomIndicatorName("Examples\\ADX");
     }
   };
-  IndiADXParams(IndiADXParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
 };
 
 /**
  * Implements the Average Directional Movement Index indicator.
  */
-class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
+class Indi_ADX : public Indicator<IndiADXParams> {
  protected:
   /* Protected methods */
 
@@ -67,14 +62,36 @@ class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
    */
   Indi_ADX(IndiADXParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
            int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, _idstype,
-                                                                     IDATA_RANGE_RANGE, _indi_src_mode),
-                                    _indi_src) {
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
+                                                   _indi_src_mode),
+                  _indi_src) {
     Init();
   }
-  Indi_ADX(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_ADX, _tf, _shift) {
+
+  Indi_ADX(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiADXParams(),
+                  IndicatorDataParams::GetInstance(FINAL_INDI_ADX_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_RANGE,
+                                                   _indi_src_mode),
+                  _indi_src) {
     Init();
+  }
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
+
+  /**
+   * Checks if indicator entry values are valid.
+   */
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return Indicator<IndiADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
   }
 
   /**
@@ -90,7 +107,10 @@ class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
                                                          // MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
                      int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
-    return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
+    Print("We'll now retrieve value from ::iADX(", _symbol, ", ", EnumToString(_tf), ", ", _shift, ")...");
+    double _value = ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
+    Print("value = \"", _value, "\", LastError: ", _LastError);
+    return _value;
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
@@ -123,7 +143,7 @@ class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -141,13 +161,6 @@ class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
     return _value;
   }
 
-  /**
-   * Checks if indicator entry values are valid.
-   */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    return Indicator<IndiADXParams>::IsValidEntry(_entry) && _entry.IsWithinRange(0.0, 100.0);
-  }
-
   /* Getters */
 
   /**
@@ -160,7 +173,7 @@ class Indi_ADX : public IndicatorTickOrCandleSource<IndiADXParams> {
    *
    * Note: Not used in MT5.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

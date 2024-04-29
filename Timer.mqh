@@ -132,7 +132,7 @@ class Timer : public Object {
   /**
    * Print timer times.
    */
-  virtual const string ToString() {
+  string const ToString() override {
     return StringFormat("%s(%d)=%d-%dms,med=%dms,sum=%dms", GetName(), ArraySize(this PTR_DEREF data), GetMin(),
                         GetMax(), GetMedian(), GetSum());
   }

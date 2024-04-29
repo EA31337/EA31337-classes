@@ -63,9 +63,6 @@
  * root.childNodes.Push(child2);
  */
 
-// Forward class declaration.
-class Dynamic;
-
 /**
  * Base class for reference-counted objects.
  */

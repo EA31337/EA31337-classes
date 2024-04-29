@@ -34,40 +34,62 @@ struct IndiPivotParams : IndicatorParams {
     method = _method;
     shift = _shift;
   };
-  IndiPivotParams(IndiPivotParams& _params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiPivotParams(IndiPivotParams& _params) { THIS_REF = _params; };
 };
 
 /**
  * Implements Pivot Detector.
  */
-class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
+class Indi_Pivot : public Indicator<IndiPivotParams> {
  protected:
   /* Protected methods */
 
   /**
    * Initialize.
    */
-  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 9); }
+  void Init() {}
+
+ protected:
+  /* Protected methods */
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Pivot(IndiPivotParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData* _indi_src = NULL,
+  Indi_Pivot(IndiPivotParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData* _indi_src = NULL,
              int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(9, TYPE_FLOAT, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src) {
+      : Indicator(_p, IndicatorDataParams::GetInstance(9, TYPE_FLOAT, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
     Init();
   };
-  Indi_Pivot(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_PIVOT, _tf, _shift) {
-    iparams.tf = _tf;
+  Indi_Pivot(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData* _indi_src = NULL,
+             int _indi_src_mode = 0)
+      : Indicator(IndiPivotParams(),
+                  IndicatorDataParams::GetInstance(9, TYPE_FLOAT, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src) {
     Init();
-  };
+  }
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
+
+ public:
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData* _ds) override {
+    // Pivot uses OHLC only.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_OPEN) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
 
   /**
    * Returns the indicator's struct entry for the given shift.
@@ -79,23 +101,23 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
    */
   virtual IndicatorDataEntry GetEntry(int _shift = 0) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    long _bar_time = GetBarTime(_ishift);
+    long _bar_time = GetCandle() PTR_DEREF GetBarTime(_ishift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       ResetLastError();
       BarOHLC _ohlc = GetOHLC(_ishift);
-      _entry.timestamp = GetBarTime(_ishift);
+      _entry.timestamp = GetCandle() PTR_DEREF GetBarTime(_ishift);
       if (_ohlc.IsValid()) {
         _entry.Resize(Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)));
-        _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vflt, _entry.values[1].value.vflt,
-                        _entry.values[2].value.vflt, _entry.values[3].value.vflt, _entry.values[4].value.vflt,
-                        _entry.values[5].value.vflt, _entry.values[6].value.vflt, _entry.values[7].value.vflt,
-                        _entry.values[8].value.vflt);
+        _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vdbl, _entry.values[1].value.vdbl,
+                        _entry.values[2].value.vdbl, _entry.values[3].value.vdbl, _entry.values[4].value.vdbl,
+                        _entry.values[5].value.vdbl, _entry.values[6].value.vdbl, _entry.values[7].value.vdbl,
+                        _entry.values[8].value.vdbl);
         for (int i = 0; i <= 8; ++i) {
-          _entry.values[i].SetDataType(TYPE_FLOAT);
+          _entry.values[i].SetDataType(TYPE_DOUBLE);
         }
       }
-      GetEntryAlter(_entry, _ishift);
+      GetEntryAlter(_entry, _shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
@@ -115,7 +137,7 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     return GetEntry(_ishift)[_mode];
   }
@@ -156,7 +178,7 @@ class Indi_Pivot : public IndicatorTickOrCandleSource<IndiPivotParams> {
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
-        _ohlc = Chart::GetOHLC(_shift);
+        _ohlc = GetCandle() PTR_DEREF GetOHLC(_shift);
         break;
       case IDATA_INDICATOR:
         // In this mode, price is fetched from given indicator. Such indicator

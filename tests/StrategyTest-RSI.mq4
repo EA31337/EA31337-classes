@@ -24,5 +24,7 @@
  * Test functionality of Strategy class.
  */
 
+#define __debug__
+
 // Includes.
 #include "StrategyTest-RSI.mq5"

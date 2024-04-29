@@ -30,11 +30,11 @@
 #endif
 
 // Includes.
+#include "ValueStorage.applied_price.h"
 #include "ValueStorage.h"
 #include "ValueStorage.history.h"
 #include "ValueStorage.indicator.h"
 #include "ValueStorage.native.h"
-#include "ValueStorage.price.h"
 #include "ValueStorage.spread.h"
 #include "ValueStorage.tick_volume.h"
 #include "ValueStorage.time.h"

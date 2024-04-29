@@ -45,6 +45,7 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: ${{ matrix.test }}
+          RunOnError: show_logs 200
     timeout-minutes: 10
 
   cleanup:

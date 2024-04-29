@@ -42,9 +42,9 @@ SerializerNodeType IndicatorParams::Serialize(Serializer &s) {
 
   // s.PassObject(this, "indicator", indi_data); // @todo
   // s.Pass(THIS_REF, "indi_data_ownership", indi_data_ownership);
-  s.Pass(THIS_REF, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
-  s.Pass(THIS_REF, "is_draw", is_draw);
-  s.Pass(THIS_REF, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
+  // s.Pass(THIS_REF, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
+  // s.Pass(THIS_REF, "is_draw", is_draw);
+  // s.Pass(THIS_REF, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
   s.Pass(THIS_REF, "custom_indi_name", custom_indi_name);
   return SerializerNodeObject;
 }

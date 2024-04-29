@@ -26,6 +26,7 @@
  */
 
 #include "../Bar.struct.h"
+#include "../IndicatorData.mqh"
 #include "../Indicators/Indi_MA.mqh"
 #include "../Instances.h"
 #include "../Refs.mqh"
@@ -72,9 +73,6 @@ class Chart3D : public Dynamic {
   // References to chart type renderers.
   Ref<Chart3DType> renderers[3];
 
-  // OHLC prices fetcher callback.
-  Chart3DPriceFetcher price_fetcher;
-
   // Whether graphics were initialized.
   bool initialized;
 
@@ -85,17 +83,18 @@ class Chart3D : public Dynamic {
   Chart3DType* current_renderer;
 
   Instances<Chart3D> instances;
+  Ref<IndicatorData> source;
 
  public:
   /**
    * Constructor.
    */
-  Chart3D(Chart3DPriceFetcher _price_fetcher, ENUM_CHART3D_TYPE _type = CHART3D_TYPE_CANDLES) : instances(&this) {
-    price_fetcher = _price_fetcher;
+  Chart3D(IndicatorData* _source, ENUM_CHART3D_TYPE _type = CHART3D_TYPE_CANDLES) : instances(&this) {
     type = _type;
     offset.x = offset.y = 0.0f;
     offset.z = 25.0f;
     initialized = false;
+    source = _source;
 #ifdef __MQL5__
     Interface::AddListener(chart3d_interface_listener, &this);
 #endif
@@ -172,8 +171,8 @@ class Chart3D : public Dynamic {
   float GetMinBarsPrice() {
     return (float)ChartStatic::iLow(
         Symbol(), PERIOD_CURRENT,
-        ChartStatic::iLowest(Symbol(), PERIOD_CURRENT, MODE_LOW, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(),
-                             GetBarsVisibleShiftEnd()));
+        source REF_DEREF GetLowest(MODE_LOW, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(),
+                                   GetBarsVisibleShiftEnd()));
   }
 
   /**
@@ -182,8 +181,8 @@ class Chart3D : public Dynamic {
   float GetMaxBarsPrice() {
     return (float)ChartStatic::iHigh(
         Symbol(), PERIOD_CURRENT,
-        ChartStatic::iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH,
-                              GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(), GetBarsVisibleShiftEnd()));
+        source REF_DEREF GetHighest(MODE_HIGH, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(),
+                                    GetBarsVisibleShiftEnd()));
   }
 
   /**

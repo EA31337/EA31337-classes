@@ -48,16 +48,16 @@ struct BarOHLC
 #endif
 {
   datetime time;
-  float open, high, low, close;
+  double open, high, low, close;
   // Struct constructor.
   BarOHLC() : open(0), high(0), low(0), close(0), time(0){};
-  BarOHLC(float _open, float _high, float _low, float _close, datetime _time = 0)
+  BarOHLC(double _open, double _high, double _low, double _close, datetime _time = 0)
       : time(_time), open(_open), high(_high), low(_low), close(_close) {
     if (_time == 0) {
       _time = TimeCurrent();
     }
   }
-  BarOHLC(ARRAY_REF(float, _prices), datetime _time = 0) : time(_time) {
+  BarOHLC(ARRAY_REF(double, _prices), datetime _time = 0) : time(_time) {
     _time = _time == 0 ? TimeCurrent() : _time;
     int _size = ArraySize(_prices);
     close = _prices[0];
@@ -71,21 +71,21 @@ struct BarOHLC
   }
   // Struct methods.
   // Getters
-  bool GetPivots(ENUM_PP_TYPE _type, float &_pp, float &_r1, float &_r2, float &_r3, float &_r4, float &_s1, float &_s2,
-                 float &_s3, float &_s4) {
-    float _range = GetRange();
+  bool GetPivots(ENUM_PP_TYPE _type, double &_pp, double &_r1, double &_r2, double &_r3, double &_r4, double &_s1,
+                 double &_s2, double &_s3, double &_s4) {
+    double _range = GetRange();
     switch (_type) {
       case PP_CAMARILLA:
         // A set of eight very probable levels which resemble support and resistance values for a current trend.
         _pp = GetPivot();
-        _r1 = (float)(close + _range * 1.1 / 12);
-        _r2 = (float)(close + _range * 1.1 / 6);
-        _r3 = (float)(close + _range * 1.1 / 4);
-        _r4 = (float)(close + _range * 1.1 / 2);
-        _s1 = (float)(close - _range * 1.1 / 12);
-        _s2 = (float)(close - _range * 1.1 / 6);
-        _s3 = (float)(close - _range * 1.1 / 4);
-        _s4 = (float)(close - _range * 1.1 / 2);
+        _r1 = (double)(close + _range * 1.1 / 12);
+        _r2 = (double)(close + _range * 1.1 / 6);
+        _r3 = (double)(close + _range * 1.1 / 4);
+        _r4 = (double)(close + _range * 1.1 / 2);
+        _s1 = (double)(close - _range * 1.1 / 12);
+        _s2 = (double)(close - _range * 1.1 / 6);
+        _s3 = (double)(close - _range * 1.1 / 4);
+        _s4 = (double)(close - _range * 1.1 / 2);
         break;
       case PP_CLASSIC:
         _pp = GetPivot();
@@ -100,12 +100,12 @@ struct BarOHLC
         break;
       case PP_FIBONACCI:
         _pp = GetPivot();
-        _r1 = (float)(_pp + 0.382 * _range);
-        _r2 = (float)(_pp + 0.618 * _range);
+        _r1 = (double)(_pp + 0.382 * _range);
+        _r2 = (double)(_pp + 0.618 * _range);
         _r3 = _pp + _range;
         _r4 = _r1 + _range;  // ?
-        _s1 = (float)(_pp - 0.382 * _range);
-        _s2 = (float)(_pp - 0.618 * _range);
+        _s1 = (double)(_pp - 0.382 * _range);
+        _s2 = (double)(_pp - 0.618 * _range);
         _s3 = _pp - _range;
         _s4 = _s1 - _range;  // ?
         break;
@@ -152,44 +152,46 @@ struct BarOHLC
     return _r4 > _r3 && _r3 > _r2 && _r2 > _r1 && _r1 > _pp && _pp > _s1 && _s1 > _s2 && _s2 > _s3 && _s3 > _s4;
   }
   datetime GetTime() { return time; }
-  float GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const { return BarOHLC::GetAppliedPrice(_ap, open, high, low, close); }
-  float GetBody() const { return close - open; }
-  float GetBodyAbs() const { return fabs(close - open); }
-  float GetBodyInPct(int _hundreds = 100) const { return GetRange() > 0 ? _hundreds / GetRange() * GetBodyAbs() : 0; }
-  float GetChangeInPct(int _hundreds = 100) const { return (close - open) / open * _hundreds; }
-  float GetClose() const { return close; }
-  float GetHigh() const { return high; }
-  float GetLow() const { return low; }
-  float GetMaxOC() const { return fmax(open, close); }
-  float GetMedian() const { return (high + low) / 2; }
-  float GetMinOC() const { return fmin(open, close); }
-  float GetOpen() const { return open; }
-  float GetPivot() const { return GetTypical(); }
-  float GetPivotDeMark() const {
+  double GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const { return BarOHLC::GetAppliedPrice(_ap, open, high, low, close); }
+  double GetBody() const { return close - open; }
+  double GetBodyAbs() const { return fabs(close - open); }
+  double GetBodyInPct(int _hundreds = 100) const { return GetRange() > 0 ? _hundreds / GetRange() * GetBodyAbs() : 0; }
+  double GetChangeInPct(int _hundreds = 100) const {
+    return open > 0 ? ((close - open) / open * _hundreds) : 0 /* Error */;
+  }
+  double GetClose() const { return close; }
+  double GetHigh() const { return high; }
+  double GetLow() const { return low; }
+  double GetMaxOC() const { return fmax(open, close); }
+  double GetMedian() const { return (high + low) / 2; }
+  double GetMinOC() const { return fmin(open, close); }
+  double GetOpen() const { return open; }
+  double GetPivot() const { return GetTypical(); }
+  double GetPivotDeMark() const {
     // If Close < Open Then X = H + 2 * L + C
     // If Close > Open Then X = 2 * H + L + C
     // If Close = Open Then X = H + L + 2 * C
-    float _pp = open > close ? (high + (2 * low) + close) / 4 : ((2 * high) + low + close) / 4;
+    double _pp = open > close ? (high + (2 * low) + close) / 4 : ((2 * high) + low + close) / 4;
     return open == close ? (high + low + (2 * close)) / 4 : _pp;
   }
-  float GetPivotWithOpen() const { return (open + high + low + close) / 4; }
-  float GetPivotWithOpen(float _open) const { return (_open + high + low + close) / 4; }
-  float GetRange() const { return high - low; }
-  float GetRangeChangeInPct(int _hundreds = 100) const {
+  double GetPivotWithOpen() const { return (open + high + low + close) / 4; }
+  double GetPivotWithOpen(double _open) const { return (_open + high + low + close) / 4; }
+  double GetRange() const { return high - low; }
+  double GetRangeChangeInPct(int _hundreds = 100) const {
     return _hundreds - (_hundreds / open * fabs(open - GetRange()));
   }
-  float GetRangeInPips(float _ppp) const { return GetRange() / _ppp; }
-  float GetTypical() const { return (high + low + close) / 3; }
-  float GetWeighted() const { return (high + low + close + close) / 4; }
-  float GetWickMin() const { return fmin(GetWickLower(), GetWickUpper()); }
-  float GetWickLower() const { return GetMinOC() - low; }
-  float GetWickLowerInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickLower() : 0; }
-  float GetWickMax() const { return fmax(GetWickLower(), GetWickUpper()); }
-  float GetWickSum() const { return GetWickLower() + GetWickUpper(); }
-  float GetWickUpper() const { return high - GetMaxOC(); }
-  float GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
+  double GetRangeInPips(double _ppp) const { return GetRange() / _ppp; }
+  double GetTypical() const { return (high + low + close) / 3; }
+  double GetWeighted() const { return (high + low + close + close) / 4; }
+  double GetWickMin() const { return fmin(GetWickLower(), GetWickUpper()); }
+  double GetWickLower() const { return GetMinOC() - low; }
+  double GetWickLowerInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickLower() : 0; }
+  double GetWickMax() const { return fmax(GetWickLower(), GetWickUpper()); }
+  double GetWickSum() const { return GetWickLower() + GetWickUpper(); }
+  double GetWickUpper() const { return high - GetMaxOC(); }
+  double GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
   short GetType() const { return IsBull() ? 1 : (IsBear() ? -1 : 0); }
-  void GetValues(ARRAY_REF(float, _out)) {
+  void GetValues(ARRAY_REF(double, _out)) {
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
     _out[_index++] = open;

@@ -32,24 +32,27 @@
 struct DataParamEntry;
 
 // Includes.
+//#include "../ChartMt.h"
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
+#include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Indicators/Bitwise/indicators.h"
+#include "../Indicators/Tick/Indi_TickMt.mqh"
 #include "../Indicators/indicators.h"
+#include "../Platform.h"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
+#include "../Std.h"
 #include "../Test.mqh"
 
 // Custom indicator identifiers.
 enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_ENTRY + 1 };
 
 // Global variables.
-Chart* chart;
-DictStruct<long, Ref<IndicatorData>> indis;
+DictStruct<int, Ref<IndicatorData>> indis;
 DictStruct<int, Ref<IndicatorData>> whitelisted_indis;
-Dict<long, bool> tested;
-int bar_processed;
+DictStruct<int, Ref<IndicatorData>> tested;
 double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235,
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
@@ -60,21 +63,29 @@ Ref<IndicatorData> _indi_test;
  * Implements Init event handler.
  */
 int OnInit() {
+  Platform::Init();
   bool _result = true;
-  // Initialize chart.
-  chart = new Chart();
   Print("We have ", Bars(NULL, 0), " bars to analyze");
   // Initialize indicators.
   _result &= InitIndicators();
+
   Print("Indicators to test: ", indis.Size());
+
+  Print("Connecting candle and tick indicators to all indicators...");
+  // Connecting all indicators to default candle indicator (which is connected to default tick indicator).
+  for (DictStructIterator<int, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    Platform::AddWithDefaultBindings(iter.Value().Ptr(), _Symbol, PERIOD_CURRENT);
+  }
+
   // Check for any errors.
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
   // Print indicator values.
+
   _result &= PrintIndicators(__FUNCTION__);
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
-  bar_processed = 0;
+
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -82,40 +93,38 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-  chart.OnTick();
+  Platform::Tick();
+  IndicatorData* _candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
 
-  // All indicators should execute its OnTick() method for every platform tick.
-  for (DictStructIterator<long, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    // iter.Value().Ptr().Tick(); // @fixme
+  if (_candles PTR_DEREF IsNewBar()) {
+    if (_candles PTR_DEREF GetBarIndex() > 200) {
+      ExpertRemove();
   }
 
-  if (chart.IsNewBar()) {
-    bar_processed++;
     if (indis.Size() == 0) {
       return;
     }
 
-    for (DictStructIterator<long, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
       if (whitelisted_indis.Size() == 0) {
-        if (tested.GetByKey(iter.Key())) {
+        if (tested.Contains(iter.Value())) {
           // Indicator is already tested, skipping.
           continue;
         }
       } else {
         if (!whitelisted_indis.Contains(iter.Value())) {
-          // continue; // @fixme
+          continue;
         }
       }
 
       IndicatorData* _indi = iter.Value().Ptr();
-      _indi.OnTick();
-      IndicatorDataEntry _entry(_indi.GetEntry());
+      IndicatorDataEntry _entry(_indi PTR_DEREF GetEntry());
 
-      if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
+      if (_indi PTR_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
         if (_entry.IsValid()) {
-          PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
-          tested.Set(iter.Key(), true);  // Mark as tested.
-          indis.Unset(iter.Key());
+          PrintFormat("%s: bar %d: %s", _indi PTR_DEREF GetFullName(), _candles PTR_DEREF GetBars(),
+                      _indi PTR_DEREF ToString());
+          tested.Push(iter.Value());  // Mark as tested.
         }
       }
     }
@@ -127,14 +136,12 @@ void OnTick() {
  */
 void OnDeinit(const int reason) {
   int num_not_tested = 0;
-  for (DictIterator<long, bool> iter = tested.Begin(); iter.IsValid(); ++iter) {
-    if (!iter.Value()) {
-      PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, indis[iter.Key()].Ptr().GetName());
+  for (DictStructIterator<int, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    if (!tested.Contains(iter.Value())) {
+      PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, iter.Value().Ptr().GetFullName());
       ++num_not_tested;
     }
   }
-
-  delete chart;
 
   PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, num_not_tested);
   assertTrueOrExit(num_not_tested == 0, "Not all indicators has been tested!");
@@ -144,6 +151,12 @@ void OnDeinit(const int reason) {
  * Initialize indicators.
  */
 bool InitIndicators() {
+  /* Price/OHLC indicators */
+
+  // Price indicator.
+  Ref<IndicatorData> indi_price = new Indi_Price(PriceIndiParams());
+  // indis.Push(indi_price); // @fixme: Make it work with the test?
+
   /* Standard indicators */
 
   // AC.
@@ -171,17 +184,16 @@ bool InitIndicators() {
   IndiATRParams atr_params(14);
   indis.Push(new Indi_ATR(atr_params));
 
-  // Bollinger Bands.
+  // Bollinger Bands - Built-in.
   IndiBandsParams bands_params(20, 2, 0, PRICE_OPEN);
   Ref<IndicatorData> indi_bands = new Indi_Bands(bands_params);
   indis.Push(indi_bands);
+  // whitelisted_indis.Push(indi_bands);
 
-  // Bollinger Bands over RSI.
-  /* @todo: Convert into new syntax.
-  IndiBandsParams bands_over_rsi_params(20, 2, 0, PRICE_OPEN);
-  // bands_over_rsi_params.SetDataSource(INDI_RSI);
-  indis.Push(new Indi_Bands(bands_over_rsi_params));
-  */
+  // Bollinger Bands - OnCalculate.
+  Ref<IndicatorData> indi_bands_oncalculate = new Indi_Bands(bands_params, IDATA_ONCALCULATE);
+  indis.Push(indi_bands_oncalculate);
+  // whitelisted_indis.Push(indi_bands_oncalculate);
 
   // Bears Power.
   IndiBearsPowerParams bears_params(13, PRICE_CLOSE);
@@ -236,9 +248,9 @@ bool InitIndicators() {
   indis.Push(indi_ma);
 
   // DEMA.
-  IndiDEIndiMAParams dema_params(13, 2, PRICE_OPEN);
-  Ref<IndicatorData> indi_dema = new Indi_DEMA(dema_params);
-  indis.Push(indi_dema);
+  IndiDEMAParams dema_params(13, 2, PRICE_OPEN);
+  Ref<IndicatorData> indi_dema = new Indi_DEMA(dema_params, INDI_DEMA_DEFAULT_IDSTYPE, indi_price.Ptr());
+  // indis.Push(indi_dema); // @fixme
 
   // MACD.
   IndiMACDParams macd_params(12, 26, 9, PRICE_CLOSE);
@@ -262,14 +274,27 @@ bool InitIndicators() {
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_params(14, PRICE_OPEN);
-  indis.Push(new Indi_RSI(rsi_params));
+  Ref<IndicatorData> indi_rsi = new Indi_RSI(rsi_params);
+  indis.Push(indi_rsi.Ptr());
 
-  // Relative Strength Index (RSI).
-  /* @todo: Convert into new syntax.
-  IndiRSIParams rsi_over_blt_stddev_params();
-  // rsi_over_blt_stddev_params.SetDataSource(INDI_STDDEV);
-  indis.Push(new Indi_RSI(rsi_over_blt_stddev_params));
-  */
+  // Bollinger Bands over RSI.
+  IndiBandsParams indi_bands_over_rsi_params(20, 2, 0, PRICE_OPEN);
+  Ref<IndicatorData> indi_bands_over_rsi = new Indi_Bands(indi_bands_over_rsi_params);
+  // Using RSI's mode 0 as applied price.
+  indi_bands_over_rsi REF_DEREF SetDataSourceAppliedPrice(INDI_VS_TYPE_INDEX_0);
+  indi_bands_over_rsi REF_DEREF SetDataSource(indi_rsi.Ptr());
+  indis.Push(indi_bands_over_rsi);
+
+  // Standard Deviation (StdDev).
+  IndiStdDevParams stddev_params(13, 10, MODE_SMA, PRICE_OPEN);
+  Ref<IndicatorData> indi_stddev = new Indi_StdDev(stddev_params);
+  indis.Push(indi_stddev);
+
+  // Relative Strength Index (RSI) over Standard Deviation (StdDev).
+  IndiRSIParams indi_rsi_over_stddev_params();
+  Ref<IndicatorData> indi_rsi_over_stddev = new Indi_RSI(indi_rsi_over_stddev_params);
+  indi_rsi_over_stddev.Ptr().SetDataSource(indi_stddev.Ptr());
+  indis.Push(indi_rsi_over_stddev);
 
   // Relative Vigor Index (RVI).
   IndiRVIParams rvi_params(14);
@@ -280,15 +305,11 @@ bool InitIndicators() {
   indis.Push(new Indi_SAR(sar_params));
 
   // Standard Deviation (StdDev).
-  IndiStdDevParams stddev_params(13, 10, MODE_SMA, PRICE_OPEN);
-  indis.Push(new Indi_StdDev(stddev_params));
-
-  // Standard Deviation (StdDev).
   Ref<IndicatorData> indi_price_for_stdev = new Indi_Price(PriceIndiParams());
-
   IndiStdDevParams stddev_on_price_params();
-  stddev_on_price_params.SetDraw(clrBlue, 1);
-  Ref<Indi_StdDev> indi_stddev_on_price = new Indi_StdDev(stddev_on_price_params, IDATA_BUILTIN, indi_price_for_stdev.Ptr());
+  // stddev_on_price_params.SetDraw(clrBlue, 1); // @fixme
+  Ref<Indi_StdDev> indi_stddev_on_price =
+      new Indi_StdDev(stddev_on_price_params, IDATA_BUILTIN, indi_price_for_stdev.Ptr());
   indis.Push(indi_stddev_on_price.Ptr());
 
   // Stochastic Oscillator.
@@ -308,17 +329,11 @@ bool InitIndicators() {
   // Demo/Dummy Indicator.
   indis.Push(new Indi_Demo());
 
-  // Current Price.
-  PriceIndiParams price_params();
-  // price_params.SetDraw(clrAzure);
-  Ref<IndicatorData> indi_price = new Indi_Price(price_params);
-  indis.Push(indi_price);
-
   // Bollinger Bands over Price indicator.
   PriceIndiParams price_params_4_bands();
   Ref<IndicatorData> indi_price_4_bands = new Indi_Price(price_params_4_bands);
   IndiBandsParams bands_on_price_params();
-  bands_on_price_params.SetDraw(clrCadetBlue);
+  // bands_on_price_params.SetDraw(clrCadetBlue); // @fixme
   Ref<Indi_Bands> indi_bands_on_price = new Indi_Bands(bands_on_price_params, IDATA_BUILTIN, indi_price_4_bands.Ptr());
   indis.Push(indi_bands_on_price.Ptr());
 
@@ -329,25 +344,26 @@ bool InitIndicators() {
   Ref<IndicatorData> indi_ma_sma_for_stddev = new Indi_MA(ma_sma_params_for_stddev);
 
   IndiStdDevParams stddev_params_on_ma_sma(13, 10);
-  stddev_params_on_ma_sma.SetDraw(true, 1);
+  // stddev_params_on_ma_sma.SetDraw(true, 1); // @fixme
 
-  Ref<Indi_StdDev> indi_stddev_on_ma_sma = new Indi_StdDev(stddev_params_on_ma_sma, IDATA_BUILTIN, indi_ma_sma_for_stddev.Ptr());
+  Ref<Indi_StdDev> indi_stddev_on_ma_sma =
+      new Indi_StdDev(stddev_params_on_ma_sma, IDATA_BUILTIN, indi_ma_sma_for_stddev.Ptr());
   indis.Push(indi_stddev_on_ma_sma.Ptr());
 
   // Standard Deviation (StdDev) in SMA mode over Price.
   PriceIndiParams price_params_for_stddev_sma();
   Ref<IndicatorData> indi_price_for_stddev_sma = new Indi_Price(price_params_for_stddev_sma);
-
   IndiStdDevParams stddev_sma_on_price_params();
-  stddev_sma_on_price_params.SetDraw(true, 1);
-  Ref<Indi_StdDev> indi_stddev_on_sma = new Indi_StdDev(stddev_sma_on_price_params, IDATA_BUILTIN, indi_price_for_stddev_sma.Ptr());
+  // stddev_sma_on_price_params.SetDraw(true, 1); // @fixme
+  Ref<Indi_StdDev> indi_stddev_on_sma =
+      new Indi_StdDev(stddev_sma_on_price_params, IDATA_BUILTIN, indi_price_for_stddev_sma.Ptr());
   indis.Push(indi_stddev_on_sma.Ptr());
 
   // Moving Average (MA) over Price indicator.
   PriceIndiParams price_params_4_ma();
   Ref<IndicatorData> indi_price_4_ma = new Indi_Price(price_params_4_ma);
   IndiMAParams ma_on_price_params(13, 0, MODE_SMA, PRICE_OPEN, 0);
-  ma_on_price_params.SetDraw(clrYellowGreen);
+  // ma_on_price_params.SetDraw(clrYellowGreen); // @fixme
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
   Ref<Indi_MA> indi_ma_on_price = new Indi_MA(ma_on_price_params, IDATA_BUILTIN, indi_price_4_ma.Ptr());
   indis.Push(indi_ma_on_price.Ptr());
@@ -356,7 +372,7 @@ bool InitIndicators() {
   PriceIndiParams price_params_4_cci();
   Ref<IndicatorData> indi_price_4_cci = new Indi_Price(price_params_4_cci);
   IndiCCIParams cci_on_price_params();
-  cci_on_price_params.SetDraw(clrYellowGreen, 1);
+  // cci_on_price_params.SetDraw(clrYellowGreen, 1); // @fixme
   Ref<IndicatorData> indi_cci_on_price = new Indi_CCI(cci_on_price_params, IDATA_BUILTIN, indi_price_4_cci.Ptr());
   indis.Push(indi_cci_on_price.Ptr());
 
@@ -364,46 +380,48 @@ bool InitIndicators() {
   PriceIndiParams price_params_4_envelopes();
   Ref<IndicatorData> indi_price_4_envelopes = new Indi_Price(price_params_4_envelopes);
   IndiEnvelopesParams env_on_price_params();
-  env_on_price_params.SetDraw(clrBrown);
-  Ref<Indi_Envelopes> indi_envelopes_on_price = new Indi_Envelopes(env_on_price_params, IDATA_BUILTIN, indi_price_4_envelopes.Ptr());
+  // env_on_price_params.SetDraw(clrBrown); // @fixme
+  Ref<Indi_Envelopes> indi_envelopes_on_price =
+      new Indi_Envelopes(env_on_price_params, IDATA_BUILTIN, indi_price_4_envelopes.Ptr());
   indis.Push(indi_envelopes_on_price.Ptr());
 
   // DEMA over Price indicator.
   PriceIndiParams price_params_4_dema();
   Ref<IndicatorData> indi_price_4_dema = new Indi_Price(price_params_4_dema);
-  IndiDEIndiMAParams dema_on_price_params(13, 2, PRICE_OPEN);
-  dema_on_price_params.SetDraw(clrRed);
-  Ref<Indi_DEMA> indi_dema_on_price = new Indi_DEMA(dema_on_price_params, IDATA_BUILTIN, indi_price_4_dema.Ptr());
-  indis.Push(indi_dema_on_price.Ptr());
+  IndiDEMAParams dema_on_price_params(13, 2, PRICE_OPEN);
+  // dema_on_price_params.SetDraw(clrRed); // @fixme
+  Ref<Indi_DEMA> indi_dema_on_price =
+      new Indi_DEMA(dema_on_price_params, INDI_DEMA_DEFAULT_IDSTYPE, indi_price_4_dema.Ptr());
+  // indis.Push(indi_dema_on_price.Ptr()); // @fixme
 
   // Momentum over Price indicator.
   Ref<IndicatorData> indi_price_4_momentum = new Indi_Price();
   IndiMomentumParams mom_on_price_params();
-  mom_on_price_params.SetDraw(clrDarkCyan);
-  Ref<Indi_Momentum> indi_momentum_on_price = new Indi_Momentum(mom_on_price_params, IDATA_BUILTIN, indi_price_4_momentum.Ptr());
+  // mom_on_price_params.SetDraw(clrDarkCyan); // @fixme
+  Ref<Indi_Momentum> indi_momentum_on_price =
+      new Indi_Momentum(mom_on_price_params, IDATA_BUILTIN, indi_price_4_momentum.Ptr());
   indis.Push(indi_momentum_on_price.Ptr());
 
   // Relative Strength Index (RSI) over Price indicator.
   PriceIndiParams price_params_4_rsi();
   Ref<IndicatorData> indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
   IndiRSIParams rsi_on_price_params();
-  rsi_on_price_params.SetDraw(clrBisque, 1);
+  // rsi_on_price_params.SetDraw(clrBisque, 1); // @fixme
   Ref<Indi_RSI> indi_rsi_on_price = new Indi_RSI(rsi_on_price_params, IDATA_BUILTIN, indi_price_4_rsi.Ptr());
   indis.Push(indi_rsi_on_price.Ptr());
 
-#ifndef __MQL4__ // @fixme: Fix it for MQL4.
   // Drawer (socket-based) indicator over RSI over Price.
-  IndiDrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
-  drawer_params.SetDraw(clrBisque, 0);
+  IndiDrawerParams drawer_params(14, PRICE_OPEN);
+  // drawer_params.SetDraw(clrBisque, 0); // @fixme
   Ref<Indi_Drawer> indi_drawer_on_rsi = new Indi_Drawer(drawer_params, IDATA_BUILTIN, indi_rsi_on_price.Ptr());
   indis.Push(indi_drawer_on_rsi.Ptr());
-#endif
 
   // Applied Price over OHCL indicator.
   IndiAppliedPriceParams applied_price_params();
-  applied_price_params.SetDraw(clrAquamarine, 0);
+  // applied_price_params.SetDraw(clrAquamarine, 0); // @fixme
   IndiOHLCParams applied_price_ohlc_params(PRICE_TYPICAL);
-  Ref<Indi_AppliedPrice> indi_applied_price_on_price = new Indi_AppliedPrice(applied_price_params, IDATA_INDICATOR, new Indi_OHLC(applied_price_ohlc_params));
+  Ref<Indi_AppliedPrice> indi_applied_price_on_price =
+      new Indi_AppliedPrice(applied_price_params, IDATA_INDICATOR, new Indi_OHLC(applied_price_ohlc_params));
   indis.Push(indi_applied_price_on_price.Ptr());
 
   // ADXW.
@@ -411,14 +429,12 @@ bool InitIndicators() {
   indis.Push(new Indi_ADXW(adxw_params));
 
   // AMA.
-  /* @fixme
   IndiAMAParams ama_params();
   // Will use Candle indicator by default.
-  // However, in that case we need to specify applied price (excluding ASK and BID).
-  Indi_AMA* _indi_ama = new Indi_AMA(ama_params, IDATA_INDICATOR, indi_applied_price_on_price.Ptr());
+  // However, in that case we need to specifiy applied price (excluding ASK and BID).
+  Indi_AMA* _indi_ama = new Indi_AMA(ama_params, IDATA_INDICATOR);
   _indi_ama.SetAppliedPrice(PRICE_OPEN);
-  indis.Push(_indi_ama); // @fixme
-  */
+  indis.Push(_indi_ama);
 
   // Original AMA.
   IndiAMAParams ama_params_orig();
@@ -511,14 +527,14 @@ bool InitIndicators() {
 
   // Math (specialized indicator).
   IndiMathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
-  math_params.SetDraw(clrBlue);
+  // math_params.SetDraw(clrBlue); // @fixme
   math_params.SetName("Bands(UP - LO)");
   Ref<Indi_Math> indi_math_1 = new Indi_Math(math_params, IDATA_INDICATOR, indi_bands.Ptr());
   indis.Push(indi_math_1.Ptr());
 
   // Math (specialized indicator) via custom math method.
   IndiMathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
-  math_custom_params.SetDraw(clrBeige);
+  // math_custom_params.SetDraw(clrBeige); // @fixme
   math_custom_params.SetName("Bands(Custom math fn)");
   Ref<Indi_Math> indi_math_2 = new Indi_Math(math_custom_params, IDATA_INDICATOR, indi_bands.Ptr());
   indis.Push(indi_math_2.Ptr());
@@ -539,11 +555,6 @@ bool InitIndicators() {
   CandleParams candle_params();
   indis.Push(new Indi_Candle(candle_params));
 
-  // Mark all as untested.
-  for (DictIterator<long, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    tested.Set(iter.Key(), false);
-  }
-
   // Push white-listed indicators here.
   // whitelisted_indis.Push(_indi_test);
 
@@ -556,7 +567,7 @@ double MathCustomOp(double a, double b) { return 1.11 + (b - a) * 2.0; }
  * Print indicators.
  */
 bool PrintIndicators(string _prefix = "") {
-  for (DictIterator<long, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictIterator<int, Ref<IndicatorData>> iter = indis.Begin(); iter.IsValid(); ++iter) {
     if (whitelisted_indis.Size() != 0 && !whitelisted_indis.Contains(iter.Value())) {
       continue;
     }
@@ -565,6 +576,7 @@ bool PrintIndicators(string _prefix = "") {
 
     if (_indi.GetModeCount() == 0) {
       // Indicator has no modes.
+      PrintFormat("Skipping %s as it has no modes.", _indi.GetFullName());
       continue;
     }
 
@@ -575,7 +587,7 @@ bool PrintIndicators(string _prefix = "") {
       ResetLastError();
       continue;
     }
-    if (_indi.Get<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
+    if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString(0));
     }
   }

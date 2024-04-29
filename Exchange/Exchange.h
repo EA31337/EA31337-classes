@@ -33,11 +33,11 @@
 #include "../Trade.mqh"
 #include "Exchange.struct.h"
 
-class Exchange {
+class Exchange : public Dynamic {
  protected:
-  DictObject<string, AccountBase> accounts;
-  DictObject<string, SymbolInfo> symbols;
-  DictObject<string, Trade> trades;
+  DictStruct<string, Ref<AccountBase>> accounts;
+  DictStruct<string, Ref<SymbolInfo>> symbols;
+  DictStruct<string, Ref<Trade>> trades;
   ExchangeParams eparams;
 
  public:
@@ -61,17 +61,26 @@ class Exchange {
   /**
    * Adds account instance to the list.
    */
-  void AccountAdd(AccountBase &_account, string _name) { accounts.Set(_name, _account); }
+  void AccountAdd(AccountBase *_account, string _name) {
+    Ref<AccountBase> _ref = _account;
+    accounts.Set(_name, _ref);
+  }
 
   /**
    * Adds symbol instance to the list.
    */
-  void SymbolAdd(SymbolInfo &_sinfo, string _name) { symbols.Set(_name, _sinfo); }
+  void SymbolAdd(SymbolInfo *_sinfo, string _name) {
+    Ref<SymbolInfo> _ref = _sinfo;
+    symbols.Set(_name, _ref);
+  }
 
   /**
    * Adds trade instance to the list.
    */
-  void TradeAdd(Trade &_trade, string _name) { trades.Set(_name, _trade); }
+  void TradeAdd(Trade *_trade, string _name) {
+    Ref<Trade> _ref = _trade;
+    trades.Set(_name, _ref);
+  }
 
   /* Removers */
 

@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 #include "../Util.h"
 #include "Indi_MA.mqh"
@@ -45,35 +45,58 @@ struct IndiCHVParams : IndicatorParams {
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;
   };
-  IndiCHVParams(IndiCHVParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiCHVParams(IndiCHVParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
+class Indi_CHV : public Indicator<IndiCHVParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_CHV(IndiCHVParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
            int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src){};
-  Indi_CHV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_CHAIKIN_V, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_CHV(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiCHVParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override {
+    return INDI_SUITABLE_DS_TYPE_CUSTOM | INDI_SUITABLE_DS_TYPE_BASE_ONLY;
+  }
 
   /**
-   * Built-in version of Chaikin Volatility.
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
-  static double iCHV(string _symbol, ENUM_TIMEFRAMES _tf, int _smooth_period, int _chv_period,
-                     ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
-        _symbol, _tf, Util::MakeKey("Indi_CHV", _smooth_period, _chv_period, _smooth_method));
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiCHVParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // CHV uses high and low prices only.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_HIGH) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW);
+  }
+
+  /**
+   * OnCalculate-based version of Chaikin Volatility as there is no built-in one.
+   */
+  double iCHV(IndicatorData *_indi, int _smooth_period, int _chv_period, ENUM_CHV_SMOOTH_METHOD _smooth_method,
+              int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi,
+                                                       Util::MakeKey(_smooth_period, _chv_period, _smooth_method));
     return iCHVOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _smooth_period, _chv_period, _smooth_method, _mode,
                        _shift, _cache);
   }
@@ -101,19 +124,6 @@ class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
     // Returns value from the first calculation buffer.
     // Returns first value for as-series array or last value for non-as-series array.
     return _cache.GetTailValue<double>(_mode, _shift);
-  }
-
-  /**
-   * On-indicator version of Chaikin Volatility.
-   */
-  static double iCHVOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _smooth_period,
-                                int _chv_period, ENUM_CHV_SMOOTH_METHOD _smooth_method, int _mode = 0, int _shift = 0,
-                                IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf,
-        Util::MakeKey("Indi_CHV_ON_" + _indi.GetFullName(), _smooth_period, _chv_period, _smooth_method));
-    return iCHVOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _smooth_period, _chv_period, _smooth_method, _mode,
-                       _shift, _cache);
   }
 
   /**
@@ -179,21 +189,20 @@ class Indi_CHV : public IndicatorTickOrCandleSource<IndiCHVParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_CHV::iCHV(GetSymbol(), GetTf(), /*[*/ GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod() /*]*/,
-                                _mode, _ishift, THIS_PTR);
+      case IDATA_ONCALCULATE:
+        _value = iCHV(THIS_PTR, GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetSmoothPeriod(),
                          GetCHVPeriod(), GetSmoothMethod() /*]*/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_CHV::iCHVOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetSmoothPeriod(),
-                                           GetCHVPeriod(), GetSmoothMethod() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = iCHV(THIS_PTR, GetSmoothPeriod(), GetCHVPeriod(), GetSmoothMethod(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

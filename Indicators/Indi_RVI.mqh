@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -39,27 +39,39 @@ struct IndiRVIParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\RVI");
   };
-  IndiRVIParams(IndiRVIParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiRVIParams(IndiRVIParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Relative Vigor Index indicator.
  */
-class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
+class Indi_RVI : public Indicator<IndiRVIParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_RVI(const IndiRVIParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
            int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(_p,
-                                    IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype,
-                                                                     IDATA_RANGE_MIXED, _indi_src_mode),
-                                    _indi_src) {}
-  Indi_RVI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_RVI, _tf, _shift) {}
+      : Indicator(_p,
+                  IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED,
+                                                   _indi_src_mode),
+                  _indi_src) {}
+  Indi_RVI(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : Indicator(IndiRVIParams(),
+                  IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED,
+                                                   _indi_src_mode),
+                  _indi_src) {}
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_ICUSTOM; }
 
   /**
    * Returns the indicator value.
@@ -106,7 +118,7 @@ class Indi_RVI : public IndicatorTickOrCandleSource<IndiRVIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,8 +21,38 @@
 
 /**
  * @file
- * Test functionality of Ticker class.
+ * Weighted price version of ValueStorage.
  */
 
 // Includes.
-#include "TickerTest.mq5"
+#include "ObjectsCache.h"
+#include "ValueStorage.history.h"
+
+/**
+ * Storage for weighted price.
+ */
+class PriceWeightedValueStorage : public HistoryValueStorage<double> {
+ public:
+  /**
+   * Constructor.
+   */
+  PriceWeightedValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
+
+  /**
+   * Copy constructor.
+   */
+  PriceWeightedValueStorage(PriceWeightedValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+
+  /**
+   * Fetches value from a given shift. Takes into consideration as-series flag.
+   */
+  double Fetch(int _shift) override {
+    ResetLastError();
+    double _value = indi_candle REF_DEREF GetOHLC(RealShift(_shift)).GetWeighted();
+    if (_LastError != ERR_NO_ERROR) {
+      Print("Cannot fetch OHLC! Error: ", _LastError);
+      DebugBreak();
+    }
+    return _value;
+  }
+};

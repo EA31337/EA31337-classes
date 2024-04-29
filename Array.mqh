@@ -761,6 +761,9 @@ template <typename X>
   static void ArrayStore(ARRAY_REF(X, array), int _idx, X value, int reserve_size = 0) {
     if (_idx >= ArraySize(array)) {
       ArrayResize(array, MathMax(_idx + 1, ArraySize(array)), reserve_size);
+    } else if (_idx < 0) {
+      Print("_idx cannot be negative! " + IntegerToString(_idx) + " passed.");
+      DebugBreak();
     }
 
     array[_idx] = value;

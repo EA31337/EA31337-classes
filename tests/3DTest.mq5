@@ -42,36 +42,15 @@
 #include "../3D/Frontends/MT5Frontend.h"
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
+#include "../Platform.h"
 #include "../Serializer.mqh"
 #include "../Test.mqh"
-
-BarOHLC ChartPriceFeeder(ENUM_TIMEFRAMES _tf, int _shift) {
-  static Chart _chart();
-  static BufferStruct<IndicatorDataEntry> idata;
-
-  long _bar_time = _chart.GetBarTime(_shift);
-  unsigned int _position;
-  IndicatorDataEntry _entry(4);
-  if (idata.KeyExists(_bar_time, _position)) {
-    _entry = idata.GetByPos(_position);
-  } else {
-    _entry.timestamp = _chart.GetBarTime(_shift);
-    _entry.values[0] = (float)_chart.GetOpen(_shift);
-    _entry.values[1] = (float)_chart.GetHigh(_shift);
-    _entry.values[2] = (float)_chart.GetLow(_shift);
-    _entry.values[3] = (float)_chart.GetClose(_shift);
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
-    idata.Add(_entry, _bar_time);
-  }
-
-  return BarOHLC(_entry.GetValue<float>(0), _entry.GetValue<float>(1), _entry.GetValue<float>(2),
-                 _entry.GetValue<float>(3));
-}
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
+  Platform::Init();
   Ref<Device> gfx_ptr = new MTDXDevice();
 
   // Making a scope to ensure graphics device will be destructed as last.
@@ -87,7 +66,7 @@ int OnInit() {
     _mesh.Ptr().SetShaderVS(_shader_v.Ptr());
     _mesh.Ptr().SetShaderPS(_shader_p.Ptr());
 
-    Ref<Chart3D> _chart = new Chart3D(ChartPriceFeeder, CHART3D_TYPE_CANDLES);
+    Ref<Chart3D> _chart = new Chart3D(Platform::FetchDefaultCandleIndicator(), CHART3D_TYPE_CANDLES);
 
     unsigned int _rand_color = rand() * 1256;
 
@@ -122,6 +101,11 @@ int OnInit() {
 
   return (INIT_SUCCEEDED);
 }
+
+/**
+ * Implements OnTick().
+ **/
+void OnTick() { Platform::Tick(); }
 #else
 /**
  * Implements OnInit().

@@ -199,8 +199,6 @@ struct StgParams {
         return (T)price_profit_method;
       case STRAT_PARAM_PSM:
         return (T)price_stop_method;
-      case STRAT_PARAM_TF:
-        return (T)tf.GetTf();
       case STRAT_PARAM_TFM:
         return (T)tick_filter_method;
       case STRAT_PARAM_TYPE:
@@ -286,10 +284,6 @@ struct StgParams {
         return;
       case STRAT_PARAM_PSM:  // Price stop method
         price_stop_method = (int)_value;
-        return;
-      case STRAT_PARAM_TF:
-        // Main timeframe where strategy operates on.
-        tf = (ENUM_TIMEFRAMES)_value;
         return;
       case STRAT_PARAM_TFM:  // Tick filter method
         tick_filter_method = (int)_value;

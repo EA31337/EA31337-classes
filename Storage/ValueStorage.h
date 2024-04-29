@@ -34,6 +34,8 @@
 #define VALUE_STORAGE_H
 
 // Includes.
+#include "../SerializerConversions.h"
+#include "../Util.h"
 #include "Objects.h"
 
 // Enumeration for iPeak().
@@ -65,55 +67,53 @@ enum ENUM_IPEAK { IPEAK_LOWEST, IPEAK_HIGHEST };
 
 #define INDICATOR_CALCULATE_GET_PARAMS_SHORT _cache.GetTotal(), _cache.GetPrevCalculated(), 0, _cache.GetPriceBuffer()
 
-#define INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)                                              \
+#define INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)                                                    \
   IndicatorCalculateCache<double> *_cache;                                                               \
-  string _key = Util::MakeKey(SYMBOL, (int)TF, KEY);                                                     \
+  string _key = Util::MakeKey(INDI PTR_DEREF GetId(), KEY);                                              \
   if (!Objects<IndicatorCalculateCache<double>>::TryGet(_key, _cache)) {                                 \
     _cache = Objects<IndicatorCalculateCache<double>>::Set(_key, new IndicatorCalculateCache<double>()); \
   }
 
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(SYMBOL, TF, KEY)                     \
-  ValueStorage<datetime> *_time = TimeValueStorage::GetInstance(SYMBOL, TF);                    \
-  ValueStorage<long> *_tick_volume = TickVolumeValueStorage::GetInstance(SYMBOL, TF);           \
-  ValueStorage<long> *_volume = VolumeValueStorage::GetInstance(SYMBOL, TF);                    \
-  ValueStorage<long> *_spread = SpreadValueStorage::GetInstance(SYMBOL, TF);                    \
-  ValueStorage<double> *_price_open = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_OPEN);   \
-  ValueStorage<double> *_price_high = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_HIGH);   \
-  ValueStorage<double> *_price_low = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_LOW);     \
-  ValueStorage<double> *_price_close = PriceValueStorage::GetInstance(SYMBOL, TF, PRICE_CLOSE); \
-  INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
-
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(SYMBOL, TF, APPLIED_PRICE, KEY) \
-  ValueStorage<double> *_price = PriceValueStorage::GetInstance(SYMBOL, TF, APPLIED_PRICE); \
-  INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
-
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS(INDI, SYMBOL, TF, APPLIED_PRICE, KEY) \
-  ValueStorage<double> *_price = INDI.GetValueStorage(APPLIED_PRICE);                                \
-  INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
-
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT_DS_SPECIFIC(INDI, SYMBOL, TF, APPLIED_PRICE, KEY)         \
+/**
+ * Note that INDI is used as target indicator and source indicator is searched
+ * by GetSuitableDataSource(). Would be better to differentiate target and
+ * source indicator in order user wanted to run INDI on custom data source
+ * (the one that doesn't exist in the hierarchy).
+ */
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(INDI, APPLIED_PRICE, KEY)                                 \
   ValueStorage<double> *_price;                                                                                       \
-  if (_indi.HasSpecificAppliedPriceValueStorage(APPLIED_PRICE)) {                                                     \
-    _price = INDI.GetSpecificAppliedPriceValueStorage(APPLIED_PRICE);                                                 \
+  if (INDI PTR_DEREF GetSuitableDataSource() PTR_DEREF HasSpecificAppliedPriceValueStorage(APPLIED_PRICE, INDI)) {    \
+    _price =                                                                                                          \
+        INDI PTR_DEREF GetSuitableDataSource() PTR_DEREF GetSpecificAppliedPriceValueStorage(APPLIED_PRICE, INDI);    \
   } else {                                                                                                            \
-    Print("Source indicator ", INDI.GetFullName(),                                                                    \
+    Print("Source indicator ", INDI PTR_DEREF GetFullName(),                                                          \
           " cannot be used as it doesn't provide a single buffer to be used by target indicator! You may try to set " \
-          "applied price/data source mode and try again.");                                                           \
+          "applied price/data source mode and try again. AP passed by params: ",                                      \
+          EnumToString(INDI PTR_DEREF GetAppliedPrice()),                                                             \
+          ", AP overriden: ", EnumToString(INDI PTR_DEREF GetDataSourceAppliedType()));                               \
     DebugBreak();                                                                                                     \
   }                                                                                                                   \
-                                                                                                                      \
-  INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
+  INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)
 
-#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(INDI, SYMBOL, TF, KEY)                                   \
-  ValueStorage<datetime> *_time = (ValueStorage<datetime> *)INDI.GetSpecificValueStorage(INDI_VS_TYPE_TIME);           \
-  ValueStorage<long> *_tick_volume = (ValueStorage<long> *)INDI.GetSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME);     \
-  ValueStorage<long> *_volume = (ValueStorage<long> *)INDI.GetSpecificValueStorage(INDI_VS_TYPE_VOLUME);               \
-  ValueStorage<long> *_spread = (ValueStorage<long> *)INDI.GetSpecificValueStorage(INDI_VS_TYPE_SPREAD);               \
-  ValueStorage<double> *_price_open = (ValueStorage<double> *)INDI.GetSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);   \
-  ValueStorage<double> *_price_high = (ValueStorage<double> *)INDI.GetSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);   \
-  ValueStorage<double> *_price_low = (ValueStorage<double> *)INDI.GetSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);     \
-  ValueStorage<double> *_price_close = (ValueStorage<double> *)INDI.GetSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE); \
-  INDICATOR_CALCULATE_POPULATE_CACHE(SYMBOL, TF, KEY)
+#define INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(INDI, KEY)                                   \
+  IndicatorData *_suitable_ds = INDI PTR_DEREF GetSuitableDataSource();                                 \
+  ValueStorage<datetime> *_time =                                                                       \
+      (ValueStorage<datetime> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_TIME);      \
+  ValueStorage<long> *_tick_volume =                                                                    \
+      (ValueStorage<long> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_TICK_VOLUME);   \
+  ValueStorage<long> *_volume =                                                                         \
+      (ValueStorage<long> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_VOLUME);        \
+  ValueStorage<long> *_spread =                                                                         \
+      (ValueStorage<long> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_SPREAD);        \
+  ValueStorage<double> *_price_open =                                                                   \
+      (ValueStorage<double> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);  \
+  ValueStorage<double> *_price_high =                                                                   \
+      (ValueStorage<double> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);  \
+  ValueStorage<double> *_price_low =                                                                    \
+      (ValueStorage<double> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);   \
+  ValueStorage<double> *_price_close =                                                                  \
+      (ValueStorage<double> *)_suitable_ds PTR_DEREF GetSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE); \
+  INDICATOR_CALCULATE_POPULATE_CACHE(INDI, KEY)
 
 #define INDICATOR_CALCULATE_POPULATED_PARAMS_LONG \
   _time, _price_open, _price_high, _price_low, _price_close, _tick_volume, _volume, _spread
@@ -154,7 +154,16 @@ class ValueStorage : public IValueStorage {
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
   virtual C Fetch(int _shift) {
-    Alert(__FUNCSIG__, " is not supported!");
+    Alert("Fetching data by shift is not supported from this value storage!");
+    DebugBreak();
+    return (C)0;
+  }
+
+  /**
+   * Fetches value from a given datetime. Takes into consideration as-series flag.
+   */
+  virtual C Fetch(datetime _dt) {
+    Alert("Fetching data by datetime is not supported from this value storage!");
     DebugBreak();
     return (C)0;
   }
@@ -180,6 +189,16 @@ class ValueStorage : public IValueStorage {
     return true;
   }
 };
+
+template <typename C>
+string StringifyOHLC(ValueStorage<C> &_open, ValueStorage<C> &_high, ValueStorage<C> &_low, ValueStorage<C> &_close,
+                     int _shift = 0) {
+  C _o = _open[_shift].Get();
+  C _h = _high[_shift].Get();
+  C _l = _low[_shift].Get();
+  C _c = _close[_shift].Get();
+  return IntegerToString(_shift) + ": " + Util::MakeKey(_o, _h, _l, _c);
+}
 
 /**
  * ValueStorage-compatible wrapper for ArrayInitialize.
@@ -295,4 +314,4 @@ int iPeak(ValueStorage<double> &_price, int _count, int _start, ENUM_IPEAK _type
   return _price_size - _peak_idx - 1;
 }
 
-#endif  // STRATEGY_MQH
+#endif  // VALUE_STORAGE_H

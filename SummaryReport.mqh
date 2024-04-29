@@ -30,9 +30,7 @@
  * Class to provide a summary report.
  */
 class SummaryReport {
-
   protected:
-
     // Variables.
     double init_deposit;
     double summary_profit;
@@ -69,20 +67,15 @@ class SummaryReport {
     double init_balance;
 
   public:
-
     /**
      * Default constructor.
      */
-    SummaryReport() {
-      InitVars(AccountMt::AccountBalance());
-    }
+  SummaryReport() { InitVars(AccountMt::AccountBalance()); }
 
     /**
      * Constructor to initialize starting balance.
      */
-    SummaryReport(double deposit) {
-      InitVars(deposit);
-    }
+  SummaryReport(double deposit) { InitVars(deposit); }
 
     /**
      * Constructor to initialize starting balance.
@@ -128,8 +121,7 @@ class SummaryReport {
       static double deposit = 0;
       if (deposit > 0) {
         return deposit;
-      }
-      else if (!Terminal::IsRealtime() && init_deposit > 0) {
+    } else if (!Terminal::IsRealtime() && init_deposit > 0) {
         deposit = init_deposit;
       } else {
         deposit = AccountMt::CalcInitDeposit();
@@ -187,8 +179,7 @@ class SummaryReport {
         summary_trades++;
         if (type == ORDER_TYPE_BUY) {
           long_trades++;
-        }
-        else if (type == ORDER_TYPE_SELL) {
+      } else if (type == ORDER_TYPE_SELL) {
           short_trades++;
         }
         if (profit < 0) {
@@ -198,13 +189,11 @@ class SummaryReport {
           if (min_profit > profit) min_profit = profit;
           // Fortune changed.
           if (prev_profit != EMPTY_VALUE && prev_profit >= 0) {
-            if (con_profit_trades1 < sequence ||
-                (con_profit_trades1 == sequence && con_profit2 < sequential)) {
+          if (con_profit_trades1 < sequence || (con_profit_trades1 == sequence && con_profit2 < sequential)) {
               con_profit_trades1 = sequence;
               con_profit1 = sequential;
             }
-            if (con_profit2 < sequential ||
-                (con_profit2 == sequential && con_profit_trades1 < sequence)) {
+          if (con_profit2 < sequential || (con_profit2 == sequential && con_profit_trades1 < sequence)) {
               con_profit2 = sequential;
               con_profit_trades2 = sequence;
             }
@@ -222,13 +211,11 @@ class SummaryReport {
           if (max_profit < profit) max_profit = profit;
           // Fortune changed.
           if (prev_profit != EMPTY_VALUE && prev_profit < 0) {
-            if (con_loss_trades1 < sequence ||
-                (con_loss_trades1 == sequence && con_loss2 > sequential)) {
+          if (con_loss_trades1 < sequence || (con_loss_trades1 == sequence && con_loss2 > sequential)) {
               con_loss_trades1 = sequence;
               con_loss1 = sequential;
             }
-            if (con_loss2 > sequential ||
-                (con_loss2 == sequential && con_loss_trades1 < sequence)) {
+          if (con_loss2 > sequential || (con_loss2 == sequential && con_loss_trades1 < sequence)) {
               con_loss2 = sequential;
               con_loss_trades2 = sequence;
             }
@@ -259,27 +246,22 @@ class SummaryReport {
       if (prev_profit != EMPTY_VALUE) {
         profit = prev_profit;
         if (profit < 0) {
-          if (con_loss_trades1 < sequence ||
-              (con_loss_trades1 == sequence && con_loss2 > sequential)) {
+        if (con_loss_trades1 < sequence || (con_loss_trades1 == sequence && con_loss2 > sequential)) {
             con_loss_trades1 = sequence;
             con_loss1 = sequential;
           }
-          if (con_loss2 > sequential ||
-              (con_loss2 == sequential && con_loss_trades1 < sequence)) {
+        if (con_loss2 > sequential || (con_loss2 == sequential && con_loss_trades1 < sequence)) {
             con_loss2 = sequential;
             con_loss_trades2 = sequence;
           }
           loss_seqs++;
           avg_con_losses += sequence;
-        }
-        else {
-          if (con_profit_trades1 < sequence ||
-              (con_profit_trades1 == sequence && con_profit2 < sequential)) {
+      } else {
+        if (con_profit_trades1 < sequence || (con_profit_trades1 == sequence && con_profit2 < sequential)) {
             con_profit_trades1 = sequence;
             con_profit1 = sequential;
           }
-          if (con_profit2 < sequential ||
-              (con_profit2 == sequential && con_profit_trades1 < sequence)) {
+        if (con_profit2 < sequential || (con_profit2 == sequential && con_profit_trades1 < sequence)) {
             con_profit2 = sequential;
             con_profit_trades2 = sequence;
           }
@@ -324,24 +306,42 @@ class SummaryReport {
       output += StringFormat("Gross profit:                               %.2f %s", gross_profit, _currency) + sep;
       output += StringFormat("Gross loss:                                 %.2f %s", gross_loss, _currency)  + sep;
       output += StringFormat("Absolute drawdown:                          %.2f %s", abs_dd, _currency) + sep;
-      output += StringFormat("Maximal drawdown:                           %.1f %s (%.1f%%)", max_dd, _currency, max_dd_pct) + sep;
-      output += StringFormat("Relative drawdown:                          (%.1f%%) %.1f %s", rel_dd_pct, rel_dd, _currency) + sep;
+    output +=
+        StringFormat("Maximal drawdown:                           %.1f %s (%.1f%%)", max_dd, _currency, max_dd_pct) +
+        sep;
+    output +=
+        StringFormat("Relative drawdown:                          (%.1f%%) %.1f %s", rel_dd_pct, rel_dd, _currency) +
+        sep;
       output += StringFormat("Profit factor:                              %.2f", profit_factor) + sep;
       output += StringFormat("Expected payoff:                            %.2f", expected_payoff) + sep;
       output += StringFormat("Trades total                                %d", summary_trades) + sep;
-      output += StringFormat("Short positions (won %%):                    %d (%.1f%%)", short_trades, short_trades ? 100.0 * win_short_trades / short_trades : 0) + sep;
-      output += StringFormat("Long positions (won %%):                     %d (%.1f%%)", long_trades, long_trades ? 100.0 * win_long_trades / long_trades : 0) + sep;
-      output += StringFormat("Profit trades (%% of total):                 %d (%.1f%%)", profit_trades, profit_trades ? 100.0 * profit_trades / summary_trades : 0) + sep;
-      output += StringFormat("Loss trades (%% of total):                   %d (%.1f%%)", loss_trades, loss_trades ? 100.0 * loss_trades / summary_trades : 0) + sep;
+    output += StringFormat("Short positions (won %%):                    %d (%.1f%%)", short_trades,
+                           short_trades ? 100.0 * win_short_trades / short_trades : 0) +
+              sep;
+    output += StringFormat("Long positions (won %%):                     %d (%.1f%%)", long_trades,
+                           long_trades ? 100.0 * win_long_trades / long_trades : 0) +
+              sep;
+    output += StringFormat("Profit trades (%% of total):                 %d (%.1f%%)", profit_trades,
+                           profit_trades ? 100.0 * profit_trades / summary_trades : 0) +
+              sep;
+    output += StringFormat("Loss trades (%% of total):                   %d (%.1f%%)", loss_trades,
+                           loss_trades ? 100.0 * loss_trades / summary_trades : 0) +
+              sep;
       output += StringFormat("Largest profit trade:                       %.2f", max_profit) + sep;
       output += StringFormat("Largest loss trade:                         %.2f", -min_profit) + sep;
-      output += StringFormat("Average profit trade:                       %.2f", profit_trades ? gross_profit / profit_trades : 0) + sep;
-      output += StringFormat("Average loss trade:                         %.2f", loss_trades ? -gross_loss / loss_trades : 0) + sep;
+    output += StringFormat("Average profit trade:                       %.2f",
+                           profit_trades ? gross_profit / profit_trades : 0) +
+              sep;
+    output +=
+        StringFormat("Average loss trade:                         %.2f", loss_trades ? -gross_loss / loss_trades : 0) +
+        sep;
       output += StringFormat("Average consecutive wins:                   %.2f", avg_con_wins) + sep;
       output += StringFormat("Average consecutive losses:                 %.2f", avg_con_losses) + sep;
-      output += StringFormat("Maximum consecutive wins (profit in money): %d (%.2f)", con_profit_trades1, con_profit1) + sep;
+    output +=
+        StringFormat("Maximum consecutive wins (profit in money): %d (%.2f)", con_profit_trades1, con_profit1) + sep;
       output += StringFormat("Maximum consecutive losses (loss in money): %d (%.2f)", con_loss_trades1, -con_loss1) + sep;
-      output += StringFormat("Maximal consecutive profit (count of wins): %.2f (%d)", con_profit2, con_profit_trades2) + sep;
+    output +=
+        StringFormat("Maximal consecutive profit (count of wins): %.2f (%d)", con_profit2, con_profit_trades2) + sep;
       output += StringFormat("Maximal consecutive loss (count of losses): %.2f (%d)", con_loss2, con_loss_trades2) + sep;
       return output;
     }

@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_ATR.mqh"
 #include "Indi_MA.mqh"
@@ -52,42 +52,61 @@ struct IndiUltimateOscillatorParams : IndicatorParams {
     slow_k = _slow_k;
     slow_period = _slow_period;
   };
-  IndiUltimateOscillatorParams(IndiUltimateOscillatorParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiUltimateOscillatorParams(IndiUltimateOscillatorParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
-class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateOscillatorParams> {
+class Indi_UltimateOscillator : public Indicator<IndiUltimateOscillatorParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_UltimateOscillator(IndiUltimateOscillatorParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                           IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
-            _indi_src){};
-  Indi_UltimateOscillator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_ULTIMATE_OSCILLATOR, _tf, _shift){};
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  Indi_UltimateOscillator(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                          IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator(IndiUltimateOscillatorParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  _indi_src){};
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_CUSTOM; }
 
   /**
-   * Built-in version of Ultimate Oscillator.
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
-  static double iUO(string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period, int _middle_period, int _slow_period,
-                    int _fast_k, int _middle_k, int _slow_k, int _mode = 0, int _shift = 0,
-                    IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
-        _symbol, _tf,
-        Util::MakeKey("Indi_UltimateOscillator", _fast_period, _middle_period, _slow_period, _fast_k, _middle_k,
-                      _slow_k));
+  unsigned int GetPossibleDataModes() override { return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR; }
 
-    IndicatorData *_indi_atr_fast = Indi_ATR::GetCached(_symbol, _tf, _fast_period);
-    IndicatorData *_indi_atr_middle = Indi_ATR::GetCached(_symbol, _tf, _middle_period);
-    IndicatorData *_indi_atr_slow = Indi_ATR::GetCached(_symbol, _tf, _slow_period);
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiUltimateOscillatorParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // UO uses only low and close prices.
+    return _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_LOW) &&
+           _ds PTR_DEREF HasSpecificAppliedPriceValueStorage(PRICE_CLOSE);
+  }
+
+  /**
+   * OnCalculate-based version of Ultimate Oscillator as there is no built-in one.
+   */
+  static double iUO(IndicatorData *_indi, int _fast_period, int _middle_period, int _slow_period, int _fast_k,
+                    int _middle_k, int _slow_k, int _mode = 0, int _shift = 0) {
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
+        _indi, Util::MakeKey(_fast_period, _middle_period, _slow_period, _fast_k, _middle_k, _slow_k));
+
+    // Will return Indi_ATRs with the same candles source as _indi's.
+    IndicatorData *_indi_atr_fast = Indi_ATR::GetCached(_indi, _fast_period);
+    IndicatorData *_indi_atr_middle = Indi_ATR::GetCached(_indi, _middle_period);
+    IndicatorData *_indi_atr_slow = Indi_ATR::GetCached(_indi, _slow_period);
 
     return iUOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_period, _middle_period, _slow_period, _fast_k,
                       _middle_k, _slow_k, _mode, _shift, _cache, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow);
@@ -116,26 +135,6 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
         _middle_period, _slow_period, _fast_k, _middle_k, _slow_k, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow));
 
     return _cache.GetTailValue<double>(_mode, _shift);
-  }
-
-  /**
-   * On-indicator version of Ultimate Oscillator.
-   */
-  static double iUOOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _fast_period,
-                               int _middle_period, int _slow_period, int _fast_k, int _middle_k, int _slow_k,
-                               int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
-        _indi, _symbol, _tf,
-        Util::MakeKey("Indi_UltimateOscillator_ON_" + _indi.GetFullName(), _fast_period, _middle_period, _slow_period,
-                      _fast_k, _middle_k, _slow_k));
-
-    // @fixit This won't work! Find a way to differentiate ATRs.
-    Indi_ATR *_indi_atr_fast = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_FAST);
-    Indi_ATR *_indi_atr_middle = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_MIDDLE);
-    Indi_ATR *_indi_atr_slow = (Indi_ATR *)_indi.GetDataSource(INDI_ULTIMATE_OSCILLATOR_ATR_SLOW);
-
-    return iUOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_period, _middle_period, _slow_period, _fast_k,
-                      _middle_k, _slow_k, _mode, _shift, _cache, _indi_atr_fast, _indi_atr_middle, _indi_atr_slow);
   }
 
   /**
@@ -249,14 +248,14 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_UltimateOscillator::iUO(GetSymbol(), GetTf(), /*[*/ GetFastPeriod(), GetMiddlePeriod(),
-                                              GetSlowPeriod(), GetFastK(), GetMiddleK(), GetSlowK() /*]*/, _mode,
-                                              _ishift, THIS_PTR);
+      case IDATA_ONCALCULATE:
+        _value = Indi_UltimateOscillator::iUO(THIS_PTR, GetFastPeriod(), GetMiddlePeriod(), GetSlowPeriod(), GetFastK(),
+                                              GetMiddleK(), GetSlowK(), _mode, _ishift);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
@@ -266,9 +265,8 @@ class Indi_UltimateOscillator : public IndicatorTickOrCandleSource<IndiUltimateO
                          0, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_UltimateOscillator::iUOOnIndicator(GetDataSource(), GetSymbol(), GetTf(), /*[*/ GetFastPeriod(),
-                                                         GetMiddlePeriod(), GetSlowPeriod(), GetFastK(), GetMiddleK(),
-                                                         GetSlowK() /*]*/, _mode, _ishift, THIS_PTR);
+        _value = Indi_UltimateOscillator::iUO(THIS_PTR, GetFastPeriod(), GetMiddlePeriod(), GetSlowPeriod(), GetFastK(),
+                                              GetMiddleK(), GetSlowK(), _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

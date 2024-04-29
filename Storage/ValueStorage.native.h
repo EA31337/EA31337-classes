@@ -64,12 +64,12 @@ class NativeValueStorage : public ValueStorage<C> {
   /**
    * Initializes storage with given value.
    */
-  virtual void Initialize(C _value) { ArrayInitialize(_values, _value); }
+  void Initialize(C _value) override { ArrayInitialize(_values, _value); }
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual C Fetch(int _shift) {
+  C Fetch(int _shift) override {
     if (_shift < 0 || _shift >= _values_size) {
       return (C)EMPTY_VALUE;
       // Print("Invalid buffer data index: ", _shift, ". Buffer size: ", ArraySize(_values));
@@ -82,27 +82,27 @@ class NativeValueStorage : public ValueStorage<C> {
   /**
    * Stores value at a given shift. Takes into consideration as-series flag.
    */
-  virtual void Store(int _shift, C _value) { Array::ArrayStore(_values, _shift, _value, 4096); }
+  void Store(int _shift, C _value) override { Array::ArrayStore(_values, _shift, _value, 4096); }
 
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  virtual int Size() const { return _values_size; }
+  int Size() override { return _values_size; }
 
   /**
    * Resizes storage to given size.
    */
-  virtual void Resize(int _size, int _reserve) { ArrayResize(_values, _size, _reserve); }
+  void Resize(int _size, int _reserve) override { ArrayResize(_values, _size, _reserve); }
 
   /**
    * Checks whether storage operates in as-series mode.
    */
-  virtual bool IsSeries() const { return ArrayGetAsSeries(_values); }
+  bool IsSeries() const override { return ArrayGetAsSeries(_values); }
 
   /**
    * Sets storage's as-series mode on or off.
    */
-  virtual bool SetSeries(bool _value) {
+  bool SetSeries(bool _value) override {
     ArraySetAsSeries(_values, _value);
     return true;
   }

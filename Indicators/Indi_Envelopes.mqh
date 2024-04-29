@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Storage/Singleton.h"
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
@@ -62,16 +62,13 @@ struct IndiEnvelopesParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\Envelopes");
   };
-  IndiEnvelopesParams(IndiEnvelopesParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiEnvelopesParams(IndiEnvelopesParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Envelopes indicator.
  */
-class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
+class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
  protected:
   /* Protected methods */
 
@@ -93,15 +90,29 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
    */
   Indi_Envelopes(IndiEnvelopesParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                  IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
-            _indi_src) {
+      : Indicator(_p, IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {
     Init();
   }
-  Indi_Envelopes(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_ENVELOPES, _tf, _shift) {
+  Indi_Envelopes(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                 int _indi_src_mode = 0)
+      : Indicator(IndiEnvelopesParams(),
+                  IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {
     Init();
-  };
+  }
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+ public:
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
 
   /**
    * Returns the indicator value.
@@ -155,16 +166,15 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double> *_cache, IndicatorData *_indi, string _symbol,
+  static double iEnvelopesOnIndicator(IndicatorData *_target, IndicatorData *_source, string _symbol,
                                       ENUM_TIMEFRAMES _tf, int _ma_period,
                                       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                                      int _indi_mode,  // Source indicator's mode index. May be -1 to use first buffer
-                                      int _ma_shift, double _deviation,
+                                      ENUM_APPLIED_PRICE _ap, int _ma_shift, double _deviation,
                                       int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5
                                                   // _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
                                       int _shift = 0) {
-    return iEnvelopesOnArray(_indi.GetValueStorage(_indi_mode), 0, _ma_period, _ma_method, _ma_shift, _deviation, _mode,
-                             _shift, _cache);
+    return iEnvelopesOnArray(_source.GetSpecificAppliedPriceValueStorage(_ap, _target), 0, _ma_period, _ma_method,
+                             _ma_shift, _deviation, _mode, _shift, _target PTR_DEREF GetCache());
   }
 
   static double iEnvelopesOnArray(double &price[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
@@ -215,7 +225,7 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -223,15 +233,20 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
         _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
                                             GetAppliedPrice(), GetDeviation(), _mode, _ishift, THIS_PTR);
         break;
+      case IDATA_ONCALCULATE:
+        // @todo Is cache needed here?
+        _value = Indi_Envelopes::iEnvelopesOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
+                                                       GetMAMethod(), GetAppliedPrice(), GetMAShift(), GetDeviation(),
+                                                       _mode, _ishift);
+        break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/ GetMAPeriod(),
                          GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation() /**/, _mode, _ishift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Envelopes::iEnvelopesOnIndicator(GetCache(), GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
-                                                       GetMAMethod(),
-                                                       Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)),
-                                                       GetMAShift(), GetDeviation(), _mode, _ishift);
+        _value = Indi_Envelopes::iEnvelopesOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
+                                                       GetMAMethod(), GetAppliedPrice(), GetMAShift(), GetDeviation(),
+                                                       _mode, _ishift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -243,8 +258,8 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
   /**
    * Alters indicator's struct value.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry &_entry, int _shift = 0) {
-    Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry);
+  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
+    Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry, _shift);
 #ifdef __MQL4__
     // The LINE_MAIN only exists in MQL4 for Envelopes.
     _entry.values[LINE_MAIN] = GetValue<double>((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
@@ -278,7 +293,7 @@ class Indi_Envelopes : public IndicatorTickOrCandleSource<IndiEnvelopesParams> {
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /**
    * Get deviation value.

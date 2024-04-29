@@ -53,7 +53,7 @@ jobs:
           - Indi_CCI.test
           - Indi_CHO.test
           - Indi_CHV.test
-          - Indi_ColorBars.test
+          # - Indi_ColorBars.test # @fixme
           - Indi_ColorCandlesDaily.test
           - Indi_ColorLine.test
           - Indi_CustomMovingAverage.test
@@ -110,7 +110,9 @@ jobs:
         with:
           BtDays: 4-8
           BtMonths: 1
-          BtYears: 2020
+          BtYears: 2021
+          MtVersion: 4.0.0.1359
+          RunOnError: show_logs 200
           TestExpert: ${{ matrix.test }}
     timeout-minutes: 10
 

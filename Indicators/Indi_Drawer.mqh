@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -20,12 +20,9 @@
  *
  */
 
-// Forward declaration.
-struct IndicatorParams;
-
 // Includes.
 #include "../DictStruct.mqh"
-#include "../Indicator/IndicatorTickOrCandleSource.h"
+#include "../Indicator.mqh"
 #include "../Redis.mqh"
 #include "../Task/TaskAction.h"
 #include "Indi_Drawer.struct.h"
@@ -34,7 +31,7 @@ struct IndicatorParams;
 /**
  * Implements the Relative Strength Index indicator.
  */
-class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
+class Indi_Drawer : public Indicator<IndiDrawerParams> {
   Redis redis;
 
  public:
@@ -43,16 +40,29 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
    */
   Indi_Drawer(const IndiDrawerParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
               IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
-      : IndicatorTickOrCandleSource(
-            _p, IndicatorDataParams::GetInstance(0, TYPE_DOUBLE, _idstype, IDATA_RANGE_UNKNOWN, _indi_src_mode),
-            _indi_src),
+      : Indicator(_p, IndicatorDataParams::GetInstance(0, TYPE_DOUBLE, _idstype, IDATA_RANGE_UNKNOWN, _indi_src_mode),
+                  _indi_src),
         redis(true) {
     Init();
   }
-  Indi_Drawer(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_DRAWER, _tf, _shift), redis(true) {
+  Indi_Drawer(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : Indicator(IndiDrawerParams(),
+                  IndicatorDataParams::GetInstance(0, TYPE_DOUBLE, _idstype, IDATA_RANGE_UNKNOWN, _indi_src_mode),
+                  _indi_src),
+        redis(true) {
     Init();
   }
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_ANY; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN | IDATA_INDICATOR; }
 
   void Init() {
     // Drawer is always ready.
@@ -104,7 +114,6 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
   virtual void OnTick() {
     Indicator<IndiDrawerParams>::OnTick();
 
-    TaskActionEntry action(INDI_ACTION_SET_VALUE);
     /* @fixme
     TaskActionEntry action(INDI_ACTION_SET_VALUE);
     ArrayResize(action.args, 3);
@@ -118,7 +127,8 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
     action.args[2].double_value = 1.25;
     */
 
-    //string json = SerializerConverter::FromObject(action).ToString<SerializerJson>(/*SERIALIZER_JSON_NO_WHITESPACES*/);
+    // string json =
+    // SerializerConverter::FromObject(action).ToString<SerializerJson>(/*SERIALIZER_JSON_NO_WHITESPACES*/);
 
     /* @fixme
     RedisMessage msg;
@@ -206,7 +216,7 @@ class Indi_Drawer : public IndicatorTickOrCandleSource<IndiDrawerParams> {
   /**
    * Get applied price value.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_price; }
 
   /* Setters */
 

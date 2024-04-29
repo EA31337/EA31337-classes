@@ -139,7 +139,7 @@ class SerializerNode {
           _result += StringLen(PTR_ATTRIB(_value, _string)) + 1;
           break;
         default:
-          Print("Error: Wrong value type!");
+          Print("Error: Wrong value type ", GetType(), "!");
           SetUserError(ERR_INVALID_PARAMETER);
           DebugBreak();
       }

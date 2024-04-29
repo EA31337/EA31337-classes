@@ -27,7 +27,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
-#include "../Indicator/IndicatorTickSource.h"
+#include "../Indicator.mqh"
 #include "../Refs.mqh"
 #include "../Storage/Singleton.h"
 #include "../Storage/ValueStorage.h"
@@ -60,26 +60,49 @@ struct IndiMAParams : IndicatorParams {
     shift = _shift;
     SetCustomIndicatorName("Examples\\Moving Average");
   };
-  IndiMAParams(IndiMAParams &_params, ENUM_TIMEFRAMES _tf) {
-    THIS_REF = _params;
-    tf = _tf;
-  };
+  IndiMAParams(IndiMAParams &_params) { THIS_REF = _params; };
 };
 
 /**
  * Implements the Moving Average indicator.
  */
-class Indi_MA : public IndicatorTickSource<IndiMAParams> {
+class Indi_MA : public Indicator<IndiMAParams> {
  public:
   /**
    * Class constructor.
    */
   Indi_MA(IndiMAParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
           int _indi_src_mode = 0)
-      : IndicatorTickSource(
-            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
-            _indi_src) {}
-  Indi_MA(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_MA, _tf, _shift) {}
+      : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
+  Indi_MA(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+          int _indi_src_mode = 0)
+      : Indicator(IndiMAParams(),
+                  IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                  _indi_src) {}
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_AP; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override {
+    return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+  }
+
+  /**
+   * Checks whether given data source satisfies our requirements.
+   */
+  bool OnCheckIfSuitableDataSource(IndicatorData *_ds) override {
+    if (Indicator<IndiMAParams>::OnCheckIfSuitableDataSource(_ds)) {
+      return true;
+    }
+
+    // Volume uses volume only.
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+  }
 
   /**
    * Returns the indicator value.
@@ -89,15 +112,15 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
    * - https://www.mql5.com/en/docs/indicators/ima
    */
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
-                    ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_array, int _shift = 0,
+                    ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
                     IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
-    return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array, _shift);
+    return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_array)) == INVALID_HANDLE) {
+      if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
       } else if (Object::IsValid(_obj)) {
@@ -125,11 +148,12 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
   /**
    * Calculates MA on another indicator.
    */
-  static double iMAOnIndicator(IndicatorCalculateCache<double> *cache, IndicatorData *_indi, int indi_mode,
-                               string symbol, ENUM_TIMEFRAMES tf, unsigned int ma_period, unsigned int ma_shift,
+  static double iMAOnIndicator(IndicatorData *_target, IndicatorData *_source, string symbol, ENUM_TIMEFRAMES tf,
+                               unsigned int ma_period, unsigned int ma_shift,
                                ENUM_MA_METHOD ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                               int shift = 0) {
-    return iMAOnArray(_indi.GetValueStorage(indi_mode), 0, ma_period, ma_shift, ma_method, shift, cache);
+                               ENUM_APPLIED_PRICE _ap, int shift = 0) {
+    ValueStorage<double> *_data = (ValueStorage<double> *)_source.GetSpecificAppliedPriceValueStorage(_ap, _target);
+    return iMAOnArray(_data, 0, ma_period, ma_shift, ma_method, shift, _target PTR_DEREF GetCache());
   }
 
   /**
@@ -140,96 +164,11 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
 #ifdef __MQL4__
     return ::iMAOnArray(price, total, ma_period, ma_shift, ma_method, shift);
 #else
-    if (cache != NULL) {
-      // We're reusing the same native array for each consecutive calculation.
-      NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();
-      _array_storage.SetData(price);
+    // We're reusing the same native array for each consecutive calculation.
+    NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();
+    _array_storage.SetData(price);
 
-      return iMAOnArray((ValueStorage<double> *)_array_storage, total, ma_period, ma_shift, ma_method, shift, cache);
-    } else {
-      double buf[], arr[], _result, pr, _array;
-      int pos, i, k, weight;
-      double sum, lsum;
-      if (total == 0) total = ArraySize(price);
-      if (total > 0 && total < ma_period) return (0);
-      if (shift > total - ma_period - ma_shift) return (0);
-      bool _was_series = ArrayGetAsSeries(price);
-      ArraySetAsSeries(price, true);
-      switch (ma_method) {
-        case MODE_SMA:
-          total = ArrayCopy(arr, price, 0, shift + ma_shift, ma_period);
-          if (ArrayResize(buf, total) < 0) return (0);
-          sum = 0;
-          pos = total - 1;
-          for (i = 1; i < ma_period; i++, pos--) sum += arr[pos];
-          while (pos >= 0) {
-            sum += arr[pos];
-            buf[pos] = sum / ma_period;
-            sum -= arr[pos + ma_period - 1];
-            pos--;
-          }
-          _result = buf[0];
-          break;
-        case MODE_EMA:
-          if (ArrayResize(buf, total) < 0) return (0);
-          pr = 2.0 / (ma_period + 1);
-          pos = total - 2;
-          while (pos >= 0) {
-            if (pos == total - 2) buf[pos + 1] = price[pos + 1];
-            buf[pos] = price[pos] * pr + buf[pos + 1] * (1 - pr);
-            pos--;
-          }
-          _result = buf[0];
-          break;
-        case MODE_SMMA:
-          if (ArrayResize(buf, total) < 0) return (0);
-          sum = 0;
-          pos = total - ma_period;
-          while (pos >= 0) {
-            if (pos == total - ma_period) {
-              for (i = 0, k = pos; i < ma_period; i++, k++) {
-                sum += price[k];
-                buf[k] = 0;
-              }
-            } else
-              sum = buf[pos + 1] * (ma_period - 1) + price[pos];
-            buf[pos] = sum / ma_period;
-            pos--;
-          }
-          _result = buf[0];
-          break;
-        case MODE_LWMA:
-          if (ArrayResize(buf, total) < 0) return (0);
-          sum = 0.0;
-          lsum = 0.0;
-          weight = 0;
-          pos = total - 1;
-          for (i = 1; i <= ma_period; i++, pos--) {
-            _array = price[pos];
-            sum += _array * i;
-            lsum += _array;
-            weight += i;
-          }
-          pos++;
-          i = pos + ma_period;
-          while (pos >= 0) {
-            buf[pos] = sum / weight;
-            if (pos == 0) break;
-            pos--;
-            i--;
-            _array = price[pos];
-            sum = sum - lsum + _array * ma_period;
-            lsum -= price[i];
-            lsum += _array;
-          }
-          _result = buf[0];
-          break;
-        default:
-          _result = 0;
-      }
-      ArraySetAsSeries(price, _was_series);
-      return _result;
-    }
+    return iMAOnArray((ValueStorage<double> *)_array_storage, total, ma_period, ma_shift, ma_method, shift, cache);
 #endif
   }
 
@@ -711,7 +650,7 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
@@ -719,15 +658,18 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
         _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
                               _ishift, THIS_PTR);
         break;
+      case IDATA_ONCALCULATE:
+        _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+                                         GetMAMethod(), GetAppliedPrice(), _ishift);
+        break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
                          GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, _ishift);
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(),
-                                         Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)), GetSymbol(),
-                                         GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), _ishift);
+        _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+                                         GetMAMethod(), GetAppliedPrice(), _ishift);
         break;
     }
 
@@ -735,16 +677,18 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
   }
 
   /**
-   * Returns reusable indicator.
+   * Returns reusable indicator with the same candle indicator as given indicator's one.
    */
-  static Indi_MA *GetCached(string _symbol, ENUM_TIMEFRAMES _tf, int _period, int _ma_shift, ENUM_MA_METHOD _ma_method,
+  static Indi_MA *GetCached(IndicatorData *_indi, int _period, int _ma_shift, ENUM_MA_METHOD _ma_method,
                             ENUM_APPLIED_PRICE _ap) {
     Indi_MA *_ptr;
-    string _key = Util::MakeKey(_symbol, (int)_tf, _period, _ma_shift, (int)_ma_method, (int)_ap);
+    string _key =
+        Util::MakeKey(_indi PTR_DEREF GetCandle() PTR_DEREF GetId(), _period, _ma_shift, (int)_ma_method, (int)_ap);
     if (!Objects<Indi_MA>::TryGet(_key, _ptr)) {
       IndiMAParams _p(_period, _ma_shift, _ma_method, _ap);
       _ptr = Objects<Indi_MA>::Set(_key, new Indi_MA(_p));
-      _ptr.SetSymbol(_symbol);
+      // Assigning the same candle indicator for MA as in _indi.
+      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }
@@ -804,7 +748,7 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
    *
    * The desired price base for calculations.
    */
-  ENUM_APPLIED_PRICE GetAppliedPrice() { return iparams.applied_array; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() override { return iparams.applied_array; }
 
   /* Setters */
 
@@ -844,9 +788,9 @@ class Indi_MA : public IndicatorTickSource<IndiMAParams> {
    * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
    * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
    */
-  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_array) {
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    iparams.applied_array = _applied_array;
+    iparams.applied_array = _applied_price;
   }
 };
 #endif  // INDI_MA_MQH
