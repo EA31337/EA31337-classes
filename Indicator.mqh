@@ -135,6 +135,14 @@ class Indicator : public IndicatorData {
   /* Getters */
 
   /**
+   * Gets an indicator's property value.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _param) const {
+    return iparams.Get<T>(_param);
+  }
+
+  /**
    * Gets a value from IndicatorDataParams struct.
    */
   template <typename T>
@@ -191,6 +199,14 @@ class Indicator : public IndicatorData {
   }
 
   /* Setters */
+
+  /**
+   * Sets an indicator's chart parameter value.
+   */
+  template <typename T>
+  void Set(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _param, T _value) {
+    iparams.Set<T>(_param, _value);
+  }
 
   /**
    * Sets the value for IndicatorDataParams struct.
@@ -334,6 +350,13 @@ class Indicator : public IndicatorData {
   // int GetModeCount() override { return (int)iparams.max_modes; }
 
   /**
+   * Gets indicator's timeframe.
+   */
+  ENUM_TIMEFRAMES GetTf() {
+    return ChartTf::SecsToTf(iparams.Get<uint>(STRUCT_ENUM(IndicatorParams, INDI_PARAMS_PROP_BPS)));
+  }
+
+  /**
    * Gets indicator's params.
    */
   IndicatorParams GetParams() { return iparams; }
@@ -447,6 +470,7 @@ class Indicator : public IndicatorData {
         return false;
       default:
         GetLogger().Error(StringFormat("Invalid indicator condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         return false;
     }
   }
@@ -475,6 +499,7 @@ class Indicator : public IndicatorData {
         return true;
       default:
         GetLogger().Error(StringFormat("Invalid Indicator action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         return false;
     }
     return _result;
@@ -511,14 +536,26 @@ class Indicator : public IndicatorData {
   /**
    * Adds entry to the indicator's buffer. Invalid entry won't be added.
    */
+  bool AddEntry(IndicatorDataEntry& entry, datetime _timestamp = 0) {
+    if (entry.IsValid()) {
+      entry.timestamp = _timestamp;
+      idata.Add(entry, _timestamp);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Adds entry to the indicator's buffer. Invalid entry won't be added.
+   */
   bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
-    if (!entry.IsValid()) return false;
-
-    datetime timestamp = GetBarTime(_shift);
-    entry.timestamp = timestamp;
-    idata.Add(entry, timestamp);
-
-    return true;
+    if (entry.IsValid()) {
+      datetime timestamp = GetBarTime(_shift);
+      entry.timestamp = timestamp;
+      idata.Add(entry, timestamp);
+      return true;
+    }
+    return false;
   }
 
   /* Data representation methods */
@@ -606,7 +643,7 @@ class Indicator : public IndicatorData {
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
       _entry.Resize(_max_modes);
-      _entry.timestamp = GetBarTime(_ishift);
+      _entry.timestamp = _bar_time;
 #ifndef __MQL4__
       if (IndicatorBase::Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED))) {
         // Resets the handle on any parameter changes.

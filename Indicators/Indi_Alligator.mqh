@@ -186,12 +186,12 @@ class Indi_Alligator : public Indicator<IndiAlligatorParams> {
 #endif
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
+        _value = Indi_Alligator::iAlligator(_Symbol, GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
                                             GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),
                                             GetAppliedPrice(), (ENUM_ALLIGATOR_LINE)_mode, _ishift, THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.GetCustomIndicatorName(), /*[*/
                          GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(),
                          GetLipsShift(), GetMAMethod(),
                          GetAppliedPrice()

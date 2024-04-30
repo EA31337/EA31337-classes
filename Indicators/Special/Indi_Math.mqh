@@ -132,12 +132,12 @@ class Indi_Math : public Indicator<IndiMathParams> {
         }
         switch (iparams.op_mode) {
           case MATH_OP_MODE_BUILTIN:
-            _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
+            _value = Indi_Math::iMathOnIndicator(GetDataSource(), _Symbol, GetTf(),
                                                  /*[*/ GetOpBuiltIn(), GetMode1(), GetMode2(), GetShift1(),
                                                  GetShift2() /*]*/, 0, _ishift, &this);
             break;
           case MATH_OP_MODE_CUSTOM_FUNCTION:
-            _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
+            _value = Indi_Math::iMathOnIndicator(GetDataSource(), _Symbol, GetTf(),
                                                  /*[*/ GetOpFunction(), GetMode1(), GetMode2(), GetShift1(),
                                                  GetShift2() /*]*/, 0, _ishift, &this);
             break;

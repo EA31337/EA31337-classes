@@ -655,20 +655,20 @@ class Indi_MA : public Indicator<IndiMAParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
+        _value = Indi_MA::iMA(_Symbol, GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
                               _ishift, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+        _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), _Symbol, GetTf(), GetPeriod(), GetMAShift(),
                                          GetMAMethod(), GetAppliedPrice(), _ishift);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
+        _value = iCustom(istate.handle, _Symbol, GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
                          GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, _ishift);
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+        _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), _Symbol, GetTf(), GetPeriod(), GetMAShift(),
                                          GetMAMethod(), GetAppliedPrice(), _ishift);
         break;
     }
