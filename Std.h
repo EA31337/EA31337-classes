@@ -93,9 +93,7 @@
  * @usage
  *   ARRAY_REF(<type of the array items>, <name of the variable>)
  */
-#define ARRAY_TYPE(T) T[]
 #define ARRAY_REF(T, N) REF(T) N ARRAY_DECLARATION_BRACKETS
-#define FIXED_ARRAY_REF(T, N, S) ARRAY_REF(T, N)
 
 #define CONST_ARRAY_REF(T, N) const N ARRAY_DECLARATION_BRACKETS
 
@@ -119,9 +117,7 @@
  * @usage
  *   ARRAY_REF(<type of the array items>, <name of the variable>)
  */
-#define ARRAY_TYPE(T) _cpp_array<T>
-#define ARRAY_REF(T, N) ARRAY_TYPE(T)& N
-#define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
+#define ARRAY_REF(T, N) _cpp_array<T>& N
 
 #define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
 
@@ -302,163 +298,3 @@ inline _NULL_VALUE::operator const std::string() const {
 #else
 #define NULL_VALUE NULL
 #endif
-
-/**
- * Standarization of specifying ArraySetAsSeries for OnCalculate().
- * Automatically determines required ArraySetAsSeries for buffers on start and
- * end of given code block that uses given buffers.
- */
-
-#define SET_BUFFER_AS_SERIES_FOR_TARGET(A) ArraySetAsSeries(A, false);
-
-#ifdef __MQL4__
-#define SET_BUFFER_AS_SERIES_FOR_HOST(A) ArraySetAsSeries(A, true);
-#else
-#define SET_BUFFER_AS_SERIES_FOR_HOST(A) ArraySetAsSeries(A, false);
-#endif
-
-// Ensures that we do RELEASE_BUFFERx after ACQUIRE_BUFFERx.
-struct AsSeriesReleaseEnsurer {
-  bool released;
-  int num_buffs;
-  AsSeriesReleaseEnsurer(int _num_buffs) : released(false), num_buffs(_num_buffs) {}
-  void done(int _num_buffs) {
-    if (_num_buffs != num_buffs) {
-#ifdef __MQL__
-      Alert("You have acquired ", num_buffs, " buffers via ACQUIRE_BUFFER", num_buffs,
-            "(), but now trying to release with mismatched RELEASE_BUFFER", _num_buffs, "()!");
-      DebugBreak();
-#endif
-    }
-
-    if (released) {
-#ifdef __MQL__
-      Alert("You have used RELEASE_BUFFER", num_buffs, "() again which is not required!");
-      DebugBreak();
-#endif
-    }
-
-    released = true;
-  }
-  ~AsSeriesReleaseEnsurer() {
-    if (!released) {
-#ifdef __MQL__
-      Alert("You have used ACQUIRE_BUFFER", num_buffs, "() but didn't release buffer(s) via RELEASE_BUFFER", num_buffs,
-            "() before returning from the scope!");
-      DebugBreak();
-#endif
-    }
-  }
-};
-
-#define SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(NUM_BUFFS) \
-  AsSeriesReleaseEnsurer _as_series_release_ensurer(NUM_BUFFS);
-#define SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(NUM_BUFFS) _as_series_release_ensurer.done(NUM_BUFFS);
-
-// Acquiring buffer is preparing it to be used as in MQL5.
-#define ACQUIRE_BUFFER1(A)            \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A); \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(1);
-#define ACQUIRE_BUFFER2(A, B)         \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B); \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(2);
-#define ACQUIRE_BUFFER3(A, B, C)      \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C); \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(3);
-#define ACQUIRE_BUFFER4(A, B, C, D)   \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(D); \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(4);
-#define ACQUIRE_BUFFER5(A, B, C, D, E) \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A);  \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B);  \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C);  \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(D);  \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(E);  \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(5);
-#define ACQUIRE_BUFFER6(A, B, C, D, E, F) \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A);     \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B);     \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C);     \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(D);     \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(E);     \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(F);     \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(6);
-#define ACQUIRE_BUFFER7(A, B, C, D, E, F, G) \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(D);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(E);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(F);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(G);        \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(7);
-#define ACQUIRE_BUFFER8(A, B, C, D, E, F, G, H) \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(D);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(E);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(F);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(G);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(H);           \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(8);
-
-// Releasing buffer is setting its AsSeries as the default in the host language.
-#define RELEASE_BUFFER1(A)          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A); \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(1);
-#define RELEASE_BUFFER2(A, B)       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B); \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(2);
-#define RELEASE_BUFFER3(A, B, C)    \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C); \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(3);
-#define RELEASE_BUFFER4(A, B, C, D) \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(D); \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(4);
-#define RELEASE_BUFFER5(A, B, C, D, E) \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A);    \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B);    \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C);    \
-  SET_BUFFER_AS_SERIES_FOR_HOST(D);    \
-  SET_BUFFER_AS_SERIES_FOR_HOST(E);    \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(5);
-#define RELEASE_BUFFER6(A, B, C, D, E, F) \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A);       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B);       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C);       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(D);       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(E);       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(F);       \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(6);
-#define RELEASE_BUFFER7(A, B, C, D, E, F, G) \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(D);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(E);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(F);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(G);          \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(7);
-#define RELEASE_BUFFER8(A, B, C, D, E, F, G, H) \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(D);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(E);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(F);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(G);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(H);             \
-  SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(8);

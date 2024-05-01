@@ -772,7 +772,7 @@ template <typename X>
 
 template <typename X>
 void ArrayPush(ARRAY_REF(X, array), X value) {
-  ArrayResize(Array::ArraySize(array) + 1);
+  ArrayResize(array, ArraySize(array) + 1);
   array[ArraySize(array) - 1] = value;
 }
 template <typename X>

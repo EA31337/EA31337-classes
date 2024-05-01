@@ -24,6 +24,8 @@
 #ifndef MATRIX_MQH
 #define MATRIX_MQH
 
+#define MATRIX_USE_OPENCL
+
 #ifdef USE_MQL_MATH_STAT
 #ifdef __MQL5__
 #include <Math/Stat/Normal.mqh>
@@ -31,6 +33,11 @@
 #endif
 
 #include "Math.h"
+#include "OpenCL.h"
+
+#resource "Matrix.matmul.cl" as string CLSource_Matrix_MatMul
+#resource "Matrix.matmul.naive.cl" as string CLSource_Matrix_MatMul_Naive
+#resource "Matrix.matmul.test.cl" as string CLSource_Matrix_MatMul_Test
 
 #define MATRIX_DIMENSIONS 6
 #define MATRIX_VALUES_ARRAY_INCREMENT 500
@@ -157,6 +164,7 @@ struct MatrixDimensionAccessor {
     if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {                          \
       Print("Error: Trying to use matrix", ptr_matrix.Repr(),                          \
             "'s value operator " #OP " in a dimension which doesn't contain values!"); \
+      DebugBreak();                                                                    \
       return;                                                                          \
     }                                                                                  \
                                                                                        \
@@ -174,6 +182,7 @@ struct MatrixDimensionAccessor {
   void operator=(X _value) {
     if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {
       Print("Error: Trying to set matrix", ptr_matrix.Repr(), "'s value in a dimension which doesn't contain values!");
+      DebugBreak();
       return;
     }
 
@@ -186,6 +195,7 @@ struct MatrixDimensionAccessor {
   X Val() {
     if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {
       Print("Error: Trying to get value from matrix", ptr_matrix.Repr(), "'s dimension which doesn't contain values!");
+      DebugBreak();
       return (X)EMPTY_VALUE;
     }
 
@@ -199,6 +209,7 @@ struct MatrixDimensionAccessor {
   X ValOrZero() {
     if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {
       Print("Error: Trying to get value from matrix", ptr_matrix.Repr(), "'s dimension which doesn't contain values!");
+      DebugBreak();
       return (X)EMPTY_VALUE;
     }
 
@@ -632,7 +643,7 @@ class MatrixDimension {
   }
 
   /**
-   * Extracts dimensions's values to the given array. Used internally.
+   * Extracts dimensions' values to the given array. Used internally.
    */
   void FillArray(X& array[], int& offset) {
     int i;
@@ -719,6 +730,8 @@ class MatrixDimension {
   }
 };
 
+enum ENUM_MATRIX_FLAGS { MATRIX_FLAGS_NONE, MATRIX_FLAGS_USE_OPENCL };
+
 /**
  * Matrix class.
  */
@@ -727,6 +740,15 @@ class Matrix {
  public:
   // First/root dimension.
   MatrixDimension<X>* ptr_first_dimension;
+
+#ifdef MATRIX_USE_OPENCL
+
+  // Map of data size -> CL buffer to be used e.g., by CL-based MatMul method.
+  static DictStruct<int, Ref<OpenCLBuffer>> cl_buffers_in_0;
+  static DictStruct<int, Ref<OpenCLBuffer>> cl_buffers_in_1;
+  static DictStruct<int, Ref<OpenCLBuffer>> cl_buffers_out;
+
+#endif
 
   // Array with declaration of items per matrix's dimension.
   int dimensions[MATRIX_DIMENSIONS];
@@ -737,10 +759,40 @@ class Matrix {
   // Number of matrix dimensions.
   int num_dimensions;
 
+  // Flags.
+  int flags;
+
+  // Static counter, so each new matrix will have its own version. For new
+  // matrices new 32-bit range of versions are given and it should be more
+  // that enough.
+  static unsigned long version_counter;
+
+  // Cache of previously flattened data.
+  ARRAY(X, flattened_cache);
+
+  // Version of the data that was flattened.
+  unsigned long flattened_cache_version;
+
+  // Version of the data stored in dimensions arrays. Incremented after each
+  // change to this matrix.
+  unsigned long version;
+
+  // OpenCL program for multi-core MatMul.
+  static Ref<OpenCLProgram> cl_program_matmul;
+
+  // OpenCL program for single-core MatMul.
+  static Ref<OpenCLProgram> cl_program_matmul_single;
+
   /**
    * Constructor.
    */
-  Matrix(string _data) { FromString(_data); }
+  Matrix(string _data) {
+    FromString(_data);
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
+    Initialize();
+  }
 
   /**
    * Constructor.
@@ -748,12 +800,22 @@ class Matrix {
   Matrix(const int num_1d = 0, const int num_2d = 0, const int num_3d = 0, const int num_4d = 0, const int num_5d = 0) {
     ptr_first_dimension = NULL;
     SetShape(num_1d, num_2d, num_3d, num_4d, num_5d);
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
+    Initialize();
   }
 
   /**
    * Constructor.
    */
-  Matrix(MatrixDimension<X>* _dimension) : ptr_first_dimension(NULL) { Initialize(_dimension); }
+  Matrix(MatrixDimension<X>* _dimension) : ptr_first_dimension(NULL) {
+    Initialize(_dimension);
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
+    Initialize();
+  }
 
   /**
    * Copy constructor.
@@ -764,6 +826,13 @@ class Matrix {
     }
 
     Initialize(_right.ptr_first_dimension.Clone());
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
+
+    // Note that we mark new matrix as unique one, even though we clone another
+    // matrix.
+    Initialize();
   }
 
   /**
@@ -773,7 +842,105 @@ class Matrix {
  private:
   Matrix(const Matrix<X>* _right) {}
 
+  /**
+   * Initializes new or copy of another matrix.
+   */
+  void Initialize() {
+    // Cache will have version lower that the data so matrix will be flattened in the first occasion.
+    flattened_cache_version = version_counter;
+    version = version_counter + 1;
+
+    // Each new matrix will have its own 32-bit range of versions.
+    version_counter += UINT_MAX;
+  }
+
+#ifdef MATRIX_USE_OPENCL
+
+  /**
+   *
+   */
+  void InitializeOpenCL() {
+    if (cl_program_matmul.IsSet()) {
+      // Already initialized.
+      return;
+    }
+
+    cl_program_matmul = OpenCL::Compile(CLSource_Matrix_MatMul_Naive, "matmul");
+
+    cl_program_matmul_single = OpenCL::Compile(
+        "#pragma OPENCL EXTENSION cl_khr_fp64 : enable" NL "__kernel void matmul(" NL "const int Mdim," NL
+        "const int Ndim," NL "const int Pdim," NL "__global float *A," NL "__global float *B," NL "__global float *C" NL
+        ")" NL "{" NL "int i, j, k;" NL "for (i=0; i<Ndim; i++){" NL "for (j=0; j<Mdim; j++){" NL
+        "for (k=0; k<Pdim; k++) {" NL "C[i*Ndim+j] += A[i*Ndim+k] * B[k*Pdim+j];" NL "}" NL "}" NL "}" NL "}" NL,
+        "matmul");
+  }
+
+#endif
+
  public:
+  /**
+   * Returns matrix's data version.
+   */
+  unsigned long GetVersion() { return version; }
+
+  /**
+   * Returns matrix flattened data version.
+   */
+  unsigned long GetFlattenedCacheVersion() { return flattened_cache_version; }
+
+  /**
+   * Acknowledges matrix that it's data has been changed.
+   */
+  void Modified() { ++version; }
+
+  /**
+   * Returns/allocs and returns buffer of the given size to be used in CL operations as first input parameter.
+   */
+  static OpenCLBuffer* GetCLBufferInArg0(int _size) {
+    Ref<OpenCLBuffer> _buffer;
+
+    _buffer = cl_buffers_in_0.GetByKey(_size, _buffer);
+
+    if (!_buffer.IsSet()) {
+      _buffer = new OpenCLBuffer(_size, CL_MEM_READ_ONLY);
+      cl_buffers_in_0.Set(_size, _buffer);
+    }
+
+    return _buffer.Ptr();
+  }
+
+  /**
+   * Returns/allocs and returns buffer of the given size to be used in CL operations as second input parameter.
+   */
+  static OpenCLBuffer* GetCLBufferInArg1(int _size) {
+    Ref<OpenCLBuffer> _buffer;
+
+    _buffer = cl_buffers_in_1.GetByKey(_size, _buffer);
+
+    if (!_buffer.IsSet()) {
+      _buffer = new OpenCLBuffer(_size, CL_MEM_READ_ONLY);
+      cl_buffers_in_1.Set(_size, _buffer);
+    }
+
+    return _buffer.Ptr();
+  }
+
+  /**
+   * Returns/allocs and returns buffer of the given size to be used in CL operations as output parameter.
+   */
+  static OpenCLBuffer* GetCLBufferOutArg(int _size) {
+    Ref<OpenCLBuffer> _buffer;
+
+    _buffer = cl_buffers_out.GetByKey(_size, _buffer);
+
+    if (!_buffer.IsSet()) {
+      _buffer = new OpenCLBuffer(_size, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR);
+      cl_buffers_out.Set(_size, _buffer);
+    }
+
+    return _buffer.Ptr();
+  }
+
   /**
    * Matrix initializer.
    */
@@ -799,12 +966,15 @@ class Matrix {
         break;
       } else {
         Print("Internal error: unknown dimension type!");
+        DebugBreak();
       }
     }
 
     num_dimensions = i;
 
     RecalculateSize();
+
+    Modified();
   }
 
   void RecalculateSize() {
@@ -892,12 +1062,14 @@ class Matrix {
         size *= dimensions[i];
       }
     }
+
+    Modified();
   }
 
   /**
    * Returns length of the given dimension.
    */
-  int GetRange(int _dimension) {
+  int GetRangeRaw(int _dimension) {
     if (_dimension >= MATRIX_DIMENSIONS) {
       Print("Matrix::GetRange(): Dimension should be between 0 and ", MATRIX_DIMENSIONS - 1, ". Got ", _dimension, "!");
       return -1;
@@ -907,9 +1079,25 @@ class Matrix {
   }
 
   /**
+   * Returns length of the given dimension. In case that e.g., dimension 0 has values, dimension 1 will return range 1.
+   */
+  int GetRange(int _dimension) {
+    if (_dimension < num_dimensions) {
+      return GetRangeRaw(_dimension);
+    }
+
+    if (_dimension == num_dimensions) {
+      // Last dimension always contain values.
+      return 1;
+    }
+
+    return 0;
+  }
+
+  /**
    * Returns total number of values the matrix contain of.
    */
-  int GetSize() { return size; }
+  int GetSize() const { return size; }
 
   /**
    * Returns number of matrix dimensions.
@@ -928,6 +1116,7 @@ class Matrix {
     int initial_container_size = ptr_first_dimension.DuplicateDimension(_level, _num);
     dimensions[_level] += _num * initial_container_size;
     RecalculateSize();
+    Modified();
   }
 
   /**
@@ -1056,6 +1245,8 @@ class Matrix {
     }
 
     accessor = _value;
+
+    Modified();
   }
 
   /**
@@ -1078,6 +1269,7 @@ class Matrix {
   void Add(X value) {
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_ADD, value);
+      Modified();
     }
   }
 
@@ -1092,6 +1284,7 @@ class Matrix {
   void Sub(X value) {
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_SUBTRACT, value);
+      Modified();
     }
   }
 
@@ -1106,6 +1299,7 @@ class Matrix {
   void Mul(X value) {
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_MULTIPLY, value);
+      Modified();
     }
   }
 
@@ -1120,6 +1314,7 @@ class Matrix {
   void Div(X value) {
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_DIVIDE, value);
+      Modified();
     }
   }
 
@@ -1129,6 +1324,7 @@ class Matrix {
   void Fill(X value) {
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_FILL, value);
+      Modified();
     }
   }
 
@@ -1138,6 +1334,7 @@ class Matrix {
   void FillRandom(int _seed = -1) {
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_FILL_RANDOM, _seed);
+      Modified();
     }
   }
 
@@ -1147,6 +1344,7 @@ class Matrix {
   void FillRandom(X _start, X _end, int _seed = -1) {
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_FILL_RANDOM_RANGE, _start, _end, _seed);
+      Modified();
     }
   }
 
@@ -1156,6 +1354,7 @@ class Matrix {
   void FillPosAdd() {
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_FILL_POS_ADD);
+      Modified();
     }
   }
 
@@ -1165,11 +1364,12 @@ class Matrix {
   void FillPosMul() {
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_FILL_POS_MUL);
+      Modified();
     }
   }
 
   /**
-   * Replaces existing matrix's values by random value from a given range.
+   * Calculates sum fo all matrix's values.
    */
   X Sum() {
     X _out1 = 0, _out2;
@@ -1217,9 +1417,13 @@ class Matrix {
     return MinOf((X)0);
   }
 
+  /**
+   * Performs power operation on all matrix's values.
+   */
   void Power(X value) {
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_POWER, value);
+      Modified();
     }
   }
 
@@ -1247,6 +1451,11 @@ class Matrix {
   }
 
   static void MatMul(Matrix<X>& source, Matrix<X>& target, Matrix<X>& output) {
+#ifdef MATRIX_USE_OPENCL
+    MatMulCL(source, target, output);
+    return;
+#endif
+
     if (source.GetSize() != target.GetRange(1)) {
       Alert("Inconsistent size of matrices!");
     }
@@ -1262,12 +1471,74 @@ class Matrix {
         output[output_idx] += source[input_idx].Val() * target[output_idx][input_idx].Val();
       }
     }
+
+    output.Modified();
   }
+
+#ifdef MATRIX_USE_OPENCL
+
+  /**
+   * Performs matrix multiplication via OpenCL. Note that MATRIX_USE_OPENCL must be defined in order matrix to use this
+   * method.
+   */
+  static void MatMulCL(Matrix<X>& _source, Matrix<X>& _target, Matrix<X>& _output) {
+    if (_source.GetRange(1) != _target.GetRange(0)) {
+      Alert("Inconsistent size of matrices!");
+    }
+
+    unsigned int _rows_a = _source.GetRange(0);
+    unsigned int _cols_a = _source.GetRange(1);
+    unsigned int _cols_b = _target.GetRange(1);
+
+    // Reusable 0-offset.
+    static ARRAY(unsigned int, _global_work_offset) = {0U, 0U};
+
+    // Local work size (up to 8 x 8).
+    static ARRAY(unsigned int, _local_work_size) = {MathMin(_rows_a, 8U), MathMin(_cols_a, 8U)};
+
+    // Our global size could be greater that data.
+    ARRAY(unsigned int, _global_work_size) = {
+        (unsigned int)MathCeil((double)_rows_a / _local_work_size[0]) * _local_work_size[0],
+        (unsigned int)MathCeil((double)_cols_a / _local_work_size[1]) * _local_work_size[1],
+    };
+
+    _output.SetShape(_rows_a, _cols_b);
+
+    cl_program_matmul REF_DEREF SetArg(0, _source, OPENCL_MATRIX_ARG_IN_1);
+    cl_program_matmul REF_DEREF SetArg(1, _target, OPENCL_MATRIX_ARG_IN_2);
+    cl_program_matmul REF_DEREF SetArg(2, _output, OPENCL_MATRIX_ARG_OUT);
+    cl_program_matmul REF_DEREF SetArg(3, (int)_rows_a);
+    cl_program_matmul REF_DEREF SetArg(4, (int)_cols_a);
+    cl_program_matmul REF_DEREF SetArg(5, (int)_cols_b);
+
+    if (!cl_program_matmul REF_DEREF RunMany(2U, _global_work_offset, _global_work_size, _local_work_size)) {
+      Alert("Error: Could not run Matrix::MatMulCL() over OpenCL!");
+      DebugBreak();
+    }
+
+    // Extracting data from
+    ARRAY(X, _out_data);
+    ArrayResize(_out_data, _rows_a * _cols_b);
+    cl_program_matmul REF_DEREF GetArgBuffer(2) PTR_DEREF Read(_out_data);
+    _output.SetShape(_rows_a, _cols_b);
+    _output.FillFromArray(_out_data);
+  }
+
+#endif
 
   /**
    * Performs matrix multiplication.
    */
   Matrix<X>* MatMul(Matrix<X>& target) {
+    Matrix<X>* output = new Matrix<X>();
+    MatMul(this, target, output);
+    return output;
+  }
+
+  /**
+   * Performs matrix multiplication.
+   */
+  Matrix<X>* MatMul(Matrix<X>* target) {
     Matrix<X>* output = new Matrix<X>();
     MatMul(this, target, output);
     return output;
@@ -1306,6 +1577,7 @@ class Matrix {
   void operator+=(const Matrix<X>& r) {
     if (ptr_first_dimension && r.ptr_first_dimension) {
       ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_ADD);
+      Modified();
     }
   }
 
@@ -1328,6 +1600,7 @@ class Matrix {
   void operator-=(const Matrix<X>& r) {
     if (ptr_first_dimension && r.ptr_first_dimension) {
       ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_SUBTRACT);
+      Modified();
     }
   }
 
@@ -1350,6 +1623,7 @@ class Matrix {
   void operator*=(const Matrix<X>& r) {
     if (ptr_first_dimension && r.ptr_first_dimension) {
       ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
+      Modified();
     }
   }
 
@@ -1372,6 +1646,7 @@ class Matrix {
   void operator/=(const Matrix<X>& r) {
     if (ptr_first_dimension && r.ptr_first_dimension) {
       ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_DIVIDE);
+      Modified();
     }
   }
 
@@ -1379,9 +1654,21 @@ class Matrix {
    * Fills array with all values from the matrix.
    */
   void GetRawArray(X& array[]) {
-    ArrayResize(array, GetSize());
+    if (flattened_cache_version == version) {
+      // No need to flatten again as our cache is up to date.
+      ArrayCopy(array, flattened_cache);
+      return;
+    }
+
+    // Filling target array with flattened matrix data.
     int offset = 0;
+    ArrayResize(array, GetSize());
     ptr_first_dimension.FillArray(array, offset);
+
+    // Copying target array into our flattened data cache.
+    ArrayResize(flattened_cache, 0, 1024);
+    ArrayCopy(flattened_cache, array);
+    flattened_cache_version = version;
   }
 
   /**
@@ -1433,6 +1720,8 @@ class Matrix {
 
     int offset = 0;
     ptr_first_dimension.FromArray(_array, offset);
+
+    Modified();
   }
 
   /**
@@ -1440,17 +1729,24 @@ class Matrix {
    */
   void FillTruncatedNormal(X _mean, X _stddev, int _seeds = -1) {
     Print("Matrix::FillTruncatedNormal() is not yet implemented!");
+    Modified();
   }
 
   /**
    * The Glorot normal initializer, also called Xavier normal initializer.
    */
-  void FillGlorotNormal(int _seed = -1) { Print("Matrix::FillGlorotNormal() is not yet implemented!"); }
+  void FillGlorotNormal(int _seed = -1) {
+    Print("Matrix::FillGlorotNormal() is not yet implemented!");
+    Modified();
+  }
 
   /**
    * The Glorot uniform initializer, also called Xavier uniform initializer.
    */
-  void FillGlorotUniform(int _seed = -1) { Print("Matrix::FillGlorotUniform() is not yet implemented!"); }
+  void FillGlorotUniform(int _seed = -1) {
+    Print("Matrix::FillGlorotUniform() is not yet implemented!");
+    Modified();
+  }
 
   /**
    * Initializer that generates the identity matrix.
@@ -1473,7 +1769,10 @@ class Matrix {
   /**
    * Initializer that generates an orthogonal matrix.
    */
-  void FillOrthogonal(X _gain, int _seed = -1) { Print("Matrix::FillOrthogonal() is not yet implemented!"); }
+  void FillOrthogonal(X _gain, int _seed = -1) {
+    Print("Matrix::FillOrthogonal() is not yet implemented!");
+    Modified();
+  }
 
   /**
    * Calculates absolute difference between this tensor and given one using optional weights tensor.
@@ -1538,6 +1837,7 @@ class Matrix {
   void ReduceSimple(bool _only_last_dimension = true, ENUM_MATRIX_OPERATION _reduce_op = MATRIX_OPERATION_SUM) {
     if (ptr_first_dimension != NULL) {
       ptr_first_dimension.ReduceSimple(_only_last_dimension ? GetDimensions() - 1 : 0, _reduce_op);
+      Modified();
     }
   }
 
@@ -1553,6 +1853,7 @@ class Matrix {
     }
 
     RecalculateSize();
+    Modified();
   }
 
   /**
@@ -1793,6 +2094,7 @@ class Matrix {
     int _out3;
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_RELU, 0, 0, 0, _out1, _out2, _out3);
+      Modified();
     }
   }
 
@@ -1823,6 +2125,7 @@ class Matrix {
     } else {
       this[_1d][_2d][_3d][_4d][_5d] = value;
     }
+    Modified();
   }
 
   Matrix<X>* GetConv2d(int _in_channels, int _out_channels, int _krn_1d, int _krn_2d,
@@ -2107,6 +2410,8 @@ class Matrix {
         Print("Matrix::ChunkOp(): Invalid operation ", EnumToString(_op), "!");
     }
 
+    // Note: ChuckOp() does not modify the matrix.
+
     return 0;
   }
 
@@ -2261,5 +2566,37 @@ class Matrix {
     return _out + "]";
   }
 };
+
+#ifdef MATRIX_USE_OPENCL
+
+#ifdef __MQL__
+template <typename X>
+static unsigned long Matrix::version_counter = 0UL;
+template <typename X>
+static Ref<OpenCLProgram> Matrix::cl_program_matmul;
+template <typename X>
+static Ref<OpenCLProgram> Matrix::cl_program_matmul_single;
+template <typename X>
+static DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_in_0;
+template <typename X>
+static DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_in_1;
+template <typename X>
+static DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_out;
+#else
+template <typename X>
+static unsigned long Matrix<X>::version_counter = 0UL;
+template <typename X>
+static Ref<OpenCLProgram> Matrix<X>::cl_program_matmul;
+template <typename X>
+static Ref<OpenCLProgram> Matrix<X>::cl_program_matmul_single;
+template <typename X>
+static DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_in_0;
+template <typename X>
+static DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_in_1;
+template <typename X>
+static DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_out;
+#endif
+
+#endif
 
 #endif
