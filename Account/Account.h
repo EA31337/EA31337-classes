@@ -56,4 +56,5 @@ class Account : public AccountBase {
    */
   ~Account() {}
 };
+
 #endif  // ACCOUNT_H

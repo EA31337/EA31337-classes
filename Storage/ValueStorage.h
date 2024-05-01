@@ -182,6 +182,15 @@ class ValueStorage : public IValueStorage {
   }
 
   /**
+   * Inserts new value at the end of the buffer. If buffer works as As-Series,
+   * then new value will act as the one at index 0.
+   */
+  virtual void Append(C _value) {
+    Alert(__FUNCSIG__, " does not implement Append()!");
+    DebugBreak();
+  }
+
+  /**
    * Sets buffer drawing attributes. Currently does nothing.
    */
   bool PlotIndexSetInteger(int prop_id, int prop_modifier_or_value, int prop_value) {

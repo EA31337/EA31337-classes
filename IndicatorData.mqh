@@ -68,7 +68,7 @@ class IndicatorData : public IndicatorBase {
       case IDATA_ICUSTOM:
         break;
       case IDATA_INDICATOR:
-        if (indi_src.IsSet() == NULL) {
+        if (indi_src.IsSet()) {
           // Indi_Price* _indi_price = Indi_Price::GetCached(GetSymbol(), GetTf(), iparams.GetShift());
           // SetDataSource(_indi_price, true, PRICE_OPEN);
         }
@@ -109,7 +109,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Class constructor.
    */
-  IndicatorData(const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
+  IndicatorData(const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = nullptr, int _indi_mode = 0)
       : do_draw(false), idparams(_idparams), indi_src(_indi_src) {
     Init();
   }
@@ -572,9 +572,9 @@ class IndicatorData : public IndicatorBase {
    * Returns currently selected data source doing validation.
    */
   IndicatorData* GetDataSource(bool _validate = true) {
-    IndicatorData* _result = NULL;
+    IndicatorData* _result = nullptr;
 
-    if (GetDataSourceRaw() != NULL) {
+    if (GetDataSourceRaw() != nullptr) {
       _result = GetDataSourceRaw();
     } else if (Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID)) != -1) {
       int _source_id = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID));
@@ -603,7 +603,7 @@ class IndicatorData : public IndicatorBase {
       // Requesting potential data source.
       _result = OnDataSourceRequest();
 
-      if (_result != NULL) {
+      if (_result != nullptr) {
         // Initializing with new data source.
         SetDataSource(_result);
         Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_INDICATOR);
@@ -621,7 +621,7 @@ class IndicatorData : public IndicatorBase {
    * Returns given data source type. Used by i*OnIndicator methods if indicator's Calculate() uses other indicators.
    */
   IndicatorData* GetDataSource(ENUM_INDICATOR_TYPE _type) {
-    IndicatorData* _result = NULL;
+    IndicatorData* _result = nullptr;
     if (indicators.KeyExists((int)_type)) {
       _result = indicators[(int)_type].Ptr();
     } else {
@@ -697,11 +697,15 @@ class IndicatorData : public IndicatorBase {
     }
 
     if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_INDICATOR &&
-        GetDataSourceRaw() == NULL && _try_initialize) {
+        GetDataSourceRaw() == nullptr && _try_initialize) {
       SetDataSource(OnDataSourceRequest());
     }
 
-    return GetDataSourceRaw() != NULL;
+    IndicatorData* _ptr = GetDataSourceRaw();
+
+    bool _result = _ptr != nullptr;
+
+    return _result;
   }
 
   /**
@@ -802,7 +806,7 @@ class IndicatorData : public IndicatorBase {
       indi_src.Ptr().RemoveListener(THIS_PTR);
     }
     indi_src = _indi;
-    if (_indi != NULL) {
+    if (_indi != nullptr) {
       indi_src.Ptr().AddListener(THIS_PTR);
       Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_ID), -1);
       Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE), _input_mode);
@@ -862,7 +866,7 @@ class IndicatorData : public IndicatorBase {
     last_tick_time = _current_time;
 
     // Checking and potentially initializing new data source.
-    if (HasDataSource(true) != NULL) {
+    if (HasDataSource(true)) {
       // Ticking data source if not yet ticked.
       GetDataSource().Tick();
     }
@@ -905,13 +909,13 @@ class IndicatorData : public IndicatorBase {
    * Loads and validates built-in indicators whose can be used as data source.
    */
   void ValidateDataSource(IndicatorData* _target, IndicatorData* _source) {
-    if (_target == NULL) {
+    if (_target == nullptr) {
       Alert("Internal Error! _target is NULL in ", __FUNCTION_LINE__, ".");
       DebugBreak();
       return;
     }
 
-    if (_source == NULL) {
+    if (_source == nullptr) {
       Alert("Error! You have to select source indicator's via SetDataSource().");
       DebugBreak();
       return;
@@ -1129,7 +1133,7 @@ class IndicatorData : public IndicatorBase {
             _originator PTR_DEREF GetFullName(), "!");
         DebugBreak();
       }
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -1146,7 +1150,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's struct value via index.
    */
-  virtual IndicatorDataEntry GetEntry(long _index = 0) = NULL;
+  virtual IndicatorDataEntry GetEntry(long _index = 0) = 0;
 
   /**
    * Returns the indicator's struct value via timestamp.
@@ -1171,7 +1175,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's entry value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) = NULL;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) = 0;
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -1238,7 +1242,7 @@ class IndicatorData : public IndicatorBase {
    *
    * When indicator values are not valid, returns empty signals.
    */
-  virtual IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) = NULL;
+  virtual IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) = 0;
 
   /**
    * Returns spread for the bar.
@@ -1331,7 +1335,7 @@ class IndicatorData : public IndicatorBase {
               ", only PRICE_(OPEN|HIGH|LOW|CLOSE|MEDIAN|TYPICAL|WEIGHTED) are currently supported by "
               "IndicatorBase::GetSpecificAppliedPriceValueStorage()!");
         DebugBreak();
-        return NULL;
+        return nullptr;
     }
   }
 
@@ -1374,7 +1378,7 @@ class IndicatorData : public IndicatorBase {
           "Volume) in the hierarchy!");
       DebugBreak();
     }
-    return NULL;
+    return nullptr;
   }
 
   /**
@@ -1390,7 +1394,7 @@ class IndicatorData : public IndicatorBase {
   virtual IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
     Print("Error: ", GetFullName(), " indicator has no storage type ", EnumToString(_type), "!");
     DebugBreak();
-    return NULL;
+    return nullptr;
   }
 
   /**
@@ -1616,10 +1620,10 @@ class IndicatorData : public IndicatorBase {
   /**
    * Sends entry to listening indicators.
    */
-  void EmitEntry(IndicatorDataEntry& entry) {
+  void EmitEntry(IndicatorDataEntry& entry, ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) {
     for (int i = 0; i < ArraySize(listeners); ++i) {
       if (listeners[i].ObjectExists()) {
-        listeners[i].Ptr().OnDataSourceEntry(entry);
+        listeners[i].Ptr().OnDataSourceEntry(entry, type);
       }
     }
   }
@@ -1632,7 +1636,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual IndicatorData* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return NULL; }
+  virtual IndicatorData* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return nullptr; }
 
   /**
    * Checks whether indicator support given value storage type.
@@ -1683,7 +1687,11 @@ class IndicatorData : public IndicatorBase {
   /**
    * Called when data source emits new entry (historic or future one).
    */
-  virtual void OnDataSourceEntry(IndicatorDataEntry& entry){};
+  virtual void OnDataSourceEntry(IndicatorDataEntry& entry,
+                                 ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) {
+    // Sending entry to all chilren listeners (from highest parent to lowest child).
+    EmitEntry(entry, type);
+  };
 
   virtual void OnTick() {}
 
@@ -1696,7 +1704,7 @@ class IndicatorData : public IndicatorBase {
           " without explicitly selecting an indicator, ", GetFullName(),
           " must override OnDataSourceRequest() method and return new instance of data source to be used by default.");
     DebugBreak();
-    return NULL;
+    return nullptr;
   }
 
   /**
@@ -1704,7 +1712,7 @@ class IndicatorData : public IndicatorBase {
    */
   virtual IndicatorData* DataSourceRequestReturnDefault(int _applied_price) {
     DebugBreak();
-    return NULL;
+    return nullptr;
   }
 
   /**

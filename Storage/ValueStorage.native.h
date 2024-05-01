@@ -70,19 +70,37 @@ class NativeValueStorage : public ValueStorage<C> {
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
   C Fetch(int _shift) override {
-    if (_shift < 0 || _shift >= _values_size) {
+    if (_shift < 0 || _shift >= Size()) {
       return (C)EMPTY_VALUE;
-      // Print("Invalid buffer data index: ", _shift, ". Buffer size: ", ArraySize(_values));
-      // DebugBreak();
     }
 
-    return _values[_shift];
+    int _index = GetRealIndex(_shift);
+
+    return _values[_index];
   }
 
   /**
    * Stores value at a given shift. Takes into consideration as-series flag.
    */
-  void Store(int _shift, C _value) override { Array::ArrayStore(_values, _shift, _value, 4096); }
+  void Store(int _shift, C _value) override {
+    if (_shift < 0 || _shift >= Size()) {
+      Alert("Error: NativeValueStorage: Invalid buffer data index: ", _shift, ". Buffer size: ", Size());
+      DebugBreak();
+    }
+
+    int _index = GetRealIndex(_shift);
+
+    Array::ArrayStore(_values, _index, _value, 4096);
+  }
+
+  /**
+   * Inserts new value at the end of the buffer. If buffer works as As-Series,
+   * then new value will act as the one at index 0.
+   */
+  void Append(C _value) override {
+    Resize(Size() + 1, 4096);
+    Store(Size() - 1, _value);
+  }
 
   /**
    * Returns number of values available to fetch (size of the values buffer).
