@@ -55,7 +55,7 @@ int OnInit() {
   Matrix<double> *in1, *in2, *out;
   in1 = Matrix<double>::CreateFromString("[[1,2,3], [4,5,6]]");  // 2 x 3
   Print("in1 shape: ", in1 PTR_DEREF GetRange(0), " x ", in1 PTR_DEREF GetRange(1));
-  in2 = Matrix<double>::CreateFromString("[[7,8,9,10], [11,12,13,14], [15,16,17,18]]");  // 3 x 4
+  in2 = Matrix<double>::CreateFromString("[[7,8,9,10,11], [11,12,13,14,16], [15,16,17,18,19]]");  // 3 x 5
   Print("in2 shape: ", in2 PTR_DEREF GetRange(0), " x ", in2 PTR_DEREF GetRange(1));
   out = in1 PTR_DEREF MatMul(in2);
   Print("out shape: ", out PTR_DEREF GetRange(0), " x ", out PTR_DEREF GetRange(1));

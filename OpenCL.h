@@ -119,6 +119,10 @@ class OpenCLProgram : public Dynamic {
   // Version of argument data. Used to check if buffer needs to be reuploaded.
   unsigned long arg_versions[OPENCL_PROGRAM_MAX_ARGS];
 
+  // Buffers passed as arguments. Note that we store weak references, so we
+  // need to check if buffer still exists.
+  WeakRef<OpenCLBuffer> arg_buffers[OPENCL_PROGRAM_MAX_ARGS];
+
  public:
   /**
    * Constructor.
@@ -127,6 +131,7 @@ class OpenCLProgram : public Dynamic {
     for (int i = 0; i < OPENCL_PROGRAM_MAX_ARGS; ++i) {
       arg_handles[i] = INVALID_HANDLE;
       arg_versions[i] = -1;
+      arg_buffers[i] = nullptr;
     }
   }
 
@@ -186,6 +191,22 @@ class OpenCLProgram : public Dynamic {
 
     // Storing buffer version in the argument slot.
     arg_versions[_index] = _buffer PTR_DEREF GetVersion();
+
+    // Storing pointer to the buffer as weak reference.
+    arg_buffers[_index] = _buffer;
+  }
+
+  /**
+   * Returns buffer passed as argument.
+   */
+  OpenCLBuffer* GetArgBuffer(int _index) {
+    if (!arg_buffers[_index].ObjectExists()) {
+      Alert("Error: Trying to retrieve buffer at argument index ", _index,
+            ", but the buffer was either not set or deleted.");
+      DebugBreak();
+    }
+
+    return arg_buffers[_index].Ptr();
   }
 
   /**
@@ -202,15 +223,15 @@ class OpenCLProgram : public Dynamic {
 
     switch (_matrix_type) {
       case OPENCL_MATRIX_ARG_IN_1:
-        _buffer = GetCLBufferInArg0(_matrix.GetSize());
+        _buffer = _matrix.GetCLBufferInArg0(_matrix.GetSize());
         break;
 
       case OPENCL_MATRIX_ARG_IN_2:
-        _buffer = GetCLBufferInArg1(_matrix.GetSize());
+        _buffer = _matrix.GetCLBufferInArg1(_matrix.GetSize());
         break;
 
       case OPENCL_MATRIX_ARG_OUT:
-        _buffer = GetCLBufferOutArg(_matrix.GetSize());
+        _buffer = _matrix.GetCLBufferOutArg(_matrix.GetSize());
         break;
     }
 
@@ -218,11 +239,8 @@ class OpenCLProgram : public Dynamic {
       // Flattening matrix data in order to upload it into GPU.
       double _flattened_data[];
       _matrix.GetRawArray(_flattened_data);
-
-      _buffer PTR_DEREF Write(_flattened_data)
-
-          // Do we need to reupload the data?
-          SetArg(_index, _buffer, _matrix_data_version);
+      _buffer PTR_DEREF Write(_flattened_data);
+      SetArg(_index, _buffer, _matrix_data_version);
     }
   }
 
