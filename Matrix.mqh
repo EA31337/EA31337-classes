@@ -24,7 +24,9 @@
 #ifndef MATRIX_MQH
 #define MATRIX_MQH
 
+#ifdef __MQL5__
 #define MATRIX_USE_OPENCL
+#endif
 
 #ifdef USE_MQL_MATH_STAT
 #ifdef __MQL5__
@@ -33,11 +35,14 @@
 #endif
 
 #include "Math.h"
+
+#ifdef MATRIX_USE_OPENCL
 #include "OpenCL.h"
 
 #resource "Matrix.matmul.cl" as string CLSource_Matrix_MatMul
 #resource "Matrix.matmul.naive.cl" as string CLSource_Matrix_MatMul_Naive
 #resource "Matrix.matmul.test.cl" as string CLSource_Matrix_MatMul_Test
+#endif  // MATRIX_USE_OPENCL
 
 #define MATRIX_DIMENSIONS 6
 #define MATRIX_VALUES_ARRAY_INCREMENT 500
@@ -748,7 +753,7 @@ class Matrix {
   static DictStruct<int, Ref<OpenCLBuffer>> cl_buffers_in_1;
   static DictStruct<int, Ref<OpenCLBuffer>> cl_buffers_out;
 
-#endif
+#endif  // MATRIX_USE_OPENCL
 
   // Array with declaration of items per matrix's dimension.
   int dimensions[MATRIX_DIMENSIONS];
@@ -777,11 +782,15 @@ class Matrix {
   // change to this matrix.
   unsigned long version;
 
+#ifdef MATRIX_USE_OPENCL
+
   // OpenCL program for multi-core MatMul.
   static Ref<OpenCLProgram> cl_program_matmul;
 
   // OpenCL program for single-core MatMul.
   static Ref<OpenCLProgram> cl_program_matmul_single;
+
+#endif  // MATRIX_USE_OPENCL
 
   /**
    * Constructor.
@@ -857,7 +866,7 @@ class Matrix {
 #ifdef MATRIX_USE_OPENCL
 
   /**
-   *
+   * Initializes OpenCL programs.
    */
   void InitializeOpenCL() {
     if (cl_program_matmul.IsSet()) {
@@ -875,9 +884,57 @@ class Matrix {
         "matmul");
   }
 
-#endif
+#endif  // MATRIX_USE_OPENCL
 
  public:
+  /**
+   * Returns value from a flattened data cache (flattens data firstly if neccessary).
+   */
+  X FlatRead(int _idx) {
+    FlattenMaybe();
+    return flattened_cache[_idx];
+  }
+
+  /**
+   * Writes value into flattened data cache (creates/clears cache if needed).
+   */
+  void FlatWrite(int _idx, X value) {
+    if (version > flattened_cache_version) {
+      // Matrix has new data. Updating flattened data cache.
+      GetRawArrayNoCache(flattened_cache);
+      flattened_cache_version = version;
+    }
+
+    flattened_cache[_idx] = value;
+    ++flattened_cache_version;
+  }
+
+  /**
+   * Initializes matrix from the flattened data cache. Used after FlatWrite() to apply changes.
+   */
+  void FlatApply() {
+    if (version >= flattened_cache_version) {
+      return;
+    }
+
+    unsigned long _new_version = flattened_cache_version;
+
+    FillFromArray(flattened_cache);
+
+    version = flattened_cache_version = _new_version;
+  }
+
+  /**
+   * Will prepare flattened data cache if needed.
+   */
+  void FlattenMaybe() {
+    if (flattened_cache_version >= version) {
+      return;
+    }
+    GetRawArrayNoCache(flattened_cache);
+    flattened_cache_version = version;
+  }
+
   /**
    * Returns matrix's data version.
    */
@@ -892,6 +949,8 @@ class Matrix {
    * Acknowledges matrix that it's data has been changed.
    */
   void Modified() { ++version; }
+
+#ifdef MATRIX_USE_OPENCL
 
   /**
    * Returns/allocs and returns buffer of the given size to be used in CL operations as first input parameter.
@@ -940,6 +999,8 @@ class Matrix {
 
     return _buffer.Ptr();
   }
+
+#endif  // MATRIX_USE_OPENCL
 
   /**
    * Matrix initializer.
@@ -1450,29 +1511,42 @@ class Matrix {
     return MinOf((X)0);
   }
 
-  static void MatMul(Matrix<X>& source, Matrix<X>& target, Matrix<X>& output) {
+  /**
+   * Performs matrix multiplication on CPU or GPU.
+   */
+  static void MatMul(Matrix<X>& _source, Matrix<X>& _target, Matrix<X>& _output) {
 #ifdef MATRIX_USE_OPENCL
-    MatMulCL(source, target, output);
-    return;
+    MatMulCL(_source, _target, _output);
+#else
+    MatMulCPU(_source, _target, _output);
 #endif
+  }
 
-    if (source.GetSize() != target.GetRange(1)) {
+  /**
+   * Performs matrix multiplication on CPU.
+   */
+  static void MatMulCPU(Matrix<X>& _source, Matrix<X>& _target, Matrix<X>& _output) {
+    if (_source.GetSize() != _target.GetRange(1)) {
       Alert("Inconsistent size of matrices!");
     }
 
-    int num_outputs = target.GetRange(0);
-    int num_inputs = target.GetRange(1);
+    int _rows_a = _source.GetRange(0);
+    int _cols_a = _source.GetRange(1);
+    int _cols_b = _target.GetRange(1);
 
-    output.SetShape(num_outputs);
+    _output.SetShape(_rows_a, _cols_b);
 
-    for (int output_idx = 0; output_idx < num_outputs; ++output_idx) {
-      output[output_idx] = 0;
-      for (int input_idx = 0; input_idx < num_inputs; ++input_idx) {
-        output[output_idx] += source[input_idx].Val() * target[output_idx][input_idx].Val();
+    for (int i = 0; i < _rows_a; i++) {
+      for (int j = 0; j < _cols_b; j++) {
+        double sum = 0.0;
+        for (int k = 0; k < _cols_a; k++) {
+          sum += _source.FlatRead(i * _cols_a + k) * _target.FlatRead(k * _cols_b + j);
+        }
+        _output.FlatWrite(i * _cols_b + j, sum);
       }
     }
 
-    output.Modified();
+    _output.FlatApply();
   }
 
 #ifdef MATRIX_USE_OPENCL
@@ -1653,6 +1727,16 @@ class Matrix {
   /**
    * Fills array with all values from the matrix.
    */
+  void GetRawArrayNoCache(X& array[]) {
+    // Filling target array with flattened matrix data.
+    int offset = 0;
+    ArrayResize(array, GetSize());
+    ptr_first_dimension.FillArray(array, offset);
+  }
+
+  /**
+   * Fills array with all values from the matrix.
+   */
   void GetRawArray(X& array[]) {
     if (flattened_cache_version == version) {
       // No need to flatten again as our cache is up to date.
@@ -1660,10 +1744,7 @@ class Matrix {
       return;
     }
 
-    // Filling target array with flattened matrix data.
-    int offset = 0;
-    ArrayResize(array, GetSize());
-    ptr_first_dimension.FillArray(array, offset);
+    GetRawArrayNoCache(array);
 
     // Copying target array into our flattened data cache.
     ArrayResize(flattened_cache, 0, 1024);
@@ -1712,6 +1793,9 @@ class Matrix {
   }
 #endif
 
+  /**
+   * Fills matrix with the flattened data. Also fill flattened data cache.
+   */
   void FillFromArray(X& _array[]) {
     if (ArraySize(_array) != GetSize()) {
       Print("Matrix::FillFromArray(): input array (", ArraySize(_array), " elements) must be the same size as matrix (",
@@ -1720,8 +1804,12 @@ class Matrix {
 
     int offset = 0;
     ptr_first_dimension.FromArray(_array, offset);
-
     Modified();
+
+    // We also fill flattened data cache.
+    ArrayResize(flattened_cache, ArraySize(_array));
+    ArrayCopy(flattened_cache, _array);
+    flattened_cache_version = version;
   }
 
   /**
@@ -2567,36 +2655,40 @@ class Matrix {
   }
 };
 
+#ifdef __MQL__
+template <typename X>
+unsigned long Matrix::version_counter = 0;
+#else
+template <typename X>
+unsigned long Matrix<X>::version_counter = 0;
+#endif  // __MQL__
+
 #ifdef MATRIX_USE_OPENCL
 
 #ifdef __MQL__
 template <typename X>
-static unsigned long Matrix::version_counter = 0UL;
+Ref<OpenCLProgram> Matrix::cl_program_matmul;
 template <typename X>
-static Ref<OpenCLProgram> Matrix::cl_program_matmul;
+Ref<OpenCLProgram> Matrix::cl_program_matmul_single;
 template <typename X>
-static Ref<OpenCLProgram> Matrix::cl_program_matmul_single;
+DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_in_0;
 template <typename X>
-static DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_in_0;
+DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_in_1;
 template <typename X>
-static DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_in_1;
-template <typename X>
-static DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_out;
+DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_out;
 #else
 template <typename X>
-static unsigned long Matrix<X>::version_counter = 0UL;
+Ref<OpenCLProgram> Matrix<X>::cl_program_matmul;
 template <typename X>
-static Ref<OpenCLProgram> Matrix<X>::cl_program_matmul;
+Ref<OpenCLProgram> Matrix<X>::cl_program_matmul_single;
 template <typename X>
-static Ref<OpenCLProgram> Matrix<X>::cl_program_matmul_single;
+DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_in_0;
 template <typename X>
-static DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_in_0;
+DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_in_1;
 template <typename X>
-static DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_in_1;
-template <typename X>
-static DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_out;
-#endif
+DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_out;
+#endif  // __MQL__
 
-#endif
+#endif  // MATRIX_USE_OPENCL
 
-#endif
+#endif  // MATRIX_MQH
