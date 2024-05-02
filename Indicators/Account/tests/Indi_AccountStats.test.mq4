@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Test functionality of Indi_AC indicator class.
+ * Test functionality of Indi_AccountStats indicator class.
  */
 
-#include "Indi_AC.test.mq5"
+#include "Indi_AccountStats.test.mq5"
