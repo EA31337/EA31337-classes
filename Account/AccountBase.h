@@ -57,6 +57,8 @@ class AccountBase : public Dynamic {
    */
   ~AccountBase() {}
 
+  /* Virtual methods */
+
   /**
    * Returns balance value of the current account.
    */
