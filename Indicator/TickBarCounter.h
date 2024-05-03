@@ -42,6 +42,13 @@ struct TickBarCounter {
   // Index of the current tick.
   int tick_index;
 
+  TickBarCounter() {
+    last_bar_time = (datetime)0;
+    bar_index = 0;
+    is_new_bar = false;
+    tick_index = 0;
+  }
+
   /**
    * Increases current bar index (used in OnTick()). If there was no bar, the current bar will become 0.
    */
@@ -68,12 +75,11 @@ struct TickBarCounter {
    * Check if there is a new bar to parse.
    */
   bool IsNewBarInternal(datetime _bar_time) {
-    bool _result = false;
     if (last_bar_time != _bar_time) {
       SetLastBarTime(_bar_time);
-      _result = true;
+      return true;
     }
-    return _result;
+    return false;
   }
 
   /* Setters */
@@ -96,7 +102,7 @@ struct TickBarCounter {
   /**
    * Updates tick & bar indices.
    */
-  void OnTick(datetime _bar_time) {
+  void OnTick(datetime _bar_time = 0) {
     IncreaseTickIndex();
 
     if (is_new_bar) {

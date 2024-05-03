@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -68,30 +68,23 @@ class NativeValueStorage : public ValueStorage<C> {
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
+   *
+   * Note that this storage type operates on absolute shifts!
    */
-  C Fetch(int _shift) override {
-    if (_shift < 0 || _shift >= Size()) {
+  C Fetch(int _abs_shift) override {
+    if (_abs_shift < 0 || _abs_shift >= Size()) {
+      // Alert("Error: NativeValueStorage: Invalid buffer data index: ", _shift, ". Buffer size: ", Size());
+      // DebugBreak();
       return (C)EMPTY_VALUE;
     }
 
-    int _index = GetRealIndex(_shift);
-
-    return _values[_index];
+    return _values[_abs_shift];
   }
 
   /**
    * Stores value at a given shift. Takes into consideration as-series flag.
    */
-  void Store(int _shift, C _value) override {
-    if (_shift < 0 || _shift >= Size()) {
-      Alert("Error: NativeValueStorage: Invalid buffer data index: ", _shift, ". Buffer size: ", Size());
-      DebugBreak();
-    }
-
-    int _index = GetRealIndex(_shift);
-
-    Array::ArrayStore(_values, _index, _value, 4096);
-  }
+  void Store(int _shift, C _value) override { Array::ArrayStore(_values, _shift, _value, 4096); }
 
   /**
    * Inserts new value at the end of the buffer. If buffer works as As-Series,

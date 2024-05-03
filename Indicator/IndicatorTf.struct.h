@@ -31,14 +31,14 @@
 #endif
 
 // Includes.
-#include "../Indicator.struct.h"
+#include "Indicator.struct.h"
 
 /* Structure for IndicatorTf class parameters. */
 struct IndicatorTfParams : IndicatorParams {
   ChartTf tf;
   unsigned int spc;  // Seconds per candle.
   // Struct constructor.
-  IndicatorTfParams(unsigned int _spc = 60) : spc(_spc) {}
+  IndicatorTfParams(string _name = "", unsigned int _spc = 60) : IndicatorParams(_name), spc(_spc) {}
   // Getters.
   unsigned int GetSecsPerCandle() { return spc; }
   // Setters.

@@ -202,10 +202,10 @@ class TradeSignalManager : Dynamic {
   static bool SignalOverflowCallback(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
     static int cache_limit = 1000;
     switch (_reason) {
-      case DICT_OVERFLOW_REASON_FULL:
+      case DICT_LISTENER_FULL_CAN_RESIZE:
         // We allow resize if dictionary size is less than 86400 slots.
         return _size < cache_limit;
-      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
+      case DICT_LISTENER_CONFLICTS_CAN_OVERWRITE:
       default:
         // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
         break;

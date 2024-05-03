@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/Indicator.h"
 #include "../../Platform.h"
 #include "../../Storage/Objects.h"
 
@@ -66,17 +66,15 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   }
 
   /**
-   * Checks whether indicator has a valid value for a given shift.
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
-  virtual bool HasValidEntry(int _shift = 0) { return GetBarTime(_shift) != 0; }
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN; }
 
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    return GetCandle() PTR_DEREF GetSpecificAppliedPriceValueStorage(iparams.GetAppliedPrice())
-        PTR_DEREF Fetch(_ishift);
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
+    return GetCandle() PTR_DEREF GetPrice(iparams.GetAppliedPrice(), ToRelShift(_abs_shift));
   }
 
   /**

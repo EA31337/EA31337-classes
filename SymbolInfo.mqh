@@ -24,9 +24,6 @@
 #ifndef SYMBOLINFO_MQH
 #define SYMBOLINFO_MQH
 
-// Forward declaration.
-class SymbolInfo;
-
 // Includes symbol defines, enums and structs.
 #include "SymbolInfo.define.h"
 #include "SymbolInfo.enum.h"
@@ -35,10 +32,14 @@ class SymbolInfo;
 #include "SymbolInfo.struct.h"
 #include "SymbolInfo.struct.static.h"
 
+// Forward declaration.
+class Log;
+class SymbolInfo;
+
 // Includes.
 #include "Log.mqh"
-#include "Serializer.mqh"
-#include "SerializerNode.enum.h"
+#include "Serializer/Serializer.h"
+#include "Serializer/SerializerNode.enum.h"
 
 /**
  * Class to provide symbol information.
@@ -230,9 +231,7 @@ class SymbolInfo : public Object {
    * Get number of points per pip.
    *
    */
-  unsigned int GetPointsPerPip() {
-    return sprops.pts_per_pip;
-  }
+  unsigned int GetPointsPerPip() { return sprops.pts_per_pip; }
 
   /**
    * Get the point size in the quote currency.

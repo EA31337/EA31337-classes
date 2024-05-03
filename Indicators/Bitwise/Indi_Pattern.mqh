@@ -23,9 +23,10 @@
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/Indicator.define.h"
+#include "../../Indicator/Indicator.h"
 #include "../../Pattern.struct.h"
-#include "../../Serializer.mqh"
+#include "../../Serializer/Serializer.h"
 #include "../Price/Indi_Price.mqh"
 #include "../Special/Indi_Math.mqh"
 
@@ -83,17 +84,19 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     int i;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
+
+    INDI_REQUIRE_SHIFT_OR_RETURN(GetCandle(), ToRelShift(_abs_shift) + _max_modes, WRONG_VALUE);
+
     BarOHLC _ohlcs[8];
 
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from candle.
         for (i = 0; i < _max_modes; ++i) {
-          _ohlcs[i] = GetCandle() PTR_DEREF GetOHLC(_ishift + i);
+          _ohlcs[i] = GetCandle() PTR_DEREF GetOHLC(ToRelShift(_abs_shift) + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
             return WRONG_VALUE;
@@ -118,10 +121,10 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
         }
 
         for (i = 0; i < _max_modes; ++i) {
-          _ohlcs[i].open = GetDataSource().GetValue<float>(PRICE_OPEN, _ishift + i);
-          _ohlcs[i].high = GetDataSource().GetValue<float>(PRICE_HIGH, _ishift + i);
-          _ohlcs[i].low = GetDataSource().GetValue<float>(PRICE_LOW, _ishift + i);
-          _ohlcs[i].close = GetDataSource().GetValue<float>(PRICE_CLOSE, _ishift + i);
+          _ohlcs[i].open = GetDataSource().GetValue<float>(PRICE_OPEN, ToRelShift(_abs_shift) + i);
+          _ohlcs[i].high = GetDataSource().GetValue<float>(PRICE_HIGH, ToRelShift(_abs_shift) + i);
+          _ohlcs[i].low = GetDataSource().GetValue<float>(PRICE_LOW, ToRelShift(_abs_shift) + i);
+          _ohlcs[i].close = GetDataSource().GetValue<float>(PRICE_CLOSE, ToRelShift(_abs_shift) + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
             return WRONG_VALUE;
@@ -139,9 +142,9 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
   /**
    * Alters indicator's struct value.
    */
-  void GetEntryAlter(IndicatorDataEntry& _entry, int _shift) override {
+  void GetEntryAlter(IndicatorDataEntry& _entry, int _rel_shift) override {
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
-    Indicator<IndiPatternParams>::GetEntryAlter(_entry, _shift);
+    Indicator<IndiPatternParams>::GetEntryAlter(_entry, _rel_shift);
   }
 
   /**
@@ -150,5 +153,5 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
    * @return
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return !_entry.HasValue<int>(INT_MAX); }
+  virtual bool IsValidEntry(IndicatorDataEntry& _entry) { return !_entry.HasValue<int>(WRONG_VALUE); }
 };

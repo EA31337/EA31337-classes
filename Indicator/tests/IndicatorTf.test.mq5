@@ -27,16 +27,19 @@
  */
 
 // Includes.
+#include "../../DictBase.mqh"
 #include "../../Indicators/Indi_AMA.mqh"
 #include "../../Indicators/Tick/Indi_TickMt.mqh"
+#include "../../Log.mqh"
 #include "../../Platform.h"
+#include "../../SymbolInfo.mqh"
 #include "../../Test.mqh"
 #include "../../Util.h"
 #include "../IndicatorTf.h"
-#include "../IndicatorTick.h"
 #include "classes/IndicatorTfDummy.h"
 #include "classes/Indicators.h"
 
+// Global variables.
 Ref<Indi_TickMt> indi_tick;
 Ref<IndicatorTfDummy> indi_tf;
 Ref<IndicatorTfDummy> indi_tf_real;

@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "../../../Tick.struct.h"
+#include "../../../Tick/Tick.struct.h"
 #include "../../IndicatorTick.h"
 
 // Params for dummy tick-based indicator.
@@ -39,7 +39,7 @@ struct IndicatorTickDummyParams : IndicatorParams {
 };
 
 // Dummy tick-based indicator.
-class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double> {
+class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double, ItemsHistoryTickProvider<double>> {
  public:
   IndicatorTickDummy(string _symbol, int _shift = 0, string _name = "")
       : IndicatorTick(_symbol, INDI_TICK, _shift, _name) {}
@@ -59,13 +59,13 @@ class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double
     TickAB<double> _t7(4.2f, 4.21f);
     TickAB<double> _t8(4.8f, 4.81f);
 
-    EmitEntry(TickToEntry(1000, _t1), INDI_EMITTED_ENTRY_TYPE_TICK);
-    EmitEntry(TickToEntry(1500, _t2), INDI_EMITTED_ENTRY_TYPE_TICK);
-    EmitEntry(TickToEntry(2000, _t3), INDI_EMITTED_ENTRY_TYPE_TICK);
-    EmitEntry(TickToEntry(3000, _t4), INDI_EMITTED_ENTRY_TYPE_TICK);
-    EmitEntry(TickToEntry(4000, _t5), INDI_EMITTED_ENTRY_TYPE_TICK);
-    EmitEntry(TickToEntry(4100, _t6), INDI_EMITTED_ENTRY_TYPE_TICK);
-    EmitEntry(TickToEntry(4200, _t7), INDI_EMITTED_ENTRY_TYPE_TICK);
-    EmitEntry(TickToEntry(4800, _t8), INDI_EMITTED_ENTRY_TYPE_TICK);
+    EmitEntry(TickToEntry(1000, _t1));
+    EmitEntry(TickToEntry(1500, _t2));
+    EmitEntry(TickToEntry(2000, _t3));
+    EmitEntry(TickToEntry(3000, _t4));
+    EmitEntry(TickToEntry(4000, _t5));
+    EmitEntry(TickToEntry(4100, _t6));
+    EmitEntry(TickToEntry(4200, _t7));
+    EmitEntry(TickToEntry(4800, _t8));
   };
 };

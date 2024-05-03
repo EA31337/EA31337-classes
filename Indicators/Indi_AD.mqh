@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -87,10 +87,7 @@ class Indi_AD : public Indicator<IndiADParams> {
   static double iAD(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                     IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
-    Print("We'll now retrieve value from ::iAD(", _symbol, ", ", EnumToString(_tf), ", ", _shift, ")...");
-    double _value = ::iAD(_symbol, _tf, _shift);
-    Print("value = \"", _value, "\", LastError: ", _LastError);
-    return _value;
+    return ::iAD(_symbol, _tf, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iAD(_symbol, _tf, VOLUME_TICK), 0, _shift);
 #endif
@@ -99,15 +96,15 @@ class Indi_AD : public Indicator<IndiADParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_AD::iAD(GetSymbol(), GetTf(), _ishift, THIS_PTR);
+        _value = Indi_AD::iAD(GetSymbol(), GetTf(), ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
+                         ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

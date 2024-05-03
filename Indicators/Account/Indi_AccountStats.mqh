@@ -23,7 +23,7 @@
 // Includes.
 #include "../../Account/AccountBase.h"
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/Indicator.h"
 #include "../../Platform.h"
 #include "../../Storage/Objects.h"
 
@@ -191,13 +191,14 @@ class Indi_AccountStats : public Indicator<Indi_AccountStats_Params> {
   /**
    * Called when data source emits new entry (historic or future one).
    */
-  virtual void OnDataSourceEntry(IndicatorDataEntry &entry,
-                                 ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) {
+  virtual void OnDataSourceEntry(IndicatorDataEntry &entry/*, ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT*/) {
+    /*
     Indicator<Indi_AccountStats_Params>::OnDataSourceEntry(entry, type);
 
     if (type != INDI_EMITTED_ENTRY_TYPE_CANDLE) {
       return;
     }
+    */
 
     // New candle means that account stats for current index 0 will be that we
     // will now extract and store in the buffers.

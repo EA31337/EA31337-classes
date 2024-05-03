@@ -27,8 +27,8 @@
 
 // Includes.
 #include "../Chart.enum.h"
-#include "../SerializerConverter.mqh"
-#include "../SerializerJson.mqh"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerJson.h"
 
 // Defines.
 #define SIGNAL_CLOSE_BUY_FILTER STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_CLOSE_BUY_FILTER)

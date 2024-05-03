@@ -34,7 +34,7 @@
 #define VALUE_STORAGE_H
 
 // Includes.
-#include "../SerializerConversions.h"
+#include "../Serializer/SerializerConversions.h"
 #include "../Util.h"
 #include "Objects.h"
 
@@ -153,7 +153,7 @@ class ValueStorage : public IValueStorage {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual C Fetch(int _shift) {
+  virtual C Fetch(int _rel_shift) {
     Alert("Fetching data by shift is not supported from this value storage!");
     DebugBreak();
     return (C)0;
@@ -221,7 +221,8 @@ void ArrayInitialize(ValueStorage<C> &_storage, C _value) {
  * ValueStorage-compatible wrapper for ArrayCopy.
  */
 template <typename C, typename D>
-int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _src_start = 0, int count = WHOLE_ARRAY) {
+int ArrayCopy(ARRAY_REF(D, _target), ValueStorage<C> &_source, int _dst_start = 0, int _src_start = 0,
+              int count = WHOLE_ARRAY) {
   if (count == WHOLE_ARRAY) {
     count = ArraySize(_source);
   }

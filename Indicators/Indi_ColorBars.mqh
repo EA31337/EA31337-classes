@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -67,15 +67,16 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
   /**
    * OnCalculate-based version of Color Bars as there is no built-in one.
    */
-  static double iColorBars(IndicatorData *_indi, int _mode = 0, int _shift = 0) {
+  static double iColorBars(IndicatorData *_indi, int _mode = 0, int _rel_shift = 0) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, "");
-    return iColorBarsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _shift, _cache);
+    return iColorBarsOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                             _cache);
   }
 
   /**
    * Calculates Color Bars on the array of values.
    */
-  static double iColorBarsOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _shift,
+  static double iColorBarsOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
                                   IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -91,7 +92,7 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
                                                        _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
                                                        _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4)));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -125,19 +126,19 @@ class Indi_ColorBars : public Indicator<IndiColorBarsParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = Indi_ColorBars::iColorBars(THIS_PTR, _mode, _ishift);
+        _value = Indi_ColorBars::iColorBars(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
+                         ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ColorBars::iColorBars(THIS_PTR, _mode, _ishift);
+        _value = Indi_ColorBars::iColorBars(THIS_PTR, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

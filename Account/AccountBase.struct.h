@@ -35,7 +35,7 @@
 class Serializer;
 
 // Includes.
-#include "../Serializer.mqh"
+#include "../Serializer/Serializer.h"
 #include "../Terminal.define.h"
 
 // Struct for account entries.

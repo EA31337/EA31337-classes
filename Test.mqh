@@ -46,6 +46,13 @@
     return (ret);                                                             \
   }
 
+#define assertEqualOrExit(current, expected, msg)                             \
+  if ((current) != (expected)) {                                              \
+    Alert(msg + " - Assert fail. Expected ", expected, ", but got ", current, \
+          " in " + __FILE__ + ":" + (string)__LINE__);                        \
+    ExpertRemove();                                                           \
+  }
+
 #define assertFalseOrFail(cond, msg)                                                        \
   if ((cond)) {                                                                             \
     Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string)__LINE__); \

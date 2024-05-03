@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "Indi_ZigZag.mqh"
 
 // Structs.
@@ -79,15 +79,17 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   /**
    * OnCalculate-based version of Price Channel indicator as there is no built-in one.
    */
-  static double iPriceChannel(IndicatorData *_indi, int _period, int _mode = 0, int _shift = 0) {
+  static double iPriceChannel(IndicatorData *_indi, int _period, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period));
-    return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
+    return iPriceChannelOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode,
+                                _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
    * Calculates Price Channel on the array of values.
    */
-  static double iPriceChannelOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _shift,
+  static double iPriceChannelOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _abs_shift,
                                      IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -103,7 +105,7 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
                                                           _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
                                                           _cache.GetBuffer<double>(2), _period));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -126,20 +128,19 @@ class Indi_PriceChannel : public Indicator<IndiPriceChannelParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = iPriceChannel(THIS_PTR, GetPeriod(), _mode, _ishift);
+        _value = iPriceChannel(THIS_PTR, GetPeriod(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
-                         0, _ishift);
+                         0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = iPriceChannel(THIS_PTR, GetPeriod(), _mode, _ishift);
+        _value = iPriceChannel(THIS_PTR, GetPeriod(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

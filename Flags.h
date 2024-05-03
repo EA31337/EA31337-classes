@@ -26,7 +26,7 @@
 template <typename T>
 struct Flags {
   // Bit-based value.
-  unsigned T value;
+  T value;
 
   /**
    * Constructor.
