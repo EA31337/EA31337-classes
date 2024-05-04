@@ -36,7 +36,7 @@ Ref<IndicatorData> indi_candle;
  */
 int OnInit() {
   Platform::Init();
-  Platform::Add(indi_candle = Platform::FetchDefaultCandleIndicator());
+  Platform::Add(indi_candle = Platform::FetchDefaultCandleIndicator("EURUSD", PERIOD_M1));
   return _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED;
 }
 

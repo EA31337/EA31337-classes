@@ -36,7 +36,7 @@ BufferFXT *ticks;
  */
 int OnInit() {
   Platform::Init();
-  ticks = new BufferFXT(Platform::FetchDefaultCandleIndicator());
+  ticks = new BufferFXT(Platform::FetchDefaultCandleIndicator("EURUSD", PERIOD_M1));
   // Test 1.
   // @todo
   return (GetLastError() > 0 ? INIT_FAILED : INIT_SUCCEEDED);

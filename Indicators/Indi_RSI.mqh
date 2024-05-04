@@ -23,42 +23,22 @@
 // Includes.
 #include "../DictStruct.mqh"
 #include "../Indicator/Indicator.h"
-#include "Indi_Bands.mqh"
-#include "Indi_CCI.mqh"
-#include "Indi_Envelopes.mqh"
-#include "Indi_MA.mqh"
-#include "Indi_Momentum.mqh"
-#include "Indi_StdDev.mqh"
 #include "Price/Indi_Price.mqh"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iRSI(string _symbol, int _tf, int _period, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_RSI::iRSI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
-}
-double iRSIOnArray(double &_arr[], int _total, int _period, int _abs_shift) {
-  ResetLastError();
-  return Indi_RSI::iRSIOnArray(_arr, _total, _period, _abs_shift);
-}
-#endif
 
 // Structs.
 struct IndiRSIParams : IndicatorParams {
- protected:
   int period;
   ENUM_APPLIED_PRICE applied_price;
 
- public:
   IndiRSIParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : applied_price(_ap), IndicatorParams(INDI_RSI) {
+      : IndicatorParams(INDI_RSI), applied_price(_ap) {
     shift = _shift;
     SetCustomIndicatorName("Examples\\RSI");
     SetPeriod(_period);
   };
   IndiRSIParams(IndiRSIParams &_params) { THIS_REF = _params; };
   // Getters.
-  ENUM_APPLIED_PRICE GetAppliedPrice() override { return applied_price; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return applied_price; }
   int GetPeriod() { return period; }
   // Setters.
   void SetPeriod(int _period) { period = _period; }
@@ -79,6 +59,11 @@ struct IndiRSIParams : IndicatorParams {
 struct RSIGainLossData {
   double avg_gain;
   double avg_loss;
+  // Default constructor.
+  RSIGainLossData() {}
+
+  // Copy constructor.
+  RSIGainLossData(const RSIGainLossData &r) : avg_gain(r.avg_gain), avg_loss(r.avg_loss) {}
 };
 
 /**
@@ -127,8 +112,15 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
                      ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iRSI(_symbol, _tf, _period, _applied_price, _shift);
-#else  // __MQL5__
+#else
+#ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iRSI(_symbol, _tf, _period, _applied_price), 0, _shift);
+#else
+    RUNTIME_ERROR(
+        "In C++ Indi_RSI::iRSI() method couldn't be used directly. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
+#endif
 #endif
   }
 
@@ -141,13 +133,14 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
                                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
                                        Indi_RSI *_obj = NULL) {
     int i;
-    double indi_values[];
+    ARRAY(double, indi_values);
     ArrayResize(indi_values, _period);
 
     double result;
 
     for (i = _shift; i < (int)_shift + (int)_period; i++) {
-      indi_values[_shift + _period - (i - _shift) - 1] = _indi[i][_obj.GetParams().indi_mode];
+      indi_values[_shift + _period - (i - _shift) - 1] =
+          _indi PTR_DEREF GetSpecificAppliedPriceValueStorage(_applied_price) PTR_DEREF Fetch(i);
     }
 
     result = iRSIOnArray(indi_values, 0, _period - 1, 0);
@@ -160,7 +153,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    *
    * @see https://school.stockcharts.com/doku.php?id=technical_indicators:relative_strength_index_rsi
    *
-   * Reson behind iRSI with SSMA and not just iRSIOnArray() (from above website):
+   * Reason behind iRSI with SMMA and not just iRSIOnArray() (from above website):
    *
    * "Taking the prior value plus the current value is a smoothing technique
    * similar to that used in calculating an exponential moving average. This
@@ -183,7 +176,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
     }
 
     int i;
-    double indi_values[];
+    ARRAY(double, indi_values);
     ArrayResize(indi_values, _period);
 
     double result;
@@ -239,7 +232,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
     new_data.avg_gain = (last_data.avg_gain * (_period - 1) + curr_gain) / _period;
     new_data.avg_loss = (last_data.avg_loss * (_period - 1) + curr_loss) / _period;
 
-    _target.aux_data.Set(_bar_time_curr, new_data);
+    _target PTR_DEREF aux_data.Set(_bar_time_curr, new_data);
 
     if (new_data.avg_loss == 0.0) {
       // @fixme Why 0 loss?
@@ -256,7 +249,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
   /**
    * Calculates RSI on the array of values.
    */
-  static double iRSIOnArray(double &array[], int total, int period, int shift) {
+  static double iRSIOnArray(ARRAY_REF(double, array), int total, int period, int shift) {
 #ifdef __MQL4__
     return ::iRSIOnArray(array, total, period, shift);
 #else
@@ -309,9 +302,13 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
+#ifdef __debug_indicator__
+    Print("Indi_RSI::GetEntryValue(mode = ", _mode, ", abs_shift = ", _abs_shift, ")");
+#endif
+
     double _value = EMPTY_VALUE;
-    double _res[];
+    ARRAY(double, _res);
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), iparams.GetPeriod(), iparams.GetAppliedPrice(),
@@ -328,37 +325,49 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
         _value = Indi_RSI::iRSIOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), iparams.GetPeriod(),
                                            iparams.GetAppliedPrice(), ToRelShift(_abs_shift));
         break;
+      default:
+        RUNTIME_ERROR("Invalid indicator IDATA_* type!");
     }
     return _value;
   }
-
-  /**
-   * Provides built-in indicators whose can be used as data source.
-   */
-  virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
-    if (_id == INDI_BANDS) {
-      IndiBandsParams bands_params;
-      return new Indi_Bands(bands_params);
-    } else if (_id == INDI_CCI) {
-      IndiCCIParams cci_params;
-      return new Indi_CCI(cci_params);
-    } else if (_id == INDI_ENVELOPES) {
-      IndiEnvelopesParams env_params;
-      return new Indi_Envelopes(env_params);
-    } else if (_id == INDI_MOMENTUM) {
-      IndiMomentumParams mom_params;
-      return new Indi_Momentum(mom_params);
-    } else if (_id == INDI_MA) {
-      IndiMAParams ma_params;
-      return new Indi_MA(ma_params);
-    } else if (_id == INDI_RSI) {
-      IndiRSIParams _rsi_params;
-      return new Indi_RSI(_rsi_params);
-    } else if (_id == INDI_STDDEV) {
-      IndiStdDevParams stddev_params;
-      return new Indi_StdDev(stddev_params);
-    }
-
-    return IndicatorData::FetchDataSource(_id);
-  }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iRSI(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_RSI::iRSI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+double iRSIOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _abs_shift) {
+  ResetLastError();
+  return Indi_RSI::iRSIOnArray(_arr, _total, _period, _abs_shift);
+}
+#endif
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(Indi_RSI_Params) {
+  emscripten::value_object<IndiRSIParams>("indicators.RSIParams")
+      .field("period", &IndiRSIParams::period)
+      .field("appliedPrice", &IndiRSIParams::applied_price)
+      // Inherited fields:
+      .field("shift", &IndiRSIParams::shift);
+}
+
+EMSCRIPTEN_BINDINGS(Indi_RSIBase) {
+  emscripten::class_<Indicator<IndiRSIParams>, emscripten::base<IndicatorData>>("Indi_RSIBase");
+}
+
+EMSCRIPTEN_BINDINGS(Indi_RSI) {
+  emscripten::class_<Indi_RSI, emscripten::base<Indicator<IndiRSIParams>>>("indicators.RSI")
+      .smart_ptr<Ref<Indi_RSI>>("Ref<Indi_RSI>")
+      .constructor(&make_ref<Indi_RSI, IndiRSIParams &>)
+      .constructor(&make_ref<Indi_RSI, IndiRSIParams &, ENUM_IDATA_SOURCE_TYPE>)
+      .constructor(&make_ref<Indi_RSI, IndiRSIParams &, ENUM_IDATA_SOURCE_TYPE, IndicatorData *>,
+                   emscripten::allow_raw_pointer<emscripten::arg<2>>())
+      .constructor(&make_ref<Indi_RSI, IndiRSIParams &, ENUM_IDATA_SOURCE_TYPE, IndicatorData *, int>,
+                   emscripten::allow_raw_pointer<emscripten::arg<2>>());
+}
+
+#endif

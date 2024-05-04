@@ -77,7 +77,7 @@ class ItemsHistoryItemProvider : public Dynamic {
   /**
    * Returns information about item provider.
    */
-  virtual string ToString() { return "Abstract items history item provider."; }
+  virtual string const ToString() { return "Abstract items history item provider."; }
 };
 
 /**
@@ -196,7 +196,7 @@ class ItemsHistory {
         _from_time_ms = _item.GetTimeMs() + _item.GetLengthMs() + 1;
       }
 
-      long _current_time_ms = TimeCurrent() * 1000;
+      // long _current_time_ms = TimeCurrent() * 1000;
 
       if (_from_time_ms > (long)TimeCurrent() * 1000) {
         // There won't be items in the future.

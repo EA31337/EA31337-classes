@@ -61,6 +61,7 @@ class DictBase {
     _current_id = 0;
     _mode = DictModeUnknown;
     _flags = 0;
+    overflow_listener = nullptr;
   }
 
   /**
@@ -186,7 +187,15 @@ class DictBase {
 
     if (GetMode() == DictModeList) {
       // In list mode value index is the slot index.
-      position = (int)key;
+#ifndef __MQL__
+      if constexpr (std::is_same<K, int>::value) {
+#endif
+        position = (int)key;
+#ifndef __MQL__
+      } else {
+        RUNTIME_ERROR("List mode for a dict could only work if Dict's key type is an integer!");
+      }
+#endif
     } else {
       position = Hash(key) % ArraySize(_DictSlots_ref.DictSlots);
     }
@@ -203,7 +212,15 @@ class DictBase {
 
       if (_DictSlots_ref.DictSlots[position].IsUsed()) {
         if (GetMode() == DictModeList) {
-          _should_be_removed = position == (unsigned int)key;
+#ifndef __MQL__
+          if constexpr (std::is_same<K, int>::value) {
+#endif
+            _should_be_removed = position == (unsigned int)key;
+#ifndef __MQL__
+          } else {
+            RUNTIME_ERROR("List mode for a dict could only work if Dict's key type is an integer!");
+          }
+#endif
         } else {
           _should_be_removed =
               _DictSlots_ref.DictSlots[position].HasKey() && _DictSlots_ref.DictSlots[position].key == key;

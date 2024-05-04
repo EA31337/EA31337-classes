@@ -30,12 +30,13 @@
 #endif
 
 // Includes.
+#include "../../../Platform.define.h"
 #include "../../IndicatorTf.h"
 #include "../../IndicatorTf.struct.h"
 
 // Params for dummy candle-based indicator.
 struct IndicatorTfDummyParams : IndicatorTfParams {
-  IndicatorTfDummyParams(unsigned int _spc = 60) : IndicatorTfParams("IndicatorTf", _spc) {}
+  IndicatorTfDummyParams(ENUM_TIMEFRAMES _tf = PLATFORM_WRONG_TIMEFRAME) : IndicatorTfParams("IndicatorTf", _tf) {}
 };
 
 /**
@@ -43,11 +44,24 @@ struct IndicatorTfDummyParams : IndicatorTfParams {
  */
 class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
  public:
-  IndicatorTfDummy(unsigned int _spc) : IndicatorTf(_spc) {}
-  IndicatorTfDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorTf(_tf) {}
-  IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi = 0) : IndicatorTf(_tfi) {}
+  /*
+    @todo
 
-  string GetName() override { return "IndicatorTfDummy(" + IntegerToString(iparams.spc) + ")"; }
+    IndicatorTfDummy(unsigned int _spc) : IndicatorTf(_spc) {}
+  */
+
+  IndicatorTfDummy(ENUM_TIMEFRAMES _tf) : IndicatorTf(IndicatorTfDummyParams(_tf), IndicatorDataParams()) { Init(); }
+  IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi)
+      : IndicatorTf(IndicatorTfDummyParams(ChartTf::IndexToTf(_tfi)), IndicatorDataParams()) {
+    Init();
+  }
+
+  void Init() {
+    // Explicitly specifying built-in mode as in C++ default mode is On-Indicator.
+    idparams.Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_BUILTIN);
+  }
+
+  string GetName() override { return "IndicatorTfDummy(" + iparams.tf.GetString() + ")"; }
 
   void OnDataSourceEntry(IndicatorDataEntry& entry) override {
     // When overriding OnDataSourceEntry() we have to remember to call parent
@@ -61,3 +75,33 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
 #endif
   }
 };
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyParams) { emscripten::value_object<IndicatorTfDummyParams>("indicators.TfParams"); }
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyBaseBaseBase) {
+  emscripten::class_<Indicator<IndicatorTfDummyParams>, emscripten::base<IndicatorData>>(
+      "IndicatorTfDummyBaseBaseBase");
+}
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyBaseBase) {
+  emscripten::class_<IndicatorCandle<IndicatorTfDummyParams, double, ItemsHistoryTfCandleProvider<double>>,
+                     emscripten::base<Indicator<IndicatorTfDummyParams>>>("IndicatorTfDummyBaseBase");
+}
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyBase) {
+  emscripten::class_<
+      IndicatorTf<IndicatorTfDummyParams>,
+      emscripten::base<IndicatorCandle<IndicatorTfDummyParams, double, ItemsHistoryTfCandleProvider<double>>>>(
+      "IndicatorTfDummyBase");
+}
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummy) {
+  emscripten::class_<IndicatorTfDummy, emscripten::base<IndicatorTf<IndicatorTfDummyParams>>>("indicators.Tf")
+      .smart_ptr<Ref<IndicatorTfDummy>>("Ref<IndicatorTfDummy>")
+      .constructor<ENUM_TIMEFRAMES>();
+}
+
+#endif

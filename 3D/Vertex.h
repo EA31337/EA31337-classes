@@ -8,11 +8,18 @@ struct Vertex {
   DXVector3 Normal;
   DXColor Color;
 
-  Vertex() {
-    Color.r = 1.0f;
-    Color.g = 1.0f;
-    Color.b = 1.0f;
-    Color.a = 1.0f;
+  // Default constructor.
+  Vertex(float r = 1, float g = 1, float b = 1, float a = 1) {
+    Color.r = r;
+    Color.g = g;
+    Color.b = b;
+    Color.a = a;
+  }
+
+  Vertex(const Vertex &r) {
+    Position = r.Position;
+    Normal = r.Normal;
+    Color = r.Color;
   }
 
   static const ShaderVertexLayout Layout[3];

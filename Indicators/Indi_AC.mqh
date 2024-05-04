@@ -20,17 +20,14 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iAC(string _symbol, int _tf, int _shift) {
-  ResetLastError();
-  return Indi_AC::iAC(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
-}
-#endif
 
 // Structs.
 struct IndiACParams : IndicatorParams {
@@ -139,3 +136,11 @@ class Indi_AC : public Indicator<IndiACParams> {
     return _ptr;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iAC(string _symbol, int _tf, int _shift) {
+  ResetLastError();
+  return Indi_AC::iAC(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
+}
+#endif

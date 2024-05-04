@@ -404,7 +404,9 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return !_entry.HasValue<double>(EMPTY_VALUE); }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return _entry.values[0].Get<double>() != DBL_MAX && _entry.values[0].Get<double>() != EMPTY_VALUE;
+  }
 
   /* Getters */
 

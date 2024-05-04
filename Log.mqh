@@ -32,8 +32,8 @@ class DictStruct;
 #include "Array.mqh"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
+#include "File.mqh"
 #include "Object.mqh"
-#include "Storage/Collection.mqh"
 
 // Define assert macros.
 // Alias for function and line macros combined together.
@@ -59,12 +59,12 @@ class Log : public Object {
     ENUM_LOG_LEVEL log_level;
     string msg;
   };
-  DictStruct<int, Ref<Log>> logs;
-  string filename;
-  ARRAY(log_entry, data);
   int last_entry;
   datetime last_flush;
   ENUM_LOG_LEVEL log_level;
+  string filename;
+  ARRAY(log_entry, data);
+  DictStruct<int, Ref<Log>> logs;
 
  public:
   /**
@@ -193,7 +193,8 @@ class Log : public Object {
   void Link(Log *_log) {
     PTR_ATTRIB(_log, SetLevel(log_level));  // Sets the same level as this instance.
     // @todo: Make sure we're not linking the same instance twice.
-    logs.Push(_log);
+    Ref<Log> _ref_log = _log;
+    logs.Push(_ref_log);
   }
 
   /**
@@ -320,7 +321,6 @@ class Log : public Object {
   bool DeleteByTimestamp(datetime timestamp) {
     int _size = ArraySize(data);
     if (_size > 0) {
-      int offset = 0;
       for (int i = 0; i < _size; i++) {
         if (data[i].timestamp == timestamp) {
           Erase(data, i);

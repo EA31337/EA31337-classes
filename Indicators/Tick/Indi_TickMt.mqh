@@ -154,7 +154,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     return false;
   }
 
-  void OnTick(int _global_tick_index) override {
+  bool OnTick(int _global_tick_index) override {
 #ifdef __MQL4__
     // Refreshes Ask/Bid constants.
     RefreshRates();
@@ -175,7 +175,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
       EmitEntry(_entry);
       // Appending tick into the history.
       AppendEntry(_entry);
-      return;
+      return false;
     }
 
 #ifdef __debug_verbose__
@@ -195,5 +195,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     EmitEntry(_entry);
     // Appending tick into the history.
     AppendEntry(_entry);
+
+    return true;
   }
 };

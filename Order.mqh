@@ -33,7 +33,7 @@
 class SymbolInfo;
 
 // Includes.
-#include "Convert.mqh"
+#include "Convert.basic.h"
 #include "Data.define.h"
 #include "Data.struct.h"
 #include "Deal.enum.h"
@@ -306,9 +306,10 @@ class Order : public SymbolInfo {
       int _num = oparams.Get<int>(ORDER_PARAM_COND_CLOSE_NUM);
       for (int _ci = 0; _ci < _num; _ci++) {
         ENUM_ORDER_CONDITION _cond = oparams.Get<ENUM_ORDER_CONDITION>(ORDER_PARAM_COND_CLOSE, _ci);
-        DataParamEntry _cond_args[1];
-        _cond_args[0] = oparams.Get<long>(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _ci);
-        _result |= _result || Order::CheckCondition(_cond, _cond_args);
+        ARRAY(DataParamEntry, _cond_args);
+        DataParamEntry _item0 = oparams.Get<long>(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _ci);
+        ArrayPushObject(_cond_args, _item0);
+        _result |= Order::CheckCondition(_cond, _cond_args);
       }
     }
     return _result;
@@ -504,7 +505,7 @@ class Order : public SymbolInfo {
     return (datetime)_result;
 #endif
   }
-  datetime GetCloseTime() { return IsClosed() ? odata.Get<datetime>(ORDER_PROP_TIME_CLOSED) : 0; }
+  datetime GetCloseTime() { return IsClosed() ? odata.Get<datetime>(ORDER_PROP_TIME_CLOSED) : (datetime)0; }
 
   /**
    * Returns comment of the currently selected order/position.
@@ -695,8 +696,10 @@ class Order : public SymbolInfo {
         return OrderStopLoss();
       case ORDER_TP:
         return OrderTakeProfit();
+      default:
+        break;
     }
-    return NULL;
+    return 0;
   }
 
   /**
@@ -1024,7 +1027,7 @@ class Order : public SymbolInfo {
    *
    * @see: https://docs.mql4.com/trading/orderdelete
    */
-  static bool OrderDelete(unsigned long _ticket, color _color = NULL) {
+  static bool OrderDelete(unsigned long _ticket, color _color = color()) {
 #ifdef __MQL4__
     return ::OrderDelete((int)_ticket, _color);
 #else
@@ -1068,6 +1071,7 @@ class Order : public SymbolInfo {
     MqlTradeCheckResult _result_check = {0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_SLTP;
+    //_request.type = PositionTypeToOrderType();
     _request.comment = ::PositionGetString(POSITION_COMMENT);  // StringFormat("mn=%d", GetMagicNumber());
     _request.magic = ::PositionGetInteger(POSITION_MAGIC);
     _request.position = _ticket;  // Position ticket.
@@ -1102,10 +1106,9 @@ class Order : public SymbolInfo {
         if (IsClosed()) {
           Refresh();
         } else {
-          GetLogger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).",
-                                           odata.Get<long>(ORDER_PROP_TICKET), _price, _sl, _tp, _last_error),
-                              __FUNCTION_LINE__, ToCSV());
-          Refresh(ORDER_PRICE_CURRENT);
+          GetLogger() PTR_DEREF Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).",
+                                                     odata.Get<long>(ORDER_PROP_TICKET), _price, _sl, _tp, _last_error),
+                                        __FUNCTION_LINE__, ToCSV());
           Refresh(ORDER_SL);
           Refresh(ORDER_TP);
           // TODO: Refresh(ORDER_PRI)
@@ -1323,7 +1326,7 @@ class Order : public SymbolInfo {
       // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
       // - https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
 #ifdef __debug__
-      PrintFormat("%s: Error %d: %s", __FUNCTION_LINE__, _result_check.retcode, _result_check.comment);
+      PrintFormat("%s: Error %d: %s", C_STR(__FUNCTION_LINE__), _result_check.retcode, C_STR(_result_check.comment));
 #endif
       _result.retcode = _result_check.retcode;
       return false;
@@ -1720,7 +1723,7 @@ class Order : public SymbolInfo {
 
     if (!_result || _last_error > ERR_NO_ERROR) {
       if (_last_error > ERR_NO_ERROR && _last_error != 4014) {  // @fixme: In MT4 (why 4014?).
-        GetLogger().Warning(StringFormat("Update failed! Error: %d", _last_error), __FUNCTION_LINE__);
+        GetLogger() PTR_DEREF Warning(StringFormat("Update failed! Error: %d", _last_error), __FUNCTION_LINE__);
       }
       odata.ProcessLastError();
       ResetLastError();
@@ -1754,6 +1757,8 @@ class Order : public SymbolInfo {
       RefreshDummy(ORDER_TP);
       RefreshDummy(ORDER_PRICE_CURRENT);
     }
+
+    odata.Set(ORDER_PROP_PROFIT, oresult.bid - oresult.ask);
 
     // @todo: More RefreshDummy(XXX);
 
@@ -1806,6 +1811,8 @@ class Order : public SymbolInfo {
               OrderCloseDummy();
             }
             break;
+          default:
+            break;
         }
         break;
       case ORDER_PRICE_OPEN:
@@ -1820,6 +1827,8 @@ class Order : public SymbolInfo {
       case ORDER_TP:
         odata.Set(_prop_id, orequest.tp);
         break;
+      default:
+        break;
     }
 
     return true;
@@ -1830,11 +1839,12 @@ class Order : public SymbolInfo {
    */
   bool RefreshDummy(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
     bool _result = false;
-    long _value = WRONG_VALUE;
     ResetLastError();
     switch (_prop_id) {
       case ORDER_MAGIC:
         odata.Set(_prop_id, orequest.magic);
+        break;
+      default:
         break;
     }
 
@@ -1851,6 +1861,8 @@ class Order : public SymbolInfo {
         break;
       case ORDER_SYMBOL:
         odata.Set(_prop_id, orequest.symbol);
+        break;
+      default:
         break;
     }
 
@@ -1898,7 +1910,7 @@ class Order : public SymbolInfo {
     } else {
       int _last_error = GetLastError();
       ologger.Error("Error refreshing order property!", __FUNCTION_LINE__,
-                    StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+                    StringFormat("Code: %d, Msg: %s", _last_error, C_STR(Terminal::GetErrorText(_last_error))));
     }
     return _result && GetLastError() == ERR_NO_ERROR;
   }
@@ -1955,6 +1967,10 @@ class Order : public SymbolInfo {
         _result = Order::OrderGetInteger(ORDER_TYPE_TIME, _value);
         break;
       default:
+        if ((int)_prop_id == (int)ORDER_REASON) {
+          _result = Order::OrderGetInteger((ENUM_ORDER_PROPERTY_INTEGER)ORDER_REASON, _value);
+          break;
+        }
         return false;
     }
     if (_result) {
@@ -1962,7 +1978,7 @@ class Order : public SymbolInfo {
     } else {
       int _last_error = GetLastError();
       ologger.Error("Error updating order property!", __FUNCTION_LINE__,
-                    StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+                    StringFormat("Code: %d, Msg: %s", _last_error, C_STR(Terminal::GetErrorText(_last_error))));
     }
     return _result && GetLastError() == ERR_NO_ERROR;
   }
@@ -1986,6 +2002,14 @@ class Order : public SymbolInfo {
         _value = Order::OrderGetString(ORDER_SYMBOL);
         break;
       default:
+/*
+#ifdef ORDER_EXTERNAL_ID
+        if ((int)_prop_id == (int)ORDER_EXTERNAL_ID) {
+          _value = Order::OrderGetString(ORDER_EXTERNAL_ID);
+          break;
+        }
+#endif
+*/
         _result = false;
         break;
     }
@@ -1994,7 +2018,7 @@ class Order : public SymbolInfo {
     } else {
       int _last_error = GetLastError();
       ologger.Error("Error updating order property!", __FUNCTION_LINE__,
-                    StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+                    StringFormat("Code: %d, Msg: %s", _last_error, C_STR(Terminal::GetErrorText(_last_error))));
     }
     return true;
   }
@@ -2012,7 +2036,7 @@ class Order : public SymbolInfo {
    *   Return text representation of the order.
    */
   static string OrderTypeToString(ENUM_ORDER_TYPE _cmd, bool _lc = false) {
-    _cmd = _cmd != NULL ? _cmd : OrderType();
+    _cmd = _cmd != ORDER_TYPE_UNSET ? _cmd : OrderType();
     string _res = StringSubstr(EnumToString(_cmd), 11);
     StringReplace(_res, "_", " ");
     if (_lc) {
@@ -2047,6 +2071,8 @@ class Order : public SymbolInfo {
         return ORDER_TYPE_SELL;
       case ORDER_TYPE_SELL:
         return ORDER_TYPE_BUY;
+      default:
+        break;
     }
     return WRONG_VALUE;
   }
@@ -2087,8 +2113,8 @@ class Order : public SymbolInfo {
   /**
    * Get color of the order based on its type.
    */
-  static color GetOrderColor(ENUM_ORDER_TYPE _cmd = (ENUM_ORDER_TYPE)-1, color cbuy = Blue, color csell = Red) {
-    if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE)OrderType();
+  static color GetOrderColor(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_UNSET, color cbuy = Blue, color csell = Red) {
+    if (_cmd == ORDER_TYPE_UNSET) _cmd = (ENUM_ORDER_TYPE)OrderType();
     return OrderData::GetTypeValue(_cmd) > 0 ? cbuy : csell;
   }
 
@@ -2336,7 +2362,7 @@ class Order : public SymbolInfo {
     _out = OrderGetString(property_id);
     return true;
 #else
-    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_STRING, _out) != (string)NULL_VALUE;
+    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_STRING, _out) != NULL_STRING;
 #endif
   }
 
@@ -2361,7 +2387,7 @@ class Order : public SymbolInfo {
   static long OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, long &_out) {
     switch (type) {
       case ORDER_SELECT_TYPE_NONE:
-        return NULL;
+        return 0;
       case ORDER_SELECT_TYPE_ACTIVE:
         _out = ::OrderGetInteger((ENUM_ORDER_PROPERTY_INTEGER)property_id);
         break;
@@ -2399,7 +2425,7 @@ class Order : public SymbolInfo {
   static double OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, double &_out) {
     switch (type) {
       case ORDER_SELECT_TYPE_NONE:
-        return NULL;
+        return 0;
       case ORDER_SELECT_TYPE_ACTIVE:
         _out = ::OrderGetDouble((ENUM_ORDER_PROPERTY_DOUBLE)property_id);
         break;
@@ -2478,9 +2504,11 @@ class Order : public SymbolInfo {
   template <typename X>
   static X OrderGetParam(int _prop_id, ENUM_ORDER_SELECT_TYPE _type, ENUM_ORDER_SELECT_DATA_TYPE _data_type, X &_out) {
 #ifndef __MQL4__
+    long _long;
+    string _string;
     switch (selected_ticket_type) {
       case ORDER_SELECT_TYPE_NONE:
-        return NULL;
+        return NULL_VALUE;
 
       case ORDER_SELECT_TYPE_ACTIVE:
       case ORDER_SELECT_TYPE_HISTORY:
@@ -2493,13 +2521,13 @@ class Order : public SymbolInfo {
               case ORDER_TIME_SETUP:
                 return OrderGetValue(DEAL_TIME, _type, _out);
               case ORDER_TYPE:
-                switch ((int)OrderGetValue(DEAL_TYPE, _type, _out)) {
+                switch ((int)OrderGetValue(DEAL_TYPE, _type, _long)) {
                   case DEAL_TYPE_BUY:
-                    return (X)ORDER_TYPE_BUY;
+                    return ConvertBasic::LongTo<X>(ORDER_TYPE_BUY);
                   case DEAL_TYPE_SELL:
-                    return (X)ORDER_TYPE_SELL;
+                    return ConvertBasic::LongTo<X>(ORDER_TYPE_SELL);
                   default:
-                    return NULL;
+                    return NULL_VALUE;
                 }
                 break;
               case ORDER_STATE:
@@ -2508,43 +2536,44 @@ class Order : public SymbolInfo {
               case ORDER_TIME_EXPIRATION:
               case ORDER_TIME_DONE:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
               case ORDER_TIME_SETUP_MSC:
                 return OrderGetValue(DEAL_TIME_MSC, _type, _out);
               case ORDER_TIME_DONE_MSC:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
               case ORDER_TYPE_FILLING:
               case ORDER_TYPE_TIME:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
               case ORDER_MAGIC:
                 return OrderGetValue(DEAL_MAGIC, _type, _out);
-              case ORDER_REASON:
-                switch ((int)OrderGetValue(DEAL_REASON, _type, _out)) {
-                  case DEAL_REASON_CLIENT:
-                    return (X)ORDER_REASON_CLIENT;
-                  case DEAL_REASON_MOBILE:
-                    return (X)ORDER_REASON_MOBILE;
-                  case DEAL_REASON_WEB:
-                    return (X)ORDER_REASON_WEB;
-                  case DEAL_REASON_EXPERT:
-                    return (X)ORDER_REASON_EXPERT;
-                  case DEAL_REASON_SL:
-                    return (X)ORDER_REASON_SL;
-                  case DEAL_REASON_TP:
-                    return (X)ORDER_REASON_TP;
-                  case DEAL_REASON_SO:
-                    return (X)ORDER_REASON_SO;
-                  default:
-                    return NULL;
-                }
-                break;
               case ORDER_POSITION_ID:
                 return OrderGetValue(DEAL_POSITION_ID, _type, _out);
               case ORDER_POSITION_BY_ID:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
+              default:
+                if ((int)_prop_id == (int)ORDER_REASON) {
+                  switch ((int)OrderGetValue(DEAL_REASON, _type, _long)) {
+                    case DEAL_REASON_CLIENT:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_CLIENT);
+                    case DEAL_REASON_MOBILE:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_MOBILE);
+                    case DEAL_REASON_WEB:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_WEB);
+                    case DEAL_REASON_EXPERT:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_EXPERT);
+                    case DEAL_REASON_SL:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_SL);
+                    case DEAL_REASON_TP:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_TP);
+                    case DEAL_REASON_SO:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_SO);
+                    default:
+                      return NULL_VALUE;
+                  }
+                }
             }
             break;
           case ORDER_SELECT_DATA_TYPE_DOUBLE:
@@ -2553,26 +2582,31 @@ class Order : public SymbolInfo {
                 return OrderGetValue(DEAL_VOLUME, _type, _out);
               case ORDER_VOLUME_CURRENT:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
               case ORDER_PRICE_OPEN:
                 return OrderGetValue(DEAL_PRICE, _type, _out);
               case ORDER_SL:
               case ORDER_TP:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
               case ORDER_PRICE_CURRENT:
                 return OrderGetValue(DEAL_PRICE, _type, _out);
               case ORDER_PRICE_STOPLIMIT:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
             }
             break;
           case ORDER_SELECT_DATA_TYPE_STRING:
             switch (_prop_id) {
               case ORDER_SYMBOL:
               case ORDER_COMMENT:
-              case ORDER_EXTERNAL_ID:
-                return NULL;
+                return NULL_VALUE;
+              default:
+#ifdef ORDER_EXTERNAL_ID
+                if ((int)_prop_id == (int)ORDER_EXTERNAL_ID) {
+                  return NULL_VALUE;
+                }
+#endif
             }
             break;
         }
@@ -2585,13 +2619,13 @@ class Order : public SymbolInfo {
               case ORDER_TIME_SETUP:
                 return OrderGetValue(POSITION_TIME, _type, _out);
               case ORDER_TYPE:
-                switch ((int)OrderGetValue(POSITION_TYPE, _type, _out)) {
+                switch ((int)OrderGetValue(POSITION_TYPE, _type, _long)) {
                   case POSITION_TYPE_BUY:
-                    return (X)ORDER_TYPE_BUY;
+                    return ConvertBasic::LongTo<X>(ORDER_TYPE_BUY);
                   case POSITION_TYPE_SELL:
-                    return (X)ORDER_TYPE_SELL;
+                    return ConvertBasic::LongTo<X>(ORDER_TYPE_SELL);
                   default:
-                    return NULL;
+                    return NULL_VALUE;
                 }
                 break;
               case ORDER_STATE:
@@ -2600,37 +2634,38 @@ class Order : public SymbolInfo {
               case ORDER_TIME_EXPIRATION:
               case ORDER_TIME_DONE:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
               case ORDER_TIME_SETUP_MSC:
                 return OrderGetValue(POSITION_TIME_MSC, _type, _out);
               case ORDER_TIME_DONE_MSC:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
               case ORDER_TYPE_FILLING:
               case ORDER_TYPE_TIME:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
               case ORDER_MAGIC:
                 return OrderGetValue(POSITION_MAGIC, _type, _out);
-              case ORDER_REASON:
-                switch ((int)OrderGetValue(POSITION_REASON, _type, _out)) {
-                  case POSITION_REASON_CLIENT:
-                    return (X)ORDER_REASON_CLIENT;
-                  case POSITION_REASON_MOBILE:
-                    return (X)ORDER_REASON_MOBILE;
-                  case POSITION_REASON_WEB:
-                    return (X)ORDER_REASON_WEB;
-                  case POSITION_REASON_EXPERT:
-                    return (X)ORDER_REASON_EXPERT;
-                  default:
-                    return NULL;
-                }
-                break;
               case ORDER_POSITION_ID:
                 return OrderGetValue(POSITION_IDENTIFIER, _type, _out);
               case ORDER_POSITION_BY_ID:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
+              default:
+                if ((int)_prop_id == (int)ORDER_REASON) {
+                  switch ((int)OrderGetValue(POSITION_REASON, _type, _long)) {
+                    case POSITION_REASON_CLIENT:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_CLIENT);
+                    case POSITION_REASON_MOBILE:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_MOBILE);
+                    case POSITION_REASON_WEB:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_WEB);
+                    case POSITION_REASON_EXPERT:
+                      return ConvertBasic::LongTo<X>(ORDER_REASON_EXPERT);
+                    default:
+                      return NULL_VALUE;
+                  }
+                }
             }
             break;
           case ORDER_SELECT_DATA_TYPE_DOUBLE:
@@ -2650,7 +2685,7 @@ class Order : public SymbolInfo {
               case ORDER_PRICE_STOPLIMIT:
                 // @fixme
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL;
+                return NULL_VALUE;
             }
             break;
           case ORDER_SELECT_DATA_TYPE_STRING:
@@ -2659,15 +2694,19 @@ class Order : public SymbolInfo {
                 return OrderGetValue(POSITION_SYMBOL, _type, _out);
               case ORDER_COMMENT:
                 return OrderGetValue(POSITION_COMMENT, _type, _out);
-              case ORDER_EXTERNAL_ID:
-                return OrderGetValue(POSITION_EXTERNAL_ID, _type, _out);
+              default:
+#ifdef ORDER_EXTERNAL_ID
+                if ((int)_prop_id == (int)ORDER_EXTERNAL_ID) {
+                  return OrderGetValue(POSITION_EXTERNAL_ID, _type, _out);
+                }
+#endif
             }
             break;
         }
         break;
     }
 
-    return NULL;
+    return NULL_VALUE;
 #else
     return OrderGetValue(_prop_id, _type, _out);
 #endif
@@ -2683,8 +2722,12 @@ class Order : public SymbolInfo {
   bool ProcessConditions(bool _refresh = false) {
     bool _result = true;
     if (IsOpen(_refresh) && (odata.Get<long>(ORDER_PROP_CLOSE_TRIES) > 0 || ShouldCloseOrder())) {
+      string _reason = "Close condition";
+#ifdef __MQL__
+      // _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
+#endif
       ARRAY(DataParamEntry, _args);
-      DataParamEntry _cond = ORDER_REASON_CLOSED_BY_CONDITION;
+      DataParamEntry _cond = _reason;
       ArrayPushObject(_args, _cond);
       _result &= Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
       odata.IncCloseTries();
@@ -2703,7 +2746,7 @@ class Order : public SymbolInfo {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
-    float _profit = (float)Get<long>(ORDER_PROP_PROFIT_PIPS);
+    // float _profit = (float)Get<long>(ORDER_PROP_PROFIT_PIPS);
     switch (_cond) {
       case ORDER_COND_IN_LOSS:
         return Get<long>(ORDER_PROP_PROFIT_PIPS) < (ArraySize(_args) > 0 ? -DataParamEntry::ToDouble(_args[0]) : 0);
@@ -2722,6 +2765,8 @@ class Order : public SymbolInfo {
               return TimeCurrent() - odata.Get<datetime>(ORDER_TIME_SETUP) > _arg_value;
             case ORDER_COND_LIFETIME_LT_ARG:
               return TimeCurrent() - odata.Get<datetime>(ORDER_TIME_SETUP) < _arg_value;
+            default:
+              return false;
           }
         }
       case ORDER_COND_PROP_EQ_ARG:
@@ -2742,6 +2787,8 @@ class Order : public SymbolInfo {
                   return odata.Get<double>((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) > _args[1].double_value;
                 case ORDER_COND_PROP_LT_ARG:
                   return odata.Get<double>((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) < _args[1].double_value;
+                default:
+                  return false;
               }
             case TYPE_INT:
             case TYPE_LONG:
@@ -2755,6 +2802,8 @@ class Order : public SymbolInfo {
                   return odata.Get<int>((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) > _args[1].integer_value;
                 case ORDER_COND_PROP_LT_ARG:
                   return odata.Get<int>((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) < _args[1].integer_value;
+                default:
+                  return false;
               }
             case TYPE_STRING:
               Refresh((ENUM_ORDER_PROPERTY_STRING)_prop_id);
@@ -2766,12 +2815,17 @@ class Order : public SymbolInfo {
                   return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) > _args[1].string_value;
                 case ORDER_COND_PROP_LT_ARG:
                   return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) < _args[1].string_value;
+                default:
+                  return false;
               }
+            default:
+              return false;
           }
         }
       }
       default:
-        ologger.Error(StringFormat("Invalid order condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        ologger.Error(
+            StringFormat("Invalid order condition: %s at %s!", C_STR(EnumToString(_cond)), C_STR(__FUNCTION_LINE__)));
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return false;
@@ -2792,7 +2846,6 @@ class Order : public SymbolInfo {
    *   Returns true when the condition is met.
    */
   bool ExecuteAction(ENUM_ORDER_ACTION _action, ARRAY_REF(DataParamEntry, _args)) {
-    bool _result = true;
     switch (_action) {
       case ORDER_ACTION_CLOSE:
         switch (oparams.dummy) {
@@ -2817,12 +2870,11 @@ class Order : public SymbolInfo {
           }
           oparams.AddConditionClose((ENUM_ORDER_CONDITION)_args[0].integer_value, _sargs);
         }
-        break;
       default:
-        ologger.Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        ologger.Error(
+            StringFormat("Invalid order action: %s at %s!", C_STR(EnumToString(_action)), C_STR(__FUNCTION_LINE__)));
         return false;
     }
-    return _result;
   }
   bool ExecuteAction(ENUM_ORDER_ACTION _action) {
     ARRAY(DataParamEntry, _args);
@@ -2849,21 +2901,21 @@ class Order : public SymbolInfo {
     switch (_type) {
       case TYPE_DOUBLE:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%g%s", odata.Get<double>((ENUM_ORDER_PROPERTY_DOUBLE)_props[i]), _dlm);
+          _output += StringFormat("%g%s", odata.Get<double>((ENUM_ORDER_PROPERTY_DOUBLE)_props[i]), C_STR(_dlm));
         }
         break;
       case TYPE_LONG:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%d%s", odata.Get<long>((ENUM_ORDER_PROPERTY_INTEGER)_props[i]), _dlm);
+          _output += StringFormat("%d%s", odata.Get<long>((ENUM_ORDER_PROPERTY_INTEGER)_props[i]), C_STR(_dlm));
         }
         break;
       case TYPE_STRING:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%d%s", odata.Get((ENUM_ORDER_PROPERTY_STRING)_props[i]), _dlm);
+          _output += StringFormat("%s%s", C_STR(odata.Get((ENUM_ORDER_PROPERTY_STRING)_props[i])), C_STR(_dlm));
         }
         break;
       default:
-        ologger.Error(StringFormat("%s: Unsupported type: %s!", __FUNCTION_LINE__, EnumToString(_type)));
+        ologger.Error(StringFormat("%s: Unsupported type: %s!", C_STR(__FUNCTION_LINE__), C_STR(EnumToString(_type))));
     }
     return "";
   }

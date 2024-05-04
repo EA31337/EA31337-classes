@@ -55,11 +55,11 @@ enum ENUM_INDI_RENKO_CANDLE_TYPE {
 struct RenkoParams : IndicatorTfParams {
   int pips_limit;
 
-  RenkoParams(int _pips_limit = 10, int _shift = 0) : IndicatorTfParams("Renko") {
+  RenkoParams(int _pips_limit = 10, int _shift = 0) : IndicatorTfParams("Renko", PERIOD_TF_IRREGULAR) {
     pips_limit = _pips_limit;
     shift = _shift;
   };
-  RenkoParams(RenkoParams &_params) : IndicatorTfParams("Renko") { THIS_REF = _params; };
+  RenkoParams(RenkoParams &_params) : IndicatorTfParams("Renko", PERIOD_TF_IRREGULAR) { THIS_REF = _params; };
 
   // Getters.
   unsigned int GetSecsPerCandle() {

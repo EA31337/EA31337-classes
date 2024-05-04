@@ -53,8 +53,8 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
   /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
-  virtual void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryTfCandleProvider<TV>>* _history, long _time_ms,
-                      float _ask, float _bid) {
+  void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryTfCandleProvider<TV>>* _history, long _time_ms, float _ask,
+              float _bid) {
     ++tick_index;
 
     // Print("IndicatorTf's history: New tick: ", TimeToString(_time_ms / 1000, TIME_DATE | TIME_MINUTES |
@@ -172,7 +172,7 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
   /**
    * Returns information about item provider.
    */
-  string ToString() override { return "IndicatorTf candle provider on " + indi PTR_DEREF GetFullName(); }
+  string const ToString() override { return "IndicatorTf candle provider on " + indi PTR_DEREF GetFullName(); }
 };
 
 #endif  // INDICATOR_TF_PROVIDER_H

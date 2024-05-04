@@ -153,7 +153,7 @@ class DictObject : public DictBase<K, V> {
    */
   V* GetByKey(const K _key) {
     unsigned int position;
-    DictSlot<K, V>* slot = GetSlotByKey(this PTR_DEREF _DictSlots_ref, _key, position);
+    DictSlot<K, V>* slot = THIS_ATTR GetSlotByKey(this PTR_DEREF _DictSlots_ref, _key, position);
 
     if (!slot) return NULL;
 
