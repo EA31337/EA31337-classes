@@ -39,6 +39,7 @@ jobs:
     strategy:
       matrix:
         test:
+          - AccountTest
           - BufferStructTest
           - BufferTest
           - ChartTest
