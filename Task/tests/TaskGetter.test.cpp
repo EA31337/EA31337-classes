@@ -32,4 +32,4 @@
 #include "../../Std.h"
 #include "../../String.extern.h"
 
-int main(int argc, char **argv) {}
+int main(int argc, char **argv) { return 0; }
