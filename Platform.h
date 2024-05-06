@@ -52,6 +52,9 @@ class Platform {
   // Whether to clear passed periods on consecutive Platform::UpdateTime().
   static bool time_clear_flags;
 
+  // Whether history for all the indicators was emitted.
+  static bool emitted_history;
+
   // List of added indicators.
   static DictStruct<long, Ref<IndicatorData>> indis;
 
@@ -94,6 +97,38 @@ class Platform {
 
     // Will check for new time periods in consecutive Platform::UpdateTime().
     time_clear_flags = true;
+  }
+
+  /**
+   * Called by indicators' OnCalculate() method in order to prepare history via
+   * IndicatorData::EmitHistory() and to call Tick() for each OnCalculate()
+   * call so Tick indicator can emit new tick and Candle indicator can update
+   * or add new candle data to be used by all indicators added to the platform
+   * via Platform::Add...().
+   */
+  static void OnCalculate(const int rates_total, const int prev_calculated) {
+    if (!emitted_history) {
+      for (DictStructIterator<long, Ref<IndicatorData>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
+        EmitHistory(_iter.Value().Ptr());
+      }
+      emitted_history = true;
+    }
+
+    // We're ready for a tick.
+    Tick();
+  }
+
+  /**
+   * Emits history for parent indicators in hierarchy and then for the indicator itself.
+   */
+  static void EmitHistory(IndicatorData *_indi) {
+    IndicatorData *_parent = _indi PTR_DEREF GetDataSource(false);
+
+    if (_parent != nullptr) {
+      EmitHistory(_parent);
+    }
+
+    _indi PTR_DEREF EmitHistory();
   }
 
   /**
@@ -306,6 +341,7 @@ bool Platform::initialized = false;
 DateTime Platform::time = 0;
 unsigned int Platform::time_flags = 0;
 bool Platform::time_clear_flags = true;
+bool Platform::emitted_history = false;
 DictStruct<long, Ref<IndicatorData>> Platform::indis;
 DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
 
@@ -340,3 +376,9 @@ DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
   }
 
 #define TEST_INDICATOR_DEFAULT_BINDINGS(C) TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, )
+
+// Auto-initializer for Platform class.
+class PlatformAutoInitializer {
+ public:
+  PlatformAutoInitializer() { Platform::Init(); }
+} _platform_auto_initializer;
