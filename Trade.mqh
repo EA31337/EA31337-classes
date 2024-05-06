@@ -830,7 +830,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // @todo: _order.IsPending()?
       _result &= orders_active.Set(_order PTR_DEREF Get<long>(ORDER_PROP_TICKET), _order_ref);
       logger.Link(_order.GetLogger());
-      _order PTR_DEREF GetLogger().SetLevel(tparams.Get<ENUM_LOG_LEVEL>(TRADE_PARAM_LOG_LEVEL));
+      _order PTR_DEREF GetLogger().SetLevel((ENUM_LOG_LEVEL)tparams.Get<int>(TRADE_PARAM_LOG_LEVEL));
     } else {
       _result &= orders_history.Set(_order PTR_DEREF Get<long>(ORDER_PROP_TICKET), _order_ref);
     }
@@ -894,11 +894,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           OrderMoveToHistory(_order.Ptr());
           order_last = _order;
         } else {
-          logger.Error(
-              StringFormat("Failed to close the order: %d! Error: %d (%s)", _order REF_DEREF Get<long>(ORDER_PROP_TICKET),
-                           _order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR),
-                           Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
-              __FUNCTION_LINE__);
+          logger.Error(StringFormat("Failed to close the order: %d! Error: %d (%s)",
+                                    _order REF_DEREF Get<long>(ORDER_PROP_TICKET),
+                                    _order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                                    Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+                       __FUNCTION_LINE__);
           continue;
         }
       } else {
@@ -932,7 +932,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             order_last = _order;
           } else {
             logger.Error(
-                StringFormat("Failed to close the order: %d! Error: %d (%s)", _order REF_DEREF Get<long>(ORDER_PROP_TICKET),
+                StringFormat("Failed to close the order: %d! Error: %d (%s)",
+                             _order REF_DEREF Get<long>(ORDER_PROP_TICKET),
                              _order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR),
                              Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
                 __FUNCTION_LINE__);

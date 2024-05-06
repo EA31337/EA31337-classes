@@ -39,7 +39,7 @@ int OnInit() {
 
   Platform::Init();
 
-  Platform::AddWithDefaultBindings(indi_account_mt.Ptr());
+  Platform::AddWithDefaultBindings(indi_account_mt.Ptr(), _Symbol, (ENUM_TIMEFRAMES)Period());
 
   bool _result = true;
   assertTrueOrFail(indi_account_mt REF_DEREF IsValid(), "Error on IsValid!");
