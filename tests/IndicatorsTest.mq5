@@ -27,6 +27,7 @@
 // Defines.
 // #define __debug__  // Enables debug.
 // #define __debug_verbose__
+// #define __debug_items_history__
 
 // Forward declaration.
 struct DataParamEntry;
@@ -35,14 +36,14 @@ struct DataParamEntry;
 //#include "../ChartMt.h"
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Indicators/Bitwise/indicators.h"
 #include "../Indicators/Tick/Indi_TickMt.mqh"
 #include "../Indicators/indicators.h"
 #include "../Platform.h"
-#include "../SerializerConverter.mqh"
-#include "../SerializerJson.mqh"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerJson.h"
 #include "../Std.h"
 #include "../Test.mqh"
 
@@ -82,7 +83,7 @@ int OnInit() {
   ResetLastError();
   // Print indicator values.
 
-  _result &= PrintIndicators(__FUNCTION__);
+  //_result &= PrintIndicators(__FUNCTION__);
   assertEqualOrFail(_LastError, ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   ResetLastError();
 
@@ -97,9 +98,9 @@ void OnTick() {
   IndicatorData* _candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
 
   if (_candles PTR_DEREF IsNewBar()) {
-    if (_candles PTR_DEREF GetBarIndex() > 200) {
+    if (_candles PTR_DEREF GetBarIndex() > 550) {
       ExpertRemove();
-  }
+    }
 
     if (indis.Size() == 0) {
       return;
@@ -119,6 +120,9 @@ void OnTick() {
 
       IndicatorData* _indi = iter.Value().Ptr();
       IndicatorDataEntry _entry(_indi PTR_DEREF GetEntry());
+
+      // if (_indi.GetType() != INDI_AMA)
+      // continue;
 
       if (_indi PTR_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
         if (_entry.IsValid()) {

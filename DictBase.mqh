@@ -29,7 +29,6 @@
 #include "Dict.enum.h"
 #include "DictIteratorBase.mqh"
 #include "DictSlot.mqh"
-#include "Serializer.mqh"
 
 /**
  * Dictionary overflow listener. arguments are:
@@ -234,18 +233,6 @@ class DictBase {
     }
 
     // No key found.
-  }
-
-  /**
-   * Checks whether overflow listener allows dict to grow up.
-   */
-  bool IsGrowUpAllowed() {
-    if (overflow_listener == NULL) {
-      return true;
-    }
-
-    // Checking if overflow listener allows resize from current to higher number of slots.
-    return overflow_listener(DICT_OVERFLOW_REASON_FULL, Size(), 0);
   }
 
   /**

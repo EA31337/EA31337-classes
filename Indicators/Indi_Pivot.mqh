@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -22,8 +22,8 @@
 
 // Includes.
 #include "../Bar.struct.h"
-#include "../Indicator.struct.h"
-#include "../Serializer.mqh"
+#include "../Indicator/Indicator.struct.h"
+#include "../Serializer/Serializer.h"
 #include "Special/Indi_Math.mqh"
 
 // Structs.
@@ -58,14 +58,14 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    */
   Indi_Pivot(IndiPivotParams& _p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData* _indi_src = NULL,
              int _indi_src_mode = 0)
-      : Indicator(_p, IndicatorDataParams::GetInstance(9, TYPE_FLOAT, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+      : Indicator(_p, IndicatorDataParams::GetInstance(9, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
                   _indi_src) {
     Init();
   };
   Indi_Pivot(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_INDICATOR, IndicatorData* _indi_src = NULL,
              int _indi_src_mode = 0)
       : Indicator(IndiPivotParams(),
-                  IndicatorDataParams::GetInstance(9, TYPE_FLOAT, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                  IndicatorDataParams::GetInstance(9, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
                   _indi_src) {
     Init();
   }
@@ -99,14 +99,13 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    long _bar_time = GetCandle() PTR_DEREF GetBarTime(_ishift);
+  virtual IndicatorDataEntry GetEntry(int _rel_shift = 0) {
+    long _bar_time = GetCandle() PTR_DEREF GetBarTime(_rel_shift);
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
     if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
       ResetLastError();
-      BarOHLC _ohlc = GetOHLC(_ishift);
-      _entry.timestamp = GetCandle() PTR_DEREF GetBarTime(_ishift);
+      BarOHLC _ohlc = GetOHLC(_rel_shift);
+      _entry.timestamp = GetCandle() PTR_DEREF GetBarTime(_rel_shift);
       if (_ohlc.IsValid()) {
         _entry.Resize(Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES)));
         _ohlc.GetPivots(GetMethod(), _entry.values[0].value.vdbl, _entry.values[1].value.vdbl,
@@ -117,7 +116,7 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
           _entry.values[i].SetDataType(TYPE_DOUBLE);
         }
       }
-      GetEntryAlter(_entry, _shift);
+      GetEntryAlter(_entry, _rel_shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
@@ -137,34 +136,8 @@ class Indi_Pivot : public Indicator<IndiPivotParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    return GetEntry(_ishift)[_mode];
-  }
-
-  /**
-   * Checks if indicator entry values are valid.
-   */
-  virtual bool IsValidEntry(IndicatorDataEntry& _entry) {
-    bool _is_valid = Indicator<IndiPivotParams>::IsValidEntry(_entry);
-    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
-      case IDATA_BUILTIN:
-        break;
-      case IDATA_INDICATOR:
-        // In this mode, price is fetched from given indicator. Such indicator
-        // must have at least 4 buffers and define OHLC in the first 4 buffers.
-        // Indi_Price is an example of such indicator.
-        if (!HasDataSource()) {
-          SetUserError(ERR_INVALID_PARAMETER);
-          _is_valid &= false;
-        }
-        break;
-      default:
-        SetUserError(ERR_INVALID_PARAMETER);
-        _is_valid &= false;
-        break;
-    }
-    return _is_valid;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
+    return GetEntry(ToRelShift(_abs_shift))[_mode];
   }
 
   /* Getters */

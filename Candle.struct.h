@@ -36,16 +36,17 @@ class Serializer;
 // Includes.
 #include "Bar.enum.h"
 #include "Chart.enum.h"
-#include "ISerializable.h"
-#include "Serializer.enum.h"
-#include "SerializerNode.enum.h"
+#include "Serializer/Serializable.h"
+#include "Serializer/Serializer.enum.h"
+#include "Serializer/Serializer.h"
+#include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
 
 /* Structure for storing OHLC values. */
 template <typename T>
 struct CandleOHLC
 #ifndef __MQL__
-    : public ISerializable
+    : public Serializable
 #endif
 {
   T open, high, low, close;
@@ -221,47 +222,128 @@ struct CandleOHLC
  * candle. */
 template <typename T>
 struct CandleOCTOHLC : CandleOHLC<T> {
-  long open_timestamp, close_timestamp;
+  bool is_complete;
+
+  // Timestamp of where the candle is placed on the chart.
+  int start_time;
+
+  // Length of the candle in seconds.
+  int length;
+
+  // Open and close timestamps of ticks that were part of this candle.
+  long open_timestamp_ms, close_timestamp_ms;
 
   // Number of ticks which formed the candle. Also known as volume.
   int volume;
 
   // Struct constructors.
-  CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, long _open_timestamp = -1,
-                long _close_timestamp = -1, int _volume = 0)
+  CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, int _start_time = -1, int _length = 0,
+                long _open_timestamp_ms = -1, long _close_timestamp_ms = -1, int _volume = 0)
       : CandleOHLC(_open, _high, _low, _close),
-        open_timestamp(_open_timestamp),
-        close_timestamp(_close_timestamp),
+        is_complete(true),
+        start_time(_start_time),
+        length(_length),
+        open_timestamp_ms(_open_timestamp_ms),
+        close_timestamp_ms(_close_timestamp_ms),
         volume(_volume) {
     if (_open != 0) {
       volume = 1;
     }
   }
 
-  // Updates OHLC values taking into consideration tick's timestamp.
-  void Update(long _timestamp, T _price) {
-    if (_timestamp < open_timestamp) {
-      open_timestamp = _timestamp;
+  /**
+   * Initializes candle with a given start time, lenght in seconds, first tick's timestamp and its price.
+   */
+  void Init(int _start_time, int _length, long _timestamp_ms = -1, T _price = 0) {
+    is_complete = false;
+    start_time = _start_time;
+    length = _length;
+    open_timestamp_ms = _timestamp_ms;
+    close_timestamp_ms = _timestamp_ms;
+    volume = _price != 0 ? 1 : 0;
+    open = high = low = close = _price;
+  }
+
+  /**
+   * Updates OHLC values taking into consideration tick's timestamp.
+   */
+  void Update(long _timestamp_ms, T _price) {
+    if (!ContainsTimeMs(_timestamp_ms)) {
+      Print("Error: Cannot update candle. Given time doesn't fit in candle's time-frame!");
+      DebugBreak();
+    }
+
+    bool _is_init = open_timestamp_ms == -1;
+
+    if (_is_init || _timestamp_ms < open_timestamp_ms) {
+      open_timestamp_ms = _timestamp_ms;
       open = _price;
     }
-    if (_timestamp > close_timestamp) {
-      close_timestamp = _timestamp;
+    if (_is_init || _timestamp_ms > close_timestamp_ms) {
+      close_timestamp_ms = _timestamp_ms;
       close = _price;
     }
-    high = MathMax(high, _price);
-    low = MathMin(low, _price);
+
+    if (_is_init) {
+      high = _price;
+      low = _price;
+    } else {
+      high = MathMax(high, _price);
+      low = MathMin(low, _price);
+    }
     // Increasing candle's volume.
     ++volume;
   }
 
-  // Returns timestamp of open price.
-  long GetOpenTimestamp() { return open_timestamp; }
+  /**
+   * Method used by ItemsHistory.
+   */
+  long GetTimeMs() { return (long)start_time * 1000; }
 
-  // Returns timestamp of close price.
-  long GetCloseTimestamp() { return close_timestamp; }
+  /**
+   * Method used by ItemsHistory.
+   */
+  long GetLengthMs() { return (long)length * 1000; }
+
+  /**
+   * Returns candle's start time.
+   */
+  datetime GetTime() { return (datetime)start_time; }
+
+  /**
+   * Returns timestamp of open price.
+   */
+  long GetOpenTimestamp() { return open_timestamp_ms / 1000; }
+
+  /**
+   * Returns timestamp of close price.
+   */
+  long GetCloseTimestamp() { return close_timestamp_ms / 1000; }
+
+  /**
+   * Whether given time fits in the candle.
+   */
+  bool ContainsTimeMs(long _time_ms) {
+    return _time_ms >= (long)start_time * 1000 && _time_ms < (long)(start_time + length) * 1000;
+  }
+
+  // Serializers.
+  SerializerNodeType Serialize(Serializer &s);
+
+  /**
+   * Returns text representation of candle.
+   */
+  string ToString() {
+    return StringFormat("%.5f %.5f %.5f %.5f [%s] @ %s - %s", open, high, low, close,
+                        is_complete ? "Complete" : "Incomplete",
+                        TimeToString(open_timestamp_ms, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+                        TimeToString(close_timestamp_ms, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+  }
 };
 
-/* Structore for storing OHLC values with timestamp. */
+/**
+ * Structure for storing OHLC values with timestamp.
+ */
 template <typename T>
 struct CandleTOHLC : CandleOHLC<T> {
   datetime time;
@@ -275,8 +357,6 @@ struct CandleTOHLC : CandleOHLC<T> {
   // Converters.
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
 };
-
-#include "Serializer.mqh"
 
 /* Method to serialize CandleEntry structure. */
 template <typename T>
@@ -297,5 +377,19 @@ SerializerNodeType CandleTOHLC::Serialize(Serializer &s) {
   s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  return SerializerNodeObject;
+}
+
+/* Method to serialize CandleEntry structure. */
+template <typename T>
+SerializerNodeType CandleOCTOHLC::Serialize(Serializer &s) {
+  s.Pass(THIS_REF, "is_complete", is_complete, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "open_timestamp_ms", open_timestamp_ms, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "close_timestamp_ms", close_timestamp_ms, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "volume", volume, SERIALIZER_FIELD_FLAG_DYNAMIC);
   return SerializerNodeObject;
 }

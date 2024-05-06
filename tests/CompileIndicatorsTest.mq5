@@ -26,6 +26,7 @@
 
 // Includes.
 #include "../Indicators/indicators.h"
+#include "../Indicators/Account/Indi_AccountStats.mqh"
 #include "../Indicators/Bitwise/indicators.h"
 #include "../Indicators/OHLC/indicators.h"
 #include "../Indicators/Price/indicators.h"

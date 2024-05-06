@@ -35,9 +35,13 @@ jobs:
     strategy:
       matrix:
         test:
+          - Indicator.test
+          - IndicatorBase.test
           - IndicatorCandle.test
+          - IndicatorData.test
           - IndicatorTf.test
           - IndicatorTick.test
+          - IndicatorRenko.test
     steps:
       - uses: actions/download-artifact@v2
         with:

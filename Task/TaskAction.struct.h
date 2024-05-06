@@ -31,9 +31,13 @@
 
 // Includes.
 #include "../Data.struct.h"
+#include "../Serializer/Serializer.define.h"
 #include "../Std.h"
 #include "../Terminal.define.h"
 #include "Task.enum.h"
+
+// Forward declarations.
+class Serializer;
 
 /* Entry for TaskAction class. */
 struct TaskActionEntry {
@@ -182,15 +186,7 @@ struct TaskActionEntry {
     ::ArrayResize(args, _index - 1);
   }
   // Serializers
-  SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(THIS_REF, "flags", flags);
-    s.Pass(THIS_REF, "id", id);
-    s.Pass(THIS_REF, "time_last_run", time_last_run);
-    s.Pass(THIS_REF, "tries", tries);
-    s.PassEnum(THIS_REF, "freq", freq);
-    s.PassArray(THIS_REF, "args", args);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer &s);
 
   SERIALIZER_EMPTY_STUB;
 };

@@ -26,15 +26,13 @@
 
 // 3D includes (MQL5 only).
 #ifdef __MQL5__
-/* @fixme
+#include "../3D/Chart3D.h"
 #include "../3D/Cube.h"
 #include "../3D/Devices/MTDX/MTDXDevice.h"
 #include "../3D/Devices/MTDX/MTDXIndexBuffer.h"
 #include "../3D/Devices/MTDX/MTDXShader.h"
 #include "../3D/Devices/MTDX/MTDXVertexBuffer.h"
 #include "../3D/Frontends/MT5Frontend.h"
-#include "../3D/Chart3D.h"
-*/
 #endif
 
 // Forward declaration.
@@ -44,6 +42,7 @@ struct IndicatorParams;
 #include "../Account/AccountMt.h"
 #include "../Array.mqh"
 #include "../Task/TaskAction.h"
+//#include "../BasicTrade.mqh" // @removeme
 #include "../Buffer.mqh"
 #include "../BufferFXT.mqh"
 #include "../BufferStruct.mqh"
@@ -62,15 +61,9 @@ struct IndicatorParams;
 #include "../DrawIndicator.mqh"
 #include "../EA.mqh"
 #include "../File.mqh"
-#include "../ISerializable.h"
-#include "../Indicator.define.h"
-#include "../Indicator.mqh"
-#include "../IndicatorBase.h"
-#include "../IndicatorData.mqh"
 // #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
-#include "../Storage/Collection.mqh"
 #include "../Storage/IValueStorage.h"
 #include "../Task/TaskCondition.h"
 //#include "../MQL4.mqh" // @removeme
@@ -93,18 +86,7 @@ struct IndicatorParams;
 #include "../Report.mqh"
 #include "../Storage/Objects.h"
 #include "../Storage/ObjectsCache.h"
-#include "../Serializer.mqh"
-#include "../SerializerBinary.mqh"
-#include "../SerializerConversions.h"
-#include "../SerializerConverter.mqh"
-#include "../SerializerCsv.mqh"
-#include "../SerializerDict.mqh"
-#include "../SerializerJson.mqh"
-#include "../SerializerNode.mqh"
-#include "../SerializerNodeIterator.mqh"
-#include "../SerializerNodeParam.mqh"
-#include "../SerializerObject.mqh"
-#include "../SerializerSqlite.mqh"
+// #include "../SVG.mqh" // @removeme
 #include "../Session.mqh"
 #include "../SetFile.mqh"
 #include "../Socket.mqh"
@@ -124,16 +106,40 @@ struct IndicatorParams;
 #include "../Task/Taskable.h"
 #include "../Terminal.mqh"
 // #include "../Tester.mqh" // @removeme
+#include "../Storage/Collection.mqh"
 #include "../Storage/ValueStorage.h"
-#include "../Tests.mqh"
 // #include "../Tests.mqh" // @removeme
 #include "../Timer.mqh"
 #include "../Trade.mqh"
 #include "../Util.h"
 #include "../Web.mqh"
 
-// Includes indicator files.
+// Includes Indicator files.
+#include "../Indicator/Indicator.define.h"
+#include "../Indicator/Indicator.h"
+#include "../Indicator/IndicatorBase.h"
+#include "../Indicator/IndicatorData.h"
+#include "../Indicator/IndicatorCandle.h"
+#include "../Indicator/IndicatorRenko.h"
+#include "../Indicator/IndicatorTf.h"
+#include "../Indicator/IndicatorTick.h"
+#include "../Indicator/IndicatorTickSource.h"
 #include "../Indicators/indicators.h"
+
+// Includes Serializer files.
+#include "../Serializer/Serializable.h"
+#include "../Serializer/Serializer.h"
+#include "../Serializer/SerializerBinary.h"
+#include "../Serializer/SerializerConversions.h"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerCsv.h"
+#include "../Serializer/SerializerDict.h"
+#include "../Serializer/SerializerJson.h"
+#include "../Serializer/SerializerNode.h"
+#include "../Serializer/SerializerNodeIterator.h"
+#include "../Serializer/SerializerNodeParam.h"
+#include "../Serializer/SerializerObject.h"
+#include "../Serializer/SerializerSqlite.h"
 
 /**
  * Implements Init event handler.

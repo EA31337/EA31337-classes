@@ -27,7 +27,7 @@
 // Includes.
 #include "../DictStruct.mqh"
 #include "../DrawIndicator.mqh"
-#include "../Indicator.struct.serialize.h"
+#include "../Indicator/Indicator.struct.serialize.h"
 #include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_MA.mqh"
@@ -67,7 +67,7 @@ void OnTick() {
     for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
          ++iter) {
       IndicatorData *_indi = iter.Value().Ptr();
-      _indi.OnTick();
+      _indi.OnTick(Platform::GetGlobalTickIndex());
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());

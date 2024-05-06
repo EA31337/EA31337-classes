@@ -28,7 +28,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ObjectsCache.h"
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
@@ -40,9 +40,9 @@ double iStdDev(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_m
   return Indi_StdDev::iStdDev(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
                               (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iStdDevOnArray(double &_arr[], int _total, int _ma_period, int _ma_shift, int _ma_method, int _shift) {
+double iStdDevOnArray(double &_arr[], int _total, int _ma_period, int _ma_shift, int _ma_method, int _abs_shift) {
   ResetLastError();
-  return Indi_StdDev::iStdDevOnArray(_arr, _total, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method, _shift);
+  return Indi_StdDev::iStdDevOnArray(_arr, _total, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method, _abs_shift);
 }
 #endif
 
@@ -107,31 +107,8 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
 #ifdef __MQL4__
     return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
-    }
-    return _res[0];
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price), 0,
+                                      _shift);
 #endif
   }
 
@@ -141,6 +118,8 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   static double iStdDevOnIndicator(IndicatorData *_target, IndicatorData *_source, string _symbol, ENUM_TIMEFRAMES _tf,
                                    int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap, int _shift = 0,
                                    Indi_StdDev *_obj = NULL) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_source, _ma_period + _ma_shift + _shift)
+
     double _indi_value_buffer[];
     double _std_dev;
     int i;
@@ -247,25 +226,24 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),
-                                      GetAppliedPrice(), _ishift, THIS_PTR);
+                                      GetAppliedPrice(), ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
         _value = Indi_StdDev::iStdDevOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
-                                                 GetMAShift(), GetAppliedPrice(), _ishift, THIS_PTR);
+                                                 GetMAShift(), GetAppliedPrice(), ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetMAPeriod(),
-                         GetMAShift(), GetMAMethod() /*]*/, 0, _ishift);
+                         GetMAShift(), GetMAMethod() /*]*/, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         _value = Indi_StdDev::iStdDevOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
-                                                 GetMAShift(), GetAppliedPrice(), _ishift, THIS_PTR);
+                                                 GetMAShift(), GetAppliedPrice(), ToRelShift(_abs_shift), THIS_PTR);
         break;
     }
     return _value;

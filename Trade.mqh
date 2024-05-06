@@ -34,7 +34,7 @@ class Trade;
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
-#include "IndicatorData.mqh"
+#include "Indicator/IndicatorData.h"
 #include "Math.h"
 #include "Object.mqh"
 #include "Order.mqh"
@@ -84,6 +84,8 @@ class Trade : public Taskable<DataParamEntry> {
   Trade(TradeParams &_tparams, IndicatorBase *_indi_candle)
       : indi_candle(_indi_candle), tparams(_tparams), order_last(NULL) {
     Init();
+    SetName();
+    OrdersLoadByMagic(tparams.magic_no);
   };
 
   /**
@@ -951,7 +953,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                          ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
-    _comment = _comment != "" ? _comment : "TOCVP:";
+    _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen(true)) {
@@ -962,19 +964,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             OrderMoveToHistory(_order.Ptr());
             order_last = _order;
           } else {
-            logger.Error(
-                StringFormat("Failed to close the order: %d! Error: %d (%s)", _order.Ptr().Get<long>(ORDER_PROP_TICKET),
-                             _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR),
-                             Terminal::GetErrorText(_order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
-                __FUNCTION_LINE__);
-            continue;
+            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned long>(ORDER_PROP_LAST_ERROR));
+            return -1;
           }
         }
       } else {
         OrderMoveToHistory(_order.Ptr());
       }
     }
-    logger.Flush();
     return _closed;
   }
 
@@ -992,7 +989,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                           ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
-    _comment = _comment != "" ? _comment : "TOCVP2:";
+    _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen(true)) {
@@ -1001,15 +998,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             Math::Compare(_order.Ptr().Get<T>((E)_prop2), _value2, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
 #ifndef __MQL4__
-            // @fixme: GH-571 & GH-706.
+            // @fixme: GH-571.
             logger.Info(__FUNCTION_LINE__, _order.Ptr().ToString());
 #endif
-            logger.Error(
-                StringFormat("Failed to close the order: %d! Error: %d (%s)", _order.Ptr().Get<long>(ORDER_PROP_TICKET),
-                             _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR),
-                             Terminal::GetErrorText(_order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
-                __FUNCTION_LINE__);
-            continue;
+            // @fixme: GH-570.
+            // logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().Get<unsigned int>(ORDER_PROP_LAST_ERROR));
+            logger.Warning("Issue with closing the order!", __FUNCTION_LINE__);
+            ResetLastError();
+            return -1;
           }
           order_last = _order;
           _closed++;
@@ -1018,7 +1014,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         OrderMoveToHistory(_order.Ptr());
       }
     }
-    logger.Flush();
     return _closed;
   }
 
@@ -1988,8 +1983,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
     return _result;
   }
-
-  /* TaskActions */
 
   /**
    * Runs an action.

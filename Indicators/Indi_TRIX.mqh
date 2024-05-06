@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "Indi_MA.mqh"
 
 // Structs.
@@ -92,7 +92,7 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
   /**
    * Calculates TriX on the array of values.
    */
-  static double iTriXOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ma_period, int _mode, int _shift,
+  static double iTriXOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ma_period, int _mode, int _abs_shift,
                              IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
@@ -108,16 +108,18 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
                                                   _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
                                                   _cache.GetBuffer<double>(3), _ma_period));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * On-indicator version of TriX.
    */
   static double iTriXOnIndicator(IndicatorData *_indi, int _ma_period, ENUM_APPLIED_PRICE _ap, int _mode = 0,
-                                 int _shift = 0, IndicatorData *_obj = NULL) {
+                                 int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, 3 * _ma_period - 3);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_ma_period, (int)_ap));
-    return iTriXOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _mode, _shift, _cache);
+    return iTriXOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ma_period, _mode,
+                        _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
@@ -154,23 +156,24 @@ class Indi_TRIX : public Indicator<IndiTRIXParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_TRIX::iTriX(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode, _ishift,
-                                  THIS_PTR);
+        _value = Indi_TRIX::iTriX(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedPrice() /*]*/, _mode,
+                                  ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_TRIX::iTriXOnIndicator(GetDataSource(), GetPeriod(), GetAppliedPrice(), _mode, _ishift);
+        _value =
+            Indi_TRIX::iTriXOnIndicator(GetDataSource(), GetPeriod(), GetAppliedPrice(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
-                         0, _ishift);
+                         0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_TRIX::iTriXOnIndicator(GetDataSource(), GetPeriod(), GetAppliedPrice(), _mode, _ishift);
+        _value =
+            Indi_TRIX::iTriXOnIndicator(GetDataSource(), GetPeriod(), GetAppliedPrice(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

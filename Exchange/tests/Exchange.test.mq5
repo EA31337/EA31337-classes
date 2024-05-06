@@ -30,7 +30,43 @@
 #include "../Exchange.h"
 
 // Test classes.
-class AccountDummy : public AccountBase {};  // <AccountForexState, AccountForexEntry>
+class AccountDummy : public AccountBase {
+  /**
+   * Returns balance value of the current account.
+   */
+  float GetBalance() { return 0; }
+
+  /**
+   * Returns credit value of the current account.
+   */
+  float GetCredit() { return 0; }
+
+  /**
+   * Returns profit value of the current account.
+   */
+  float GetProfit() { return 0; }
+
+  /**
+   * Returns equity value of the current account.
+   */
+  float GetEquity() { return 0; }
+
+  /**
+   * Returns margin value of the current account.
+   */
+  float GetMarginUsed() { return 0; }
+
+  /**
+   * Returns free margin value of the current account.
+   */
+  float GetMarginFree() { return 0; }
+
+  /**
+   * Get account available margin.
+   */
+  float GetMarginAvail() { return 0; }
+};
+
 class ExchangeDummy : public Exchange {};
 class SymbolDummy : public SymbolInfo {};
 class TradeDummy : public Trade {

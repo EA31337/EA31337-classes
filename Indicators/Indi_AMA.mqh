@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.h"
 #include "Price/Indi_Price.mqh"
 
@@ -112,7 +112,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    * Calculates AMA on the array of values.
    */
   static double iAMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ama_period, int _fast_ema_period,
-                            int _slow_ema_period, int _ama_shift, int _mode, int _shift,
+                            int _slow_ema_period, int _ama_shift, int _mode, int _abs_shift,
                             IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_price);
 
@@ -127,7 +127,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
     _cache.SetPrevCalculated(Indi_AMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
                                                  _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -135,6 +135,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    */
   static double iAMAOnIndicator(IndicatorData *_indi, int _ama_period, int _fast_ema_period, int _slow_ema_period,
                                 int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _ama_period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(
         _indi, _ap, Util::MakeKey(_ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, (int)_ap));
     return iAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _ama_period, _fast_ema_period, _slow_ema_period,
@@ -144,7 +145,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   /**
    * OnInit() method for AMA indicator.
    */
-  static void CalculateInit(int InpPeriodAMA, int InpFastPeriodEMA, int InpSlowPeriodEMA, int InpShiftAMA,
+  static void CalculateInit(int InpPeriodAMA, int _period_fast_ema, int _period_slow_ema, int _ishift_ama,
                             double &ExtFastSC, double &ExtSlowSC, int &ExtPeriodAMA, int &ExtSlowPeriodEMA,
                             int &ExtFastPeriodEMA) {
     // Check for input values.
@@ -155,20 +156,20 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
           InpPeriodAMA, ExtPeriodAMA);
     } else
       ExtPeriodAMA = InpPeriodAMA;
-    if (InpSlowPeriodEMA <= 0) {
+    if (_period_slow_ema <= 0) {
       ExtSlowPeriodEMA = 30;
       PrintFormat(
-          "Input parameter InpSlowPeriodEMA has incorrect value (%d). Indicator will use value %d for calculations.",
-          InpSlowPeriodEMA, ExtSlowPeriodEMA);
+          "Input parameter _period_slow_ema has incorrect value (%d). Indicator will use value %d for calculations.",
+          _period_slow_ema, ExtSlowPeriodEMA);
     } else
-      ExtSlowPeriodEMA = InpSlowPeriodEMA;
-    if (InpFastPeriodEMA <= 0) {
+      ExtSlowPeriodEMA = _period_slow_ema;
+    if (_period_fast_ema <= 0) {
       ExtFastPeriodEMA = 2;
       PrintFormat(
-          "Input parameter InpFastPeriodEMA has incorrect value (%d). Indicator will use value %d for calculations.",
-          InpFastPeriodEMA, ExtFastPeriodEMA);
+          "Input parameter _period_fast_ema has incorrect value (%d). Indicator will use value %d for calculations.",
+          _period_fast_ema, ExtFastPeriodEMA);
     } else
-      ExtFastPeriodEMA = InpFastPeriodEMA;
+      ExtFastPeriodEMA = _period_fast_ema;
 
     // Calculate ExtFastSC & ExtSlowSC.
     ExtFastSC = 2.0 / (ExtFastPeriodEMA + 1.0);
@@ -179,14 +180,14 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    * OnCalculate() method for AMA indicator.
    */
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &ExtAMABuffer, int InpPeriodAMA,
-                       int InpFastPeriodEMA, int InpSlowPeriodEMA, int InpShiftAMA) {
+                       int _period_fast_ema, int _period_slow_ema, int _ishift_ama) {
     double ExtFastSC;
     double ExtSlowSC;
     int ExtPeriodAMA;
     int ExtSlowPeriodEMA;
     int ExtFastPeriodEMA;
 
-    CalculateInit(InpPeriodAMA, InpFastPeriodEMA, InpSlowPeriodEMA, InpShiftAMA, ExtFastSC, ExtSlowSC, ExtPeriodAMA,
+    CalculateInit(InpPeriodAMA, _period_fast_ema, _period_slow_ema, _ishift_ama, ExtFastSC, ExtSlowSC, ExtPeriodAMA,
                   ExtSlowPeriodEMA, ExtFastPeriodEMA);
     int i;
     // Check for rates count.
@@ -229,26 +230,25 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_AMA::iAMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
-                                GetAMAShift(), GetAppliedPrice() /*]*/, _mode, _ishift, THIS_PTR);
+                                GetAMAShift(), GetAppliedPrice() /*]*/, _mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
-                         GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _ishift);
+                         GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, ToRelShift(_abs_shift));
 
         break;
       case IDATA_ONCALCULATE:
         _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift(),
-                                           GetAppliedPrice() /*]*/, _mode, _ishift);
+                                           GetAppliedPrice() /*]*/, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         _value = Indi_AMA::iAMAOnIndicator(THIS_PTR, /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift(),
-                                           GetAppliedPrice() /*]*/, _mode, _ishift);
+                                           GetAppliedPrice() /*]*/, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

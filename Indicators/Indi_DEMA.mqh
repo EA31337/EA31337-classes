@@ -34,7 +34,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Refs.mqh"
 #include "../Storage/Objects.h"
 #include "../Storage/ValueStorage.h"
@@ -88,7 +88,11 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
    * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
    */
   unsigned int GetPossibleDataModes() override {
+#ifdef __MQL5__
     return IDATA_BUILTIN | IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+#else
+    return IDATA_ONCALCULATE | IDATA_ICUSTOM | IDATA_INDICATOR;
+#endif
   }
 
   /**
@@ -100,31 +104,7 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
   static double iDEMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, unsigned int _ma_shift,
                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iDEMA(_symbol, _tf, _period, _ma_shift, _applied_price)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
-    }
-    return _res[0];
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iDEMA(_symbol, _tf, _period, _ma_shift, _applied_price), _mode, _shift);
 #else
     if (_obj == nullptr) {
       Print(
@@ -169,9 +149,11 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
    * On-indicator version of DEMA.
    */
   static double iDEMAOnIndicator(IndicatorData *_indi, int _period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                                 int _mode = 0, int _shift = 0) {
+                                 int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, 2 * _period - 1);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_period, _ma_shift));
-    return iDEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ma_shift, _mode, _shift, _cache);
+    return iDEMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ma_shift, _mode,
+                        _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &DemaBuffer,
@@ -200,29 +182,28 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
 
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // We're getting DEMA from Price indicator.
 
         _value = Indi_DEMA::iDEMA(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/,
-                                  _ishift, _mode, THIS_PTR);
+                                  ToRelShift(_abs_shift), _mode, THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
         _value = Indi_DEMA::iDEMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/,
-                                             _mode, _ishift);
+                                             _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /*[*/ GetPeriod(), GetMAShift(),
-                         GetAppliedPrice() /*]*/, _mode, _ishift);
+                         GetAppliedPrice() /*]*/, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
         _value = Indi_DEMA::iDEMAOnIndicator(GetDataSource(), /*[*/ GetPeriod(), GetMAShift(), GetAppliedPrice() /*]*/,
-                                             _mode, _ishift);
+                                             _mode, ToRelShift(_abs_shift));
         break;
     }
     return _value;

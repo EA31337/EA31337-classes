@@ -20,9 +20,13 @@
  *
  */
 
+// Defines.
+// 2 bars was originally specified by Indicators/Examples/CHO.mq5
+#define INDI_CHO_MIN_BARS 2
+
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
 #include "../Util.h"
 #include "Indi_MA.mqh"
@@ -93,6 +97,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
       DebugBreak();
       return 0;
     }
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_obj, INDI_CHO_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _obj, Util::MakeKey(_fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
@@ -104,7 +109,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
    * Calculates Chaikin Oscillator on the array of values.
    */
   static double iChaikinOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _fast_ma_period, int _slow_ma_period,
-                                ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode, int _shift,
+                                ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode, int _abs_shift,
                                 IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -120,7 +125,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
         INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _fast_ma_period, _slow_ma_period, _ma_method, _av));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -128,6 +133,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
    */
   static double iChaikinOnIndicator(IndicatorData *_indi, int _fast_ma_period, int _slow_ma_period,
                                     ENUM_MA_METHOD _ma_method, ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_CHO_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(
         _indi, Util::MakeKey(_fast_ma_period, _slow_ma_period, (int)_ma_method, (int)_av));
     return iChaikinOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _fast_ma_period, _slow_ma_period, _ma_method, _av,
@@ -144,7 +150,7 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
     if (rates_total < InpSlowMA) return (0);
     // Preliminary calculations.
     int i, start;
-    if (prev_calculated < 2)
+    if (prev_calculated < INDI_CHO_MIN_BARS)
       start = 0;
     else
       start = prev_calculated - 2;
@@ -198,22 +204,21 @@ class Indi_CHO : public Indicator<IndiCHOParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
         _value = Indi_CHO::iChaikin(GetSymbol(), GetTf(), /*[*/ GetSlowMA(), GetFastMA(), GetSmoothMethod(),
-                                    GetInputVolume() /*]*/, _mode, _ishift, THIS_PTR);
+                                    GetInputVolume() /*]*/, _mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetFastMA(),
-                         GetSlowMA(), GetSmoothMethod(), GetInputVolume() /*]*/, 0, _ishift);
+                         GetSlowMA(), GetSmoothMethod(), GetInputVolume() /*]*/, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         _value = Indi_CHO::iChaikinOnIndicator(GetDataSource(), /*[*/ GetFastMA(), GetSlowMA(), GetSmoothMethod(),
-                                               GetInputVolume() /*]*/, _mode, _ishift);
+                                               GetInputVolume() /*]*/, _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

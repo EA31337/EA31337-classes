@@ -30,16 +30,18 @@
 #endif
 
 // Includes.
-#include "../Chart.struct.tf.h"
 #include "IndicatorCandle.h"
-#include "IndicatorTf.struct.h"
+#include "IndicatorTf.provider.h"
 
 /**
  * Class to deal with candle indicators.
  */
 template <typename TFP>
-class IndicatorTf : public IndicatorCandle<TFP, double> {
+class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProvider<double>> {
  protected:
+  // Time-frame used to create candles.
+  ENUM_TIMEFRAMES tf;
+
   /* Protected methods */
 
   /**
@@ -47,7 +49,9 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    *
    * Called on constructor.
    */
-  void Init() {}
+  void Init() {
+    history.SetItemProvider(new ItemsHistoryTfCandleProvider<double>(iparams.GetSecsPerCandle(), THIS_PTR));
+  }
 
  public:
   /* Special methods */
@@ -65,6 +69,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    */
   IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     iparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
+    tf = _tf;
     Init();
   }
 
@@ -73,16 +78,24 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    */
   IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
     iparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
+    tf = ChartTf::IndexToTf(_tfi);
     Init();
   }
 
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams)
-      : IndicatorCandle<TFP, double>(_icparams, _idparams) {
-    Init();
-  }
+  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams) { Init(); }
+
+  /**
+   * Gets indicator's time-frame.
+   */
+  ENUM_TIMEFRAMES GetTf() override { return tf; }
+
+  /**
+   * Returns current tick index (incremented every OnTick()).
+   */
+  int GetTickIndex() override { return history.GetItemProvider() PTR_DEREF GetTickIndex(); }
 };
 
-#endif
+#endif  // INDICATOR_TF_H

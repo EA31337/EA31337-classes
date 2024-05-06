@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -32,8 +32,7 @@
 // Includes.
 #include "../Buffer/BufferCandle.h"
 #include "../Candle.struct.h"
-#include "../Indicator.enum.h"
-#include "../Indicator.mqh"
+#include "../Storage/ItemsHistory.h"
 #include "../Storage/ValueStorage.price_median.h"
 #include "../Storage/ValueStorage.price_typical.h"
 #include "../Storage/ValueStorage.price_weighted.h"
@@ -41,7 +40,14 @@
 #include "../Storage/ValueStorage.tick_volume.h"
 #include "../Storage/ValueStorage.time.h"
 #include "../Storage/ValueStorage.volume.h"
+#include "Indicator.h"
+#include "IndicatorCandle.provider.h"
+#include "IndicatorData.h"
 #include "TickBarCounter.h"
+
+#ifndef INDI_CANDLE_HISTORY_SIZE
+#define INDI_CANDLE_HISTORY_SIZE 86400
+#endif
 
 // Indicator modes.
 enum ENUM_INDI_CANDLE_MODE {
@@ -63,11 +69,12 @@ enum ENUM_INDI_CANDLE_MODE {
 /**
  * Class to deal with candle indicators.
  */
-template <typename TS, typename TV>
+template <typename TS, typename TV, typename TCP>
 class IndicatorCandle : public Indicator<TS> {
  protected:
   BufferCandle<TV> icdata;
   TickBarCounter counter;
+  ItemsHistory<CandleOCTOHLC<TV>, TCP> history;
 
  protected:
   /* Protected methods */
@@ -93,11 +100,11 @@ class IndicatorCandle : public Indicator<TS> {
    */
   IndicatorCandle(const TS& _icparams, const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = NULL,
                   int _indi_mode = 0)
-      : Indicator(_icparams, _idparams, _indi_src, _indi_mode) {
+      : Indicator(_icparams, _idparams, _indi_src, _indi_mode), history(INDI_CANDLE_HISTORY_SIZE) {
     Init();
   }
   IndicatorCandle(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
-      : Indicator(_itype, _shift, _name) {
+      : Indicator(_itype, _shift, _name), history(INDI_CANDLE_HISTORY_SIZE) {
     Init();
   }
 
@@ -109,6 +116,11 @@ class IndicatorCandle : public Indicator<TS> {
   }
 
   /* Getters */
+
+  /**
+   * Returns buffer where candles are temporarily stored.
+   */
+  ItemsHistory<CandleOCTOHLC<TV>, TCP>* GetHistory() { return &history; }
 
   /**
    * Gets open price for a given, optional shift.
@@ -136,26 +148,61 @@ class IndicatorCandle : public Indicator<TS> {
   double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) override { return GetOHLC(_shift).GetAppliedPrice(_ap); }
 
   /**
-   * Returns current bar index (incremented every OnTick() if IsNewBar() is true).
+   * Returns current bar index.
    */
-  int GetBarIndex() override { return counter.GetBarIndex(); }
+  int GetBarIndex() override { return history.GetCurrentIndex(); }
 
   /**
-   * Returns the number of bars on the chart.
+   * Returns the number of bars on the chart decremented by iparams.shift.
    */
-  int GetBars() override { return (int)icdata.Size(); }
+  int GetBars() override {
+    // Will return number of bars prepended and appended to the history,
+    // even if those bars were cleaned up because of history's candle limit.
+    return (int)history.GetPeakSize() - iparams.shift;
+  }
 
   /**
    * Returns current tick index (incremented every OnTick()).
    */
-  int GetTickIndex() override { return counter.GetTickIndex(); }
+  int GetTickIndex() override { return GetTick() PTR_DEREF GetTickIndex(); }
 
   /**
    * Check if there is a new bar to parse.
    */
-  bool IsNewBar() override { return counter.is_new_bar; }
+  bool IsNewBar() override {
+    CandleOCTOHLC<TV> _candle;
+    // We check if last bar has volume 1. If yes, that would mean that new candle was created with a single tick. In
+    // consecutive ticks the volume will be incremented.
+    if (history.TryGetItemByShift(0, _candle, false)) {
+      return _candle.volume == 1;
+    }
+
+    // No candles means no new bar.
+    return false;
+  }
 
   /* Virtual method implementations */
+
+  /**
+   * Removes candle from the buffer. Used mainly for testing purposes.
+   */
+  void InvalidateCandle(int _abs_shift) {
+    if (_abs_shift != GetBarIndex()) {
+      Print(
+          "IndicatorCandle::InvalidateCandle() currently supports specyfing "
+          "current, absolute candle index and nothing else. You may retrieve current one by calling GetBarIndex().");
+      DebugBreak();
+      return;
+    }
+
+    int _num_to_remove = GetBarIndex() - _abs_shift + 1;
+    history.RemoveRecentItems(_num_to_remove);
+  }
+
+  /**
+   * Returns time of the bar for a given shift.
+   */
+  virtual datetime GetBarTime(int _rel_shift = 0) { return history.GetItemTimeByShift(_rel_shift); }
 
   /**
    * Traverses source indicators' hierarchy and tries to find OHLC-featured
@@ -169,25 +216,15 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Gets OHLC price values.
    */
-  BarOHLC GetOHLC(int _shift = 0) override {
-    datetime _bar_time = GetBarTime(_shift);
-    BarOHLC _ohlc;
+  BarOHLC GetOHLC(int _rel_shift = 0) override {
+    BarOHLC _bar;
+    CandleOCTOHLC<double> _candle;
 
-    if ((long)_bar_time != 0) {
-      CandleOCTOHLC<TV> candle = icdata.GetByKey((long)_bar_time);
-      _ohlc.open = (float)candle.open;
-      _ohlc.high = (float)candle.high;
-      _ohlc.low = (float)candle.low;
-      _ohlc.close = (float)candle.close;
-      _ohlc.time = _bar_time;
+    if (history.TryGetItemByShift(ToAbsShift(_rel_shift), _candle)) {
+      _bar = BarOHLC(_candle.open, _candle.high, _candle.low, _candle.close, _candle.start_time);
     }
 
-#ifdef __debug_verbose__
-    Print("Fetching OHLC #", _shift, " from ", TimeToString(_ohlc.time, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
-    Print("^- ", _ohlc.open, ", ", _ohlc.high, ", ", _ohlc.low, ", ", _ohlc.close);
-#endif
-
-    return _ohlc;
+    return _bar;
   }
 
   /**
@@ -196,14 +233,13 @@ class IndicatorCandle : public Indicator<TS> {
    * If local history is empty (not loaded), function returns 0.
    */
   long GetVolume(int _shift = 0) override {
-    datetime _bar_time = GetBarTime(_shift);
+    CandleOCTOHLC<TV> _candle;
 
-    if ((long)_bar_time == 0) {
-      return 0;
+    if (history.TryGetItemByShift(_shift, _candle)) {
+      return _candle.volume;
     }
 
-    CandleOCTOHLC<TV> candle = icdata.GetByKey((long)_bar_time);
-    return candle.volume;
+    return 0;
   }
 
   /**
@@ -228,22 +264,11 @@ class IndicatorCandle : public Indicator<TS> {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(long _index = -1) override {
+  IndicatorDataEntry GetEntry(int _shift = 0) override {
     ResetLastError();
-    int _ishift = _index >= 0 ? (int)_index : iparams.GetShift();
-    long _candle_time = GetBarTime(_ishift);
-    CandleOCTOHLC<TV> _candle;
-    _candle = icdata.GetByKey(_candle_time);
-
-    if (!_candle.IsValid()) {
-      // No candle found.
-      DebugBreak();
-      Print(GetFullName(), ": Missing candle at shift ", _index, " (",
-            TimeToString(_candle_time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), "). Lowest timestamp in history is ",
-            icdata.GetMin());
-    }
-
-    return CandleToEntry(_candle_time, _candle);
+    int _ishift = _shift + iparams.GetShift();
+    CandleOCTOHLC<TV> _candle = history.GetItemByShift(_ishift);
+    return CandleToEntry(_candle.GetTime(), _candle);
   }
 
   /**
@@ -294,10 +319,10 @@ class IndicatorCandle : public Indicator<TS> {
    */
   static bool IndicatorCandleOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
     switch (_reason) {
-      case DICT_OVERFLOW_REASON_FULL:
+      case DICT_LISTENER_FULL_CAN_RESIZE:
         // We allow resize if dictionary size is less than 86400 slots.
         return _size < 86400;
-      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
+      case DICT_LISTENER_CONFLICTS_CAN_OVERWRITE:
       default:
         // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
         break;
@@ -311,7 +336,7 @@ class IndicatorCandle : public Indicator<TS> {
   void EmitHistory() override {
     for (DictStructIterator<long, CandleOCTOHLC<TV>> iter(icdata.Begin()); iter.IsValid(); ++iter) {
       IndicatorDataEntry _entry = CandleToEntry(iter.Key(), iter.Value());
-      EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_CANDLE);
+      EmitEntry(_entry);
     }
   }
 
@@ -341,67 +366,14 @@ class IndicatorCandle : public Indicator<TS> {
   }
 
   /**
-   * Adds tick's price to the matching candle and updates its OHLC values.
+   * Called when data source emits new entry (new one in ascending order).
    */
-  CandleOCTOHLC<double> UpdateCandle(long _tick_timestamp, double _price) {
-    long _candle_timestamp = CalcCandleTimestamp(_tick_timestamp);
-
-#ifdef __debug_verbose__
-    Print("Updating candle for ", GetFullName(), " at candle ",
-          TimeToString(_candle_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " from tick at ",
-          TimeToString(_tick_timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS), ": ", _price);
-#endif
-
-    CandleOCTOHLC<double> _candle(_price, _price, _price, _price, _tick_timestamp, _tick_timestamp);
-    if (icdata.KeyExists(_candle_timestamp)) {
-      // Candle already exists.
-      _candle = icdata.GetByKey(_candle_timestamp);
-
-#ifdef __debug_verbose__
-      Print("Candle was ", _candle.ToCSV());
-#endif
-
-      _candle.Update(_tick_timestamp, _price);
-
-#ifdef __debug_verbose__
-      Print("Candle is  ", _candle.ToCSV());
-#endif
-    }
-
-    icdata.Add(_candle, _candle_timestamp);
-
-    return _candle;
-  }
-
-  /**
-   * Calculates candle's timestamp from tick's timestamp.
-   */
-  long CalcCandleTimestamp(long _tick_timestamp) {
-    return _tick_timestamp - _tick_timestamp % (iparams.GetSecsPerCandle());
-  }
-
-  /**
-   * Called when data source emits new entry (historic or future one).
-   */
-  void OnDataSourceEntry(IndicatorDataEntry& entry,
-                         ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) override {
-    Indicator<TS>::OnDataSourceEntry(entry, type);
-
-    if (type != INDI_EMITTED_ENTRY_TYPE_TICK) {
-      return;
-    }
-
-    long _candle_timestamp = CalcCandleTimestamp(entry.timestamp);
-
-    // Updating tick & bar indices.
-    counter.OnTick(_candle_timestamp);
-
-    // Updating candle from bid price.
-    CandleOCTOHLC<double> _candle = UpdateCandle(entry.timestamp, entry[1]);
-
-    // Emitting candle for children.
-    IndicatorDataEntry _candle_entry = CandleToEntry(_candle_timestamp, _candle);
-    EmitEntry(_candle_entry, INDI_EMITTED_ENTRY_TYPE_CANDLE);
+  void OnDataSourceEntry(IndicatorDataEntry& entry) override {
+    // Parent indicator (e.g., Indi_TickMt) emitted an entry containing tick's
+    // ask and bid price. As an abstract class, we really don't know how to
+    // update/create candles so we just pass the entry into history's
+    // ItemsHistoryCandleProvider and it will do all the job.
+    history.GetItemProvider() PTR_DEREF OnTick(&history, entry.timestamp * 1000, (float)entry[0], (float)entry[1]);
   };
 
   /**
@@ -461,11 +433,7 @@ class IndicatorCandle : public Indicator<TS> {
   }
 
   string CandlesToString() {
-    string _result;
-    for (DictStructIterator<long, CandleOCTOHLC<TV>> iter(icdata.Begin()); iter.IsValid(); ++iter) {
-      IndicatorDataEntry _entry = CandleToEntry(iter.Key(), iter.Value());
-      _result += IntegerToString(iter.Key()) + ": " + _entry.ToString<double>() + "\n";
-    }
+    string _result = "CandlesToString() not yet implemented!";
     return _result;
   }
 

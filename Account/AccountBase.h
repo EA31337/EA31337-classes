@@ -25,7 +25,6 @@
 #define ACCOUNTBASE_H
 
 // Includes.
-//#include "../Serializer.mqh"
 #include "../Refs.mqh"
 #include "AccountBase.struct.h"
 
@@ -56,6 +55,8 @@ class AccountBase : public Dynamic {
    * Class deconstructor.
    */
   ~AccountBase() {}
+
+  /* Virtual methods */
 
   /**
    * Returns balance value of the current account.

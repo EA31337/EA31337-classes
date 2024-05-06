@@ -20,15 +20,18 @@
  *
  */
 
-// Includes.
-#include "DateTime.enum.h"
-
 /**
  * @file
  * Includes external declarations related to date and time.
  */
 #ifndef __MQL__
 #pragma once
+
+// Includes.
+#include <time.h>
+#include "DateTime.enum.h"
+#include "String.mqh"
+
 // Forward declarations.
 struct MqlDateTime;
 

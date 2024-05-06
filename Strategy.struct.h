@@ -31,7 +31,7 @@
 #endif
 
 // Includes.
-#include "Serializer.mqh"
+#include "Serializer/Serializer.h"
 #include "Strategy.enum.h"
 #include "Strategy.struct.pricestop.h"
 #include "Task/Task.struct.h"
@@ -374,7 +374,7 @@ struct StgParams {
 struct Stg_Params {
   string symbol;
   ENUM_TIMEFRAMES tf;
-  Stg_Params() : symbol(_Symbol), tf((ENUM_TIMEFRAMES)_Period) {}
+  Stg_Params() : symbol(_Symbol), tf((ENUM_TIMEFRAMES)Period()) {}
 };
 
 /* Structure for strategy's process results. */

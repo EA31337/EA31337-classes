@@ -30,7 +30,7 @@ class Trade;
 // Includes.
 #include "Data.struct.h"
 #include "Dict.mqh"
-#include "Indicator.mqh"
+#include "Indicator/Indicator.h"
 #include "Market.mqh"
 #include "Object.mqh"
 #include "Strategy.enum.h"
@@ -284,9 +284,9 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Executes OnTick() on every attached indicator.
    */
-  void Tick() {
+  void Tick(int _global_tick_index) {
     for (DictIterator<int, Ref<IndicatorData>> it = indicators.Begin(); it.IsValid(); ++it) {
-      it.Value() REF_DEREF Tick();
+      it.Value() REF_DEREF Tick(_global_tick_index);
     }
   }
 

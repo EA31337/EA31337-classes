@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/Indicator.h"
 #include "../../Math.enum.h"
 
 enum ENUM_MATH_OP_MODE { MATH_OP_MODE_BUILTIN, MATH_OP_MODE_CUSTOM_FUNCTION };
@@ -114,9 +114,8 @@ class Indi_Math : public Indicator<IndiMathParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_INDICATOR:
         if (!indi_src.IsSet()) {
@@ -134,12 +133,12 @@ class Indi_Math : public Indicator<IndiMathParams> {
           case MATH_OP_MODE_BUILTIN:
             _value = Indi_Math::iMathOnIndicator(GetDataSource(), _Symbol, GetTf(),
                                                  /*[*/ GetOpBuiltIn(), GetMode1(), GetMode2(), GetShift1(),
-                                                 GetShift2() /*]*/, 0, _ishift, &this);
+                                                 GetShift2() /*]*/, 0, ToRelShift(_abs_shift), &this);
             break;
           case MATH_OP_MODE_CUSTOM_FUNCTION:
             _value = Indi_Math::iMathOnIndicator(GetDataSource(), _Symbol, GetTf(),
                                                  /*[*/ GetOpFunction(), GetMode1(), GetMode2(), GetShift1(),
-                                                 GetShift2() /*]*/, 0, _ishift, &this);
+                                                 GetShift2() /*]*/, 0, ToRelShift(_abs_shift), &this);
             break;
         }
         break;
@@ -153,6 +152,7 @@ class Indi_Math : public Indicator<IndiMathParams> {
   static double iMathOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, ENUM_MATH_OP op,
                                  unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
                                  unsigned int _shift_2, unsigned int _mode, int _shift, Indi_Math *_obj) {
+    INDI_REQUIRE_SHIFT_OR_RETURN_EMPTY(_indi, MathMax(_shift_1, _shift_2));
     double _val_1 = _indi.GetValue<double>(_mode_1, _shift_1);
     double _val_2 = _indi.GetValue<double>(_mode_2, _shift_2);
     return Math::Op(op, _val_1, _val_2);
@@ -161,6 +161,7 @@ class Indi_Math : public Indicator<IndiMathParams> {
   static double iMathOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, MathCustomOpFunction _op,
                                  unsigned int _mode_1, unsigned int _mode_2, unsigned int _shift_1,
                                  unsigned int _shift_2, unsigned int _mode, int _shift, Indi_Math *_obj) {
+    INDI_REQUIRE_SHIFT_OR_RETURN_EMPTY(_indi, MathMax(_shift_1, _shift_2));
     double _val_1 = _indi.GetValue<double>(_mode_1, _shift_1);
     double _val_2 = _indi.GetValue<double>(_mode_2, _shift_2);
     return _op(_val_1, _val_2);

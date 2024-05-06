@@ -22,11 +22,11 @@
 
 #ifdef __MQL4__
 
-#include <EA31337-classes/IndicatorBase.h>
-#include <EA31337-classes/Platform.h>
+#include <EA31337-classes/Indicator/IndicatorData.h>
 #include <EA31337-classes/Std.h>
 #include <EA31337-classes/Storage/ObjectsCache.h>
 #include <EA31337-classes/Util.h>
+#include <EA31337-classes/Platform.h>
 
 #ifdef INDICATOR_LEGACY_VERSION_MT5
 
@@ -38,7 +38,7 @@ int OnCalculate(const int rates_total, const int prev_calculated, const datetime
                 const long& volume[], const int& spread[]) {
   // We need to call Platform::Tick() and maybe also IndicatorData::EmitHistory() before.
   Platform::OnCalculate(rates_total, prev_calculated);
-
+                
   int _num_calculated =
       OnCalculateMT5(rates_total, prev_calculated, time, open, high, low, close, tick_volume, volume, spread);
 

@@ -36,8 +36,8 @@
 
 // Includes.
 #include "../DictObject.mqh"
-#include "../SerializerConverter.mqh"
-#include "../SerializerJson.mqh"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerJson.h"
 #include "Task.struct.h"
 #include "TaskObject.h"
 

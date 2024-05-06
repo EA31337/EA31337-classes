@@ -4,6 +4,20 @@ Indicator classes are intended for implementation of technical indicators.
 
 They can help with storing and accessing values and indicator parameters.
 
+## Class diagram
+
+```mermaid
+classDiagram
+  Object <|-- IndicatorBase
+  IndicatorBase <|-- Indicator
+  Indicator <|-- IndicatorCandle
+  Indicator <|-- IndicatorCandleSource
+  Indicator <|-- IndicatorTick
+  Indicator <|-- IndicatorTickSource
+  IndicatorCandle <|-- IndicatorRenko
+  IndicatorCandle <|-- IndicatorTf
+```
+
 ## `IndicatorBase`
 
 An abstract class for all type of indicators (a base class).

@@ -22,8 +22,12 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
+
+// Defines.
+// 2 bars was originally specified by Accumulative Swing Index algorithm.
+#define INDI_ASI_MIN_BARS 2
 
 // Structs.
 struct IndiASIParams : IndicatorParams {
@@ -38,7 +42,7 @@ struct IndiASIParams : IndicatorParams {
 };
 
 /**
- * Implements the Bill Williams' Accelerator/Decelerator oscillator.
+ * Implements the Accumulative Swing Index indicator.
  */
 class Indi_ASI : public Indicator<IndiASIParams> {
  protected:
@@ -100,15 +104,17 @@ class Indi_ASI : public Indicator<IndiASIParams> {
   /**
    * OnCalculate-based version of ASI as there is no built-in one.
    */
-  static double iASI(IndicatorData *_indi, double _mpc, int _mode = 0, int _shift = 0) {
+  static double iASI(IndicatorData *_indi, double _mpc, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_ASI_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_mpc));
-    return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _shift, _cache);
+    return iASIOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _mpc, _mode, _indi PTR_DEREF ToAbsShift(_rel_shift),
+                       _cache);
   }
 
   /**
    * Calculates ASI on the array of values.
    */
-  static double iASIOnArray(INDICATOR_CALCULATE_PARAMS_LONG, double _mpc, int _mode, int _shift,
+  static double iASIOnArray(INDICATOR_CALCULATE_PARAMS_LONG, double _mpc, int _mode, int _abs_shift,
                             IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -123,7 +129,7 @@ class Indi_ASI : public Indicator<IndiASIParams> {
     _cache.SetPrevCalculated(Indi_ASI::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
                                                  _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2), _mpc));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -153,7 +159,7 @@ class Indi_ASI : public Indicator<IndiASIParams> {
 
     CalculateInit(InpT, ExtTpoints, ExtT);
 
-    if (rates_total < 2) return (0);
+    if (rates_total < INDI_ASI_MIN_BARS) return (0);
     // Start calculation.
     int pos = prev_calculated - 1;
     // Correct position, when it's first iteration.
@@ -206,20 +212,19 @@ class Indi_ASI : public Indicator<IndiASIParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(),
-                         /*[*/ GetMaximumPriceChanging() /*]*/, 0, _ishift);
+                         /*[*/ GetMaximumPriceChanging() /*]*/, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_ASI::iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, _ishift);
+        _value = Indi_ASI::iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ASI::iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, _ishift);
+        _value = Indi_ASI::iASI(THIS_PTR, GetMaximumPriceChanging(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

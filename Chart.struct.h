@@ -32,6 +32,7 @@
 
 // Forward class declaration.
 class Class;
+struct ChartTf;
 
 // Includes.
 #include "Array.mqh"
@@ -40,7 +41,8 @@ class Class;
 #include "Chart.enum.h"
 #include "Chart.struct.static.h"
 #include "Chart.struct.tf.h"
-#include "Serializer.mqh"
+#include "Serializer/Serializer.h"
+#include "Serializer/SerializerNode.enum.h"
 #include "Terminal.define.h"
 
 /* Defines struct to store bar entries. */

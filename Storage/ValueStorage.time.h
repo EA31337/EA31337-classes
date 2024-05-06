@@ -47,5 +47,5 @@ class TimeValueStorage : public HistoryValueStorage<datetime> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  datetime Fetch(int _shift) override { return indi_candle REF_DEREF GetBarTime(RealShift(_shift)); }
+  datetime Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetBarTime(RealShift(_rel_shift)); }
 };
