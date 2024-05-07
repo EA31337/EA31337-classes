@@ -76,8 +76,7 @@ class Log : public Object {
   /**
    * Class copy constructor.
    */
-  Log(const Log &_log) : filename(_log.filename), last_entry(_log.last_entry), log_level(_log.log_level) {
-  }
+  Log(const Log &_log) : filename(_log.filename), last_entry(_log.last_entry), log_level(_log.log_level) {}
 
   /**
    * Class deconstructor.
@@ -343,6 +342,12 @@ bool Log::AddLastError(string prefix, string suffix) {
 }
 bool Log::AddLastError(string prefix, long suffix) {
   return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
+}
+
+// Specialization of StringToType() for enum.
+void StringToType(string _value, ENUM_LOG_LEVEL &_out) {
+  // Maybe parse the string?
+  _out = V_NONE;
 }
 
 #endif
