@@ -1439,6 +1439,13 @@ class IndicatorData : public IndicatorBase {
   }
 
   /**
+   * Fetches historic ticks for a given index (absolute shift) range.
+   */
+  virtual bool FetchHistoryByIndexRange(int _index_from, int _index_to, ARRAY_REF(TickTAB<double>, _out_ticks)) {
+    return false;
+  }
+
+  /**
    * Fetches historic ticks for a given start time and minimum number of tick to retrieve.
    */
   virtual bool FetchHistoryByStartTimeAndCount(long _from_ms, ENUM_ITEMS_HISTORY_DIRECTION _dir, int _min_count,
