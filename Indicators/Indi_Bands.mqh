@@ -176,33 +176,33 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
   /**
    * OnCalculate() method for Bands indicator.
    */
-  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &ExtMLBuffer,
-                       ValueStorage<double> &ExtTLBuffer, ValueStorage<double> &ExtBLBuffer,
-                       ValueStorage<double> &ExtStdDevBuffer, int InpBandsPeriod, int InpBandsShift,
-                       double InpBandsDeviations) {
+  static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_SHORT, ValueStorage<double> &_ExtMLBuffer,
+                       ValueStorage<double> &_ExtTLBuffer, ValueStorage<double> &_ExtBLBuffer,
+                       ValueStorage<double> &_ExtStdDevBuffer, int _InpBandsPeriod, int _InpBandsShift,
+                       double _InpBandsDeviations) {
     int ExtBandsPeriod, ExtBandsShift;
     double ExtBandsDeviations;
     int ExtPlotBegin = 0;
 
-    if (InpBandsPeriod < 2) {
+    if (_InpBandsPeriod < 2) {
       ExtBandsPeriod = 20;
       PrintFormat("Incorrect value for input variable InpBandsPeriod=%d. Indicator will use value=%d for calculations.",
-                  InpBandsPeriod, ExtBandsPeriod);
+                  _InpBandsPeriod, ExtBandsPeriod);
     } else
-      ExtBandsPeriod = InpBandsPeriod;
-    if (InpBandsShift < 0) {
+      ExtBandsPeriod = _InpBandsPeriod;
+    if (_InpBandsShift < 0) {
       ExtBandsShift = 0;
       PrintFormat("Incorrect value for input variable InpBandsShift=%d. Indicator will use value=%d for calculations.",
-                  InpBandsShift, ExtBandsShift);
+                  _InpBandsShift, ExtBandsShift);
     } else
-      ExtBandsShift = InpBandsShift;
-    if (InpBandsDeviations == 0.0) {
+      ExtBandsShift = _InpBandsShift;
+    if (_InpBandsDeviations == 0.0) {
       ExtBandsDeviations = 2.0;
       PrintFormat(
           "Incorrect value for input variable InpBandsDeviations=%f. Indicator will use value=%f for calculations.",
-          InpBandsDeviations, ExtBandsDeviations);
+          _InpBandsDeviations, ExtBandsDeviations);
     } else
-      ExtBandsDeviations = InpBandsDeviations;
+      ExtBandsDeviations = _InpBandsDeviations;
 
     if (rates_total < ExtPlotBegin) return (0);
     //--- indexes draw begin settings, when we've recieved previous begin
@@ -221,13 +221,13 @@ class Indi_Bands : public Indicator<IndiBandsParams> {
     //--- main cycle
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       //--- middle line
-      ExtMLBuffer[i] = Indi_MA::SimpleMA(i, ExtBandsPeriod, price);
+      _ExtMLBuffer[i] = Indi_MA::SimpleMA(i, ExtBandsPeriod, price);
       //--- calculate and write down StdDev
-      ExtStdDevBuffer[i] = StdDev_Func(i, price, ExtMLBuffer, ExtBandsPeriod);
+      _ExtStdDevBuffer[i] = StdDev_Func(i, price, _ExtMLBuffer, ExtBandsPeriod);
       //--- upper line
-      ExtTLBuffer[i] = ExtMLBuffer[i] + ExtBandsDeviations * ExtStdDevBuffer[i].Get();
+      _ExtTLBuffer[i] = _ExtMLBuffer[i] + ExtBandsDeviations * _ExtStdDevBuffer[i].Get();
       //--- lower line
-      ExtBLBuffer[i] = ExtMLBuffer[i] - ExtBandsDeviations * ExtStdDevBuffer[i].Get();
+      _ExtBLBuffer[i] = _ExtMLBuffer[i] - ExtBandsDeviations * _ExtStdDevBuffer[i].Get();
     }
     //--- OnCalculate done. Return new prev_calculated.
     return (rates_total);

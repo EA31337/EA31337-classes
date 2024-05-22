@@ -25,6 +25,8 @@
 #define INDI_MA_MQH
 
 // Includes.
+#include <MovingAverages.mqh>
+
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../Indicator/Indicator.h"
@@ -33,7 +35,14 @@
 #include "../Storage/ValueStorage.h"
 #include "../String.mqh"
 
-#ifndef __MQL4__
+#ifdef __MQL4__
+// MQL4 version of the method doesn't have last parameter.
+int LinearWeightedMAOnBuffer(const int rates_total, const int prev_calculated, const int begin, const int period,
+                             const double &price[], double &buffer[]) {
+  int _weight_sum;
+  return LinearWeightedMAOnBuffer(rates_total, prev_calculated, begin, period, price, buffer, _weight_sum);
+}
+#else   // !__MQL__4
 // Defines global functions (for MQL4 backward compability).
 double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
   ResetLastError();
@@ -45,7 +54,7 @@ double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _m
   ResetLastError();
   return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
 }
-#endif
+#endif  // __MQL4__
 
 // Structs.
 struct IndiMAParams : IndicatorParams {

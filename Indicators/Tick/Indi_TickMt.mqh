@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -196,10 +196,10 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
       } else {
         for (int i = 0; i < _num_copied; ++i) {
           TickTAB<double> _tick(_tmp_ticks[i]);
-#ifdef __debug_verbose__
+  #ifdef __debug_verbose__
           Print("Fetched tick at ", TimeToString(_tmp_ticks[i].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), ": ",
                 _tmp_ticks[i].ask, ", ", _tmp_ticks[i].bid);
-#endif
+  #endif
           ArrayPushObject(_out_ticks, _tick);
         }
 
@@ -232,6 +232,9 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     double _bid = Bid;
     long _time = TimeCurrent();
 #else
+
+  #ifdef __DISABLE
+
     static MqlTick _tmp_ticks[];
     // Copying only the last tick.
     int _num_copied = CopyTicks(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, 0, 1);
@@ -248,15 +251,24 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
       return;
     }
 
-#ifdef __debug_verbose__
+    #ifdef __debug_verbose__
     Print("CpyT: ", TimeToString(_tmp_ticks[0].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " = ", _tmp_ticks[0].bid,
           " (", _tmp_ticks[0].time, ")");
     Print("RlCl: ", TimeToString(::iTime(GetSymbol(), PERIOD_CURRENT, 0), TIME_DATE | TIME_MINUTES | TIME_SECONDS),
           " = ", ::iClose(GetSymbol(), PERIOD_CURRENT, 0));
-#endif
+    #endif
 
     double _ask = _tmp_ticks[0].ask;
     double _bid = _tmp_ticks[0].bid;
+
+  #endif
+
+    MqlTick _tick_data;
+    SymbolInfoTick(GetSymbol(), _tick_data);
+
+    double _ask = _tick_data.ask;
+    double _bid = _tick_data.bid;
+
     // long _time = _tmp_ticks[0].time;
     long _time = TimeCurrent();
 #endif

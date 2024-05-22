@@ -21,129 +21,129 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
-#include "Math.define.h"
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
+  #include "Math.define.h"
 #endif
 
 // Data types.
 #ifdef __cplusplus
-#include <iomanip>
-#include <locale>
-#include <sstream>
-#include <vector>
+  #include <iomanip>
+  #include <locale>
+  #include <sstream>
+  #include <vector>
 #endif
 
 #ifndef __MQL__
-#define __FUNCSIG__ __FUNCTION__
+  #define __FUNCSIG__ __FUNCTION__
 #endif
 
 #ifdef __MQL__
-#define ASSIGN_TO_THIS(TYPE, VALUE) ((TYPE)this) = ((TYPE)VALUE)
+  #define ASSIGN_TO_THIS(TYPE, VALUE) ((TYPE)this) = ((TYPE)VALUE)
 #else
-#define ASSIGN_TO_THIS(TYPE, VALUE) ((TYPE&)*this) = ((TYPE&)VALUE)
+  #define ASSIGN_TO_THIS(TYPE, VALUE) ((TYPE&)*this) = ((TYPE&)VALUE)
 #endif
 
 // Pointers.
 #ifdef __MQL__
-#define GET_PTR(obj) GetPointer(obj)
-#define THIS_ATTR
-#define THIS_PTR (&this)
-#define THIS_REF this
-#define PTR_DEREF .
-#define PTR_ATTRIB(O, A) O.A
-#define PTR_ATTRIB2(O, A, B) O.A.B
-#define PTR_TO_REF(PTR) PTR
-#define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
-#define REF_DEREF .Ptr().
-#define int64 long
+  #define GET_PTR(obj) GetPointer(obj)
+  #define THIS_ATTR
+  #define THIS_PTR (&this)
+  #define THIS_REF this
+  #define PTR_DEREF .
+  #define PTR_ATTRIB(O, A) O.A
+  #define PTR_ATTRIB2(O, A, B) O.A.B
+  #define PTR_TO_REF(PTR) PTR
+  #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
+  #define REF_DEREF .Ptr().
+  #define int64 long
 #else
-#define GET_PTR(obj) (*obj)
-#define THIS_ATTR this->
-#define THIS_PTR (this)
-#define THIS_REF (*this)
-#define PTR_DEREF ->
-#define PTR_ATTRIB(O, A) O->A
-#define PTR_ATTRIB2(O, A, B) O->A->B
-#define PTR_TO_REF(PTR) (*PTR)
-#define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
-#define REF_DEREF .Ptr()->
-#define int64 long long
+  #define GET_PTR(obj) (*obj)
+  #define THIS_ATTR this->
+  #define THIS_PTR (this)
+  #define THIS_REF (*this)
+  #define PTR_DEREF ->
+  #define PTR_ATTRIB(O, A) O->A
+  #define PTR_ATTRIB2(O, A, B) O->A->B
+  #define PTR_TO_REF(PTR) (*PTR)
+  #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
+  #define REF_DEREF .Ptr()->
+  #define int64 long long
 #endif
 
 // References.
 #ifdef __cplusplus
-#define REF(X) (&X)
+  #define REF(X) (&X)
 #else
-#define REF(X) X&
+  #define REF(X) X&
 #endif
 
 // Arrays and references to arrays.
 #define _COMMA ,
 #ifdef __MQL__
-#define ARRAY_DECLARATION_BRACKETS []
+  #define ARRAY_DECLARATION_BRACKETS []
 #else
-// C++'s _cpp_array is an object, so no brackets are needed.
-#define ARRAY_DECLARATION_BRACKETS
+  // C++'s _cpp_array is an object, so no brackets are needed.
+  #define ARRAY_DECLARATION_BRACKETS
 #endif
 
 #ifdef __MQL__
-/**
- * Reference to object.
- */
-#define CONST_REF_TO(T) const T
+  /**
+   * Reference to object.
+   */
+  #define CONST_REF_TO(T) const T
 
-/**
- * Reference to the array.
- *
- * @usage
- *   ARRAY_REF(<type of the array items>, <name of the variable>)
- */
-#define ARRAY_TYPE(T) T[]
-#define ARRAY_REF(T, N) REF(T) N ARRAY_DECLARATION_BRACKETS
-#define FIXED_ARRAY_REF(T, N, S) ARRAY_REF(T, N)
+  /**
+   * Reference to the array.
+   *
+   * @usage
+   *   ARRAY_REF(<type of the array items>, <name of the variable>)
+   */
+  #define ARRAY_TYPE(T) T[]
+  #define ARRAY_REF(T, N) REF(T) N ARRAY_DECLARATION_BRACKETS
+  #define FIXED_ARRAY_REF(T, N, S) ARRAY_REF(T, N)
 
-#define CONST_ARRAY_REF(T, N) const N ARRAY_DECLARATION_BRACKETS
+  #define CONST_ARRAY_REF(T, N) const N ARRAY_DECLARATION_BRACKETS
 
-/**
- * Array definition.
- *
- * @usage
- *   ARRAY(<type of the array items>, <name of the variable>)
- */
-#define ARRAY(T, N) T N[]
+  /**
+   * Array definition.
+   *
+   * @usage
+   *   ARRAY(<type of the array items>, <name of the variable>)
+   */
+  #define ARRAY(T, N) T N[]
 
 #else
-/**
- * Reference to object.
- */
-#define CONST_REF_TO(T) const T&
+  /**
+   * Reference to object.
+   */
+  #define CONST_REF_TO(T) const T&
 
-/**
+  /**
 
- * Reference to the array.
- *
- * @usage
- *   ARRAY_REF(<type of the array items>, <name of the variable>)
- */
-#define ARRAY_TYPE(T) _cpp_array<T>
-#define ARRAY_REF(T, N) ARRAY_TYPE(T)& N
-#define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
+   * Reference to the array.
+   *
+   * @usage
+   *   ARRAY_REF(<type of the array items>, <name of the variable>)
+   */
+  #define ARRAY_TYPE(T) _cpp_array<T>
+  #define ARRAY_REF(T, N) ARRAY_TYPE(T) & N
+  #define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
 
-#define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
+  #define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
 
-/**
- * Array definition.
- *
- * @usage
- *   ARRAY(<type of the array items>, <name of the variable>)
- */
-#define ARRAY(T, N) ::_cpp_array<T> N
+  /**
+   * Array definition.
+   *
+   * @usage
+   *   ARRAY(<type of the array items>, <name of the variable>)
+   */
+  #define ARRAY(T, N) ::_cpp_array<T> N
 #endif
 
 // typename(T)
 #ifndef __MQL__
-#define typename(T) typeid(T).name()
+  #define typename(T) typeid(T).name()
 #endif
 
 // C++ array class.
@@ -235,19 +235,19 @@ class _cpp_array {
   void setIsSeries(bool _isSeries) { m_isSeries = _isSeries; }
 };
 
-#ifdef EMSCRIPTEN
-#include <emscripten/bind.h>
+  #ifdef EMSCRIPTEN
+    #include <emscripten/bind.h>
 
-#define REGISTER_ARRAY_OF(N, T, D)                 \
-  EMSCRIPTEN_BINDINGS(N) {                         \
-    emscripten::register_vector<T>(D "CppVector"); \
-    emscripten::class_<_cpp_array<T>>(D)           \
-        .constructor()                             \
-        .function("Push", &_cpp_array<T>::push)    \
-        .function("Size", &_cpp_array<T>::size);   \
-  }
+    #define REGISTER_ARRAY_OF(N, T, D)                 \
+      EMSCRIPTEN_BINDINGS(N) {                         \
+        emscripten::register_vector<T>(D "CppVector"); \
+        emscripten::class_<_cpp_array<T>>(D)           \
+            .constructor()                             \
+            .function("Push", &_cpp_array<T>::push)    \
+            .function("Size", &_cpp_array<T>::size);   \
+      }
 
-#endif
+  #endif
 
 template <typename T>
 class _cpp_array;
@@ -270,14 +270,14 @@ class color {
 
 // MQL defines.
 #ifndef __MQL__
-#define WHOLE_ARRAY -1  // For processing the entire array.
+  #define WHOLE_ARRAY -1  // For processing the entire array.
 #endif
 
 // Converts string into C++-style string pointer.
 #ifdef __MQL__
-#define C_STR(S) S
+  #define C_STR(S) S
 #else
-#define C_STR(S) cstring_from(S)
+  #define C_STR(S) cstring_from(S)
 
 inline const char* cstring_from(const std::string& _value) { return _value.c_str(); }
 #endif
@@ -295,19 +295,19 @@ inline bool IsNull(const string& str) { return str == ""; }
  *   STRUCT_ENUM(<struct_name>, <enum_name>)
  */
 #ifdef __MQL4__
-#define STRUCT_ENUM(S, E) E
+  #define STRUCT_ENUM(S, E) E
 #else
-#define STRUCT_ENUM(S, E) S::E
+  #define STRUCT_ENUM(S, E) S::E
 #endif
 
 #ifndef __MQL__
-// Additional enum values for ENUM_SYMBOL_INFO_DOUBLE
-#define SYMBOL_MARGIN_LIMIT ((ENUM_SYMBOL_INFO_DOUBLE)46)
-#define SYMBOL_MARGIN_MAINTENANCE ((ENUM_SYMBOL_INFO_DOUBLE)43)
-#define SYMBOL_MARGIN_LONG ((ENUM_SYMBOL_INFO_DOUBLE)44)
-#define SYMBOL_MARGIN_SHORT ((ENUM_SYMBOL_INFO_DOUBLE)45)
-#define SYMBOL_MARGIN_STOP ((ENUM_SYMBOL_INFO_DOUBLE)47)
-#define SYMBOL_MARGIN_STOPLIMIT ((ENUM_SYMBOL_INFO_DOUBLE)48)
+  // Additional enum values for ENUM_SYMBOL_INFO_DOUBLE
+  #define SYMBOL_MARGIN_LIMIT ((ENUM_SYMBOL_INFO_DOUBLE)46)
+  #define SYMBOL_MARGIN_MAINTENANCE ((ENUM_SYMBOL_INFO_DOUBLE)43)
+  #define SYMBOL_MARGIN_LONG ((ENUM_SYMBOL_INFO_DOUBLE)44)
+  #define SYMBOL_MARGIN_SHORT ((ENUM_SYMBOL_INFO_DOUBLE)45)
+  #define SYMBOL_MARGIN_STOP ((ENUM_SYMBOL_INFO_DOUBLE)47)
+  #define SYMBOL_MARGIN_STOPLIMIT ((ENUM_SYMBOL_INFO_DOUBLE)48)
 #endif
 
 template <typename T>
@@ -360,14 +360,14 @@ template <>
 _NULL_VALUE::operator string() const {
   return _empty_string;
 }
-#define NULL_STRING ""
+  #define NULL_STRING ""
 #else
-#define NULL_VALUE NULL
-#define NULL_STRING NULL
+  #define NULL_VALUE NULL
+  #define NULL_STRING NULL
 #endif
 
 #ifndef __MQL__
-#include "Chart.enum.h"
+  #include "Chart.enum.h"
 /**
  * Returns currently selected period for platform.
  */
@@ -389,9 +389,9 @@ extern ENUM_TIMEFRAMES Period();
 #define SET_BUFFER_AS_SERIES_FOR_TARGET(A) ArraySetAsSeries(A, false);
 
 #ifdef __MQL4__
-#define SET_BUFFER_AS_SERIES_FOR_HOST(A) ArraySetAsSeries(A, true);
+  #define SET_BUFFER_AS_SERIES_FOR_HOST(A) ArraySetAsSeries(A, true);
 #else
-#define SET_BUFFER_AS_SERIES_FOR_HOST(A) ArraySetAsSeries(A, false);
+  #define SET_BUFFER_AS_SERIES_FOR_HOST(A) ArraySetAsSeries(A, false);
 #endif
 
 // Ensures that we do RELEASE_BUFFERx after ACQUIRE_BUFFERx.
@@ -427,109 +427,141 @@ struct AsSeriesReleaseEnsurer {
 #define SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(NUM_BUFFS) _as_series_release_ensurer.done(NUM_BUFFS);
 
 // Acquiring buffer is preparing it to be used as in MQL5.
-#define ACQUIRE_BUFFER1(A)            \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A); \
+#define ACQUIRE_BUFFER1_NO_ENSURE(A) SET_BUFFER_AS_SERIES_FOR_TARGET(A);
+#define ACQUIRE_BUFFER2_NO_ENSURE(A, B) \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(A);   \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(B);
+#define ACQUIRE_BUFFER3_NO_ENSURE(A, B, C) \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(A);      \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(B);      \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(C);
+#define ACQUIRE_BUFFER4_NO_ENSURE(A, B, C, D) \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(A);         \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(B);         \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(C);         \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(D);
+#define ACQUIRE_BUFFER5_NO_ENSURE(A, B, C, D, E) \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(A);            \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(B);            \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(C);            \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(D);            \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(E);
+#define ACQUIRE_BUFFER6_NO_ENSURE(A, B, C, D, E, F) \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(A);               \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(B);               \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(C);               \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(D);               \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(E);               \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(F);
+#define ACQUIRE_BUFFER7_NO_ENSURE(A, B, C, D, E, F, G) \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(A);                  \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(B);                  \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(C);                  \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(D);                  \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(E);                  \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(F);                  \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(G);
+#define ACQUIRE_BUFFER8_NO_ENSURE(A, B, C, D, E, F, G, H) \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(A);                     \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(B);                     \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(C);                     \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(D);                     \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(E);                     \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(F);                     \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(G);                     \
+  SET_BUFFER_AS_SERIES_FOR_TARGET(H);
+
+#define ACQUIRE_BUFFER1(A)      \
+  ACQUIRE_BUFFER1_NO_ENSURE(A); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(1);
-#define ACQUIRE_BUFFER2(A, B)         \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B); \
+#define ACQUIRE_BUFFER2(A, B)      \
+  ACQUIRE_BUFFER2_NO_ENSURE(A, B); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(2);
 #define ACQUIRE_BUFFER3(A, B, C)      \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C); \
+  ACQUIRE_BUFFER3_NO_ENSURE(A, B, C); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(3);
-#define ACQUIRE_BUFFER4(A, B, C, D)   \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C); \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(D); \
+#define ACQUIRE_BUFFER4(A, B, C, D)      \
+  ACQUIRE_BUFFER4_NO_ENSURE(A, B, C, D); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(4);
-#define ACQUIRE_BUFFER5(A, B, C, D, E) \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A);  \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B);  \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C);  \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(D);  \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(E);  \
+#define ACQUIRE_BUFFER5(A, B, C, D, E)      \
+  ACQUIRE_BUFFER5_NO_ENSURE(A, B, C, D, E); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(5);
-#define ACQUIRE_BUFFER6(A, B, C, D, E, F) \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A);     \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B);     \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C);     \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(D);     \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(E);     \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(F);     \
+#define ACQUIRE_BUFFER6(A, B, C, D, E, F)      \
+  ACQUIRE_BUFFER6_NO_ENSURE(A, B, C, D, E, F); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(6);
-#define ACQUIRE_BUFFER7(A, B, C, D, E, F, G) \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(D);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(E);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(F);        \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(G);        \
+#define ACQUIRE_BUFFER7(A, B, C, D, E, F, G)      \
+  ACQUIRE_BUFFER7_NO_ENSURE(A, B, C, D, E, F, G); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(7);
-#define ACQUIRE_BUFFER8(A, B, C, D, E, F, G, H) \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(A);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(B);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(C);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(D);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(E);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(F);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(G);           \
-  SET_BUFFER_AS_SERIES_FOR_TARGET(H);           \
+#define ACQUIRE_BUFFER8(A, B, C, D, E, F, G, H)      \
+  ACQUIRE_BUFFER8_NO_ENSURE(A, B, C, D, E, F, G, H); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_BEGIN(8);
 
 // Releasing buffer is setting its AsSeries as the default in the host language.
-#define RELEASE_BUFFER1(A)          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A); \
+#define RELEASE_BUFFER1_NO_ENSURE(A) SET_BUFFER_AS_SERIES_FOR_HOST(A)
+#define RELEASE_BUFFER2_NO_ENSURE(A, B) \
+  SET_BUFFER_AS_SERIES_FOR_HOST(A);     \
+  SET_BUFFER_AS_SERIES_FOR_HOST(B);
+#define RELEASE_BUFFER3_NO_ENSURE(A, B, C) \
+  SET_BUFFER_AS_SERIES_FOR_HOST(A);        \
+  SET_BUFFER_AS_SERIES_FOR_HOST(B);        \
+  SET_BUFFER_AS_SERIES_FOR_HOST(C);
+#define RELEASE_BUFFER4_NO_ENSURE(A, B, C, D) \
+  SET_BUFFER_AS_SERIES_FOR_HOST(A);           \
+  SET_BUFFER_AS_SERIES_FOR_HOST(B);           \
+  SET_BUFFER_AS_SERIES_FOR_HOST(C);           \
+  SET_BUFFER_AS_SERIES_FOR_HOST(D);
+#define RELEASE_BUFFER5_NO_ENSURE(A, B, C, D, E) \
+  SET_BUFFER_AS_SERIES_FOR_HOST(A);              \
+  SET_BUFFER_AS_SERIES_FOR_HOST(B);              \
+  SET_BUFFER_AS_SERIES_FOR_HOST(C);              \
+  SET_BUFFER_AS_SERIES_FOR_HOST(D);              \
+  SET_BUFFER_AS_SERIES_FOR_HOST(E);
+#define RELEASE_BUFFER6_NO_ENSURE(A, B, C, D, E, F) \
+  SET_BUFFER_AS_SERIES_FOR_HOST(A);                 \
+  SET_BUFFER_AS_SERIES_FOR_HOST(B);                 \
+  SET_BUFFER_AS_SERIES_FOR_HOST(C);                 \
+  SET_BUFFER_AS_SERIES_FOR_HOST(D);                 \
+  SET_BUFFER_AS_SERIES_FOR_HOST(E);                 \
+  SET_BUFFER_AS_SERIES_FOR_HOST(F);
+#define RELEASE_BUFFER7_NO_ENSURE(A, B, C, D, E, F, G) \
+  SET_BUFFER_AS_SERIES_FOR_HOST(A);                    \
+  SET_BUFFER_AS_SERIES_FOR_HOST(B);                    \
+  SET_BUFFER_AS_SERIES_FOR_HOST(C);                    \
+  SET_BUFFER_AS_SERIES_FOR_HOST(D);                    \
+  SET_BUFFER_AS_SERIES_FOR_HOST(E);                    \
+  SET_BUFFER_AS_SERIES_FOR_HOST(F);                    \
+  SET_BUFFER_AS_SERIES_FOR_HOST(G);
+#define RELEASE_BUFFER8_NO_ENSURE(A, B, C, D, E, F, G, H) \
+  SET_BUFFER_AS_SERIES_FOR_HOST(A);                       \
+  SET_BUFFER_AS_SERIES_FOR_HOST(B);                       \
+  SET_BUFFER_AS_SERIES_FOR_HOST(C);                       \
+  SET_BUFFER_AS_SERIES_FOR_HOST(D);                       \
+  SET_BUFFER_AS_SERIES_FOR_HOST(E);                       \
+  SET_BUFFER_AS_SERIES_FOR_HOST(F);                       \
+  SET_BUFFER_AS_SERIES_FOR_HOST(G);                       \
+  SET_BUFFER_AS_SERIES_FOR_HOST(H);
+
+#define RELEASE_BUFFER1(A)      \
+  RELEASE_BUFFER1_NO_ENSURE(A); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(1);
-#define RELEASE_BUFFER2(A, B)       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B); \
+#define RELEASE_BUFFER2(A, B)      \
+  RELEASE_BUFFER2_NO_ENSURE(A, B); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(2);
-#define RELEASE_BUFFER3(A, B, C)    \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C); \
+#define RELEASE_BUFFER3(A, B, C)      \
+  RELEASE_BUFFER3_NO_ENSURE(A, B, C); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(3);
-#define RELEASE_BUFFER4(A, B, C, D) \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C); \
-  SET_BUFFER_AS_SERIES_FOR_HOST(D); \
+#define RELEASE_BUFFER4(A, B, C, D)      \
+  RELEASE_BUFFER4_NO_ENSURE(A, B, C, D); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(4);
-#define RELEASE_BUFFER5(A, B, C, D, E) \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A);    \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B);    \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C);    \
-  SET_BUFFER_AS_SERIES_FOR_HOST(D);    \
-  SET_BUFFER_AS_SERIES_FOR_HOST(E);    \
+#define RELEASE_BUFFER5(A, B, C, D, E)      \
+  RELEASE_BUFFER5_NO_ENSURE(A, B, C, D, E); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(5);
-#define RELEASE_BUFFER6(A, B, C, D, E, F) \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A);       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B);       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C);       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(D);       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(E);       \
-  SET_BUFFER_AS_SERIES_FOR_HOST(F);       \
+#define RELEASE_BUFFER6(A, B, C, D, E, F)      \
+  RELEASE_BUFFER6_NO_ENSURE(A, B, C, D, E, F); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(6);
-#define RELEASE_BUFFER7(A, B, C, D, E, F, G) \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(D);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(E);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(F);          \
-  SET_BUFFER_AS_SERIES_FOR_HOST(G);          \
+#define RELEASE_BUFFER7(A, B, C, D, E, F, G)      \
+  RELEASE_BUFFER7_NO_ENSURE(A, B, C, D, E, F, G); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(7);
-#define RELEASE_BUFFER8(A, B, C, D, E, F, G, H) \
-  SET_BUFFER_AS_SERIES_FOR_HOST(A);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(B);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(C);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(D);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(E);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(F);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(G);             \
-  SET_BUFFER_AS_SERIES_FOR_HOST(H);             \
+#define RELEASE_BUFFER8(A, B, C, D, E, F, G, H)      \
+  RELEASE_BUFFER8_NO_ENSURE(A, B, C, D, E, F, G, H); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(8);

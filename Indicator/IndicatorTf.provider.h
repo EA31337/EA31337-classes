@@ -25,8 +25,8 @@
 #define INDICATOR_TF_PROVIDER_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 /**
@@ -159,8 +159,10 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
 
           // Adding candle to the output array.
           ArrayPushObject(_out_arr, _candle);
-          --_num_items;
         }
+
+        // Even if we don't form an item (a candle), we assume we've done one item.
+        --_num_items;
 
         if (_dir == ITEMS_HISTORY_DIRECTION_FORWARD) {
           _from_time_ms += _candle_length_ms;
