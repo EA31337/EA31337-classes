@@ -32,11 +32,11 @@
 #include "Std.h"
 
 #ifdef __MQLBUILD__
-#include "Indicators/Tick/Indi_TickMt.mqh"
-#define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
+  #include "Indicators/Tick/Indi_TickMt.mqh"
+  #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
 #else
-#include "Indicators/Tick/Indi_TickRandom.mqh"
-#define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickRandom
+  #include "Indicators/Tick/Indi_TickRandom.mqh"
+  #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickRandom
 #endif
 #include "SymbolInfo.struct.static.h"
 
@@ -121,7 +121,7 @@ class Platform {
   static void OnCalculate(const int rates_total, const int prev_calculated) {
     if (!emitted_history) {
       for (DictStructIterator<long, Ref<IndicatorData>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
-        EmitHistory(_iter.Value().Ptr());
+        // EmitHistory(_iter.Value().Ptr());
       }
       emitted_history = true;
     }

@@ -25,8 +25,8 @@
 #define ITEMS_HISTORY_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 #include "../DictStruct.mqh"
@@ -160,6 +160,16 @@ class ItemsHistory {
    * retrieved from history and past the history.
    */
   unsigned int GetPeakSize() { return peak_size; }
+
+  /**
+   * Increments maximum size of historic items.
+   */
+  void ReserveAdditionalHistoryMaxSize(unsigned int size) { history_max_size += size; }
+
+  /**
+   * Changes maximum size of historic items.
+   */
+  void SetHistoryMaxSize(unsigned int size) { history_max_size += size; }
 
   /**
    * Will regenerate items from item provider. "_dir" indicates if we have to prepend or append items.
@@ -352,11 +362,11 @@ class ItemsHistory {
    */
   bool EnsureShiftExists(int _shift) {
     if (history.Size() == 0) {
-      return false;
+      // return false;
     }
 
 #ifdef __debug_items_history__
-    Print("EnsureShiftExists(", _shift, ")");
+      // Print("EnsureShiftExists(", _shift, ")");
 #endif
 
     int _index = GetShiftIndex(_shift);

@@ -361,17 +361,50 @@ class DictBase {
   /**
    * Specialization of hashing function.
    */
-  unsigned int Hash(unsigned int x) { return x; }
-
-  /**
-   * Specialization of hashing function.
-   */
-  unsigned int Hash(int x) { return (unsigned int)x; }
-
-  /**
-   * Specialization of hashing function.
-   */
   unsigned int Hash(float x) { return (unsigned int)((unsigned long)x * 10000 % 10000); }
+
+  /**
+   * Specialization of hashing function.
+   */
+  unsigned int Hash(int value) {
+    value ^= (value >> 8);
+    value ^= (value << 3);
+    value ^= (value >> 9);
+    value ^= (value >> 4);
+    value ^= (value << 6);
+    value ^= (value >> 14);
+    return value;
+  }
+
+  /**
+   * Specialization of hashing function.
+   */
+  unsigned int Hash(unsigned int value) { return Hash((int)value); }
+
+  /**
+   * Specialization of hashing function.
+   */
+  unsigned int Hash(long value) {
+    value ^= (value >> 33);
+    value ^= (value << 21);
+    value ^= (value >> 17);
+
+    // Step 2: Combine upper and lower 32 bits to form a 32-bit hash
+    long hash = (int)(value ^ (value >> 32));
+
+    // Step 3: Further bit manipulation to spread the bits
+    hash ^= (hash >> 16);
+    hash *= 0x85ebca6b;  // A large prime number
+    hash ^= (hash >> 13);
+    hash *= 0xc2b2ae35;  // Another large prime number
+    hash ^= (hash >> 16);
+    return int(value >> 32);
+  }
+
+  /**
+   * Specialization of hashing function.
+   */
+  unsigned int Hash(unsigned long value) { return Hash((unsigned long)value); }
 };
 
 #endif

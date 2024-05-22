@@ -25,8 +25,8 @@
 #define INDICATOR_DATA_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward class declaration.
@@ -1757,10 +1757,21 @@ class IndicatorData : public IndicatorBase {
   /**
    * Sends entry to listening indicators.
    */
-  void EmitEntry(IndicatorDataEntry& entry) {
+  void EmitEntry(IndicatorDataEntry& _entry, ENUM_INDI_EMITTED_ENTRY_TYPE _type = INDI_EMITTED_ENTRY_TYPE_PARENT) {
     for (int i = 0; i < ArraySize(listeners); ++i) {
       if (listeners[i].ObjectExists()) {
-        listeners[i].Ptr().OnDataSourceEntry(entry);
+        listeners[i].Ptr().OnDataSourceEntry(_entry, _type);
+      }
+    }
+  }
+
+  /**
+   * Sends information about expected number of emitted entries to listening indicators.
+   */
+  void WillEmitEntries(ENUM_INDI_EMITTED_ENTRY_TYPE _type, int _num_entries) {
+    for (int i = 0; i < ArraySize(listeners); ++i) {
+      if (listeners[i].ObjectExists()) {
+        listeners[i].Ptr().OnDataSourceWillEmitEntries(_type, _num_entries);
       }
     }
   }
@@ -1824,7 +1835,18 @@ class IndicatorData : public IndicatorBase {
   /**
    * Called when data source emits new entry (historic or future one).
    */
-  virtual void OnDataSourceEntry(IndicatorDataEntry& entry){};
+  virtual void OnDataSourceEntry(IndicatorDataEntry& entry,
+                                 ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) {}
+
+  /**
+   * Called when data source expects to emit given number of entries for given type.
+   *
+   * Called e.g., from Tick indicator in order Candle indicator to enlarge
+   * possible history size by given number of entries. We have to do that,
+   * because otherwise, we could end up with OnCalculate() working on partial
+   * history candles.
+   */
+  virtual void OnDataSourceWillEmitEntries(ENUM_INDI_EMITTED_ENTRY_TYPE _type, int _num_entries) {}
 
   /**
    * Called when new tick is retrieved from attached data source.

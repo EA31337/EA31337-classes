@@ -22,7 +22,7 @@
 
 // Prevents processing this includes file for the second time.
 #ifndef __MQL__
-#pragma once
+  #pragma once
 #endif
 
 // Includes.
@@ -433,7 +433,9 @@ class DictStruct : public DictBase<K, V> {
 
     DictSlotsRef<K, V> new_DictSlots;
 
-    if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) return false;
+    if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) {
+      return false;
+    }
 
     int i;
 

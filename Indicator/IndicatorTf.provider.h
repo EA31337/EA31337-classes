@@ -125,19 +125,33 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
       // In order to (re)generate candle, we need to fetch ticks within a fixed time-frame and then update that candle
       // with all fetched ticks. For IndicatorTf, there is no difference between (re)generating backwards or forwards,
       // as candles are time-framed. The only problem is that there may be missing candles in fetched time-frames. We
-      // just need to skip such time-frame and fetch ticks for next time-frame. In order to determine
+      // just need to skip such time-frame and fetch ticks for next time-frame.
 
       IndicatorData* _indi_tick = indi PTR_DEREF GetTick();
 
       // Ticks to form a candle.
       static ARRAY(TickTAB<TV>, _ticks);
 
+      if (_dir == ITEMS_HISTORY_DIRECTION_BACKWARD) {
+        // For backward direction we need to start from the beginning of the candle as _from_time_ms determines it's
+        // ending.
+        //_ticks_to_ms = _ticks_from_ms + (_candle_length_ms - 1);
+      } else {
+        //_ticks_to_ms = _ticks_from_ms - (_candle_length_ms - 1);
+      }
+
       while (_num_items > 0) {
         // Calculating time from which and to which we want to retrieve ticks to form a candle.
         int _ticks_from_s = GetCandleTimeFromTimeMs(_from_time_ms, spc);
         long _ticks_from_ms = (long)_ticks_from_s * 1000;
         long _candle_length_ms = (long)spc * 1000;
-        long _ticks_to_ms = _ticks_from_ms + _candle_length_ms - 1;
+        long _ticks_to_ms;
+
+        if (_dir == ITEMS_HISTORY_DIRECTION_FORWARD) {
+          _ticks_to_ms = _ticks_from_ms + (_candle_length_ms - 1);
+        } else {
+          _ticks_to_ms = _ticks_from_ms - (_candle_length_ms - 1);
+        }
 
         // We will try to fetch history by two methods.
         // 1. By time range if IndicatorTick supports that way.
