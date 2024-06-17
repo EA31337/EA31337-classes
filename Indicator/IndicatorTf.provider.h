@@ -139,9 +139,14 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
         long _candle_length_ms = (long)spc * 1000;
         long _ticks_to_ms = _ticks_from_ms + _candle_length_ms - 1;
 
+        // We will try to fetch history by two methods.
+        // 1. By time range if IndicatorTick supports that way.
         if (!_indi_tick PTR_DEREF FetchHistoryByTimeRange(_ticks_from_ms, _ticks_to_ms, _ticks)) {
+          // 2. By number of bars if IndicatorTick supports that way.
+          // if (!_indi_tick PTR_DEREF FetchHistoryByIndexRange(_ticks_from_index, _ticks_to_ms, _ticks))) {
           // There is no more ticks in the history, giving up.
           break;
+          //}
         }
 
         if (ArraySize(_ticks) > 0) {

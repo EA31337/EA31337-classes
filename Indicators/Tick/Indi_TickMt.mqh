@@ -43,6 +43,12 @@ struct Indi_TickMtParams : IndicatorParams {
 
 // MT platform's tick-based indicator.
 class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistoryTickProvider<double>> {
+  // Caching _to_ms in FetchHistoryByTimeRange() in order to start from last
+  // shift and don't loop over the same bars again.
+  long _cache_fetch_history_shift_to_ms;
+  // Shift to start with if given _to_ms is less that cached _cache_fetch_history_shift_to_ms.
+  long _cache_fetch_history_shift_shift;
+
  public:
   Indi_TickMt(Indi_TickMtParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
               int _indi_src_mode = 0)
@@ -61,7 +67,10 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
   /**
    * Initializes the class.
    */
-  void Init() {}
+  void Init() {
+    _cache_fetch_history_shift_to_ms = 0;
+    _cache_fetch_history_shift_shift = 0;
+  }
 
   string GetName() override { return "Indi_TickMt"; }
 
@@ -121,11 +130,60 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
   virtual bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
     ArrayResize(_out_ticks, 0);
 
+#ifdef __MQL4__
+    // Searching from current bar to older ones.
+    int _shift;
+
+    if (_to_ms <= _cache_fetch_history_shift_to_ms) {
+      _shift = _cache_fetch_history_shift_shift;
+    } else {
+      _shift = 0;
+    }
+
+    string _symbol = GetSymbol();
+
+    while (true) {
+      double _time = (double)iTime(_symbol, PERIOD_M1, _shift);
+
+      if (_time == 0) {
+        // Invalid time.
+        break;
+      }
+
+      long _time_ms = (long)_time * 1000;
+
+      if (_time_ms > _to_ms) {
+        // No yet get into valid time range.
+        ++_shift;
+        continue;
+      }
+
+      if (_time_ms < _from_ms) {
+        // No more ticks.
+        break;
+      }
+
+      TickTAB<double> _tick_o(_time_ms, iOpen(_Symbol, PERIOD_M1, _shift));
+      TickTAB<double> _tick_h(_time_ms, iHigh(_Symbol, PERIOD_M1, _shift));
+      TickTAB<double> _tick_l(_time_ms, iLow(_Symbol, PERIOD_M1, _shift));
+      TickTAB<double> _tick_c(_time_ms, iClose(_Symbol, PERIOD_M1, _shift));
+      ArrayPushObject(_out_ticks, _tick_o);
+      ArrayPushObject(_out_ticks, _tick_h);
+      ArrayPushObject(_out_ticks, _tick_l);
+      ArrayPushObject(_out_ticks, _tick_c);
+      ++_shift;
+    }
+
+    if (_shift != -1) {
+      _cache_fetch_history_shift_to_ms = _to_ms;
+      _cache_fetch_history_shift_shift = _shift;
+    }
+
+    return ArraySize(_out_ticks) != 0;
+#else
     static MqlTick _tmp_ticks[];
     ArrayResize(_tmp_ticks, 0);
 
-    // There's no history in MQL4.
-#ifndef __MQL4__
     int _tries = 10;
 
     while (_tries > 0) {
@@ -153,6 +211,18 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     // To many tries. Probably no ticks at the given range.
     return false;
   }
+
+  /**
+   * Fetches historic ticks for a given index (absolute shift) range.
+   */
+  virtual bool FetchHistoryByIndexRange(int _index_from, int _index_to, ARRAY_REF(TickTAB<double>, _out_ticks)) {
+    return false;
+  }
+
+  /**
+   * Sends historic entries to listening indicators. May be overriden.
+   */
+  virtual void EmitHistory() {}
 
   bool OnTick(int _global_tick_index) override {
 #ifdef __MQL4__

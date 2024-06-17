@@ -22,24 +22,66 @@
 
 #ifdef __MQL4__
 
-#include <EA31337-classes/IndicatorBase.h>
+#include <EA31337-classes/Indicator/IndicatorData.h>
+#include <EA31337-classes/Platform.h>
 #include <EA31337-classes/Std.h>
 #include <EA31337-classes/Storage/ObjectsCache.h>
 #include <EA31337-classes/Util.h>
 
+#ifndef INDICATOR_LEGACY_VERSION_ACQUIRE_BUFFER
+#define INDICATOR_LEGACY_VERSION_ACQUIRE_BUFFER
+#endif
+
+#ifndef INDICATOR_LEGACY_VERSION_RELEASE_BUFFER
+#define INDICATOR_LEGACY_VERSION_RELEASE_BUFFER
+#endif
+
 #ifdef INDICATOR_LEGACY_VERSION_MT5
 
+#ifndef INDICATOR_LEGACY_VERSION_SHORT
+
 /**
- * Replacement for future OnCalculate(). Currently not used, but could be handy in the future.
+ * Replacement for future OHLC-based OnCalculate().
  */
 int OnCalculate(const int rates_total, const int prev_calculated, const datetime& time[], const double& open[],
                 const double& high[], const double& low[], const double& close[], const long& tick_volume[],
                 const long& volume[], const int& spread[]) {
+  // We need to call Platform::Tick() and maybe also IndicatorData::EmitHistory() before.
+  Platform::OnCalculate(rates_total, prev_calculated);
+
+  INDICATOR_LEGACY_VERSION_ACQUIRE_BUFFER;
+
   int _num_calculated =
       OnCalculateMT5(rates_total, prev_calculated, time, open, high, low, close, tick_volume, volume, spread);
 
+  INDICATOR_LEGACY_VERSION_RELEASE_BUFFER;
+
   return _num_calculated;
 }
+
+#else
+
+/**
+ * Replacement for future price-based OnCalculate().
+ */
+int OnCalculate(const int rates_total, const int prev_calculated, const int begin, const double& price[]) {
+  // We need to call Platform::Tick() and maybe also IndicatorData::EmitHistory() before.
+  Platform::OnCalculate(rates_total, prev_calculated);
+
+  INDICATOR_LEGACY_VERSION_ACQUIRE_BUFFER;
+
+  // NOTE: If compiler sees an error here about parameter conversion then you
+  // probably must do:
+  // #define INDICATOR_LEGACY_VERSION_SHORT
+  // before including IndicatorLegacy.h
+  int _num_calculated = OnCalculateMT5(rates_total, prev_calculated, begin, price);
+
+  INDICATOR_LEGACY_VERSION_RELEASE_BUFFER;
+
+  return _num_calculated;
+}
+
+#endif
 
 #define OnCalculate OnCalculateMT5
 

@@ -46,7 +46,6 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
  * Current platform's static methods.
  */
 
-#include "DrawIndicator.mqh"
 #include "Flags.h"
 #include "Indicator/IndicatorData.h"
 #include "Indicator/tests/classes/IndicatorTfDummy.h"
@@ -76,6 +75,9 @@ class Platform {
 
   // Whether to clear passed periods on consecutive Platform::UpdateTime().
   static bool time_clear_flags;
+
+  // Whether history for all the indicators was emitted.
+  static bool emitted_history;
 
   // List of added indicators.
   static DictStruct<long, Ref<IndicatorData>> indis;
@@ -169,6 +171,40 @@ class Platform {
    * Checks whether we had a tick inside previous Tick() invocation.
    */
   static bool HadTick() { return last_tick_result; }
+
+
+  /**
+   * Called by indicators' OnCalculate() method in order to prepare history via
+   * IndicatorData::EmitHistory() and to call Tick() for each OnCalculate()
+   * call so Tick indicator can emit new tick and Candle indicator can update
+   * or add new candle data to be used by all indicators added to the platform
+   * via Platform::Add...().
+   */
+  static void OnCalculate(const int rates_total, const int prev_calculated) {
+    if (!emitted_history) {
+      for (DictStructIterator<long, Ref<IndicatorData>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
+        EmitHistory(_iter.Value().Ptr());
+      }
+      emitted_history = true;
+    }
+
+    // We're ready for a tick.
+    Tick();
+  }
+
+  /**
+   * Emits history for parent indicators in hierarchy and then for the indicator itself.
+   */
+  static void EmitHistory(IndicatorData *_indi) {
+    IndicatorData *_parent = _indi PTR_DEREF GetDataSource(false);
+
+    if (_parent != nullptr) {
+      EmitHistory(_parent);
+    }
+
+    _indi PTR_DEREF EmitHistory();
+  }
+
 
   /**
    * Returns dictionary of added indicators (keyed by unique id).
@@ -452,6 +488,7 @@ class Platform {
   static void SetPeriod(ENUM_TIMEFRAMES _period) { period = _period; }
 };
 
+bool Platform::emitted_history = false;
 bool Platform::initialized = false;
 bool Platform::last_tick_result = false;
 DateTime Platform::time = (datetime)0;
@@ -853,3 +890,9 @@ datetime StructToTime(MqlDateTime &dt_struct) {
   }
 
 #define TEST_INDICATOR_DEFAULT_BINDINGS(C) TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, )
+
+// Auto-initializer for Platform class.
+class PlatformAutoInitializer {
+ public:
+  PlatformAutoInitializer() { Platform::Init(); }
+} _platform_auto_initializer;
