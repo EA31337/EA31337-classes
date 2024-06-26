@@ -35,7 +35,7 @@
 
 // Params for dummy candle-based indicator.
 struct IndicatorTfDummyParams : IndicatorTfParams {
-  IndicatorTfDummyParams(unsigned int _spc = 60) : IndicatorTfParams("IndicatorTf", _spc) {}
+  IndicatorTfDummyParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorTfParams("IndicatorTf", _tf) {}
 };
 
 /**
@@ -43,11 +43,10 @@ struct IndicatorTfDummyParams : IndicatorTfParams {
  */
 class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
  public:
-  IndicatorTfDummy(unsigned int _spc) : IndicatorTf(_spc) {}
   IndicatorTfDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorTf(_tf) {}
   IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi = 0) : IndicatorTf(_tfi) {}
 
-  string GetName() override { return "IndicatorTfDummy(" + IntegerToString(iparams.spc) + ")"; }
+  string GetName() override { return "IndicatorTfDummy(" + EnumToString(GetTf()) + ")"; }
 
   void OnDataSourceEntry(IndicatorDataEntry& entry,
                          ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) override {

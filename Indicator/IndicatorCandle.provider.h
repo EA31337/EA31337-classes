@@ -25,8 +25,8 @@
 #define INDICATOR_CANDLE_PROVIDER_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -61,6 +61,15 @@ class ItemsHistoryCandleProvider : public ItemsHistoryItemProvider<CandleOCTOHLC
     // Method is called if there is a missing item (candle) in the history. We need to regenerate it.
     Print("Error: Retrieving items by this item provider is not implemented!");
     DebugBreak();
+  }
+
+  /**
+   * Retrieves items between given indices (both indices inclusive). Should return false if retrieving items by this
+   * method is not available.
+   */
+  bool GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryCandleProvider<TV>>* _history, int _start_index,
+                int _end_index, ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
+    return false;
   }
 };
 

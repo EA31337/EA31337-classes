@@ -25,8 +25,8 @@
 #define INDICATOR_TICK_PROVIDER_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -57,12 +57,21 @@ class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {
 
   /**
    * Retrieves given number of items starting from the given microseconds or index (inclusive). "_dir" identifies if we
-   * want previous or next items from selected starting point.
+   * want previous or next items from selected starting point. Should return false if retrieving items by this method
+   * is not available.
    */
-  void GetItems(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, long _from_time_ms,
+  bool GetItems(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, long _from_time_ms,
                 ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items, ARRAY_REF(TickTAB<TV>, _out_arr)) {
-    // Method is called if there is a missing item (tick) in the history. We need to regenerate it.
-    indi PTR_DEREF FetchHistoryByStartTimeAndCount(_from_time_ms, _dir, _num_items, _out_arr);
+    return false;
+  }
+
+  /**
+   * Retrieves items between given indices (both indices inclusive). Should return false if retrieving items by this
+   * method is not available.
+   */
+  bool GetItems(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, int _start_index, int _end_index,
+                ARRAY_REF(TickTAB<TV>, _out_arr)) {
+    return false;
   }
 
   /**

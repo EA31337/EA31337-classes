@@ -32,11 +32,14 @@
 #include "Std.h"
 
 #ifdef __MQLBUILD__
+  #include "Indicators/Tf/Indi_TfMt.h"
   #include "Indicators/Tick/Indi_TickMt.mqh"
   #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
+  #define PLATFORM_DEFAULT_INDICATOR_TF Indi_TfMt
 #else
   #include "Indicators/Tick/Indi_TickRandom.mqh"
   #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickRandom
+  #define PLATFORM_DEFAULT_INDICATOR_TF IndicatorTfDummy
 #endif
 #include "SymbolInfo.struct.static.h"
 
@@ -274,7 +277,7 @@ class Platform {
     string _key = Util::MakeKey("PlatformIndicatorCandle", _symbol, (int)_tf);
     IndicatorData *_indi_candle;
     if (!Objects<IndicatorData>::TryGet(_key, _indi_candle)) {
-      _indi_candle = Objects<IndicatorData>::Set(_key, new IndicatorTfDummy(_tf));
+      _indi_candle = Objects<IndicatorData>::Set(_key, new PLATFORM_DEFAULT_INDICATOR_TF(_tf));
 
       // Adding indicator to list of default indicators in order to tick it on every Tick() call.
       Ref<IndicatorData> _ref = _indi_candle;

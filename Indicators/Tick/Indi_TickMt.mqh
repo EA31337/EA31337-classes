@@ -295,7 +295,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
       // Just emitting zeroes in case of error.
       TickAB<double> _tick(0, 0);
       IndicatorDataEntry _entry(TickToEntry(TimeCurrent(), _tick));
-      EmitEntry(_entry);
+      EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_TICK);
       // Appending tick into the history.
       AppendEntry(_entry);
       return;
@@ -324,7 +324,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
 #endif
     TickAB<double> _tick(_ask, _bid);
     IndicatorDataEntry _entry(TickToEntry(_time, _tick));
-    EmitEntry(_entry);
+    EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_TICK);
     // Appending tick into the history.
     AppendEntry(_entry);
   }

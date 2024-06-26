@@ -25,11 +25,12 @@
 #define INDICATOR_TF_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
+#include "../Chart.struct.tf.h"
 #include "IndicatorCandle.h"
 #include "IndicatorTf.provider.h"
 
@@ -50,7 +51,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    * Called on constructor.
    */
   void Init() {
-    history.SetItemProvider(new ItemsHistoryTfCandleProvider<double>(iparams.GetSecsPerCandle(), THIS_PTR));
+    history.SetItemProvider(new ItemsHistoryTfCandleProvider<double>(ChartTf::TfToSeconds(GetTf()), THIS_PTR));
   }
 
  public:
@@ -59,16 +60,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
   /**
    * Class constructor with timeframe enum.
    */
-  IndicatorTf(unsigned int _spc) {
-    iparams.SetSecsPerCandle(_spc);
-    Init();
-  }
-
-  /**
-   * Class constructor with timeframe enum.
-   */
   IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
     tf = _tf;
     Init();
   }
@@ -77,7 +69,6 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    * Class constructor with timeframe index.
    */
   IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
-    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
     tf = ChartTf::IndexToTf(_tfi);
     Init();
   }

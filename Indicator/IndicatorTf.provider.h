@@ -116,9 +116,10 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
 
   /**
    * Retrieves given number of items starting from the given microseconds or index (inclusive). "_dir" identifies if we
-   * want previous or next items from selected starting point.
+   * want previous or next items from selected starting point. Should return false if retrieving items by this method
+   * is not available.
    */
-  void GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryTfCandleProvider<TV>>* _history, long _from_time_ms,
+  bool GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryTfCandleProvider<TV>>* _history, long _from_time_ms,
                 ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items, ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
     // Method is called if there is a missing item (candle) in the history. We need to regenerate it.
     if (_from_time_ms != 0) {
@@ -140,6 +141,8 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
         //_ticks_to_ms = _ticks_from_ms - (_candle_length_ms - 1);
       }
 
+      bool _is_first_item = true;
+
       while (_num_items > 0) {
         // Calculating time from which and to which we want to retrieve ticks to form a candle.
         int _ticks_from_s = GetCandleTimeFromTimeMs(_from_time_ms, spc);
@@ -147,10 +150,23 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
         long _candle_length_ms = (long)spc * 1000;
         long _ticks_to_ms;
 
+        _ticks_to_ms = _ticks_from_ms + (_candle_length_ms - 1);
+
         if (_dir == ITEMS_HISTORY_DIRECTION_FORWARD) {
-          _ticks_to_ms = _ticks_from_ms + (_candle_length_ms - 1);
-        } else {
-          _ticks_to_ms = _ticks_from_ms - (_candle_length_ms - 1);
+          // Backwards.
+          if (_is_first_item) {
+            // As _from_time_ms in backward direction is next candle time - 1ms
+            // then we need to include it in our calculations.
+            long _new_start_ms = _from_time_ms - (_candle_length_ms - 1);
+            long _new_end_ms = _from_time_ms;
+
+            _ticks_from_ms = _new_start_ms;
+            _ticks_from_s = int(_new_start_ms / 1000);
+            _from_time_ms = _new_start_ms;
+            _ticks_to_ms = _new_end_ms;
+
+            _is_first_item = false;
+          }
         }
 
         // We will try to fetch history by two methods.
@@ -178,6 +194,10 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
         // Even if we don't form an item (a candle), we assume we've done one item.
         --_num_items;
 
+        if (_num_items % 10000 == 0) {
+          Print(_num_items, " left to process...");
+        }
+
         if (_dir == ITEMS_HISTORY_DIRECTION_FORWARD) {
           _from_time_ms += _candle_length_ms;
         } else {
@@ -188,6 +208,17 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
       Print("Error: GetItems() for IndicatorTf can only work with given _from_time_ms!");
       DebugBreak();
     }
+
+    return true;
+  }
+
+  /**
+   * Retrieves items between given indices (both indices inclusive). Should return false if retrieving items by this
+   * method is not available.
+   */
+  bool GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryTfCandleProvider<TV>>* _history, int _start_index,
+                int _end_index, ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
+    return false;
   }
 
   /**
