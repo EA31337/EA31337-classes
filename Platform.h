@@ -184,11 +184,6 @@ class Platform {
   }
 
   /**
-   * Checks whether we had a tick inside previous Tick() invocation.
-   */
-  static bool HadTick() { return last_tick_result; }
-
-  /**
    * Returns dictionary of added indicators (keyed by unique id).
    */
   static DictStruct<long, Ref<IndicatorData>> *GetIndicators() { return &indis; }
