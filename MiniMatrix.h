@@ -27,7 +27,7 @@
 template <typename T>
 class MiniMatrix2d {
  public:
-  T data[];
+  ARRAY(T, data);
   int size_x;
   int size_y;
 

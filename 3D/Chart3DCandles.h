@@ -25,6 +25,7 @@
  * 3D chart candles renderer.
  */
 
+#include "../Chart.define.h"
 #include "Chart3DType.h"
 #include "Cube.h"
 #include "Device.h"

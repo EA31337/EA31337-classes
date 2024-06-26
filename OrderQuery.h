@@ -62,8 +62,8 @@ class OrderQuery : public Dynamic {
   template <typename E, typename T>
   T CalcSumByProp(E _prop) {
     T _sum = 0;
-    for (DictStructIterator<long, Ref<Order>> iter = orders.Begin(); iter.IsValid(); ++iter) {
-      _sum += iter.Value().Ptr().Get<T>(_prop);
+    for (DictStructIterator<long, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
+      _sum += iter.Value() REF_DEREF Get<T>(_prop);
     }
     return _sum;
   }
@@ -77,10 +77,10 @@ class OrderQuery : public Dynamic {
   template <typename E, typename ECT, typename ECV, typename T>
   T CalcSumByPropWithCond(E _prop, ECT _prop_cond_type, ECV _prop_cond_value) {
     T _sum = 0;
-    for (DictStructIterator<long, Ref<Order>> iter = orders.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<long, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
       Order *_order = iter.Value().Ptr();
-      if (_order.Get<ECV>(_prop_cond_type) == _prop_cond_value) {
-        _sum += _order.Get<T>(_prop);
+      if (_order PTR_DEREF Get<ECV>(_prop_cond_type) == _prop_cond_value) {
+        _sum += _order PTR_DEREF Get<T>(_prop);
       }
     }
     return _sum;
@@ -96,13 +96,13 @@ class OrderQuery : public Dynamic {
   template <typename E, typename T>
   Ref<Order> FindByPropViaOp(E _prop, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP) _op) {
     Ref<Order> _order_ref_found;
-    if (orders.Size() == 0) {
+    if (orders PTR_DEREF Size() == 0) {
       return _order_ref_found;
     }
-    _order_ref_found = orders.Begin().Value();
-    for (DictStructIterator<long, Ref<Order>> iter = orders.Begin(); iter.IsValid(); ++iter) {
+    _order_ref_found = orders PTR_DEREF Begin().Value();
+    for (DictStructIterator<long, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order_ref = iter.Value();
-      if (Compare(_order_ref.Ptr().Get<T>(_prop), _op, _order_ref_found.Ptr().Get<T>(_prop))) {
+      if (Compare(_order_ref REF_DEREF Get<T>(_prop), _op, _order_ref_found REF_DEREF Get<T>(_prop))) {
         _order_ref_found = _order_ref;
       }
     }
@@ -119,12 +119,12 @@ class OrderQuery : public Dynamic {
   template <typename E, typename T>
   Ref<Order> FindByValueViaOp(E _prop, T _value, STRUCT_ENUM(OrderQuery, ORDER_QUERY_OP) _op) {
     Ref<Order> _order_ref_found;
-    if (orders.Size() == 0) {
+    if (orders PTR_DEREF Size() == 0) {
       return _order_ref_found;
     }
-    for (DictStructIterator<long, Ref<Order>> iter = orders.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<long, Ref<Order>> iter = orders PTR_DEREF Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order_ref = iter.Value();
-      if (Compare(_order_ref.Ptr().Get<T>(_prop), _op, _value)) {
+      if (Compare(_order_ref REF_DEREF Get<T>(_prop), _op, _value)) {
         _order_ref_found = _order_ref;
         break;
       }

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,6 +25,9 @@
   #pragma once
   #include "Math.define.h"
 #endif
+
+// Includes.
+#include "Data.enum.h"
 
 // Data types.
 #ifdef __cplusplus
@@ -121,15 +124,16 @@
 
   /**
 
-   * Reference to the array.
-   *
-   * @usage
-   *   ARRAY_REF(<type of the array items>, <name of the variable>)
-   */
-  #define ARRAY_TYPE(T) _cpp_array<T>
-  #define ARRAY_REF(T, N) ARRAY_TYPE(T) & N
-  #define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
+ * Reference to the array.
+ *
+ * @usage
+ *   ARRAY_REF(<type of the array items>, <name of the variable>)
+ */
+#define ARRAY_TYPE(T) _cpp_array<T>
+#define ARRAY_REF(T, N) ARRAY_TYPE(T) & N
+#define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
 
+#define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
   #define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
 
   /**

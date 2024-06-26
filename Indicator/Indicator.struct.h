@@ -50,6 +50,7 @@ struct IndicatorParams {
  protected:
   void Init() {}
  public:                                // @todo: Change it to protected.
+  string custom_indi_name;              // Name of the indicator passed to iCustom() method.
   string name;                          // Name of the indicator.
   int shift;                            // Shift (relative to the current bar, 0 - default).
   uint bps;                             // A candle chart per number of seconds (e.g. for M1 is 60).
@@ -57,7 +58,6 @@ struct IndicatorParams {
   ENUM_INDICATOR_TYPE itype;            // Indicator type (e.g. INDI_RSI).
   color indi_color;                     // Indicator color.
   ARRAY(DataParamEntry, input_params);  // Indicator input params.
-  string custom_indi_name;              // Name of the indicator passed to iCustom() method.
   string symbol;                        // Symbol used by indicator.
  public:
   /* Enumerations */
@@ -105,19 +105,19 @@ struct IndicatorParams {
     DataParamEntry _param = input_params[_index];
     switch (_param.type) {
       case TYPE_BOOL:
-        return (T)param.integer_value;
+        return (T)_param.integer_value;
       case TYPE_INT:
       case TYPE_LONG:
       case TYPE_UINT:
       case TYPE_ULONG:
-        return param.integer_value;
+        return _param.integer_value;
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
-        return (T)param.double_value;
+        return (T)_param.double_value;
       case TYPE_CHAR:
       case TYPE_STRING:
       case TYPE_UCHAR:
-        return (T)param.string_value;
+        return (T)_param.string_value;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
         break;

@@ -85,7 +85,7 @@ class ItemsHistoryItemProvider : public Dynamic {
   /**
    * Returns information about item provider.
    */
-  virtual string ToString() { return "Abstract items history item provider."; }
+  string const ToString() override { return "Abstract items history item provider."; }
 };
 
 /**

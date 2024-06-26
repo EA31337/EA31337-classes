@@ -35,6 +35,7 @@
 #define TASK_CONDITION_H
 
 // Includes.
+#include "../DateTime.mqh"
 #include "../Std.h"
 #include "../Terminal.define.h"
 #include "TaskCondition.enum.h"

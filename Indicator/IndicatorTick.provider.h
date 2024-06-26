@@ -33,7 +33,7 @@
 #include "../Storage/ItemsHistory.h"
 
 /**
- * Regenerates candles and updates exising candles from new ticks. Subclasses by IndicatorTf, IndicatorRenko.
+ * Regenerates candles and updates existing candles from new ticks. Derived by IndicatorTf, IndicatorRenko.
  */
 template <typename TV>
 class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {
@@ -77,7 +77,7 @@ class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {
   /**
    * Returns information about item provider.
    */
-  string ToString() override { return "IndicatorTick tick provider on " + indi PTR_DEREF GetFullName(); }
+  string const ToString() override { return "IndicatorTick tick provider on " + indi PTR_DEREF GetFullName(); }
 };
 
 #endif  // INDICATOR_TICK_PROVIDER_H

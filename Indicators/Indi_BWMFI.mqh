@@ -138,14 +138,14 @@ class Indi_BWMFI : public Indicator<IndiBWIndiMFIParams> {
   /**
    * Alters indicator's struct value.
    */
-  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
-    Indicator<IndiBWIndiMFIParams>::GetEntryAlter(_entry, _shift);
+  void GetEntryAlter(IndicatorDataEntry &_entry, int _rel_shift) override {
+    Indicator<IndiBWIndiMFIParams>::GetEntryAlter(_entry, _rel_shift);
 #ifdef __MQL4__
-    Print(GetVolume(_shift), ", ", GetVolume(_shift + 1), " | ", GetValue<double>(BWMFI_BUFFER, _shift), " > ",
-          GetValue<double>(BWMFI_BUFFER, _shift + 1));
+    Print(GetVolume(_rel_shift), ", ", GetVolume(_rel_shift + 1), " | ", GetValue<double>(BWMFI_BUFFER, _rel_shift),
+          " > ", GetValue<double>(BWMFI_BUFFER, _rel_shift + 1));
     // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
-    bool _vol_up = GetVolume(_shift) > GetVolume(_shift + 1);
-    bool _val_up = GetValue<double>(BWMFI_BUFFER, _shift) > GetValue<double>(BWMFI_BUFFER, _shift + 1);
+    bool _vol_up = GetVolume(_rel_shift) > GetVolume(_rel_shift + 1);
+    bool _val_up = GetValue<double>(BWMFI_BUFFER, _rel_shift) > GetValue<double>(BWMFI_BUFFER, _rel_shift + 1);
     double _histcolor = EMPTY_VALUE;
     switch (_vol_up) {
       case true:

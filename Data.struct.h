@@ -129,8 +129,42 @@ struct DataParamEntry : public MqlParam {
     string_value = _string_value;
   }
   DataParamEntry(const DataParamEntry &_r) { ASSIGN_TO_THIS(MqlParam, _r); }
+
+  DataParamEntry(bool _value) {
+    type = TYPE_BOOL;
+    integer_value = _value;
+  }
+  DataParamEntry(const datetime _value) {
+    type = TYPE_DATETIME;
+    integer_value = _value;
+  }
+  DataParamEntry(double _value) {
+    type = TYPE_DOUBLE;
+    double_value = _value;
+  }
+  DataParamEntry(int _value) {
+    type = TYPE_INT;
+    integer_value = _value;
+  }
+  DataParamEntry(const string _value) {
+    type = TYPE_STRING;
+    string_value = _value;
+  }
+  DataParamEntry(unsigned int _value) {
+    type = TYPE_UINT;
+    integer_value = _value;
+  }
+  DataParamEntry(long _value) {
+    type = TYPE_LONG;
+    integer_value = _value;
+  }
+  DataParamEntry(unsigned long _value) {
+    type = TYPE_ULONG;
+    integer_value = (long)_value;
+  }
+
   // Struct operators.
-  void operator=(const bool _value) {
+  void operator=(bool _value) {
     type = TYPE_BOOL;
     integer_value = _value;
   }
@@ -138,11 +172,11 @@ struct DataParamEntry : public MqlParam {
     type = TYPE_DATETIME;
     integer_value = _value;
   }
-  void operator=(const double _value) {
+  void operator=(double _value) {
     type = TYPE_DOUBLE;
     double_value = _value;
   }
-  void operator=(const int _value) {
+  void operator=(int _value) {
     type = TYPE_INT;
     integer_value = _value;
   }
@@ -150,15 +184,19 @@ struct DataParamEntry : public MqlParam {
     type = TYPE_STRING;
     string_value = _value;
   }
-  void operator=(const unsigned int _value) {
+  void operator=(unsigned int _value) {
     type = TYPE_UINT;
     integer_value = _value;
   }
-  template <typename T>
-  void operator=(const T _value) {
-    type = TYPE_INT;
-    integer_value = (int)_value;
+  void operator=(long _value) {
+    type = TYPE_LONG;
+    integer_value = _value;
   }
+  void operator=(unsigned long _value) {
+    type = TYPE_ULONG;
+    integer_value = (long)_value;
+  }
+
   bool operator==(const DataParamEntry &_s) {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
            string_value == _s.string_value;

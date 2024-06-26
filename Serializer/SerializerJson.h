@@ -195,7 +195,7 @@ class SerializerJson {
 
 #ifdef __debug__
           Print("SerializerJson: Value \"" + extracted + "\" for key " +
-                (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+                (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
           expectingValue = false;
@@ -217,7 +217,8 @@ class SerializerJson {
         }
 
 #ifdef __debug__
-        Print("SerializerJson: Entering object for key " + (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+        Print("SerializerJson: Entering object for key " +
+              (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
         node = new SerializerNode(SerializerNodeObject, current, key);
@@ -237,16 +238,18 @@ class SerializerJson {
         }
 
 #ifdef __debug__
-        Print("SerializerJson: Leaving object for key " + (current != NULL && current.GetKeyParam() != NULL
-                                                               ? ("\"" + current.GetKeyParam().ToString() + "\"")
-                                                               : "<none>"));
+        Print("SerializerJson: Leaving object for key " +
+              (current != NULL && current PTR_DEREF GetKeyParam() != NULL
+                   ? ("\"" + current PTR_DEREF GetKeyParam() PTR_DEREF ToString() + "\"")
+                   : "<none>"));
 #endif
 
         current = PTR_ATTRIB(current, GetParent());
         expectingValue = false;
       } else if (ch == '[') {
 #ifdef __debug__
-        Print("SerializerJson: Entering list for key " + (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+        Print("SerializerJson: Entering list for key " +
+              (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
         if (expectingKey) {
@@ -264,7 +267,8 @@ class SerializerJson {
         key = NULL;
       } else if (ch == ']') {
 #ifdef __debug__
-        Print("SerializerJson: Leaving list for key " + (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+        Print("SerializerJson: Leaving list for key " +
+              (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
         if (expectingKey || expectingValue || PTR_ATTRIB(current, GetType()) != SerializerNodeArray) {
@@ -285,8 +289,8 @@ class SerializerJson {
         value = StringFind(extracted, ".") != -1 ? SerializerNodeParam::FromValue(StringToDouble(extracted))
                                                  : SerializerNodeParam::FromValue(StringToInteger(extracted));
 #ifdef __debug__
-        Print("SerializerJson: Value " + value.AsString() + " for key " +
-              (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+        Print("SerializerJson: Value " + value PTR_DEREF AsString() + " for key " +
+              (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
         PTR_ATTRIB(current, AddChild(new SerializerNode(PTR_ATTRIB(current, GetType()) == SerializerNodeObject
@@ -306,8 +310,8 @@ class SerializerJson {
         value = SerializerNodeParam::FromValue(ch == 't' ? true : false);
 
 #ifdef __debug__
-        Print("SerializerJson: Value " + (value.ToBool() ? "true" : "false") + " for key " +
-              (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+        Print(string("SerializerJson: Value ") + (value PTR_DEREF ToBool() ? "true" : "false") + " for key " +
+              (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
         // Skipping value.

@@ -30,12 +30,12 @@
 struct PriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE ap;
   // Struct constructor.
-  PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0) : ap(_ap), IndicatorParams(INDI_PRICE) {
+  PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0) : IndicatorParams(INDI_PRICE), ap(_ap) {
     SetShift(_shift);
   };
-  PriceIndiParams(PriceIndiParams &_params) { THIS_REF = _params; };
+  PriceIndiParams(PriceIndiParams &_params) : IndicatorParams() { THIS_REF = _params; };
   // Getters.
-  ENUM_APPLIED_PRICE GetAppliedPrice() override { return ap; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return ap; }
   // Setters.
   void SetAppliedPrice(ENUM_APPLIED_PRICE _ap) { ap = _ap; }
 };
@@ -60,7 +60,7 @@ class Indi_Price : public Indicator<PriceIndiParams> {
   /**
    * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
    */
-  virtual unsigned int GetSuitableDataSourceTypes() {
+  unsigned int GetSuitableDataSourceTypes() override {
     // We can work only with Candle-based indicator attached.
     return INDI_SUITABLE_DS_TYPE_CANDLE;
   }
@@ -111,21 +111,21 @@ class Indi_Price : public Indicator<PriceIndiParams> {
       case INDI_VS_TYPE_PRICE_ASK:  // Tick.
       case INDI_VS_TYPE_PRICE_BID:  // Tick.
         return GetPlatformPrices(GetSymbol(), iparams.GetAppliedPrice(), GetTf(), iparams.GetShift())
-            .GetValueStorage(0);
+            PTR_DEREF GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_OPEN:  // Candle.
-        return GetPlatformPrices(GetSymbol(), PRICE_OPEN, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_OPEN, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_HIGH:  // Candle.
-        return GetPlatformPrices(GetSymbol(), PRICE_HIGH, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_HIGH, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_LOW:  // Candle.
-        return GetPlatformPrices(GetSymbol(), PRICE_LOW, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_LOW, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_CLOSE:  // Candle.
-        return GetPlatformPrices(GetSymbol(), PRICE_CLOSE, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_CLOSE, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_MEDIAN:  // Candle.
-        return GetPlatformPrices(GetSymbol(), PRICE_MEDIAN, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_MEDIAN, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_TYPICAL:  // Candle.
-        return GetPlatformPrices(GetSymbol(), PRICE_TYPICAL, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_TYPICAL, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
       case INDI_VS_TYPE_PRICE_WEIGHTED:  // Candle.
-        return GetPlatformPrices(GetSymbol(), PRICE_WEIGHTED, GetTf(), iparams.GetShift()).GetValueStorage(0);
+        return GetPlatformPrices(GetSymbol(), PRICE_WEIGHTED, GetTf(), iparams.GetShift()) PTR_DEREF GetValueStorage(0);
       default:
         // Trying in parent class.
         return Indicator<PriceIndiParams>::GetSpecificValueStorage(_type);

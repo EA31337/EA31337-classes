@@ -40,9 +40,6 @@
 template <typename TFP>
 class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProvider<double>> {
  protected:
-  // Time-frame used to create candles.
-  ENUM_TIMEFRAMES tf;
-
   /* Protected methods */
 
   /**
@@ -59,9 +56,12 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
 
   /**
    * Class constructor with timeframe enum.
+   *
+   * @todo
    */
+
   IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    tf = _tf;
+    SetTf(_tf);
     Init();
   }
 
@@ -69,7 +69,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    * Class constructor with timeframe index.
    */
   IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
-    tf = ChartTf::IndexToTf(_tfi);
+    SetTf(ChartTf::IndexToTf(_tfi));
     Init();
   }
 
@@ -81,12 +81,17 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
   /**
    * Gets indicator's time-frame.
    */
-  ENUM_TIMEFRAMES GetTf() override { return tf; }
+  ENUM_TIMEFRAMES GetTf() override { return THIS_ATTR iparams.tf.GetTf(); }
 
+  /**
+   * Sets indicator's time-frame.
+   */
+  void SetTf(ENUM_TIMEFRAMES _tf) { THIS_ATTR iparams.tf.SetTf(_tf); }
+  
   /**
    * Returns current tick index (incremented every OnTick()).
    */
-  int GetTickIndex() override { return history.GetItemProvider() PTR_DEREF GetTickIndex(); }
+  int GetTickIndex() override { return THIS_ATTR history.GetItemProvider() PTR_DEREF GetTickIndex(); }
 };
 
 #endif  // INDICATOR_TF_H

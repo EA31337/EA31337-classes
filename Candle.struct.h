@@ -236,10 +236,10 @@ struct CandleOCTOHLC : CandleOHLC<T> {
   // Number of ticks which formed the candle. Also known as volume.
   int volume;
 
-  // Struct constructors.
+  // Struct constructor.
   CandleOCTOHLC(T _open = 0, T _high = 0, T _low = 0, T _close = 0, int _start_time = -1, int _length = 0,
                 long _open_timestamp_ms = -1, long _close_timestamp_ms = -1, int _volume = 0)
-      : CandleOHLC(_open, _high, _low, _close),
+      : CandleOHLC<T>(_open, _high, _low, _close),
         is_complete(true),
         start_time(_start_time),
         length(_length),
@@ -250,6 +250,16 @@ struct CandleOCTOHLC : CandleOHLC<T> {
       volume = 1;
     }
   }
+
+  // Struct constructor.
+  CandleOCTOHLC(const CandleOCTOHLC &r) { THIS_REF = r; }
+
+  // Virtual destructor. Required because of Emscripted warning, despite structure has no virtual methods:
+  // warning: destructor called on non-final 'CandleOCTOHLC<double>' that has virtual functions but non-virtual
+  // destructor [-Wdelete-non-abstract-non-virtual-dtor]
+#ifndef __MQL__
+  virtual ~CandleOCTOHLC() {}
+#endif
 
   /**
    * Initializes candle with a given start time, length in seconds, first tick's timestamp and its price.
@@ -264,7 +274,7 @@ struct CandleOCTOHLC : CandleOHLC<T> {
     open_timestamp_ms = _timestamp_ms;
     close_timestamp_ms = _timestamp_ms;
     volume = _price != 0 ? 1 : 0;
-    open = high = low = close = _price;
+    THIS_ATTR open = THIS_ATTR high = THIS_ATTR low = THIS_ATTR close = _price;
   }
 
   /**
@@ -288,20 +298,20 @@ struct CandleOCTOHLC : CandleOHLC<T> {
 
     if (_is_init || _timestamp_ms < open_timestamp_ms) {
       open_timestamp_ms = _timestamp_ms;
+      THIS_ATTR open = _price;
       start_time = int(_timestamp_ms / 1000);
-      open = _price;
     }
     if (_is_init || _timestamp_ms > close_timestamp_ms) {
       close_timestamp_ms = _timestamp_ms;
-      close = _price;
+      THIS_ATTR close = _price;
     }
 
     if (_is_init) {
-      high = _price;
-      low = _price;
+      THIS_ATTR high = _price;
+      THIS_ATTR low = _price;
     } else {
-      high = MathMax(high, _price);
-      low = MathMin(low, _price);
+      THIS_ATTR high = MathMax(THIS_ATTR high, _price);
+      THIS_ATTR low = MathMin(THIS_ATTR low, _price);
     }
     // Increasing candle's volume.
     ++volume;
@@ -346,8 +356,8 @@ struct CandleOCTOHLC : CandleOHLC<T> {
    * Returns text representation of candle.
    */
   string ToString() {
-    return StringFormat("%.5f %.5f %.5f %.5f [%s] @ %s - %s", open, high, low, close,
-                        is_complete ? "Complete" : "Incomplete",
+    return StringFormat("%.5f %.5f %.5f %.5f [%s] @ %s - %s", THIS_ATTR open, THIS_ATTR high, THIS_ATTR low,
+                        THIS_ATTR close, is_complete ? "Complete" : "Incomplete",
                         TimeToString(open_timestamp_ms, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
                         TimeToString(close_timestamp_ms, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
   }
@@ -361,18 +371,24 @@ struct CandleTOHLC : CandleOHLC<T> {
   datetime time;
   // Struct constructors.
   CandleTOHLC(datetime _time = 0, T _open = 0, T _high = 0, T _low = 0, T _close = 0)
-      : time(_time), CandleOHLC(_open, _high, _low, _close) {}
+      : time(_time), CandleOHLC<T>(_open, _high, _low, _close) {}
   // Getters.
   datetime GetTime() { return time; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s);
   // Converters.
-  string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
+  string ToCSV() {
+    return StringFormat("%d,%g,%g,%g,%g", time, THIS_ATTR open, THIS_ATTR high, THIS_ATTR low, THIS_ATTR close);
+  }
 };
 
 /* Method to serialize CandleEntry structure. */
 template <typename T>
+#ifdef __MQL__
 SerializerNodeType CandleOHLC::Serialize(Serializer &s) {
+#else
+SerializerNodeType CandleOHLC<T>::Serialize(Serializer &s) {
+#endif
   // s.Pass(THIS_REF, "time", TimeToString(time));
   s.Pass(THIS_REF, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
@@ -383,25 +399,33 @@ SerializerNodeType CandleOHLC::Serialize(Serializer &s) {
 
 /* Method to serialize CandleEntry structure. */
 template <typename T>
+#ifdef __MQL__
 SerializerNodeType CandleTOHLC::Serialize(Serializer &s) {
+#else
+SerializerNodeType CandleTOHLC<T>::Serialize(Serializer &s) {
+#endif
   s.Pass(THIS_REF, "time", time);
-  s.Pass(THIS_REF, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(THIS_REF, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(THIS_REF, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "open", THIS_ATTR open, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "high", THIS_ATTR high, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "low", THIS_ATTR low, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "close", THIS_ATTR close, SERIALIZER_FIELD_FLAG_DYNAMIC);
   return SerializerNodeObject;
 }
 
 /* Method to serialize CandleEntry structure. */
 template <typename T>
+#ifdef __MQL__
 SerializerNodeType CandleOCTOHLC::Serialize(Serializer &s) {
+#else
+SerializerNodeType CandleOCTOHLC<T>::Serialize(Serializer &s) {
+#endif
   s.Pass(THIS_REF, "is_complete", is_complete, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "open_timestamp_ms", open_timestamp_ms, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "close_timestamp_ms", close_timestamp_ms, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(THIS_REF, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(THIS_REF, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(THIS_REF, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "open", THIS_ATTR open, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "high", THIS_ATTR high, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "low", THIS_ATTR low, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "close", THIS_ATTR close, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "volume", volume, SERIALIZER_FIELD_FLAG_DYNAMIC);
   return SerializerNodeObject;
 }

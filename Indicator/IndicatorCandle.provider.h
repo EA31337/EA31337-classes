@@ -47,8 +47,8 @@ class ItemsHistoryCandleProvider : public ItemsHistoryItemProvider<CandleOCTOHLC
   /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
-  virtual void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryItemProvider<CandleOCTOHLC<TV>>>* _history,
-                      long _time_ms, float _ask, float _bid) {
+  void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryItemProvider<CandleOCTOHLC<TV>>>* _history, long _time_ms,
+              float _ask, float _bid) {
     // Should be overrided.
   }
 

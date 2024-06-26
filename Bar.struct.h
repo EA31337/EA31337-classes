@@ -51,15 +51,15 @@ struct BarOHLC
   datetime time;
   double open, high, low, close;
   // Struct constructor.
-  BarOHLC() : open(0), high(0), low(0), close(0), time(0){};
+  BarOHLC() : time(0), open(0), high(0), low(0), close(0){};
   BarOHLC(double _open, double _high, double _low, double _close, datetime _time = 0)
       : time(_time), open(_open), high(_high), low(_low), close(_close) {
-    if (_time == 0) {
+    if (_time == (datetime)0) {
       _time = TimeCurrent();
     }
   }
   BarOHLC(ARRAY_REF(double, _prices), datetime _time = 0) : time(_time) {
-    _time = _time == 0 ? TimeCurrent() : _time;
+    _time = _time == (datetime)0 ? TimeCurrent() : _time;
     int _size = ArraySize(_prices);
     close = _prices[0];
     open = _prices[_size - 1];
@@ -261,5 +261,5 @@ struct BarEntry {
     s.PassStruct(THIS_REF, "ohlc", ohlc, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
-  string ToCSV() { return StringFormat("%s", ohlc.ToCSV()); }
+  string ToCSV() { return StringFormat("%s", C_STR(ohlc.ToCSV())); }
 };

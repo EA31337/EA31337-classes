@@ -159,7 +159,7 @@ class Collection {
     X *_object = GetSize() > 0 ? data[0].Ptr() : NULL;
     for (i = 0; i < ArraySize(data); i++) {
       double _weight = data[i].Ptr().GetWeight();
-      if (_weight < _object.GetWeight()) {
+      if (_weight < _object PTR_DEREF GetWeight()) {
         _object = data[i].Ptr();
       }
     }
@@ -174,7 +174,7 @@ class Collection {
     X *_object = GetSize() > 0 ? data[0].Ptr() : NULL;
     for (i = 0; i < ArraySize(data); i++) {
       double _weight = data[i].Ptr().GetWeight();
-      if (_weight > _object.GetWeight()) {
+      if (_weight > _object PTR_DEREF GetWeight()) {
         _object = data[i].Ptr();
       }
     }

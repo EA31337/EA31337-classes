@@ -65,12 +65,12 @@ class IndicatorTick : public Indicator<TS> {
    */
   void Init() {
     // We can't index by shift.
-    flags &= ~INDI_FLAG_INDEXABLE_BY_SHIFT;
+    THIS_ATTR flags &= ~INDI_FLAG_INDEXABLE_BY_SHIFT;
     // We can only index via timestamp.
-    flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
+    THIS_ATTR flags |= INDI_FLAG_INDEXABLE_BY_TIMESTAMP;
 
     // Ask and Bid price.
-    Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), 2);
+    THIS_ATTR Set(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), (int)2);
 
     history.SetItemProvider(new ItemsHistoryTickProvider<double>(THIS_PTR));
   }
@@ -82,17 +82,17 @@ class IndicatorTick : public Indicator<TS> {
    * Class constructor.
    */
   IndicatorTick(string _symbol, const TS& _itparams, const IndicatorDataParams& _idparams,
-                IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
-      : Indicator(_itparams, _idparams, _indi_src, _indi_mode) {
+                IndicatorData* _indi_src = NULL, int _indi_mode = 0)
+      : Indicator<TS>(_itparams, _idparams, _indi_src, _indi_mode) {
     itparams = _itparams;
     if (_indi_src != NULL) {
-      SetDataSource(_indi_src, _indi_mode);
+      THIS_ATTR SetDataSource(_indi_src, _indi_mode);
     }
     symbol = _symbol;
     Init();
   }
   IndicatorTick(string _symbol, ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
-      : Indicator(_itype, _shift, _name) {
+      : Indicator<TS>(_itype, _shift, _name) {
     symbol = _symbol;
     Init();
   }
@@ -115,12 +115,18 @@ class IndicatorTick : public Indicator<TS> {
   /**
    * Gets ask price for a given date and time. Return current ask price if _dt wasn't passed or is 0.
    */
-  virtual double GetAsk(int _shift = 0) { return GetEntryValue(INDI_TICK_MODE_PRICE_ASK, _shift).Get<double>(); }
+  double GetAsk(int _shift = 0) override {
+    IndicatorDataEntryValue _entry = GetEntryValue(INDI_TICK_MODE_PRICE_ASK, _shift);
+    return _entry.Get<double>();
+  }
 
   /**
    * Gets bid price for a given date and time. Return current bid price if _dt wasn't passed or is 0.
    */
-  virtual double GetBid(int _shift = 0) { return GetEntryValue(INDI_TICK_MODE_PRICE_BID, _shift).Get<double>(); }
+  double GetBid(int _shift = 0) override {
+    IndicatorDataEntryValue _entry = GetEntryValue(INDI_TICK_MODE_PRICE_BID, _shift);
+    return _entry.Get<double>();
+  }
 
   /**
    * Returns value storage of given kind.
@@ -150,7 +156,7 @@ class IndicatorTick : public Indicator<TS> {
   /**
    * Checks whether indicator support given value storage type.
    */
-  virtual bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) {
+  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
     switch (_type) {
       case INDI_VS_TYPE_PRICE_ASK:
       case INDI_VS_TYPE_PRICE_BID:
@@ -158,6 +164,8 @@ class IndicatorTick : public Indicator<TS> {
       case INDI_VS_TYPE_VOLUME:
       case INDI_VS_TYPE_TICK_VOLUME:
         return true;
+      default:
+        break;
     }
 
     return Indicator<TS>::HasSpecificValueStorage(_type);

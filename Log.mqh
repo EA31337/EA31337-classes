@@ -32,8 +32,8 @@ class DictStruct;
 #include "Array.mqh"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
+#include "File.mqh"
 #include "Object.mqh"
-#include "Storage/Collection.mqh"
 
 // Define assert macros.
 // Alias for function and line macros combined together.
@@ -59,12 +59,12 @@ class Log : public Object {
     ENUM_LOG_LEVEL log_level;
     string msg;
   };
-  DictStruct<int, Ref<Log>> logs;
-  string filename;
-  ARRAY(log_entry, data);
   int last_entry;
   datetime last_flush;
   ENUM_LOG_LEVEL log_level;
+  string filename;
+  ARRAY(log_entry, data);
+  DictStruct<int, Ref<Log>> logs;
 
  public:
   /**
@@ -76,8 +76,7 @@ class Log : public Object {
   /**
    * Class copy constructor.
    */
-  Log(const Log &_log) : filename(_log.filename), last_entry(_log.last_entry), log_level(_log.log_level) {
-  }
+  Log(const Log &_log) : filename(_log.filename), last_entry(_log.last_entry), log_level(_log.log_level) {}
 
   /**
    * Class deconstructor.
@@ -193,7 +192,8 @@ class Log : public Object {
   void Link(Log *_log) {
     PTR_ATTRIB(_log, SetLevel(log_level));  // Sets the same level as this instance.
     // @todo: Make sure we're not linking the same instance twice.
-    logs.Push(_log);
+    Ref<Log> _ref_log = _log;
+    logs.Push(_ref_log);
   }
 
   /**
@@ -320,7 +320,6 @@ class Log : public Object {
   bool DeleteByTimestamp(datetime timestamp) {
     int _size = ArraySize(data);
     if (_size > 0) {
-      int offset = 0;
       for (int i = 0; i < _size; i++) {
         if (data[i].timestamp == timestamp) {
           Erase(data, i);
@@ -343,6 +342,12 @@ bool Log::AddLastError(string prefix, string suffix) {
 }
 bool Log::AddLastError(string prefix, long suffix) {
   return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
+}
+
+// Specialization of StringToType() for enum.
+void StringToType(string _value, ENUM_LOG_LEVEL &_out) {
+  // Maybe parse the string?
+  _out = V_NONE;
 }
 
 #endif

@@ -29,6 +29,7 @@
 class Serializer;
 
 // Includes.
+#include "DateTime.entry.h"
 #include "DateTime.struct.h"
 #include "Serializer/SerializerNode.enum.h"
 #include "Std.h"

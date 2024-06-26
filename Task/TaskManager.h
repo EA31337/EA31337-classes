@@ -93,6 +93,27 @@ class TaskManager {
     return Add((Task *)_task_obj);
   }
 
+  /**
+   * Clears tasks list.
+   */
+  void Clear() {
+    Task *task0 = tasks[0].Ptr();
+
+#ifndef __MQL__
+    for (unsigned int i = 0; i < tasks.Size(); ++i) {
+      std::cout << "Task #" << i << ": " << tasks[i].ToString() << std::endl;
+    }
+#endif
+
+    tasks.Clear();
+
+#ifndef __MQL__
+    std::cout << "Tasks cleared." << std::endl;
+    std::cout << task0 PTR_DEREF ToString() << std::endl;
+    // std::cout.flush();
+#endif
+  }
+
   /* Getters */
 
   /**
@@ -116,5 +137,24 @@ class TaskManager {
     return _result;
   }
 };
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(TaskManager) {
+  emscripten::class_<TaskManager>("TaskManager")
+      .constructor()
+      .function("Add", emscripten::optional_override([](TaskManager &self, Ref<Task> task) {
+                  Print("Adding Task");
+                  Print(StringToUpper("Testing StringToUpper"));
+                  Print(StringToLower("Testing StringToLower"));
+                  self.Add(task.Ptr());
+                }))
+      //      .function("Add", emscripten::select_overload<bool(Task*)>(&TaskManager::Add))
+      .function("Clear", &TaskManager::Clear)
+      .function("Process", &TaskManager::Process);
+}
+
+#endif
 
 #endif  // TASK_MANAGER_H

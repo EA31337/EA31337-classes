@@ -127,6 +127,7 @@ class Indicator : public IndicatorData {
       : IndicatorData(IndicatorDataParams::GetInstance()) {
     iparams.SetIndicatorType(_itype);
     iparams.SetShift(_shift);
+    SetName(_name);
     Init();
   }
 
@@ -171,7 +172,8 @@ class Indicator : public IndicatorData {
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).GetMax<T>(GetModeCount());
+      IndicatorDataEntry _entry = GetEntry(shift);
+      double value = _entry.GetMax<T>(GetModeCount());
       if (value > max) {
         max = value;
         max_idx = shift;
@@ -191,7 +193,8 @@ class Indicator : public IndicatorData {
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).GetMin<T>(GetModeCount());
+      IndicatorDataEntry _entry = GetEntry(shift);
+      double value = _entry.GetMin<T>(GetModeCount());
       if (value < min) {
         min = value;
         min_idx = shift;
@@ -223,9 +226,9 @@ class Indicator : public IndicatorData {
    * Sets whether indicator's buffers should be drawn on the chart.
    */
   void SetDraw(bool _value, color _color = clrAquamarine, int _window = 0) {
-    draw.SetEnabled(_value);
-    draw.SetColorLine(_color);
-    draw.SetWindow(_window);
+    // draw.SetEnabled(_value);
+    // draw.SetColorLine(_color);
+    // draw.SetWindow(_window);
   }
 
   /* Converters */
@@ -242,7 +245,7 @@ class Indicator : public IndicatorData {
 
   /* Buffer methods */
 
-  virtual string CacheKey() { return GetFullName(); }
+  string CacheKey() override { return GetFullName(); }
 
   /**
    * Initializes a cached proxy between i*OnArray() methods and OnCalculate()
@@ -374,9 +377,8 @@ class Indicator : public IndicatorData {
    *
    * When indicator values are not valid, returns empty signals.
    */
-  IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) {
-    bool _is_valid = true;
-    IndicatorDataEntry _data[];
+  IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) override {
+    ARRAY(IndicatorDataEntry, _data);
     if (!CopyEntries(_data, _count, _shift)) {
       // Some copied data is invalid, so returns empty signals.
       IndicatorSignal _signals(0);
@@ -397,7 +399,7 @@ class Indicator : public IndicatorData {
   /**
    * Get more descriptive name of the indicator.
    */
-  string GetDescriptiveName() {
+  string GetDescriptiveName() override {
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
     string name = iparams.name + " (";
 
@@ -409,8 +411,10 @@ class Indicator : public IndicatorData {
         name += "custom, ";
         break;
       case IDATA_INDICATOR:
-        name += "over " + GetDataSource().GetDescriptiveName() + ", ";
+        name += "over " + GetDataSource() PTR_DEREF GetDescriptiveName() + ", ";
         break;
+      default:
+        name += "unknown ";
     }
 
     name += IntegerToString(_max_modes) + (_max_modes == 1 ? " mode" : " modes");
@@ -423,14 +427,14 @@ class Indicator : public IndicatorData {
   /**
    * Sets name of the indicator.
    */
-  void SetName(string _name) { iparams.SetName(_name); }
+  void SetName(string _name) override { iparams.SetName(_name); }
 
   /**
    * Sets indicator's handle.
    *
    * Note: Not supported in MT4.
    */
-  void SetHandle(int _handle) {
+  void SetHandle(int _handle) override {
     istate.handle = _handle;
     istate.is_changed = true;
   }
@@ -452,7 +456,7 @@ class Indicator : public IndicatorData {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_INDICATOR_CONDITION _cond, DataParamEntry& _args[]) {
+  bool CheckCondition(ENUM_INDICATOR_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     switch (_cond) {
       case INDI_COND_ENTRY_IS_MAX:
         // @todo: Add arguments, check if the entry value is max.
@@ -477,8 +481,8 @@ class Indicator : public IndicatorData {
         // Indicator entry value is lesser than median.
         return false;
       default:
-        GetLogger().Error(StringFormat("Invalid indicator condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        SetUserError(ERR_INVALID_PARAMETER);
+        GetLogger() PTR_DEREF Error(
+            StringFormat("Invalid indicator condition: %s at %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -497,7 +501,7 @@ class Indicator : public IndicatorData {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry& _args[]) {
+  virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, ARRAY_REF(DataParamEntry, _args)) {
     bool _result = true;
     long _arg1 = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
     switch (_action) {
@@ -506,8 +510,8 @@ class Indicator : public IndicatorData {
         idata.Clear(_arg1);
         return true;
       default:
-        GetLogger().Error(StringFormat("Invalid Indicator action: %s!", EnumToString(_action), __FUNCTION_LINE__));
-        SetUserError(ERR_INVALID_PARAMETER);
+        GetLogger() PTR_DEREF Error(StringFormat("Invalid Indicator action: %s at %s!", C_STR(EnumToString(_action)),
+                                                 C_STR(__FUNCTION_LINE__)));
         return false;
     }
     return _result;
@@ -573,12 +577,12 @@ class Indicator : public IndicatorData {
   /**
    * Returns stored data in human-readable format.
    */
-  // virtual bool ToString() = NULL; // @fixme?
+  string const ToString() override { return EntryToString(); }
 
   /**
    * Whether we can and have to select mode when specifying data source.
    */
-  virtual bool IsDataSourceModeSelectable() { return true; }
+  virtual bool IsDataSourceModeSelectable() override { return true; }
 
   /**
    * Checks if indicator entry is valid.
@@ -696,7 +700,7 @@ class Indicator : public IndicatorData {
           }
         }
       }
-      GetEntryAlter(_entry, _rel_shift);
+      THIS_ATTR GetEntryAlter(_entry, _rel_shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, IsValidEntry(_entry));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
@@ -719,7 +723,7 @@ class Indicator : public IndicatorData {
    * This method allows user to modify the struct entry before it's added to cache.
    * This method is called on GetEntry() right after values are set.
    */
-  virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _rel_shift) {
+  void GetEntryAlter(IndicatorDataEntry& _entry, int _rel_shift) override {
     ENUM_DATATYPE _dtype = Get<ENUM_DATATYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_DTYPE));
     _entry.AddFlags(_entry.GetDataTypeFlags(_dtype));
   };
@@ -746,7 +750,7 @@ class Indicator : public IndicatorData {
   /**
    * Update indicator.
    */
-  virtual bool Update() {
+  virtual bool Update() override {
     // @todo
     return false;
   };

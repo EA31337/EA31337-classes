@@ -234,9 +234,21 @@ class TradeSignalManager : Dynamic {
    * @return
    *   Returns a JSON serialized signal.
    */
-  string ToString() {
+  string const ToString() {
     // SerializerConverter _stub = SerializerConverter::MakeStubObject<TradeSignalManager>(SERIALIZER_FLAG_SKIP_HIDDEN);
     return SerializerConverter::FromObject(THIS_REF, SERIALIZER_FLAG_INCLUDE_ALL | SERIALIZER_FLAG_SKIP_HIDDEN)
         .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
   }
 };
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(TradeSignalManager) {
+  emscripten::class_<TradeSignalManager>("TradeSignalManager")
+      .constructor()
+      .function("SignalAdd", &TradeSignalManager::SignalAdd)
+      .function("ToString", &TradeSignalManager::ToString);
+}
+
+#endif

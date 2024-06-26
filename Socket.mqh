@@ -121,7 +121,7 @@ class Socket {
     return true;
 #else
     return false;
-#endif;
+#endif
   }
 
   /**
@@ -184,7 +184,7 @@ class Socket {
     }
 #else
     return false;
-#endif;
+#endif
   }
 
   /**

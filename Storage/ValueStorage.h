@@ -237,8 +237,6 @@ int ArrayCopy(ARRAY_REF(D, _target), ValueStorage<C> &_source, int _dst_start = 
     }
   }
 
-  int _pre_fill = _dst_start;
-
   count = MathMin(count, ArraySize(_source) - _src_start);
 
   int _dst_required_size = _dst_start + count;
@@ -263,20 +261,6 @@ int ArrayCopy(ARRAY_REF(D, _target), ValueStorage<C> &_source, int _dst_start = 
   }
 
   return _num_copied;
-}
-
-/**
- * iHigest() version working on ValueStorage.
- */
-int iHighest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
-  return iPeak(_price, _count, _start, IPEAK_HIGHEST);
-}
-
-/**
- * iLowest() version working on ValueStorage.
- */
-int iLowest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
-  return iPeak(_price, _count, _start, IPEAK_LOWEST);
 }
 
 /**
@@ -322,6 +306,20 @@ int iPeak(ValueStorage<double> &_price, int _count, int _start, ENUM_IPEAK _type
   }
 
   return _price_size - _peak_idx - 1;
+}
+
+/**
+ * iHigest() version working on ValueStorage.
+ */
+int iHighest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
+  return iPeak(_price, _count, _start, IPEAK_HIGHEST);
+}
+
+/**
+ * iLowest() version working on ValueStorage.
+ */
+int iLowest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
+  return iPeak(_price, _count, _start, IPEAK_LOWEST);
 }
 
 #endif  // VALUE_STORAGE_H

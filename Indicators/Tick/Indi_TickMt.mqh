@@ -127,7 +127,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
   /**
    * Fetches historic ticks for a given time range.
    */
-  bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) override {
+  bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
     ArrayResize(_out_ticks, 0);
 
 #ifdef __MQL5__
@@ -274,7 +274,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
         */
   }
 
-  void OnTick(int _global_tick_index) override {
+  bool OnTick(int _global_tick_index) override {
 #ifdef __MQL4__
     // Refreshes Ask/Bid constants.
     RefreshRates();
@@ -327,5 +327,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_TICK);
     // Appending tick into the history.
     AppendEntry(_entry);
+    
+    return _ask != WRONG_VALUE && _bid != WRONG_VALUE;
   }
 };

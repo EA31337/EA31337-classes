@@ -199,7 +199,8 @@ class Indi_StdDev : public Indicator<IndiStdDevParams> {
     Indi_PriceFeeder *_indi_price_feeder;
     if (!ObjectsCache<Indi_PriceFeeder>::TryGet(_key, _indi_price_feeder)) {
       IndiPriceFeederParams _params();
-      _indi_price_feeder = ObjectsCache<Indi_PriceFeeder>::Set(_key, new Indi_PriceFeeder(_params));
+      IndicatorData *_indi_pf = new Indi_PriceFeeder(_params);
+      _indi_price_feeder = ObjectsCache<Indi_PriceFeeder>::Set(_key, _indi_pf);
     }
 
     // Filling reused price feeder.

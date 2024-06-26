@@ -30,6 +30,10 @@
 #include "../Storage/IValueStorage.h"
 #include "../Tick/Tick.struct.h"
 
+// Forward declarations.
+template <typename TV>
+class BufferTick;
+
 // TV = Type of price stored by BufferTick. RV = Type of property to be retrieved from BufferTick.
 template <typename TV, typename RV>
 class BufferTickValueStorage : ValueStorage<TV> {
@@ -71,7 +75,7 @@ class BufferTickValueStorage : ValueStorage<TV> {
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  int Size() override { return (int)buffer_tick.Size(); }
+  int Size() override { return (int)THIS_ATTR buffer_tick.Size(); }
 };
 
 /**
@@ -109,7 +113,7 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
     _vs_spread = NULL;
     _vs_volume = NULL;
     _vs_tick_volume = NULL;
-    SetOverflowListener(BufferStructOverflowListener, 10);
+    THIS_ATTR SetOverflowListener(BufferStructOverflowListener, 10);
   }
 
  public:

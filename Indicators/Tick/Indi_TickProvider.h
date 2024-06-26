@@ -1,0 +1,181 @@
+//+------------------------------------------------------------------+
+//|                                                EA31337 framework |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                       https://github.com/EA31337 |
+//+------------------------------------------------------------------+
+
+/*
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file
+ * Tick-based indicator which you may feed with data.
+ */
+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
+// Includes.
+#include "../../Indicator/IndicatorTick.h"
+#include "../../Indicator/IndicatorTick.provider.h"
+
+// Structs.
+// Params for MT patform's tick-based indicator.
+struct Indi_TickProviderParams : IndicatorParams {
+  Indi_TickProviderParams() : IndicatorParams(INDI_TICK_RANDOM) {}
+};
+
+// MT platform's tick-based indicator.
+class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>> {
+ private:
+  int current_index;
+  ARRAY(TickTAB<double>, buffer);
+
+ public:
+  Indi_TickProvider(Indi_TickProviderParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                    IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTick(_p.symbol, _p,
+                      IndicatorDataParams::GetInstance(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
+                      _indi_src) {
+    Init();
+  }
+  Indi_TickProvider(string _symbol = NULL_STRING, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                    IndicatorData *_indi_src = NULL, int _indi_src_mode = 0, string _name = "")
+      : IndicatorTick(_symbol, Indi_TickProviderParams(),
+                      IndicatorDataParams(2, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode), _indi_src) {
+    Init();
+  }
+
+  /**
+   * Initializes the class.
+   */
+  void Init() {
+    current_index = 0;
+    SetName("Indi_TickProvider");
+    // Explicitly specifying built-in mode as in C++ default mode is On-Indicator.
+    idparams.Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_BUILTIN);
+  }
+
+  string GetName() override { return "Indi_TickProvider"; }
+
+  /**
+   * Returns possible data source types. It is a bit mask of ENUM_INDI_SUITABLE_DS_TYPE.
+   */
+  unsigned int GetSuitableDataSourceTypes() override { return INDI_SUITABLE_DS_TYPE_EXPECT_NONE; }
+
+  /**
+   * Returns possible data source modes. It is a bit mask of ENUM_IDATA_SOURCE_TYPE.
+   */
+  unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN; }
+
+  /**
+   * Returns the indicator's struct entry for the given shift.
+   */
+  IndicatorDataEntry GetEntry(int _index = 0) override {
+#ifdef __debug_indicator__
+    Print("Indi_TickProvider::GetEntry(index = ", _index, ")");
+#endif
+
+    IndicatorDataEntry _default;
+    return _default;
+  }
+
+  /**
+   * Fetches historic ticks for a given time range.
+   */
+  bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
+#ifdef __debug_indicator__
+    Print("Indi_TickProvider::FetchHistoryByTimeRange(from_ms = ", _from_ms, ", to_ms = ", _to_ms, ")");
+#endif
+    // No history.
+    return false;
+  }
+
+  /**
+   *  Feeds ticks buffer with given array of new ticks.
+   */
+  void Feed(ARRAY_REF(TickTAB<double>, _ticks)) {
+    for (int i = 0; i < ArraySize(_ticks); ++i) {
+      ArrayPush(buffer, _ticks[i]);
+    }
+  }
+
+  int BufferSize() { return ArraySize(buffer); }
+
+  bool OnTick(int _global_tick_index) override {
+#ifdef __debug_indicator__
+    Print("Indi_TickProvider: Tick Index #", _global_tick_index);
+#endif
+
+    if (current_index >= ArraySize(buffer)) {
+#ifdef __debug_indicator__
+      Print("Indi_TickProvider: Tick Index #", _global_tick_index, " is beyond buffer size ", ArraySize(buffer),
+            ", so acknowledging that there are no more ticks.");
+#endif
+      // No more ticks.
+      return false;
+    }
+
+    TickTAB<double> _tick = buffer[current_index++];
+#ifdef __debug_indicator__
+    Print("Indi_TickProvider: OHLC: ", _tick.ToString());
+#endif
+
+    IndicatorDataEntry _entry(TickToEntry(_tick.GetTimestamp(), _tick));
+    EmitEntry(_entry);
+    // Appending tick into the history.
+    AppendEntry(_entry);
+
+    return true;
+  }
+};
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(Indi_TickProviderParams) {
+  emscripten::value_object<Indi_TickProviderParams>("indicators.TickProviderParams")
+      .field("symbol", &Indi_TickProviderParams::symbol);
+}
+
+EMSCRIPTEN_BINDINGS(Indi_TickProviderBaseBase) {
+  emscripten::class_<Indicator<Indi_TickProviderParams>, emscripten::base<IndicatorData>>("IndiTickProviderBaseBase")
+      .smart_ptr<Ref<Indicator<Indi_TickProviderParams>>>("Ref<Indicator<Indi_TickProviderParams>>");
+}
+
+EMSCRIPTEN_BINDINGS(Indi_TickProviderBase) {
+  emscripten::class_<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>,
+                     emscripten::base<Indicator<Indi_TickProviderParams>>>("IndiTickProviderBas         e")
+      .smart_ptr<Ref<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>>>(
+          "Ref<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>");
+}
+
+EMSCRIPTEN_BINDINGS(Indi_TickProvider) {
+  emscripten::class_<
+      Indi_TickProvider,
+      emscripten::base<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>>>(
+      "indicators.TickProvider")
+      .smart_ptr<Ref<Indi_TickProvider>>("Ref<Indi_TickProvider>")
+      .constructor(emscripten::optional_override([]() { return Ref<Indi_TickProvider>(new Indi_TickProvider()); }))
+      .constructor(emscripten::optional_override(
+          [](Indi_TickProviderParams &_p) { return Ref<Indi_TickProvider>(new Indi_TickProvider(_p)); }))
+      .function("BufferSize", &Indi_TickProvider::BufferSize)
+      .function("Feed", &Indi_TickProvider::Feed);
+}
+
+#endif

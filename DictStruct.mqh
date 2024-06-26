@@ -89,17 +89,6 @@ class DictStruct : public DictBase<K, V> {
     THIS_ATTR _mode = right._mode;
   }
 
-  void operator=(DictStruct<K, V>& right) {
-    Clear();
-    Resize(right.GetSlotCount());
-    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
-      THIS_ATTR _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
-    }
-    THIS_ATTR _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
-    THIS_ATTR _current_id = right._current_id;
-    THIS_ATTR _mode = right._mode;
-  }
-
   void Clear() {
     for (unsigned int i = 0; i < (unsigned int)ArraySize(THIS_ATTR _DictSlots_ref.DictSlots); ++i) {
       THIS_ATTR _DictSlots_ref.DictSlots[i].SetFlags(0);
@@ -134,19 +123,6 @@ class DictStruct : public DictBase<K, V> {
    */
   bool operator+=(V& value) { return Push(value); }
 
-/**
- * Inserts value using hashless key.
- */
-#ifdef __MQL__
-  template <>
-#endif
-  bool Push(Dynamic* value) {
-    V ptr = value;
-
-    if (!InsertInto(THIS_ATTR _DictSlots_ref, ptr)) return false;
-    return true;
-  }
-
   /**
    * Inserts or replaces value for a given key.
    */
@@ -161,12 +137,12 @@ class DictStruct : public DictBase<K, V> {
   V operator[](K key) {
     DictSlot<K, V>* slot;
 
-    int position;
+    unsigned int position;
 
     if (THIS_ATTR _mode == DictModeList)
       slot = THIS_ATTR GetSlot((unsigned int)key);
     else
-      slot = GetSlotByKey(THIS_ATTR _DictSlots_ref, key, position);
+      slot = THIS_ATTR GetSlotByKey(THIS_ATTR _DictSlots_ref, key, position);
 
     if (slot == NULL || !slot PTR_DEREF IsUsed()) {
       Alert("Invalid DictStruct key \"", key, "\" (called by [] operator). Returning empty structure.");
@@ -183,7 +159,7 @@ class DictStruct : public DictBase<K, V> {
    */
   V GetByKey(const K _key) {
     unsigned int position;
-    DictSlot<K, V>* slot = GetSlotByKey(THIS_ATTR _DictSlots_ref, _key, position);
+    DictSlot<K, V>* slot = THIS_ATTR GetSlotByKey(THIS_ATTR _DictSlots_ref, _key, position);
 
     if (!slot) {
       static V _empty;
