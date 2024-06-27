@@ -264,7 +264,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_TICK);
     // Appending tick into the history.
     AppendEntry(_entry);
-    
+
     return _ask != WRONG_VALUE && _bid != WRONG_VALUE;
   }
 };

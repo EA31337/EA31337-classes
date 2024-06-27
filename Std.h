@@ -60,6 +60,7 @@
   #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
   #define REF_DEREF .Ptr().
   #define int64 long
+  #define nullptr NULL
 #else
   #define GET_PTR(obj) (*obj)
   #define THIS_ATTR this->
@@ -122,18 +123,18 @@
    */
   #define CONST_REF_TO(T) const T&
 
-  /**
+/**
 
- * Reference to the array.
- *
- * @usage
- *   ARRAY_REF(<type of the array items>, <name of the variable>)
- */
-#define ARRAY_TYPE(T) _cpp_array<T>
-#define ARRAY_REF(T, N) ARRAY_TYPE(T) & N
-#define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
+* Reference to the array.
+*
+* @usage
+*   ARRAY_REF(<type of the array items>, <name of the variable>)
+*/
+  #define ARRAY_TYPE(T) _cpp_array<T>
+  #define ARRAY_REF(T, N) ARRAY_TYPE(T) & N
+  #define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
 
-#define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
+  #define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
   #define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
 
   /**

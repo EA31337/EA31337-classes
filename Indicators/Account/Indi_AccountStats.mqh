@@ -193,7 +193,7 @@ class Indi_AccountStats : public Indicator<Indi_AccountStats_Params> {
    */
   virtual void OnDataSourceEntry(IndicatorDataEntry &entry,
                                  ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) override {
-    Indicator<TS>::OnDataSourceEntry(entry, type);
+    Indicator<Indi_AccountStats_Params>::OnDataSourceEntry(entry, type);
 
     if (type != INDI_EMITTED_ENTRY_TYPE_CANDLE) {
       return;

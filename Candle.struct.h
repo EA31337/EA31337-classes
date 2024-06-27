@@ -284,11 +284,12 @@ struct CandleOCTOHLC : CandleOHLC<T> {
     if (!ContainsTimeMs(_timestamp_ms)) {
       Print("Error: Cannot update candle. Given time doesn't fit in candle's time-frame! Given time ", _timestamp_ms,
             ", but candle range is ", (long)start_time * 1000, " - ", (long)(start_time + length) * 1000, ".");
+      long _ms;
       if (_timestamp_ms < (long)start_time * 1000) {
-        long _ms = (long)start_time * 1000 - _timestamp_ms;
+        _ms = (long)start_time * 1000 - _timestamp_ms;
         Print("Looks like given time is ", _ms, " ms (", (double)_ms / 1000, " s) before the candle starts.");
       } else {
-        long _ms = _timestamp_ms - (long)(start_time + length) * 1000;
+        _ms = _timestamp_ms - (long)(start_time + length) * 1000;
         Print("Looks like given time is ", _ms, " ms (", (double)_ms / 1000, "s) after the candle ends.");
       }
       DebugBreak();

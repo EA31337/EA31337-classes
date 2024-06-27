@@ -21,13 +21,13 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 
-// Includes.
-#include "Deal.enum.h"
-#include "Order.struct.h"
-#include "Platform.define.h"
+  // Includes.
+  #include "Deal.enum.h"
+  #include "Order.struct.h"
+  #include "Platform.define.h"
 
 /**
  * Extern declarations for C++.
@@ -58,7 +58,7 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
   #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
   #define PLATFORM_DEFAULT_INDICATOR_TF Indi_TfMt
 #else
-#include "Indicators/Tick/Indi_TickProvider.h"
+  #include "Indicators/Tick/Indi_TickProvider.h"
   #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickRandom
   #define PLATFORM_DEFAULT_INDICATOR_TF IndicatorTfDummy
 #endif

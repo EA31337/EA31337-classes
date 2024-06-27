@@ -87,7 +87,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    * Sets indicator's time-frame.
    */
   void SetTf(ENUM_TIMEFRAMES _tf) { THIS_ATTR iparams.tf.SetTf(_tf); }
-  
+
   /**
    * Returns current tick index (incremented every OnTick()).
    */

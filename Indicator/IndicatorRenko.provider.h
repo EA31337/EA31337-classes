@@ -25,8 +25,8 @@
 #define INDICATOR_RENKO_PROVIDER_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 /**
@@ -68,12 +68,24 @@ class ItemsHistoryRenkoCandleProvider : public ItemsHistoryCandleProvider<TV> {
    * Retrieves given number of items starting from the given microseconds or index (inclusive). "_dir" identifies if we
    * want previous or next items from selected starting point.
    */
-  void GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryRenkoCandleProvider<TV>>* _history, long _from_time_ms,
+  bool GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryRenkoCandleProvider<TV>>* _history, long _from_time_ms,
                 ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items, ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
     // Method is called if there is a missing item (candle) in the history. We need to regenerate it.
 
     Print("IndicatorRenko is not yet implemented!");
     DebugBreak();
+    return false;
+  }
+
+  /**
+   * Retrieves items between given indices (both indices inclusive). Should return false if retrieving items by this
+   * method is not available.
+   */
+  bool GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryRenkoCandleProvider<TV>>* _history, int _start_index,
+                int _end_index, ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
+    Print("IndicatorRenko is not yet implemented!");
+    DebugBreak();
+    return false;
   }
 };
 
