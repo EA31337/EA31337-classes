@@ -96,11 +96,11 @@ class IndicatorCandle : public Indicator<TS> {
    */
   IndicatorCandle(const TS& _icparams, const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL,
                   int _indi_mode = 0)
-      : Indicator<TS>(_icparams, _idparams, _indi_src, _indi_mode), history(INDI_CANDLE_HISTORY_SIZE) {
+      : Indicator<TS>(_icparams, _idparams, _indi_src, _indi_mode), history(THIS_PTR, INDI_CANDLE_HISTORY_SIZE) {
     Init();
   }
   IndicatorCandle(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
-      : Indicator<TS>(_itype, _shift, _name), history(INDI_CANDLE_HISTORY_SIZE) {
+      : Indicator<TS>(_itype, _shift, _name), history(THIS_PTR, INDI_CANDLE_HISTORY_SIZE) {
     Init();
   }
 
@@ -361,7 +361,11 @@ class IndicatorCandle : public Indicator<TS> {
    * because otherwise, we could end up with OnCalculate() working on partial
    * history candles.
    */
-  void OnDataSourceWillEmitEntries(ENUM_INDI_EMITTED_ENTRY_TYPE _type, int _num_entries) override {}
+  void OnDataSourceWillEmitEntries(ENUM_INDI_EMITTED_ENTRY_TYPE _type, int _num_entries) override {
+    if (_type == INDI_EMITTED_ENTRY_TYPE_CANDLE) {
+      idata.Reserve(_num_entries);
+    }
+  }
 
   /**
    * Returns value storage of given kind.

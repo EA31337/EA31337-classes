@@ -62,12 +62,13 @@ class DictBase {
     _mode = DictModeUnknown;
     _flags = 0;
     overflow_listener = nullptr;
+    _DictSlots_ref = new DictSlotsRef<K, V>();
   }
 
   /**
    * Destructor.
    */
-  ~DictBase() {}
+  ~DictBase() { delete _DictSlots_ref; }
 
   DictIteratorBase<K, V> Begin() {
     // Searching for first item index.
@@ -106,7 +107,7 @@ class DictBase {
   /**
    * Returns slot by key.
    */
-  DictSlot<K, V>* GetSlotByKey(DictSlotsRef<K, V>& dictSlotsRef, const K _key, unsigned int& position) {
+  DictSlot<K, V>* GetSlotByKey(DictSlotsRef<K, V>*& dictSlotsRef, const K _key, unsigned int& position) {
     unsigned int numSlots = ArraySize(dictSlotsRef.DictSlots);
 
     if (numSlots == 0) return NULL;
@@ -137,7 +138,7 @@ class DictBase {
   /**
    * Returns slot by position.
    */
-  DictSlot<K, V>* GetSlotByPos(DictSlotsRef<K, V>& dictSlotsRef, const unsigned int position) {
+  DictSlot<K, V>* GetSlotByPos(DictSlotsRef<K, V>*& dictSlotsRef, const unsigned int position) {
     return dictSlotsRef.DictSlots[position].IsUsed() ? &dictSlotsRef.DictSlots[position] : NULL;
   }
 
@@ -335,9 +336,9 @@ class DictBase {
 
  protected:
   /**
-   * Array of DictSlots.
+   * Pointer to array of DictSlots.
    */
-  DictSlotsRef<K, V> _DictSlots_ref;
+  DictSlotsRef<K, V>* _DictSlots_ref;
 
   DictOverflowListener overflow_listener;
   unsigned int overflow_listener_max_conflicts;

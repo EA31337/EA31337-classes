@@ -25,8 +25,8 @@
 #define INDICATOR_TICK_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -83,7 +83,7 @@ class IndicatorTick : public Indicator<TS> {
    */
   IndicatorTick(string _symbol, const TS& _itparams, const IndicatorDataParams& _idparams,
                 IndicatorData* _indi_src = NULL, int _indi_mode = 0)
-      : Indicator<TS>(_itparams, _idparams, _indi_src, _indi_mode) {
+      : Indicator<TS>(_itparams, _idparams, _indi_src, _indi_mode), history(THIS_PTR) {
     itparams = _itparams;
     if (_indi_src != NULL) {
       THIS_ATTR SetDataSource(_indi_src, _indi_mode);
@@ -92,7 +92,7 @@ class IndicatorTick : public Indicator<TS> {
     Init();
   }
   IndicatorTick(string _symbol, ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
-      : Indicator<TS>(_itype, _shift, _name) {
+      : Indicator<TS>(_itype, _shift, _name), history(THIS_PTR) {
     symbol = _symbol;
     Init();
   }

@@ -34,7 +34,7 @@
 #include "../Storage/ItemsHistory.h"
 
 /**
- * Regenerates candles and updates exising candles from new ticks. Subclasses by IndicatorTf, IndicatorRenko.
+ * Regenerates candles and updates exising candles from new ticks. Subclassed by IndicatorTf, IndicatorRenko.
  */
 template <typename TV>
 class ItemsHistoryCandleProvider : public ItemsHistoryItemProvider<CandleOCTOHLC<TV>> {

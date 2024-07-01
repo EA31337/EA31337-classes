@@ -153,6 +153,10 @@ class ItemsHistoryTfMtCandleProvider : public ItemsHistoryCandleProvider<TV> {
     int _num_copied = CopyRates(indi PTR_DEREF GetSymbol(), indi PTR_DEREF GetTf(), _end_shift, _count, _rates);
     ArrayResize(_out_arr, _num_copied);
 
+    // Acknowledging indicator that we will emit _num_copied number of candles.
+    _history PTR_DEREF GetIndicator()
+        PTR_DEREF OnDataSourceWillEmitEntries(INDI_EMITTED_ENTRY_TYPE_CANDLE, _num_copied);
+
     for (int i = 0; i < _num_copied; ++i) {
       MqlRates _rate = _rates[i];
       int _start_secs = (int)(long)_rate.time;

@@ -100,6 +100,9 @@ class ItemsHistoryItemProvider : public Dynamic {
  */
 template <typename IV, typename PT>
 class ItemsHistory {
+  // Indicator the history is provided for.
+  IndicatorData* indi;
+
   // Provides items from bound provider.
   Ref<PT> item_provider;
 
@@ -136,13 +139,16 @@ class ItemsHistory {
   /**
    * Constructor
    */
-  ItemsHistory(unsigned int _history_max_size = 0)
-      : history_max_size(_history_max_size),
+  ItemsHistory(IndicatorData* _indi, unsigned int _history_max_size = 0)
+      : indi(_indi),
+        history_max_size(_history_max_size),
         current_index(0),
         first_valid_index(0),
         first_valid_index_ever(0),
         last_valid_index(0),
-        peak_size(0) {}
+        peak_size(0) {
+    history.SetMaxConflicts(25);
+  }
 
   /**
    * Returns item provider.
@@ -162,6 +168,11 @@ class ItemsHistory {
     return history.GetByKey(last_valid_index).GetTime();
   }
   */
+
+  /**
+   * Returns indicator the history is provided for.
+   */
+  IndicatorData* GetIndicator() { return indi; }
 
   /**
    * Returns maximum number of items that occupied the history. Could be used e.g., to determine how many bars could be
