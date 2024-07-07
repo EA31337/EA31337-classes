@@ -691,10 +691,13 @@ class Indicator : public IndicatorData {
         }
 
         if (_LastError != ERR_SUCCESS) {
-          datetime _bar_dt = (datetime)_bar_time;
-          Print("Error: Code ", _LastError, " while trying to retrieve entry at shift ", _rel_shift, " (absolute ",
-                ToAbsShift(_rel_shift), "), mode ", _mode, ", time ", _bar_dt);
-          DebugBreak();
+          if (_LastError != 4806) {
+            // Error occured and it's not "4806 Requested data not found".
+            datetime _bar_dt = (datetime)_bar_time;
+            Print("Error: Code ", _LastError, " while trying to retrieve entry at shift ", _rel_shift, " (absolute ",
+                  ToAbsShift(_rel_shift), "), mode ", _mode, ", time ", _bar_dt);
+            DebugBreak();
+          }
         }
       }
       THIS_ATTR GetEntryAlter(_entry, _rel_shift);

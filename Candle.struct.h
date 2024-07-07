@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward class declaration.
@@ -262,9 +262,12 @@ struct CandleOCTOHLC : CandleOHLC<T> {
 #endif
 
   /**
-   * Initializes candle with a given start time, lenght in seconds, first tick's timestamp and its price.
+   * Initializes candle with a given start time, length in seconds, first tick's timestamp and its price.
    */
   void Init(int _start_time, int _length, long _timestamp_ms = -1, T _price = 0) {
+    if (_start_time < 0) {
+      Print("Error!");
+    }
     is_complete = false;
     start_time = _start_time;
     length = _length;
@@ -279,7 +282,16 @@ struct CandleOCTOHLC : CandleOHLC<T> {
    */
   void Update(long _timestamp_ms, T _price) {
     if (!ContainsTimeMs(_timestamp_ms)) {
-      Print("Error: Cannot update candle. Given time doesn't fit in candle's time-frame!");
+      Print("Error: Cannot update candle. Given time doesn't fit in candle's time-frame! Given time ", _timestamp_ms,
+            ", but candle range is ", (long)start_time * 1000, " - ", (long)(start_time + length) * 1000, ".");
+      long _ms;
+      if (_timestamp_ms < (long)start_time * 1000) {
+        _ms = (long)start_time * 1000 - _timestamp_ms;
+        Print("Looks like given time is ", _ms, " ms (", (double)_ms / 1000, " s) before the candle starts.");
+      } else {
+        _ms = _timestamp_ms - (long)(start_time + length) * 1000;
+        Print("Looks like given time is ", _ms, " ms (", (double)_ms / 1000, "s) after the candle ends.");
+      }
       DebugBreak();
     }
 
@@ -288,6 +300,7 @@ struct CandleOCTOHLC : CandleOHLC<T> {
     if (_is_init || _timestamp_ms < open_timestamp_ms) {
       open_timestamp_ms = _timestamp_ms;
       THIS_ATTR open = _price;
+      start_time = int(_timestamp_ms / 1000);
     }
     if (_is_init || _timestamp_ms > close_timestamp_ms) {
       close_timestamp_ms = _timestamp_ms;

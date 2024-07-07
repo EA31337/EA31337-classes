@@ -30,8 +30,8 @@
 #define INDICATOR_RENKO_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -171,97 +171,103 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double, ItemsHistoryR
   /**
    * Called when data source emits new entry (historic or future one).
    */
-  void OnDataSourceEntry(IndicatorDataEntry &entry) override{
-      /*
-      @todo Move logic into ItemsHistoryRenkoCandleProvider class.
+  void OnDataSourceEntry(IndicatorDataEntry &entry,
+                         ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) override {
+    IndicatorCandle<RenkoParams, double, ItemsHistoryRenkoCandleProvider<double>>::OnDataSourceEntry(entry, type);
 
-      if (entry.timestamp < last_entry_ts) {
-        Print("Error: IndicatorRenko doesn't support sending entries in non-ascending order!");
-        DebugBreak();
+    if (type != INDI_EMITTED_ENTRY_TYPE_TICK) {
+      return;
+    }
+    /*
+    @todo Move logic into ItemsHistoryRenkoCandleProvider class.
+
+    if (entry.timestamp < last_entry_ts) {
+      Print("Error: IndicatorRenko doesn't support sending entries in non-ascending order!");
+      DebugBreak();
+    }
+
+    // We'll be updating candle from bid price.
+    double _price = entry[1];
+
+    CandleOCTOHLC<double> _candle;
+    CandleOCTOHLC<double> _last_completed_candle;
+    ENUM_INDI_RENKO_CANDLE_TYPE _last_completed_candle_type;
+
+    if (last_completed_candle_ts != 0) {
+      _last_completed_candle = icdata.GetByKey(last_completed_candle_ts);
+      _last_completed_candle_type = GetCandleType(_last_completed_candle);
+    } else {
+      _last_completed_candle_type = INDI_RENKO_CANDLE_TYPE_NONE;
+    }
+
+    if (last_incomplete_candle_ts != 0) {
+      // There is previous candle. Retrieving and updating it.
+      _candle = icdata.GetByKey(last_incomplete_candle_ts);
+      _candle.Update(entry.timestamp, _price);
+
+      // Checking for close price difference.
+      if (RenkoConditionMet(_last_completed_candle_type, _candle, _price)) {
+        // Closing current candle.
+        _candle.is_complete = true;
       }
 
-      // We'll be updating candle from bid price.
-      double _price = entry[1];
+      // Updating candle.
+      icdata.Add(_candle, last_incomplete_candle_ts);
 
-      CandleOCTOHLC<double> _candle;
-      CandleOCTOHLC<double> _last_completed_candle;
-      ENUM_INDI_RENKO_CANDLE_TYPE _last_completed_candle_type;
+      Print("Updated Candle: ", _candle.ToString());
 
+      if (_candle.is_complete) {
+        last_completed_candle_ts = last_incomplete_candle_ts;
+        last_incomplete_candle_ts = 0;
+      }
+    } else {
+      // There is no incomplete candle, creating one.
       if (last_completed_candle_ts != 0) {
-        _last_completed_candle = icdata.GetByKey(last_completed_candle_ts);
-        _last_completed_candle_type = GetCandleType(_last_completed_candle);
-      } else {
-        _last_completed_candle_type = INDI_RENKO_CANDLE_TYPE_NONE;
-      }
-
-      if (last_incomplete_candle_ts != 0) {
-        // There is previous candle. Retrieving and updating it.
-        _candle = icdata.GetByKey(last_incomplete_candle_ts);
+        // Price of the last candle will be used to initialize open price for new, incomplete candle.
+        double _last_close_price = _last_completed_candle.close;
+        _candle = CandleOCTOHLC<double>(_last_close_price, _last_close_price, _last_close_price, _last_close_price,
+                                        entry.timestamp, entry.timestamp);
+        // Current price will be added to newly created incomplete candle.
         _candle.Update(entry.timestamp, _price);
-
-        // Checking for close price difference.
-        if (RenkoConditionMet(_last_completed_candle_type, _candle, _price)) {
-          // Closing current candle.
-          _candle.is_complete = true;
-        }
-
-        // Updating candle.
-        icdata.Add(_candle, last_incomplete_candle_ts);
-
-        Print("Updated Candle: ", _candle.ToString());
-
-        if (_candle.is_complete) {
-          last_completed_candle_ts = last_incomplete_candle_ts;
-          last_incomplete_candle_ts = 0;
-        }
       } else {
-        // There is no incomplete candle, creating one.
-        if (last_completed_candle_ts != 0) {
-          // Price of the last candle will be used to initialize open price for new, incomplete candle.
-          double _last_close_price = _last_completed_candle.close;
-          _candle = CandleOCTOHLC<double>(_last_close_price, _last_close_price, _last_close_price, _last_close_price,
-                                          entry.timestamp, entry.timestamp);
-          // Current price will be added to newly created incomplete candle.
-          _candle.Update(entry.timestamp, _price);
-        } else {
-          // There was no completed candle. Creating new, incomplete candle from current price.
-          _candle = CandleOCTOHLC<double>(_price, _price, _price, _price, entry.timestamp, entry.timestamp);
-        }
-
-        _candle.is_complete = false;
-
-        // Creating new candle.
-        icdata.Add(_candle, entry.timestamp);
-
-        Print("Added candle: ", _candle.ToString(), " now there is ", icdata.Size(), " candles in the buffer.");
-
-        last_incomplete_candle_ts = entry.timestamp;
+        // There was no completed candle. Creating new, incomplete candle from current price.
+        _candle = CandleOCTOHLC<double>(_price, _price, _price, _price, entry.timestamp, entry.timestamp);
       }
 
-      static int iteration = 0;
+      _candle.is_complete = false;
 
-      ++iteration;
+      // Creating new candle.
+      icdata.Add(_candle, entry.timestamp);
 
-      Print("Iteration: ", iteration);
+      Print("Added candle: ", _candle.ToString(), " now there is ", icdata.Size(), " candles in the buffer.");
 
-      if (iteration > 1793) {
-        // Print(icdata.ToJSON());
-      }
+      last_incomplete_candle_ts = entry.timestamp;
+    }
 
-      Print("Last Incomplete Time:   ", TimeToString(last_incomplete_candle_ts, TIME_DATE | TIME_MINUTES |
-      TIME_SECONDS), " (", last_incomplete_candle_ts, ")"); Print("Last Incomplete Candle: ",
-      icdata.GetByKey(last_incomplete_candle_ts).ToString()); Print("Last Completed Time:    ",
-      TimeToString(last_completed_candle_ts, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " (", last_completed_candle_ts,
-      ")"); Print("Last Completed Candle:  ", icdata.GetByKey(last_completed_candle_ts).ToString());
+    static int iteration = 0;
 
-      // Updating tick & bar indices. Bar time is time of the last completed candle.
-      // Print(last_completed_candle_ts);
-      counter.OnTick(last_completed_candle_ts);
+    ++iteration;
 
-      Print("---------");
+    Print("Iteration: ", iteration);
 
-      last_entry_ts = entry.timestamp;
-      */
+    if (iteration > 1793) {
+      // Print(icdata.ToJSON());
+    }
+
+    Print("Last Incomplete Time:   ", TimeToString(last_incomplete_candle_ts, TIME_DATE | TIME_MINUTES |
+    TIME_SECONDS), " (", last_incomplete_candle_ts, ")"); Print("Last Incomplete Candle: ",
+    icdata.GetByKey(last_incomplete_candle_ts).ToString()); Print("Last Completed Time:    ",
+    TimeToString(last_completed_candle_ts, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " (", last_completed_candle_ts,
+    ")"); Print("Last Completed Candle:  ", icdata.GetByKey(last_completed_candle_ts).ToString());
+
+    // Updating tick & bar indices. Bar time is time of the last completed candle.
+    // Print(last_completed_candle_ts);
+    counter.OnTick(last_completed_candle_ts);
+
+    Print("---------");
+
+    last_entry_ts = entry.timestamp;
+    */
   };
 
   /**

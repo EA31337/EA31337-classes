@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -127,60 +127,11 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
   /**
    * Fetches historic ticks for a given time range.
    */
-  virtual bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
+  bool FetchHistoryByTimeRange(long _from_ms, long _to_ms, ARRAY_REF(TickTAB<double>, _out_ticks)) {
     ArrayResize(_out_ticks, 0);
 
-#ifdef __MQL4__
-    // Searching from current bar to older ones.
-    int _shift;
-
-    if (_to_ms <= _cache_fetch_history_shift_to_ms) {
-      _shift = _cache_fetch_history_shift_shift;
-    } else {
-      _shift = 0;
-    }
-
-    string _symbol = GetSymbol();
-
-    while (true) {
-      double _time = (double)iTime(_symbol, PERIOD_M1, _shift);
-
-      if (_time == 0) {
-        // Invalid time.
-        break;
-      }
-
-      long _time_ms = (long)_time * 1000;
-
-      if (_time_ms > _to_ms) {
-        // No yet get into valid time range.
-        ++_shift;
-        continue;
-      }
-
-      if (_time_ms < _from_ms) {
-        // No more ticks.
-        break;
-      }
-
-      TickTAB<double> _tick_o(_time_ms, iOpen(_Symbol, PERIOD_M1, _shift));
-      TickTAB<double> _tick_h(_time_ms, iHigh(_Symbol, PERIOD_M1, _shift));
-      TickTAB<double> _tick_l(_time_ms, iLow(_Symbol, PERIOD_M1, _shift));
-      TickTAB<double> _tick_c(_time_ms, iClose(_Symbol, PERIOD_M1, _shift));
-      ArrayPushObject(_out_ticks, _tick_o);
-      ArrayPushObject(_out_ticks, _tick_h);
-      ArrayPushObject(_out_ticks, _tick_l);
-      ArrayPushObject(_out_ticks, _tick_c);
-      ++_shift;
-    }
-
-    if (_shift != -1) {
-      _cache_fetch_history_shift_to_ms = _to_ms;
-      _cache_fetch_history_shift_shift = _shift;
-    }
-
-    return ArraySize(_out_ticks) != 0;
-#else
+#ifdef __MQL5__
+    // In MQL5 we firstly try to fetch ticks by CopyTicksRange.
     static MqlTick _tmp_ticks[];
     ArrayResize(_tmp_ticks, 0);
 
@@ -196,20 +147,61 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
       } else {
         for (int i = 0; i < _num_copied; ++i) {
           TickTAB<double> _tick(_tmp_ticks[i]);
-#ifdef __debug_verbose__
+  #ifdef __debug_verbose__
           Print("Fetched tick at ", TimeToString(_tmp_ticks[i].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), ": ",
                 _tmp_ticks[i].ask, ", ", _tmp_ticks[i].bid);
-#endif
+  #endif
           ArrayPushObject(_out_ticks, _tick);
         }
 
-        return true;
+        if (_num_copied > 0) {
+          return true;
+        } else {
+          // No ticks found. We will try to create ticks from historic OHLC values.
+          break;
+        }
       }
     }
+
 #endif
 
-    // To many tries. Probably no ticks at the given range.
-    return false;
+    // In MQL4 or MQL5 (if there's no history returned by CopyTicksRange) we
+    // try to create and return OHLC ticks by calling iOpen/iHigh/iLow/iClose
+    // for each bar in history. Candle indicator will form candles from those
+    // 4 ticks per bar.
+
+    string _symbol = GetSymbol();
+    ARRAY(MqlRates, _rates);
+
+    if (!CopyRates(_symbol, PERIOD_M1, (datetime)(int)(_from_ms / 1000), (datetime)(int)(_to_ms / 1000), _rates)) {
+      // Failure.
+      return false;
+    }
+
+    if (ArraySize(_rates) == 0) {
+      // 0 ticks is OK.
+      return true;
+    }
+
+    ArrayResize(_out_ticks, ArraySize(_rates) * 4);  // Number of ticks * OHLC(4).
+
+    int _tick_idx = 0;
+
+    for (int i = 0; i < ArraySize(_rates); ++i) {
+      long _time_ms = (long)_rates[i].time * 1000;
+      // Note that we modify the time in order to simulate real open/close time.
+      TickTAB<double> _tick_o(_time_ms + 0, _rates[i].open, _rates[i].open);
+      TickTAB<double> _tick_h(_time_ms + 1, _rates[i].high, _rates[i].high);
+      TickTAB<double> _tick_l(_time_ms + 2, _rates[i].low, _rates[i].low);
+      TickTAB<double> _tick_c(_time_ms + 3, _rates[i].close, _rates[i].close);
+
+      _out_ticks[_tick_idx++] = _tick_o;
+      _out_ticks[_tick_idx++] = _tick_h;
+      _out_ticks[_tick_idx++] = _tick_l;
+      _out_ticks[_tick_idx++] = _tick_c;
+    }
+
+    return ArraySize(_out_ticks) != 0;
   }
 
   /**
@@ -219,11 +211,6 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     return false;
   }
 
-  /**
-   * Sends historic entries to listening indicators. May be overriden.
-   */
-  virtual void EmitHistory() {}
-
   bool OnTick(int _global_tick_index) override {
 #ifdef __MQL4__
     // Refreshes Ask/Bid constants.
@@ -232,6 +219,9 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     double _bid = Bid;
     long _time = TimeCurrent();
 #else
+
+  #ifdef __DISABLE
+
     static MqlTick _tmp_ticks[];
     // Copying only the last tick.
     int _num_copied = CopyTicks(GetSymbol(), _tmp_ticks, COPY_TICKS_INFO, 0, 1);
@@ -242,30 +232,39 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
       // Just emitting zeroes in case of error.
       TickAB<double> _tick(0, 0);
       IndicatorDataEntry _entry(TickToEntry(TimeCurrent(), _tick));
-      EmitEntry(_entry);
+      EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_TICK);
       // Appending tick into the history.
       AppendEntry(_entry);
-      return false;
+      return;
     }
 
-#ifdef __debug_verbose__
+    #ifdef __debug_verbose__
     Print("CpyT: ", TimeToString(_tmp_ticks[0].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), " = ", _tmp_ticks[0].bid,
           " (", _tmp_ticks[0].time, ")");
     Print("RlCl: ", TimeToString(::iTime(GetSymbol(), PERIOD_CURRENT, 0), TIME_DATE | TIME_MINUTES | TIME_SECONDS),
           " = ", ::iClose(GetSymbol(), PERIOD_CURRENT, 0));
-#endif
+    #endif
 
     double _ask = _tmp_ticks[0].ask;
     double _bid = _tmp_ticks[0].bid;
+
+  #endif
+
+    MqlTick _tick_data;
+    SymbolInfoTick(GetSymbol(), _tick_data);
+
+    double _ask = _tick_data.ask;
+    double _bid = _tick_data.bid;
+
     // long _time = _tmp_ticks[0].time;
     long _time = TimeCurrent();
 #endif
     TickAB<double> _tick(_ask, _bid);
     IndicatorDataEntry _entry(TickToEntry(_time, _tick));
-    EmitEntry(_entry);
+    EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_TICK);
     // Appending tick into the history.
     AppendEntry(_entry);
 
-    return true;
+    return _ask != WRONG_VALUE && _bid != WRONG_VALUE;
   }
 };

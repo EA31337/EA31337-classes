@@ -25,8 +25,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -44,12 +44,6 @@ struct IndicatorTfDummyParams : IndicatorTfParams {
  */
 class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
  public:
-  /*
-    @todo
-
-    IndicatorTfDummy(unsigned int _spc) : IndicatorTf(_spc) {}
-  */
-
   IndicatorTfDummy(ENUM_TIMEFRAMES _tf) : IndicatorTf(IndicatorTfDummyParams(_tf), IndicatorDataParams()) { Init(); }
   IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi)
       : IndicatorTf(IndicatorTfDummyParams(ChartTf::IndexToTf(_tfi)), IndicatorDataParams()) {
@@ -63,11 +57,17 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
 
   string GetName() override { return "IndicatorTfDummy(" + iparams.tf.GetString() + ")"; }
 
-  void OnDataSourceEntry(IndicatorDataEntry& entry) override {
+ void OnDataSourceEntry(IndicatorDataEntry& entry,
+                         ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) override {
+    IndicatorTf<IndicatorTfDummyParams>::OnDataSourceEntry(entry, type);
+
+    if (type != INDI_EMITTED_ENTRY_TYPE_TICK) {
+      return;
+    }
+
     // When overriding OnDataSourceEntry() we have to remember to call parent
     // method, because IndicatorCandle also need to invoke it in order to
     // create/update matching candle.
-    IndicatorTf<IndicatorTfDummyParams>::OnDataSourceEntry(entry);
 
 #ifdef __debug_indicator__
     Print(GetFullName(), " got new tick at ", entry.timestamp,

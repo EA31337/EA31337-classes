@@ -25,8 +25,8 @@
 #define INDICATOR_CANDLE_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -45,7 +45,7 @@
 #include "TickBarCounter.h"
 
 #ifndef INDI_CANDLE_HISTORY_SIZE
-#define INDI_CANDLE_HISTORY_SIZE 86400
+  #define INDI_CANDLE_HISTORY_SIZE 86400
 #endif
 
 // Indicator modes.
@@ -96,11 +96,11 @@ class IndicatorCandle : public Indicator<TS> {
    */
   IndicatorCandle(const TS& _icparams, const IndicatorDataParams& _idparams, IndicatorData* _indi_src = NULL,
                   int _indi_mode = 0)
-      : Indicator<TS>(_icparams, _idparams, _indi_src, _indi_mode), history(INDI_CANDLE_HISTORY_SIZE) {
+      : Indicator<TS>(_icparams, _idparams, _indi_src, _indi_mode), history(THIS_PTR, INDI_CANDLE_HISTORY_SIZE) {
     Init();
   }
   IndicatorCandle(ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
-      : Indicator<TS>(_itype, _shift, _name), history(INDI_CANDLE_HISTORY_SIZE) {
+      : Indicator<TS>(_itype, _shift, _name), history(THIS_PTR, INDI_CANDLE_HISTORY_SIZE) {
     Init();
   }
 
@@ -338,13 +338,34 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Called when data source emits new entry (new one in ascending order).
    */
-  void OnDataSourceEntry(IndicatorDataEntry& entry) override {
+  void OnDataSourceEntry(IndicatorDataEntry& entry,
+                         ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) override {
+    Indicator<TS>::OnDataSourceEntry(entry, type);
+
+    if (type != INDI_EMITTED_ENTRY_TYPE_TICK) {
+      return;
+    }
+
     // Parent indicator (e.g., Indi_TickMt) emitted an entry containing tick's
     // ask and bid price. As an abstract class, we really don't know how to
     // update/create candles so we just pass the entry into history's
     // ItemsHistoryCandleProvider and it will do all the job.
     history.GetItemProvider() PTR_DEREF OnTick(&history, entry.timestamp * 1000, (float)entry[0], (float)entry[1]);
   };
+
+  /**
+   * Called when data source expects to emit given number of entries for given type.
+   *
+   * Called e.g., from Tick indicator in order Candle indicator to enlarge
+   * possible history size by given number of entries. We have to do that,
+   * because otherwise, we could end up with OnCalculate() working on partial
+   * history candles.
+   */
+  void OnDataSourceWillEmitEntries(ENUM_INDI_EMITTED_ENTRY_TYPE _type, int _num_entries) override {
+    if (_type == INDI_EMITTED_ENTRY_TYPE_CANDLE) {
+      idata.Reserve(_num_entries);
+    }
+  }
 
   /**
    * Returns value storage of given kind.

@@ -25,8 +25,8 @@
 #define INDICATOR_CANDLE_PROVIDER_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -34,7 +34,7 @@
 #include "../Storage/ItemsHistory.h"
 
 /**
- * Regenerates candles and updates exising candles from new ticks. Subclasses by IndicatorTf, IndicatorRenko.
+ * Regenerates candles and updates exising candles from new ticks. Subclassed by IndicatorTf, IndicatorRenko.
  */
 template <typename TV>
 class ItemsHistoryCandleProvider : public ItemsHistoryItemProvider<CandleOCTOHLC<TV>> {
@@ -56,11 +56,19 @@ class ItemsHistoryCandleProvider : public ItemsHistoryItemProvider<CandleOCTOHLC
    * Retrieves given number of items starting from the given microseconds or index (inclusive). "_dir" identifies if we
    * want previous or next items from selected starting point.
    */
-  void GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryCandleProvider<TV>>* _history, long _from_time_ms,
+  bool GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryCandleProvider<TV>>* _history, long _from_time_ms,
                 ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items, ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
     // Method is called if there is a missing item (candle) in the history. We need to regenerate it.
-    Print("Error: Retrieving items by this item provider is not implemented!");
-    DebugBreak();
+    return false;
+  }
+
+  /**
+   * Retrieves items between given indices (both indices inclusive). Should return false if retrieving items by this
+   * method is not available.
+   */
+  bool GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryCandleProvider<TV>>* _history, int _start_index,
+                int _end_index, ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
+    return false;
   }
 };
 

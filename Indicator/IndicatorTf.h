@@ -25,11 +25,12 @@
 #define INDICATOR_TF_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
+#include "../Chart.struct.tf.h"
 #include "IndicatorCandle.h"
 #include "IndicatorTf.provider.h"
 
@@ -47,8 +48,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    * Called on constructor.
    */
   void Init() {
-    THIS_ATTR history.SetItemProvider(
-        new ItemsHistoryTfCandleProvider<double>(THIS_ATTR iparams.GetSecsPerCandle(), THIS_PTR));
+    history.SetItemProvider(new ItemsHistoryTfCandleProvider<double>(ChartTf::TfToSeconds(GetTf()), THIS_PTR));
   }
 
  public:
@@ -59,25 +59,34 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    *
    * @todo
    */
-  /*
-  IndicatorTf(unsigned int _spc) {
-    THIS_ATTR iparams.SetSecsPerCandle(_spc);
+
+  IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    SetTf(_tf);
     Init();
   }
-  */
+
+  /**
+   * Class constructor with timeframe index.
+   */
+  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
+    SetTf(ChartTf::IndexToTf(_tfi));
+    Init();
+  }
 
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(const TFP& _icparams, const IndicatorDataParams& _idparams)
-      : IndicatorCandle<TFP, double, ItemsHistoryTfCandleProvider<double>>(_icparams, _idparams) {
-    Init();
-  }
+  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams) { Init(); }
 
   /**
    * Gets indicator's time-frame.
    */
   ENUM_TIMEFRAMES GetTf() override { return THIS_ATTR iparams.tf.GetTf(); }
+
+  /**
+   * Sets indicator's time-frame.
+   */
+  void SetTf(ENUM_TIMEFRAMES _tf) { THIS_ATTR iparams.tf.SetTf(_tf); }
 
   /**
    * Returns current tick index (incremented every OnTick()).

@@ -22,7 +22,7 @@
 
 // Prevents processing this includes file for the second time.
 #ifndef __MQL__
-#pragma once
+  #pragma once
 #endif
 
 // Includes.
@@ -90,6 +90,9 @@ class DictStruct : public DictBase<K, V> {
   }
 
   void Clear() {
+    delete _DictSlots_ref;
+    _DictSlots_ref = new DictSlotsRef<K, V>();
+
     for (unsigned int i = 0; i < (unsigned int)ArraySize(THIS_ATTR _DictSlots_ref.DictSlots); ++i) {
       THIS_ATTR _DictSlots_ref.DictSlots[i].SetFlags(0);
     }
@@ -256,7 +259,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value, bool allow_resize) {
+  bool InsertInto(DictSlotsRef<K, V>*& dictSlotsRef, const K key, V& value, bool allow_resize) {
     if (THIS_ATTR _mode == DictModeUnknown)
       THIS_ATTR _mode = DictModeDict;
     else if (THIS_ATTR _mode != DictModeDict) {
@@ -361,7 +364,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts hashless value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
+  bool InsertInto(DictSlotsRef<K, V>*& dictSlotsRef, V& value) {
     if (THIS_ATTR _mode == DictModeUnknown)
       THIS_ATTR _mode = DictModeList;
     else if (THIS_ATTR _mode != DictModeList) {
@@ -398,6 +401,18 @@ class DictStruct : public DictBase<K, V> {
         MathMax(10, (int)((float)ArraySize(THIS_ATTR _DictSlots_ref.DictSlots) * ((float)(percent + 100) / 100.0f))));
   }
 
+ public:
+  /**
+   * Ensures that there is at least given number of slots in dict.
+   */
+  bool Reserve(int _size) {
+    if (_size <= ArraySize(THIS_ATTR _DictSlots_ref.DictSlots)) {
+      return true;
+    }
+    return Resize(_size);
+  }
+
+ protected:
   /**
    * Shrinks or expands array of DictSlots.
    */
@@ -407,9 +422,11 @@ class DictStruct : public DictBase<K, V> {
       return true;
     }
 
-    DictSlotsRef<K, V> new_DictSlots;
+    DictSlotsRef<K, V>* new_DictSlots = new DictSlotsRef<K, V>();
 
-    if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) return false;
+    if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) {
+      return false;
+    }
 
     int i;
 
@@ -430,7 +447,9 @@ class DictStruct : public DictBase<K, V> {
       }
     }
     // Freeing old DictSlots array.
-    ArrayFree(THIS_ATTR _DictSlots_ref.DictSlots);
+    ArrayFree(THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots);
+
+    delete THIS_ATTR _DictSlots_ref;
 
     THIS_ATTR _DictSlots_ref = new_DictSlots;
 

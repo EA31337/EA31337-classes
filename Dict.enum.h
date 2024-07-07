@@ -26,12 +26,12 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
-#define DICT_GROW_UP_PERCENT_DEFAULT 25
-#define DICT_PERFORMANCE_PROBLEM_AVG_CONFLICTS 10
+#define DICT_GROW_UP_PERCENT_DEFAULT 100
+#define DICT_PERFORMANCE_PROBLEM_AVG_CONFLICTS 20
 
 /**
  * Whether Dict operates in yet uknown mode, as dict or as list.

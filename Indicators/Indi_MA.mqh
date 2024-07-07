@@ -24,7 +24,6 @@
 #ifndef INDI_MA_MQH
 #define INDI_MA_MQH
 
-// Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../Indicator/Indicator.h"
@@ -32,20 +31,6 @@
 #include "../Storage/Singleton.h"
 #include "../Storage/ValueStorage.h"
 #include "../String.mqh"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
-                      (ENUM_APPLIED_PRICE)_ap, _shift);
-}
-double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _abs_shift,
-                  IndicatorCalculateCache<double> *_cache = NULL) {
-  ResetLastError();
-  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
-}
-#endif
 
 // Structs.
 struct IndiMAParams : IndicatorParams {
@@ -543,6 +528,55 @@ class Indi_MA : public Indicator<IndiMAParams> {
     return (rates_total);
   }
 
+  static int LinearWeightedMAOnBuffer(const int rates_total, const int prev_calculated, const int begin,
+                                      const int period, const ARRAY_REF(double, price), ARRAY_REF(double, buffer),
+                                      int &weight_sum) {
+    int i, k;
+
+    // Check period.
+    if (period <= 1 || period > (rates_total - begin)) return (0);
+    // Save as_series flags.
+    bool as_series_price = ArrayGetAsSeries(price);
+    bool as_series_buffer = ArrayGetAsSeries(buffer);
+
+    ArraySetAsSeries(price, false);
+    ArraySetAsSeries(buffer, false);
+    // Calculate start position.
+    int start_position;
+
+    if (prev_calculated == 0) {
+      // First calculation or number of bars was changed.
+      // Set empty value for first bars.
+      start_position = period + begin;
+
+      for (i = 0; i < start_position; i++) buffer[i] = 0.0;
+      // Calculate first visible value.
+      double first_value = 0;
+      int wsum = 0;
+
+      for (i = begin, k = 1; i < start_position; i++, k++) {
+        first_value += k * price[i];
+        wsum += k;
+      }
+
+      buffer[start_position - 1] = first_value / wsum;
+      weight_sum = wsum;
+    } else
+      start_position = prev_calculated - 1;
+    // Main loop.
+    for (i = start_position; i < rates_total; i++) {
+      double sum = 0;
+
+      for (int j = 0; j < period; j++) sum += (period - j) * price[i - j];
+
+      buffer[i] = sum / weight_sum;
+    }
+    // Restore as_series flags.
+    ArraySetAsSeries(price, as_series_price);
+    ArraySetAsSeries(buffer, as_series_buffer);
+    return (rates_total);
+  }
+
   static int SmoothedMAOnBuffer(const int rates_total, const int prev_calculated, const int begin, const int period,
                                 ValueStorage<double> &price, ValueStorage<double> &buffer) {
     int i;
@@ -776,4 +810,26 @@ class Indi_MA : public Indicator<IndiMAParams> {
     iparams.applied_array = _applied_price;
   }
 };
+
+#ifdef __MQL4__
+// MQL4 version of the method doesn't have last parameter.
+int LinearWeightedMAOnBuffer(const int rates_total, const int prev_calculated, const int begin, const int period,
+                             const double &price[], double &buffer[]) {
+  int _weight_sum;
+  return Indi_MA::LinearWeightedMAOnBuffer(rates_total, prev_calculated, begin, period, price, buffer, _weight_sum);
+}
+#else   // !__MQL__4
+// Defines global functions (for MQL4 backward compability).
+double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
+                      (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _abs_shift,
+                  IndicatorCalculateCache<double> *_cache = NULL) {
+  ResetLastError();
+  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
+}
+#endif  // __MQL4__
+
 #endif  // INDI_MA_MQH

@@ -24,8 +24,6 @@
 #ifndef OBJECT_MQH
 #define OBJECT_MQH
 
-#define nullptr NULL
-
 // Includes.
 #include "Object.enum.h"
 #include "Object.extern.h"
@@ -37,14 +35,11 @@
  * Class to deal with objects.
  */
 class Object : public Dynamic {
-
  protected:
-
   void *obj;
   long id;
 
  public:
-
   /**
    * Class constructor.
    */

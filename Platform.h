@@ -21,13 +21,13 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 
-// Includes.
-#include "Deal.enum.h"
-#include "Order.struct.h"
-#include "Platform.define.h"
+  // Includes.
+  #include "Deal.enum.h"
+  #include "Order.struct.h"
+  #include "Platform.define.h"
 
 /**
  * Extern declarations for C++.
@@ -46,17 +46,21 @@ extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
  * Current platform's static methods.
  */
 
+#include "DrawIndicator.mqh"
 #include "Flags.h"
 #include "Indicator/IndicatorData.h"
 #include "Indicator/tests/classes/IndicatorTfDummy.h"
 #include "Std.h"
 
 #ifdef __MQLBUILD__
-#include "Indicators/Tick/Indi_TickMt.mqh"
-#define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
+  #include "Indicators/Tf/Indi_TfMt.h"
+  #include "Indicators/Tick/Indi_TickMt.mqh"
+  #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
+  #define PLATFORM_DEFAULT_INDICATOR_TF Indi_TfMt
 #else
-#include "Indicators/Tick/Indi_TickProvider.h"
-#define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickProvider
+  #include "Indicators/Tick/Indi_TickProvider.h"
+  #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickRandom
+  #define PLATFORM_DEFAULT_INDICATOR_TF IndicatorTfDummy
 #endif
 #include "SymbolInfo.struct.static.h"
 
@@ -168,12 +172,6 @@ class Platform {
   }
 
   /**
-   * Checks whether we had a tick inside previous Tick() invocation.
-   */
-  static bool HadTick() { return last_tick_result; }
-
-
-  /**
    * Called by indicators' OnCalculate() method in order to prepare history via
    * IndicatorData::EmitHistory() and to call Tick() for each OnCalculate()
    * call so Tick indicator can emit new tick and Candle indicator can update
@@ -181,30 +179,9 @@ class Platform {
    * via Platform::Add...().
    */
   static void OnCalculate(const int rates_total, const int prev_calculated) {
-    if (!emitted_history) {
-      for (DictStructIterator<long, Ref<IndicatorData>> _iter = indis.Begin(); _iter.IsValid(); ++_iter) {
-        EmitHistory(_iter.Value().Ptr());
-      }
-      emitted_history = true;
-    }
-
     // We're ready for a tick.
     Tick();
   }
-
-  /**
-   * Emits history for parent indicators in hierarchy and then for the indicator itself.
-   */
-  static void EmitHistory(IndicatorData *_indi) {
-    IndicatorData *_parent = _indi PTR_DEREF GetDataSource(false);
-
-    if (_parent != nullptr) {
-      EmitHistory(_parent);
-    }
-
-    _indi PTR_DEREF EmitHistory();
-  }
-
 
   /**
    * Returns dictionary of added indicators (keyed by unique id).
@@ -375,7 +352,7 @@ class Platform {
     string _key = Util::MakeKey("PlatformIndicatorCandle", _symbol, (int)_tf);
     IndicatorData *_indi_candle;
     if (!Objects<IndicatorData>::TryGet(_key, _indi_candle)) {
-      _indi_candle = Objects<IndicatorData>::Set(_key, new IndicatorTfDummy(_tf));
+      _indi_candle = Objects<IndicatorData>::Set(_key, new PLATFORM_DEFAULT_INDICATOR_TF(_tf));
 
       // Adding indicator to list of default indicators in order to tick it on every Tick() call.
       Ref<IndicatorData> _ref = _indi_candle;
@@ -488,7 +465,6 @@ class Platform {
   static void SetPeriod(ENUM_TIMEFRAMES _period) { period = _period; }
 };
 
-bool Platform::emitted_history = false;
 bool Platform::initialized = false;
 bool Platform::last_tick_result = false;
 DateTime Platform::time = (datetime)0;
