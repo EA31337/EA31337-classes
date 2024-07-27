@@ -406,6 +406,7 @@ struct AsSeriesReleaseEnsurer {
   AsSeriesReleaseEnsurer(int _num_buffs) : released(false), num_buffs(_num_buffs) {}
   void done(int _num_buffs) {
     if (_num_buffs != num_buffs) {
+#ifdef __MQL__
       Alert("You have acquired ", num_buffs, " buffers via ACQUIRE_BUFFER", num_buffs,
             "(), but now trying to release with mismatched RELEASE_BUFFER", _num_buffs, "()!");
       DebugBreak();
@@ -415,15 +416,18 @@ struct AsSeriesReleaseEnsurer {
       Alert("You have used RELEASE_BUFFER", num_buffs, "() again which is not required!");
       DebugBreak();
     }
+#endif
 
     released = true;
   }
   ~AsSeriesReleaseEnsurer() {
+#ifdef __MQL__
     if (!released) {
       Alert("You have used ACQUIRE_BUFFER", num_buffs, "() but didn't release buffer(s) via RELEASE_BUFFER", num_buffs,
             "() before returning from the scope!");
       DebugBreak();
     }
+#endif
   }
 };
 
