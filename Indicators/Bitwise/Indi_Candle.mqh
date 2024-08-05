@@ -23,9 +23,9 @@
 // Includes.
 #include "../../Bar.struct.h"
 #include "../../BufferStruct.mqh"
-#include "../../Indicator.mqh"
+#include "../../Indicator/Indicator.h"
 #include "../../Pattern.struct.h"
-#include "../../Serializer.mqh"
+#include "../../Serializer/Serializer.h"
 #include "../Price/Indi_Price.mqh"
 #include "../Special/Indi_Math.mqh"
 
@@ -91,15 +91,14 @@ class Indi_Candle : public Indicator<CandleParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     BarOHLC _ohlcs[1];
 
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from IndicatorCandle.
-        _ohlcs[0] = GetCandle() PTR_DEREF GetOHLC(_ishift);
+        _ohlcs[0] = GetCandle() PTR_DEREF GetOHLC(ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         // In this mode, price is fetched from given indicator. Such indicator
@@ -118,10 +117,10 @@ class Indi_Candle : public Indicator<CandleParams> {
           break;
         }
 
-        _ohlcs[0].open = GetDataSource().GetValue<float>(PRICE_OPEN, _ishift);
-        _ohlcs[0].high = GetDataSource().GetValue<float>(PRICE_HIGH, _ishift);
-        _ohlcs[0].low = GetDataSource().GetValue<float>(PRICE_LOW, _ishift);
-        _ohlcs[0].close = GetDataSource().GetValue<float>(PRICE_CLOSE, _ishift);
+        _ohlcs[0].open = GetDataSource().GetValue<float>(PRICE_OPEN, ToRelShift(_abs_shift));
+        _ohlcs[0].high = GetDataSource().GetValue<float>(PRICE_HIGH, ToRelShift(_abs_shift));
+        _ohlcs[0].low = GetDataSource().GetValue<float>(PRICE_LOW, ToRelShift(_abs_shift));
+        _ohlcs[0].close = GetDataSource().GetValue<float>(PRICE_CLOSE, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

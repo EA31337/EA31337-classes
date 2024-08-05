@@ -28,12 +28,50 @@
 #include "../../Test.mqh"
 #include "../AccountForex.h"
 
+// Test classes.
+class AccountForexTest : public Account<AccountForexState, AccountForexEntry> {
+  /**
+   * Returns balance value of the current account.
+   */
+  float GetBalance() { return 0; }
+
+  /**
+   * Returns credit value of the current account.
+   */
+  float GetCredit() { return 0; }
+
+  /**
+   * Returns profit value of the current account.
+   */
+  float GetProfit() { return 0; }
+
+  /**
+   * Returns equity value of the current account.
+   */
+  float GetEquity() { return 0; }
+
+  /**
+   * Returns margin value of the current account.
+   */
+  float GetMarginUsed() { return 0; }
+
+  /**
+   * Returns free margin value of the current account.
+   */
+  float GetMarginFree() { return 0; }
+
+  /**
+   * Get account available margin.
+   */
+  float GetMarginAvail() { return 0; }
+};
+
 /**
  * Implements OnInit().
  */
 int OnInit() {
   bool _result = true;
-  Account<AccountForexState, AccountForexEntry> acc1;
+  AccountForexTest acc1;
   // ...
   return _result && GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED;
 }

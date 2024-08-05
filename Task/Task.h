@@ -30,10 +30,6 @@
 #pragma once
 #endif
 
-// Prevents processing this includes file for the second time.
-#ifndef TASK_H
-#define TASK_H
-
 // Includes.
 #include "../DictStruct.mqh"
 #include "../Refs.mqh"
@@ -60,7 +56,7 @@ class Task : public Taskable<TaskEntry> {
   /**
    * Class copy constructor.
    */
-  Task(Task &_task) { tasks = PTR_TO_REF(_task.GetTasks()); }
+  Task(const Task &_task) { tasks = PTR_TO_REF(_task.GetTasks()); }
 
   /**
    * Class deconstructor.
@@ -215,7 +211,7 @@ class Task : public Taskable<TaskEntry> {
   /**
    * Returns tasks.
    */
-  DictStruct<short, TaskEntry> *GetTasks() { return &tasks; }
+  const DictStruct<short, TaskEntry> *GetTasks() const { return &tasks; }
 
   /**
    * Count entry flags.
@@ -318,4 +314,17 @@ class Task : public Taskable<TaskEntry> {
 
   /* Other methods */
 };
-#endif  // TASK_H
+
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(Task) {
+  emscripten::class_<Task>("Task").smart_ptr<Ref<Task>>("Ref<Task>").constructor(emscripten::optional_override([]() {
+    return Ref<Task>(new Task());
+  }))
+      //.function("Add", optional_override([](Task &self, Ref<Task> task) { self.Add(task.Ptr()); }))
+      ;
+}
+
+#endif

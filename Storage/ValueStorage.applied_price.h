@@ -54,19 +54,20 @@ class AppliedPriceValueStorage : public HistoryValueStorage<double> {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  double Fetch(int _shift) override {
+  double Fetch(int _rel_shift) override {
     switch (ap) {
       case PRICE_OPEN:
       case PRICE_HIGH:
       case PRICE_LOW:
       case PRICE_CLOSE:
-        return Fetch(ap, _shift);
+        return Fetch(ap, _rel_shift);
       case PRICE_MEDIAN:
-        return (Fetch(PRICE_HIGH, _shift) + Fetch(PRICE_LOW, _shift)) / 2;
+        return (Fetch(PRICE_HIGH, _rel_shift) + Fetch(PRICE_LOW, _rel_shift)) / 2;
       case PRICE_TYPICAL:
-        return (Fetch(PRICE_HIGH, _shift) + Fetch(PRICE_LOW, _shift) + Fetch(PRICE_CLOSE, _shift)) / 3;
+        return (Fetch(PRICE_HIGH, _rel_shift) + Fetch(PRICE_LOW, _rel_shift) + Fetch(PRICE_CLOSE, _rel_shift)) / 3;
       case PRICE_WEIGHTED:
-        return (Fetch(PRICE_HIGH, _shift) + Fetch(PRICE_LOW, _shift) + (2 * Fetch(PRICE_CLOSE, _shift))) / 4;
+        return (Fetch(PRICE_HIGH, _rel_shift) + Fetch(PRICE_LOW, _rel_shift) + (2 * Fetch(PRICE_CLOSE, _rel_shift))) /
+               4;
       default:
         Print("We shouldn't be here!");
         DebugBreak();
@@ -74,7 +75,9 @@ class AppliedPriceValueStorage : public HistoryValueStorage<double> {
     return 0.0;
   }
 
-  double Fetch(ENUM_APPLIED_PRICE _ap, int _shift) { return indi_candle REF_DEREF GetPrice(_ap, RealShift(_shift)); }
+  double Fetch(ENUM_APPLIED_PRICE _ap, int _rel_shift) {
+    return indi_candle REF_DEREF GetPrice(_ap, RealShift(_rel_shift));
+  }
 
   static double GetApplied(ValueStorage<double> &_open, ValueStorage<double> &_high, ValueStorage<double> &_low,
                            ValueStorage<double> &_close, int _shift, ENUM_APPLIED_PRICE _ap) {

@@ -23,15 +23,21 @@
 // Includes.
 #include "Order.enum.h"
 #include "SymbolInfo.enum.h"
-#include "Tick.struct.h"
+#include "Tick/Tick.struct.h"
 
 // Define external global functions.
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+
 extern long SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id);
 extern bool SymbolInfoMarginRate(string name, ENUM_ORDER_TYPE order_type, double &initial_margin_rate,
                                  double &maintenance_margin_rate);
 extern bool SymbolInfoTick(string symbol, MqlTick &tick);
 
 // Define external global variables.
-extern string _Symbol;
+class SymbolGetter {
+ public:
+  operator string() const;
+} _Symbol;
 #endif

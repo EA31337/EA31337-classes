@@ -78,7 +78,7 @@ void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY
 /**
  * Class to provide drawing methods working with graphic objects.
  */
-class Draw : public Chart {
+class Draw : public Object {
  protected:
   // Variables.
   long chart_id;
@@ -302,7 +302,7 @@ class Draw : public Chart {
   /**
    * Draw a line given the price.
    */
-  void ShowLine(string oname, double price, int colour = Yellow) {
+  void ShowLine(string oname, double price, int _colour = Yellow) {
     /** @TODO
     Draw::ObjectCreate(chart_id, oname, OBJ_HLINE, 0, GetBarTime(), price);
     Draw::ObjectSet(oname, OBJPROP_COLOR, _colour);

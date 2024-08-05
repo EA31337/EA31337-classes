@@ -30,7 +30,7 @@ class Trade;
 // Includes.
 #include "Data.struct.h"
 #include "Dict.mqh"
-#include "Indicator.mqh"
+#include "Indicator/Indicator.h"
 #include "Market.mqh"
 #include "Object.mqh"
 #include "Strategy.enum.h"
@@ -284,9 +284,9 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Executes OnTick() on every attached indicator.
    */
-  void Tick() {
+  void Tick(int _global_tick_index) {
     for (DictIterator<int, Ref<IndicatorData>> it = indicators.Begin(); it.IsValid(); ++it) {
-      it.Value() REF_DEREF Tick();
+      it.Value() REF_DEREF Tick(_global_tick_index);
     }
   }
 
@@ -668,7 +668,7 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual void OnInit() {
     // Link log instances.
     logger.Link(trade.Ptr().GetLogger());
-    trade.Ptr().GetLogger().SetLevel(sparams.Get<ENUM_LOG_LEVEL>(STRAT_PARAM_LOG_LEVEL));
+    trade.Ptr().GetLogger().SetLevel((ENUM_LOG_LEVEL)sparams.Get<int>(STRAT_PARAM_LOG_LEVEL));
     // Sets strategy stops.
     SetStops(THIS_PTR, THIS_PTR);
     // trade.SetStrategy(&this); // @fixme
@@ -926,12 +926,12 @@ class Strategy : public Taskable<DataParamEntry> {
     bool _result = true;
     if (_method != 0) {
       int _shift = _method / 64;
-      if (METHOD(_method, 0)) _result &= !trade REF_DEREF HasBarOrder(_cmd, _shift);           // 1
-      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                                // 2
-      if (METHOD(_method, 2)) _result &= trade REF_DEREF IsPivot(_cmd, _shift);                // 4
-      if (METHOD(_method, 3)) _result &= !trade REF_DEREF HasOrderOppositeType(_cmd);  // 8
-      if (METHOD(_method, 4)) _result &= trade REF_DEREF IsPeak(_cmd, _shift);                 // 16
-      if (METHOD(_method, 5)) _result &= !trade REF_DEREF HasOrderBetter(_cmd);        // 32
+      if (METHOD(_method, 0)) _result &= !trade REF_DEREF HasBarOrder(_cmd, _shift);         // 1
+      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                                      // 2
+      if (METHOD(_method, 2)) _result &= trade REF_DEREF IsPivot(_cmd, _shift);              // 4
+      if (METHOD(_method, 3)) _result &= !trade REF_DEREF HasOrderOppositeType(_cmd);        // 8
+      if (METHOD(_method, 4)) _result &= trade REF_DEREF IsPeak(_cmd, _shift);               // 16
+      if (METHOD(_method, 5)) _result &= !trade REF_DEREF HasOrderBetter(_cmd);              // 32
       if (METHOD(_method, 6)) _result &= trade REF_DEREF CalcActiveProfitInValue() <= 0.0f;  // 64
       /*
       if (METHOD(_method, 6))
@@ -1054,15 +1054,14 @@ class Strategy : public Taskable<DataParamEntry> {
   virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0, int _shift = 0) {
     bool _result = _method == 0;
     if (_method != 0) {
-
       if (METHOD(_method, 0)) _result |= _result || !trade REF_DEREF HasBarOrder(_cmd, _shift);  // 1
-      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                      // 2
+      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                              // 2
       if (METHOD(_method, 2)) _result |= _result || !trade REF_DEREF IsPivot(_cmd, _shift);      // 4
       if (METHOD(_method, 3))
-        _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
-      if (METHOD(_method, 4)) _result |= _result || trade REF_DEREF IsPeak(_cmd, _shift);                 // 16
-      if (METHOD(_method, 5)) _result |= _result || trade REF_DEREF HasOrderBetter(_cmd);         // 32
-      if (METHOD(_method, 6)) _result |= _result || trade REF_DEREF CalcActiveProfitInValue() > 0.0f;       // 64
+        _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];       // 8
+      if (METHOD(_method, 4)) _result |= _result || trade REF_DEREF IsPeak(_cmd, _shift);              // 16
+      if (METHOD(_method, 5)) _result |= _result || trade REF_DEREF HasOrderBetter(_cmd);              // 32
+      if (METHOD(_method, 6)) _result |= _result || trade REF_DEREF CalcActiveProfitInValue() > 0.0f;  // 64
       /*
       if (METHOD(_method, 6))
         _result |=

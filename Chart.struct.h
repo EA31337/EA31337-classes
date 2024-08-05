@@ -32,6 +32,7 @@
 
 // Forward class declaration.
 class Class;
+struct ChartTf;
 
 // Includes.
 #include "Array.mqh"
@@ -40,7 +41,8 @@ class Class;
 #include "Chart.enum.h"
 #include "Chart.struct.static.h"
 #include "Chart.struct.tf.h"
-#include "Serializer.mqh"
+#include "Serializer/Serializer.h"
+#include "Serializer/SerializerNode.enum.h"
 #include "Terminal.define.h"
 
 /* Defines struct to store bar entries. */
@@ -49,6 +51,7 @@ struct ChartEntry {
   // Constructors.
   ChartEntry() {}
   ChartEntry(const BarEntry& _bar) { SetBar(_bar); }
+  ChartEntry(const ChartEntry& _r) { SetBar(_r.bar); }
   // Getters.
   BarEntry GetBar() { return bar; }
   string ToCSV() { return StringFormat("%s", bar.ToCSV()); }

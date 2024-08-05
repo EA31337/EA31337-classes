@@ -20,17 +20,14 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iAC(string _symbol, int _tf, int _shift) {
-  ResetLastError();
-  return Indi_AC::iAC(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
-}
-#endif
+#include "../Indicator/Indicator.h"
 
 // Structs.
 struct IndiACParams : IndicatorParams {
@@ -108,15 +105,15 @@ class Indi_AC : public Indicator<IndiACParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) override {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
     IndicatorDataEntryValue _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_AC::iAC(GetSymbol(), GetTf(), _ishift, THIS_PTR);
+        _value = Indi_AC::iAC(GetSymbol(), GetTf(), ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode, _ishift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), _mode,
+                         ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -139,3 +136,11 @@ class Indi_AC : public Indicator<IndiACParams> {
     return _ptr;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iAC(string _symbol, int _tf, int _shift) {
+  ResetLastError();
+  return Indi_AC::iAC(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
+}
+#endif

@@ -24,11 +24,12 @@
 #ifndef DICT_MQH
 #define DICT_MQH
 
-#include "Convert.mqh"
+#include "Convert.basic.h"
 #include "DictBase.mqh"
+#include "DictIteratorBase.mqh"
 #include "Matrix.mqh"
-#include "Serializer.mqh"
-#include "SerializerNodeIterator.mqh"
+#include "Serializer/Serializer.h"
+#include "Serializer/SerializerNodeIterator.h"
 
 template <typename K, typename V>
 class DictIterator : public DictIteratorBase<K, V> {
@@ -41,12 +42,12 @@ class DictIterator : public DictIteratorBase<K, V> {
   /**
    * Constructor.
    */
-  DictIterator(DictBase<K, V>& dict, unsigned int slotIdx) : DictIteratorBase(dict, slotIdx) {}
+  DictIterator(DictBase<K, V>& dict, unsigned int slotIdx) : DictIteratorBase<K, V>(dict, slotIdx) {}
 
   /**
    * Copy constructor.
    */
-  DictIterator(const DictIterator& right) : DictIteratorBase(right) {}
+  DictIterator(const DictIterator& right) : DictIteratorBase<K, V>(right) {}
 };
 
 /**
@@ -70,37 +71,39 @@ class Dict : public DictBase<K, V> {
     Clear();
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
-      _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
+      THIS_ATTR _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
-    _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
-    _current_id = right._current_id;
-    _mode = right._mode;
+    THIS_ATTR _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
+    THIS_ATTR _current_id = right._current_id;
+    THIS_ATTR _mode = right._mode;
   }
 
   void operator=(const Dict<K, V>& right) {
     Clear();
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
-      _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
+      THIS_ATTR _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
-    _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
-    _current_id = right._current_id;
-    _mode = right._mode;
+    THIS_ATTR _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
+    THIS_ATTR _current_id = right._current_id;
+    THIS_ATTR _mode = right._mode;
   }
 
   void Clear() {
-    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
-      if (_DictSlots_ref.DictSlots[i].IsUsed()) _DictSlots_ref.DictSlots[i].SetFlags(0);
+    _DictSlots_ref = new DictSlotsRef<K, V>();
+
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(THIS_ATTR _DictSlots_ref.DictSlots); ++i) {
+      if (THIS_ATTR _DictSlots_ref.DictSlots[i].IsUsed()) THIS_ATTR _DictSlots_ref.DictSlots[i].SetFlags(0);
     }
 
-    _DictSlots_ref._num_used = 0;
+    THIS_ATTR _DictSlots_ref._num_used = 0;
   }
 
   /**
    * Inserts value using hashless key.
    */
   bool Push(V value) {
-    if (!InsertInto(_DictSlots_ref, value)) return false;
+    if (!InsertInto(THIS_ATTR _DictSlots_ref, value)) return false;
     return true;
   }
 
@@ -113,19 +116,19 @@ class Dict : public DictBase<K, V> {
    * Inserts or replaces value for a given key.
    */
   bool Set(K key, V value) {
-    if (!InsertInto(_DictSlots_ref, key, value, true)) return false;
+    if (!InsertInto(THIS_ATTR _DictSlots_ref, key, value, true)) return false;
     return true;
   }
 
   V operator[](K key) {
-    if (_mode == DictModeList) return GetSlot((unsigned int)key).value;
+    if (THIS_ATTR _mode == DictModeList) return THIS_ATTR GetSlot((unsigned int)key).value;
 
     int position;
-    DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, key, position);
+    DictSlot<K, V>* slot = GetSlotByKey(THIS_ATTR _DictSlots_ref, key, position);
 
     if (!slot) return (V)NULL;
 
-    return slot.value;
+    return slot PTR_DEREF value;
   }
 
   /**
@@ -136,20 +139,20 @@ class Dict : public DictBase<K, V> {
    */
   V GetByKey(const K _key, V _default = NULL) {
     unsigned int position;
-    DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, _key, position);
+    DictSlot<K, V>* slot = GetSlotByKey(THIS_ATTR _DictSlots_ref, _key, position);
 
     if (!slot) {
       return _default;
     }
 
-    return slot.value;
+    return slot PTR_DEREF value;
   }
 
   /**
    * Returns value for a given position.
    */
   V GetByPos(unsigned int _position) {
-    DictSlot<K, V>* slot = GetSlotByPos(_DictSlots_ref, _position);
+    DictSlot<K, V>* slot = GetSlotByPos(THIS_ATTR _DictSlots_ref, _position);
 
     if (!slot) {
       Alert("Invalid DictStruct position \"", _position, "\" (called by GetByPos()). Returning empty structure.");
@@ -158,28 +161,32 @@ class Dict : public DictBase<K, V> {
       return _empty;
     }
 
-    return slot.value;
+    return slot PTR_DEREF value;
   }
 
   /**
    * Checks whether dictionary contains given key => value pair.
    */
+#ifdef __MQL__
   template <>
+#endif
   bool Contains(const K key, const V value) {
     unsigned int position;
-    DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, key, position);
+    DictSlot<K, V>* slot = GetSlotByKey(THIS_ATTR _DictSlots_ref, key, position);
 
     if (!slot) return false;
 
-    return slot.value == value;
+    return slot PTR_DEREF value == value;
   }
 
   /**
    * Returns index of dictionary's value or -1 if value doesn't exist.
    */
+#ifdef __MQL__
   template <>
+#endif
   int IndexOf(V& value) {
-    for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i) {
+    for (DictIteratorBase<K, V> i(THIS_ATTR Begin()); i.IsValid(); ++i) {
       if (i.Value() == value) {
         return (int)i.Index();
       }
@@ -192,7 +199,7 @@ class Dict : public DictBase<K, V> {
    * Checks whether dictionary contains given value.
    */
   bool Contains(const V value) {
-    for (DictIterator<K, V> i = Begin(); i.IsValid(); ++i) {
+    for (DictIterator<K, V> i = THIS_ATTR Begin(); i.IsValid(); ++i) {
       if (i.Value() == value) {
         return true;
       }
@@ -205,102 +212,115 @@ class Dict : public DictBase<K, V> {
   /**
    * Inserts value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V value, bool allow_resize) {
-    if (_mode == DictModeUnknown)
-      _mode = DictModeDict;
-    else if (_mode != DictModeDict) {
+  bool InsertInto(DictSlotsRef<K, V>*& dictSlotsRef, const K key, V value, bool allow_resize) {
+    if (THIS_ATTR _mode == DictModeUnknown)
+      THIS_ATTR _mode = DictModeDict;
+    else if (THIS_ATTR _mode != DictModeDict) {
       Alert("Warning: Dict already operates as a list, not a dictionary!");
       return false;
     }
 
     unsigned int position;
-    DictSlot<K, V>* keySlot = GetSlotByKey(dictSlotsRef, key, position);
+    DictSlot<K, V>* _slot = THIS_ATTR GetSlotByKey(dictSlotsRef, key, position);
 
-    if (keySlot == NULL && !IsGrowUpAllowed()) {
-      // Resize is prohibited, so we will just overwrite some slot.
-      allow_resize = false;
+    // If we have a slot then we can overwrite it.
+    if (_slot != NULL) {
+      WriteSlot(_slot, key, value, DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+      // We're done, we don't have to increment number of slots used.
+      return true;
     }
 
-    if (allow_resize) {
-      // Will resize dict if there were performance problems before or there is no slots.
-      if (IsGrowUpAllowed() && !dictSlotsRef.IsPerformant()) {
+    // If we don't have a slot then we should consider growing up number of slots or overwrite some existing slot.
+
+    bool _is_performant = dictSlotsRef.IsPerformant();  // Whether there is no performance problems.
+    bool _is_full =
+        dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots);  // Whether we don't have empty slots to use.
+
+    if ((_is_full || !_is_performant) && allow_resize) {
+      // We have to resize the dict as it is either full or have perfomance problems due to massive number of conflicts
+      // when inserting new values.
+      if (THIS_ATTR overflow_listener == NULL) {
+        // There is no overflow listener so we can freely grow up the dict.
         if (!GrowUp()) {
+          // Can't resize the dict. Error happened.
           return false;
         }
-        // We now have new positions of slots, so we have to take the corrent slot again.
-        keySlot = GetSlotByKey(dictSlotsRef, key, position);
-      }
-
-      if (keySlot == NULL && dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {
-        // No DictSlotsRef.DictSlots available.
-        if (overflow_listener != NULL) {
-          if (!overflow_listener(DICT_OVERFLOW_REASON_FULL, dictSlotsRef._num_used, 0)) {
-            // Overwriting slot pointed exactly by key's position in the hash table (we don't check for possible
-            // conflicts).
-            keySlot = &dictSlotsRef.DictSlots[Hash(key) % ArraySize(dictSlotsRef.DictSlots)];
+      } else {
+        // Overflow listener will decide if we can grow up the dict.
+        if (THIS_ATTR overflow_listener(
+                _is_full ? DICT_LISTENER_FULL_CAN_RESIZE : DICT_LISTENER_NOT_PERFORMANT_CAN_RESIZE,
+                dictSlotsRef._num_used, 0)) {
+          // We can freely grow up the dict.
+          if (!GrowUp()) {
+            // Can't resize the dict. Error happened.
+            return false;
           }
-        }
-
-        if (keySlot == NULL) {
-          // We need to expand array of DictSlotsRef.DictSlots (by 25% by default).
-          if (!GrowUp()) return false;
         }
       }
     }
 
-    if (keySlot == NULL) {
-      position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
+    // At this point we have at least one free slot and we won't be doing any dict's grow up in the loop where we search
+    // for an empty slot.
 
-      unsigned int _starting_position = position;
-      int _num_conflicts = 0;
-      bool _overwrite_slot = false;
+    // Position we will start from in order to search free slot.
+    position = THIS_ATTR Hash(key) % ArraySize(dictSlotsRef.DictSlots);
 
-      // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
-      while (dictSlotsRef.DictSlots[position].IsUsed() &&
-             (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
-        if (overflow_listener_max_conflicts != 0 && ++_num_conflicts == overflow_listener_max_conflicts) {
-          if (overflow_listener != NULL) {
-            if (!overflow_listener(DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS, dictSlotsRef._num_used, _num_conflicts)) {
-              // Overflow listener returned false so we won't search for further empty slot.
-              _overwrite_slot = true;
-              break;
-            }
-          } else {
-            // Even if there is no overflow listener function, we stop searching for further empty slot as maximum
-            // number of conflicts has been reached.
-            _overwrite_slot = true;
-            break;
-          }
+    // Saving position for further, possible overwrite.
+    unsigned int _starting_position = position;
+
+    // How many times we had to skip slot as it was already occupied.
+    unsigned int _num_conflicts = 0;
+
+    // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
+    while (dictSlotsRef.DictSlots[position].IsUsed() &&
+           (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
+      ++_num_conflicts;
+
+      if (THIS_ATTR overflow_listener != NULL) {
+        // We had to skip slot as it is already occupied. Now we are checking if
+        // there is too many conflicts/skips and thus we can overwrite slot in
+        // the starting position.
+        if (THIS_ATTR overflow_listener(DICT_LISTENER_CONFLICTS_CAN_OVERWRITE, dictSlotsRef._num_used,
+                                        _num_conflicts)) {
+          // Looks like dict is working as buffer and we can overwrite slot in the starting position.
+          position = _starting_position;
+          break;
         }
-
-        // Position may overflow, so we will start from the beginning.
-        position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
       }
 
-      if (_overwrite_slot) {
-        // Overwriting starting position for faster further lookup.
-        position = _starting_position;
-      } else if (!dictSlotsRef.DictSlots[position].IsUsed()) {
-        // If slot isn't already used then we increment number of used slots.
-        ++dictSlotsRef._num_used;
-      }
-
-      dictSlotsRef.AddConflicts(_num_conflicts);
+      // Position may overflow, so we will start from the beginning.
+      position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
 
-    dictSlotsRef.DictSlots[position].key = key;
-    dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+    // Acknowledging slots array about number of conflicts as it calculates average number of conflicts per insert.
+    dictSlotsRef.AddConflicts(_num_conflicts);
+
+    // Incrementing number of slots used only if we're writing into empty slot.
+    if (!dictSlotsRef.DictSlots[position].IsUsed()) {
+      ++dictSlotsRef._num_used;
+    }
+
+    // Writing slot in the position of empty slot or, when overwriting, in starting position.
+    WriteSlot(dictSlotsRef.DictSlots[position], key, value, DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
     return true;
+  }
+
+  /***
+   * Writes slot with given key, value and flags.
+   */
+  void WriteSlot(DictSlot<K, V>& _slot, const K _key, V _value, unsigned char _slot_flags) {
+    _slot.key = _key;
+    _slot.value = _value;
+    _slot.SetFlags(_slot_flags);
   }
 
   /**
    * Inserts hashless value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V value) {
-    if (_mode == DictModeUnknown)
-      _mode = DictModeList;
-    else if (_mode != DictModeList) {
+  bool InsertInto(DictSlotsRef<K, V>*& dictSlotsRef, V value) {
+    if (THIS_ATTR _mode == DictModeUnknown)
+      THIS_ATTR _mode = DictModeList;
+    else if (THIS_ATTR _mode != DictModeList) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
       DebugBreak();
       return false;
@@ -311,7 +331,7 @@ class Dict : public DictBase<K, V> {
       if (!GrowUp()) return false;
     }
 
-    unsigned int position = Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
+    unsigned int position = THIS_ATTR Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
 
     // Searching for empty DictSlot<K, V>.
     while (dictSlotsRef.DictSlots[position].IsUsed()) {
@@ -331,19 +351,32 @@ class Dict : public DictBase<K, V> {
    * Expands array of DictSlots by given percentage value.
    */
   bool GrowUp(int percent = DICT_GROW_UP_PERCENT_DEFAULT) {
-    return Resize(MathMax(10, (int)((float)ArraySize(_DictSlots_ref.DictSlots) * ((float)(percent + 100) / 100.0f))));
+    return Resize(
+        MathMax(10, (int)((float)ArraySize(THIS_ATTR _DictSlots_ref.DictSlots) * ((float)(percent + 100) / 100.0f))));
   }
 
+ public:
+  /**
+   * Ensures that there is at least given number of slots in dict.
+   */
+  bool Reserve(int _size) {
+    if (_size <= ArraySize(THIS_ATTR _DictSlots_ref.DictSlots)) {
+      return true;
+    }
+    return Resize(_size);
+  }
+
+ protected:
   /**
    * Shrinks or expands array of DictSlots.
    */
   bool Resize(int new_size) {
-    if (new_size <= MathMin(_DictSlots_ref._num_used, ArraySize(_DictSlots_ref.DictSlots))) {
+    if (new_size <= MathMin(THIS_ATTR _DictSlots_ref._num_used, ArraySize(THIS_ATTR _DictSlots_ref.DictSlots))) {
       // We already use minimum number of slots possible.
       return true;
     }
 
-    DictSlotsRef<K, V> new_DictSlots;
+    DictSlotsRef<K, V>* new_DictSlots = new DictSlotsRef<K, V>();
 
     if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) return false;
 
@@ -356,20 +389,23 @@ class Dict : public DictBase<K, V> {
     new_DictSlots._num_used = 0;
 
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
-    for (i = 0; i < ArraySize(_DictSlots_ref.DictSlots); ++i) {
-      if (!_DictSlots_ref.DictSlots[i].IsUsed()) continue;
+    for (i = 0; i < ArraySize(THIS_ATTR _DictSlots_ref.DictSlots); ++i) {
+      if (!THIS_ATTR _DictSlots_ref.DictSlots[i].IsUsed()) continue;
 
-      if (_DictSlots_ref.DictSlots[i].HasKey()) {
-        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value, false))
+      if (THIS_ATTR _DictSlots_ref.DictSlots[i].HasKey()) {
+        if (!InsertInto(new_DictSlots, THIS_ATTR _DictSlots_ref.DictSlots[i].key,
+                        THIS_ATTR _DictSlots_ref.DictSlots[i].value, false))
           return false;
       } else {
-        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value)) return false;
+        if (!InsertInto(new_DictSlots, THIS_ATTR _DictSlots_ref.DictSlots[i].value)) return false;
       }
     }
     // Freeing old DictSlots array.
-    ArrayFree(_DictSlots_ref.DictSlots);
+    ArrayFree(THIS_ATTR _DictSlots_ref.DictSlots);
 
-    _DictSlots_ref = new_DictSlots;
+    delete THIS_ATTR _DictSlots_ref;
+
+    THIS_ATTR _DictSlots_ref = new_DictSlots;
 
     return true;
   }
@@ -380,12 +416,12 @@ class Dict : public DictBase<K, V> {
 #endif
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
-      for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i) {
+      for (DictIteratorBase<K, V> i(THIS_ATTR Begin()); i.IsValid(); ++i) {
         V value = i.Value();
-        s.Pass(THIS_REF, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
+        s.Pass(THIS_REF, THIS_ATTR GetMode() == DictModeDict ? i.KeyAsString() : "", value);
       }
 
-      return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
+      return (THIS_ATTR GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {
       SerializerIterator<V> i;
 
@@ -393,7 +429,7 @@ class Dict : public DictBase<K, V> {
         if (i.HasKey()) {
           // Converting key to a string.
           K key;
-          Convert::StringToType(i.Key(), key);
+          ConvertBasic::StringToType(i.Key(), key);
 
           // Note that we're retrieving value by a key (as we are in an
           // object!).
@@ -421,9 +457,9 @@ class Dict : public DictBase<K, V> {
    */
   template <typename X>
   Matrix<X>* ToMatrix() {
-    Matrix<X>* result = new Matrix<X>(Size());
+    Matrix<X>* result = new Matrix<X>(THIS_ATTR Size());
 
-    for (DictIterator<K, V> i = Begin(); i.IsValid(); ++i) result[i.Index()] = (X)i.Value();
+    for (DictIterator<K, V> i = THIS_ATTR Begin(); i.IsValid(); ++i) result[i.Index()] = (X)i.Value();
 
     return result;
   }

@@ -1,14 +1,25 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
+
+    // "build": {
+    	// "dockerfile": "Dockerfile",
+    	// Update 'VARIANT' to pick an Ubuntu version: jammy / ubuntu-22.04, focal / ubuntu-20.04, bionic /ubuntu-18.04
+    	// Use ubuntu-22.04 or ubuntu-18.04 on local arm64/Apple Silicon.
+    	// "args": { "VARIANT": "ubuntu-22.04" }
+    // },
+
 	// Configure tool-specific properties.
 	"customizations": {
         "vscode": {
             "extensions": [
 				"ms-vscode.cpptools",
+				"ms-vscode.cpptools-extension-pack",
+				"nicholishen.mql-over-cpp",
 				"vscodevim.vim",
 				"DavidAnson.vscode-markdownlint",
-				"EA31337.vscode-mql-tools"
+				"EA31337.vscode-mql-tools",
+				"xaver.clang-format"
 			],
         }
     },
@@ -23,7 +34,17 @@
 		// "ghcr.io/maks1ms/devcontainers-features/wine:0": {},
 		"ghcr.io/devcontainers-contrib/features/node-asdf:0": {}
 	},
+
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+
+    // Use 'postCreateCommand' to run commands after the container is created.
+    // "postCreateCommand": "uname -a",
+
     // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
     "image": "mcr.microsoft.com/devcontainers/base:jammy",
-    "name": "EA31337"
+    "name": "EA31337",
+
+   // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+   "remoteUser": "vscode",
 }

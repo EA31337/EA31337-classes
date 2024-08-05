@@ -27,8 +27,11 @@
 
 #include "MQL5.mqh"
 #include "Order.enum.h"
+#include "Platform.extern.h"
 #include "Std.h"
-#include "Tick.struct.h"
+#include "SymbolInfo.enum.h"
+#include "SymbolInfo.extern.h"
+#include "Tick/Tick.struct.h"
 
 /**
  * Struct to provide symbol information.
@@ -38,7 +41,7 @@ struct SymbolInfoStatic {
   /**
    * Get the current symbol pair from the current chart.
    */
-  static string GetCurrentSymbol() { return _Symbol; }
+  static string GetCurrentSymbol() { return ::Symbol(); }
 
   /**
    * Updates and gets the latest tick prices.
@@ -128,7 +131,7 @@ struct SymbolInfoStatic {
    */
   static double GetPipValue(string _symbol) {
     unsigned int _pdigits = GetPipDigits(_symbol);
-    return 10 >> _pdigits;
+    return 1.0 / MathPow(10, (int)_pdigits);
   }
 
   /**

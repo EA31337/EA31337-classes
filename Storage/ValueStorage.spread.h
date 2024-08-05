@@ -25,7 +25,6 @@
  */
 
 // Includes.
-#include "../Chart.struct.h"
 #include "ObjectsCache.h"
 #include "ValueStorage.history.h"
 
@@ -37,15 +36,15 @@ class SpreadValueStorage : public HistoryValueStorage<long> {
   /**
    * Constructor.
    */
-  SpreadValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
+  SpreadValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<long>(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  SpreadValueStorage(SpreadValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  SpreadValueStorage(SpreadValueStorage &_r) : HistoryValueStorage<long>(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  long Fetch(int _shift) override { return indi_candle REF_DEREF GetSpread(RealShift(_shift)); }
+  long Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetSpread(RealShift(_rel_shift)); }
 };

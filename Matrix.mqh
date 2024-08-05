@@ -24,6 +24,10 @@
 #ifndef MATRIX_MQH
 #define MATRIX_MQH
 
+#ifdef __MQL5__
+#define MATRIX_USE_OPENCL
+#endif
+
 #ifdef USE_MQL_MATH_STAT
 #ifdef __MQL5__
 #include <Math/Stat/Normal.mqh>
@@ -31,6 +35,14 @@
 #endif
 
 #include "Math.h"
+
+#ifdef MATRIX_USE_OPENCL
+#include "OpenCL.h"
+
+#resource "Matrix.matmul.cl" as string CLSource_Matrix_MatMul
+#resource "Matrix.matmul.naive.cl" as string CLSource_Matrix_MatMul_Naive
+#resource "Matrix.matmul.test.cl" as string CLSource_Matrix_MatMul_Test
+#endif  // MATRIX_USE_OPENCL
 
 #define MATRIX_DIMENSIONS 6
 #define MATRIX_VALUES_ARRAY_INCREMENT 500
@@ -137,30 +149,31 @@ struct MatrixDimensionAccessor {
   /**
    * Constructor.
    */
-  MatrixDimensionAccessor(Matrix<X>* _ptr_matrix = NULL, MatrixDimension<X>* _ptr_dimension = NULL, int _index = 0)
+  MatrixDimensionAccessor(Matrix<X>* _ptr_matrix = nullptr, MatrixDimension<X>* _ptr_dimension = nullptr,
+                          int _index = 0)
       : ptr_matrix(_ptr_matrix), ptr_dimension(_ptr_dimension), index(_index) {}
 
   /**
    * Index operator. Returns container or value accessor.
    */
   MatrixDimensionAccessor<X> operator[](int _index) {
-    return MatrixDimensionAccessor(ptr_matrix, ptr_dimension.containers[index], _index);
+    return MatrixDimensionAccessor(ptr_matrix, ptr_dimension PTR_DEREF containers[index], _index);
   }
 
   /**
    * Returns target dimension type.
    */
-  ENUM_MATRIX_DIMENSION_TYPE Type() const { return ptr_dimension.type; }
+  ENUM_MATRIX_DIMENSION_TYPE Type() const { return ptr_dimension PTR_DEREF type; }
 
 #define MATRIX_ACCESSOR_OPERATOR(OP)                                                   \
   void operator OP(X _value) {                                                         \
-    if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {                          \
-      Print("Error: Trying to use matrix", ptr_matrix.Repr(),                          \
+    if (ptr_dimension PTR_DEREF type != MATRIX_DIMENSION_TYPE_VALUES) {                \
+      Print("Error: Trying to use matrix", ptr_matrix PTR_DEREF Repr(),                \
             "'s value operator " #OP " in a dimension which doesn't contain values!"); \
       return;                                                                          \
     }                                                                                  \
                                                                                        \
-    ptr_dimension.values[index] OP _value;                                             \
+    ptr_dimension PTR_DEREF values[index] OP _value;                                   \
   }
 
   MATRIX_ACCESSOR_OPERATOR(+=)
@@ -172,24 +185,26 @@ struct MatrixDimensionAccessor {
    * Assignment operator. Sets value for this dimensions.
    */
   void operator=(X _value) {
-    if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {
-      Print("Error: Trying to set matrix", ptr_matrix.Repr(), "'s value in a dimension which doesn't contain values!");
+    if (ptr_dimension PTR_DEREF type != MATRIX_DIMENSION_TYPE_VALUES) {
+      Print("Error: Trying to set matrix", ptr_matrix PTR_DEREF Repr(),
+            "'s value in a dimension which doesn't contain values!");
       return;
     }
 
-    ptr_dimension.values[index] = _value;
+    ptr_dimension PTR_DEREF values[index] = _value;
   }
 
   /**
    * Returns value pointed by this accessor.
    */
   X Val() {
-    if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {
-      Print("Error: Trying to get value from matrix", ptr_matrix.Repr(), "'s dimension which doesn't contain values!");
+    if (ptr_dimension PTR_DEREF type != MATRIX_DIMENSION_TYPE_VALUES) {
+      Print("Error: Trying to get value from matrix", ptr_matrix PTR_DEREF Repr(),
+            "'s dimension which doesn't contain values!");
       return (X)EMPTY_VALUE;
     }
 
-    return ptr_dimension.values[index];
+    return ptr_dimension PTR_DEREF values[index];
   }
 
   /**
@@ -197,16 +212,17 @@ struct MatrixDimensionAccessor {
    * dimension length.
    */
   X ValOrZero() {
-    if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {
-      Print("Error: Trying to get value from matrix", ptr_matrix.Repr(), "'s dimension which doesn't contain values!");
+    if (ptr_dimension PTR_DEREF type != MATRIX_DIMENSION_TYPE_VALUES) {
+      Print("Error: Trying to get value from matrix", ptr_matrix PTR_DEREF Repr(),
+            "'s dimension which doesn't contain values!");
       return (X)EMPTY_VALUE;
     }
 
-    int _num_values = ArraySize(ptr_dimension.values);
+    int _num_values = ArraySize(ptr_dimension PTR_DEREF values);
 
     if (_num_values == 0 || index >= _num_values) return (X)0;
 
-    return ptr_dimension.values[index];
+    return ptr_dimension PTR_DEREF values[index];
   }
 };
 
@@ -219,13 +235,13 @@ class MatrixDimension {
   ENUM_MATRIX_DIMENSION_TYPE type;
 
   // Values array if type is "Values".
-  X values[];
+  ARRAY(X, values);
 
   // Physical position of the dimension in the matrix.
   int position[MATRIX_DIMENSIONS - 1];
 
   // Containers array if type is "Containers"
-  MatrixDimension<X>* containers[];
+  ARRAY(MatrixDimension<X>*, containers);
 
   /**
    * Constructor.
@@ -249,13 +265,13 @@ class MatrixDimension {
     int i;
 
     if (type == MATRIX_DIMENSION_TYPE_CONTAINERS) {
-      ArrayResize(_clone.containers, ArraySize(containers));
+      ArrayResize(_clone PTR_DEREF containers, ArraySize(containers));
 
       for (i = 0; i < ArraySize(containers); ++i) {
-        _clone.containers[i] = containers[i].Clone();
+        _clone PTR_DEREF containers[i] = containers[i].Clone();
       }
     } else {
-      ArrayCopy(_clone.values, values);
+      ArrayCopy(_clone PTR_DEREF values, values);
     }
 
     return _clone;
@@ -282,7 +298,7 @@ class MatrixDimension {
   /**
    * Sets physical position of the dimension in the matrix.
    */
-  void SetPosition(int& _position[], int _level) {
+  void SetPosition(ARRAY_REF(int, _position), int _level) {
     for (int i = 0; i < ArraySize(_position); ++i) {
       position[i] = i < _level ? _position[i] : -1;
     }
@@ -462,6 +478,9 @@ class MatrixDimension {
           ArrayFill(values, _last_size, _num_items - _last_size, (X)0);
         }
         break;
+
+      default:
+        RUNTIME_ERROR("We shouldn't be here!");
     }
 
     type = _type;
@@ -472,27 +491,27 @@ class MatrixDimension {
    *
    * @todo Allow of resizing containers instead of freeing them firstly.
    */
-  static MatrixDimension<X>* SetDimensions(MatrixDimension<X>* _ptr_parent_dimension, int& _dimensions[], int index,
-                                           int& _current_position[]) {
+  static MatrixDimension<X>* SetDimensions(MatrixDimension<X>* _ptr_parent_dimension, ARRAY_REF(int, _dimensions),
+                                           int index, ARRAY_REF(int, _current_position)) {
     if (_ptr_parent_dimension == NULL) _ptr_parent_dimension = new MatrixDimension();
 
     if (index == 0 && _dimensions[0] == 0) {
       // Matrix without any dimensions.
-      _ptr_parent_dimension.type = MATRIX_DIMENSION_TYPE_VALUES;
+      _ptr_parent_dimension PTR_DEREF type = MATRIX_DIMENSION_TYPE_VALUES;
     }
 
-    _ptr_parent_dimension.SetPosition(_current_position, index);
+    _ptr_parent_dimension PTR_DEREF SetPosition(_current_position, index);
 
     int i;
 
     if (_dimensions[index + 1] == 0) {
-      _ptr_parent_dimension.Resize(_dimensions[index], MATRIX_DIMENSION_TYPE_VALUES);
+      _ptr_parent_dimension PTR_DEREF Resize(_dimensions[index], MATRIX_DIMENSION_TYPE_VALUES);
     } else {
-      _ptr_parent_dimension.Resize(_dimensions[index], MATRIX_DIMENSION_TYPE_CONTAINERS);
+      _ptr_parent_dimension PTR_DEREF Resize(_dimensions[index], MATRIX_DIMENSION_TYPE_CONTAINERS);
 
       for (i = 0; i < _dimensions[index]; ++i) {
-        _ptr_parent_dimension.containers[i] =
-            SetDimensions(_ptr_parent_dimension.containers[i], _dimensions, index + 1, _current_position);
+        _ptr_parent_dimension PTR_DEREF containers[i] =
+            SetDimensions(_ptr_parent_dimension PTR_DEREF containers[i], _dimensions, index + 1, _current_position);
 
         ++_current_position[index];
       }
@@ -505,7 +524,6 @@ class MatrixDimension {
    * Executes operation on a single value.
    */
   X OpSingle(ENUM_MATRIX_OPERATION _op, X _src = (X)0, X _arg1 = (X)0, X _arg2 = (X)0, X _arg3 = (X)0) {
-    int _pos = 0;
     switch (_op) {
       case MATRIX_OPERATION_ABS:
         return MathAbs(_src);
@@ -634,7 +652,7 @@ class MatrixDimension {
   /**
    * Extracts dimensions's values to the given array. Used internally.
    */
-  void FillArray(X& array[], int& offset) {
+  void FillArray(ARRAY_REF(X, array), int& offset) {
     int i;
     if (type == MATRIX_DIMENSION_TYPE_CONTAINERS) {
       for (i = 0; i < ArraySize(containers); ++i) {
@@ -647,7 +665,7 @@ class MatrixDimension {
     }
   }
 
-  void FromArray(X& _array[], int& offset) {
+  void FromArray(ARRAY_REF(X, _array), int& offset) {
     int i;
     switch (type) {
       case MATRIX_DIMENSION_TYPE_CONTAINERS:
@@ -668,20 +686,19 @@ class MatrixDimension {
    */
   void Op(MatrixDimension<X>* _r, ENUM_MATRIX_OPERATION _op, X _arg1 = (X)0, int _only_value_index = -1) {
     int i;
-    bool r_is_single = ArraySize(_r.values) == 1;
 
-    if (_r.type == MATRIX_DIMENSION_TYPE_VALUES && ArraySize(_r.values) == 1) {
+    if (_r PTR_DEREF type == MATRIX_DIMENSION_TYPE_VALUES && ArraySize(_r PTR_DEREF values) == 1) {
       // There is only one value in the right container, we will use that value for all operations.
       _only_value_index = 0;
     }
 
     switch (type) {
       case MATRIX_DIMENSION_TYPE_CONTAINERS:
-        switch (_r.type) {
+        switch (_r PTR_DEREF type) {
           case MATRIX_DIMENSION_TYPE_CONTAINERS:
             // Both dimensions have containers.
             for (i = 0; i < ArraySize(containers); ++i) {
-              containers[i].Op(_r.containers[ArraySize(_r.containers) == 1 ? 0 : i], _op, _arg1);
+              containers[i].Op(_r PTR_DEREF containers[ArraySize(_r PTR_DEREF containers) == 1 ? 0 : i], _op, _arg1);
             }
             break;
           case MATRIX_DIMENSION_TYPE_VALUES:
@@ -695,21 +712,22 @@ class MatrixDimension {
         }
         break;
       case MATRIX_DIMENSION_TYPE_VALUES:
-        switch (_r.type) {
+        switch (_r PTR_DEREF type) {
           case MATRIX_DIMENSION_TYPE_CONTAINERS:
             // Right dimension have containers.
-            if (ArraySize(_r.containers) != 1) {
+            if (ArraySize(_r PTR_DEREF containers) != 1) {
               Alert("Right container must have exactly one element!");
               return;
             }
 
-            Op(_r.containers[0], _op, _arg1);
+            Op(_r PTR_DEREF containers[0], _op, _arg1);
             break;
 
           case MATRIX_DIMENSION_TYPE_VALUES:
             // Left and right dimensions have values or we use single right value.
             for (i = 0; i < ArraySize(values); ++i) {
-              values[i] = OpSingle(_op, values[i], _r.values[_only_value_index != -1 ? _only_value_index : i]);
+              values[i] =
+                  OpSingle(_op, values[i], _r PTR_DEREF values[_only_value_index != -1 ? _only_value_index : i]);
             }
 
             break;
@@ -718,6 +736,8 @@ class MatrixDimension {
     }
   }
 };
+
+enum ENUM_MATRIX_FLAGS { MATRIX_FLAGS_NONE, MATRIX_FLAGS_USE_OPENCL };
 
 /**
  * Matrix class.
@@ -728,6 +748,15 @@ class Matrix {
   // First/root dimension.
   MatrixDimension<X>* ptr_first_dimension;
 
+#ifdef MATRIX_USE_OPENCL
+
+  // Map of data size -> CL buffer to be used e.g., by CL-based MatMul method.
+  static DictStruct<int, Ref<OpenCLBuffer>> cl_buffers_in_0;
+  static DictStruct<int, Ref<OpenCLBuffer>> cl_buffers_in_1;
+  static DictStruct<int, Ref<OpenCLBuffer>> cl_buffers_out;
+
+#endif  // MATRIX_USE_OPENCL
+
   // Array with declaration of items per matrix's dimension.
   int dimensions[MATRIX_DIMENSIONS];
 
@@ -737,10 +766,44 @@ class Matrix {
   // Number of matrix dimensions.
   int num_dimensions;
 
+  // Flags.
+  int flags;
+
+  // Static counter, so each new matrix will have its own version. For new
+  // matrices new 32-bit range of versions are given and it should be more
+  // that enough.
+  static unsigned long version_counter;
+
+  // Cache of previously flattened data.
+  ARRAY(X, flattened_cache);
+
+  // Version of the data that was flattened.
+  unsigned long flattened_cache_version;
+
+  // Version of the data stored in dimensions arrays. Incremented after each
+  // change to this matrix.
+  unsigned long version;
+
+#ifdef MATRIX_USE_OPENCL
+
+  // OpenCL program for multi-core MatMul.
+  static Ref<OpenCLProgram> cl_program_matmul;
+
+  // OpenCL program for single-core MatMul.
+  static Ref<OpenCLProgram> cl_program_matmul_single;
+
+#endif  // MATRIX_USE_OPENCL
+
   /**
    * Constructor.
    */
-  Matrix(string _data) { FromString(_data); }
+  Matrix(string _data) {
+    FromString(_data);
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
+    Initialize();
+  }
 
   /**
    * Constructor.
@@ -748,12 +811,22 @@ class Matrix {
   Matrix(const int num_1d = 0, const int num_2d = 0, const int num_3d = 0, const int num_4d = 0, const int num_5d = 0) {
     ptr_first_dimension = NULL;
     SetShape(num_1d, num_2d, num_3d, num_4d, num_5d);
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
+    Initialize();
   }
 
   /**
    * Constructor.
    */
-  Matrix(MatrixDimension<X>* _dimension) : ptr_first_dimension(NULL) { Initialize(_dimension); }
+  Matrix(MatrixDimension<X>* _dimension) : ptr_first_dimension(NULL) {
+    Initialize(_dimension);
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
+    Initialize();
+  }
 
   /**
    * Copy constructor.
@@ -764,6 +837,13 @@ class Matrix {
     }
 
     Initialize(_right.ptr_first_dimension.Clone());
+#ifdef MATRIX_USE_OPENCL
+    InitializeOpenCL();
+#endif
+
+    // Note that we mark new matrix as unique one, even though we clone another
+    // matrix.
+    Initialize();
   }
 
   /**
@@ -773,12 +853,162 @@ class Matrix {
  private:
   Matrix(const Matrix<X>* _right) {}
 
+  /**
+   * Initializes new or copy of another matrix.
+   */
+  void Initialize() {
+    // Cache will have version lower that the data so matrix will be flattened in the first occasion.
+    flattened_cache_version = version_counter;
+    version = version_counter + 1;
+
+    // Each new matrix will have its own 32-bit range of versions.
+    version_counter += UINT_MAX;
+  }
+
+#ifdef MATRIX_USE_OPENCL
+
+  /**
+   * Initializes OpenCL programs.
+   */
+  void InitializeOpenCL() {
+    if (cl_program_matmul.IsSet()) {
+      // Already initialized.
+      return;
+    }
+
+    cl_program_matmul = OpenCL::Compile(CLSource_Matrix_MatMul_Naive, "matmul");
+
+    cl_program_matmul_single = OpenCL::Compile(
+        "#pragma OPENCL EXTENSION cl_khr_fp64 : enable" NL "__kernel void matmul(" NL "const int Mdim," NL
+        "const int Ndim," NL "const int Pdim," NL "__global float *A," NL "__global float *B," NL "__global float *C" NL
+        ")" NL "{" NL "int i, j, k;" NL "for (i=0; i<Ndim; i++){" NL "for (j=0; j<Mdim; j++){" NL
+        "for (k=0; k<Pdim; k++) {" NL "C[i*Ndim+j] += A[i*Ndim+k] * B[k*Pdim+j];" NL "}" NL "}" NL "}" NL "}" NL,
+        "matmul");
+  }
+
+#endif  // MATRIX_USE_OPENCL
+
  public:
+  /**
+   * Returns value from a flattened data cache (flattens data firstly if neccessary).
+   */
+  X FlatRead(int _idx) {
+    FlattenMaybe();
+    return flattened_cache[_idx];
+  }
+
+  /**
+   * Writes value into flattened data cache (creates/clears cache if needed).
+   */
+  void FlatWrite(int _idx, X value) {
+    if (version > flattened_cache_version) {
+      // Matrix has new data. Updating flattened data cache.
+      GetRawArrayNoCache(flattened_cache);
+      flattened_cache_version = version;
+    }
+
+    flattened_cache[_idx] = value;
+    ++flattened_cache_version;
+  }
+
+  /**
+   * Initializes matrix from the flattened data cache. Used after FlatWrite() to apply changes.
+   */
+  void FlatApply() {
+    if (version >= flattened_cache_version) {
+      return;
+    }
+
+    unsigned long _new_version = flattened_cache_version;
+
+    FillFromArray(flattened_cache);
+
+    version = flattened_cache_version = _new_version;
+  }
+
+  /**
+   * Will prepare flattened data cache if needed.
+   */
+  void FlattenMaybe() {
+    if (flattened_cache_version >= version) {
+      return;
+    }
+    GetRawArrayNoCache(flattened_cache);
+    flattened_cache_version = version;
+  }
+
+  /**
+   * Returns matrix's data version.
+   */
+  unsigned long GetVersion() { return version; }
+
+  /**
+   * Returns matrix flattened data version.
+   */
+  unsigned long GetFlattenedCacheVersion() { return flattened_cache_version; }
+
+  /**
+   * Acknowledges matrix that it's data has been changed.
+   */
+  void Modified() { ++version; }
+
+#ifdef MATRIX_USE_OPENCL
+
+  /**
+   * Returns/allocs and returns buffer of the given size to be used in CL operations as first input parameter.
+   */
+  static OpenCLBuffer* GetCLBufferInArg0(int _size) {
+    Ref<OpenCLBuffer> _buffer;
+
+    _buffer = cl_buffers_in_0.GetByKey(_size, _buffer);
+
+    if (!_buffer.IsSet()) {
+      _buffer = new OpenCLBuffer(_size, CL_MEM_READ_ONLY);
+      cl_buffers_in_0.Set(_size, _buffer);
+    }
+
+    return _buffer.Ptr();
+  }
+
+  /**
+   * Returns/allocs and returns buffer of the given size to be used in CL operations as second input parameter.
+   */
+  static OpenCLBuffer* GetCLBufferInArg1(int _size) {
+    Ref<OpenCLBuffer> _buffer;
+
+    _buffer = cl_buffers_in_1.GetByKey(_size, _buffer);
+
+    if (!_buffer.IsSet()) {
+      _buffer = new OpenCLBuffer(_size, CL_MEM_READ_ONLY);
+      cl_buffers_in_1.Set(_size, _buffer);
+    }
+
+    return _buffer.Ptr();
+  }
+
+  /**
+   * Returns/allocs and returns buffer of the given size to be used in CL operations as output parameter.
+   */
+  static OpenCLBuffer* GetCLBufferOutArg(int _size) {
+    Ref<OpenCLBuffer> _buffer;
+
+    _buffer = cl_buffers_out.GetByKey(_size, _buffer);
+
+    if (!_buffer.IsSet()) {
+      _buffer = new OpenCLBuffer(_size, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR);
+      cl_buffers_out.Set(_size, _buffer);
+    }
+
+    return _buffer.Ptr();
+  }
+
+#endif  // MATRIX_USE_OPENCL
+
   /**
    * Matrix initializer.
    */
   void Initialize(MatrixDimension<X>* _dimension) {
-    if (ptr_first_dimension != NULL) delete ptr_first_dimension;
+    if (ptr_first_dimension != nullptr) delete ptr_first_dimension;
 
     ptr_first_dimension = _dimension;
     // Calculating dimensions.
@@ -791,20 +1021,23 @@ class Matrix {
     for (i = 0; i < MATRIX_DIMENSIONS; ++i) {
       if (_dimension == NULL) break;
 
-      if (_dimension.type == MATRIX_DIMENSION_TYPE_CONTAINERS) {
-        dimensions[i] = ArraySize(_dimension.containers);
-        _dimension = _dimension.containers[0];
-      } else if (_dimension.type == MATRIX_DIMENSION_TYPE_VALUES) {
-        dimensions[i++] = ArraySize(_dimension.values);
+      if (_dimension PTR_DEREF type == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+        dimensions[i] = ArraySize(_dimension PTR_DEREF containers);
+        _dimension = _dimension PTR_DEREF containers[0];
+      } else if (_dimension PTR_DEREF type == MATRIX_DIMENSION_TYPE_VALUES) {
+        dimensions[i++] = ArraySize(_dimension PTR_DEREF values);
         break;
       } else {
         Print("Internal error: unknown dimension type!");
+        DebugBreak();
       }
     }
 
     num_dimensions = i;
 
     RecalculateSize();
+
+    Modified();
   }
 
   void RecalculateSize() {
@@ -824,14 +1057,14 @@ class Matrix {
   /**
    * Assignment operator.
    */
-  void operator=(const Matrix<X>& _right) { Initialize(_right.ptr_first_dimension.Clone()); }
+  void operator=(const Matrix<X>& _right) { Initialize(_right.ptr_first_dimension PTR_DEREF Clone()); }
 
   /**
    * Assignment operator. Initializes matrix using given dimension.
    */
   Matrix(MatrixDimensionAccessor<X>& accessor) {
     if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
-      Initialize(accessor.ptr_dimension.containers[accessor.index].Clone());
+      Initialize(accessor.ptr_dimension PTR_DEREF containers[accessor.index].Clone());
     } else if (accessor.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
       SetShape(1);
       this[0] = accessor.Val();
@@ -847,7 +1080,7 @@ class Matrix {
    * Destructor.
    */
   ~Matrix() {
-    if (ptr_first_dimension != NULL) {
+    if (ptr_first_dimension != nullptr) {
       delete ptr_first_dimension;
     }
   }
@@ -892,12 +1125,14 @@ class Matrix {
         size *= dimensions[i];
       }
     }
+
+    Modified();
   }
 
   /**
    * Returns length of the given dimension.
    */
-  int GetRange(int _dimension) {
+  int GetRangeRaw(int _dimension) {
     if (_dimension >= MATRIX_DIMENSIONS) {
       Print("Matrix::GetRange(): Dimension should be between 0 and ", MATRIX_DIMENSIONS - 1, ". Got ", _dimension, "!");
       return -1;
@@ -907,9 +1142,25 @@ class Matrix {
   }
 
   /**
+   * Returns length of the given dimension. In case that e.g., dimension 0 has values, dimension 1 will return range 1.
+   */
+  int GetRange(int _dimension) {
+    if (_dimension < num_dimensions) {
+      return GetRangeRaw(_dimension);
+    }
+
+    if (_dimension == num_dimensions) {
+      // Last dimension always contain values.
+      return 1;
+    }
+
+    return 0;
+  }
+
+  /**
    * Returns total number of values the matrix contain of.
    */
-  int GetSize() { return size; }
+  int GetSize() const { return size; }
 
   /**
    * Returns number of matrix dimensions.
@@ -925,9 +1176,10 @@ class Matrix {
       return;
     }
 
-    int initial_container_size = ptr_first_dimension.DuplicateDimension(_level, _num);
+    int initial_container_size = ptr_first_dimension PTR_DEREF DuplicateDimension(_level, _num);
     dimensions[_level] += _num * initial_container_size;
     RecalculateSize();
+    Modified();
   }
 
   /**
@@ -1056,6 +1308,8 @@ class Matrix {
     }
 
     accessor = _value;
+
+    Modified();
   }
 
   /**
@@ -1068,7 +1322,7 @@ class Matrix {
    */
   void Abs() {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_ABS);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_ABS);
     }
   }
 
@@ -1077,7 +1331,8 @@ class Matrix {
    */
   void Add(X value) {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_ADD, value);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_ADD, value);
+      Modified();
     }
   }
 
@@ -1091,7 +1346,8 @@ class Matrix {
    */
   void Sub(X value) {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_SUBTRACT, value);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_SUBTRACT, value);
+      Modified();
     }
   }
 
@@ -1105,7 +1361,8 @@ class Matrix {
    */
   void Mul(X value) {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_MULTIPLY, value);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_MULTIPLY, value);
+      Modified();
     }
   }
 
@@ -1119,7 +1376,8 @@ class Matrix {
    */
   void Div(X value) {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_DIVIDE, value);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_DIVIDE, value);
+      Modified();
     }
   }
 
@@ -1128,7 +1386,8 @@ class Matrix {
    */
   void Fill(X value) {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_FILL, value);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_FILL, value);
+      Modified();
     }
   }
 
@@ -1137,7 +1396,8 @@ class Matrix {
    */
   void FillRandom(int _seed = -1) {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_FILL_RANDOM, _seed);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_FILL_RANDOM, _seed);
+      Modified();
     }
   }
 
@@ -1146,7 +1406,8 @@ class Matrix {
    */
   void FillRandom(X _start, X _end, int _seed = -1) {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_FILL_RANDOM_RANGE, _start, _end, _seed);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_FILL_RANDOM_RANGE, _start, _end, _seed);
+      Modified();
     }
   }
 
@@ -1155,7 +1416,8 @@ class Matrix {
    */
   void FillPosAdd() {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_FILL_POS_ADD);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_FILL_POS_ADD);
+      Modified();
     }
   }
 
@@ -1164,18 +1426,19 @@ class Matrix {
    */
   void FillPosMul() {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_FILL_POS_MUL);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_FILL_POS_MUL);
+      Modified();
     }
   }
 
   /**
-   * Replaces existing matrix's values by random value from a given range.
+   * Calculates sum fo all matrix's values.
    */
   X Sum() {
     X _out1 = 0, _out2;
     int _out3;
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_SUM, 0, 0, 0, _out1, _out2, _out3);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_SUM, 0, 0, 0, _out1, _out2, _out3);
     }
     return _out1;
   }
@@ -1187,7 +1450,7 @@ class Matrix {
     X _out1 = MaxOf((X)0), _out2;
     int _out3;
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_MIN, 0, 0, 0, _out1, _out2, _out3);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_MIN, 0, 0, 0, _out1, _out2, _out3);
     }
     return _out1;
   }
@@ -1199,7 +1462,7 @@ class Matrix {
     X _out1 = MinOf((X)0), _out2;
     int _out3;
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_MAX, 0, 0, 0, _out1, _out2, _out3);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_MAX, 0, 0, 0, _out1, _out2, _out3);
     }
     return _out1;
   }
@@ -1211,15 +1474,19 @@ class Matrix {
     X _out1 = 0, _out2;
     int _out3;
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_SUM, 0, 0, 0, _out1, _out2, _out3);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_SUM, 0, 0, 0, _out1, _out2, _out3);
       return GetSize() > 0 ? _out1 / GetSize() : 0;
     }
     return MinOf((X)0);
   }
 
+  /**
+   * Performs power operation on all matrix's values.
+   */
   void Power(X value) {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_POWER, value);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_POWER, value);
+      Modified();
     }
   }
 
@@ -1228,7 +1495,7 @@ class Matrix {
    */
   X Med() {
     if (ptr_first_dimension) {
-      X array[];
+      ARRAY(X, array);
       GetRawArray(array);
       ArraySort(array);
 
@@ -1246,28 +1513,108 @@ class Matrix {
     return MinOf((X)0);
   }
 
-  static void MatMul(Matrix<X>& source, Matrix<X>& target, Matrix<X>& output) {
-    if (source.GetSize() != target.GetRange(1)) {
+  /**
+   * Performs matrix multiplication on CPU or GPU.
+   */
+  static void MatMul(Matrix<X>& _source, Matrix<X>& _target, Matrix<X>& _output) {
+#ifdef MATRIX_USE_OPENCL
+    MatMulCL(_source, _target, _output);
+#else
+    MatMulCPU(_source, _target, _output);
+#endif
+  }
+
+  /**
+   * Performs matrix multiplication on CPU.
+   */
+  static void MatMulCPU(Matrix<X>& _source, Matrix<X>& _target, Matrix<X>& _output) {
+    if (_source.GetSize() != _target.GetRange(1)) {
       Alert("Inconsistent size of matrices!");
     }
 
-    int num_outputs = target.GetRange(0);
-    int num_inputs = target.GetRange(1);
+    int _rows_a = _source.GetRange(0);
+    int _cols_a = _source.GetRange(1);
+    int _cols_b = _target.GetRange(1);
 
-    output.SetShape(num_outputs);
+    _output.SetShape(_rows_a, _cols_b);
 
-    for (int output_idx = 0; output_idx < num_outputs; ++output_idx) {
-      output[output_idx] = 0;
-      for (int input_idx = 0; input_idx < num_inputs; ++input_idx) {
-        output[output_idx] += source[input_idx].Val() * target[output_idx][input_idx].Val();
+    for (int i = 0; i < _rows_a; i++) {
+      for (int j = 0; j < _cols_b; j++) {
+        double sum = 0.0;
+        for (int k = 0; k < _cols_a; k++) {
+          sum += _source.FlatRead(i * _cols_a + k) * _target.FlatRead(k * _cols_b + j);
+        }
+        _output.FlatWrite(i * _cols_b + j, sum);
       }
     }
+
+    _output.FlatApply();
   }
+
+#ifdef MATRIX_USE_OPENCL
+
+  /**
+   * Performs matrix multiplication via OpenCL. Note that MATRIX_USE_OPENCL must be defined in order matrix to use this
+   * method.
+   */
+  static void MatMulCL(Matrix<X>& _source, Matrix<X>& _target, Matrix<X>& _output) {
+    if (_source.GetRange(1) != _target.GetRange(0)) {
+      Alert("Inconsistent size of matrices!");
+    }
+
+    unsigned int _rows_a = _source.GetRange(0);
+    unsigned int _cols_a = _source.GetRange(1);
+    unsigned int _cols_b = _target.GetRange(1);
+
+    // Reusable 0-offset.
+    static ARRAY(unsigned int, _global_work_offset) = {0U, 0U};
+
+    // Local work size (up to 8 x 8).
+    static ARRAY(unsigned int, _local_work_size) = {MathMin(_rows_a, 8U), MathMin(_cols_a, 8U)};
+
+    // Our global size could be greater that data.
+    ARRAY(unsigned int, _global_work_size) = {
+        (unsigned int)MathCeil((double)_rows_a / _local_work_size[0]) * _local_work_size[0],
+        (unsigned int)MathCeil((double)_cols_a / _local_work_size[1]) * _local_work_size[1],
+    };
+
+    _output.SetShape(_rows_a, _cols_b);
+
+    cl_program_matmul REF_DEREF SetArg(0, _source, OPENCL_MATRIX_ARG_IN_1);
+    cl_program_matmul REF_DEREF SetArg(1, _target, OPENCL_MATRIX_ARG_IN_2);
+    cl_program_matmul REF_DEREF SetArg(2, _output, OPENCL_MATRIX_ARG_OUT);
+    cl_program_matmul REF_DEREF SetArg(3, (int)_rows_a);
+    cl_program_matmul REF_DEREF SetArg(4, (int)_cols_a);
+    cl_program_matmul REF_DEREF SetArg(5, (int)_cols_b);
+
+    if (!cl_program_matmul REF_DEREF RunMany(2U, _global_work_offset, _global_work_size, _local_work_size)) {
+      Alert("Error: Could not run Matrix::MatMulCL() over OpenCL!");
+      DebugBreak();
+    }
+
+    // Extracting data from
+    ARRAY(X, _out_data);
+    ArrayResize(_out_data, _rows_a * _cols_b);
+    cl_program_matmul REF_DEREF GetArgBuffer(2) PTR_DEREF Read(_out_data);
+    _output.SetShape(_rows_a, _cols_b);
+    _output.FillFromArray(_out_data);
+  }
+
+#endif
 
   /**
    * Performs matrix multiplication.
    */
   Matrix<X>* MatMul(Matrix<X>& target) {
+    Matrix<X>* output = new Matrix<X>();
+    MatMul(this, target, output);
+    return output;
+  }
+
+  /**
+   * Performs matrix multiplication.
+   */
+  Matrix<X>* MatMul(Matrix<X>* target) {
     Matrix<X>* output = new Matrix<X>();
     MatMul(this, target, output);
     return output;
@@ -1293,8 +1640,8 @@ class Matrix {
   Matrix<X>* operator+(const Matrix<X>& r) {
     Matrix<X>* result = Clone();
 
-    if (result.ptr_first_dimension) {
-      result.ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_ADD);
+    if (result PTR_DEREF ptr_first_dimension) {
+      result PTR_DEREF ptr_first_dimension PTR_DEREF Op(r.ptr_first_dimension, MATRIX_OPERATION_ADD);
     }
 
     return result;
@@ -1305,7 +1652,8 @@ class Matrix {
    */
   void operator+=(const Matrix<X>& r) {
     if (ptr_first_dimension && r.ptr_first_dimension) {
-      ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_ADD);
+      ptr_first_dimension PTR_DEREF Op(r.ptr_first_dimension, MATRIX_OPERATION_ADD);
+      Modified();
     }
   }
 
@@ -1315,8 +1663,8 @@ class Matrix {
   Matrix<X>* operator-(const Matrix<X>& r) {
     Matrix<X>* result = Clone();
 
-    if (result.ptr_first_dimension) {
-      result.ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_SUBTRACT);
+    if (result PTR_DEREF ptr_first_dimension) {
+      result PTR_DEREF ptr_first_dimension PTR_DEREF Op(r.ptr_first_dimension, MATRIX_OPERATION_SUBTRACT);
     }
 
     return result;
@@ -1327,7 +1675,8 @@ class Matrix {
    */
   void operator-=(const Matrix<X>& r) {
     if (ptr_first_dimension && r.ptr_first_dimension) {
-      ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_SUBTRACT);
+      ptr_first_dimension PTR_DEREF Op(r.ptr_first_dimension, MATRIX_OPERATION_SUBTRACT);
+      Modified();
     }
   }
 
@@ -1337,8 +1686,8 @@ class Matrix {
   Matrix<X>* operator*(const Matrix<X>& r) {
     Matrix<X>* result = Clone();
 
-    if (result.ptr_first_dimension) {
-      result.ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
+    if (result PTR_DEREF ptr_first_dimension) {
+      result PTR_DEREF ptr_first_dimension PTR_DEREF Op(r.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
     }
 
     return result;
@@ -1349,7 +1698,8 @@ class Matrix {
    */
   void operator*=(const Matrix<X>& r) {
     if (ptr_first_dimension && r.ptr_first_dimension) {
-      ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
+      ptr_first_dimension PTR_DEREF Op(r.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
+      Modified();
     }
   }
 
@@ -1359,8 +1709,8 @@ class Matrix {
   Matrix<X>* operator/(const Matrix<X>& r) {
     Matrix<X>* result = Clone();
 
-    if (result.ptr_first_dimension) {
-      result.ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_DIVIDE);
+    if (result PTR_DEREF ptr_first_dimension) {
+      result PTR_DEREF ptr_first_dimension PTR_DEREF Op(r.ptr_first_dimension, MATRIX_OPERATION_DIVIDE);
     }
 
     return result;
@@ -1371,31 +1721,51 @@ class Matrix {
    */
   void operator/=(const Matrix<X>& r) {
     if (ptr_first_dimension && r.ptr_first_dimension) {
-      ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_DIVIDE);
+      ptr_first_dimension PTR_DEREF Op(r.ptr_first_dimension, MATRIX_OPERATION_DIVIDE);
+      Modified();
     }
   }
 
   /**
    * Fills array with all values from the matrix.
    */
-  void GetRawArray(X& array[]) {
-    ArrayResize(array, GetSize());
+  void GetRawArrayNoCache(ARRAY_REF(X, array)) {
+    // Filling target array with flattened matrix data.
     int offset = 0;
-    ptr_first_dimension.FillArray(array, offset);
+    ArrayResize(array, GetSize());
+    ptr_first_dimension PTR_DEREF FillArray(array, offset);
+  }
+
+  /**
+   * Fills array with all values from the matrix.
+   */
+  void GetRawArray(ARRAY_REF(X, array)) {
+    if (flattened_cache_version == version) {
+      // No need to flatten again as our cache is up to date.
+      ArrayCopy(array, flattened_cache);
+      return;
+    }
+
+    GetRawArrayNoCache(array);
+
+    // Copying target array into our flattened data cache.
+    ArrayResize(flattened_cache, 0, 1024);
+    ArrayCopy(flattened_cache, array);
+    flattened_cache_version = version;
   }
 
   /**
    * Flattens matrix.
    */
   Matrix<X>* Flatten() {
-    X values[];
+    ARRAY(X, values);
 
     GetRawArray(values);
 
     Matrix<X>* result = new Matrix<X>(ArraySize(values));
 
     for (int i = 0; i < ArraySize(values); ++i) {
-      result[i] = values[i];
+      PTR_TO_REF(result)[i] = values[i];
     }
 
     return result;
@@ -1425,14 +1795,23 @@ class Matrix {
   }
 #endif
 
-  void FillFromArray(X& _array[]) {
+  /**
+   * Fills matrix with the flattened data. Also fill flattened data cache.
+   */
+  void FillFromArray(ARRAY_REF(X, _array)) {
     if (ArraySize(_array) != GetSize()) {
       Print("Matrix::FillFromArray(): input array (", ArraySize(_array), " elements) must be the same size as matrix (",
             GetSize(), " elements)!");
     }
 
     int offset = 0;
-    ptr_first_dimension.FromArray(_array, offset);
+    ptr_first_dimension PTR_DEREF FromArray(_array, offset);
+    Modified();
+
+    // We also fill flattened data cache.
+    ArrayResize(flattened_cache, ArraySize(_array));
+    ArrayCopy(flattened_cache, _array);
+    flattened_cache_version = version;
   }
 
   /**
@@ -1440,17 +1819,24 @@ class Matrix {
    */
   void FillTruncatedNormal(X _mean, X _stddev, int _seeds = -1) {
     Print("Matrix::FillTruncatedNormal() is not yet implemented!");
+    Modified();
   }
 
   /**
    * The Glorot normal initializer, also called Xavier normal initializer.
    */
-  void FillGlorotNormal(int _seed = -1) { Print("Matrix::FillGlorotNormal() is not yet implemented!"); }
+  void FillGlorotNormal(int _seed = -1) {
+    Print("Matrix::FillGlorotNormal() is not yet implemented!");
+    Modified();
+  }
 
   /**
    * The Glorot uniform initializer, also called Xavier uniform initializer.
    */
-  void FillGlorotUniform(int _seed = -1) { Print("Matrix::FillGlorotUniform() is not yet implemented!"); }
+  void FillGlorotUniform(int _seed = -1) {
+    Print("Matrix::FillGlorotUniform() is not yet implemented!");
+    Modified();
+  }
 
   /**
    * Initializer that generates the identity matrix.
@@ -1473,7 +1859,10 @@ class Matrix {
   /**
    * Initializer that generates an orthogonal matrix.
    */
-  void FillOrthogonal(X _gain, int _seed = -1) { Print("Matrix::FillOrthogonal() is not yet implemented!"); }
+  void FillOrthogonal(X _gain, int _seed = -1) {
+    Print("Matrix::FillOrthogonal() is not yet implemented!");
+    Modified();
+  }
 
   /**
    * Calculates absolute difference between this tensor and given one using optional weights tensor.
@@ -1489,15 +1878,15 @@ class Matrix {
         Print("Mean(): Unsupported absolute difference operator: ", EnumToString(_abs_diff_op), "!");
     }
 
-    if (!ShapeCompatible(&this, _prediction)) {
-      Print("MeanAbsolute(): Shape ", Repr(), " is not compatible with prediction shape ", _prediction.Repr(), "!");
-      return NULL;
+    if (!ShapeCompatible(THIS_PTR, _prediction)) {
+      Print("MeanAbsolute(): Shape ", Repr(), " is not compatible with prediction shape ", _prediction PTR_DEREF Repr(),
+            "!");
+      return nullptr;
     }
 
-    if (_weights != NULL && _weights.GetDimensions() > this PTR_DEREF GetDimensions()) {
-      Print("MeanAbsolute(): Shape ", Repr(), ": Weights must be a tensor level <= ", this PTR_DEREF GetDimensions(),
-            "!");
-      return NULL;
+    if (_weights != nullptr && _weights PTR_DEREF GetDimensions() > this PTR_DEREF GetDimensions()) {
+      Print("MeanAbsolute(): Shape ", Repr(), ": Weights must be a tensor level <= ", THIS_ATTR GetDimensions(), "!");
+      return nullptr;
     }
 
     Matrix<X>*_matrix, *_pooled;
@@ -1506,27 +1895,31 @@ class Matrix {
     _matrix = Clone();
 
     // Calculating absolute difference between copied tensor and given prediction.
-    _matrix.ptr_first_dimension.Op(_prediction.ptr_first_dimension, _abs_diff_op);
+    _matrix PTR_DEREF ptr_first_dimension PTR_DEREF Op(_prediction PTR_DEREF ptr_first_dimension, _abs_diff_op);
 
     switch (_abs_diff_op) {
       case MATRIX_OPERATION_ABS_DIFF_SQUARE:
       case MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG:
         // Reducing values of the last dimension of the matrix.
-        _pooled = _matrix.GetPooled(_reduction, MATRIX_PADDING_SAME, dimensions[1] == 0 ? dimensions[0] : 1,
-                                    dimensions[2] == 0 ? dimensions[1] : 1, dimensions[3] == 0 ? dimensions[2] : 1,
-                                    dimensions[4] == 0 ? dimensions[3] : 1, dimensions[5] == 0 ? dimensions[4] : 1);
+        _pooled =
+            _matrix PTR_DEREF GetPooled(_reduction, MATRIX_PADDING_SAME, dimensions[1] == 0 ? dimensions[0] : 1,
+                                        dimensions[2] == 0 ? dimensions[1] : 1, dimensions[3] == 0 ? dimensions[2] : 1,
+                                        dimensions[4] == 0 ? dimensions[3] : 1, dimensions[5] == 0 ? dimensions[4] : 1);
 
         // Physically reducing last dimension of the matrix.
-        _pooled.ReduceSimple();
+        _pooled PTR_DEREF ReduceSimple();
         delete _matrix;
         _matrix = _pooled;
         break;
+      default:
+        RUNTIME_ERROR("Difference operation not supported!")
     }
 
-    if (_weights != NULL) {
+    if (_weights != nullptr) {
       // Multiplying copied tensor by given weights. Note that weights tensor could be of lower level than original
       // tensor.
-      _matrix.ptr_first_dimension.Op(_weights.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
+      _matrix PTR_DEREF ptr_first_dimension PTR_DEREF Op(_weights PTR_DEREF ptr_first_dimension,
+                                                         MATRIX_OPERATION_MULTIPLY);
     }
 
     return _matrix;
@@ -1536,34 +1929,36 @@ class Matrix {
    * Reduces single or all dimensions containing only a single value.
    */
   void ReduceSimple(bool _only_last_dimension = true, ENUM_MATRIX_OPERATION _reduce_op = MATRIX_OPERATION_SUM) {
-    if (ptr_first_dimension != NULL) {
-      ptr_first_dimension.ReduceSimple(_only_last_dimension ? GetDimensions() - 1 : 0, _reduce_op);
+    if (ptr_first_dimension != nullptr) {
+      ptr_first_dimension PTR_DEREF ReduceSimple(_only_last_dimension ? GetDimensions() - 1 : 0, _reduce_op);
     }
   }
 
   void Reduce(int _level = 0, ENUM_MATRIX_OPERATION _reduce_op = MATRIX_OPERATION_SUM) {
-    if (ptr_first_dimension == NULL) {
+    if (ptr_first_dimension == nullptr) {
       return;
     }
 
-    ptr_first_dimension.Reduce(_level, _reduce_op);
+    ptr_first_dimension PTR_DEREF Reduce(_level, _reduce_op);
 
     for (int i = _level + 1; i < MATRIX_DIMENSIONS; ++i) {
       dimensions[i] = 0;
     }
 
     RecalculateSize();
+    Modified();
   }
 
   /**
    * Computes the Poisson loss
    */
   Matrix<X>* Poisson(Matrix<X>* _prediction) {
-    if (ptr_first_dimension == NULL) {
-      return NULL;
+    if (ptr_first_dimension == nullptr) {
+      return nullptr;
     }
     Matrix<X>* _clone = Clone();
-    _clone.ptr_first_dimension.Op(_prediction.ptr_first_dimension, MATRIX_OPERATION_POISSON);
+    _clone PTR_DEREF ptr_first_dimension PTR_DEREF Op(_prediction PTR_DEREF ptr_first_dimension,
+                                                      MATRIX_OPERATION_POISSON);
     return _clone;
   }
 
@@ -1577,7 +1972,7 @@ class Matrix {
   Matrix<X>* VectorReduce(Matrix<X>* _product, ENUM_MATRIX_VECTOR_REDUCE _reduce, int _dimension = 0) {
     if (_dimension == -1) _dimension = GetDimensions() - 1;
 
-    if (!ShapeCompatibleLossely(&this, _product)) {
+    if (!ShapeCompatibleLossely(THIS_PTR, _product)) {
       // Alert("VectorReduce(): Incompatible shapes: ", Repr(), " and ", _product.Repr(), "!");
       // return NULL;
     }
@@ -1603,7 +1998,6 @@ class Matrix {
 
     Matrix<X>* _ptr_result = new Matrix<X>(_out_dims[0], _out_dims[1], _out_dims[2], _out_dims[3], _out_dims[4]);
 
-    int _curr_dimension = 0;
     bool _stop = false;
 
     while (!_stop) {
@@ -1621,7 +2015,8 @@ class Matrix {
       // Taking one group at a time.
       for (int b = 0; b < dimensions[_dimension]; ++b) {
         X _value_a = GetValue(_index[0], _index[1], _index[2], _index[3], _index[4]);
-        X _value_b = _product.GetValueLossely(GetDimensions(), _index[0], _index[1], _index[2], _index[3], _index[4]);
+        X _value_b =
+            _product PTR_DEREF GetValueLossely(GetDimensions(), _index[0], _index[1], _index[2], _index[3], _index[4]);
 
         switch (_reduce) {
           case MATRIX_VECTOR_REDUCE_COSINE_SIMILARITY:
@@ -1659,7 +2054,7 @@ class Matrix {
           break;
       }
 
-      _ptr_result.SetValue(_res, _out_index[0], _out_index[1], _out_index[2], _out_index[3], _out_index[4]);
+      _ptr_result PTR_DEREF SetValue(_res, _out_index[0], _out_index[1], _out_index[2], _out_index[3], _out_index[4]);
 
       if (_dimension == 0)
         ++_index[1];
@@ -1731,19 +2126,19 @@ class Matrix {
 
     switch (_reduction) {
       case MATRIX_OPERATION_SUM:
-        result = _diff.Sum();
+        result = _diff PTR_DEREF Sum();
         break;
       case MATRIX_OPERATION_MIN:
-        result = _diff.Min();
+        result = _diff PTR_DEREF Min();
         break;
       case MATRIX_OPERATION_MAX:
-        result = _diff.Max();
+        result = _diff PTR_DEREF Max();
         break;
       case MATRIX_OPERATION_AVG:
-        result = _diff.Avg();
+        result = _diff PTR_DEREF Avg();
         break;
       case MATRIX_OPERATION_MED:
-        result = _diff.Med();
+        result = _diff PTR_DEREF Med();
         break;
       default:
         Print("MeanAbsolute(): Unsupported reduction type: ", EnumToString(_reduction), "!");
@@ -1781,7 +2176,7 @@ class Matrix {
    */
   Matrix<X>* Relu() {
     Matrix<X>* result = Clone();
-    result.Relu_();
+    result PTR_DEREF Relu_();
     return result;
   }
 
@@ -1792,7 +2187,8 @@ class Matrix {
     X _out1 = 0, _out2;
     int _out3;
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_RELU, 0, 0, 0, _out1, _out2, _out3);
+      ptr_first_dimension PTR_DEREF Op(MATRIX_OPERATION_RELU, 0, 0, 0, _out1, _out2, _out3);
+      Modified();
     }
   }
 
@@ -1801,7 +2197,7 @@ class Matrix {
    */
   Matrix<X>* Clone() const {
     Matrix<X>* _cloned = new Matrix<X>(dimensions[0], dimensions[1], dimensions[2], dimensions[3], dimensions[4]);
-    _cloned.ptr_first_dimension.CopyFrom(ptr_first_dimension);
+    _cloned PTR_DEREF ptr_first_dimension PTR_DEREF CopyFrom(ptr_first_dimension);
     return _cloned;
   }
 
@@ -1813,16 +2209,17 @@ class Matrix {
 
   void Set(X value, const int _1d, const int _2d = -1, const int _3d = -1, const int _4d = -1, const int _5d = -1) {
     if (_2d == -1) {
-      this[_1d] = value;
+      THIS_REF[_1d] = value;
     } else if (_3d == -1) {
-      this[_1d][_2d] = value;
+      THIS_REF[_1d][_2d] = value;
     } else if (_4d == -1) {
-      this[_1d][_2d][_3d] = value;
+      THIS_REF[_1d][_2d][_3d] = value;
     } else if (_5d == -1) {
-      this[_1d][_2d][_3d][_4d] = value;
+      THIS_REF[_1d][_2d][_3d][_4d] = value;
     } else {
-      this[_1d][_2d][_3d][_4d][_5d] = value;
+      THIS_REF[_1d][_2d][_3d][_4d][_5d] = value;
     }
+    Modified();
   }
 
   Matrix<X>* GetConv2d(int _in_channels, int _out_channels, int _krn_1d, int _krn_2d,
@@ -1831,25 +2228,25 @@ class Matrix {
     if (dimensions[0] < _in_channels) {
       Alert("Insufficient number of channels in the input. First dimensions should have ", _in_channels,
             " arrays, got ", dimensions[0]);
-      return NULL;
+      return nullptr;
     }
 
     Matrix<X>* clone = Clone();
 
-    clone.DuplicateDimension(1, _out_channels - 1);
+    clone PTR_DEREF DuplicateDimension(1, _out_channels - 1);
 
     if (_weights != NULL) {
-      Matrix<X>* weight_flattened = _weights.Flatten();
+      Matrix<X>* weight_flattened = _weights PTR_DEREF Flatten();
       for (int _in_channel_idx = 0; _in_channel_idx < _in_channels; ++_in_channel_idx) {
-        clone.ptr_first_dimension.containers[_in_channel_idx].Op(weight_flattened.ptr_first_dimension,
-                                                                 MATRIX_OPERATION_MULTIPLY);
+        clone PTR_DEREF ptr_first_dimension PTR_DEREF containers[_in_channel_idx].Op(
+            weight_flattened PTR_DEREF ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
       }
       delete weight_flattened;
     }
 
-    Matrix<X>* pooled =
-        clone.GetPooled(MATRIX_OPERATION_SUM, MATRIX_PADDING_VALID, 1, 2, _krn_1d, _krn_2d, 0,  // Kernel size.
-                        1, 2, _stride_1d, _stride_2d);
+    Matrix<X>* pooled = clone PTR_DEREF GetPooled(MATRIX_OPERATION_SUM, MATRIX_PADDING_VALID, 1, 2, _krn_1d, _krn_2d,
+                                                  0,  // Kernel size.
+                                                  1, 2, _stride_1d, _stride_2d);
 
     delete clone;
     return pooled;
@@ -1908,10 +2305,10 @@ class Matrix {
     return GetDimensionsTotal(_dimensions);
   }
 
-  static int GetDimensionsTotal(int& dimensions[]) {
+  static int GetDimensionsTotal(FIXED_ARRAY_REF(int, dimensions, MATRIX_DIMENSIONS)) {
     int size = 0;
 
-    for (int i = 0; i < ArraySize(dimensions); ++i) {
+    for (int i = 0; i < MATRIX_DIMENSIONS; ++i) {
       if (dimensions[i] != 0) {
         if (size == 0) {
           size = 1;
@@ -1966,7 +2363,7 @@ class Matrix {
                   ChunkOp(_op, _padding, _pool_1d, _pool_2d, _pool_3d, _pool_4d, _pool_5d, _stride_1d, _stride_2d,
                           _stride_3d, _stride_4d, _stride_5d, _chunk_1d, _chunk_2d, _chunk_3d, _chunk_4d, _chunk_5d);
 
-              _result.Set(result, _chunk_1d, _chunk_2d, _chunk_3d, _chunk_4d, _chunk_5d);
+              _result PTR_DEREF Set(result, _chunk_1d, _chunk_2d, _chunk_3d, _chunk_4d, _chunk_5d);
             }
           }
         }
@@ -2016,7 +2413,7 @@ class Matrix {
         _accessor_d1 = this[d1];
 
         if (_accessor_d1.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
-          _MATRIX_AGGR(ptr_first_dimension.values[d1]);
+          _MATRIX_AGGR(ptr_first_dimension PTR_DEREF values[d1]);
           continue;
         }
 
@@ -2107,22 +2504,24 @@ class Matrix {
         Print("Matrix::ChunkOp(): Invalid operation ", EnumToString(_op), "!");
     }
 
+    // Note: ChuckOp() does not modify the matrix.
+
     return 0;
   }
 
   /**
    * Checks whether both matrices have the same dimensions' length.
    */
-  static bool ShapeCompatible(Matrix<X>* _a, Matrix<X>* _b) { return _a.Repr() == _b.Repr(); }
+  static bool ShapeCompatible(Matrix<X>* _a, Matrix<X>* _b) { return _a PTR_DEREF Repr() == _b PTR_DEREF Repr(); }
 
   /**
    * Checks whether right matrix have less or equal dimensions' length..
    */
   static bool ShapeCompatibleLossely(Matrix<X>* _a, Matrix<X>* _b) {
-    if (_b.GetDimensions() > _a.GetDimensions()) return false;
+    if (_b PTR_DEREF GetDimensions() > _a PTR_DEREF GetDimensions()) return false;
 
-    for (int i = 0; i < _b.GetDimensions(); ++i) {
-      if (_b.dimensions[i] != 1 && _b.dimensions[i] > _a.dimensions[i]) return false;
+    for (int i = 0; i < _b PTR_DEREF GetDimensions(); ++i) {
+      if (_b PTR_DEREF dimensions[i] != 1 && _b PTR_DEREF dimensions[i] > _a PTR_DEREF dimensions[i]) return false;
     }
 
     return true;
@@ -2131,13 +2530,13 @@ class Matrix {
   static Matrix<X>* CreateFromString(string text) {
     Matrix<X>* _ptr_matrix = new Matrix<X>();
 
-    _ptr_matrix.FromString(text);
+    _ptr_matrix PTR_DEREF FromString(text);
 
     return _ptr_matrix;
   }
 
   void FromString(string text) {
-    MatrixDimension<X>*_dimensions[], *_root_dimension = NULL;
+    ARRAY(MatrixDimension<X>*, _dimensions), *_root_dimension = NULL;
     int _dimensions_length[MATRIX_DIMENSIONS] = {0, 0, 0, 0, 0};
     int i, _number_start_pos;
     bool _had_values;
@@ -2241,7 +2640,7 @@ class Matrix {
    *
    */
   string ToString(bool _whitespaces = false, int _precision = 3) {
-    return ptr_first_dimension.ToString(_whitespaces, _precision);
+    return ptr_first_dimension PTR_DEREF ToString(_whitespaces, _precision);
   }
 
   /**
@@ -2262,4 +2661,40 @@ class Matrix {
   }
 };
 
-#endif
+#ifdef __MQL__
+template <typename X>
+unsigned long Matrix::version_counter = 0;
+#else
+template <typename X>
+unsigned long Matrix<X>::version_counter = 0;
+#endif  // __MQL__
+
+#ifdef MATRIX_USE_OPENCL
+
+#ifdef __MQL__
+template <typename X>
+Ref<OpenCLProgram> Matrix::cl_program_matmul;
+template <typename X>
+Ref<OpenCLProgram> Matrix::cl_program_matmul_single;
+template <typename X>
+DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_in_0;
+template <typename X>
+DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_in_1;
+template <typename X>
+DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_out;
+#else
+template <typename X>
+Ref<OpenCLProgram> Matrix<X>::cl_program_matmul;
+template <typename X>
+Ref<OpenCLProgram> Matrix<X>::cl_program_matmul_single;
+template <typename X>
+DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_in_0;
+template <typename X>
+DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_in_1;
+template <typename X>
+DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_out;
+#endif  // __MQL__
+
+#endif  // MATRIX_USE_OPENCL
+
+#endif  // MATRIX_MQH

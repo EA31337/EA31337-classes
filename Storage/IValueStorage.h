@@ -72,6 +72,11 @@ class IValueStorage : public Dynamic {
     DebugBreak();
     return false;
   }
+
+  /**
+   * Returns real array index for this given shift.
+   **/
+  virtual int GetRealIndex(int _shift) { return IsSeries() ? (Size() - 1 - _shift) : _shift; }
 };
 
 /**

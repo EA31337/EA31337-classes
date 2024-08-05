@@ -34,9 +34,13 @@
 #include "ValueStorage.h"
 
 // Forward declarations.
-class IndicatorBase;
+class IndicatorData;
 template <typename C>
 class ValueStorage;
+
+#ifndef __MQL__
+extern int GetBarsFromStart(IndicatorData* _indi);
+#endif
 
 /**
  * Storage for direct access to indicator's buffer for a given mode.
@@ -54,7 +58,7 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Constructor.
    */
-  HistoryValueStorage(IndicatorBase* _indi_candle, bool _is_series = false)
+  HistoryValueStorage(IndicatorData* _indi_candle, bool _is_series = false)
       : indi_candle(_indi_candle), is_series(_is_series) {
     if (_indi_candle == nullptr) {
       Print("You have to pass IndicatorCandle-compatible indicator as parameter to HistoryValueStorage!");
@@ -65,7 +69,7 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Initializes storage with given value.
    */
-  virtual void Initialize(C _value) {
+  virtual void Initialize(C _value) override {
     Print("HistoryValueStorage does not implement Initialize()!");
     DebugBreak();
   }
@@ -83,12 +87,18 @@ class HistoryValueStorage : public ValueStorage<C> {
 
   /**
    * Number of bars passed from the start. There will be a single bar at the start.
+   *
+   * Note that number of bars are decremented by iparams.shift of the candle indicator.
    */
   int BarsFromStart() {
     if (!indi_candle.ObjectExists()) {
       return 0;
     }
+#ifdef __MQL__
     return indi_candle REF_DEREF GetBars();
+#else
+    return GetBarsFromStart(indi_candle.Ptr());
+#endif
   }
 
   /**

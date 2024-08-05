@@ -25,7 +25,6 @@
 #define ACCOUNTBASE_H
 
 // Includes.
-//#include "../Serializer.mqh"
 #include "../Refs.mqh"
 #include "AccountBase.struct.h"
 
@@ -56,6 +55,48 @@ class AccountBase : public Dynamic {
    * Class deconstructor.
    */
   ~AccountBase() {}
+
+  /* Virtual methods */
+
+  /**
+   * Returns balance value of the current account.
+   */
+  virtual datetime GetDateTime() { return TimeCurrent(); };
+
+  /**
+   * Returns balance value of the current account.
+   */
+  virtual float GetBalance() = 0;
+
+  /**
+   * Returns credit value of the current account.
+   */
+  virtual float GetCredit() = 0;
+
+  /**
+   * Returns profit value of the current account.
+   */
+  virtual float GetProfit() = 0;
+
+  /**
+   * Returns equity value of the current account.
+   */
+  virtual float GetEquity() = 0;
+
+  /**
+   * Returns margin value of the current account.
+   */
+  virtual float GetMarginUsed() = 0;
+
+  /**
+   * Returns free margin value of the current account.
+   */
+  virtual float GetMarginFree() = 0;
+
+  /**
+   * Get account available margin.
+   */
+  virtual float GetMarginAvail() = 0;
 };
 
 #endif  // ACCOUNTBASE_H

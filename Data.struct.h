@@ -37,10 +37,11 @@ struct MqlRates;
 
 // Includes.
 #include "Data.enum.h"
-#include "DateTime.mqh"
-#include "Serializer.enum.h"
-#include "SerializerNode.enum.h"
+#include "DateTime.extern.h"
+#include "Serializer/Serializer.enum.h"
+#include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
+#include "String.mqh"
 
 #ifndef __MQL__
 /**
@@ -128,8 +129,42 @@ struct DataParamEntry : public MqlParam {
     string_value = _string_value;
   }
   DataParamEntry(const DataParamEntry &_r) { ASSIGN_TO_THIS(MqlParam, _r); }
+
+  DataParamEntry(bool _value) {
+    type = TYPE_BOOL;
+    integer_value = _value;
+  }
+  DataParamEntry(const datetime _value) {
+    type = TYPE_DATETIME;
+    integer_value = _value;
+  }
+  DataParamEntry(double _value) {
+    type = TYPE_DOUBLE;
+    double_value = _value;
+  }
+  DataParamEntry(int _value) {
+    type = TYPE_INT;
+    integer_value = _value;
+  }
+  DataParamEntry(const string _value) {
+    type = TYPE_STRING;
+    string_value = _value;
+  }
+  DataParamEntry(unsigned int _value) {
+    type = TYPE_UINT;
+    integer_value = _value;
+  }
+  DataParamEntry(long _value) {
+    type = TYPE_LONG;
+    integer_value = _value;
+  }
+  DataParamEntry(unsigned long _value) {
+    type = TYPE_ULONG;
+    integer_value = (long)_value;
+  }
+
   // Struct operators.
-  void operator=(const bool _value) {
+  void operator=(bool _value) {
     type = TYPE_BOOL;
     integer_value = _value;
   }
@@ -137,11 +172,11 @@ struct DataParamEntry : public MqlParam {
     type = TYPE_DATETIME;
     integer_value = _value;
   }
-  void operator=(const double _value) {
+  void operator=(double _value) {
     type = TYPE_DOUBLE;
     double_value = _value;
   }
-  void operator=(const int _value) {
+  void operator=(int _value) {
     type = TYPE_INT;
     integer_value = _value;
   }
@@ -149,15 +184,19 @@ struct DataParamEntry : public MqlParam {
     type = TYPE_STRING;
     string_value = _value;
   }
-  void operator=(const unsigned int _value) {
+  void operator=(unsigned int _value) {
     type = TYPE_UINT;
     integer_value = _value;
   }
-  template <typename T>
-  void operator=(const T _value) {
-    type = TYPE_INT;
-    integer_value = (int)_value;
+  void operator=(long _value) {
+    type = TYPE_LONG;
+    integer_value = _value;
   }
+  void operator=(unsigned long _value) {
+    type = TYPE_ULONG;
+    integer_value = (long)_value;
+  }
+
   bool operator==(const DataParamEntry &_s) {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
            string_value == _s.string_value;
@@ -188,7 +227,7 @@ struct DataParamEntry : public MqlParam {
       case TYPE_CHAR:
       case TYPE_STRING:
       case TYPE_UCHAR:
-        return (T)::StringToDouble(string_value);
+        return (T)StringToDouble(string_value);
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
         return (T)ToDouble(THIS_REF);
@@ -329,48 +368,3 @@ struct DataParamEntry : public MqlParam {
   }
   SerializerNodeType Serialize(Serializer &s);
 };
-
-#include "Serializer.mqh"
-
-/* Method to serialize DataParamEntry struct. */
-SerializerNodeType DataParamEntry::Serialize(Serializer &s) {
-  s.PassEnum(THIS_REF, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
-  string aux_string;
-
-  switch (type) {
-    case TYPE_BOOL:
-    case TYPE_UCHAR:
-    case TYPE_CHAR:
-    case TYPE_USHORT:
-    case TYPE_SHORT:
-    case TYPE_UINT:
-    case TYPE_INT:
-    case TYPE_ULONG:
-    case TYPE_LONG:
-      s.Pass(THIS_REF, "value", integer_value);
-      break;
-
-    case TYPE_DOUBLE:
-      s.Pass(THIS_REF, "value", double_value);
-      break;
-
-    case TYPE_STRING:
-      s.Pass(THIS_REF, "value", string_value);
-      break;
-
-    case TYPE_DATETIME:
-      if (s.IsWriting()) {
-        aux_string = TimeToString(integer_value);
-        s.Pass(THIS_REF, "value", aux_string);
-      } else {
-        s.Pass(THIS_REF, "value", aux_string);
-        integer_value = StringToTime(aux_string);
-      }
-      break;
-
-    default:
-      // Unknown type. Serializing anyway.
-      s.Pass(THIS_REF, "value", aux_string);
-  }
-  return SerializerNodeObject;
-}

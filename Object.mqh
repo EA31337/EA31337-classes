@@ -24,8 +24,6 @@
 #ifndef OBJECT_MQH
 #define OBJECT_MQH
 
-#define nullptr NULL
-
 // Includes.
 #include "Object.enum.h"
 #include "Object.extern.h"
@@ -37,14 +35,11 @@
  * Class to deal with objects.
  */
 class Object : public Dynamic {
-
  protected:
-
   void *obj;
   long id;
 
  public:
-
   /**
    * Class constructor.
    */
@@ -105,7 +100,7 @@ class Object : public Dynamic {
   /**
    * Returns text representation of the object.
    */
-  virtual const string ToString() { return StringFormat("[Object #%04x]", THIS_PTR); }
+  virtual string const ToString() { return StringFormat("[Object #%04x]", THIS_PTR); }
 
   /**
    * Returns text representation of the object.

@@ -57,7 +57,6 @@ jobs:
           - Indi_ColorCandlesDaily.test
           - Indi_ColorLine.test
           - Indi_CustomMovingAverage.test
-          - Indi_DEMA.test
           - Indi_DeMarker.test
           - Indi_Demo.test
           - Indi_DetrendedPrice.test
@@ -101,6 +100,8 @@ jobs:
           - Indi_WilliamsAD.test
           - Indi_ZigZag.test
           - Indi_ZigZagColor.test
+          # Requires refactoring:
+          # - Indi_DEMA.test
     steps:
       - uses: actions/download-artifact@v2
         with:

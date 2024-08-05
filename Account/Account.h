@@ -26,7 +26,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Serializer.mqh"
+#include "../Serializer/Serializer.h"
 #include "AccountBase.h"
 
 /**
@@ -56,4 +56,5 @@ class Account : public AccountBase {
    */
   ~Account() {}
 };
+
 #endif  // ACCOUNT_H

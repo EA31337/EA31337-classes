@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -91,9 +91,10 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
    * Built-in version of FrAMA.
    */
   static double iFrAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                       int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
+                       int _mode = 0, int _rel_shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL5__
-    INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode, _shift);
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iFrAMA(_symbol, _tf, _ma_period, _ma_shift, _ap), _mode,
+                                      _obj PTR_DEREF ToAbsShift(_rel_shift));
 #else
     if (_obj == nullptr) {
       Print(
@@ -102,8 +103,10 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
       DebugBreak();
       return 0;
     }
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_obj, 2 * _ma_period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_obj, Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
-    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode, _shift, _cache);
+    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode,
+                         _obj PTR_DEREF ToAbsShift(_rel_shift), _cache);
 #endif
   }
 
@@ -111,7 +114,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
    * Calculates FrAMA on the array of values.
    */
   static double iFrAMAOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                              int _mode, int _shift, IndicatorCalculateCache<double> *_cache,
+                              int _mode, int _abs_shift, IndicatorCalculateCache<double> *_cache,
                               bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -126,20 +129,22 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
     _cache.SetPrevCalculated(Indi_FrAMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0),
                                                    _ma_period, _ma_shift, _ap));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * On-indicator version of FrAMA.
    */
   static double iFrAMAOnIndicator(IndicatorData *_indi, int _ma_period, int _ma_shift, ENUM_APPLIED_PRICE _ap,
-                                  int _mode = 0, int _shift = 0) {
+                                  int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, 2 * _ma_period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_ma_period, _ma_shift, (int)_ap));
-    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode, _shift, _cache);
+    return iFrAMAOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _ma_period, _ma_shift, _ap, _mode,
+                         _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   static int Calculate(INDICATOR_CALCULATE_METHOD_PARAMS_LONG, ValueStorage<double> &FrAmaBuffer, int InpPeriodFrAMA,
-                       int InpShift, ENUM_APPLIED_PRICE InpAppliedPrice) {
+                       int _ishift, ENUM_APPLIED_PRICE _applied_price) {
     if (rates_total < 2 * InpPeriodFrAMA) return (0);
 
     int start, i;
@@ -147,7 +152,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
     if (prev_calculated == 0) {
       start = 2 * InpPeriodFrAMA - 1;
       for (i = 0; i <= start; i++)
-        FrAmaBuffer[i] = AppliedPriceValueStorage::GetApplied(open, high, low, close, i, InpAppliedPrice);
+        FrAmaBuffer[i] = AppliedPriceValueStorage::GetApplied(open, high, low, close, i, _applied_price);
     } else
       start = prev_calculated - 1;
 
@@ -165,7 +170,7 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
       double n3 = (hi3 - lo3) / (2 * InpPeriodFrAMA);
       double d = (MathLog(n1 + n2) - MathLog(n3)) / math_log_2;
       double alfa = MathExp(-4.6 * (d - 1.0));
-      double _iprice = AppliedPriceValueStorage::GetApplied(open, high, low, close, i, InpAppliedPrice);
+      double _iprice = AppliedPriceValueStorage::GetApplied(open, high, low, close, i, _applied_price);
 
       FrAmaBuffer[i] = alfa * _iprice + (1 - alfa) * FrAmaBuffer[i - 1].Get();
     }
@@ -177,23 +182,24 @@ class Indi_FrAMA : public Indicator<IndiFrAIndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value =
-            iFrAMA(GetSymbol(), GetTf(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift, THIS_PTR);
+        _value = iFrAMA(GetSymbol(), GetTf(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode,
+                        ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = iFrAMAOnIndicator(GetDataSource(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift);
+        _value = iFrAMAOnIndicator(GetDataSource(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode,
+                                   ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod(),
-                         GetFRAMAShift() /*]*/, 0, _ishift);
+                         GetFRAMAShift() /*]*/, 0, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = iFrAMAOnIndicator(GetDataSource(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode, _ishift);
+        _value = iFrAMAOnIndicator(GetDataSource(), GetPeriod(), GetFRAMAShift(), GetAppliedPrice(), _mode,
+                                   ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

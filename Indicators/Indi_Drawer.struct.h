@@ -26,8 +26,8 @@
  */
 
 // Includes.
-#include "../Indicator.struct.h"
-#include "../SerializerNode.enum.h"
+#include "../Indicator/Indicator.struct.h"
+#include "../Serializer/SerializerNode.enum.h"
 
 // Structs.
 

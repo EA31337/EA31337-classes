@@ -28,7 +28,11 @@
 #include "../BufferStruct.mqh"
 #include "../Chart.enum.h"
 #include "../Storage/IValueStorage.h"
-#include "../Tick.struct.h"
+#include "../Tick/Tick.struct.h"
+
+// Forward declarations.
+template <typename TV>
+class BufferTick;
 
 // TV = Type of price stored by BufferTick. RV = Type of property to be retrieved from BufferTick.
 template <typename TV, typename RV>
@@ -71,7 +75,7 @@ class BufferTickValueStorage : ValueStorage<TV> {
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  int Size() override { return (int)buffer_tick.Size(); }
+  int Size() override { return (int)THIS_ATTR buffer_tick.Size(); }
 };
 
 /**
@@ -109,7 +113,7 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
     _vs_spread = NULL;
     _vs_volume = NULL;
     _vs_tick_volume = NULL;
-    SetOverflowListener(BufferTickOverflowListener, 10);
+    THIS_ATTR SetOverflowListener(BufferStructOverflowListener, 10);
   }
 
  public:
@@ -209,25 +213,6 @@ class BufferTick : public BufferStruct<TickAB<TV>> {
     // _result.Push(_shift, TickAB<TV>)
     // Convert to OHLC in upper method
     return NULL;
-  }
-
-  /* Callback methods */
-
-  /**
-   * Function should return true if resize can be made, or false to overwrite current slot.
-   */
-  static bool BufferTickOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
-    static int cache_limit = 86400;
-    switch (_reason) {
-      case DICT_OVERFLOW_REASON_FULL:
-        // We allow resize if dictionary size is less than 86400 slots.
-        return _size < cache_limit;
-      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
-      default:
-        // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
-        break;
-    }
-    return false;
   }
 };
 

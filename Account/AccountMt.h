@@ -30,24 +30,25 @@ class AccountMt;
 // Includes.
 #include "../Array.mqh"
 #include "../BufferStruct.mqh"
-#include "../Chart.mqh"
 #include "../Convert.mqh"
 #include "../Data.struct.h"
-#include "../Indicator.struct.h"
+#include "../Indicator/Indicator.struct.h"
 #include "../Order.struct.h"
 #include "../Orders.mqh"
-#include "../Serializer.mqh"
+#include "../Serializer/Serializer.h"
 #include "../SymbolInfo.mqh"
+#include "../Task/TaskCondition.enum.h"
 #include "../Trade.struct.h"
 #include "Account.define.h"
 #include "Account.enum.h"
 #include "Account.extern.h"
+#include "Account.h"
 #include "Account.struct.h"
 
 /**
  * Class to provide functions that return parameters of the current account.
  */
-class AccountMt {
+class AccountMt : public AccountBase {
  protected:
   // Struct variables.
   BufferStruct<AccountEntry> entries;
@@ -136,7 +137,7 @@ class AccountMt {
    * Returns balance value of the current account.
    */
   static double AccountBalance() { return AccountInfoDouble(ACCOUNT_BALANCE); }
-  float GetBalance() {
+  float GetBalance() override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_BALANCE, AccountBalance());
     return (float)AccountMt::AccountBalance();
@@ -146,7 +147,7 @@ class AccountMt {
    * Returns credit value of the current account.
    */
   static double AccountCredit() { return AccountInfoDouble(ACCOUNT_CREDIT); }
-  float GetCredit() {
+  float GetCredit() override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_CREDIT, AccountCredit());
     return (float)AccountMt::AccountCredit();
@@ -156,7 +157,7 @@ class AccountMt {
    * Returns profit value of the current account.
    */
   static double AccountProfit() { return AccountInfoDouble(ACCOUNT_PROFIT); }
-  float GetProfit() {
+  float GetProfit() override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_PROFIT, AccountProfit());
     return (float)AccountMt::AccountProfit();
@@ -166,7 +167,7 @@ class AccountMt {
    * Returns equity value of the current account.
    */
   static double AccountEquity() { return AccountInfoDouble(ACCOUNT_EQUITY); }
-  float GetEquity() {
+  float GetEquity() override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_EQUITY, AccountEquity());
     return (float)AccountMt::AccountEquity();
@@ -198,7 +199,7 @@ class AccountMt {
    * Returns free margin value of the current account.
    */
   static double AccountFreeMargin() { return AccountInfoDouble(ACCOUNT_MARGIN_FREE); }
-  float GetMarginFree() {
+  float GetMarginFree() override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
     return (float)AccountMt::AccountFreeMargin();
@@ -267,7 +268,7 @@ class AccountMt {
    * Get account available margin.
    */
   static double AccountAvailMargin() { return fmin(AccountFreeMargin(), AccountTotalBalance()); }
-  float GetMarginAvail() { return (float)AccountAvailMargin(); }
+  float GetMarginAvail() override { return (float)AccountAvailMargin(); }
 
   /**
    * Returns the calculation mode of free margin allowed to open orders on the current account.
@@ -284,7 +285,7 @@ class AccountMt {
     return ::AccountFreeMarginMode();
 #else
     // @todo: Not implemented yet.
-    return NULL;
+    return NULL_VALUE;
 #endif
   }
   static double GetAccountFreeMarginMode() { return AccountMt::AccountFreeMarginMode(); }
@@ -470,7 +471,7 @@ class AccountMt {
    */
   bool IsFreeMargin(ENUM_ORDER_TYPE _cmd, double size_of_lot, string _symbol = NULL) {
     bool _res = true;
-    double margin = AccountFreeMarginCheck(_symbol, _cmd, size_of_lot);
+    // double margin = AccountFreeMarginCheck(_symbol, _cmd, size_of_lot);
     if (GetLastError() == 134 /* NOT_ENOUGH_MONEY */) _res = false;
     return (_res);
   }
@@ -614,13 +615,14 @@ class AccountMt {
   /**
    * Returns text info about the account.
    */
-  string ToString() {
+  string const ToString() {
     return StringFormat(
         "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Profit: %g, "
         "Margin Used/Free/Avail: %g(%.1f%%)/%g/%g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
-        GetType(), GetServerName(), GetCompanyName(), GetAccountName(), GetCurrency(), GetBalance(), GetCredit(),
-        GetEquity(), GetProfit(), GetMarginUsed(), GetMarginUsedInPct(), GetMarginFree(), GetMarginAvail(),
-        GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode());
+        C_STR(GetType()), C_STR(GetServerName()), C_STR(GetCompanyName()), C_STR(GetAccountName()),
+        C_STR(GetCurrency()), GetBalance(), GetCredit(), GetEquity(), GetProfit(), GetMarginUsed(),
+        GetMarginUsedInPct(), GetMarginFree(), GetMarginAvail(), GetLimitOrders(), GetLeverage(), GetStopoutLevel(),
+        GetStopoutMode());
   }
 
   /**

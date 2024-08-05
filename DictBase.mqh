@@ -29,7 +29,6 @@
 #include "Dict.enum.h"
 #include "DictIteratorBase.mqh"
 #include "DictSlot.mqh"
-#include "Serializer.mqh"
 
 /**
  * Dictionary overflow listener. arguments are:
@@ -62,12 +61,14 @@ class DictBase {
     _current_id = 0;
     _mode = DictModeUnknown;
     _flags = 0;
+    overflow_listener = nullptr;
+    _DictSlots_ref = new DictSlotsRef<K, V>();
   }
 
   /**
    * Destructor.
    */
-  ~DictBase() {}
+  ~DictBase() { delete _DictSlots_ref; }
 
   DictIteratorBase<K, V> Begin() {
     // Searching for first item index.
@@ -106,7 +107,7 @@ class DictBase {
   /**
    * Returns slot by key.
    */
-  DictSlot<K, V>* GetSlotByKey(DictSlotsRef<K, V>& dictSlotsRef, const K _key, unsigned int& position) {
+  DictSlot<K, V>* GetSlotByKey(DictSlotsRef<K, V>*& dictSlotsRef, const K _key, unsigned int& position) {
     unsigned int numSlots = ArraySize(dictSlotsRef.DictSlots);
 
     if (numSlots == 0) return NULL;
@@ -137,7 +138,7 @@ class DictBase {
   /**
    * Returns slot by position.
    */
-  DictSlot<K, V>* GetSlotByPos(DictSlotsRef<K, V>& dictSlotsRef, const unsigned int position) {
+  DictSlot<K, V>* GetSlotByPos(DictSlotsRef<K, V>*& dictSlotsRef, const unsigned int position) {
     return dictSlotsRef.DictSlots[position].IsUsed() ? &dictSlotsRef.DictSlots[position] : NULL;
   }
 
@@ -187,7 +188,15 @@ class DictBase {
 
     if (GetMode() == DictModeList) {
       // In list mode value index is the slot index.
-      position = (int)key;
+#ifndef __MQL__
+      if constexpr (std::is_same<K, int>::value) {
+#endif
+        position = (int)key;
+#ifndef __MQL__
+      } else {
+        RUNTIME_ERROR("List mode for a dict could only work if Dict's key type is an integer!");
+      }
+#endif
     } else {
       position = Hash(key) % ArraySize(_DictSlots_ref.DictSlots);
     }
@@ -204,7 +213,15 @@ class DictBase {
 
       if (_DictSlots_ref.DictSlots[position].IsUsed()) {
         if (GetMode() == DictModeList) {
-          _should_be_removed = position == (unsigned int)key;
+#ifndef __MQL__
+          if constexpr (std::is_same<K, int>::value) {
+#endif
+            _should_be_removed = position == (unsigned int)key;
+#ifndef __MQL__
+          } else {
+            RUNTIME_ERROR("List mode for a dict could only work if Dict's key type is an integer!");
+          }
+#endif
         } else {
           _should_be_removed =
               _DictSlots_ref.DictSlots[position].HasKey() && _DictSlots_ref.DictSlots[position].key == key;
@@ -234,18 +251,6 @@ class DictBase {
     }
 
     // No key found.
-  }
-
-  /**
-   * Checks whether overflow listener allows dict to grow up.
-   */
-  bool IsGrowUpAllowed() {
-    if (overflow_listener == NULL) {
-      return true;
-    }
-
-    // Checking if overflow listener allows resize from current to higher number of slots.
-    return overflow_listener(DICT_OVERFLOW_REASON_FULL, Size(), 0);
   }
 
   /**
@@ -331,9 +336,9 @@ class DictBase {
 
  protected:
   /**
-   * Array of DictSlots.
+   * Pointer to array of DictSlots.
    */
-  DictSlotsRef<K, V> _DictSlots_ref;
+  DictSlotsRef<K, V>* _DictSlots_ref;
 
   DictOverflowListener overflow_listener;
   unsigned int overflow_listener_max_conflicts;
@@ -374,17 +379,50 @@ class DictBase {
   /**
    * Specialization of hashing function.
    */
-  unsigned int Hash(unsigned int x) { return x; }
-
-  /**
-   * Specialization of hashing function.
-   */
-  unsigned int Hash(int x) { return (unsigned int)x; }
-
-  /**
-   * Specialization of hashing function.
-   */
   unsigned int Hash(float x) { return (unsigned int)((unsigned long)x * 10000 % 10000); }
+
+  /**
+   * Specialization of hashing function.
+   */
+  unsigned int Hash(int value) {
+    value ^= (value >> 8);
+    value ^= (value << 3);
+    value ^= (value >> 9);
+    value ^= (value >> 4);
+    value ^= (value << 6);
+    value ^= (value >> 14);
+    return value;
+  }
+
+  /**
+   * Specialization of hashing function.
+   */
+  unsigned int Hash(unsigned int value) { return Hash((int)value); }
+
+  /**
+   * Specialization of hashing function.
+   */
+  unsigned int Hash(long value) {
+    value ^= (value >> 33);
+    value ^= (value << 21);
+    value ^= (value >> 17);
+
+    // Step 2: Combine upper and lower 32 bits to form a 32-bit hash
+    long hash = (int)(value ^ (value >> 32));
+
+    // Step 3: Further bit manipulation to spread the bits
+    hash ^= (hash >> 16);
+    hash *= 0x85ebca6b;  // A large prime number
+    hash ^= (hash >> 13);
+    hash *= 0xc2b2ae35;  // Another large prime number
+    hash ^= (hash >> 16);
+    return int(value >> 32);
+  }
+
+  /**
+   * Specialization of hashing function.
+   */
+  unsigned int Hash(unsigned long value) { return Hash((unsigned long)value); }
 };
 
 #endif

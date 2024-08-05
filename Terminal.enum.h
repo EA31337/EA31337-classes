@@ -31,7 +31,7 @@
 #endif
 
 // Includes.
-#include "Indicator.define.h"
+#include "Indicator/Indicator.define.h"
 
 // Defines user error enumeration.
 enum ENUM_USER_ERR { USER_ERR_INVALID_ARGUMENT };
@@ -59,26 +59,46 @@ enum ENUM_INIT_RETCODE {
 #ifndef __MQL__
 
 /**
- * Enumeration for the MQL program properties (integer type).
+ * Enumeration for the MQL5 program properties (integer type).
  *
  * @docs
  * - https://www.mql5.com/en/docs/constants/environment_state/mql5_programm_info
  */
+
 enum ENUM_MQL_INFO_INTEGER {
-  MQL_DEBUG,            // Indication that the program is running in the debugging mode (bool).
-  MQL_DLLS_ALLOWED,     // The permission to use DLL for the given running program (bool).
-  MQL_FORWARD,          // Indication that the program is running in the forward testing process (bool).
-  MQL_FRAME_MODE,       // Indication that the program is running in gathering optimization result frames mode (bool).
-  MQL_LICENSE_TYPE,     // Type of license of the EX module.
-  MQL_MEMORY_LIMIT,     // Maximum possible amount of dynamic memory for MQL5 program in MB (int).
-  MQL_MEMORY_USED,      // Memory used by MQL5 program in MB (int).
-  MQL_OPTIMIZATION,     // Indication that the program is running in the optimization mode (bool).
-  MQL_PROFILER,         // Indication that the program is running in the code profiling mode (bool).
-  MQL_PROGRAM_TYPE,     // Type of the MQL5 program (ENUM_PROGRAM_TYPE).
-  MQL_SIGNALS_ALLOWED,  // The permission to modify the Signals for the given running program (bool).
-  MQL_TESTER,           // Indication that the program is running in the tester (bool).
-  MQL_TRADE_ALLOWED,    // The permission to trade for the given running program (bool).
-  MQL_VISUAL_MODE,      // Indication that the program is running in the visual testing mode (bool).
+  MQL_DEBUG = 5,          // Indication that the program is running in the debugging mode (bool).
+  MQL_DLLS_ALLOWED = 3,   // The permission to use DLL for the given running program (bool).
+  MQL_FORWARD = 16,       // Indication that the program is running in the forward testing process (bool).
+  MQL_FRAME_MODE = 12,    // Indication that the program is running in gathering optimization result frames mode (bool).
+  MQL_HANDLES_USED = 17,  // The current number of active object handles. These include both dynamic (created via new)
+                          // and non-dynamic objects, global/local variables or class members. The more handles a
+                          // program uses, the more resources it consumes.
+  MQL_LICENSE_TYPE = 9,   // Type of license of the EX module.
+  MQL_MEMORY_LIMIT = 13,  // Maximum possible amount of dynamic memory for MQL5 program in MB (int).
+  MQL_MEMORY_USED = 11,   // Memory used by MQL5 program in MB (int).
+  MQL_OPTIMIZATION = 7,   // Indication that the program is running in the optimization mode (bool).
+  MQL_PROFILER = 10,      // Indication that the program is running in the code profiling mode (bool).
+  MQL_PROGRAM_TYPE = 2,   // Type of the MQL5 program (ENUM_PROGRAM_TYPE).
+  MQL_SIGNALS_ALLOWED = 14,  // The permission to modify the Signals for the given running program (bool).
+  MQL_TESTER = 6,            // Indication that the program is running in the tester (bool).
+  MQL_TRADE_ALLOWED = 4,     // The permission to trade for the given running program (bool).
+  MQL_VISUAL_MODE = 8,       // Indication that the program is running in the visual testing mode (bool).
+
+  // Additional enumerations for MQL4 compatibility:
+
+  // MQL4:
+  MQL_CODEPAGE = 128
+};
+
+/**
+ * @docs
+ * - https://www.mql5.com/en/docs/constants/environment_state/mql5_programm_info#enum_program_type
+ */
+enum ENUM_PROGRAM_TYPE {
+  PROGRAM_SCRIPT,     // Script.
+  PROGRAM_EXPERT,     // Expert.
+  PROGRAM_INDICATOR,  // Indicator
+  PROGRAM_SERVICE,    // Service.
 };
 
 /**
@@ -88,8 +108,9 @@ enum ENUM_MQL_INFO_INTEGER {
  * - https://www.mql5.com/en/docs/constants/environment_state/mql5_programm_info
  */
 enum ENUM_MQL_INFO_STRING {
-  MQL_PROGRAM_NAME,   // Name of the running mql5-program (string).
-  MQL5_PROGRAM_PATH,  // Path for the given running program (string).
+  MQL_PROGRAM_NAME,                     // Name of the running mql5-program (string).
+  MQL5_PROGRAM_PATH,                    // Path for the given running program (string).
+  MQL_PROGRAM_PATH = MQL5_PROGRAM_PATH  // Same as above.
 };
 
 /**
@@ -165,6 +186,17 @@ enum ENUM_TERMINAL_INFO_INTEGER {
 };
 
 /**
+ * Enumeration for MQLInfoInteger(MQL_LICENSE_TYPE).
+ */
+enum ENUM_LICENSE_TYPE {
+  LICENSE_FREE,  // A free unlimited version.
+  LICENSE_DEMO,  // A trial version of a paid product from the Market. It works only in the strategy tester.
+  LICENSE_FULL,  // A purchased licensed version allows at least 5 activations. The number of activations is specified
+                 // by seller. Seller may increase the allowed number of activations.
+  LICENSE_TIME   // A version with limited term liсense.
+};
+
+/**
  * Enumeration for the Terminal properties (string).
  *
  * @docs
@@ -198,4 +230,109 @@ enum ENUM_UNINIT_REASON {
   REASON_INITFAILED = 8,
   REASON_CLOSE = 9,
 };
+
+enum ENUM_DRAW_TYPE {
+  DRAW_NONE,
+  DRAW_LINE,
+  DRAW_SECTION,
+  DRAW_HISTOGRAM,
+  DRAW_HISTOGRAM2,
+  DRAW_ARROW,
+  DRAW_ZIGZAG,
+  DRAW_FILLING,
+  DRAW_BARS,
+  DRAW_CANDLES,
+  DRAW_COLOR_LINE,
+  DRAW_COLOR_SECTION,
+  DRAW_COLOR_HISTOGRAM,
+  DRAW_COLOR_HISTOGRAM2,
+  DRAW_COLOR_ARROW,
+  DRAW_COLOR_ZIGZAG,
+  DRAW_COLOR_BARS,
+  DRAW_COLOR_CANDLES
+};
+
+enum ENUM_PLOT_PROPERTY_INTEGER {
+  PLOT_ARROW,
+  PLOT_ARROW_SHIFT,
+  PLOT_DRAW_BEGIN,
+  PLOT_DRAW_TYPE,
+  PLOT_SHOW_DATA,
+  PLOT_SHIFT,
+  PLOT_LINE_STYLE,
+  PLOT_LINE_WIDTH,
+  PLOT_COLOR_INDEXES,
+  PLOT_LINE_COLOR
+};
+
+enum ENUM_PLOT_PROPERTY_DOUBLE { PLOT_EMPTY_VALUE };
+
+enum ENUM_PLOT_PROPERTY_STRING { PLOT_LABEL };
+
+enum ENUM_LINE_STYLE { STYLE_SOLID, STYLE_DASH, STYLE_DOT, STYLE_DASHDOT, STYLE_DASHDOTDOT };
+
+enum ENUM_OBJECT_PROPERTY_INTEGER {
+  OBJPROP_COLOR,
+  OBJPROP_STYLE,
+  OBJPROP_WIDTH,
+  OBJPROP_BACK,
+  OBJPROP_ZORDER,
+  OBJPROP_FILL,
+  OBJPROP_HIDDEN,
+  OBJPROP_SELECTED,
+  OBJPROP_READONLY,
+  OBJPROP_TYPE,
+  OBJPROP_TIME,
+  OBJPROP_SELECTABLE,
+  OBJPROP_CREATETIME,
+  OBJPROP_LEVELS,
+  OBJPROP_LEVELCOLOR,
+  OBJPROP_LEVELSTYLE,
+  OBJPROP_LEVELWIDTH,
+  OBJPROP_ALIGN,
+  OBJPROP_FONTSIZE,
+  OBJPROP_RAY_LEFT,
+  OBJPROP_RAY_RIGHT,
+  OBJPROP_RAY,
+  OBJPROP_ELLIPSE,
+  OBJPROP_ARROWCODE,
+  OBJPROP_TIMEFRAMES,
+  OBJPROP_ANCHOR,
+  OBJPROP_XDISTANCE,
+  OBJPROP_YDISTANCE,
+  OBJPROP_DIRECTION,
+  OBJPROP_DEGREE,
+  OBJPROP_DRAWLINES,
+  OBJPROP_STATE,
+  OBJPROP_CHART_ID,
+  OBJPROP_XSIZE,
+  OBJPROP_YSIZE,
+  OBJPROP_XOFFSET,
+  OBJPROP_YOFFSET,
+  OBJPROP_PERIOD,
+  OBJPROP_DATE_SCALE,
+  OBJPROP_PRICE_SCALE,
+  OBJPROP_CHART_SCALE,
+  OBJPROP_BGCOLOR,
+  OBJPROP_CORNER,
+  OBJPROP_BORDER_TYPE,
+  OBJPROP_BORDER_COLOR
+};
+
+enum ENUM_OBJECT_PROPERTY_DOUBLE { OBJPROP_PRICE, OBJPROP_LEVELVALUE, OBJPROP_SCALE, OBJPROP_ANGLE, OBJPROP_DEVIATION };
+
+enum ENUM_OBJECT_PROPERTY_STRING {
+  OBJPROP_NAME,
+  OBJPROP_TEXT,
+  OBJPROP_TOOLTIP,
+  OBJPROP_LEVELTEXT,
+  OBJPROP_FONT,
+  OBJPROP_BMPFILE,
+  OBJPROP_SYMBOL
+};
+
+enum ENUM_BORDER_TYPE { BORDER_FLAT, BORDER_RAISED, BORDER_SUNKEN };
+
+enum ENUM_ALIGN_MODE { ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT };
+
 #endif

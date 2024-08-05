@@ -31,9 +31,14 @@
 
 // Includes.
 #include "../Data.struct.h"
+#include "../Serializer/Serializer.define.h"
+#include "../Serializer/Serializer.enum.h"
 #include "../Std.h"
 #include "../Terminal.define.h"
 #include "Task.enum.h"
+
+// Forward declarations.
+class Serializer;
 
 struct TaskConditionEntry {
  public:
@@ -198,16 +203,7 @@ struct TaskConditionEntry {
 
  public:
   // Serializers
-  SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(THIS_REF, "flags", flags);
-    s.Pass(THIS_REF, "id", id);
-    s.Pass(THIS_REF, "last_check", last_check);
-    s.Pass(THIS_REF, "last_success", last_success);
-    s.Pass(THIS_REF, "tries", tries);
-    s.PassEnum(THIS_REF, "freq", freq);
-    s.PassArray(THIS_REF, "args", args);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer &s);
 
   SERIALIZER_EMPTY_STUB;
 };

@@ -29,45 +29,18 @@
  * - Files with which file operations are conducted means cannot be outside the file sandbox.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "File.define.h"
 #include "File.extern.h"
+#include "Std.h"
 #include "Terminal.define.h"
-#include "Terminal.extern.h"
 #include "Terminal.enum.h"
-
-#ifndef __MQL__
-enum ENUM_FILE_PROPERTY_INTEGER {
-  FILE_EXISTS,
-  FILE_CREATE_DATE,
-  FILE_MODIFY_DATE,
-  FILE_ACCESS_DATE,
-  FILE_SIZE,
-  FILE_POSITION,
-  FILE_END,
-  FILE_LINE_END,
-  FILE_IS_COMMON,
-  FILE_IS_TEXT,
-  FILE_IS_BINARY,
-  FILE_IS_CSV,
-  FILE_IS_ANSI,
-  FILE_IS_READABLE,
-  FILE_IS_WRITABLE,
-};
-enum ENUM_FILE_OPEN_FLAGS {
-  FILE_READ = 1,
-  FILE_WRITE = 2,
-  FILE_BIN = 4,
-  FILE_CSV = 8,
-  FILE_TXT = 16,
-  FILE_ANSI = 32,
-  FILE_UNICODE = 64,
-  FILE_SHARE_READ = 128,
-  FILE_SHARE_WRITE = 256,
-  FILE_REWRITE = 512,
-  FILE_COMMON = 4096,
-};
-#endif
+#include "Terminal.extern.h"
 
 /**
  * Class to provide a group of functions for working with files.

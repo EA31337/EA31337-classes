@@ -25,16 +25,18 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
+#include "../../../Platform.define.h"
 #include "../../IndicatorTf.h"
+#include "../../IndicatorTf.struct.h"
 
 // Params for dummy candle-based indicator.
 struct IndicatorTfDummyParams : IndicatorTfParams {
-  IndicatorTfDummyParams(unsigned int _spc = 60) : IndicatorTfParams(_spc) {}
+  IndicatorTfDummyParams(ENUM_TIMEFRAMES _tf = PLATFORM_WRONG_TIMEFRAME) : IndicatorTfParams("IndicatorTf", _tf) {}
 };
 
 /**
@@ -42,17 +44,30 @@ struct IndicatorTfDummyParams : IndicatorTfParams {
  */
 class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
  public:
-  IndicatorTfDummy(unsigned int _spc) : IndicatorTf(_spc) {}
-  IndicatorTfDummy(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorTf(_tf) {}
-  IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi = 0) : IndicatorTf(_tfi) {}
+  IndicatorTfDummy(ENUM_TIMEFRAMES _tf) : IndicatorTf(IndicatorTfDummyParams(_tf), IndicatorDataParams()) { Init(); }
+  IndicatorTfDummy(ENUM_TIMEFRAMES_INDEX _tfi)
+      : IndicatorTf(IndicatorTfDummyParams(ChartTf::IndexToTf(_tfi)), IndicatorDataParams()) {
+    Init();
+  }
 
-  string GetName() override { return "IndicatorTfDummy(" + IntegerToString(iparams.spc) + ")"; }
+  void Init() {
+    // Explicitly specifying built-in mode as in C++ default mode is On-Indicator.
+    idparams.Set<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE), IDATA_BUILTIN);
+  }
 
-  void OnDataSourceEntry(IndicatorDataEntry& entry) override {
+  string GetName() override { return "IndicatorTfDummy(" + iparams.tf.GetString() + ")"; }
+
+ void OnDataSourceEntry(IndicatorDataEntry& entry,
+                         ENUM_INDI_EMITTED_ENTRY_TYPE type = INDI_EMITTED_ENTRY_TYPE_PARENT) override {
+    IndicatorTf<IndicatorTfDummyParams>::OnDataSourceEntry(entry, type);
+
+    if (type != INDI_EMITTED_ENTRY_TYPE_TICK) {
+      return;
+    }
+
     // When overriding OnDataSourceEntry() we have to remember to call parent
     // method, because IndicatorCandle also need to invoke it in order to
     // create/update matching candle.
-    IndicatorTf<IndicatorTfDummyParams>::OnDataSourceEntry(entry);
 
 #ifdef __debug_indicator__
     Print(GetFullName(), " got new tick at ", entry.timestamp,
@@ -60,3 +75,33 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
 #endif
   }
 };
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyParams) { emscripten::value_object<IndicatorTfDummyParams>("indicators.TfParams"); }
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyBaseBaseBase) {
+  emscripten::class_<Indicator<IndicatorTfDummyParams>, emscripten::base<IndicatorData>>(
+      "IndicatorTfDummyBaseBaseBase");
+}
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyBaseBase) {
+  emscripten::class_<IndicatorCandle<IndicatorTfDummyParams, double, ItemsHistoryTfCandleProvider<double>>,
+                     emscripten::base<Indicator<IndicatorTfDummyParams>>>("IndicatorTfDummyBaseBase");
+}
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummyBase) {
+  emscripten::class_<
+      IndicatorTf<IndicatorTfDummyParams>,
+      emscripten::base<IndicatorCandle<IndicatorTfDummyParams, double, ItemsHistoryTfCandleProvider<double>>>>(
+      "IndicatorTfDummyBase");
+}
+
+EMSCRIPTEN_BINDINGS(IndicatorTfDummy) {
+  emscripten::class_<IndicatorTfDummy, emscripten::base<IndicatorTf<IndicatorTfDummyParams>>>("indicators.Tf")
+      .smart_ptr<Ref<IndicatorTfDummy>>("Ref<IndicatorTfDummy>")
+      .constructor<ENUM_TIMEFRAMES>();
+}
+
+#endif

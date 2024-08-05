@@ -40,6 +40,12 @@ class DictSlot {
 
   DictSlot(unsigned char flags = 0) : _flags(flags) {}
 
+  //#ifdef __MQL__
+  //  DictSlot(const DictSlot& r) : _flags(r._flags), key(r.key), value(r.value) {}
+  //#else
+  DictSlot(const DictSlot& r) : _flags(r._flags), key(r.key) { value = r.value; }
+  //#endif
+
   bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
 
   bool HasKey() { return bool(_flags & DICT_SLOT_HAS_KEY); }
@@ -55,4 +61,4 @@ class DictSlot {
   void RemoveFlags(unsigned char flags) { _flags &= (unsigned char)~flags; }
 };
 
-#endif
+#endif  // DICT_SLOT_MQH

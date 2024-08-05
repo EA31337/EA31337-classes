@@ -24,10 +24,13 @@
  * Test functionality of DrawIndicator class.
  */
 
+//#define __debug__
+//#define __debug_verbose__
+
 // Includes.
 #include "../DictStruct.mqh"
 #include "../DrawIndicator.mqh"
-#include "../Indicator.struct.serialize.h"
+#include "../Indicator/Indicator.struct.serialize.h"
 #include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_MA.mqh"
@@ -44,7 +47,7 @@ int bar_processed;
  */
 int OnInit() {
   Platform::Init();
-  candles = Platform::FetchDefaultCandleIndicator();
+  candles = Platform::FetchDefaultCandleIndicator("EURUSD", PERIOD_M1);
   bool _result = true;
   // Initialize indicators.
   _result &= InitIndicators();
@@ -67,10 +70,12 @@ void OnTick() {
     for (DictIterator<long, Ref<IndicatorData>> iter = Platform::GetIndicators() PTR_DEREF Begin(); iter.IsValid();
          ++iter) {
       IndicatorData *_indi = iter.Value().Ptr();
-      _indi.OnTick();
+      _indi.OnTick(Platform::GetGlobalTickIndex());
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
+#ifdef __debug__
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
+#endif
       }
     }
   }
@@ -89,28 +94,28 @@ bool InitIndicators() {
 
   // Bollinger Bands.
   IndiBandsParams bands_params(20, 2, 0, PRICE_MEDIAN);
-  Platform::AddWithDefaultBindings(new Indi_Bands(bands_params));
+  Platform::AddWithDefaultBindings(new Indi_Bands(bands_params), "EURUSD", PERIOD_M1);
 
   // Moving Average.
   IndiMAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
-  Platform::AddWithDefaultBindings(new Indi_MA(ma_params));
+  Platform::AddWithDefaultBindings(new Indi_MA(ma_params), "EURUSD", PERIOD_M1);
 
   // Relative Strength Index (RSI).
   IndiRSIParams rsi_params(14, PRICE_OPEN);
-  Platform::AddWithDefaultBindings(new Indi_RSI(rsi_params));
+  Platform::AddWithDefaultBindings(new Indi_RSI(rsi_params), "EURUSD", PERIOD_M1);
 
   /* Special indicators */
 
   // Demo/Dummy Indicator.
   IndiDemoParams demo_params;
-  Platform::AddWithDefaultBindings(new Indi_Demo(demo_params));
+  Platform::AddWithDefaultBindings(new Indi_Demo(demo_params), "EURUSD", PERIOD_M1);
 
 #ifndef __MQL4__
   // @fixme: Make it work for MT4.
   // Current Price (used by custom indicators)  .
   PriceIndiParams price_params();
   // price_params.SetDraw(clrGreenYellow);
-  Platform::AddWithDefaultBindings(new Indi_Price(price_params));
+  Platform::AddWithDefaultBindings(new Indi_Price(price_params), "EURUSD", PERIOD_M1);
 #endif
 
   /* @fixme: Array out of range.

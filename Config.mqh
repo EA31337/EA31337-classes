@@ -33,7 +33,7 @@
 #include "DictStruct.mqh"
 #include "File.mqh"
 #include "Object.mqh"
-#include "Serializer.mqh"
+#include "Serializer/Serializer.h"
 
 enum CONFIG_FORMAT { CONFIG_FORMAT_JSON, CONFIG_FORMAT_JSON_NO_WHITESPACES, CONFIG_FORMAT_INI };
 

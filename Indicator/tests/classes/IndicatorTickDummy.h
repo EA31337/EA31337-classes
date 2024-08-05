@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "../../../Tick.struct.h"
+#include "../../../Tick/Tick.struct.h"
 #include "../../IndicatorTick.h"
 
 // Params for dummy tick-based indicator.
@@ -39,7 +39,7 @@ struct IndicatorTickDummyParams : IndicatorParams {
 };
 
 // Dummy tick-based indicator.
-class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double> {
+class IndicatorTickDummy : public IndicatorTick<IndicatorTickDummyParams, double, ItemsHistoryTickProvider<double>> {
  public:
   IndicatorTickDummy(string _symbol, int _shift = 0, string _name = "")
       : IndicatorTick(_symbol, INDI_TICK, _shift, _name) {}

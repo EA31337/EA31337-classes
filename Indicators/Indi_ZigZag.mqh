@@ -20,8 +20,12 @@
  *
  */
 
+// Defines.
+// 100 bars was originally specified by Indicators/Examples/ZigZag.mq5
+#define INDI_ZIGZAG_MIN_BARS 100
+
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Defines.
@@ -146,17 +150,18 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
    * Returns value for ZigZag indicator.
    */
   static double iZigZag(IndicatorData *_indi, int _depth, int _deviation, int _backstep, ENUM_ZIGZAG_LINE _mode = 0,
-                        int _shift = 0) {
+                        int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_ZIGZAG_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
-    return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode, _shift,
-                          _cache);
+    return iZigZagOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode,
+                          _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
    * Calculates ZigZag on the array of values.
    */
   static double iZigZagOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _depth, int _deviation, int _backstep, int _mode,
-                               int _shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
+                               int _abs_shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
     if (!_cache.HasBuffers()) {
@@ -171,7 +176,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
                                                     _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2), _depth,
                                                     _deviation, _backstep));
 
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -182,7 +187,7 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
                        int InpDeviation, int InpBackstep) {
     int ExtRecalc = 3;
 
-    if (rates_total < 100) return (0);
+    if (rates_total < INDI_ZIGZAG_MIN_BARS) return (0);
     //---
     int i = 0;
     int start = 0, extreme_counter = 0, extreme_search = Extremum;
@@ -373,21 +378,22 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
       case IDATA_ONCALCULATE:
-        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);
+        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode,
+                         ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
-        _value =
-            Indi_ZigZag::iCustomZigZag(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetDepth(),
-                                       GetDeviation(), GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode, _ishift, THIS_PTR);
+        _value = Indi_ZigZag::iCustomZigZag(GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetDepth(),
+                                            GetDeviation(), GetBackstep() /*]*/, (ENUM_ZIGZAG_LINE)_mode,
+                                            ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_INDICATOR:
-        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode, _ishift);
+        _value = iZigZag(THIS_PTR, GetDepth(), GetDeviation(), GetBackstep(), (ENUM_ZIGZAG_LINE)_mode,
+                         ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -398,7 +404,9 @@ class Indi_ZigZag : public Indicator<IndiZigZagParams> {
   /**
    * Checks if indicator entry values are valid.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) { return !_entry.HasValue<double>(EMPTY_VALUE); }
+  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
+    return _entry.values[0].Get<double>() != DBL_MAX && _entry.values[0].Get<double>() != EMPTY_VALUE;
+  }
 
   /* Getters */
 

@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/ValueStorage.applied_price.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.spread.h"
@@ -39,7 +39,7 @@ struct IndiADXWParams : IndiADXParams {
   IndiADXWParams(int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_TYPICAL, int _shift = 0)
       : IndiADXParams(_period, _ap, _shift) {
     itype = itype == INDI_NONE || itype == INDI_ADX ? INDI_ADXW : itype;
-    if (custom_indi_name == "") {
+    if (custom_indi_name == "" || custom_indi_name == "Examples\\ADX") {
       SetCustomIndicatorName("Examples\\ADXW");
     }
   };
@@ -122,7 +122,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * Calculates ADX Wilder on the array of values.
    */
-  static double iADXWilderOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _shift,
+  static double iADXWilderOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _abs_shift,
                                   IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
     _cache.SetPriceBuffer(_open, _high, _low, _close);
 
@@ -142,15 +142,17 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
 
     // Returns value from the first calculation buffer.
     // Returns first value for as-series array or last value for non-as-series array.
-    return _cache.GetTailValue<double>(_mode, _shift);
+    return _cache.GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
    * On-indicator version of ADX Wilder.
    */
-  static double iADXWilder(IndicatorData *_indi, int _period, int _mode = 0, int _shift = 0) {
+  static double iADXWilder(IndicatorData *_indi, int _period, int _mode = 0, int _rel_shift = 0) {
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_period));
-    return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode, _shift, _cache);
+    return iADXWilderOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _mode,
+                             _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
 
   /**
@@ -162,6 +164,7 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
                        ValueStorage<double> &_pdb_buff, ValueStorage<double> &_nd_buff, ValueStorage<double> &_tr_buff,
                        ValueStorage<double> &_atr_buff, ValueStorage<double> &_dx_buff, int _adxw_period) {
     int i;
+
     // Checking for bars count.
     if (rates_total < _adxw_period) return (0);
     // Detect start position.
@@ -265,22 +268,21 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN_ADX, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
-        _value = Indi_ADXW::iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, _ishift, THIS_PTR);
+        _value = Indi_ADXW::iADXWilder(GetSymbol(), GetTf(), GetPeriod(), _mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
-        _value = Indi_ADXW::iADXWilder(THIS_PTR, GetPeriod(), _mode, _ishift);
+        _value = Indi_ADXW::iADXWilder(THIS_PTR, GetPeriod(), _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
-                         _mode, _ishift);
+                         _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_ADXW::iADXWilder(THIS_PTR, GetPeriod(), _mode, _ishift);
+        _value = Indi_ADXW::iADXWilder(THIS_PTR, GetPeriod(), _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

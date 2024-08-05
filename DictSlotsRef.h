@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -37,11 +37,13 @@
 #include "Std.h"
 #include "Util.h"
 
+// Forward class declaration.
 template <typename K, typename V>
 class DictSlot;
 
 template <typename K, typename V>
-struct DictSlotsRef {
+class DictSlotsRef {
+ public:
   ARRAY(DictSlot<K _COMMA V>, DictSlots);
 
   // Incremental index for dict operating in list mode.
@@ -60,14 +62,13 @@ struct DictSlotsRef {
     _avg_conflicts = 0;
   }
 
-  void operator=(DictSlotsRef& r) {
-    Util::ArrayCopy(DictSlots, r.DictSlots);
-    _list_index = r._list_index;
-    _num_used = r._num_used;
-    _num_conflicts = r._num_conflicts;
-    _avg_conflicts = r._avg_conflicts;
-  }
+ private:
+  /**
+   * Private assignment operator to avoid invalid copying.
+   */
+  void operator=(DictSlotsRef& r) {}
 
+ public:
   /**
    * Adds given number of conflicts for an insert action, so we can store average number of conflicts.
    */

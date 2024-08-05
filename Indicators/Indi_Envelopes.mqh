@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "../Storage/Singleton.h"
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
@@ -137,32 +137,9 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
         _mode = 1;
         break;
     }
-    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _ap, _deviation)) ==
-          INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    if (Terminal::IsVisualMode()) {
-      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
-      // we check the number of calculated data only in visual mode.
-      int _bars_calc = BarsCalculated(_handle);
-      if (GetLastError() > 0) {
-        return EMPTY_VALUE;
-      } else if (_bars_calc <= 2) {
-        SetUserError(ERR_USER_INVALID_BUFF_NUM);
-        return EMPTY_VALUE;
-      }
-    }
-    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return ArraySize(_res) > 0 ? _res[0] : EMPTY_VALUE;
-    }
-    return _res[0];
+
+    INDICATOR_BUILTIN_CALL_AND_RETURN(::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _ap, _deviation),
+                                      _mode, _shift);
 #endif
   }
 
@@ -194,6 +171,11 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   static double iEnvelopesOnArray(ValueStorage<double> *_price, int _total, int _ma_period, ENUM_MA_METHOD _ma_method,
                                   int _ma_shift, double _deviation, int _mode, int _shift,
                                   IndicatorCalculateCache<double> *_cache = NULL) {
+    // We need 1 bar more because MA methods assumes we have historic bars.
+    if (_price PTR_DEREF Size() < _shift + _ma_shift + _ma_period + 1) {
+      return DBL_MIN;
+    }
+
     double _indi_value_buffer[];
     double _result;
 
@@ -225,28 +207,28 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = EMPTY_VALUE;
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
-                                            GetAppliedPrice(), GetDeviation(), _mode, _ishift, THIS_PTR);
+                                            GetAppliedPrice(), GetDeviation(), _mode, ToRelShift(_abs_shift), THIS_PTR);
         break;
       case IDATA_ONCALCULATE:
         // @todo Is cache needed here?
         _value = Indi_Envelopes::iEnvelopesOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
                                                        GetMAMethod(), GetAppliedPrice(), GetMAShift(), GetDeviation(),
-                                                       _mode, _ishift);
+                                                       _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/ GetMAPeriod(),
-                         GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation() /**/, _mode, _ishift);
+        _value =
+            iCustom(istate.handle, GetSymbol(), GetTf(), iparams.GetCustomIndicatorName(), /**/ GetMAPeriod(),
+                    GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation() /**/, _mode, ToRelShift(_abs_shift));
         break;
       case IDATA_INDICATOR:
         _value = Indi_Envelopes::iEnvelopesOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(),
                                                        GetMAMethod(), GetAppliedPrice(), GetMAShift(), GetDeviation(),
-                                                       _mode, _ishift);
+                                                       _mode, ToRelShift(_abs_shift));
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -258,11 +240,11 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
   /**
    * Alters indicator's struct value.
    */
-  void GetEntryAlter(IndicatorDataEntry &_entry, int _shift) override {
-    Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry, _shift);
+  void GetEntryAlter(IndicatorDataEntry &_entry, int _rel_shift) override {
+    Indicator<IndiEnvelopesParams>::GetEntryAlter(_entry, _rel_shift);
 #ifdef __MQL4__
     // The LINE_MAIN only exists in MQL4 for Envelopes.
-    _entry.values[LINE_MAIN] = GetValue<double>((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
+    _entry.values[LINE_MAIN] = GetValue<double>((ENUM_LO_UP_LINE)LINE_MAIN, _rel_shift);
 #endif
   }
 

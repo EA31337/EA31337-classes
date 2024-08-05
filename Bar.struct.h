@@ -36,29 +36,30 @@ class Serializer;
 // Includes.
 #include "Bar.enum.h"
 #include "Chart.enum.h"
-#include "ISerializable.h"
-#include "Serializer.enum.h"
-#include "SerializerNode.enum.h"
+#include "Serializer/Serializable.h"
+#include "Serializer/Serializer.enum.h"
+#include "Serializer/Serializer.h"
+#include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
 
 /* Struct for storing OHLC values. */
 struct BarOHLC
 #ifndef __MQL__
-    : public ISerializable
+    : public Serializable
 #endif
 {
   datetime time;
   double open, high, low, close;
   // Struct constructor.
-  BarOHLC() : open(0), high(0), low(0), close(0), time(0){};
+  BarOHLC() : time(0), open(0), high(0), low(0), close(0){};
   BarOHLC(double _open, double _high, double _low, double _close, datetime _time = 0)
       : time(_time), open(_open), high(_high), low(_low), close(_close) {
-    if (_time == 0) {
+    if (_time == (datetime)0) {
       _time = TimeCurrent();
     }
   }
   BarOHLC(ARRAY_REF(double, _prices), datetime _time = 0) : time(_time) {
-    _time = _time == 0 ? TimeCurrent() : _time;
+    _time = _time == (datetime)0 ? TimeCurrent() : _time;
     int _size = ArraySize(_prices);
     close = _prices[0];
     open = _prices[_size - 1];
@@ -100,14 +101,16 @@ struct BarOHLC
         break;
       case PP_FIBONACCI:
         _pp = GetPivot();
-        _r1 = (double)(_pp + 0.382 * _range);
-        _r2 = (double)(_pp + 0.618 * _range);
-        _r3 = _pp + _range;
-        _r4 = _r1 + _range;  // ?
-        _s1 = (double)(_pp - 0.382 * _range);
-        _s2 = (double)(_pp - 0.618 * _range);
-        _s3 = _pp - _range;
-        _s4 = _s1 - _range;  // ?
+        _r1 = (double)(_pp + 0.236 * _range);
+        _r2 = (double)(_pp + 0.382 * _range);
+        _r3 = (double)(_pp + 0.500 * _range);
+        _r4 = (double)(_pp + 0.618 * _range);
+        // _r5 = (double)(_pp + 0.786 * _range);
+        _s1 = (double)(_pp - 0.236 * _range);
+        _s2 = (double)(_pp - 0.382 * _range);
+        _s3 = (double)(_pp - 0.500 * _range);
+        _s4 = (double)(_pp - 0.618 * _range);
+        // _s5 = (double)(_pp - 0.786 * _range);
         break;
       case PP_FLOOR:
         // Most basic and popular type of pivots used in Forex trading technical analysis.
@@ -228,9 +231,12 @@ struct BarOHLC
   SerializerNodeType Serialize(Serializer &s);
   // Converters.
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
+  // Operators.
+  bool operator==(const BarOHLC &_r) {
+    return time == _r.time && open == _r.time && high == _r.high && low == _r.low && close == _r.close;
+  }
+  bool operator!=(const BarOHLC &_r) { return !(THIS_REF == _r); }
 };
-
-#include "Serializer.mqh"
 
 /* Method to serialize BarOHLC structure. */
 SerializerNodeType BarOHLC::Serialize(Serializer &s) {
@@ -255,5 +261,5 @@ struct BarEntry {
     s.PassStruct(THIS_REF, "ohlc", ohlc, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
-  string ToCSV() { return StringFormat("%s", ohlc.ToCSV()); }
+  string ToCSV() { return StringFormat("%s", C_STR(ohlc.ToCSV())); }
 };

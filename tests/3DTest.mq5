@@ -43,7 +43,7 @@
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
 #include "../Platform.h"
-#include "../Serializer.mqh"
+#include "../Serializer/Serializer.h"
 #include "../Test.mqh"
 
 /**
@@ -66,7 +66,7 @@ int OnInit() {
     _mesh.Ptr().SetShaderVS(_shader_v.Ptr());
     _mesh.Ptr().SetShaderPS(_shader_p.Ptr());
 
-    Ref<Chart3D> _chart = new Chart3D(Platform::FetchDefaultCandleIndicator(), CHART3D_TYPE_CANDLES);
+    Ref<Chart3D> _chart = new Chart3D(Platform::FetchDefaultCandleIndicator("EURUSD", PERIOD_M1), CHART3D_TYPE_CANDLES);
 
     unsigned int _rand_color = rand() * 1256;
 

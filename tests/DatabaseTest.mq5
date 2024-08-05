@@ -45,13 +45,13 @@ int OnInit() {
   db = new Database(":memory:", DATABASE_OPEN_MEMORY);
 
   // Create Table1 table.
-  DatabaseTableColumnEntry columns[] = {
-      {"SYMBOL", TYPE_CHAR, DATABASE_COLUMN_FLAG_NONE, 6},
-      {"BID", TYPE_DOUBLE},
-      {"ASK", TYPE_DOUBLE},
-      {"VOLUME", TYPE_INT, DATABASE_COLUMN_FLAG_IS_NULL},
-      {"COMMENT", TYPE_STRING, DATABASE_COLUMN_FLAG_IS_NULL},
-  };
+  ARRAY(DatabaseTableColumnEntry, columns);
+  ArrayPushObject(columns, DatabaseTableColumnEntry("SYMBOL", TYPE_CHAR, DATABASE_COLUMN_FLAG_NONE, 6));
+  ArrayPushObject(columns, DatabaseTableColumnEntry("BID", TYPE_DOUBLE));
+  ArrayPushObject(columns, DatabaseTableColumnEntry("ASK", TYPE_DOUBLE));
+  ArrayPushObject(columns, DatabaseTableColumnEntry("VOLUME", TYPE_INT, DATABASE_COLUMN_FLAG_IS_NULL));
+  ArrayPushObject(columns, DatabaseTableColumnEntry("COMMENT", TYPE_STRING, DATABASE_COLUMN_FLAG_IS_NULL));
+
   DatabaseTableSchema schema = columns;
   assertTrueOrFail(db.CreateTable("Table1", schema), "Cannot create table! Error: " + (string)_LastError);
   DatabasePrint(db.GetHandle(), "PRAGMA TABLE_INFO(Table1);", 0);

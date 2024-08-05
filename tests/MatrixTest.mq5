@@ -595,30 +595,29 @@ int OnInit() {
   assertTrueOrFail(matrix_24_relu.ToString(false, 4) == "[0.0000,0.0000,0.0000,1.0000,2.0000]",
                    "Matrix::Relu(): Invalid result!");
 
-  Matrix<double> matrix_26("[1, 2, 3]");
+  Matrix<double> matrix_26("[[1, 2, 3]]");
   Matrix<double> matrix_27(
       "[[1, 1, 1]"
       " [0, 1, 0]"
       " [0, 0, 2]]");
 
   Matrix<double>* ptr_matrix_27_matmul = matrix_26 ^ matrix_27;
-
-  assertTrueOrFail(ptr_matrix_27_matmul.ToString(false, 2) == "[6.00,2.00,6.00]",
+  assertTrueOrFail(ptr_matrix_27_matmul.ToString(false, 2) == "[[1.00,3.00,7.00]]",
                    "Matrix::operator=(MatrixDimension): Invalid result!");
 
-  Matrix<double> matrix_27_bias("[1, 0, 5]");
+  Matrix<double> matrix_27_bias("[[1, 0, 5]]");
 
   Matrix<double>* ptr_matrix_27_add = ptr_matrix_27_matmul + matrix_27_bias;
-  assertTrueOrFail(ptr_matrix_27_add.ToString(false, 0) == "[7,2,11]", "Matrix::operator+(Matrix): Invalid result!");
+  assertTrueOrFail(ptr_matrix_27_add.ToString(false, 0) == "[[2,3,12]]", "Matrix::operator+(Matrix): Invalid result!");
 
   Matrix<double>* ptr_matrix_27_sub = ptr_matrix_27_matmul - matrix_27_bias;
-  assertTrueOrFail(ptr_matrix_27_sub.ToString(false, 0) == "[5,2,1]", "Matrix::operator+(Matrix): Invalid result!");
+  assertTrueOrFail(ptr_matrix_27_sub.ToString(false, 0) == "[[0,3,2]]", "Matrix::operator+(Matrix): Invalid result!");
 
   Matrix<double>* ptr_matrix_27_mul = ptr_matrix_27_matmul * matrix_27_bias;
-  assertTrueOrFail(ptr_matrix_27_mul.ToString(false, 0) == "[6,0,30]", "Matrix::operator+(Matrix): Invalid result!");
+  assertTrueOrFail(ptr_matrix_27_mul.ToString(false, 0) == "[[1,0,35]]", "Matrix::operator+(Matrix): Invalid result!");
 
-  delete ptr_matrix_27_matmul;
   delete ptr_matrix_27_add;
+  delete ptr_matrix_27_matmul;
   delete ptr_matrix_27_sub;
   delete ptr_matrix_27_mul;
 

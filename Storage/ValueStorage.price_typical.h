@@ -36,19 +36,19 @@ class PriceTypicalValueStorage : public HistoryValueStorage<double> {
   /**
    * Constructor.
    */
-  PriceTypicalValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage(_indi_candle) {}
+  PriceTypicalValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  PriceTypicalValueStorage(PriceTypicalValueStorage &_r) : HistoryValueStorage(_r.indi_candle.Ptr()) {}
+  PriceTypicalValueStorage(PriceTypicalValueStorage &_r) : HistoryValueStorage<double>(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  double Fetch(int _shift) override {
+  double Fetch(int _rel_shift) override {
     ResetLastError();
-    double _value = indi_candle REF_DEREF GetOHLC(RealShift(_shift)).GetTypical();
+    double _value = indi_candle REF_DEREF GetOHLC(RealShift(_rel_shift)).GetTypical();
     if (_LastError != ERR_NO_ERROR) {
       Print("Cannot fetch OHLC! Error: ", _LastError);
       DebugBreak();

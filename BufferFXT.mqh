@@ -25,9 +25,8 @@
 
 // Includes.
 #include "Account/AccountMt.h"
-#include "Chart.mqh"
 #include "DictStruct.mqh"
-#include "IndicatorBase.h"
+#include "Indicator/IndicatorData.h"
 #include "Object.mqh"
 
 // Defines.
@@ -74,6 +73,20 @@ struct BufferFXTEntry {
   int flag;  // Flag to launch an expert (0 - bar will be modified, but the expert will not be launched).
 
  public:
+  // Default constructor
+  BufferFXTEntry() {}
+
+  // Copy constructor
+  BufferFXTEntry(const BufferFXTEntry &r)
+      : otm(r.otm),
+        open(r.open),
+        high(r.high),
+        low(r.low),
+        close(r.close),
+        volume(r.volume),
+        ctm(r.ctm),
+        flag(r.flag) {}
+
   bool operator==(const BufferFXTEntry &_s) {
     // @fixme
     return false;

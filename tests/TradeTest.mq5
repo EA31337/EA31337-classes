@@ -46,10 +46,9 @@ bool _finish_test = false;
  */
 int OnInit() {
   Platform::Init();
-  _chart_m1 = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M1);
-  _chart_m5 = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M5);
-  Platform::Add(_chart_m1.Ptr());
-  Platform::Add(_chart_m5.Ptr());
+  _chart_m1 = Platform::FetchDefaultCandleIndicator("EURUSD", PERIOD_M1);
+  _chart_m5 = Platform::FetchDefaultCandleIndicator("EURUSD", PERIOD_M5);
+
   return INIT_SUCCEEDED;
 }
 
@@ -83,7 +82,7 @@ int Test() {
   // Test market.
   assertTrueOrFail(trade1 PTR_DEREF IsTradeAllowed(), "Trade not allowed!");
   assertTrueOrFail(trade1 PTR_DEREF GetSource() PTR_DEREF GetTf() == PERIOD_M1,
-                   StringFormat("Fail on GetTf() => [%s]!", trade1 PTR_DEREF GetSource() PTR_DEREF GetTf()));
+                   StringFormat("Fail on GetTf() => [%d]!", trade1 PTR_DEREF GetSource() PTR_DEREF GetTf()));
   assertTrueOrFail(trade1 PTR_DEREF GetSource() PTR_DEREF GetOpen() > 0, "Fail on GetOpen()!");
   assertTrueOrFail(trade1 PTR_DEREF GetSource() PTR_DEREF GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   // assertTrueOrFail(trade1.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme

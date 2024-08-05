@@ -4,44 +4,138 @@
  */
 
 #ifndef __MQL__
-#pragma once
+  #pragma once
 #endif
+
+// Includes.
+#include "Platform.h"
 
 #ifdef INDICATOR_LEGACY_VERSION_MT4
-#define INDICATOR_LEGACY_VERSION_DEFINED
+  #define INDICATOR_LEGACY_VERSION_DEFINED
 #endif
 
 #ifdef INDICATOR_LEGACY_VERSION_MT5
-#define INDICATOR_LEGACY_VERSION_DEFINED
+  #define INDICATOR_LEGACY_VERSION_DEFINED
 #endif
 
-#ifndef INDICATOR_LEGACY_VERSION_DEFINED
-#define INDICATOR_LEGACY_VERSION_MT5
-#define INDICATOR_LEGACY_VERSION_DEFINED
+#ifdef INDICATOR_STANDALONE_VERSION_LONG
+  #define INDICATOR_STANDALONE_VERSION_DEFINED
 #endif
 
-#ifdef __MQL4__
+#ifdef INDICATOR_STANDALONE_VERSION_SHORT
+  #define INDICATOR_STANDALONE_VERSION_DEFINED
+#endif
 
-#include <EA31337-classes/IndicatorBase.h>
-#include <EA31337-classes/Std.h>
-#include <EA31337-classes/Storage/ObjectsCache.h>
-#include <EA31337-classes/Util.h>
-
-#ifdef INDICATOR_LEGACY_VERSION_MT5
+#ifdef INDICATOR_STANDALONE_VERSION_DEFINED
 
 /**
- * Replacement for future OnCalculate(). Currently not used, but could be handy in the future.
+ * Wrapper for future OnInit(). We may need to init indicator with candle and
+ * tick inidicator in the hierarchy.
  */
-int OnCalculate(const int rates_total, const int prev_calculated, const datetime& time[], const double& open[],
-                const double& high[], const double& low[], const double& close[], const long& tick_volume[],
-                const long& volume[], const int& spread[]) {
-  int _num_calculated =
-      OnCalculateMT5(rates_total, prev_calculated, time, open, high, low, close, tick_volume, volume, spread);
+int OnInit() {
+  int _result = OnInitOriginal();
+  Platform::AddWithDefaultBindings(INDICATOR_STANDALONE_INDI_PTR, Symbol(), (ENUM_TIMEFRAMES)Period());
+  return _result;
+}
+
+  #define OnInit OnInitOriginal
+
+  // In standalone mode without legacy mode we also need to wrap OnCalculate() as
+  // we need to call Platform::OnCalculate(). The only difference is that we
+  // don't need to change buffer's AsSeries flag in MT5.
+  #ifndef INDICATOR_LEGACY_VERSION_DEFINED
+    #ifndef INDICATOR_LEGACY_EMIT_ONCALCULATE_WRAPPER
+      #define INDICATOR_LEGACY_EMIT_ONCALCULATE_WRAPPER
+    #endif
+
+    // No work required for buffers.
+    #define INDICATOR_LEGACY_VERSION_ACQUIRE_BUFFER
+    #define INDICATOR_LEGACY_VERSION_RELEASE_BUFFER
+    #ifdef INDICATOR_STANDALONE_VERSION_LONG
+      // We don't want to write two OnCalculate() wrappers. One is enough.
+      #define INDICATOR_LEGACY_VERSION_LONG
+    #endif  // INDICATOR_STANDALONE_VERSION_LONG
+    #ifdef INDICATOR_STANDALONE_VERSION_SHORT
+      // We don't want to write two OnCalculate() wrappers. One is enough.
+      #define INDICATOR_LEGACY_VERSION_SHORT
+    #endif  // INDICATOR_STANDALONE_VERSION_LONG
+  #endif    // INDICATOR_LEGACY_VERSION_DEFINED
+
+#endif  // INDICATOR_STANDALONE_VERSION_DEFINED
+
+#ifndef INDICATOR_LEGACY_VERSION_ACQUIRE_BUFFER
+  #define INDICATOR_LEGACY_VERSION_ACQUIRE_BUFFER
+#endif
+
+#ifndef INDICATOR_LEGACY_VERSION_RELEASE_BUFFER
+  #define INDICATOR_LEGACY_VERSION_RELEASE_BUFFER
+#endif
+
+#ifdef INDICATOR_LEGACY_EMIT_ONCALCULATE_WRAPPER
+
+  #include <EA31337-classes/Indicator/IndicatorData.h>
+  #include <EA31337-classes/Platform.h>
+  #include <EA31337-classes/Std.h>
+  #include <EA31337-classes/Storage/ObjectsCache.h>
+  #include <EA31337-classes/Util.h>
+
+  #ifdef INDICATOR_LEGACY_VERSION_SHORT
+
+/**
+ * Wrapper for future price-based OnCalculate().
+ */
+int OnCalculate(const int rates_total, const int prev_calculated, const int begin, const double& price[]) {
+  // We need to call Platform::Tick() and maybe also IndicatorData::EmitHistory() before.
+  Platform::OnCalculate(rates_total, prev_calculated);
+
+  INDICATOR_LEGACY_VERSION_ACQUIRE_BUFFER;
+
+  // NOTE: If compiler sees an error here about 'time' parameter conversion
+  // then you probably must do:
+  // #define INDICATOR_LEGACY_VERSION_LONG
+  // before including IndicatorLegacy.h
+  int _num_calculated = OnCalculateMT5(rates_total, prev_calculated, begin, price);
+
+  INDICATOR_LEGACY_VERSION_RELEASE_BUFFER;
 
   return _num_calculated;
 }
 
-#define OnCalculate OnCalculateMT5
+  #endif  // INDICATOR_LEGACY_VERSION_SHORT
+
+  #ifdef INDICATOR_LEGACY_VERSION_LONG
+
+/**
+ * Wrapper for future OHLC-based OnCalculate().
+ */
+int OnCalculate(const int rates_total, const int prev_calculated, const datetime& time[], const double& open[],
+                const double& high[], const double& low[], const double& close[], const long& tick_volume[],
+                const long& volume[], const int& spread[]) {
+  // We need to call Platform::Tick() and maybe also IndicatorData::EmitHistory() before.
+  Platform::OnCalculate(rates_total, prev_calculated);
+
+  // NOTE: If compiler sees an error here about parameter conversion
+  // then you probably must do:
+  // #define INDICATOR_LEGACY_VERSION_SHORT
+  // before including IndicatorLegacy.h
+  INDICATOR_LEGACY_VERSION_ACQUIRE_BUFFER;
+
+  int _num_calculated =
+      OnCalculateMT5(rates_total, prev_calculated, time, open, high, low, close, tick_volume, volume, spread);
+
+  INDICATOR_LEGACY_VERSION_RELEASE_BUFFER;
+
+  return _num_calculated;
+}
+
+  #endif  // INDICATOR_LEGACY_VERSION_LONG
+
+  #define OnCalculate OnCalculateMT5
+
+#endif  // INDICATOR_LEGACY_EMIT_ONCALCULATE_WRAPPER
+
+#ifdef __MQL4__
+  #ifdef INDICATOR_LEGACY_VERSION_MT5
 
 /**
  * Wrapper class to be used by MQL4 code to allow calling MQL5's indicator functions like iMA() in MQL4.
@@ -146,10 +240,10 @@ int CopyBuffer(int _handle, int _mode, int _start, int _count, double& _buffer[]
   return _num_copied;
 }
 
-/**
- * Defines wrapper class and global iNAME() indicator function (e.g., iMA(), iATR()).
- */
-// Print(#FN_NAME " key = ", _key); \
+    /**
+     * Defines wrapper class and global iNAME() indicator function (e.g., iMA(), iATR()).
+     */
+    // Print(#FN_NAME " key = ", _key); \
 #define DEFINE_LEGACY_INDICATOR(FN_NAME, BUILTIN_NAME, TYPED_PARAMS_COMMA, TYPED_PARAMS_NO_UDL_SEMICOLON, UNTYPED_PARAMS_COMMA_KEY, UNTYPED_PARAMS_COMMA_VALUES, ASSIGNMENTS_COMMA, UNTYPED_PARAMS_NO_UDL_COMMA_VALUES) \
 class BUILTIN_NAME##Legacy : public IndicatorLegacy { \
  TYPED_PARAMS_NO_UDL_SEMICOLON; \
@@ -176,92 +270,95 @@ int FN_NAME(TYPED_PARAMS_COMMA) { \
  return PTR_ATTRIB(_indi.Ptr(), GetHandle()); \
 }
 
-/**
- * 1-parameter helper for DEFINE_LEGACY_INDICATOR.
- */
-#define DEFINE_LEGACY_INDICATOR_1(FN_NAME, INDI_NAME, T1, N1) \
-  DEFINE_LEGACY_INDICATOR(INDI_NAME, T1 _##N1, T1 N1, _##N1, _##N1, N1(_##N1), N1);
+    /**
+     * 1-parameter helper for DEFINE_LEGACY_INDICATOR.
+     */
+    #define DEFINE_LEGACY_INDICATOR_1(FN_NAME, INDI_NAME, T1, N1) \
+      DEFINE_LEGACY_INDICATOR(INDI_NAME, T1 _##N1, T1 N1, _##N1, _##N1, N1(_##N1), N1);
 
-/**
- * 2-parameter helper for DEFINE_LEGACY_INDICATOR.
- */
-#define DEFINE_LEGACY_INDICATOR_2(FN_NAME, INDI_NAME, T1, N1, T2, N2)                                            \
-  DEFINE_LEGACY_INDICATOR(FN_NAME, INDI_NAME, T1 _##N1 COMMA T2 _##N2, T1 N1 SEMICOLON T2 N2, _##N1 COMMA _##N2, \
-                          _##N1 COMMA _##N2, N1(_##N1) COMMA N2(_##N2), N1 COMMA N2);
+    /**
+     * 2-parameter helper for DEFINE_LEGACY_INDICATOR.
+     */
+    #define DEFINE_LEGACY_INDICATOR_2(FN_NAME, INDI_NAME, T1, N1, T2, N2)                                            \
+      DEFINE_LEGACY_INDICATOR(FN_NAME, INDI_NAME, T1 _##N1 COMMA T2 _##N2, T1 N1 SEMICOLON T2 N2, _##N1 COMMA _##N2, \
+                              _##N1 COMMA _##N2, N1(_##N1) COMMA N2(_##N2), N1 COMMA N2);
 
-/**
- * 3-parameter helper for DEFINE_LEGACY_INDICATOR.
- */
-#define DEFINE_LEGACY_INDICATOR_3(FN_NAME, INDI_NAME, T1, N1, T2, N2, T3, N3)                       \
-  DEFINE_LEGACY_INDICATOR(FN_NAME, INDI_NAME, T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3,               \
-                          T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3, _##N1 COMMA _##N2 COMMA _##N3,     \
-                          _##N1 COMMA _##N2 COMMA _##N3, N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3), \
-                          N1 COMMA N2 COMMA N3);
+    /**
+     * 3-parameter helper for DEFINE_LEGACY_INDICATOR.
+     */
+    #define DEFINE_LEGACY_INDICATOR_3(FN_NAME, INDI_NAME, T1, N1, T2, N2, T3, N3)                       \
+      DEFINE_LEGACY_INDICATOR(FN_NAME, INDI_NAME, T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3,               \
+                              T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3, _##N1 COMMA _##N2 COMMA _##N3,     \
+                              _##N1 COMMA _##N2 COMMA _##N3, N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3), \
+                              N1 COMMA N2 COMMA N3);
 
-/**
- * 4-parameter helper for DEFINE_LEGACY_INDICATOR.
- */
-#define DEFINE_LEGACY_INDICATOR_4(FN_NAME, INDI_NAME)                                                           \
-  DEFINE_LEGACY_INDICATOR(FN_NAME, INDI_NAME, T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3 COMMA T4 _##N4,            \
-                          T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3 SEMICOLON T4 N4,                                \
-                          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4, _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4, \
-                          N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3) COMMA N4(_##N4), N1 COMMA N2 COMMA N3 COMMA N4);
+    /**
+     * 4-parameter helper for DEFINE_LEGACY_INDICATOR.
+     */
+    #define DEFINE_LEGACY_INDICATOR_4(FN_NAME, INDI_NAME)                                                           \
+      DEFINE_LEGACY_INDICATOR(FN_NAME, INDI_NAME, T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3 COMMA T4 _##N4,            \
+                              T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3 SEMICOLON T4 N4,                                \
+                              _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4, _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4, \
+                              N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3) COMMA N4(_##N4),                            \
+                              N1 COMMA N2 COMMA N3 COMMA N4);
 
-/**
- * 5-parameter helper for DEFINE_LEGACY_INDICATOR.
- */
-#define DEFINE_LEGACY_INDICATOR_5(FN_NAME, INDI_NAME)                                                               \
-  DEFINE_LEGACY_INDICATOR(FN_NAME, INDI_NAME, T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3 COMMA T4 _##N4 COMMA T5 _##N5, \
-                          T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3 SEMICOLON T4 N4 SEMICOLON T5 N5,                    \
-                          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5,                                    \
-                          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5,                                    \
-                          N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3) COMMA N4(_##N4) COMMA N5(_##N5),                \
-                          N1 COMMA N2 COMMA N3 COMMA N4 COMMA N5);
+    /**
+     * 5-parameter helper for DEFINE_LEGACY_INDICATOR.
+     */
+    #define DEFINE_LEGACY_INDICATOR_5(FN_NAME, INDI_NAME)                                                \
+      DEFINE_LEGACY_INDICATOR(FN_NAME, INDI_NAME,                                                        \
+                              T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3 COMMA T4 _##N4 COMMA T5 _##N5,      \
+                              T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3 SEMICOLON T4 N4 SEMICOLON T5 N5,     \
+                              _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5,                     \
+                              _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5,                     \
+                              N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3) COMMA N4(_##N4) COMMA N5(_##N5), \
+                              N1 COMMA N2 COMMA N3 COMMA N4 COMMA N5);
 
-/**
- * 6-parameter helper for DEFINE_LEGACY_INDICATOR.
- */
-#define DEFINE_LEGACY_INDICATOR_6(FN_NAME, INDI_NAME)                                                                \
-  DEFINE_LEGACY_INDICATOR(FN_NAME, INDI_NAME,                                                                        \
-                          T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3 COMMA T4 _##N4 COMMA T5 _##N5 COMMA T6 _##N6,       \
-                          T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3 SEMICOLON T4 N4 SEMICOLON T5 N5 SEMICOLON T6 N6,     \
-                          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6,                         \
-                          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6,                         \
-                          N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3) COMMA N4(_##N4) COMMA N5(_##N5) COMMA N6(_##N6), \
-                          N1 COMMA N2 COMMA N3 COMMA N4 COMMA N5 COMMA N6);
+    /**
+     * 6-parameter helper for DEFINE_LEGACY_INDICATOR.
+     */
+    #define DEFINE_LEGACY_INDICATOR_6(FN_NAME, INDI_NAME)                                                          \
+      DEFINE_LEGACY_INDICATOR(                                                                                     \
+          FN_NAME, INDI_NAME, T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3 COMMA T4 _##N4 COMMA T5 _##N5 COMMA T6 _##N6, \
+          T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3 SEMICOLON T4 N4 SEMICOLON T5 N5 SEMICOLON T6 N6,                   \
+          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6,                                       \
+          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6,                                       \
+          N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3) COMMA N4(_##N4) COMMA N5(_##N5) COMMA N6(_##N6),               \
+          N1 COMMA N2 COMMA N3 COMMA N4 COMMA N5 COMMA N6);
 
-/**
- * 7-parameter helper for DEFINE_LEGACY_INDICATOR.
- */
-#define DEFINE_LEGACY_INDICATOR_7(FN_NAME, INDI_NAME)                                                            \
-  DEFINE_LEGACY_INDICATOR(                                                                                       \
-      FN_NAME, INDI_NAME,                                                                                        \
-      T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3 COMMA T4 _##N4 COMMA T5 _##N5 COMMA T6 _##N6 COMMA T7 _##N7,        \
-      T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3 SEMICOLON T4 N4 SEMICOLON T5 N5 SEMICOLON T6 N6 SEMICOLON T7 N7,     \
-      _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6 COMMA _##N7,                             \
-      _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6 COMMA _##N7,                             \
-      N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3) COMMA N4(_##N4) COMMA N5(_##N5) COMMA N6(_##N6) COMMA N7(_##N7), \
-      N1 COMMA N2 COMMA N3 COMMA N4 COMMA N5 COMMA N6 COMMA N7);
+    /**
+     * 7-parameter helper for DEFINE_LEGACY_INDICATOR.
+     */
+    #define DEFINE_LEGACY_INDICATOR_7(FN_NAME, INDI_NAME)                                                            \
+      DEFINE_LEGACY_INDICATOR(                                                                                       \
+          FN_NAME, INDI_NAME,                                                                                        \
+          T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3 COMMA T4 _##N4 COMMA T5 _##N5 COMMA T6 _##N6 COMMA T7 _##N7,        \
+          T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3 SEMICOLON T4 N4 SEMICOLON T5 N5 SEMICOLON T6 N6 SEMICOLON T7 N7,     \
+          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6 COMMA _##N7,                             \
+          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6 COMMA _##N7,                             \
+          N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3) COMMA N4(_##N4) COMMA N5(_##N5) COMMA N6(_##N6) COMMA N7(_##N7), \
+          N1 COMMA N2 COMMA N3 COMMA N4 COMMA N5 COMMA N6 COMMA N7);
 
-/**
- * 8-parameter helper for DEFINE_LEGACY_INDICATOR.
- */
-#define DEFINE_LEGACY_INDICATOR_8(FN_NAME, INDI_NAME)                                                                  \
-  DEFINE_LEGACY_INDICATOR(FN_NAME, INDI_NAME,                                                                          \
-                          T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3 COMMA T4 _##N4 COMMA T5 _##N5 COMMA T6 _##N6 COMMA T7 \
-                              _##N7 COMMA T8 _##N8,                                                                    \
-                          T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3 SEMICOLON T4 N4 SEMICOLON T5 N5 SEMICOLON T6 N6        \
-                              SEMICOLON T7 N7 SEMICOLON T8 N8,                                                         \
-                          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6 COMMA _##N7 COMMA _##N8,   \
-                          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6 COMMA _##N7 COMMA _##N8,   \
-                          N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3) COMMA N4(_##N4) COMMA N5(_##N5) COMMA N6(_##N6)    \
-                              COMMA N7(_##N7) COMMA N8(_##N8),                                                         \
-                          N1 COMMA N2 COMMA N3 COMMA N4 COMMA N5 COMMA N6 COMMA N7 COMMA N8);
+    /**
+     * 8-parameter helper for DEFINE_LEGACY_INDICATOR.
+     */
+    #define DEFINE_LEGACY_INDICATOR_8(FN_NAME, INDI_NAME)                                                             \
+      DEFINE_LEGACY_INDICATOR(                                                                                        \
+          FN_NAME, INDI_NAME,                                                                                         \
+          T1 _##N1 COMMA T2 _##N2 COMMA T3 _##N3 COMMA T4 _##N4 COMMA T5 _##N5 COMMA T6 _##N6 COMMA T7 _##N7 COMMA T8 \
+              _##N8,                                                                                                  \
+          T1 N1 SEMICOLON T2 N2 SEMICOLON T3 N3 SEMICOLON T4 N4 SEMICOLON T5 N5 SEMICOLON T6 N6 SEMICOLON T7 N7       \
+              SEMICOLON T8 N8,                                                                                        \
+          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6 COMMA _##N7 COMMA _##N8,                  \
+          _##N1 COMMA _##N2 COMMA _##N3 COMMA _##N4 COMMA _##N5 COMMA _##N6 COMMA _##N7 COMMA _##N8,                  \
+          N1(_##N1) COMMA N2(_##N2) COMMA N3(_##N3) COMMA N4(_##N4) COMMA N5(_##N5) COMMA N6(_##N6) COMMA N7(_##N7)   \
+              COMMA N8(_##N8),                                                                                        \
+          N1 COMMA N2 COMMA N3 COMMA N4 COMMA N5 COMMA N6 COMMA N7 COMMA N8);
 
-/**
- * Replacement for future StringConcatenate().
- */
-#define StringConcatenate StringConcatenateMT5
+    /**
+     * Replacement for future StringConcatenate().
+     */
+    #define StringConcatenate StringConcatenateMT5
 
 /**
  * MQL4 wrapper of MQL5's StringConcatenate().
@@ -353,66 +450,66 @@ DEFINE_LEGACY_INDICATOR_2(iAD, iAD, string, symbol, int, period);
 // int iATR(string symbol, ENUM_TIMEFRAMES period, int ma_period);
 DEFINE_LEGACY_INDICATOR_3(iATR, iATR, string, symbol, int, period, int, ma_period);
 
-// int iRSI(string symbol, ENUM_TIMEFRAMES period, int ma_period, int applied_price);
-#define T1 string
-#define N1 symbol
-#define T2 int
-#define N2 period
-#define T3 int
-#define N3 ma_period
-#define T4 int
-#define N4 applied_price
+    // int iRSI(string symbol, ENUM_TIMEFRAMES period, int ma_period, int applied_price);
+    #define T1 string
+    #define N1 symbol
+    #define T2 int
+    #define N2 period
+    #define T3 int
+    #define N3 ma_period
+    #define T4 int
+    #define N4 applied_price
 DEFINE_LEGACY_INDICATOR_4(iRSI, iRSI)
-#undef T1
-#undef N1
-#undef T2
-#undef N2
-#undef T3
-#undef N3
-#undef T4
-#undef N4
-#undef T5
-#undef N5
-#undef T6
-#undef N6
+    #undef T1
+    #undef N1
+    #undef T2
+    #undef N2
+    #undef T3
+    #undef N3
+    #undef T4
+    #undef N4
+    #undef T5
+    #undef N5
+    #undef T6
+    #undef N6
 
-// int iMA(string symbol, ENUM_TIMEFRAMES period, int ma_period, int ma_shift, ENUM_MA_METHOD ma_method,
-#define T1 string
-#define N1 symbol
-#define T2 int
-#define N2 period
-#define T3 int
-#define N3 ma_period
-#define T4 int
-#define N4 ma_shift
-#define T5 int
-#define N5 ma_method
-#define T6 int
-#define N6 applied_price
+    // int iMA(string symbol, ENUM_TIMEFRAMES period, int ma_period, int ma_shift, ENUM_MA_METHOD ma_method,
+    #define T1 string
+    #define N1 symbol
+    #define T2 int
+    #define N2 period
+    #define T3 int
+    #define N3 ma_period
+    #define T4 int
+    #define N4 ma_shift
+    #define T5 int
+    #define N5 ma_method
+    #define T6 int
+    #define N6 applied_price
 DEFINE_LEGACY_INDICATOR_6(iMA, iMA)
-#undef T1
-#undef N1
-#undef T2
-#undef N2
-#undef T3
-#undef N3
-#undef T4
-#undef N4
-#undef T5
-#undef N5
-#undef T6
-#undef N6
+    #undef T1
+    #undef N1
+    #undef T2
+    #undef N2
+    #undef T3
+    #undef N3
+    #undef T4
+    #undef N4
+    #undef T5
+    #undef N5
+    #undef T6
+    #undef N6
 
-#endif  // INDICATOR_LEGACY_VERSION_MT5
-#endif  // __MQL4__
+  #endif  // INDICATOR_LEGACY_VERSION_MT5
+#endif    // __MQL4__
 
 #ifdef __MQL5__
-#ifdef INDICATOR_LEGACY_VERSION_MT4
+  #ifdef INDICATOR_LEGACY_VERSION_MT4
 
-/**
- * Replacement for future StringConcatenate().
- */
-#define StringConcatenate StringConcatenateMT4
+    /**
+     * Replacement for future StringConcatenate().
+     */
+    #define StringConcatenate StringConcatenateMT4
 
 /**
  * MQL5 wrapper of MQL4's StringConcatenate().
@@ -480,5 +577,5 @@ string StringConcatenateMT4(string& _result, A _a) {
   return (string)_a;
 }
 
-#endif  // INDICATOR_LEGACY_VERSION_MT4
-#endif  // __MQL5__
+  #endif  // INDICATOR_LEGACY_VERSION_MT4
+#endif    // __MQL5__

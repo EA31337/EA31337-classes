@@ -34,7 +34,7 @@
 #define VALUE_STORAGE_H
 
 // Includes.
-#include "../SerializerConversions.h"
+#include "../Serializer/SerializerConversions.h"
 #include "../Util.h"
 #include "Objects.h"
 
@@ -153,7 +153,7 @@ class ValueStorage : public IValueStorage {
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  virtual C Fetch(int _shift) {
+  virtual C Fetch(int _rel_shift) {
     Alert("Fetching data by shift is not supported from this value storage!");
     DebugBreak();
     return (C)0;
@@ -178,6 +178,15 @@ class ValueStorage : public IValueStorage {
    */
   virtual void Store(int _shift, C _value) {
     Alert(__FUNCSIG__, " is not supported!");
+    DebugBreak();
+  }
+
+  /**
+   * Inserts new value at the end of the buffer. If buffer works as As-Series,
+   * then new value will act as the one at index 0.
+   */
+  virtual void Append(C _value) {
+    Alert(__FUNCSIG__, " does not implement Append()!");
     DebugBreak();
   }
 
@@ -212,7 +221,8 @@ void ArrayInitialize(ValueStorage<C> &_storage, C _value) {
  * ValueStorage-compatible wrapper for ArrayCopy.
  */
 template <typename C, typename D>
-int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _src_start = 0, int count = WHOLE_ARRAY) {
+int ArrayCopy(ARRAY_REF(D, _target), ValueStorage<C> &_source, int _dst_start = 0, int _src_start = 0,
+              int count = WHOLE_ARRAY) {
   if (count == WHOLE_ARRAY) {
     count = ArraySize(_source);
   }
@@ -226,8 +236,6 @@ int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _s
       return 0;
     }
   }
-
-  int _pre_fill = _dst_start;
 
   count = MathMin(count, ArraySize(_source) - _src_start);
 
@@ -253,20 +261,6 @@ int ArrayCopy(D &_target[], ValueStorage<C> &_source, int _dst_start = 0, int _s
   }
 
   return _num_copied;
-}
-
-/**
- * iHigest() version working on ValueStorage.
- */
-int iHighest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
-  return iPeak(_price, _count, _start, IPEAK_HIGHEST);
-}
-
-/**
- * iLowest() version working on ValueStorage.
- */
-int iLowest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
-  return iPeak(_price, _count, _start, IPEAK_LOWEST);
 }
 
 /**
@@ -312,6 +306,20 @@ int iPeak(ValueStorage<double> &_price, int _count, int _start, ENUM_IPEAK _type
   }
 
   return _price_size - _peak_idx - 1;
+}
+
+/**
+ * iHigest() version working on ValueStorage.
+ */
+int iHighest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
+  return iPeak(_price, _count, _start, IPEAK_HIGHEST);
+}
+
+/**
+ * iLowest() version working on ValueStorage.
+ */
+int iLowest(ValueStorage<double> &_price, int _count = WHOLE_ARRAY, int _start = 0) {
+  return iPeak(_price, _count, _start, IPEAK_LOWEST);
 }
 
 #endif  // VALUE_STORAGE_H

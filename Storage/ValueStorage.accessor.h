@@ -70,12 +70,12 @@ class ValueStorageAccessor {
   /**
    * Fetches value from the storage.
    */
-  const C Get() const { return storage.Fetch(index); }
+  const C Get() const { return storage PTR_DEREF Fetch(index); }
 
   /**
    * Stores value in the storage.
    */
-  void Set(C value) { storage.Store(index, value); }
+  void Set(C value) { storage PTR_DEREF Store(index, value); }
 
 #define VALUE_STORAGE_ACCESSOR_OP(TYPE, OP)                                                          \
   TYPE operator OP(const ValueStorageAccessor& _accessor) const { return Get() OP _accessor.Get(); } \

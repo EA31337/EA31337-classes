@@ -20,15 +20,19 @@
  *
  */
 
-// Includes.
-#include "DateTime.enum.h"
-
 /**
  * @file
  * Includes external declarations related to date and time.
  */
 #ifndef __MQL__
 #pragma once
+
+// Includes.
+#include <time.h>
+
+#include "DateTime.enum.h"
+#include "String.mqh"
+
 // Forward declarations.
 struct MqlDateTime;
 
@@ -39,20 +43,17 @@ class datetime {
   time_t dt;
 
  public:
-  datetime();
-  datetime(const long& _time);
-  datetime(const int& _time);
-  bool operator==(const int _time) const;
-  bool operator==(const datetime& _time) const;
-  bool operator<(const int _time) const;
-  bool operator>(const int _time) const;
-  bool operator<(const datetime& _time);
-  bool operator>(const datetime& _time);
-  operator long() const;
+  datetime() { dt = 0; }
+  datetime(const int64& _time) { dt = _time; }
+  // datetime(const int& _time);
+  bool operator==(const int _time) const = delete;
+  bool operator==(const datetime& _time) const { return dt == _time; }
+  bool operator<(const int _time) const = delete;
+  bool operator>(const int _time) const = delete;
+  bool operator<(const datetime& _time) const { return dt < _time; }
+  bool operator>(const datetime& _time) const { return dt > _time; }
+  operator int64() const { return dt; }
 };
-
-extern datetime TimeCurrent();
-extern datetime TimeCurrent(MqlDateTime& dt_struct);
 
 extern int CopyTime(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
                     ARRAY_REF(datetime, time_array));
@@ -73,7 +74,8 @@ extern datetime StringToTime(const string& value);
 extern string TimeToString(datetime value, int mode = TIME_DATE | TIME_MINUTES);
 
 template <char... T>
-extern datetime operator"" _D();
+datetime operator"" _D();
 
 #define DATETIME_LITERAL(STR) _D " ## STR ## "
+
 #endif

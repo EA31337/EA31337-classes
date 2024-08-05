@@ -30,8 +30,8 @@
 #define EA_MQH
 
 // Includes.
-#include "Chart.mqh"
 #include "./Chart.struct.static.h"
+#include "Chart.mqh"
 #include "Data.struct.h"
 #include "Dict.mqh"
 #include "DictObject.mqh"
@@ -40,10 +40,10 @@
 #include "Market.mqh"
 #include "Platform.h"
 #include "Refs.struct.h"
-#include "SerializerConverter.mqh"
-#include "SerializerCsv.mqh"
-#include "SerializerJson.mqh"
-#include "SerializerSqlite.mqh"
+#include "Serializer/SerializerConverter.h"
+#include "Serializer/SerializerCsv.h"
+#include "Serializer/SerializerJson.h"
+#include "Serializer/SerializerSqlite.h"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task/Task.h"
@@ -114,12 +114,12 @@ class EA : public Taskable<DataParamEntry> {
     Init();
     // Initialize a trade instance for the current chart and symbol.
     Ref<IndicatorBase> _source = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
-    TradeParams _tparams(0, 1.0f, 0, eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
+    TradeParams _tparams(0, 1.0f, 0, (ENUM_LOG_LEVEL)eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
     Trade _trade(_tparams, _source.Ptr());
     trade.Set(_Symbol, _trade);
     logger.Link(_trade.GetLogger());
-    logger.SetLevel(eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
-    //_trade.GetLogger().SetLevel(eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
+    logger.SetLevel((ENUM_LOG_LEVEL)eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
+    //_trade.GetLogger().SetLevel((ENUM_LOG_LEVEL)eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
   }
 
   /**
@@ -409,11 +409,11 @@ class EA : public Taskable<DataParamEntry> {
     _strat.OnOrderOpen(_oparams);
     // Send the request.
     _result = _trade.RequestSend(_request, _oparams);
-    if (!_result) { //  && _strade.IsTradeRecommended(
-            logger.Debug(
-            StringFormat("Error while sending a trade request! Entry: %s",
-                         SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
-            __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
+    if (!_result) {  //  && _strade.IsTradeRecommended(
+      logger.Debug(
+          StringFormat("Error while sending a trade request! Entry: %s",
+                       SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
+          __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
       if (_trade.IsTradeRecommended()) {
         logger.Debug(
             StringFormat("Error while sending a trade request! Entry: %s",
@@ -421,7 +421,8 @@ class EA : public Taskable<DataParamEntry> {
             __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
       }
 #ifdef __debug_ea__
-      Print(__FUNCTION_LINE__ + "(): " + SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
+      Print(__FUNCTION_LINE__ +
+            "(): " + SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
 #endif
     }
     return _result;
@@ -503,6 +504,7 @@ class EA : public Taskable<DataParamEntry> {
       ChartEntry _entry = Chart().GetEntry();
       data_chart.Add(_entry, _entry.bar.ohlc.time);
     }
+    /* @fixme
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
       for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
         Strategy *_strati = iter.Value().Ptr();
@@ -520,6 +522,7 @@ class EA : public Taskable<DataParamEntry> {
         }
       }
     }
+    */
     /*
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
       for (DictStructIterator<long, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
@@ -764,8 +767,8 @@ class EA : public Taskable<DataParamEntry> {
     Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, THIS_PTR);
     _strat.Ptr().Set<long>(STRAT_PARAM_ID, _magic_no);
     _strat.Ptr().Set<long>(TRADE_PARAM_MAGIC_NO, _magic_no);
-    _strat.Ptr().Set<ENUM_LOG_LEVEL>(STRAT_PARAM_LOG_LEVEL,
-                                     eparams.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
+    _strat.Ptr().Set<int>(STRAT_PARAM_LOG_LEVEL,
+                          (ENUM_LOG_LEVEL)eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
     _strat.Ptr().Set<ENUM_TIMEFRAMES>(STRAT_PARAM_TF, _tf);
     _strat.Ptr().Set<int>(STRAT_PARAM_TYPE, _type);
     _strat.Ptr().OnInit();

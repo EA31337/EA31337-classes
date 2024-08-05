@@ -202,10 +202,10 @@ class TradeSignalManager : Dynamic {
   static bool SignalOverflowCallback(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
     static int cache_limit = 1000;
     switch (_reason) {
-      case DICT_OVERFLOW_REASON_FULL:
+      case DICT_LISTENER_FULL_CAN_RESIZE:
         // We allow resize if dictionary size is less than 86400 slots.
         return _size < cache_limit;
-      case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
+      case DICT_LISTENER_CONFLICTS_CAN_OVERWRITE:
       default:
         // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
         break;
@@ -234,9 +234,21 @@ class TradeSignalManager : Dynamic {
    * @return
    *   Returns a JSON serialized signal.
    */
-  string ToString() {
+  string const ToString() {
     // SerializerConverter _stub = SerializerConverter::MakeStubObject<TradeSignalManager>(SERIALIZER_FLAG_SKIP_HIDDEN);
     return SerializerConverter::FromObject(THIS_REF, SERIALIZER_FLAG_INCLUDE_ALL | SERIALIZER_FLAG_SKIP_HIDDEN)
         .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
   }
 };
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(TradeSignalManager) {
+  emscripten::class_<TradeSignalManager>("TradeSignalManager")
+      .constructor()
+      .function("SignalAdd", &TradeSignalManager::SignalAdd)
+      .function("ToString", &TradeSignalManager::ToString);
+}
+
+#endif

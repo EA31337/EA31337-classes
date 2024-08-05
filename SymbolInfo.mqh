@@ -24,9 +24,6 @@
 #ifndef SYMBOLINFO_MQH
 #define SYMBOLINFO_MQH
 
-// Forward declaration.
-class SymbolInfo;
-
 // Includes symbol defines, enums and structs.
 #include "SymbolInfo.define.h"
 #include "SymbolInfo.enum.h"
@@ -35,10 +32,14 @@ class SymbolInfo;
 #include "SymbolInfo.struct.h"
 #include "SymbolInfo.struct.static.h"
 
+// Forward declaration.
+class Log;
+class SymbolInfo;
+
 // Includes.
 #include "Log.mqh"
-#include "Serializer.mqh"
-#include "SerializerNode.enum.h"
+#include "Serializer/Serializer.h"
+#include "Serializer/SerializerNode.enum.h"
 
 /**
  * Class to provide symbol information.
@@ -110,7 +111,7 @@ class SymbolInfo : public Object {
    */
   MqlTick GetTick() {
     if (!SymbolInfoTick(symbol, last_tick)) {
-      GetLogger().Error("Cannot return current prices!", __FUNCTION__);
+      GetLogger() PTR_DEREF Error("Cannot return current prices!", __FUNCTION__);
     }
     return last_tick;
   }
@@ -230,9 +231,7 @@ class SymbolInfo : public Object {
    * Get number of points per pip.
    *
    */
-  unsigned int GetPointsPerPip() {
-    return sprops.pts_per_pip;
-  }
+  unsigned int GetPointsPerPip() { return sprops.pts_per_pip; }
 
   /**
    * Get the point size in the quote currency.
@@ -493,7 +492,7 @@ class SymbolInfo : public Object {
     static int _index = 0;
     if (_index++ >= ArraySize(tick_data) - 1) {
       if (ArrayResize(tick_data, _index + 100, 1000) < 0) {
-        GetLogger().Error(StringFormat("Cannot resize array (size: %d)!", _index), __FUNCTION__);
+        GetLogger() PTR_DEREF Error(StringFormat("Cannot resize array (size: %d)!", _index), __FUNCTION__);
         return false;
       }
     }
@@ -524,10 +523,11 @@ class SymbolInfo : public Object {
             "Tick size: %g (%g pts), Tick value: %g (%g/%g), " + "Digits: %d, Spread: %d pts, Trade stops level: %d, " +
             "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, " +
             "Freeze level: %d, Swap (long/short/mode): %g/%g/%d, Margin initial (maintenance): %g (%g)",
-        GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(), GetPointSize(), GetPipSize(),
-        GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(), GetDigits(),
-        GetSpread(), GetTradeStopsLevel(), GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(),
-        GetFreezeLevel(), GetSwapLong(), GetSwapShort(), GetSwapMode(), GetMarginInit(), GetMarginMaintenance());
+        C_STR(GetSymbol()), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(), GetPointSize(),
+        GetPipSize(), GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
+        GetDigits(), GetSpread(), GetTradeStopsLevel(), GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(),
+        GetVolumeStep(), GetFreezeLevel(), GetSwapLong(), GetSwapShort(), GetSwapMode(), GetMarginInit(),
+        GetMarginMaintenance());
   }
 
   /**
@@ -537,7 +537,7 @@ class SymbolInfo : public Object {
     return !_header
                ? StringFormat(string("%s,%g,%g,%d,%g,%g,%g,") + "%g,%g,%g,%g,%g," + "%d,%d,%d," + "%g,%g,%g,%g," +
                                   "%d,%g,%g,%d,%g,%g",
-                              GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(),
+                              C_STR(GetSymbol()), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(),
                               GetPointSize(), GetPipSize(), GetTickSize(), GetTradeTickSize(), GetTickValue(),
                               GetTickValueProfit(), GetTickValueLoss(), GetDigits(), GetSpread(), GetTradeStopsLevel(),
                               GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(),

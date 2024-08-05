@@ -20,28 +20,56 @@
  *
  */
 
+#ifndef __MQL__
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
+
+  // Includes.
+  #include "Deal.enum.h"
+  #include "Order.struct.h"
+  #include "Platform.define.h"
+
+/**
+ * Extern declarations for C++.
+ */
+
+/**
+ * Returns number of candles for a given symbol and time-frame.
+ */
+extern int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf);
+
+#endif
+
 // Includes.
 
 /**
  * Current platform's static methods.
  */
 
+#include "DrawIndicator.mqh"
 #include "Flags.h"
-#include "IndicatorBase.h"
+#include "Indicator/IndicatorData.h"
+#include "Indicator/tests/classes/IndicatorTfDummy.h"
 #include "Std.h"
 
 #ifdef __MQLBUILD__
-#include "Indicator/tests/classes/IndicatorTfDummy.h"
-#include "Indicators/Tick/Indi_TickMt.mqh"
-#define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
+  #include "Indicators/Tf/Indi_TfMt.h"
+  #include "Indicators/Tick/Indi_TickMt.mqh"
+  #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickMt
+  #define PLATFORM_DEFAULT_INDICATOR_TF Indi_TfMt
 #else
-#error "Platform not supported!
+  #include "Indicators/Tick/Indi_TickProvider.h"
+  #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickRandom
+  #define PLATFORM_DEFAULT_INDICATOR_TF IndicatorTfDummy
 #endif
 #include "SymbolInfo.struct.static.h"
 
 class Platform {
   // Whether Init() was already called.
   static bool initialized;
+
+  // Global tick index.
+  static int global_tick_index;
 
   // Date and time used to determine periods that passed.
   static DateTime time;
@@ -52,11 +80,23 @@ class Platform {
   // Whether to clear passed periods on consecutive Platform::UpdateTime().
   static bool time_clear_flags;
 
+  // Whether history for all the indicators was emitted.
+  static bool emitted_history;
+
   // List of added indicators.
   static DictStruct<long, Ref<IndicatorData>> indis;
 
   // List of default Candle/Tick indicators.
   static DictStruct<long, Ref<IndicatorData>> indis_dflt;
+
+  // Result of the last tick.
+  static bool last_tick_result;
+
+  // Symbol of the currently ticking indicator.
+  static string symbol;
+
+  // Timeframe of the currently ticking indicator.
+  static ENUM_TIMEFRAMES period;
 
  public:
   /**
@@ -69,31 +109,78 @@ class Platform {
     }
 
     initialized = true;
-
-    // Starting from current timestamp.
-    time.Update();
   }
+
+  /**
+   * Returns global tick index.
+   */
+  static int GetGlobalTickIndex() { return global_tick_index; }
 
   /**
    * Performs tick on every added indicator.
    */
   static void Tick() {
+    // @todo Should update time for each ticking indicator and only when it signal a tick.
+    PlatformTime::Tick();
+    time.Update();
+
     // Checking starting periods and updating time to current one.
     time_flags = time.GetStartedPeriods();
-    time.Update();
 
     DictStructIterator<long, Ref<IndicatorData>> _iter;
 
+    last_tick_result = false;
+
     for (_iter = indis.Begin(); _iter.IsValid(); ++_iter) {
-      _iter.Value() REF_DEREF Tick();
+      // Print("Ticking ", _iter.Value() REF_DEREF GetFullName());
+      //  Updating current symbol and timeframe to the ones used by ticking indicator and its parents.
+      symbol = _iter.Value() REF_DEREF GetSymbol();
+      period = _iter.Value() REF_DEREF GetTf();
+
+#ifdef __debug__
+      PrintFormat("Tick #%d for %s for symbol %s and period %s", global_tick_index,
+                  C_STR(_iter.Value() REF_DEREF GetFullName()), C_STR(symbol), C_STR(ChartTf::TfToString(period)));
+#endif
+
+      last_tick_result |= _iter.Value() REF_DEREF Tick(global_tick_index);
     }
 
     for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
-      _iter.Value() REF_DEREF Tick();
+      // Updating current symbol and timeframe to the ones used by ticking indicator and its parents.
+      symbol = (_iter.Value() REF_DEREF GetTick(false) != nullptr) ? _iter.Value() REF_DEREF GetSymbol()
+                                                                   : PLATFORM_WRONG_SYMBOL;
+      period = (_iter.Value() REF_DEREF GetCandle(false) != nullptr) ? _iter.Value() REF_DEREF GetTf()
+                                                                     : PLATFORM_WRONG_TIMEFRAME;
+
+#ifdef __debug__
+      PrintFormat("Tick #%d for %s for symbol %s and period %s", global_tick_index,
+                  C_STR(_iter.Value() REF_DEREF GetFullName()), C_STR(symbol), C_STR(ChartTf::TfToString(period)));
+#endif
+
+      last_tick_result |= _iter.Value() REF_DEREF Tick(global_tick_index);
     }
+
+    // Clearing symbol and period in order to signal retrieving symbol/period outside the ticking indicator.
+    symbol = PLATFORM_WRONG_SYMBOL;
+    period = PLATFORM_WRONG_TIMEFRAME;
 
     // Will check for new time periods in consecutive Platform::UpdateTime().
     time_clear_flags = true;
+
+    // Started from 0. Will be incremented after each finished tick.
+    ++global_tick_index;
+  }
+
+  /**
+   * Called by indicators' OnCalculate() method in order to prepare history via
+   * IndicatorData::EmitHistory() and to call Tick() for each OnCalculate()
+   * call so Tick indicator can emit new tick and Candle indicator can update
+   * or add new candle data to be used by all indicators added to the platform
+   * via Platform::Add...().
+   */
+  static void OnCalculate(const int rates_total, const int prev_calculated) {
+    // We're ready for a tick.
+    Tick();
   }
 
   /**
@@ -106,14 +193,24 @@ class Platform {
    */
   static void Add(IndicatorData *_indi) {
     Ref<IndicatorData> _ref = _indi;
+
+    DictStructIterator<long, Ref<IndicatorData>> _iter;
+    for (_iter = indis_dflt.Begin(); _iter.IsValid(); ++_iter) {
+      if (_iter.Value() == _ref) {
+        Alert("Warning: ", _indi PTR_DEREF GetFullName(),
+              " was already added as default candle/tick indicator and shouldn't be added by Platform:Add() as default "
+              "indicators are also ticked when calling Platform::Tick().");
+        DebugBreak();
+      }
+    }
+
     indis.Set(_indi PTR_DEREF GetId(), _ref);
   }
 
   /**
    * Adds indicator to be processed by platform and tries to initialize its data source(s).
    */
-  static void AddWithDefaultBindings(IndicatorData *_indi, CONST_REF_TO(string) _symbol = "",
-                                     ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  static void AddWithDefaultBindings(IndicatorData *_indi, CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
     Add(_indi);
     BindDefaultDataSource(_indi, _symbol, _tf);
   }
@@ -169,6 +266,30 @@ class Platform {
   static bool IsNewYear() { return (time_flags & DATETIME_YEAR) != 0; }
 
   /**
+   * Returns number of candles for a given symbol and time-frame.
+   */
+  static int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) {
+    Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+    return 0;
+  }
+
+  /**
+   * Returns the number of calculated data for the specified indicator.
+   */
+  static int BarsCalculated(int indicator_handle) {
+    Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+    return 0;
+  }
+
+  /**
+   * Returns id of the current chart.
+   */
+  static int ChartID() {
+    Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+    return 0;
+  }
+
+  /**
    * Binds Candle and/or Tick indicator as a source of prices or data for given indicator.
    *
    * Note that some indicators may work on custom set of buffers required from data source and not on Candle or Tick
@@ -214,29 +335,37 @@ class Platform {
   /**
    * Returns default Candle-compatible indicator for current platform for given symbol and TF.
    */
-  static IndicatorData *FetchDefaultCandleIndicator(string _symbol = "", ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    if (_symbol == "") {
-      _symbol = _Symbol;
+  static IndicatorData *FetchDefaultCandleIndicator(string _symbol, ENUM_TIMEFRAMES _tf) {
+    if (_symbol == PLATFORM_WRONG_SYMBOL) {
+      Print("Cannot fetch default candle indicator for unknown symbol \"", _symbol, "\" (passed TF value ", (int)_tf,
+            ")!");
+      DebugBreak();
     }
 
-    if (_tf == PERIOD_CURRENT) {
-      _tf = (ENUM_TIMEFRAMES)Period();
+    if (_tf == PERIOD_CURRENT || _tf == PLATFORM_WRONG_TIMEFRAME) {
+      Print("Cannot fetch default candle indicator for unknown period/timeframe (passed symbol \"", _symbol,
+            "\", TF value ", (int)_tf, ")!");
+      DebugBreak();
     }
 
     // Candle is per symbol and TF. Single Candle indicator can't handle multiple TFs.
     string _key = Util::MakeKey("PlatformIndicatorCandle", _symbol, (int)_tf);
     IndicatorData *_indi_candle;
     if (!Objects<IndicatorData>::TryGet(_key, _indi_candle)) {
-      _indi_candle = Objects<IndicatorData>::Set(_key, new IndicatorTfDummy(_tf));
+      _indi_candle = Objects<IndicatorData>::Set(_key, new PLATFORM_DEFAULT_INDICATOR_TF(_tf));
 
       // Adding indicator to list of default indicators in order to tick it on every Tick() call.
       Ref<IndicatorData> _ref = _indi_candle;
       indis_dflt.Set(_indi_candle PTR_DEREF GetId(), _ref);
-    }
 
-    if (!_indi_candle PTR_DEREF HasDataSource()) {
-      // Missing tick indicator.
-      _indi_candle PTR_DEREF InjectDataSource(FetchDefaultTickIndicator(_symbol));
+      if (!_indi_candle PTR_DEREF HasDataSource()) {
+        // Missing tick indicator.
+        _indi_candle PTR_DEREF InjectDataSource(FetchDefaultTickIndicator(_symbol));
+      }
+#ifdef __debug__
+      Print("Added default candle indicator for symbol ", _symbol, " and time-frame ", _tf, ". Now it has symbol ",
+            _indi_candle PTR_DEREF GetSymbol(), " and time-frame ", EnumToString(_indi_candle PTR_DEREF GetTf()));
+#endif
     }
 
     return _indi_candle;
@@ -245,9 +374,10 @@ class Platform {
   /**
    * Returns default Tick-compatible indicator for current platform for given symbol.
    */
-  static IndicatorData *FetchDefaultTickIndicator(string _symbol = "") {
-    if (_symbol == "") {
-      _symbol = _Symbol;
+  static IndicatorData *FetchDefaultTickIndicator(string _symbol) {
+    if (_symbol == PLATFORM_WRONG_SYMBOL) {
+      Alert("Cannot fetch default tick indicator for unknown symbol!");
+      DebugBreak();
     }
 
     string _key = Util::MakeKey("PlatformIndicatorTick", _symbol);
@@ -300,16 +430,412 @@ class Platform {
     }
     return _result;
   }
+
+  /**
+   * Returns symbol of the currently ticking indicator.
+   **/
+  static string GetSymbol() {
+    if (symbol == PLATFORM_WRONG_SYMBOL) {
+      RUNTIME_ERROR("Retrieving symbol outside the OnTick() of the currently ticking indicator is prohibited!");
+    }
+    return symbol;
+  }
+
+  /**
+   * Returns timeframe of the currently ticking indicator.
+   **/
+  static ENUM_TIMEFRAMES GetPeriod() {
+    if (period == PLATFORM_WRONG_TIMEFRAME) {
+      RUNTIME_ERROR(
+          "Retrieving period/timeframe outside the OnTick() of the currently ticking indicator is prohibited!");
+    }
+
+    return period;
+  }
+
+ private:
+  /**
+   * Sets symbol of the currently ticking indicator.
+   **/
+  static void SetSymbol(string _symbol) { symbol = _symbol; }
+
+  /**
+   * Sets timeframe of the currently ticking indicator.
+   **/
+  static void SetPeriod(ENUM_TIMEFRAMES _period) { period = _period; }
 };
 
 bool Platform::initialized = false;
-DateTime Platform::time = 0;
+bool Platform::last_tick_result = false;
+DateTime Platform::time = (datetime)0;
 unsigned int Platform::time_flags = 0;
 bool Platform::time_clear_flags = true;
+int Platform::global_tick_index = 0;
+string Platform::symbol = PLATFORM_WRONG_SYMBOL;
+ENUM_TIMEFRAMES Platform::period = PLATFORM_WRONG_TIMEFRAME;
 DictStruct<long, Ref<IndicatorData>> Platform::indis;
 DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
 
-// void OnTimer() { Print("Timer"); Platform::OnTimer(); }
+#ifndef __MQL__
+// Following methods must be there are they're externed in Platform.extern.h
+// and there's no better place for them!
+
+/**
+ * Returns number of candles for a given symbol and time-frame.
+ */
+int Bars(CONST_REF_TO(string) _symbol, ENUM_TIMEFRAMES _tf) { return Platform::Bars(_symbol, _tf); }
+
+/**
+ * Returns the number of calculated data for the specified indicator.
+ */
+int BarsCalculated(int indicator_handle) { return Platform::BarsCalculated(indicator_handle); }
+
+/**
+ * Gets data of a specified buffer of a certain indicator in the necessary quantity.
+ */
+int CopyBuffer(int indicator_handle, int buffer_num, int start_pos, int count, ARRAY_REF(double, buffer)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+unsigned int64 PositionGetTicket(int _index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int64 PositionGetInteger(ENUM_POSITION_PROPERTY_INTEGER property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+double PositionGetDouble(ENUM_POSITION_PROPERTY_DOUBLE property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+string PositionGetString(ENUM_POSITION_PROPERTY_STRING property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return "";
+}
+
+int HistoryDealsTotal() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+unsigned int64 HistoryDealGetTicket(int index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int64 HistoryDealGetInteger(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_INTEGER property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+double HistoryDealGetDouble(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+string HistoryDealGetString(unsigned int64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return 0;
+}
+
+bool OrderSelect(int index, int select, int pool = MODE_TRADES) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool PositionSelectByTicket(int index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool HistoryOrderSelect(int index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool OrderSend(const MqlTradeRequest &request, MqlTradeResult &result) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool OrderCheck(const MqlTradeRequest &request, MqlTradeCheckResult &result) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+unsigned int64 OrderGetTicket(int index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+unsigned int64 HistoryOrderGetTicket(int index) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+bool HistorySelectByPosition(int64 position_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool HistoryDealSelect(unsigned int64 ticket) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+int64 OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int64 HistoryOrderGetInteger(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_INTEGER property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+double HistoryOrderGetDouble(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return 0;
+}
+
+string HistoryOrderGetString(unsigned int64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return 0;
+}
+
+int PositionsTotal() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+bool HistorySelect(datetime from_date, datetime to_date) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return 0;
+}
+
+int HistoryOrdersTotal() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int OrdersTotal() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyOpen(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(double, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyHigh(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(double, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyLow(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(double, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyClose(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(double, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyTickVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(int64, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int CopyRealVolume(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(int64, arr)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+int ChartID() { return Platform::ChartID(); }
+
+bool OrderCalcMargin(ENUM_ORDER_TYPE _action, string _symbol, double _volume, double _price, double &_margin) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+double AccountInfoDouble(ENUM_ACCOUNT_INFO_DOUBLE property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return false;
+}
+
+int64 AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return false;
+}
+
+string AccountInfoInteger(ENUM_ACCOUNT_INFO_STRING property_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return "";
+}
+
+string Symbol() {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return "";
+}
+
+string ObjectName(int64 _chart_id, int _pos, int _sub_window, int _type) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
+  return "";
+}
+
+int ObjectsTotal(int64 chart_id, int type, int window) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+bool PlotIndexSetString(int plot_index, int prop_id, string prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool PlotIndexSetInteger(int plot_index, int prop_id, int prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectSetInteger(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, int64 prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectSetInteger(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_INTEGER prop_id, int prop_modifier,
+                      int64 prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectSetDouble(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, double prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectSetDouble(int64 chart_id, string name, ENUM_OBJECT_PROPERTY_DOUBLE prop_id, int prop_modifier,
+                     double prop_value) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectCreate(int64 _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectCreate(int64 _cid, string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1, datetime _t2,
+                  double _p2) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectMove(int64 chart_id, string name, int point_index, datetime time, double price) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool ObjectDelete(int64 chart_id, string name) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+int GetLastError() { return _LastError; }
+
+void ResetLastError() { _LastError = 0; }
+
+int ObjectFind(int64 chart_id, string name) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+string TimeToString(datetime value, int mode) {
+  static std::stringstream ss;
+  ss.clear();
+  ss.str("");
+
+  std::time_t time = value;
+  std::tm *ptm = std::localtime(&time);
+  char date[16], minutes[16], seconds[16];
+  std::strftime(date, 32, "%Y.%m.%d", ptm);
+  std::strftime(minutes, 32, "%H:%M", ptm);
+  std::strftime(seconds, 32, "%S", ptm);
+
+  if (mode & TIME_DATE) ss << date;
+
+  if (mode & TIME_MINUTES) {
+    if (mode & TIME_DATE) {
+      ss << " ";
+    }
+    ss << minutes;
+  }
+
+  if (mode & TIME_SECONDS) {
+    if (mode & TIME_DATE && !(mode & TIME_MINUTES)) {
+      ss << " ";
+    } else if (mode & TIME_MINUTES) {
+      ss << ":";
+    }
+    ss << seconds;
+  }
+
+  return ss.str();
+}
+
+bool TimeToStruct(datetime dt, MqlDateTime &dt_struct) {
+  time_t now = (time_t)dt;
+
+  tm *ltm = localtime(&now);
+
+  dt_struct.day = ltm->tm_mday;
+  dt_struct.day_of_week = ltm->tm_wday;
+  dt_struct.day_of_year = ltm->tm_yday;
+  dt_struct.hour = ltm->tm_hour;
+  dt_struct.min = ltm->tm_min;
+  dt_struct.mon = ltm->tm_mon;
+  dt_struct.sec = ltm->tm_sec;
+  dt_struct.year = ltm->tm_year;
+
+  return true;
+}
+
+SymbolGetter::operator string() const { return Platform::GetSymbol(); }
+
+ENUM_TIMEFRAMES Period() { return Platform::GetPeriod(); }
+
+datetime StructToTime(MqlDateTime &dt_struct) {
+  tm ltm;
+  ltm.tm_mday = dt_struct.day;
+  ltm.tm_wday = dt_struct.day_of_week;
+  ltm.tm_yday = dt_struct.day_of_year;
+  ltm.tm_hour = dt_struct.hour;
+  ltm.tm_min = dt_struct.min;
+  ltm.tm_mon = dt_struct.mon;
+  ltm.tm_sec = dt_struct.sec;
+  ltm.tm_year = dt_struct.year;
+
+  return mktime(&ltm);
+}
+
+#endif
 
 /**
  * Will test given indicator class with platform-default data source bindings.
@@ -319,7 +845,7 @@ DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
                                                                                                              \
   int OnInit() {                                                                                             \
     Platform::Init();                                                                                        \
-    Platform::AddWithDefaultBindings(indi.Ptr());                                                            \
+    Platform::AddWithDefaultBindings(indi.Ptr(), "EURUSD", PERIOD_M1);                                       \
     bool _result = true;                                                                                     \
     assertTrueOrFail(indi REF_DEREF IsValid(), "Error on IsValid!");                                         \
     return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);                           \
@@ -331,7 +857,7 @@ DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
       IndicatorDataEntry _entry = indi REF_DEREF GetEntry();                                                 \
       bool _is_ready = indi REF_DEREF Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)); \
       bool _is_valid = _entry.IsValid();                                                                     \
-      Print(indi REF_DEREF ToString(), _is_ready ? "" : " (Not yet ready)");                                 \
+      Print(indi REF_DEREF ToString(), _is_ready ? " (Ready)" : " (Not yet ready)");                         \
       if (_is_ready && !_is_valid) {                                                                         \
         Print(indi REF_DEREF ToString(), " (Invalid entry!)");                                               \
         assertTrueOrExit(_entry.IsValid(), "Invalid entry!");                                                \
@@ -340,3 +866,9 @@ DictStruct<long, Ref<IndicatorData>> Platform::indis_dflt;
   }
 
 #define TEST_INDICATOR_DEFAULT_BINDINGS(C) TEST_INDICATOR_DEFAULT_BINDINGS_PARAMS(C, )
+
+// Auto-initializer for Platform class.
+class PlatformAutoInitializer {
+ public:
+  PlatformAutoInitializer() { Platform::Init(); }
+} _platform_auto_initializer;

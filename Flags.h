@@ -20,13 +20,18 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /**
  * Flags manipulation helper.
  */
 template <typename T>
 struct Flags {
   // Bit-based value.
-  unsigned T value;
+  T value;
 
   /**
    * Constructor.

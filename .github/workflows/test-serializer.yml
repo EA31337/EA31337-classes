@@ -1,0 +1,50 @@
+---
+name: Test Serializer
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Serializer/**'
+      - '.github/workflows/test-serializer.yml'
+  push:
+    paths:
+      - 'Serializer/**'
+      - '.github/workflows/test-serializer.yml'
+
+jobs:
+
+  compile:
+    name: Compile
+    uses: ./.github/workflows/compile.yml
+    with:
+      artifact_prefix: mt
+      path: Exchange
+      skip_cleanup: true
+
+  Serializer-Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: serializer/tests
+    if: false
+    needs: compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - Serializer.test
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 4-8
+          BtMonths: 1
+          BtYears: 2021
+          MtVersion: 4.0.0.1359
+          RunOnError: show_logs 200
+          TestExpert: ${{ matrix.test }}
+    timeout-minutes: 10

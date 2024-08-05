@@ -28,14 +28,15 @@
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
-#include "../Serializer.enum.h"
+#include "../Serializer/Serializer.enum.h"
 #endif
 
 // Forward class declaration.
 class Serializer;
 
 // Includes.
-#include "../Serializer.mqh"
+#include "../Serializer/Serializer.h"
+#include "../Std.h"
 #include "../Terminal.define.h"
 
 // Struct for account entries.

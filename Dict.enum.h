@@ -26,12 +26,12 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
-#define DICT_GROW_UP_PERCENT_DEFAULT 25
-#define DICT_PERFORMANCE_PROBLEM_AVG_CONFLICTS 10
+#define DICT_GROW_UP_PERCENT_DEFAULT 100
+#define DICT_PERFORMANCE_PROBLEM_AVG_CONFLICTS 20
 
 /**
  * Whether Dict operates in yet uknown mode, as dict or as list.
@@ -42,8 +42,10 @@ enum DictMode { DictModeUnknown, DictModeDict, DictModeList };
  * Reason of call to overflow listener.
  */
 enum ENUM_DICT_OVERFLOW_REASON {
-  DICT_OVERFLOW_REASON_FULL,
-  DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS,
+  DICT_LISTENER_FULL_CAN_RESIZE,            // Dict is full. Can we grow up the dict?
+  DICT_LISTENER_NOT_PERFORMANT_CAN_RESIZE,  // Dict is not performant (too many average number of conflicts). Can we
+                                            // grow up the dict?
+  DICT_LISTENER_CONFLICTS_CAN_OVERWRITE     // Conflict(s) when inserting new slot. Can we overwrite random used slot?
 };
 
 /**

@@ -29,9 +29,9 @@
 #include "../Data.define.h"
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
-#include "../SerializerConverter.mqh"
-#include "../SerializerCsv.mqh"
-#include "../SerializerJson.mqh"
+#include "../Serializer/SerializerConverter.h"
+#include "../Serializer/SerializerCsv.h"
+#include "../Serializer/SerializerJson.h"
 #include "../Test.mqh"
 
 class Test {

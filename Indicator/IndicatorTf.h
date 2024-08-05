@@ -25,20 +25,20 @@
 #define INDICATOR_TF_H
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
 #include "../Chart.struct.tf.h"
 #include "IndicatorCandle.h"
-#include "IndicatorTf.struct.h"
+#include "IndicatorTf.provider.h"
 
 /**
  * Class to deal with candle indicators.
  */
 template <typename TFP>
-class IndicatorTf : public IndicatorCandle<TFP, double> {
+class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProvider<double>> {
  protected:
   /* Protected methods */
 
@@ -47,24 +47,21 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    *
    * Called on constructor.
    */
-  void Init() {}
+  void Init() {
+    history.SetItemProvider(new ItemsHistoryTfCandleProvider<double>(ChartTf::TfToSeconds(GetTf()), THIS_PTR));
+  }
 
  public:
   /* Special methods */
 
   /**
    * Class constructor with timeframe enum.
+   *
+   * @todo
    */
-  IndicatorTf(unsigned int _spc) {
-    iparams.SetSecsPerCandle(_spc);
-    Init();
-  }
 
-  /**
-   * Class constructor with timeframe enum.
-   */
   IndicatorTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(_tf));
+    SetTf(_tf);
     Init();
   }
 
@@ -72,17 +69,29 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
    * Class constructor with timeframe index.
    */
   IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
-    iparams.SetSecsPerCandle(ChartTf::TfToSeconds(ChartTf::IndexToTf(_tfi)));
+    SetTf(ChartTf::IndexToTf(_tfi));
     Init();
   }
 
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams)
-      : IndicatorCandle<TFP, double>(_icparams, _idparams) {
-    Init();
-  }
+  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams) { Init(); }
+
+  /**
+   * Gets indicator's time-frame.
+   */
+  ENUM_TIMEFRAMES GetTf() override { return THIS_ATTR iparams.tf.GetTf(); }
+
+  /**
+   * Sets indicator's time-frame.
+   */
+  void SetTf(ENUM_TIMEFRAMES _tf) { THIS_ATTR iparams.tf.SetTf(_tf); }
+
+  /**
+   * Returns current tick index (incremented every OnTick()).
+   */
+  int GetTickIndex() override { return THIS_ATTR history.GetItemProvider() PTR_DEREF GetTickIndex(); }
 };
 
-#endif
+#endif  // INDICATOR_TF_H

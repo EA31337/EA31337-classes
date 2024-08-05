@@ -22,7 +22,7 @@
 
 // Includes.
 #include "../BufferStruct.mqh"
-#include "../Indicator.mqh"
+#include "../Indicator/Indicator.h"
 #include "Price/Indi_Price.mqh"
 
 /**
@@ -79,11 +79,10 @@ class Indi_Demo : public Indicator<IndiDemoParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
-    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    double _value = Indi_Demo::iDemo(THIS_PTR, _ishift);
-    if (idparams.is_draw) {
-      draw.DrawLineTo(GetName(), GetCandle() PTR_DEREF GetBarTime(_ishift), _value);
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
+    double _value = Indi_Demo::iDemo(THIS_PTR, ToRelShift(_abs_shift));
+    if (idparams.IsDrawing()) {
+      // draw.DrawLineTo(GetName(), GetCandle() PTR_DEREF GetBarTime(ToRelShift(_abs_shift)), _value);
     }
     return _value;
   }

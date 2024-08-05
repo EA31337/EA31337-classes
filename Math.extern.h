@@ -22,28 +22,59 @@
 
 // Define external global functions.
 #ifndef __MQL__
+#pragma once
+
+#include <algorithm>
+#include <cmath>
+
 template <typename T>
-extern T MathAbs(T value);
+T MathAbs(T value) {
+  return std::abs(value);
+}
 template <typename T>
-extern T fabs(T value);
+T fabs(T value) {
+  return std::abs(value);
+}
 template <typename T>
-extern T pow(T base, T exponent);
+T pow(T base, T exponent) {
+  return (T)std::pow(base, exponent);
+}
 template <typename T>
-extern T MathPow(T base, T exponent);
+T MathPow(T base, T exponent) {
+  return std::pow(base, exponent);
+}
 template <typename T>
-extern T round(T value);
+T round(T value) {
+  return std::round(value);
+}
 template <typename T>
-extern T MathRound(T value);
+T MathRound(T value) {
+  return std::round(value);
+}
 template <typename T>
-extern T fmax(T value1, T value2);
+T fmax(T value1, T value2) {
+  return std::max(value1, value2);
+}
 template <typename T>
-extern T MathMax(T value1, T value2);
+T MathMax(T value1, T value2) {
+  return std::max(value1, value2);
+}
 template <typename T>
-extern T fmin(T value1, T value2);
+T fmin(T value1, T value2) {
+  return std::min(value1, value2);
+}
 template <typename T>
-extern T MathMin(T value1, T value2);
+T MathMin(T value1, T value2) {
+  return std::min(value1, value2);
+}
 template <typename T>
-extern T MathLog10(T value1);
+T MathLog10(T value) {
+  return std::log10(value);
+}
 template <typename T>
-extern T log10(T value);
+T log10(T value) {
+  return std::log10(value);
+}
+int MathRand() { return std::rand() % 32768; }
+// int rand() { return std::rand() % 32768; }
 #endif
