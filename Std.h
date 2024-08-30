@@ -37,7 +37,7 @@
   #include <vector>
 #endif
 
-#ifndef __MQL__
+#ifndef __FUNCSIG__
   #define __FUNCSIG__ __FUNCTION__
 #endif
 
@@ -62,7 +62,7 @@
   #define int64 long
   #define nullptr NULL
 #else
-  #define GET_PTR(obj) (*obj)
+  #define GET_PTR(obj) (&obj)
   #define THIS_ATTR this->
   #define THIS_PTR (this)
   #define THIS_REF (*this)
@@ -405,8 +405,8 @@ struct AsSeriesReleaseEnsurer {
   int num_buffs;
   AsSeriesReleaseEnsurer(int _num_buffs) : released(false), num_buffs(_num_buffs) {}
   void done(int _num_buffs) {
-    if (_num_buffs != num_buffs) {
 #ifdef __MQL__
+    if (_num_buffs != num_buffs) {
       Alert("You have acquired ", num_buffs, " buffers via ACQUIRE_BUFFER", num_buffs,
             "(), but now trying to release with mismatched RELEASE_BUFFER", _num_buffs, "()!");
       DebugBreak();
