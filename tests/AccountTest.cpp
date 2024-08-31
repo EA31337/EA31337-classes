@@ -34,30 +34,26 @@ typedef unsigned int uint;
 typedef unsigned long ulong;
 typedef unsigned short ushort;
 
-
 // Includes.
-#include "../Account.mqh"
+#include "../Account/Account.h"
 
 int main(int argc, char **argv) {
-
   // Initialize class.
-  Account *acc = new Account();
-
   // Defines variables.
-  double _balance = AccountInfoDouble(ACCOUNT_BALANCE);
-  double _credit = AccountInfoDouble(ACCOUNT_CREDIT);
-  double _equity = AccountInfoDouble(ACCOUNT_EQUITY);
+  // double _balance = AccountInfoDouble(ACCOUNT_BALANCE);
+  // double _credit = AccountInfoDouble(ACCOUNT_CREDIT);
+  // double _equity = AccountInfoDouble(ACCOUNT_EQUITY);
 
   // Dummy calls.
-  acc.GetAccountName();
-  acc.GetCompanyName();
-  acc.GetLogin();
-  acc.GetServerName();
+  // acc.GetAccountName();
+  // acc.GetCompanyName();
+  // acc.GetLogin();
+  // acc.GetServerName();
 
   // Print account details.
-  Print(acc.ToString());
-  Print(acc.ToCSV());
+  // Print(acc.ToString());
+  // Print(acc.ToCSV());
 
   // Clean up.
-  delete acc;
+  // delete acc;
 }

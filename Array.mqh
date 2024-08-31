@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -35,16 +35,16 @@
 
 // Defines.
 #ifndef MODE_ASCEND
-#define MODE_ASCEND 0
+  #define MODE_ASCEND 0
 #endif
 #ifndef MODE_DESCEND
-#define MODE_DESCEND 1
+  #define MODE_DESCEND 1
 #endif
 // Other constants.
 // @see https://docs.mql4.com/constants/namedconstants/otherconstants
 #ifndef WHOLE_ARRAY
-// Indicates that all array elements will be processed.
-#define WHOLE_ARRAY 0
+  // Indicates that all array elements will be processed.
+  #define WHOLE_ARRAY 0
 #endif
 
 /*
@@ -119,7 +119,7 @@ class Array {
     int i;
     string result = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      result += StringFormat("%d:%d%s", i, arr[i], sep);
+      result += StringFormat("%d:%d%s", i, arr[i], C_STR(sep));
     }
     // Return text without last separator.
     return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
@@ -136,7 +136,7 @@ class Array {
     int i;
     string result = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      result += StringFormat("%d:%g%s", i, arr[i], sep);
+      result += StringFormat("%d:%g%s", i, arr[i], C_STR(sep));
     }
     // Return text without last separator.
     return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
@@ -404,7 +404,7 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
     int i;
     string res = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      res += StringFormat("%g%s", NormalizeDouble(arr[i], digits), dlm);
+      res += StringFormat("%g%s", NormalizeDouble(arr[i], digits), C_STR(dlm));
     }
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
@@ -610,16 +610,16 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
 #ifdef __MQL4__
   template <typename T>
   static bool ArraySort2D(T& arr[][], int count = WHOLE_ARRAY, int start = 0, int direction = MODE_ASCEND) {
-#ifdef __MQL4__
+  #ifdef __MQL4__
     return (bool)::ArraySort(arr, count, start, direction);
-#else
+  #else
     if (direction == MODE_DESCEND) {
       return ::ArrayReverse(arr, start, count);
     } else {
       // @fixme: Add support for _count amd _start.
       return ::ArraySort(arr);
     }
-#endif
+  #endif
   }
 #endif
 
@@ -655,42 +655,42 @@ static int GetLowestArrDoubleValue(double& arr[][], int key) {
     return result;
   }
 
-/**
- * Initializes a numeric array by a preset value.
- *
- * @param array[]
- *   Numeric array that should be initialized.
- * @param char value
- *   New value that should be set to all array elements.
- * @return int
- *   Number of initialized elements.
- *
- * @docs
- * - https://docs.mql4.com/array/arrayinitialize
- * - https://www.mql5.com/en/docs/array/arrayinitialize
- */
-template <typename X>
-static int ArrayInitialize(ARRAY_REF(X, array), char value) {
-  return ::ArrayInitialize(array, value);
-}
+  /**
+   * Initializes a numeric array by a preset value.
+   *
+   * @param array[]
+   *   Numeric array that should be initialized.
+   * @param char value
+   *   New value that should be set to all array elements.
+   * @return int
+   *   Number of initialized elements.
+   *
+   * @docs
+   * - https://docs.mql4.com/array/arrayinitialize
+   * - https://www.mql5.com/en/docs/array/arrayinitialize
+   */
+  template <typename X>
+  static int ArrayInitialize(ARRAY_REF(X, array), char value) {
+    return ::ArrayInitialize(array, value);
+  }
 
-/**
- * Searches for the lowest element in the first dimension of a multidimensional numeric array.
- *
- * @param void &array[]
- *   A numeric array, in which search is made.
- * @param int start
- *   Index to start checking with.
- * @param int count
- *   Number of elements for search. By default, searches in the entire array.
- * @return int
- *   The function returns an index of a found element.
- *
- * @docs
- * - https://docs.mql4.com/array/arraymaximum
- * - https://www.mql5.com/en/docs/array/arraymaximum
- */
-template <typename X>
+  /**
+   * Searches for the lowest element in the first dimension of a multidimensional numeric array.
+   *
+   * @param void &array[]
+   *   A numeric array, in which search is made.
+   * @param int start
+   *   Index to start checking with.
+   * @param int count
+   *   Number of elements for search. By default, searches in the entire array.
+   * @return int
+   *   The function returns an index of a found element.
+   *
+   * @docs
+   * - https://docs.mql4.com/array/arraymaximum
+   * - https://www.mql5.com/en/docs/array/arraymaximum
+   */
+  template <typename X>
   static int ArrayMinimum(ARRAY_REF(X, _array), int _start = 0, int _count = WHOLE_ARRAY) {
 #ifdef __MQL__
     return ::ArrayMinimum(_array);
@@ -707,23 +707,23 @@ template <typename X>
 #endif
   }
 
-/**
- * Searches for the largest element in the first dimension of a multidimensional numeric array.
- *
- * @param void &array[]
- *   A numeric array, in which search is made.
- * @param int start
- *   Index to start checking with.
- * @param int count
- *   Number of elements for search. By default, searches in the entire array.
- * @return int
- *   The function returns an index of a found element.
- *
- * @docs
- * - https://docs.mql4.com/array/arraymaximum
- * - https://www.mql5.com/en/docs/array/arraymaximum
- */
-template <typename X>
+  /**
+   * Searches for the largest element in the first dimension of a multidimensional numeric array.
+   *
+   * @param void &array[]
+   *   A numeric array, in which search is made.
+   * @param int start
+   *   Index to start checking with.
+   * @param int count
+   *   Number of elements for search. By default, searches in the entire array.
+   * @return int
+   *   The function returns an index of a found element.
+   *
+   * @docs
+   * - https://docs.mql4.com/array/arraymaximum
+   * - https://www.mql5.com/en/docs/array/arraymaximum
+   */
+  template <typename X>
   static int ArrayMaximum(ARRAY_REF(X, _array), int start = 0, int count = WHOLE_ARRAY) {
 #ifdef __MQL__
     return ::ArrayMaximum(_array);
@@ -740,22 +740,22 @@ template <typename X>
 #endif
   }
 
-/**
- * Returns the number of elements of a selected array.
- *
- * @param void &array[]
- *   Array of any type.
- * @return int
- *   Value of int type.
- *
- * @docs
- * - https://docs.mql4.com/array/arraysize
- * - https://www.mql5.com/en/docs/array/arraysize
- */
-template <typename X>
+  /**
+   * Returns the number of elements of a selected array.
+   *
+   * @param void &array[]
+   *   Array of any type.
+   * @return int
+   *   Value of int type.
+   *
+   * @docs
+   * - https://docs.mql4.com/array/arraysize
+   * - https://www.mql5.com/en/docs/array/arraysize
+   */
+  template <typename X>
   static int ArraySize(ARRAY_REF(X, array)) {
-  return ::ArraySize(array);
-}
+    return ::ArraySize(array);
+  }
 
   template <typename X>
   static void ArrayStore(ARRAY_REF(X, array), int _idx, X value, int reserve_size = 0) {

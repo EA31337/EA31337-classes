@@ -29,7 +29,7 @@
 
 // Defines aliases for data types.
 typedef std::string string;
-typedef unsigned chart uchar;
+typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef unsigned long ulong;
 typedef unsigned short ushort;

@@ -72,8 +72,8 @@ class DictBase {
 
   DictIteratorBase<K, V> Begin() {
     // Searching for first item index.
-    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
-      if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref PTR_DEREF DictSlots); ++i) {
+      if (_DictSlots_ref PTR_DEREF DictSlots[i].IsValid() && _DictSlots_ref PTR_DEREF DictSlots[i].IsUsed()) {
         DictIteratorBase<K, V> iter(this, i);
         return iter;
       }
@@ -83,7 +83,7 @@ class DictBase {
     return invalid;
   }
 
-  const unsigned int GetSlotCount() const { return ArraySize(_DictSlots_ref.DictSlots); }
+  const unsigned int GetSlotCount() const { return ArraySize(_DictSlots_ref PTR_DEREF DictSlots); }
 
   /**
    * Adds flags to dict.
@@ -101,14 +101,14 @@ class DictBase {
       return NULL;
     }
 
-    return &_DictSlots_ref.DictSlots[_idx];
+    return &_DictSlots_ref PTR_DEREF DictSlots[_idx];
   }
 
   /**
    * Returns slot by key.
    */
   DictSlot<K, V>* GetSlotByKey(DictSlotsRef<K, V>*& dictSlotsRef, const K _key, unsigned int& position) {
-    unsigned int numSlots = ArraySize(dictSlotsRef.DictSlots);
+    unsigned int numSlots = ArraySize(dictSlotsRef PTR_DEREF DictSlots);
 
     if (numSlots == 0) return NULL;
 
@@ -117,19 +117,19 @@ class DictBase {
     unsigned int tries_left = numSlots;
 
     while (tries_left-- > 0) {
-      if (dictSlotsRef.DictSlots[position].WasUsed() == false) {
+      if (dictSlotsRef PTR_DEREF DictSlots[position].WasUsed() == false) {
         // We stop searching now.
         return NULL;
       }
 
-      if (dictSlotsRef.DictSlots[position].IsUsed() && dictSlotsRef.DictSlots[position].HasKey() &&
-          dictSlotsRef.DictSlots[position].key == _key) {
+      if (dictSlotsRef PTR_DEREF DictSlots[position].IsUsed() && dictSlotsRef PTR_DEREF DictSlots[position].HasKey() &&
+          dictSlotsRef PTR_DEREF DictSlots[position].key == _key) {
         // _key matches, returing value from the DictSlot.
-        return &dictSlotsRef.DictSlots[position];
+        return &dictSlotsRef PTR_DEREF DictSlots[position];
       }
 
       // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
+      position = (position + 1) % ArraySize(dictSlotsRef PTR_DEREF DictSlots);
     }
 
     return NULL;
@@ -139,7 +139,7 @@ class DictBase {
    * Returns slot by position.
    */
   DictSlot<K, V>* GetSlotByPos(DictSlotsRef<K, V>*& dictSlotsRef, const unsigned int position) {
-    return dictSlotsRef.DictSlots[position].IsUsed() ? &dictSlotsRef.DictSlots[position] : NULL;
+    return dictSlotsRef PTR_DEREF DictSlots[position].IsUsed() ? &dictSlotsRef PTR_DEREF DictSlots[position] : NULL;
   }
 
   /**
@@ -179,7 +179,7 @@ class DictBase {
    * Removes value from the dictionary by the given key (if exists).
    */
   void InternalUnset(const K key) {
-    if (ArraySize(_DictSlots_ref.DictSlots) == 0) {
+    if (ArraySize(_DictSlots_ref PTR_DEREF DictSlots) == 0) {
       // Nothing to unset.
       return;
     }
@@ -198,20 +198,20 @@ class DictBase {
       }
 #endif
     } else {
-      position = Hash(key) % ArraySize(_DictSlots_ref.DictSlots);
+      position = Hash(key) % ArraySize(_DictSlots_ref PTR_DEREF DictSlots);
     }
 
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+    unsigned int tries_left = ArraySize(_DictSlots_ref PTR_DEREF DictSlots);
 
     while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
+      if (_DictSlots_ref PTR_DEREF DictSlots[position].WasUsed() == false) {
         // We stop searching now.
         return;
       }
 
       bool _should_be_removed = false;
 
-      if (_DictSlots_ref.DictSlots[position].IsUsed()) {
+      if (_DictSlots_ref PTR_DEREF DictSlots[position].IsUsed()) {
         if (GetMode() == DictModeList) {
 #ifndef __MQL__
           if constexpr (std::is_same<K, int>::value) {
@@ -223,18 +223,18 @@ class DictBase {
           }
 #endif
         } else {
-          _should_be_removed =
-              _DictSlots_ref.DictSlots[position].HasKey() && _DictSlots_ref.DictSlots[position].key == key;
+          _should_be_removed = _DictSlots_ref PTR_DEREF DictSlots[position].HasKey() &&
+                               _DictSlots_ref PTR_DEREF DictSlots[position].key == key;
         }
       }
 
       if (_should_be_removed) {
         // Key/index perfectly matches, it indicates key/index exists in the dictionary.
-        _DictSlots_ref.DictSlots[position].RemoveFlags(DICT_SLOT_IS_USED);
+        _DictSlots_ref PTR_DEREF DictSlots[position].RemoveFlags(DICT_SLOT_IS_USED);
 
         if (GetMode() == DictModeDict) {
           // In List mode we don't decrement number of used elements.
-          --_DictSlots_ref._num_used;
+          --_DictSlots_ref PTR_DEREF _num_used;
         } else if (HasFlags(DICT_FLAG_FILL_HOLES_UNSORTED)) {
           // This is List mode and we need to fill this hole.
           FillHoleUnsorted(position);
@@ -247,7 +247,7 @@ class DictBase {
       }
 
       // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
+      position = (position + 1) % ArraySize(_DictSlots_ref PTR_DEREF DictSlots);
     }
 
     // No key found.
@@ -262,30 +262,30 @@ class DictBase {
       // We've just removed last element, thus don't need to do anything.
     } else {
       // Moving last slot into given one.
-      _DictSlots_ref.DictSlots[_hole_slot_idx] = _DictSlots_ref.DictSlots[Size() - 1];
+      _DictSlots_ref PTR_DEREF DictSlots[_hole_slot_idx] = _DictSlots_ref PTR_DEREF DictSlots[Size() - 1];
 
       // Marking last slot as unused.
-      _DictSlots_ref.DictSlots[Size() - 1].RemoveFlags(DICT_SLOT_IS_USED);
+      _DictSlots_ref PTR_DEREF DictSlots[Size() - 1].RemoveFlags(DICT_SLOT_IS_USED);
     }
     // One element less in the List-based Dict.
-    --_DictSlots_ref._num_used;
+    --_DictSlots_ref PTR_DEREF _num_used;
   }
 
   /**
    * Returns number of used DictSlots.
    */
-  const unsigned int Size() { return _DictSlots_ref._num_used; }
+  const unsigned int Size() { return _DictSlots_ref PTR_DEREF _num_used; }
 
   /**
    * Returns number of all (reserved) DictSlots.
    */
-  const unsigned int ReservedSize() { return ArraySize(_DictSlots_ref.DictSlots); }
+  const unsigned int ReservedSize() { return ArraySize(_DictSlots_ref PTR_DEREF DictSlots); }
 
   /**
    * Checks whether given key exists in the dictionary.
    */
   bool KeyExists(const K key, unsigned int& position) {
-    int numSlots = ArraySize(_DictSlots_ref.DictSlots);
+    int numSlots = ArraySize(_DictSlots_ref PTR_DEREF DictSlots);
 
     if (numSlots == 0) return false;
 
@@ -294,13 +294,14 @@ class DictBase {
     unsigned int tries_left = numSlots;
 
     while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
+      if (_DictSlots_ref PTR_DEREF DictSlots[position].WasUsed() == false) {
         // We stop searching now.
         return false;
       }
 
-      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey() &&
-          _DictSlots_ref.DictSlots[position].key == key) {
+      if (_DictSlots_ref PTR_DEREF DictSlots[position].IsUsed() &&
+          _DictSlots_ref PTR_DEREF DictSlots[position].HasKey() &&
+          _DictSlots_ref PTR_DEREF DictSlots[position].key == key) {
         // Key perfectly matches, it indicates key exists in the dictionary.
         return true;
       }
