@@ -574,3 +574,12 @@ struct AsSeriesReleaseEnsurer {
 #define RELEASE_BUFFER8(A, B, C, D, E, F, G, H)      \
   RELEASE_BUFFER8_NO_ENSURE(A, B, C, D, E, F, G, H); \
   SET_BUFFER_AS_SERIES_RELEASE_ENSURER_END(8);
+
+#ifndef __MQL__
+// clang-format off
+  # if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
+  # else
+  #define constexpr
+  # endif
+// clang-format on
+#endif

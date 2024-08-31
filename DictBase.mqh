@@ -189,11 +189,7 @@ class DictBase {
     if (GetMode() == DictModeList) {
       // In list mode value index is the slot index.
 #ifndef __MQL__
-      if
-  #if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
-          constexpr
-  #endif
-          (std::is_same<K, int>::value) {
+      if constexpr (std::is_same<K, int>::value) {
 #endif
         position = (int)key;
 #ifndef __MQL__
@@ -218,11 +214,7 @@ class DictBase {
       if (_DictSlots_ref PTR_DEREF DictSlots[position].IsUsed()) {
         if (GetMode() == DictModeList) {
 #ifndef __MQL__
-          if
-  #if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
-              constexpr
-  #endif
-              (std::is_same<K, int>::value) {
+          if constexpr (std::is_same<K, int>::value) {
 #endif
             _should_be_removed = position == (unsigned int)key;
 #ifndef __MQL__

@@ -51,8 +51,8 @@ class Terminal;
 // Provide backward compatibility for MQL4 in MQL5.
 //#include "MQL4.mqh"
 #else
-// Provides forward compatibility for MQL5 in MQL4.
-#include "MQL5.mqh"
+  // Provides forward compatibility for MQL5 in MQL4.
+  #include "MQL5.mqh"
 #endif
 
 /**
@@ -736,128 +736,129 @@ class Terminal : public Object {
       case 4206:
         text = "No specified subwindow.";
         break;
-      /* Return Codes of the Trade Server */
-      // @docs: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
-       case 10004: // TRADE_RETCODE_REQUOTE
-         text = "Requote";
-         break;
-       case 10006: // TRADE_RETCODE_REJECT
-         text = "Request rejected";
-         break;
-       case 10007: // TRADE_RETCODE_CANCEL
-         text = "Request canceled by trader";
-         break;
-       case 10008: // TRADE_RETCODE_PLACED
-         text = "Order placed";
-         break;
-       case 10009: // TRADE_RETCODE_DONE
-         text = "Request completed";
-         break;
-       case 10010: // TRADE_RETCODE_DONE_PARTIAL
-         text = "Only part of the request was completed";
-         break;
-       case 10011: // TRADE_RETCODE_ERROR
-         text = "Request processing error";
-         break;
-       case 10012: // TRADE_RETCODE_TIMEOUT
-         text = "Request canceled by timeout";
-         break;
-       case 10013: // TRADE_RETCODE_INVALID
-         text = "Invalid request";
-         break;
-       case 10014: // TRADE_RETCODE_INVALID_VOLUME
-         text = "Invalid volume in the request";
-         break;
-       case 10015: // TRADE_RETCODE_INVALID_PRICE
-         text = "Invalid price in the request";
-         break;
-       case 10016: // TRADE_RETCODE_INVALID_STOPS
-         text = "Invalid stops in the request";
-         break;
-       case 10017: // TRADE_RETCODE_TRADE_DISABLED
-         text = "Trade is disabled";
-         break;
-       case 10018: // TRADE_RETCODE_MARKET_CLOSED
-         text = "Market is closed";
-         break;
-       case 10019: // TRADE_RETCODE_NO_MONEY
-         text = "There is not enough money to complete the request";
-         break;
-       case 10020: // TRADE_RETCODE_PRICE_CHANGED
-         text = "Prices changed";
-         break;
-       case 10021: // TRADE_RETCODE_PRICE_OFF
-         text = "There are no quotes to process the request";
-         break;
-       case 10022: // TRADE_RETCODE_INVALID_EXPIRATION
-         text = "Invalid order expiration date in the request";
-         break;
-       case 10023: // TRADE_RETCODE_ORDER_CHANGED
-         text = "Order state changed";
-         break;
-       case 10024: // TRADE_RETCODE_TOO_MANY_REQUESTS
-         text = "Too frequent requests";
-         break;
-       case 10025: // TRADE_RETCODE_NO_CHANGES
-         text = "No changes in request";
-         break;
-       case 10026: // TRADE_RETCODE_SERVER_DISABLES_AT
-         text = "Autotrading disabled by server";
-         break;
-       case 10027: // TRADE_RETCODE_CLIENT_DISABLES_AT
-         text = "Autotrading disabled by client terminal";
-         break;
-       case 10028: // TRADE_RETCODE_LOCKED
-         text = "Request locked for processing";
-         break;
-       case 10029: // TRADE_RETCODE_FROZEN
-         text = "Order or position frozen";
-         break;
-       case 10030: // TRADE_RETCODE_INVALID_FILL
-         text = "Invalid order filling type";
-         break;
-       case 10031: // TRADE_RETCODE_CONNECTION
-         text = "No connection with the trade server";
-         break;
-       case 10032: // TRADE_RETCODE_ONLY_REAL
-         text = "Operation is allowed only for live accounts";
-         break;
-       case 10033: // TRADE_RETCODE_LIMIT_ORDERS
-         text = "The number of pending orders has reached the limit";
-         break;
-       case 10034: // TRADE_RETCODE_LIMIT_VOLUME
-         text = "The volume of orders and positions for the symbol has reached the limit";
-         break;
-       case 10035: // TRADE_RETCODE_INVALID_ORDER
-         text = "Incorrect or prohibited order type";
-         break;
-       case 10036: // TRADE_RETCODE_POSITION_CLOSED
-         text = "Position with the specified POSITION_IDENTIFIER has already been closed";
-         break;
-       case 10039: // TRADE_RETCODE_CLOSE_ORDER_EXIST
-         text = "A close order already exists for a specified position";
-         break;
-       case 10040: // TRADE_RETCODE_LIMIT_POSITIONS
-         text = "The number of open positions simultaneously present on an account can be limited by the server settings";
-         break;
-       case 10041: // TRADE_RETCODE_REJECT_CANCEL
-         text = "The pending order activation request is rejected, the order is canceled";
-         break;
-       case 10042: // TRADE_RETCODE_LONG_ONLY
-         text = "The request is rejected because only long positions are allowed";
-         break;
-       case 10043: // TRADE_RETCODE_SHORT_ONLY
-         text = "The request is rejected because only short positions are allowed";
-         break;
-       case 10044: // TRADE_RETCODE_CLOSE_ONLY
-         text = "The request is rejected because only position closing is allowed";
-         break;
-       case 10045: // TRADE_RETCODE_FIFO_CLOSE
-         text = "The request is rejected because position closing is allowed only by FIFO rule";
-         break;
-       case 10046: // TRADE_RETCODE_HEDGE_PROHIBITED
-         text = "The request is rejected because opposite positions on a single symbol are disabled";
-         break;
+        /* Return Codes of the Trade Server */
+        // @docs: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
+      case 10004:  // TRADE_RETCODE_REQUOTE
+        text = "Requote";
+        break;
+      case 10006:  // TRADE_RETCODE_REJECT
+        text = "Request rejected";
+        break;
+      case 10007:  // TRADE_RETCODE_CANCEL
+        text = "Request canceled by trader";
+        break;
+      case 10008:  // TRADE_RETCODE_PLACED
+        text = "Order placed";
+        break;
+      case 10009:  // TRADE_RETCODE_DONE
+        text = "Request completed";
+        break;
+      case 10010:  // TRADE_RETCODE_DONE_PARTIAL
+        text = "Only part of the request was completed";
+        break;
+      case 10011:  // TRADE_RETCODE_ERROR
+        text = "Request processing error";
+        break;
+      case 10012:  // TRADE_RETCODE_TIMEOUT
+        text = "Request canceled by timeout";
+        break;
+      case 10013:  // TRADE_RETCODE_INVALID
+        text = "Invalid request";
+        break;
+      case 10014:  // TRADE_RETCODE_INVALID_VOLUME
+        text = "Invalid volume in the request";
+        break;
+      case 10015:  // TRADE_RETCODE_INVALID_PRICE
+        text = "Invalid price in the request";
+        break;
+      case 10016:  // TRADE_RETCODE_INVALID_STOPS
+        text = "Invalid stops in the request";
+        break;
+      case 10017:  // TRADE_RETCODE_TRADE_DISABLED
+        text = "Trade is disabled";
+        break;
+      case 10018:  // TRADE_RETCODE_MARKET_CLOSED
+        text = "Market is closed";
+        break;
+      case 10019:  // TRADE_RETCODE_NO_MONEY
+        text = "There is not enough money to complete the request";
+        break;
+      case 10020:  // TRADE_RETCODE_PRICE_CHANGED
+        text = "Prices changed";
+        break;
+      case 10021:  // TRADE_RETCODE_PRICE_OFF
+        text = "There are no quotes to process the request";
+        break;
+      case 10022:  // TRADE_RETCODE_INVALID_EXPIRATION
+        text = "Invalid order expiration date in the request";
+        break;
+      case 10023:  // TRADE_RETCODE_ORDER_CHANGED
+        text = "Order state changed";
+        break;
+      case 10024:  // TRADE_RETCODE_TOO_MANY_REQUESTS
+        text = "Too frequent requests";
+        break;
+      case 10025:  // TRADE_RETCODE_NO_CHANGES
+        text = "No changes in request";
+        break;
+      case 10026:  // TRADE_RETCODE_SERVER_DISABLES_AT
+        text = "Autotrading disabled by server";
+        break;
+      case 10027:  // TRADE_RETCODE_CLIENT_DISABLES_AT
+        text = "Autotrading disabled by client terminal";
+        break;
+      case 10028:  // TRADE_RETCODE_LOCKED
+        text = "Request locked for processing";
+        break;
+      case 10029:  // TRADE_RETCODE_FROZEN
+        text = "Order or position frozen";
+        break;
+      case 10030:  // TRADE_RETCODE_INVALID_FILL
+        text = "Invalid order filling type";
+        break;
+      case 10031:  // TRADE_RETCODE_CONNECTION
+        text = "No connection with the trade server";
+        break;
+      case 10032:  // TRADE_RETCODE_ONLY_REAL
+        text = "Operation is allowed only for live accounts";
+        break;
+      case 10033:  // TRADE_RETCODE_LIMIT_ORDERS
+        text = "The number of pending orders has reached the limit";
+        break;
+      case 10034:  // TRADE_RETCODE_LIMIT_VOLUME
+        text = "The volume of orders and positions for the symbol has reached the limit";
+        break;
+      case 10035:  // TRADE_RETCODE_INVALID_ORDER
+        text = "Incorrect or prohibited order type";
+        break;
+      case 10036:  // TRADE_RETCODE_POSITION_CLOSED
+        text = "Position with the specified POSITION_IDENTIFIER has already been closed";
+        break;
+      case 10039:  // TRADE_RETCODE_CLOSE_ORDER_EXIST
+        text = "A close order already exists for a specified position";
+        break;
+      case 10040:  // TRADE_RETCODE_LIMIT_POSITIONS
+        text =
+            "The number of open positions simultaneously present on an account can be limited by the server settings";
+        break;
+      case 10041:  // TRADE_RETCODE_REJECT_CANCEL
+        text = "The pending order activation request is rejected, the order is canceled";
+        break;
+      case 10042:  // TRADE_RETCODE_LONG_ONLY
+        text = "The request is rejected because only long positions are allowed";
+        break;
+      case 10043:  // TRADE_RETCODE_SHORT_ONLY
+        text = "The request is rejected because only short positions are allowed";
+        break;
+      case 10044:  // TRADE_RETCODE_CLOSE_ONLY
+        text = "The request is rejected because only position closing is allowed";
+        break;
+      case 10045:  // TRADE_RETCODE_FIFO_CLOSE
+        text = "The request is rejected because position closing is allowed only by FIFO rule";
+        break;
+      case 10046:  // TRADE_RETCODE_HEDGE_PROHIBITED
+        text = "The request is rejected because opposite positions on a single symbol are disabled";
+        break;
       default:
         text = "Unknown error.";
     }
@@ -1002,7 +1003,7 @@ class Terminal : public Object {
       case TERMINAL_COND_IS_CONNECTED:
         return !IsConnected();
       default:
-        Print(StringFormat("Invalid terminal condition: %s!", EnumToString(_cond), __FUNCTION__));
+        Print(StringFormat("Invalid terminal condition: %s!", C_STR(EnumToString(_cond)), __FUNCTION__));
         return false;
     }
   }
@@ -1037,7 +1038,7 @@ class Terminal : public Object {
       case TERMINAL_ACTION_CRASH:
         delete THIS_PTR;
       default:
-        Print(StringFormat("Invalid terminal action: %s!", EnumToString(_action), __FUNCTION__));
+        Print(StringFormat("Invalid terminal action: %s!", C_STR(EnumToString(_action)), __FUNCTION__));
         return false;
     }
   }
@@ -1051,7 +1052,8 @@ class Terminal : public Object {
   /**
    * Returns textual representation of the Terminal class.
    */
-  string ToString(string _sep = "; ") {
+  string const ToString() override {
+    string _sep = "; ";
     return StringFormat("Allow DLL: %s", IsDllsAllowed() ? "Yes" : "No") + _sep +
            StringFormat("Allow Libraries: %s", IsLibrariesAllowed() ? "Yes" : "No") + _sep +
            StringFormat("CPUs: %d", GetCpuCores()) + _sep +
@@ -1071,16 +1073,18 @@ class Terminal : public Object {
            StringFormat("Memory (physical): %d", GetPhysicalMemory()) + _sep +
            StringFormat("Memory (total): %d", GetTotalMemory()) + _sep +
            StringFormat("Memory (used): %d", GetUsedMemory()) + _sep +
-           StringFormat("Path (Common): %s", GetCommonPath()) + _sep + StringFormat("Path (Data): %s", GetDataPath()) +
-           _sep + StringFormat("Path (Expert): %s", GetExpertPath()) + _sep +
-           StringFormat("Path (Terminal): %s", GetTerminalPath()) + _sep +
-           StringFormat("Program name: %s", WindowExpertName()) + _sep +
+           StringFormat("Path (Common): %s", C_STR(GetCommonPath())) + _sep +
+           StringFormat("Path (Data): %s", C_STR(GetDataPath())) + _sep +
+           StringFormat("Path (Expert): %s", C_STR(GetExpertPath())) + _sep +
+           StringFormat("Path (Terminal): %s", C_STR(GetTerminalPath())) + _sep +
+           StringFormat("Program name: %s", C_STR(WindowExpertName())) + _sep +
            StringFormat("Screen DPI: %d", GetScreenDpi()) + _sep + StringFormat("Terminal build: %d", GetBuild()) +
-           _sep + StringFormat("Terminal code page: %d", IntegerToString(GetCodePage())) + _sep +
-           StringFormat("Terminal company: %s", GetCompany()) + _sep +
+           _sep + StringFormat("Terminal code page: %d", C_STR(IntegerToString(GetCodePage()))) + _sep +
+           StringFormat("Terminal company: %s", C_STR(GetCompany())) + _sep +
            StringFormat("Terminal connected: %s", IsConnected() ? "Yes" : "No") + _sep +
-           StringFormat("Terminal language: %s", GetLanguage()) + _sep + StringFormat("Terminal name: %s", GetName()) +
-           _sep + StringFormat("Terminal max bars: %d", GetMaxBars()) + _sep +
+           StringFormat("Terminal language: %s", C_STR(GetLanguage())) + _sep +
+           StringFormat("Terminal name: %s", C_STR(GetName())) + _sep +
+           StringFormat("Terminal max bars: %d", GetMaxBars()) + _sep +
            StringFormat("Trade allowed: %s", IsTradeAllowed() ? "Yes" : "No") + _sep +
            StringFormat("Trade context busy: %s", IsTradeContextBusy() ? "Yes" : "No") + _sep +
            StringFormat("Trade perm: %s", CheckPermissionToTrade() ? "Yes" : "No") + _sep +

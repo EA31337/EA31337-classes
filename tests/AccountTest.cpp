@@ -40,9 +40,9 @@ typedef unsigned short ushort;
 int main(int argc, char **argv) {
   // Initialize class.
   // Defines variables.
-  double _balance = AccountInfoDouble(ACCOUNT_BALANCE);
-  double _credit = AccountInfoDouble(ACCOUNT_CREDIT);
-  double _equity = AccountInfoDouble(ACCOUNT_EQUITY);
+  // double _balance = AccountInfoDouble(ACCOUNT_BALANCE);
+  // double _credit = AccountInfoDouble(ACCOUNT_CREDIT);
+  // double _equity = AccountInfoDouble(ACCOUNT_EQUITY);
 
   // Dummy calls.
   // acc.GetAccountName();

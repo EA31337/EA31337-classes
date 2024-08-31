@@ -76,7 +76,7 @@ class Log : public Object {
   /**
    * Class copy constructor.
    */
-  Log(const Log &_log) : filename(_log.filename), last_entry(_log.last_entry), log_level(_log.log_level) {}
+  Log(const Log &_log) : last_entry(_log.last_entry), log_level(_log.log_level), filename(_log.filename) {}
 
   /**
    * Class deconstructor.
@@ -149,7 +149,7 @@ class Log : public Object {
    * Adds a log entry.
    */
   bool Add(string msg, string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
-    return Add(prefix, msg, suffix, entry_log_level);
+    return Add(entry_log_level, prefix, msg, suffix);
   }
   bool Add(ARRAY_REF(double, arr), string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, Array::ArrToString(arr), suffix, entry_log_level);
