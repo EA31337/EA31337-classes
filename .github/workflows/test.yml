@@ -1,6 +1,9 @@
 ---
 name: Test
 
+env:
+  TEST_PATH: tests
+
 # yamllint disable-line rule:truthy
 on:
   pull_request:
@@ -28,12 +31,12 @@ jobs:
       path: tests
       skip_cleanup: true
 
-  Experts-MQL4:
+  test:
     defaults:
       run:
         shell: bash
-        working-directory: tests
-    if: false
+        working-directory: ${{ env.TEST_PATH }}
+    name: Test
     needs: compile
     runs-on: ubuntu-latest
     strategy:
@@ -42,33 +45,42 @@ jobs:
           - EATest
           - MailTest
           - MarketTest
-          - StatsTest
           - StrategyTest
           - StrategyTest-RSI
           - SummaryReportTest
           - TradeTest
+        version: [5]
       max-parallel: 4
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: files-ex4
+          name: files-ex${{ matrix.version }}
+      - name: List compiled files
+        run: find . -name '*.ex?' -type f -print
       - name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 4-12
-          BtMonths: 1
-          BtYears: 2021
-          GitHubApiToken: ${{ github.token }}
+          Login: ${{ secrets.MT5_LOGIN }}
+          Password: ${{ secrets.MT5_PASSWORD }}
+          Server: MetaQuotes-Demo
+          TestDeposit: 2000
           TestExpert: ${{ matrix.test }}
-          RunOnError: show_logs 200
-        if: always()
-    timeout-minutes: 10
+          TestFromDate: ${{ matrix.year }}.01.01
+          TestPeriod: M1
+          TestSymbol: EURUSD
+          TestToDate: ${{ matrix.year }}.01.14
+          # yamllint disable-line rule:line-length
+          UrlExpert: file://${{ github.workspace }}/${{ env.TEST_PATH }}/${{ matrix.test }}.ex${{ matrix.version }}
+          Version: 5
+      - if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
+    timeout-minutes: 20
 
   Scripts-MQL4:
     defaults:
       run:
         shell: bash
-        working-directory: tests
+        working-directory: ${{ env.TEST_PATH }}
     if: false
     needs: compile
     runs-on: ubuntu-latest
@@ -92,3 +104,14 @@ jobs:
           Script: ${{ matrix.test }}
         if: always()
     timeout-minutes: 10
+
+  cleanup:
+    if: inputs.skip_cleanup != true
+    name: Clean-up
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: geekyeggo/delete-artifact@v5
+        with:
+          name: mt?
+    timeout-minutes: 5
