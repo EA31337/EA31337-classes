@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -31,7 +31,8 @@
 #endif
 
 // Includes.
-#include "DateTime.mqh"
+#include "Log.mqh"
+#include "Storage/DateTime.h"
 #include "Task/Task.struct.h"
 
 /* Defines EA config parameters. */
@@ -81,7 +82,7 @@ struct EAParams {
   };
 
   // Struct special methods.
-  EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
+  EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, uint64 _magic = 0)
       : author("unknown"),
         data_store(EA_DATA_STORE_NONE),
         flags(EA_PARAM_FLAG_NONE),
@@ -110,9 +111,11 @@ struct EAParams {
   // Getters.
   template <typename T>
   T Get(unsigned int _param) {
+    T _out;
     switch (_param) {
       case EA_PARAM_PROP_AUTHOR:
-        return (T)author;
+        ConvertBasic::StringToType(author, _out);
+        return _out;
       case EA_PARAM_PROP_CHART_INFO_FREQ:
         return (T)chart_info_freq;
       case EA_PARAM_PROP_DATA_EXPORT:
@@ -120,19 +123,23 @@ struct EAParams {
       case EA_PARAM_PROP_DATA_STORE:
         return (T)data_store;
       case EA_PARAM_PROP_DESC:
-        return (T)desc;
+        ConvertBasic::StringToType(desc, _out);
+        return _out;
       case EA_PARAM_PROP_LOG_LEVEL:
         return (T)log_level;
       case EA_PARAM_PROP_NAME:
-        return (T)name;
+        ConvertBasic::StringToType(name, _out);
+        return _out;
       case EA_PARAM_PROP_RISK_MARGIN_MAX:
         return (T)risk_margin_max;
       case EA_PARAM_PROP_SIGNAL_FILTER:
         return (T)signal_filter;
       case EA_PARAM_PROP_SYMBOL:
-        return (T)symbol;
+        ConvertBasic::StringToType(symbol, _out);
+        return _out;
       case EA_PARAM_PROP_VER:
-        return (T)ver;
+        ConvertBasic::StringToType(ver, _out);
+        return _out;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
@@ -144,7 +151,7 @@ struct EAParams {
         return (T)task_init;
     }
     SetUserError(ERR_INVALID_PARAMETER);
-    T _empty();
+    T _empty;
     return _empty;
   }
   // Setters.

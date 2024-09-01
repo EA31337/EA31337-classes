@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,14 +20,19 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../../Bar.struct.h"
-#include "../../BufferStruct.mqh"
 #include "../../Indicator/Indicator.define.h"
 #include "../../Indicator/Indicator.h"
 #include "../../Pattern.struct.h"
 #include "../../Serializer/Serializer.h"
-#include "../Price/Indi_Price.mqh"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
+#include "../Price/Indi_Price.h"
 #include "../Special/Indi_Math.mqh"
 
 // Structs.
@@ -88,9 +93,9 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
     int i;
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
-    INDI_REQUIRE_SHIFT_OR_RETURN(GetCandle(), ToRelShift(_abs_shift) + _max_modes, WRONG_VALUE);
+    INDI_REQUIRE_SHIFT_OR_RETURN(GetCandle(), ToRelShift(_abs_shift) + _max_modes, (double)WRONG_VALUE);
 
-    BarOHLC _ohlcs[8];
+    FIXED_ARRAY(BarOHLC, _ohlcs, 8);
 
     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
@@ -99,7 +104,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
           _ohlcs[i] = GetCandle() PTR_DEREF GetOHLC(ToRelShift(_abs_shift) + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
-            return WRONG_VALUE;
+            return (double)WRONG_VALUE;
           }
         }
         break;
@@ -108,7 +113,7 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
         // must have at least 4 buffers and define OHLC in the first 4 buffers.
         // Indi_Price is an example of such indicator.
         if (!indi_src.IsSet()) {
-          GetLogger().Error(
+          GetLogger() PTR_DEREF Error(
               "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
               "which is a part of PatternParams structure.",
               "Indi_Pattern");
@@ -117,23 +122,23 @@ class Indi_Pattern : public Indicator<IndiPatternParams> {
               "SetIndicatorData() "
               "method, which is a part of PatternParams structure.");
           SetUserError(ERR_INVALID_PARAMETER);
-          return WRONG_VALUE;
+          return (double)WRONG_VALUE;
         }
 
         for (i = 0; i < _max_modes; ++i) {
-          _ohlcs[i].open = GetDataSource().GetValue<float>(PRICE_OPEN, ToRelShift(_abs_shift) + i);
-          _ohlcs[i].high = GetDataSource().GetValue<float>(PRICE_HIGH, ToRelShift(_abs_shift) + i);
-          _ohlcs[i].low = GetDataSource().GetValue<float>(PRICE_LOW, ToRelShift(_abs_shift) + i);
-          _ohlcs[i].close = GetDataSource().GetValue<float>(PRICE_CLOSE, ToRelShift(_abs_shift) + i);
+          _ohlcs[i].open = GetDataSource() PTR_DEREF GetValue<float>(PRICE_OPEN, ToRelShift(_abs_shift) + i);
+          _ohlcs[i].high = GetDataSource() PTR_DEREF GetValue<float>(PRICE_HIGH, ToRelShift(_abs_shift) + i);
+          _ohlcs[i].low = GetDataSource() PTR_DEREF GetValue<float>(PRICE_LOW, ToRelShift(_abs_shift) + i);
+          _ohlcs[i].close = GetDataSource() PTR_DEREF GetValue<float>(PRICE_CLOSE, ToRelShift(_abs_shift) + i);
           if (!_ohlcs[i].IsValid()) {
             // Return empty entry on invalid candles.
-            return WRONG_VALUE;
+            return (double)WRONG_VALUE;
           }
         }
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
-        return WRONG_VALUE;
+        return (double)WRONG_VALUE;
     }
     PatternEntry pattern(_ohlcs);
     return pattern[_mode + 1];

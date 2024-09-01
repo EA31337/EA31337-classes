@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../../Platform.h"
+#include "../../Platform/Platform.h"
 #include "../../Test.mqh"
 #include "../IndicatorTick.h"
 #include "classes/IndicatorTickDummy.h"
@@ -39,7 +39,7 @@ int OnInit() {
   Ref<IndicatorTickDummy> _indi_tick = new IndicatorTickDummy(_Symbol);
   Platform::Add(_indi_tick.Ptr());
 
-  long _time = 1;
+  int64 _time = 1;
 
   for (double _price = 0.1; _price <= 2.0; _price += 0.1) {
     TickTAB<double> _tick(_time++ * 1000, _price, _price);

@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -96,18 +96,20 @@ enum ENUM_INDICATOR_TYPE {
   INDI_OHLC,                            // OHLC (Open-High-Low-Close)
   INDI_OSMA,                            // OsMA
   INDI_PATTERN,                         // Pattern Detector
-  INDI_PIVOT,                           // Pivot Detector
+  INDI_PIVOT,                           // Pivot
   INDI_PRICE,                           // Price
   INDI_PRICE_CHANNEL,                   // Price Channel
   INDI_PRICE_FEEDER,                    // Indicator which returns prices from custom array
   INDI_PRICE_VOLUME_TREND,              // Price and Volume Trend
   INDI_RATE_OF_CHANGE,                  // Rate of Change
+  INDI_RENKO,                           // Renko Indicator
   INDI_RS,                              // Indi_Math-based RSI
   INDI_RSI,                             // Relative Strength Index
   INDI_RSI_ON_PRICE,                    // Relative Strength Index (RSI) (on Price)
   INDI_RVI,                             // Relative Vigor Index
   INDI_SAR,                             // Parabolic SAR
   INDI_SPECIAL_MATH,                    // Math operations over given
+  INDI_SPECIAL_UNIVERSAL,               // Universal
   INDI_STDDEV,                          // Standard Deviation
   INDI_STDDEV_ON_MA_SMA,                // Standard Deviation on Moving Average in SMA mode
   INDI_STDDEV_ON_PRICE,                 // Standard Deviation (on Price)
@@ -117,6 +119,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_TEMA,                            // Triple Exponential Moving Average
   INDI_TF,                              // Timeframe
   INDI_TICK,                            // Tick
+  INDI_TICK_RANDOM,                     // Random Tick.
   INDI_TMA_TRUE,                        // Triangular Moving Average True
   INDI_TRIX,                            // Triple Exponential Moving Averages Oscillator
   INDI_ULTIMATE_OSCILLATOR,             // Ultimate Oscillator
@@ -126,7 +129,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_VIDYA,                           // Variable Index Dynamic Average
   INDI_VOLUMES,                         // Volumes
   INDI_VROC,                            // Volume Rate of Change
-  INDI_WILLIAMS_AD,                     // Larry Williams' Accumulation/Distribution
+  INDI_WILLIAMS_AD,                     // Williams' Accumulation/Distribution
   INDI_WPR,                             // Williams' Percent Range
   INDI_ZIGZAG,                          // ZigZag
   INDI_ZIGZAG_COLOR,                    // ZigZag Color
@@ -190,8 +193,8 @@ enum ENUM_SIGNAL_LINE {
 enum ENUM_APPLIED_VOLUME { VOLUME_TICK = 0, VOLUME_REAL = 1 };
 #endif
 
-#define INDI_VS_TYPE_ACCOUNT_STATS_BUFFERS_COUNT \
-  (INDI_VS_TYPE_ACCOUNT_STATS_INDEX_LAST - INDI_VS_TYPE_ACCOUNT_STATS_INDEX_FIRST + 1)
+#define INDI_DATA_VS_TYPE_ACCOUNT_STATS_BUFFERS_COUNT \
+  (INDI_DATA_VS_TYPE_ACCOUNT_STATS_INDEX_LAST - INDI_DATA_VS_TYPE_ACCOUNT_STATS_INDEX_FIRST + 1)
 
 // Indicator flags.
 enum ENUM_INDI_FLAGS {
@@ -219,9 +222,9 @@ enum ENUM_INDI_SUITABLE_DS_TYPE {
 // Type of data source mode. Required to determine what "mode" means for the user.
 enum ENUM_INDI_DS_MODE_KIND {
   INDI_DS_MODE_KIND_INDEX,    // Mode is a buffer index.
-  INDI_DS_MODE_KIND_VS_TYPE,  // Mode is a value from ENUM_INDI_VS_TYPE enumeration, e.g., ENUM_INDI_VS_PRICE_OPEN.
+  INDI_DS_MODE_KIND_VS_TYPE,  // Mode is a value from ENUM_INDI_DATA_VS_TYPE enumeration, e.g., ENUM_INDI_VS_PRICE_OPEN.
   INDI_DS_MODE_KIND_AP,  // Mode is a value from ENUM_APPLIED_PRICE enumeration. It is used to retrieve value storage
-                         // based on ENUM_INDI_VS_TYPE enumeration, e.g., PRICE_OPEN becomes ENUM_INDI_VS_PRICE_OPEN.
+                         // based on ENUM_INDI_DATA_VS_TYPE enumeration, e.g., PRICE_OPEN becomes ENUM_INDI_VS_PRICE_OPEN.
 };
 
 // Type of entry
@@ -230,4 +233,3 @@ enum ENUM_INDI_EMITTED_ENTRY_TYPE {
   INDI_EMITTED_ENTRY_TYPE_TICK,
   INDI_EMITTED_ENTRY_TYPE_CANDLE,
 };
-//+------------------------------------------------------------------+

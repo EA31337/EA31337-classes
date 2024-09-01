@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef INDI_DEMA_MQH
-#define INDI_DEMA_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Defines.
 #ifdef __MQL5__
@@ -32,15 +33,15 @@
 #endif
 
 // Includes.
-#include "../Dict.mqh"
-#include "../DictObject.mqh"
 #include "../Indicator/Indicator.h"
 #include "../Refs.mqh"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Dict/DictObject.h"
 #include "../Storage/Objects.h"
+#include "../Storage/String.h"
 #include "../Storage/ValueStorage.h"
-#include "../String.mqh"
-#include "Indi_MA.mqh"
-#include "Price/Indi_Price.mqh"
+#include "Price/Indi_MA.h"
+#include "Price/Indi_Price.h"
 
 // Structs.
 struct IndiDEMAParams : IndicatorParams {
@@ -103,9 +104,10 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
    */
   static double iDEMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, unsigned int _ma_shift,
                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, int _mode = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iDEMA(_symbol, _tf, _period, _ma_shift, _applied_price), _mode, _shift);
-#else
+#else  // __MQL5__
     if (_obj == nullptr) {
       Print(
           "Indi_DEMA::iDEMA() can work without supplying pointer to IndicatorData only in MQL5. In this platform the "
@@ -116,33 +118,39 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
 
     return iDEMAOnIndicator(_obj, _period, _ma_shift, _applied_price, _mode, _shift);
 #endif
+#else  // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
+#endif
   }
 
   static double iDEMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, unsigned int _ma_period, unsigned int _ma_shift,
-                             int _mode, int _shift, IndicatorCalculateCache<double> *_cache = NULL,
-                             bool _recalculate = false) {
+                             int _mode, int _shift, IndiBufferCache<double> *_cache = NULL, bool _recalculate = false) {
     if (_cache == nullptr) {
       Print("iDEMAOnArray() cannot yet work without cache object!");
       DebugBreak();
       return 0.0f;
     }
 
-    _cache.SetPriceBuffer(_price);
+    _cache PTR_DEREF SetPriceBuffer(_price);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(3);  // 3 buffers.
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(3);  // 3 buffers.
     }
 
     if (_recalculate) {
       // We don't want to continue calculations, but to recalculate previous one.
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_DEMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
-                                                  _cache.GetBuffer<double>(1), _cache.GetBuffer<double>(2),
-                                                  _ma_period));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_DEMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache PTR_DEREF GetBuffer<double>(0),
+                             _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2), _ma_period));
 
-    return _cache.GetTailValue<double>(0, _ma_shift + _shift);
+    return _cache PTR_DEREF GetTailValue<double>(0, _ma_shift + _shift);
   }
 
   /**
@@ -272,4 +280,3 @@ class Indi_DEMA : public Indicator<IndiDEMAParams> {
     iparams.applied_price = _applied_price;
   }
 };
-#endif  // INDI_DEMA_MQH

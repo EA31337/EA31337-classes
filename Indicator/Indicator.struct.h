@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -36,13 +36,13 @@ class Indicator;
 struct ChartParams;
 
 // Includes.
-#include "../Array.mqh"
-#include "../Chart.struct.tf.h"
-#include "../Data.struct.h"
-#include "../DateTime.struct.h"
+#include "../Platform/Chart/Chart.struct.tf.h"
 #include "../Serializer/SerializerNode.enum.h"
+#include "../Storage/Array.h"
+#include "../Storage/Cache/IndiBufferCache.h"
+#include "../Storage/Data.struct.h"
+#include "../Storage/DateTime.struct.h"
 #include "Indicator.enum.h"
-#include "IndicatorData.struct.cache.h"
 //#include "Indicator.struct.serialize.h"
 
 /* Structure for indicator parameters. */

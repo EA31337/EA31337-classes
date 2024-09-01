@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -24,8 +24,13 @@
  * Weighted price version of ValueStorage.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "ObjectsCache.h"
+#include "Cache/ObjectsCache.h"
 #include "ValueStorage.history.h"
 
 /**
@@ -36,7 +41,7 @@ class PriceWeightedValueStorage : public HistoryValueStorage<double> {
   /**
    * Constructor.
    */
-  PriceWeightedValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
+  PriceWeightedValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
 
   /**
    * Copy constructor.

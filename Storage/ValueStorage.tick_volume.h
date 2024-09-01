@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -24,27 +24,32 @@
  * Tick volume getter version of ValueStorage.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "ObjectsCache.h"
+#include "Cache/ObjectsCache.h"
 #include "ValueStorage.history.h"
 
 /**
  * Storage to retrieve tick volume.
  */
-class TickVolumeValueStorage : public HistoryValueStorage<long> {
+class TickVolumeValueStorage : public HistoryValueStorage<int64> {
  public:
   /**
    * Constructor.
    */
-  TickVolumeValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<long>(_indi_candle) {}
+  TickVolumeValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<int64>(_indi_candle) {}
 
   /**
    * Copy constructor.
    */
-  TickVolumeValueStorage(TickVolumeValueStorage &_r) : HistoryValueStorage<long>(_r.indi_candle.Ptr()) {}
+  TickVolumeValueStorage(TickVolumeValueStorage &_r) : HistoryValueStorage<int64>(_r.indi_candle.Ptr()) {}
 
   /**
    * Fetches value from a given shift. Takes into consideration as-series flag.
    */
-  long Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetVolume(RealShift(_rel_shift)); }
+  int64 Fetch(int _rel_shift) override { return indi_candle REF_DEREF GetVolume(RealShift(_rel_shift)); }
 };

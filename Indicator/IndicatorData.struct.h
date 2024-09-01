@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -25,9 +25,14 @@
  * Includes IndicatorData's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 #define STRUCT_ENUM_IDATA_PARAM STRUCT_ENUM(IndicatorDataParams, ENUM_IDATA_PARAM)
-#define STRUCT_ENUM_INDICATOR_STATE_PROP STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP)
+#define STRUCT_ENUM_INDICATOR_DATA_STATE_PROP STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_DATA_STATE_PROP)
 
 // Includes.
 #include "../Serializer/SerializerConversions.h"
@@ -39,7 +44,7 @@ union IndicatorDataEntryTypelessValue {
   double vdbl;
   float vflt;
   int vint;
-  long vlong;
+  int64 vlong;
 };
 
 // Type-aware value for IndicatorDataEntry class.
@@ -124,7 +129,7 @@ struct IndicatorDataEntryValue {
   double GetDbl() { return value.vdbl; }
   float GetFloat() { return value.vflt; }
   int GetInt() { return value.vint; }
-  long GetLong() { return value.vlong; }
+  int64 GetLong() { return value.vlong; }
   template <typename T>
   void Get(T &_out) {
     _out = Get<T>();
@@ -140,8 +145,8 @@ struct IndicatorDataEntryValue {
   void Get(float &_out) { _out = value.vflt; }
   void Get(int &_out) { _out = value.vint; }
   void Get(unsigned int &_out) { _out = (unsigned int)value.vint; }
-  void Get(long &_out) { _out = value.vlong; }
-  void Get(unsigned long &_out) { _out = (unsigned long)value.vint; }
+  void Get(int64 &_out) { _out = value.vlong; }
+  void Get(uint64 &_out) { _out = (uint64)value.vint; }
   // Setters.
   template <typename T>
   void Set(T _value) {
@@ -163,12 +168,12 @@ struct IndicatorDataEntryValue {
     value.vint = (int)_value;
     SetDataType(TYPE_UINT);
   }
-  void Set(long _value) {
+  void Set(int64 _value) {
     value.vlong = _value;
     SetDataType(TYPE_LONG);
   }
-  void Set(unsigned long _value) {
-    value.vlong = (long)_value;
+  void Set(uint64 _value) {
+    value.vlong = (int64)_value;
     SetDataType(TYPE_ULONG);
   }
   // Serializers.
@@ -183,7 +188,7 @@ struct IndicatorDataEntryValue {
 
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {
-  long timestamp;        // Timestamp of the entry's bar.
+  int64 timestamp;       // Timestamp of the entry's bar.
   unsigned short flags;  // Indicator entry flags.
   ARRAY(IndicatorDataEntryValue, values);
 
@@ -326,7 +331,7 @@ struct IndicatorDataEntry {
   int GetDayOfYear() { return DateTimeStatic::DayOfYear(timestamp); }
   int GetMonth() { return DateTimeStatic::Month(timestamp); }
   int GetYear() { return DateTimeStatic::Year(timestamp); }
-  long GetTime() { return timestamp; };
+  int64 GetTime() { return timestamp; };
   ENUM_DATATYPE GetDataType(int _mode) { return values[_mode].GetDataType(); }
   unsigned short GetDataTypeFlags(ENUM_DATATYPE _dt) {
     switch (_dt) {
@@ -360,12 +365,12 @@ struct IndicatorDataEntry {
   // Setters.
   bool Resize(int _size = 0) { return _size > 0 ? ArrayResize(values, _size) > 0 : true; }
   // Value flag methods for bitwise operations.
-  bool CheckFlag(INDICATOR_ENTRY_FLAGS _prop) { return CheckFlags(_prop); }
+  bool CheckFlag(INDICATOR_DATA_ENTRY_FLAGS _prop) { return CheckFlags(_prop); }
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }
   void AddFlags(unsigned short _flags) { flags |= _flags; }
   void RemoveFlags(unsigned short _flags) { flags &= ~_flags; }
-  void SetFlag(INDICATOR_ENTRY_FLAGS _flag, bool _value) {
+  void SetFlag(INDICATOR_DATA_ENTRY_FLAGS _flag, bool _value) {
     if (_value) {
       AddFlags(_flag);
     } else {
@@ -407,7 +412,7 @@ struct IndicatorDataParams {
  protected:
   /* Struct protected variables */
   int data_src_mode;                // Mode used as input from data source.
-  int draw_window;                  // Drawing window.
+  int plot_window;                  // Ploting window.
   ENUM_DATATYPE dtype;              // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
   unsigned int max_modes;           // Max supported indicator modes (values per entry).
   unsigned int max_buffers;         // Max buffers to store.
@@ -415,7 +420,7 @@ struct IndicatorDataParams {
   ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
   color indi_color;                 // Indicator color.
   // @todo: Move to protected.
-  bool is_draw;  // Draw active.
+  bool is_plot;  // Plot active.
   bool is_fed;   // Whether calc_start_bar is already calculated.
   int src_id;    // Id of the indicator to be used as data source.
   int src_mode;  // Mode of source indicator
@@ -440,14 +445,14 @@ struct IndicatorDataParams {
                       ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                       ENUM_IDATA_VALUE_RANGE _idvrange = IDATA_RANGE_UNKNOWN, int _data_src_mode = 0)
       : data_src_mode(_data_src_mode),
-        draw_window(0),
+        plot_window(0),
         dtype(_dtype),
         max_modes(_max_modes),
         max_buffers(10),
         idstype(_idstype),
         idvrange(_idvrange),
         indi_color(clrNONE),
-        is_draw(false),
+        is_plot(false),
         is_fed(false),
         src_id(-1),
         src_mode(-1){};
@@ -523,43 +528,43 @@ struct IndicatorDataParams {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  void SetDraw(bool _draw = true, int _window = 0) {
-    is_draw = _draw;
-    draw_window = _window;
+  void SetPlot(bool _plot = true, int _window = 0) {
+    is_plot = _plot;
+    plot_window = _window;
   }
-  void SetDraw(color _clr, int _window = 0) {
-    is_draw = true;
+  void SetPlot(color _clr, int _window = 0) {
+    is_plot = true;
     indi_color = _clr;
-    draw_window = _window;
+    plot_window = _window;
   }
-  bool IsDrawing() { return is_draw; }
+  bool IsPloting() { return is_plot; }
 
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
 };
 
 /* Structure for indicator state. */
-struct IndicatorState {
+struct IndicatorDataState {
  public:            // @todo: Change it to protected.
   int handle;       // Indicator handle (MQL5 only).
   bool is_changed;  // Set when params has been recently changed.
   bool is_ready;    // Set when indicator is ready (has valid values).
  public:
-  enum ENUM_INDICATOR_STATE_PROP {
-    INDICATOR_STATE_PROP_HANDLE,
-    INDICATOR_STATE_PROP_IS_CHANGED,
-    INDICATOR_STATE_PROP_IS_READY,
+  enum ENUM_INDICATOR_DATA_STATE_PROP {
+    INDICATOR_DATA_STATE_PROP_HANDLE,
+    INDICATOR_DATA_STATE_PROP_IS_CHANGED,
+    INDICATOR_DATA_STATE_PROP_IS_READY,
   };
   // Constructor.
-  IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
+  IndicatorDataState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
   // Getters.
   template <typename T>
-  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
+  T Get(STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_DATA_STATE_PROP) _prop) {
     switch (_prop) {
-      case INDICATOR_STATE_PROP_HANDLE:
+      case INDICATOR_DATA_STATE_PROP_HANDLE:
         return (T)handle;
-      case INDICATOR_STATE_PROP_IS_CHANGED:
+      case INDICATOR_DATA_STATE_PROP_IS_CHANGED:
         return (T)is_changed;
-      case INDICATOR_STATE_PROP_IS_READY:
+      case INDICATOR_DATA_STATE_PROP_IS_READY:
         return (T)is_ready;
     };
     SetUserError(ERR_INVALID_PARAMETER);
@@ -567,15 +572,15 @@ struct IndicatorState {
   }
   // Setters.
   template <typename T>
-  void Set(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop, T _value) {
+  void Set(STRUCT_ENUM(IndicatorDataState, ENUM_INDICATOR_DATA_STATE_PROP) _prop, T _value) {
     switch (_prop) {
-      case INDICATOR_STATE_PROP_HANDLE:
+      case INDICATOR_DATA_STATE_PROP_HANDLE:
         handle = (T)_value;
         break;
-      case INDICATOR_STATE_PROP_IS_CHANGED:
+      case INDICATOR_DATA_STATE_PROP_IS_CHANGED:
         is_changed = (T)_value;
         break;
-      case INDICATOR_STATE_PROP_IS_READY:
+      case INDICATOR_DATA_STATE_PROP_IS_READY:
         is_ready = (T)_value;
         break;
       default:

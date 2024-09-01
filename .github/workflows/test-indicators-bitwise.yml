@@ -1,0 +1,53 @@
+---
+name: Test Indicators (Bitwise)
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Indicator/**'
+      - 'Indicators/Bitwise/**'
+      - '.github/workflows/test-indicators-bitwise.yml'
+  push:
+    paths:
+      - 'Indicator**'
+      - 'Indicators/Bitwise/**'
+      - '.github/workflows/test-indicators-bitwise.yml'
+
+jobs:
+
+  compile:
+    name: Compile
+    uses: ./.github/workflows/compile-mql.yml
+    with:
+      artifact_prefix: mt
+      path: Indicators/Bitwise/tests
+      skip_cleanup: true
+
+  Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Indicators/Bitwise/tests
+    if: false
+    needs: compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - Indi_Candle.test
+          - Indi_Pattern.test
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 4-8
+          BtMonths: 1
+          BtYears: 2021
+          GitHubApiToken: ${{ github.token }}
+          RunOnError: show_logs 200
+          TestExpert: ${{ matrix.test }}
+    timeout-minutes: 10

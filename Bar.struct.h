@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -35,7 +35,7 @@ class Serializer;
 
 // Includes.
 #include "Bar.enum.h"
-#include "Chart.enum.h"
+#include "Platform/Chart/Chart.enum.h"
 #include "Serializer/Serializable.h"
 #include "Serializer/Serializer.enum.h"
 #include "Serializer/Serializer.h"
@@ -61,6 +61,18 @@ struct BarOHLC
   BarOHLC(ARRAY_REF(double, _prices), datetime _time = 0) : time(_time) {
     _time = _time == (datetime)0 ? TimeCurrent() : _time;
     int _size = ArraySize(_prices);
+    close = _prices[0];
+    open = _prices[_size - 1];
+    high = fmax(close, open);
+    low = fmin(close, open);
+    for (int i = 0; i < _size; i++) {
+      high = fmax(high, _prices[i]);
+      low = fmin(low, _prices[i]);
+    }
+  }
+  BarOHLC(CONST_FIXED_ARRAY_REF(double, _prices, 4), datetime _time = 0) : time(_time) {
+    _time = _time == (datetime)0 ? TimeCurrent() : _time;
+    int _size = 4;
     close = _prices[0];
     open = _prices[_size - 1];
     high = fmax(close, open);

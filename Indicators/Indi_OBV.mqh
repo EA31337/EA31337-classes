@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,16 +20,13 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iOBV(string _symbol, int _tf, int _av, int _shift) {
-  ResetLastError();
-  return Indi_OBV::iOBV(_symbol, (ENUM_TIMEFRAMES)_tf, (ENUM_APPLIED_VOLUME)_av, _shift);
-}
-#endif
 
 // Structs.
 struct IndiOBVParams : IndicatorParams {
@@ -87,7 +84,7 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
     }
 
     // Volume uses volume only.
-    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME);
   }
 
   /**
@@ -104,10 +101,18 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
                      ENUM_APPLIED_VOLUME _applied = VOLUME_TICK,  // MT5 only.
 #endif
                      int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, _applied, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iOBV(_symbol, _tf, _applied), 0, _shift);
+#endif
+#else  // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 
@@ -174,3 +179,11 @@ class Indi_OBV : public Indicator<IndiOBVParams> {
     iparams.applied_volume = _applied_volume;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iOBV(string _symbol, int _tf, int _av, int _shift) {
+  ResetLastError();
+  return Indi_OBV::iOBV(_symbol, (ENUM_TIMEFRAMES)_tf, (ENUM_APPLIED_VOLUME)_av, _shift);
+}
+#endif

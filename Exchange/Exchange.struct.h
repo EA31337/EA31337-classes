@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -38,5 +38,5 @@ struct ExchangeParams {
   // Constructors.
   ExchangeParams() {}
   ExchangeParams(const ExchangeParams &_eparams) {}
-  long id;
+  int64 id;
 };

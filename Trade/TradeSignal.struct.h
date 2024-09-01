@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -25,8 +25,13 @@
  * Includes TradeSignal's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../Chart.enum.h"
+#include "../Platform/Chart/Chart.enum.h"
 #include "../Serializer/SerializerConverter.h"
 #include "../Serializer/SerializerJson.h"
 
@@ -60,11 +65,11 @@
 // Structure for a trade signal.
 struct TradeSignalEntry {
  protected:
-  long magic_id;         // Magic identifier.
+  int64 magic_id;        // Magic identifier.
   unsigned int signals;  // Store signals (@see: ENUM_TRADE_SIGNAL_FLAG).
   float strength;        // Signal strength.
   ENUM_TIMEFRAMES tf;    // Timeframe.
-  long timestamp;        // Creation timestamp
+  int64 timestamp;       // Creation timestamp
   float weight;          // Signal weight.
 
  public:
@@ -119,8 +124,8 @@ struct TradeSignalEntry {
   };
 
   /* Constructor */
-  TradeSignalEntry(unsigned int _signals = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, long _magic_id = 0,
-                   float _strength = 0.0f, float _weight = 0.0f, long _time = 0)
+  TradeSignalEntry(unsigned int _signals = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int64 _magic_id = 0,
+                   float _strength = 0.0f, float _weight = 0.0f, int64 _time = 0)
       : magic_id(_magic_id), signals(_signals), strength(_strength), tf(_tf), timestamp(_time), weight(_weight) {}
   TradeSignalEntry(const TradeSignalEntry &_entry) { THIS_REF = _entry; }
   /* Getters */
@@ -149,7 +154,7 @@ struct TradeSignalEntry {
   void Set(STRUCT_ENUM(TradeSignalEntry, ENUM_TRADE_SIGNAL_PROP) _prop, T _value) {
     switch (_prop) {
       case TRADE_SIGNAL_PROP_MAGIC_ID:
-        magic_id = (long)_value;
+        magic_id = (int64)_value;
         return;
       case TRADE_SIGNAL_PROP_SIGNALS:
         signals = (unsigned int)_value;
@@ -158,10 +163,10 @@ struct TradeSignalEntry {
         strength = (float)_value;
         return;
       case TRADE_SIGNAL_PROP_TF:
-        tf = (ENUM_TIMEFRAMES)_value;
+        tf = (ENUM_TIMEFRAMES)(int)_value;
         return;
       case TRADE_SIGNAL_PROP_TIME:
-        timestamp = (long)_value;
+        timestamp = (int64)_value;
         return;
       case TRADE_SIGNAL_PROP_WEIGHT:
         weight = (float)_value;

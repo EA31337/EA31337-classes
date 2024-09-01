@@ -1,6 +1,8 @@
-# Storage classes
+# Storage
 
-## `Collection` class
+## Classes
+
+### `Collection` class
 
 This class is for storing various type of objects. Here is the example usage:
 

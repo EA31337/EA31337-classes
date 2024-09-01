@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2022, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -30,14 +30,14 @@ class Trade;
 #define TRADE_MQH
 
 // Includes.
-#include "Account/AccountMt.h"
 #include "Convert.mqh"
-#include "DictStruct.mqh"
+#include "Exchange/Account/AccountMt.h"
 #include "Indicator/IndicatorData.h"
-#include "Math.h"
-#include "Object.mqh"
-#include "Order.mqh"
-#include "OrderQuery.h"
+#include "Math/Math.h"
+#include "Platform/Order.h"
+#include "Platform/OrderQuery.h"
+#include "Storage/Dict/DictStruct.h"
+#include "Storage/Object.h"
 #include "Task/TaskManager.h"
 #include "Task/Taskable.h"
 #include "Trade.enum.h"
@@ -47,9 +47,9 @@ class Trade : public Taskable<DataParamEntry> {
  public:
   AccountMt account;
   Ref<IndicatorData> indi_candle;
-  DictStruct<long, Ref<Order>> orders_active;
-  DictStruct<long, Ref<Order>> orders_history;
-  DictStruct<long, Ref<Order>> orders_pending;
+  DictStruct<int64, Ref<Order>> orders_active;
+  DictStruct<int64, Ref<Order>> orders_history;
+  DictStruct<int64, Ref<Order>> orders_pending;
   Log logger;           // Trade logger.
   TaskManager tasks;    // Tasks.
   TradeParams tparams;  // Trade parameters.
@@ -183,7 +183,7 @@ class Trade : public Taskable<DataParamEntry> {
    * @return
    *   Returns DictStruct's of active orders.
    */
-  DictStruct<long, Ref<Order>> *GetOrdersActive() { return &orders_active; }
+  DictStruct<int64, Ref<Order>> *GetOrdersActive() { return &orders_active; }
 
   /**
    * Gets list of history orders.
@@ -191,7 +191,7 @@ class Trade : public Taskable<DataParamEntry> {
    * @return
    *   Returns DictStruct's of orders from history.
    */
-  DictStruct<long, Ref<Order>> *GetOrdersHistory() { return &orders_history; }
+  DictStruct<int64, Ref<Order>> *GetOrdersHistory() { return &orders_history; }
 
   /**
    * Gets list of pending orders.
@@ -199,7 +199,7 @@ class Trade : public Taskable<DataParamEntry> {
    * @return
    *   Returns DictStruct's of pending orders.
    */
-  DictStruct<long, Ref<Order>> *GetOrdersPending() { return &orders_pending; }
+  DictStruct<int64, Ref<Order>> *GetOrdersPending() { return &orders_pending; }
 
   /**
    * Get a trade request.
@@ -207,13 +207,14 @@ class Trade : public Taskable<DataParamEntry> {
    * @return
    *   Returns true on successful request.
    */
-  MqlTradeRequest GetTradeOpenRequest(ENUM_ORDER_TYPE _type, float _volume = 0, long _magic = 0, string _comment = "") {
+  MqlTradeRequest GetTradeOpenRequest(ENUM_ORDER_TYPE _type, float _volume = 0, int64 _magic = 0,
+                                      string _comment = "") {
     // Create a request.
     MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
     _request.deviation = tparams.Get<uint>(TRADE_PARAM_SLIPPAGE);  // The maximal price deviation, specified in points.
-    _request.magic = _magic > 0 ? _magic : tparams.Get<long>(TRADE_PARAM_MAGIC_NO);
+    _request.magic = _magic > 0 ? _magic : tparams.Get<int64>(TRADE_PARAM_MAGIC_NO);
     _request.symbol = GetSource() PTR_DEREF GetSymbol();
     _request.price = GetSource() PTR_DEREF GetOpenOffer(_type);
     _request.type = _type;
@@ -350,15 +351,15 @@ class Trade : public Taskable<DataParamEntry> {
     Ref<Order> _order = order_last;
 
     if (_order.IsSet() && _order REF_DEREF Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd &&
-        _order REF_DEREF Get<long>(ORDER_TIME_SETUP) > GetSource() PTR_DEREF GetBarTime()) {
+        _order REF_DEREF Get<int64>(ORDER_TIME_SETUP) > GetSource() PTR_DEREF GetBarTime()) {
       _result |= true;
     }
 
     if (!_result) {
-      for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      for (DictStructIterator<int64, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
         _order = iter.Value();
         if (_order REF_DEREF Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd) {
-          long _time_opened = _order REF_DEREF Get<long>(ORDER_TIME_SETUP);
+          int64 _time_opened = _order REF_DEREF Get<int64>(ORDER_TIME_SETUP);
           _result |= _shift > 0 && _time_opened < GetSource() PTR_DEREF GetBarTime(_shift - 1);
           _result |= _time_opened >= GetSource() PTR_DEREF GetBarTime(_shift);
           if (_result) {
@@ -396,7 +397,7 @@ class Trade : public Taskable<DataParamEntry> {
     }
 
     if (!_result) {
-      for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
+      for (DictStructIterator<int64, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
         _order = iter.Value();
         if (_order.IsSet() && _order REF_DEREF IsOpen()) {
           if (_odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) == _cmd) {
@@ -434,7 +435,7 @@ class Trade : public Taskable<DataParamEntry> {
     }
 
     if (!_result) {
-      for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
+      for (DictStructIterator<int64, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
         _order = iter.Value();
         if (_order.IsSet()) {
           _result = _odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE) != _cmd;
@@ -691,7 +692,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         // Pass-through.
       case ERR_NO_ERROR:  // 0
-        orders_active.Set(_order PTR_DEREF Get<unsigned long>(ORDER_PROP_TICKET), _ref_order);
+        orders_active.Set(_order PTR_DEREF Get<uint64>(ORDER_PROP_TICKET), _ref_order);
         order_last = _order;
         tstates.AddState(TRADE_STATE_ORDERS_ACTIVE);
         tstats.Add(TRADE_STAT_ORDERS_OPENED);
@@ -724,9 +725,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool OrderMoveToHistory(Order *_order) {
     _order PTR_DEREF Refresh(true);
-    orders_active.Unset(_order PTR_DEREF Get<unsigned long>(ORDER_PROP_TICKET));
+    orders_active.Unset(_order PTR_DEREF Get<uint64>(ORDER_PROP_TICKET));
     Ref<Order> _ref_order = _order;
-    bool result = orders_history.Set(_order PTR_DEREF Get<unsigned long>(ORDER_PROP_TICKET), _ref_order);
+    bool result = orders_history.Set(_order PTR_DEREF Get<uint64>(ORDER_PROP_TICKET), _ref_order);
     /* @todo
     if (strategy != NULL) {
       strategy.OnOrderClose(_order);
@@ -740,7 +741,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     tstates.RemoveState(TRADE_STATE_ORDERS_MAX_SOFT);
     return result;
   }
-  bool OrderMoveToHistory(unsigned long _ticket) {
+  bool OrderMoveToHistory(uint64 _ticket) {
     Ref<Order> _order = orders_active.GetByKey(_ticket);
     return OrderMoveToHistory(_order.Ptr());
   }
@@ -750,7 +751,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool RefreshActiveOrders(bool _force = false, bool _first_close = false) {
     bool _result = true;
-    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order = iter.Value();
       if (_order.IsSet() && _order REF_DEREF IsOpen(true)) {
         _order REF_DEREF Refresh(_force);
@@ -770,7 +771,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   template <typename E>
   bool RefreshActiveOrdersByProp(E _prop, bool _force = false) {
     bool _result = true;
-    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       Ref<Order> _order = iter.Value();
       if (_order.IsSet() && _order REF_DEREF IsOpen(true)) {
         if (_force || _order REF_DEREF ShouldRefresh()) {
@@ -828,11 +829,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     Ref<Order> _order_ref = _order;
     if (_order PTR_DEREF IsOpen()) {
       // @todo: _order.IsPending()?
-      _result &= orders_active.Set(_order PTR_DEREF Get<long>(ORDER_PROP_TICKET), _order_ref);
+      _result &= orders_active.Set(_order PTR_DEREF Get<int64>(ORDER_PROP_TICKET), _order_ref);
       logger.Link(_order.GetLogger());
       _order PTR_DEREF GetLogger().SetLevel((ENUM_LOG_LEVEL)tparams.Get<int>(TRADE_PARAM_LOG_LEVEL));
     } else {
-      _result &= orders_history.Set(_order PTR_DEREF Get<long>(ORDER_PROP_TICKET), _order_ref);
+      _result &= orders_history.Set(_order PTR_DEREF Get<int64>(ORDER_PROP_TICKET), _order_ref);
     }
     return _result && GetLastError() == ERR_NO_ERROR;
   }
@@ -840,13 +841,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Loads active orders by magic number.
    */
-  bool OrdersLoadByMagic(unsigned long _magic_no) {
+  bool OrdersLoadByMagic(uint64 _magic_no) {
     ResetLastError();
     int _total_active = TradeStatic::TotalActive();
     for (int pos = 0; pos < _total_active; pos++) {
       if (OrderStatic::SelectByPosition(pos)) {
         if (OrderStatic::MagicNumber() == _magic_no) {
-          unsigned long _ticket = OrderStatic::Ticket();
+          uint64 _ticket = OrderStatic::Ticket();
           Ref<Order> _order = new Order(_ticket);
           orders_active.Set(_ticket, _order);
           OrderLoad(_order.Ptr());
@@ -886,7 +887,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     int _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : "TOCA:";
-    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order REF_DEREF IsOpen(true)) {
         if (_order REF_DEREF OrderClose(_reason, _comment)) {
@@ -921,7 +922,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : "TOCVC:";
-    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order REF_DEREF IsOpen(true)) {
         _order REF_DEREF Refresh();
@@ -964,7 +965,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     int _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order REF_DEREF IsOpen(true)) {
         _order REF_DEREF Refresh((E)_prop);
@@ -974,7 +975,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
             OrderMoveToHistory(_order.Ptr());
             order_last = _order;
           } else {
-            logger.AddLastError(__FUNCTION_LINE__, _order REF_DEREF Get<unsigned long>(ORDER_PROP_LAST_ERROR));
+            logger.AddLastError(__FUNCTION_LINE__, _order REF_DEREF Get<uint64>(ORDER_PROP_LAST_ERROR));
             return -1;
           }
         }
@@ -1000,7 +1001,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     int _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order REF_DEREF IsOpen(true)) {
         _order REF_DEREF Refresh();
@@ -1042,15 +1043,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Calculate number of allowed orders to open.
    */
-  unsigned long CalcMaxOrders(float volume_size, float _risk_ratio = 1.0, long prev_max_orders = 0, long hard_limit = 0,
-                              bool smooth = true) {
+  uint64 CalcMaxOrders(float volume_size, float _risk_ratio = 1.0, int64 prev_max_orders = 0, int64 hard_limit = 0,
+                       bool smooth = true) {
     float _avail_margin = fmin(account.GetMarginFree(), account.GetBalance() + account.GetCredit());
     if (_avail_margin == 0 || volume_size == 0) {
       return 0;
     }
     float _margin_required = GetMarginRequired();
     float _avail_orders = _avail_margin / _margin_required / volume_size;
-    long new_max_orders = (long)(_avail_orders * _risk_ratio);
+    int64 new_max_orders = (int64)(_avail_orders * _risk_ratio);
     if (hard_limit > 0) new_max_orders = fmin(hard_limit, new_max_orders);
     if (smooth && new_max_orders > prev_max_orders) {
       // Increase the limit smoothly.
@@ -1198,10 +1199,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  static long GetTradeDistanceInPts(string _symbol) {
+  static int64 GetTradeDistanceInPts(string _symbol) {
     return fmax(SymbolInfoStatic::GetTradeStopsLevel(_symbol), SymbolInfoStatic::GetFreezeLevel(_symbol));
   }
-  long GetTradeDistanceInPts() { return GetTradeDistanceInPts(GetSource() PTR_DEREF GetSymbol()); }
+  int64 GetTradeDistanceInPts() { return GetTradeDistanceInPts(GetSource() PTR_DEREF GetSymbol()); }
 
   /**
    * Get a market distance in pips.
@@ -1772,7 +1773,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   virtual void OnOrderOpen(const Order &_order) {
     if (logger.GetLevel() >= V_INFO) {
-      // logger.Info(_order.ToString(), (string)_order.Get<unsigned long>(ORDER_TICKET)); // @fixme
+      // logger.Info(_order.ToString(), (string)_order.Get<uint64>(ORDER_TICKET)); // @fixme
       ResetLastError();  // @fixme: Error 69539
     }
   }

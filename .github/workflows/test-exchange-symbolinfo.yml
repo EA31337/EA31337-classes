@@ -1,0 +1,45 @@
+---
+name: Test Exchange/SymbolInfo
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'Exchange/SymbolInfo/**'
+      - '.github/workflows/test-exchange/symbolinfo.yml'
+  push:
+    paths:
+      - 'Exchange/SymbolInfo/**'
+      - '.github/workflows/test-exchange/symbolinfo.yml'
+
+jobs:
+
+  compile:
+    name: Compile
+    uses: ./.github/workflows/compile-mql.yml
+    with:
+      artifact_prefix: mt
+      path: Exchange/SymbolInfo/tests
+      skip_cleanup: true
+
+  Tests-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: Exchange/SymbolInfo/tests
+    if: false
+    needs: compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - SymbolInfo.test
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: ${{ matrix.test }}
+    timeout-minutes: 10

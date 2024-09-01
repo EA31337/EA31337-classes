@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,11 +20,16 @@
  *
  */
 
-#include "Account/AccountMt.h"
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 #include "Convert.mqh"
+#include "Exchange/Account/AccountMt.h"
 #include "Indicator/IndicatorData.h"
-#include "Order.struct.h"
-#include "Terminal.mqh"
+#include "Platform/Order.struct.h"
+#include "Platform/Terminal.h"
 #include "Trade.mqh"
 
 /**

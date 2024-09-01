@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,13 +20,18 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 100 bars was originally specified by Indicators/Examples/ZigzagColor.mq5
 #define INDI_ZIGZAG_COLOR_MIN_BARS 100
 
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 #include "Indi_ZigZag.mqh"
 
@@ -50,7 +55,7 @@ struct IndiZigZagColorParams : IndicatorParams {
 };
 
 /**
- * Implements the Volume Rate of Change indicator.
+ * Implements the ZigZag Color indicator.
  */
 class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
  public:
@@ -97,7 +102,7 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
    * Returns value for ZigZag Color indicator.
    */
   static double iZigZagColor(IndicatorData *_indi, int _depth, int _deviation, int _backstep,
-                             ENUM_ZIGZAG_LINE _mode = 0, int _rel_shift = 0) {
+                             ENUM_ZIGZAG_LINE _mode = ZIGZAG_BUFFER, int _rel_shift = 0) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, INDI_ZIGZAG_COLOR_MIN_BARS);
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_indi, Util::MakeKey(_depth, _deviation, _backstep));
     return iZigZagColorOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _depth, _deviation, _backstep, _mode,
@@ -108,24 +113,24 @@ class Indi_ZigZagColor : public Indicator<IndiZigZagColorParams> {
    * Calculates ZigZag Color on the array of values.
    */
   static double iZigZagColorOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _depth, int _deviation, int _backstep,
-                                    int _mode, int _abs_shift, IndicatorCalculateCache<double> *_cache,
+                                    int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
                                     bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(3 + 2);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(3 + 2);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_ZigZagColor::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG,
-                                                         _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
-                                                         _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3),
-                                                         _cache.GetBuffer<double>(4), _depth, _deviation, _backstep));
+    _cache PTR_DEREF SetPrevCalculated(Indi_ZigZagColor::Calculate(
+        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0),
+        _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2),
+        _cache PTR_DEREF GetBuffer<double>(3), _cache PTR_DEREF GetBuffer<double>(4), _depth, _deviation, _backstep));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

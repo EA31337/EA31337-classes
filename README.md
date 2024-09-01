@@ -3,13 +3,17 @@
 [![Tag][github-tag-image]][github-tag-link]
 [![License][license-image]][license-link]
 [![Status][gha-image-check-master]][gha-link-check-master]
-[![Status][gha-image-lint-master]][gha-link-lint-master]
-[![Status][gha-image-test-master]][gha-link-test-master]
+[![Status][gha-image-compile-cpp-master]][gha-link-compile-cpp-master]
+[![Status][gha-image-compile-mql-master]][gha-link-compile-mql-master]
 [![Channel][tg-channel-image]][tg-channel-link]
 [![Twitter][twitter-image]][twitter-link]
 
-EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 platforms.
+EA31337 framework is designed for writing software
+for popular trading platforms such as MetaTrader (4 & 5).
+
 It can be also used to convert your MQL4 code into MQL5 with minimum code changes.
+
+The code is compatible with MQL4, MQL5 and C++ programming languages.
 
 ## Table of contents
 
@@ -58,6 +62,7 @@ Projects implementing this framework:
   EA strategies.
 - [EA31337-indicators-other](https://github.com/EA31337/EA31337-indicators-other):
   3rd party indicators
+- Check [EA31337 website](https://ea31337.github.io) for more.
 
 ## Conversion
 
@@ -71,61 +76,61 @@ Find below the table of conversion (replace code on left with the right one):
 
 | MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
 |:---------------------|:---------------------------|:----------------------|
-| `WindowRedraw()`     | `Chart::WindowRedraw()`    | `Chart.mqh`           |
-| `Day()`              | `DateTime::Day()` | `DateTime.mqh` |
-| `TimeDayOfWeek()`    | `DateTime::DayOfWeek()` | `DateTime.mqh` |
-| `DayOfWeek()`        | `DateTime::DayOfWeek()` | `DateTime.mqh` |
-| `DayOfYear()`        | `DateTime::DayOfYear()` | `DateTime.mqh` |
-| `Hour()`             | `DateTime::Hour()` | `DateTime.mqh` |
-| `Month()`            | `DateTime::Month()` | `DateTime.mqh` |
-| `TimeDay()`          | `DateTime::TimeDay()` | `DateTime.mqh` |
-| `TimeDayOfYear()`    | `DateTime::TimeDayOfYear()` | `DateTime.mqh` |
-| `TimeToStr()`        | `DateTime::TimeToStr()` | `DateTime.mqh` |
-| `Year()`             | `DateTime::Year()` | `DateTime.mqh` |
+| `WindowRedraw()`     | `Chart::WindowRedraw()`    | `Platform/Chart/Chart.h` |
+| `Day()`              | `DateTime::Day()` | `Storage/DateTime.h` |
+| `TimeDayOfWeek()`    | `DateTime::DayOfWeek()` | `Storage/DateTime.h` |
+| `DayOfWeek()`        | `DateTime::DayOfWeek()` | `Storage/DateTime.h` |
+| `DayOfYear()`        | `DateTime::DayOfYear()` | `Storage/DateTime.h` |
+| `Hour()`             | `DateTime::Hour()` | `Storage/DateTime.h` |
+| `Month()`            | `DateTime::Month()` | `Storage/DateTime.h` |
+| `TimeDay()`          | `DateTime::TimeDay()` | `Storage/DateTime.h` |
+| `TimeDayOfYear()`    | `DateTime::TimeDayOfYear()` | `Storage/DateTime.h` |
+| `TimeToStr()`        | `DateTime::TimeToStr()` | `Storage/DateTime.h` |
+| `Year()`             | `DateTime::Year()` | `Storage/DateTime.h` |
 | `iAC()`              | `Indi_AC::iAC()` | `Indicators/Indi_AC.mqh` |
 | `iAD()`              | `Indi_AD::iAD()` | `Indicators/Indi_AD.mqh` |
 | `iADX()`             | `Indi_ADX::iADX()` | `Indicators/Indi_ADX.mqh` |
 | `iAO()`              | `Indi_AO::iAO()` | `Indicators/Indi_AO.mqh` |
 | `iATR()`             | `Indi_ATR::iATR()` | `Indicators/Indi_ATR.mqh` |
 | `iBWMFI()`           | `Indi_BWMFI::iBWMFI()` | `Indicators/Indi_BWMFI.mqh` |
-| `iBands()`           | `Indi_Bands::iBands()` | `Indicators/Indi_Bands.mqh` |
+| `iBands()`           | `Indi_Bands::iBands()` | `Indicators/PriceRange/Indi_Bands.h` |
 | `iBearsPower()`      | `Indi_BearsPower::iBearsPower()` | `Indicators/Indi_BearsPower.mqh` |
 | `iBullsPower()`      | `Indi_BullsPower::iBullsPower()` | `Indicators/Indi_BullsPower.mqh` |
 | `iCCI()`             | `Indi_CCI::iCCI()` | `Indicators/Indi_CCI.mqh` |
 | `iDeMarker()`        | `Indi_DeMarker::iDeMarker()` | `Indicators/Indi_DeMarker.mqh` |
-| `iEnvelopes()`       | `Indi_Envelopes::iEnvelopes()` | `Indicators/Indi_Envelopes.mqh` |
+| `iEnvelopes()`       | `Indi_Envelopes::iEnvelopes()` | `Indicators/PriceRange/Indi_Envelopes.h` |
 | `iForce()`           | `Indi_Force::iForce()` | `Indicators/Indi_Force.mqh` |
 | `iFractals()`        | `Indi_Fractals::iFractals()` | `Indicators/Indi_Fractals.mqh` |
 | `iGator()`           | `Indi_Gator::iGator()` | `Indicators/Indi_Gator.mqh` |
 | `iIchimoku()`        | `Indi_Ichimoku::iIchimoku()` | `Indicators/Indi_Ichimoku.mqh` |
-| `iMA()`              | `Indi_MA::iMA()` | `Indicators/Indi_MA.mqh` |
-| `iMACD()`            | `Indi_MAcD::iMACD()` | `Indicators/Indi_MACD.mqh` |
+| `iMA()`              | `Indi_MA::iMA()` | `Indicators/Price/Indi_MA.h` |
+| `iMACD()`            | `Indi_MACD::iMACD()` | `Indicators/Oscillator/Indi_MACD.h` |
 | `iMFI()`             | `Indi_MFI::iMFI()` | `Indicators/Indi_MFI.mqh` |
 | `iMomentum()`        | `Indi_Momentum::iMomentum()` | `Indicators/Indi_Momentum.mqh` |
 | `iOBV()`             | `Indi_OBV::iOBV()` | `Indicators/Indi_OBV.mqh` |
 | `iOsMA()`            | `Indi_OsMA::iOsMA()` | `Indicators/Indi_OsMA.mqh` |
-| `iRSI()`             | `Indi_RSI::iRSI()` | `Indicators/Indi_RSI.mqh` |
+| `iRSI()`             | `Indi_RSI::iRSI()` | `Indicators/Oscillator/Indi_RSI.h` |
 | `iRVI()`             | `Indi_RVI::iRVI()` | `Indicators/Indi_RVI.mqh` |
-| `iSAR()`             | `Indi_SAR::iSAR()` | `Indicators/Indi_SAR.mqh` |
+| `iSAR()`             | `Indi_SAR::iSAR()` | `Indicators/PriceRange/Indi_SAR.h` |
 | `iStdDev()`          | `Indi_StdDev::iStdDev()` | `Indicators/Indi_StdDev.mqh` |
-| `iStochastic()`      | `Indi_Stochastic::iStochastic()` | `Indicators/Indi_Stochastic.mqh` |
-| `iWPR()`             | `Indi_WPR::iWPR()` | `Indicators/Indi_WPR.mqh` |
+| `iStochastic()`      | `Indi_Stochastic::iStochastic()` | `Indicators/Oscillator/Indi_Stochastic.h` |
+| `iWPR()`             | `Indi_WPR::iWPR()` | `Indicators/Oscillator/Indi_WPR.h` |
 | `RefreshRates()`     | `Market::RefreshRates()` | `Market.mqh` |
-| `delete object`      | `Object::Delete(object)` | `Object.mqh` |
-| `GetOrderProfit()`   | `Order::GetOrderProfit()` | `Order.mqh` |
-| `OrderClose()`       | `OrderStatic::Close()` | `Order.struct.h` |
-| `OrderCloseTime()`   | `OrderStatic::CloseTime()` | `Order.struct.h` |
-| `OrderCommission()`  | `OrderStatic::Commission()` | `Order.struct.h` |
-| `OrderLots()`        | `OrderStatic::Lots()` | `Order.struct.h` |
-| `OrderMagicNumber()` | `OrderStatic::MagicNumber()` | `Order.struct.h` |
-| `OrderOpenPrice()`   | `OrderStatic::OpenPrice()` | `Order.struct.h` |
-| `OrderOpenTime()`    | `OrderStatic::OpenTime()` | `Order.struct.h` |
-| `OrderPrint()`       | `OrderStatic::Print()` | `Order.struct.h` |
-| `OrderSelect()`      | `OrderStatic::Select()` | `Order.struct.h` |
-| `OrderStopLoss()`    | `OrderStatic::StopLoss()` | `Order.struct.h` |
-| `OrderSymbol()`      | `OrderStatic::Symbol()` | `Order.struct.h` |
-| `OrderTicket()`      | `OrderStatic::Ticket()` | `Order.struct.h` |
-| `OrderType()`        | `OrderStatic::Type()` | `Order.struct.h` |
+| `delete object`      | `Object::Delete(object)` | `Storage/Object.h` |
+| `GetOrderProfit()`   | `Order::GetOrderProfit()` | `Platform/Order.h` |
+| `OrderClose()`       | `OrderStatic::Close()` | `Platform/Order.struct.h` |
+| `OrderCloseTime()`   | `OrderStatic::CloseTime()` | `Platform/Order.struct.h` |
+| `OrderCommission()`  | `OrderStatic::Commission()` | `Platform/Order.struct.h` |
+| `OrderLots()`        | `OrderStatic::Lots()` | `Platform/Order.struct.h` |
+| `OrderMagicNumber()` | `OrderStatic::MagicNumber()` | `Platform/Order.struct.h` |
+| `OrderOpenPrice()`   | `OrderStatic::OpenPrice()` | `Platform/Order.struct.h` |
+| `OrderOpenTime()`    | `OrderStatic::OpenTime()` | `Platform/Order.struct.h` |
+| `OrderPrint()`       | `OrderStatic::Print()` | `Platform/Order.struct.h` |
+| `OrderSelect()`      | `OrderStatic::Select()` | `Platform/Order.struct.h` |
+| `OrderStopLoss()`    | `OrderStatic::StopLoss()` | `Platform/Order.struct.h` |
+| `OrderSymbol()`      | `OrderStatic::Symbol()` | `Platform/Order.struct.h` |
+| `OrderTicket()`      | `OrderStatic::Ticket()` | `Platform/Order.struct.h` |
+| `OrderType()`        | `OrderStatic::Type()` | `Platform/Order.struct.h` |
 | `OrdersTotal()`      | `TradeStatic::TotalActive()` | `Trade.mqh` |
 
 </details>
@@ -137,16 +142,16 @@ Here are the special [predefined variables](https://docs.mql4.com/predefined) co
 | MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
 |:---------------------|:-----------------------------|:--------------------|
 | `Ask`                | `SymbolInfo::GetAsk()`       | `SymbolInfo.struct.static.h` |
-| `Bars`               | `ChartStatic::iBars()`       | `Chart.struct.static.h` |
+| `Bars`               | `ChartStatic::iBars()`       | `Platform/Chart/Chart.struct.static.h` |
 | `Bid`                | `SymbolInfo::GetBid()`       | `SymbolInfo.struct.static.h` |
-| `Close[]`            | `ChartStatic::iClose()`      | `Chart.struct.static.h` |
+| `Close[]`            | `ChartStatic::iClose()`      | `Platform/Chart/Chart.struct.static.h` |
 | `Digits`             | `SymbolInfo::GetDigits()`    | `SymbolInfo.struct.static.h` |
-| `High[]`             | `ChartStatic::iHigh()`       | `Chart.struct.static.h` |
-| `Low[]`              | `ChartStatic::iLow()`        | `Chart.struct.static.h` |
-| `Open[]`             | `ChartStatic::iOpen()`       | `Chart.struct.static.h` |
+| `High[]`             | `ChartStatic::iHigh()`       | `Platform/Chart/Chart.struct.static.h` |
+| `Low[]`              | `ChartStatic::iLow()`        | `Platform/Chart/Chart.struct.static.h` |
+| `Open[]`             | `ChartStatic::iOpen()`       | `Platform/Chart/Chart.struct.static.h` |
 | `Point`              | `SymbolInfo::GetPointSize()` | `SymbolInfo.struct.static.h` |
-| `Time[]`             | `ChartStatic::iTime()`       | `Chart.struct.static.h` |
-| `Volume[]`           | `ChartStatic::iVolume()`     | `Chart.struct.static.h` |
+| `Time[]`             | `ChartStatic::iTime()`       | `Platform/Chart/Chart.struct.static.h` |
+| `Volume[]`           | `ChartStatic::iVolume()`     | `Platform/Chart/Chart.struct.static.h` |
 
 </details>
 
@@ -218,13 +223,9 @@ Example sending e-mail on trade execution:
       delete mail;
     }
 
-### `Indicator` class
+### `Indicator/`
 
-The purpose of `Indicator` class is to provide common functionality
-across all indicators such as storing and searching for values.
-
-This class is used as a base class to handle technical indicator classes
-which can be found in [`Indicators/`](Indicators/) folder.
+Collection of indicator base classes used to implement technical indicators.
 
 ### `Indicators/` classes
 
@@ -398,11 +399,11 @@ Multiple measurements:
 [gha-link-check-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ACheck+branch%3Amaster
 [gha-image-check-master]: https://github.com/EA31337/EA31337-classes/workflows/Check/badge.svg
 
-[gha-link-lint-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ALint+branch%3Amaster
-[gha-image-lint-master]: https://github.com/EA31337/EA31337-classes/workflows/Lint/badge.svg
+[gha-link-compile-cpp-master]: https://github.com/EA31337/EA31337-classes/actions/workflows/compile-cpp.yml?query=branch%3Amaster
+[gha-image-compile-cpp-master]: https://github.com/EA31337/EA31337-classes/actions/workflows/compile-cpp.yml/badge.svg
 
-[gha-link-test-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ATest+branch%3Amaster
-[gha-image-test-master]: https://github.com/EA31337/EA31337-classes/workflows/Test/badge.svg
+[gha-link-compile-mql-master]: https://github.com/EA31337/EA31337-classes/actions/workflows/compile-mql.yml?query=branch%3Amaster
+[gha-image-compile-mql-master]: https://github.com/EA31337/EA31337-classes/actions/workflows/compile-mql.yml/badge.svg
 
 [tg-channel-image]: https://img.shields.io/badge/Telegram-join-0088CC.svg?logo=telegram
 [tg-channel-link]: https://t.me/EA31337

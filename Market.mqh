@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -25,11 +25,12 @@
 #define MARKET_MQH
 
 // Includes.
+#include "Exchange/SymbolInfo/SymbolInfo.h"
+#include "Exchange/SymbolInfo/SymbolInfo.struct.static.h"
 #include "Market.struct.h"
-#include "Math.h"
+#include "Math/Math.h"
+#include "Platform/Chart/Chart.define.h"
 #include "Serializer/Serializer.h"
-#include "SymbolInfo.mqh"
-#include "SymbolInfo.struct.static.h"
 #include "Task/TaskCondition.enum.h"
 
 /**
@@ -270,7 +271,7 @@ class Market : public SymbolInfo {
       case MARKET_COND_SPREAD_GT_20:
         return GetSpreadInPts() > 20;
       default:
-        GetLogger().Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        logger.Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }

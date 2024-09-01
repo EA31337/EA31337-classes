@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,23 +20,16 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-#include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
-#include "Price/Indi_Price.mqh"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iCCI(string _symbol, int _tf, int _period, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_CCI::iCCI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
-}
-double iCCIOnArray(double &_arr[], int _total, int _period, int _abs_shift) {
-  ResetLastError();
-  return Indi_CCI::iCCIOnArray(_arr, _total, _period, _abs_shift);
-}
-#endif
+#include "Price/Indi_MA.h"
+#include "Price/Indi_Price.h"
 
 // Structs.
 struct IndiCCIParams : IndicatorParams {
@@ -91,10 +84,18 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
    */
   static double iCCI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _applied_price,
                      int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iCCI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iCCI(_symbol, _tf, _period, _applied_price), 0, _shift);
+#endif
+#else  // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 
@@ -102,10 +103,10 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
                                 int _mode, int _shift = 0) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
 
-    _indi.ValidateDataSourceMode(_mode);
+    _indi PTR_DEREF ValidateDataSourceMode(_mode);
 
-    double _indi_value_buffer[];
-    IndicatorDataEntry _entry(_indi.GetModeCount());
+    ARRAY(double, _indi_value_buffer);
+    IndicatorDataEntry _entry(_indi PTR_DEREF GetModeCount());
 
     ArrayResize(_indi_value_buffer, _period);
 
@@ -140,12 +141,12 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
   /**
    * CCI on array.
    */
-  static double iCCIOnArray(double &array[], int total, int period, int shift) {
+  static double iCCIOnArray(CONST_ARRAY_REF(double, array), int total, int period, int shift) {
 #ifdef __MQL4__
     return ::iCCIOnArray(array, total, period, shift);
 #else
     Indi_PriceFeeder indi_price_feeder(array);
-    return iCCIOnIndicator(&indi_price_feeder, NULL, NULL, period, /*unused*/ PRICE_OPEN, shift);
+    return iCCIOnIndicator(&indi_price_feeder, NULL, PERIOD_CURRENT, period, /*unused*/ PRICE_OPEN, shift);
 #endif
   }
 
@@ -221,3 +222,15 @@ class Indi_CCI : public Indicator<IndiCCIParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iCCI(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_CCI::iCCI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+double iCCIOnArray(CONST_ARRAY_REF(double, _arr), int _total, int _period, int _abs_shift) {
+  ResetLastError();
+  return Indi_CCI::iCCIOnArray(_arr, _total, _period, _abs_shift);
+}
+#endif

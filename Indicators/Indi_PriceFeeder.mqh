@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,14 +20,19 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 
 // Structs.
 struct IndiPriceFeederParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
-  double price_data[];
+  ARRAY(double, price_data);
 
   /**
    * Struct constructor.
@@ -39,7 +44,7 @@ struct IndiPriceFeederParams : IndicatorParams {
    *
    * @todo Use more modes (full OHCL).
    */
-  IndiPriceFeederParams(const double& _price_data[], int _total = 0) : IndicatorParams(INDI_PRICE_FEEDER) {
+  IndiPriceFeederParams(CONST_ARRAY_REF(double, _price_data), int _total = 0) : IndicatorParams(INDI_PRICE_FEEDER) {
     ArrayCopy(price_data, _price_data, 0, 0, _total == 0 ? WHOLE_ARRAY : _total);
   };
   IndiPriceFeederParams(IndiPriceFeederParams& _params) { THIS_REF = _params; };
@@ -57,8 +62,9 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
                    IndicatorData* _indi_src = NULL, int _indi_src_mode = 0)
       : Indicator(_p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
                   _indi_src){};
-  Indi_PriceFeeder(const double& _price_data[], int _total = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
-                   IndicatorData* _indi_src = NULL, int _indi_src_mode = 0)
+  Indi_PriceFeeder(CONST_ARRAY_REF(double, _price_data), int _total = 0,
+                   ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData* _indi_src = NULL,
+                   int _indi_src_mode = 0)
       : Indicator(IndiPriceFeederParams(),
                   IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_PRICE, _indi_src_mode),
                   _indi_src) {}
@@ -78,7 +84,9 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
    */
   unsigned int GetPossibleDataModes() override { return IDATA_BUILTIN; }
 
-  void SetPrices(const double& _price_data[], int _total = 0) { iparams = IndiPriceFeederParams(_price_data, _total); }
+  void SetPrices(CONST_ARRAY_REF(double, _price_data), int _total = 0) {
+    iparams = IndiPriceFeederParams(_price_data, _total);
+  }
 
   /**
    * Checks whether indicator has a valid value for a given shift.
@@ -103,7 +111,7 @@ class Indi_PriceFeeder : public Indicator<IndiPriceFeederParams> {
   bool OnTick(int _global_tick_index) override {
     bool _result = Indicator<IndiPriceFeederParams>::OnTick(_global_tick_index);
 
-    if (idparams.IsDrawing()) {
+    if (idparams.IsPloting()) {
       int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
       IndicatorDataEntry _entry = GetEntry(0);
       for (int i = 0; i < _max_modes; ++i) {

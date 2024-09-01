@@ -18,13 +18,13 @@ jobs:
 
   compile:
     name: Compile
-    uses: ./.github/workflows/compile.yml
+    uses: ./.github/workflows/compile-mql.yml
     with:
       artifact_prefix: mt
-      path: Trade
+      path: Trade/tests
       skip_cleanup: true
 
-  Trade-Tests-MQL4:
+  Tests-MQL4:
     defaults:
       run:
         shell: bash
@@ -35,10 +35,10 @@ jobs:
     strategy:
       matrix:
         test:
-          - TradeSignalTest
-          - TradeSignalManagerTest
+          - TradeSignal.test
+          - TradeSignalManager.test
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: files-ex4
       - name: Run ${{ matrix.test }}

@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_CANDLE_H
-#define INDICATOR_CANDLE_H
 
 #ifndef __MQL__
   // Allows the preprocessor to include a header file when it is needed.
@@ -228,7 +224,7 @@ class IndicatorCandle : public Indicator<TS> {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetVolume(int _shift = 0) override {
+  int64 GetVolume(int _shift = 0) override {
     CandleOCTOHLC<TV> _candle;
 
     if (history.TryGetItemByShift(_shift, _candle)) {
@@ -243,14 +239,14 @@ class IndicatorCandle : public Indicator<TS> {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetSpread(int _shift = 0) override { return 0; }
+  int64 GetSpread(int _shift = 0) override { return 0; }
 
   /**
    * Returns tick volume value for the bar.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetTickVolume(int _shift = 0) override { return GetVolume(); }
+  int64 GetTickVolume(int _shift = 0) override { return GetVolume(); }
 
   /**
    * Returns the indicator's data entry.
@@ -287,7 +283,7 @@ class IndicatorCandle : public Indicator<TS> {
         case INDI_CANDLE_MODE_SPREAD:
         case INDI_CANDLE_MODE_TICK_VOLUME:
         case INDI_CANDLE_MODE_VOLUME:
-          THIS_ATTR value_storages[_mode] = new IndicatorBufferValueStorage<long>(THIS_PTR, _mode);
+          THIS_ATTR value_storages[_mode] = new IndicatorBufferValueStorage<int64>(THIS_PTR, _mode);
           break;
         case INDI_CANDLE_MODE_TIME:
           THIS_ATTR value_storages[_mode] = new IndicatorBufferValueStorage<datetime>(THIS_PTR, _mode);
@@ -313,7 +309,7 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Converts candle into indicator's data entry.
    */
-  IndicatorDataEntry CandleToEntry(long _timestamp, CandleOCTOHLC<TV>& _candle) {
+  IndicatorDataEntry CandleToEntry(int64 _timestamp, CandleOCTOHLC<TV>& _candle) {
     IndicatorDataEntry _entry(FINAL_INDI_CANDLE_MODE_ENTRY);
     _entry.timestamp = _timestamp;
     _entry.values[INDI_CANDLE_MODE_PRICE_OPEN] = _candle.open;
@@ -370,29 +366,29 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Returns value storage of given kind.
    */
-  IValueStorage* GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  IValueStorage* GetSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     switch (_type) {
-      case INDI_VS_TYPE_PRICE_OPEN:
+      case INDI_DATA_VS_TYPE_PRICE_OPEN:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_OPEN);
-      case INDI_VS_TYPE_PRICE_HIGH:
+      case INDI_DATA_VS_TYPE_PRICE_HIGH:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_HIGH);
-      case INDI_VS_TYPE_PRICE_LOW:
+      case INDI_DATA_VS_TYPE_PRICE_LOW:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_LOW);
-      case INDI_VS_TYPE_PRICE_CLOSE:
+      case INDI_DATA_VS_TYPE_PRICE_CLOSE:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_CLOSE);
-      case INDI_VS_TYPE_PRICE_MEDIAN:
+      case INDI_DATA_VS_TYPE_PRICE_MEDIAN:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_MEDIAN);
-      case INDI_VS_TYPE_PRICE_TYPICAL:
+      case INDI_DATA_VS_TYPE_PRICE_TYPICAL:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_TYPICAL);
-      case INDI_VS_TYPE_PRICE_WEIGHTED:
+      case INDI_DATA_VS_TYPE_PRICE_WEIGHTED:
         return GetValueStorage(INDI_CANDLE_MODE_PRICE_WEIGHTED);
-      case INDI_VS_TYPE_SPREAD:
+      case INDI_DATA_VS_TYPE_SPREAD:
         return GetValueStorage(INDI_CANDLE_MODE_SPREAD);
-      case INDI_VS_TYPE_TICK_VOLUME:
+      case INDI_DATA_VS_TYPE_TICK_VOLUME:
         return GetValueStorage(INDI_CANDLE_MODE_TICK_VOLUME);
-      case INDI_VS_TYPE_TIME:
+      case INDI_DATA_VS_TYPE_TIME:
         return GetValueStorage(INDI_CANDLE_MODE_TIME);
-      case INDI_VS_TYPE_VOLUME:
+      case INDI_DATA_VS_TYPE_VOLUME:
         return GetValueStorage(INDI_CANDLE_MODE_VOLUME);
       default:
         // Trying in parent class.
@@ -403,19 +399,19 @@ class IndicatorCandle : public Indicator<TS> {
   /**
    * Checks whether indicator support given value storage type.
    */
-  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  bool HasSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     switch (_type) {
-      case INDI_VS_TYPE_PRICE_OPEN:
-      case INDI_VS_TYPE_PRICE_HIGH:
-      case INDI_VS_TYPE_PRICE_LOW:
-      case INDI_VS_TYPE_PRICE_CLOSE:
-      case INDI_VS_TYPE_PRICE_MEDIAN:
-      case INDI_VS_TYPE_PRICE_TYPICAL:
-      case INDI_VS_TYPE_PRICE_WEIGHTED:
-      case INDI_VS_TYPE_SPREAD:
-      case INDI_VS_TYPE_TICK_VOLUME:
-      case INDI_VS_TYPE_TIME:
-      case INDI_VS_TYPE_VOLUME:
+      case INDI_DATA_VS_TYPE_PRICE_OPEN:
+      case INDI_DATA_VS_TYPE_PRICE_HIGH:
+      case INDI_DATA_VS_TYPE_PRICE_LOW:
+      case INDI_DATA_VS_TYPE_PRICE_CLOSE:
+      case INDI_DATA_VS_TYPE_PRICE_MEDIAN:
+      case INDI_DATA_VS_TYPE_PRICE_TYPICAL:
+      case INDI_DATA_VS_TYPE_PRICE_WEIGHTED:
+      case INDI_DATA_VS_TYPE_SPREAD:
+      case INDI_DATA_VS_TYPE_TICK_VOLUME:
+      case INDI_DATA_VS_TYPE_TIME:
+      case INDI_DATA_VS_TYPE_VOLUME:
         return true;
       default:
         // Trying in parent class.
@@ -430,5 +426,3 @@ class IndicatorCandle : public Indicator<TS> {
 
   /* Virtual methods */
 };
-
-#endif

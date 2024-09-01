@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * aint64 with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,8 +29,8 @@
   #pragma once
 #endif
 
-#include "../DictStruct.mqh"
 #include "../Refs.mqh"
+#include "../Storage/Dict/DictStruct.h"
 
 /**
  * Direction used by ItemsHistoryItemProvider's methods.
@@ -59,7 +59,7 @@ class ItemsHistoryItemProvider : public Dynamic {
    * want previous or next items from selected starting point. Should return false if retrieving items by this method
    * is not available.
    */
-  bool GetItems(ItemsHistory<IV, ItemsHistoryItemProvider<IV>>* _history, long _from_time_ms,
+  bool GetItems(ItemsHistory<IV, ItemsHistoryItemProvider<IV>>* _history, int64 _from_time_ms,
                 ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items, ARRAY_REF(IV, _out_arr)) {
     return false;
   }
@@ -76,16 +76,16 @@ class ItemsHistoryItemProvider : public Dynamic {
   /**
    * Time of the first possible item/candle/tick.
    */
-  virtual long GetInitialTimeMs() {
+  virtual int64 GetInitialTimeMs() {
     // Item's provider does not implement GetInitialTimeMs(), but it should. We'll use current time for the time of the
     // first item.
-    return (long)TimeCurrent() * 1000;
+    return (int64)TimeCurrent() * 1000;
   }
 
   /**
    * Returns information about item provider.
    */
-  string const ToString() override { return "Abstract items history item provider."; }
+  virtual string const ToString() override { return "Abstract items history item provider."; }
 };
 
 /**
@@ -164,7 +164,7 @@ class ItemsHistory {
    * Gets time in milliseconds of the last(oldest) item's time in current history time or 0.
    */
   /*
-  long GetLastValidTimeInCache() {
+  int64 GetLastValidTimeInCache() {
     return history.GetByKey(last_valid_index).GetTime();
   }
   */
@@ -238,7 +238,7 @@ class ItemsHistory {
     /*
 
         int _item_count = _to_index - _from_index + 1;
-        long _from_time_ms;
+        int64 _from_time_ms;
         IV _item;
 
         // Calculating time to be passed to GetItems().
@@ -261,9 +261,9 @@ class ItemsHistory {
             _from_time_ms = _item.GetTimeMs() + _item.GetLengthMs() + 1;
           }
 
-          long _current_time_ms = TimeCurrent() * 1000;
+          int64 _current_time_ms = TimeCurrent() * 1000;
 
-          if (_from_time_ms > (long)TimeCurrent() * 1000) {
+          if (_from_time_ms > (int64)TimeCurrent() * 1000) {
             // There won't be items in the future.
             return;
           }
@@ -412,11 +412,11 @@ class ItemsHistory {
    */
   bool EnsureShiftExists(int _shift) {
     if (history.Size() == 0) {
-      // return false;
+      return false;
     }
 
 #ifdef __debug_items_history__
-      // Print("EnsureShiftExists(", _shift, ")");
+    Print("EnsureShiftExists(", _shift, ")");
 #endif
 
     int _index = GetShiftIndex(_shift);
@@ -501,7 +501,7 @@ class ItemsHistory {
   /**
    * Returns item time in milliseconds for the given shift.
    */
-  long GetItemTimeByShiftMsc(int _shift) {
+  int64 GetItemTimeByShiftMsc(int _shift) {
     if (!EnsureShiftExists(_shift)) {
       // There won't be item at given shift.
       return (datetime)0;

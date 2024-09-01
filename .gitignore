@@ -7,6 +7,7 @@ docs/api/build
 
 # Ignores compiled binary files.
 *.ex?
+*.o
 
 # Ignores log files.
 *.log
@@ -15,3 +16,7 @@ docs/api/build
 .DS_Store
 
 docs/build
+.vs
+x64
+*.sln
+*.vcx*

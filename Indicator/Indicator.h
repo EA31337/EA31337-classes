@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,9 +20,10 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_MQH
-#define INDICATOR_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Forward class declaration.
 struct IndicatorParams;
@@ -34,20 +35,21 @@ struct IndicatorParams;
 #include "IndicatorData.h"
 
 // Includes.
-#include "../Array.mqh"
-#include "../BufferStruct.mqh"
-#include "../DateTime.mqh"
-#include "../DrawIndicator.mqh"
-#include "../Flags.h"
-#include "../Math.h"
-#include "../Object.mqh"
+#include "../Indicators/DrawIndicator.mqh"
+#include "../Math/Math.h"
 #include "../Refs.mqh"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerCsv.h"
 #include "../Serializer/SerializerJson.h"
+#include "../Storage/Array.h"
+#include "../Storage/DateTime.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
+#include "../Storage/Flags.struct.h"
+#include "../Storage/Object.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.indicator.h"
 #include "../Storage/ValueStorage.native.h"
+#include "../Task/TaskCondition.enum.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
@@ -155,10 +157,10 @@ class Indicator : public IndicatorData {
   }
 
   /**
-   * Gets a value from IndicatorState struct.
+   * Gets a value from IndicatorDataState struct.
    */
   template <typename T>
-  T Get(STRUCT_ENUM_INDICATOR_STATE_PROP _param) {
+  T Get(STRUCT_ENUM_INDICATOR_DATA_STATE_PROP _param) {
     return istate.Get<T>(_param);
   }
 
@@ -225,7 +227,7 @@ class Indicator : public IndicatorData {
   /**
    * Sets whether indicator's buffers should be drawn on the chart.
    */
-  void SetDraw(bool _value, color _color = clrAquamarine, int _window = 0) {
+  void SetPlot(bool _value, color _color = clrAquamarine, int _window = 0) {
     // draw.SetEnabled(_value);
     // draw.SetColorLine(_color);
     // draw.SetWindow(_window);
@@ -269,7 +271,7 @@ class Indicator : public IndicatorData {
    *   cache_key.Add(period);
    *   cache_key.Add(foo_method);
    *
-   *   Ref<IndicatorCalculateCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
+   *   Ref<IndiBufferCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
    *
    *   int prev_calculated =
    *     Indi_Foo::Calculate(total, cache.Ptr().prev_calculated, 0, price, cache.Ptr().buffer1, ma_method, period);
@@ -285,21 +287,21 @@ class Indicator : public IndicatorData {
    *  WARNING: Do not use shifts when creating cache_key, as this will create many invalid buffers.
    */
   /*
-  static IndicatorCalculateCache OnCalculateProxy(string key, double& price[], int& total) {
+  static IndiBufferCache OnCalculateProxy(string key, double& price[], int& total) {
     if (total == 0) {
       total = ArraySize(price);
     }
 
     // Stores previously calculated value.
-    static DictStruct<string, IndicatorCalculateCache> cache;
+    static DictStruct<string, IndiBufferCache> cache;
 
     unsigned int position;
-    IndicatorCalculateCache cache_item;
+    IndiBufferCache cache_item;
 
     if (cache.KeyExists(key, position)) {
       cache_item = cache.GetByKey(key);
     } else {
-      IndicatorCalculateCache cache_item_new(1, ArraySize(price));
+      IndiBufferCache cache_item_new(1, ArraySize(price));
       cache_item = cache_item_new;
       cache.Set(key, cache_item);
     }
@@ -503,7 +505,7 @@ class Indicator : public IndicatorData {
    */
   virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, ARRAY_REF(DataParamEntry, _args)) {
     bool _result = true;
-    long _arg1 = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
+    int64 _arg1 = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
     switch (_action) {
       case INDI_ACTION_CLEAR_CACHE:
         _arg1 = _arg1 > 0 ? _arg1 : TimeCurrent();
@@ -520,7 +522,7 @@ class Indicator : public IndicatorData {
     ARRAY(DataParamEntry, _args);
     return ExecuteAction(_action, _args);
   }
-  bool ExecuteAction(ENUM_INDICATOR_ACTION _action, long _arg1) {
+  bool ExecuteAction(ENUM_INDICATOR_ACTION _action, int64 _arg1) {
     ARRAY(DataParamEntry, _args);
     DataParamEntry _param1 = _arg1;
     ArrayPushObject(_args, _param1);
@@ -604,13 +606,13 @@ class Indicator : public IndicatorData {
     } else {
       if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_UNSIGNED)) {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
-          _result &= !_entry.HasValue<unsigned long>(ULONG_MAX);
+          _result &= !_entry.HasValue<uint64>(ULONG_MAX);
         } else {
           _result &= !_entry.HasValue<unsigned int>(UINT_MAX);
         }
       } else {
         if (_entry.CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLED)) {
-          _result &= !_entry.HasValue<long>(LONG_MAX);
+          _result &= !_entry.HasValue<int64>(LONG_MAX);
         } else {
           _result &= !_entry.HasValue<int>(INT_MAX);
         }
@@ -634,7 +636,7 @@ class Indicator : public IndicatorData {
    */
   IndicatorDataEntry GetEntry(int _rel_shift = 0) override {
     ResetLastError();
-    long _bar_time = GetBarTime(_rel_shift);
+    int64 _bar_time = GetBarTime(_rel_shift);
 
     if (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_BUILTIN &&
         (GetPossibleDataModes() & IDATA_BUILTIN) == 0) {
@@ -655,10 +657,10 @@ class Indicator : public IndicatorData {
       _entry.Resize(_max_modes);
       _entry.timestamp = _bar_time;
 #ifndef __MQL4__
-      if (IndicatorData::Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED))) {
+      if (IndicatorData::Get<bool>(STRUCT_ENUM(IndicatorDataState, INDICATOR_DATA_STATE_PROP_IS_CHANGED))) {
         // Resets the handle on any parameter changes.
-        IndicatorData::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_HANDLE), INVALID_HANDLE);
-        IndicatorData::Set<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_CHANGED), false);
+        IndicatorData::Set<int>(STRUCT_ENUM(IndicatorDataState, INDICATOR_DATA_STATE_PROP_HANDLE), INVALID_HANDLE);
+        IndicatorData::Set<int>(STRUCT_ENUM(IndicatorDataState, INDICATOR_DATA_STATE_PROP_IS_CHANGED), false);
       }
 #endif
       for (int _mode = 0; _mode < _max_modes; _mode++) {
@@ -669,13 +671,13 @@ class Indicator : public IndicatorData {
             _entry.values[_mode] = GetValue<int>(_mode, _rel_shift);
             break;
           case TYPE_LONG:
-            _entry.values[_mode] = GetValue<long>(_mode, _rel_shift);
+            _entry.values[_mode] = GetValue<int64>(_mode, _rel_shift);
             break;
           case TYPE_UINT:
             _entry.values[_mode] = GetValue<unsigned int>(_mode, _rel_shift);
             break;
           case TYPE_ULONG:
-            _entry.values[_mode] = GetValue<unsigned long>(_mode, _rel_shift);
+            _entry.values[_mode] = GetValue<uint64>(_mode, _rel_shift);
             break;
           case TYPE_DOUBLE:
             _entry.values[_mode] = GetValue<double>(_mode, _rel_shift);
@@ -755,5 +757,3 @@ class Indicator : public IndicatorData {
     return false;
   };
 };
-
-#endif

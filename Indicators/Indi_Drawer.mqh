@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,13 +20,18 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../DictStruct.mqh"
 #include "../Indicator/Indicator.h"
-#include "../Redis.mqh"
+#include "../Storage/Dict/DictStruct.h"
+#include "../Storage/Redis.h"
 #include "../Task/TaskAction.h"
 #include "Indi_Drawer.struct.h"
-#include "Price/Indi_Price.mqh"
+#include "Price/Indi_Price.h"
 
 /**
  * Implements the Relative Strength Index indicator.
@@ -83,7 +88,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
        */
   }
 
-  virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry &_args[]) {
+  virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, CONST_ARRAY_REF(DataParamEntry, _args)) {
     int num_args = ArraySize(_args), i;
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
@@ -93,8 +98,8 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
       Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), num_args - 1);
 
       if (num_args - 1 > _max_modes) {
-        GetLogger().Error(
-            StringFormat("Too many data for buffers for action %s!", EnumToString(_action), __FUNCTION_LINE__));
+        GetLogger() PTR_DEREF Error(StringFormat("Too many data for buffers for action %s at %s!",
+                                                 C_STR(EnumToString(_action)), __FUNCTION_LINE__));
         return false;
       }
 
@@ -161,7 +166,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
     */
   }
 
-  Redis *Redis() { return &redis; }
+  Redis *GetRedis() { return &redis; }
 
   /**
    * Returns the indicator value.
@@ -187,7 +192,7 @@ class Indi_Drawer : public Indicator<IndiDrawerParams> {
   /**
    * Performs drawing from data in array.
    */
-  static double iDrawerOnArray(double &array[], int total, int period, int shift) { return 0; }
+  static double iDrawerOnArray(CONST_ARRAY_REF(double, array), int total, int period, int shift) { return 0; }
 
   /* Getters */
 

@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,17 +20,17 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
 #pragma once
 #endif
 
 // Includes.
-#include "Array.mqh"
 #include "Common.extern.h"
-#include "DateTime.mqh"
 #include "Std.h"
-#include "String.mqh"
+#include "Storage/Array.h"
+#include "Storage/DateTime.h"
+#include "Storage/String.h"
 
 /**
  * Class to provide conversion methods.
@@ -40,7 +40,7 @@ class ConvertBasic {
   /**
    * Convert integer to hex.
    */
-  static string IntToHex(long long_number) {
+  static string IntToHex(int64 long_number) {
     string result;
     int integer_number = (int)long_number;
     for (int i = 0; i < 4; i++) {
@@ -88,8 +88,8 @@ class ConvertBasic {
   static void StringToType(string _value, unsigned int& _out) { _out = (unsigned int)StringToInteger(_value); }
   static void StringToType(string _value, char& _out) { _out = (char)_value[0]; }
   static void StringToType(string _value, unsigned char& _out) { _out = (unsigned char)_value[0]; }
-  static void StringToType(string _value, long& _out) { _out = StringToInteger(_value); }
-  static void StringToType(string _value, unsigned long& _out) { _out = StringToInteger(_value); }
+  static void StringToType(string _value, int64& _out) { _out = StringToInteger(_value); }
+  static void StringToType(string _value, uint64& _out) { _out = StringToInteger(_value); }
   static void StringToType(string _value, short& _out) { _out = (short)StringToInteger(_value); }
   static void StringToType(string _value, unsigned short& _out) { _out = (unsigned short)StringToInteger(_value); }
   static void StringToType(string _value, float& _out) { _out = (float)StringToDouble(_value); }
@@ -116,8 +116,8 @@ class ConvertBasic {
   static void BoolToType(bool _value, unsigned char& _out) { _out = (unsigned char)_value; }
   static void BoolToType(bool _value, int& _out) { _out = (int)_value; }
   static void BoolToType(bool _value, unsigned int& _out) { _out = (unsigned int)_value; }
-  static void BoolToType(bool _value, long& _out) { _out = (long)_value; }
-  static void BoolToType(bool _value, unsigned long& _out) { _out = (unsigned long)_value; }
+  static void BoolToType(bool _value, int64& _out) { _out = (int64)_value; }
+  static void BoolToType(bool _value, uint64& _out) { _out = (uint64)_value; }
   static void BoolToType(bool _value, short& _out) { _out = (short)_value; }
   static void BoolToType(bool _value, unsigned short& _out) { _out = (unsigned short)_value; }
   static void BoolToType(bool _value, float& _out) { _out = (float)_value; }
@@ -133,23 +133,23 @@ class ConvertBasic {
     return _out;
   }
 
-  static void LongToType(long _value, bool& _out) { _out = (bool)_value; }
-  static void LongToType(long _value, char& _out) { _out = (char)_value; }
-  static void LongToType(long _value, unsigned char& _out) { _out = (unsigned char)_value; }
-  static void LongToType(long _value, int& _out) { _out = (int)_value; }
-  static void LongToType(long _value, unsigned int& _out) { _out = (unsigned int)_value; }
-  static void LongToType(long _value, long& _out) { _out = (long)_value; }
-  static void LongToType(long _value, unsigned long& _out) { _out = (unsigned long)_value; }
-  static void LongToType(long _value, short& _out) { _out = (short)_value; }
-  static void LongToType(long _value, unsigned short& _out) { _out = (unsigned short)_value; }
-  static void LongToType(long _value, float& _out) { _out = (float)_value; }
-  static void LongToType(long _value, double& _out) { _out = (double)_value; }
-  static void LongToType(long _value, string& _out) { _out = _value ? "1" : "0"; }
-  static void LongToType(long _value, color& _out) { _out = 0; }
-  static void LongToType(long _value, datetime& _out) {}
+  static void LongToType(int64 _value, bool& _out) { _out = (bool)_value; }
+  static void LongToType(int64 _value, char& _out) { _out = (char)_value; }
+  static void LongToType(int64 _value, unsigned char& _out) { _out = (unsigned char)_value; }
+  static void LongToType(int64 _value, int& _out) { _out = (int)_value; }
+  static void LongToType(int64 _value, unsigned int& _out) { _out = (unsigned int)_value; }
+  static void LongToType(int64 _value, int64& _out) { _out = (int64)_value; }
+  static void LongToType(int64 _value, uint64& _out) { _out = (uint64)_value; }
+  static void LongToType(int64 _value, short& _out) { _out = (short)_value; }
+  static void LongToType(int64 _value, unsigned short& _out) { _out = (unsigned short)_value; }
+  static void LongToType(int64 _value, float& _out) { _out = (float)_value; }
+  static void LongToType(int64 _value, double& _out) { _out = (double)_value; }
+  static void LongToType(int64 _value, string& _out) { _out = _value ? "1" : "0"; }
+  static void LongToType(int64 _value, color& _out) { _out = 0; }
+  static void LongToType(int64 _value, datetime& _out) {}
 
   template <typename X>
-  static X LongTo(long _value) {
+  static X LongTo(int64 _value) {
     X _out;
     LongToType(_value, _out);
     return _out;
@@ -160,8 +160,8 @@ class ConvertBasic {
   static void DoubleToType(double _value, unsigned char& _out) { _out = (unsigned char)_value; }
   static void DoubleToType(double _value, int& _out) { _out = (int)_value; }
   static void DoubleToType(double _value, unsigned int& _out) { _out = (unsigned int)_value; }
-  static void DoubleToType(double _value, long& _out) { _out = (long)_value; }
-  static void DoubleToType(double _value, unsigned long& _out) { _out = (unsigned long)_value; }
+  static void DoubleToType(double _value, int64& _out) { _out = (int64)_value; }
+  static void DoubleToType(double _value, uint64& _out) { _out = (uint64)_value; }
   static void DoubleToType(double _value, short& _out) { _out = (short)_value; }
   static void DoubleToType(double _value, unsigned short& _out) { _out = (unsigned short)_value; }
   static void DoubleToType(double _value, float& _out) { _out = (float)_value; }
@@ -174,6 +174,36 @@ class ConvertBasic {
   static X DoubleTo(double _value) {
     X _out;
     DoubleToType(_value, _out);
+    return _out;
+  }
+
+  template <typename T>
+  static T Convert(bool _value, T& _out) {
+    BoolToType(_value, _out);
+    return _out;
+  }
+
+  template <typename T>
+  static T Convert(int _value, T& _out) {
+    LongToType((long)_value, _out);
+    return _out;
+  }
+
+  template <typename T>
+  static T Convert(int64 _value, T& _out) {
+    LongToType(_value, _out);
+    return _out;
+  }
+
+  template <typename T>
+  static T Convert(double _value, T& _out) {
+    DoubleToType(_value, _out);
+    return _out;
+  }
+
+  template <typename T>
+  static T Convert(CONST_REF_TO_SIMPLE(string) _value, T& _out) {
+    StringToType(_value, _out);
     return _out;
   }
 };

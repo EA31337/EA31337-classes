@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -31,18 +31,23 @@
 #endif
 
 // Includes.
-#include "../Array.mqh"
-#include "../BufferStruct.mqh"
-#include "../Chart.struct.tf.h"
-#include "../DateTime.mqh"
+#include "../Bar.struct.h"
 #include "../Log.mqh"
-#include "../Object.mqh"
-#include "../Platform.extern.h"
+#include "../Platform/Chart/Chart.struct.tf.h"
+#include "../Platform/Platform.extern.h"
 #include "../Refs.mqh"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerCsv.h"
 #include "../Serializer/SerializerJson.h"
+#include "../Storage/Array.h"
+#include "../Storage/DateTime.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
+#include "../Storage/Object.h"
 #include "../Util.h"
+#include "IndicatorData.struct.h"
+
+// Forward declarations.
+class IndicatorData;
 
 /**
  * Class to deal with indicators.
@@ -104,7 +109,7 @@ class IndicatorBase : public Object {
    *   cache_key.Add(period);
    *   cache_key.Add(foo_method);
    *
-   *   Ref<IndicatorCalculateCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
+   *   Ref<IndiBufferCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
    *
    *   int prev_calculated =
    *     Indi_Foo::Calculate(total, cache.Ptr().prev_calculated, 0, price, cache.Ptr().buffer1, ma_method, period);
@@ -120,21 +125,21 @@ class IndicatorBase : public Object {
    *  WARNING: Do not use shifts when creating cache_key, as this will create many invalid buffers.
    */
   /*
-  static IndicatorCalculateCache OnCalculateProxy(string key, double& price[], int& total) {
+  static IndiBufferCache OnCalculateProxy(string key, double& price[], int& total) {
     if (total == 0) {
       total = ArraySize(price);
     }
 
     // Stores previously calculated value.
-    static DictStruct<string, IndicatorCalculateCache> cache;
+    static DictStruct<string, IndiBufferCache> cache;
 
     unsigned int position;
-    IndicatorCalculateCache cache_item;
+    IndiBufferCache cache_item;
 
     if (cache.KeyExists(key, position)) {
       cache_item = cache.GetByKey(key);
     } else {
-      IndicatorCalculateCache cache_item_new(1, ArraySize(price));
+      IndiBufferCache cache_item_new(1, ArraySize(price));
       cache_item = cache_item_new;
       cache.Set(key, cache_item);
     }
@@ -186,7 +191,29 @@ class IndicatorBase : public Object {
    */
   // void SetSymbol(string _symbol) { Set<string>(CHART_PARAM_SYMBOL, _symbol); }
 
+  template <typename T>
+  T GetValue(int _mode = 0, int _rel_shift = 0) {
+    T _out;
+    GetEntryValue(_mode, ToAbsShift(_rel_shift)).Get(_out);
+    return _out;
+  }
+
   /* Virtual methods */
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) = 0;
+
+  /**
+   * Converts relative shift into absolute one.
+   */
+  virtual int ToAbsShift(int _rel_shift) = 0;
+
+  /**
+   * Converts absolute shift into relative one.
+   */
+  virtual int ToRelShift(int _abs_shift) = 0;
 
   /**
    * Get name of the indicator.
@@ -204,6 +231,46 @@ class IndicatorBase : public Object {
   virtual string GetDescriptiveName() { return GetName(); }
 
   /**
+   * Traverses source indicators' hierarchy and tries to find OHLC-featured
+   * indicator. IndicatorCandle satisfies such requirements.
+   */
+  virtual IndicatorData* GetCandle(bool _warn_if_not_found = true, IndicatorData* _originator = nullptr) = 0;
+
+  /**
+   * Returns the number of bars on the chart decremented by iparams.shift.
+   */
+  virtual int GetBars() = 0;
+
+  /**
+   * Returns time of the bar for a given shift.
+   */
+  virtual datetime GetBarTime(int _rel_shift = 0) = 0;
+
+  /**
+   * Gets OHLC price values.
+   */
+  virtual BarOHLC GetOHLC(int _rel_shift = 0) = 0;
+
+  /**
+   * Returns the current price value given applied price type, symbol and timeframe.
+   */
+  virtual double GetPrice(ENUM_APPLIED_PRICE _ap, int _rel_shift = 0) = 0;
+
+  /**
+   * Returns spread for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  virtual int64 GetSpread(int _shift = 0) = 0;
+
+  /**
+   * Returns volume value for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  virtual int64 GetVolume(int _shift = 0) = 0;
+
+  /**
    * Returns indicator value for a given shift and mode.
    */
   // virtual double GetValue(int _shift = 0, int _mode = 0) = NULL;
@@ -214,7 +281,7 @@ class IndicatorBase : public Object {
   /*
   virtual bool HasValidEntry(int _index = 0) {
     unsigned int position;
-    long bar_time = GetBarTime(_index);
+    int64 bar_time = GetBarTime(_index);
     return bar_time > 0 && idata.KeyExists(bar_time, position) ? idata.GetByPos(position).IsValid() : false;
   }
   */

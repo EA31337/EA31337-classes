@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -24,9 +24,14 @@
  * Price getter version of ValueStorage.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../Chart.struct.h"
-#include "ObjectsCache.h"
+#include "../Platform/Chart/Chart.struct.h"
+#include "Cache/ObjectsCache.h"
 #include "ValueStorage.history.h"
 
 // Forward declarations.

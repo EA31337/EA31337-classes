@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,9 +20,14 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -71,7 +76,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
     }
 
     // VROC uses volume only.
-    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME);
   }
 
   /**
@@ -93,21 +98,21 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
    * Calculates VROC on the array of values.
    */
   static double iVROCOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, ENUM_APPLIED_VOLUME _av, int _mode,
-                             int _abs_shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+                             int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(
-        Indi_VROC::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _period, _av));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_VROC::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0), _period, _av));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -139,7 +144,7 @@ class Indi_VROC : public Indicator<IndiVROCParams> {
     return (rates_total);
   }
 
-  static void CalculateVROC(const int pos, const int rates_total, ValueStorage<long> &volume,
+  static void CalculateVROC(const int pos, const int rates_total, ValueStorage<int64> &volume,
                             ValueStorage<double> &ExtVROCBuffer, int ExtPeriodVROC) {
     for (int i = pos; i < rates_total && !IsStopped(); i++) {
       double prev_volume = (double)(volume[i - (ExtPeriodVROC - 1)].Get());

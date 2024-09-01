@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -67,32 +67,32 @@ class IndicatorTickSource : public Indicator<TS> {
     if (_input_mode == -1) {
       // Source mode which acts as an applied price wasn't selected, so we have to ensure that source is a Tick
       // indicator. Valid only if implements bid or ask price.
-      _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_BID) ||
-                 _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_ASK);
+      _result &= _indi.HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_BID) ||
+                 _indi.HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_ASK);
     } else {
       // Applied price selected. We will select source indicator only if it provides price buffer for given applied
       // price.
       switch (_input_mode) {
         case PRICE_OPEN:
-          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_OPEN);
+          _result &= _indi.HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_OPEN);
           break;
         case PRICE_HIGH:
-          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_HIGH);
+          _result &= _indi.HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_HIGH);
           break;
         case PRICE_LOW:
-          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_LOW);
+          _result &= _indi.HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_LOW);
           break;
         case PRICE_CLOSE:
-          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_CLOSE);
+          _result &= _indi.HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_CLOSE);
           break;
         case PRICE_MEDIAN:
-          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_MEDIAN);
+          _result &= _indi.HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_MEDIAN);
           break;
         case PRICE_TYPICAL:
-          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_TYPICAL);
+          _result &= _indi.HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_TYPICAL);
           break;
         case PRICE_WEIGHTED:
-          _result &= _indi.HasSpecificValueStorage(INDI_VS_TYPE_PRICE_WEIGHTED);
+          _result &= _indi.HasSpecificValueStorage(INDI_DATA_VS_TYPE_PRICE_WEIGHTED);
           break;
         default:
           Alert("Invalid input mode ", _input_mode, " for indicator ", _indi.GetFullName(),

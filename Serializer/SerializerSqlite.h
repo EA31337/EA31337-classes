@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,12 +20,13 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_SQL_MQH
-#define SERIALIZER_SQL_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "../Database.mqh"
+#include "../Storage/Database.h"
 #include "SerializerConverter.h"
 #include "SerializerCsv.h"
 
@@ -50,8 +51,8 @@ class SerializerSqlite {
   static bool ConvertToFile(SerializerConverter& source, string _path, string _table, unsigned int _stringify_flags = 0,
                             void* _stub = NULL) {
     // We must have titles tree as
-    MiniMatrix2d<string> _matrix_out;
-    MiniMatrix2d<SerializerNodeParamType> _column_types;
+    MatrixMini2d<string> _matrix_out;
+    MatrixMini2d<SerializerNodeParamType> _column_types;
     string _csv = SerializerCsv::Stringify(source.root_node, _stringify_flags | SERIALIZER_CSV_INCLUDE_TITLES, _stub,
                                            &_matrix_out, &_column_types);
 
@@ -79,17 +80,16 @@ class SerializerSqlite {
     }
 
     if (!_db.TableExists(_table)) {
-      if (!_db.CreateTable(_table, _db.GetTableSchema(_table))) {
+      DatabaseTableSchema _schema = _db.GetTableSchema(_table);
+      if (!_db.CreateTable(_table, _schema)) {
         return false;
       }
     }
 
-    if (!_db.ImportData(_table, _matrix_out)) {
+    if (!_db.Import(_table, _matrix_out)) {
       return false;
     }
 
     return true;
   }
 };
-
-#endif

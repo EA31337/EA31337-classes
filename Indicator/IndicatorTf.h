@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,17 +20,13 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_TF_H
-#define INDICATOR_TF_H
-
 #ifndef __MQL__
   // Allows the preprocessor to include a header file when it is needed.
   #pragma once
 #endif
 
 // Includes.
-#include "../Chart.struct.tf.h"
+#include "../Platform/Chart/Chart.struct.tf.h"
 #include "IndicatorCandle.h"
 #include "IndicatorTf.provider.h"
 
@@ -93,5 +89,3 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    */
   int GetTickIndex() override { return THIS_ATTR history.GetItemProvider() PTR_DEREF GetTickIndex(); }
 };
-
-#endif  // INDICATOR_TF_H

@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,13 +20,14 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_NODE_H
-#define SERIALIZER_NODE_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "../Math.extern.h"
-#include "../Terminal.define.h"
+#include "../Math/Math.extern.h"
+#include "../Platform/Terminal.define.h"
 #include "SerializerNode.enum.h"
 #include "SerializerNodeParam.h"
 
@@ -367,5 +368,3 @@ class SerializerNode {
     return repr;
   }
 };
-
-#endif  // SERIALIZER_NODE_H
