@@ -1,16 +1,19 @@
 ---
 name: Test Storage/Dict/Buffer
 
+env:
+  TEST_PATH: Storage/Dict/Buffer/tests
+
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - 'Storage/Dict/Buffer/**'
-      - '.github/workflows/test-storage-dict-buffer.yml'
+      - .github/workflows/test-storage-dict-buffer.yml
+      - Storage/Dict/Buffer/**
   push:
     paths:
-      - 'Storage/Dict/Buffer/**'
-      - '.github/workflows/test-storage-dict-buffer.yml'
+      - .github/workflows/test-storage-dict-buffer.yml
+      - Storage/Dict/Buffer/**
 
 jobs:
 
@@ -22,12 +25,12 @@ jobs:
       path: Storage/Dict/Buffer/tests
       skip_cleanup: true
 
-  Tests-MQL4:
+  test:
     defaults:
       run:
         shell: bash
-        working-directory: Storage/Dict/Buffer/tests
-    if: false
+        working-directory: ${{ env.TEST_PATH }}
+    name: Test
     needs: compile
     runs-on: ubuntu-latest
     strategy:
@@ -39,13 +42,34 @@ jobs:
           - BufferFXT.test
           - BufferStruct.test
           - BufferTick.test
+        version: [5]
+      max-parallel: 4
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: files-ex4
+          name: files-ex${{ matrix.version }}
+      - name: List compiled files
+        run: find . -name '*.ex?' -type f -print
       - name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          Script: ${{ matrix.test }}
-          RunOnError: show_logs 200
-    timeout-minutes: 10
+          Login: ${{ secrets.MT5_LOGIN }}
+          Password: ${{ secrets.MT5_PASSWORD }}
+          Server: MetaQuotes-Demo
+          TestDeposit: 2000
+          TestExpert: ${{ matrix.test }}
+          TestFromDate: ${{ matrix.year }}.01.01
+          TestPeriod: M1
+          TestSymbol: EURUSD
+          TestToDate: ${{ matrix.year }}.01.14
+          # yamllint disable-line rule:line-length
+          UrlExpert: file://${{ github.workspace }}/${{ env.TEST_PATH }}/${{ matrix.test }}.ex${{ matrix.version }}
+          Version: 5
+      - if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
+    timeout-minutes: 20
+
+  cleanup:
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml
