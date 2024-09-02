@@ -24,7 +24,7 @@ jobs:
     uses: ./.github/workflows/compile-mql.yml
     with:
       artifact_prefix: mt
-      path: Indicators/Price/tests
+      path: Indicators/PriceRange/tests
       skip_cleanup: true
 
   test:
