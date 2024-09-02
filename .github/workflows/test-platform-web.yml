@@ -1,16 +1,19 @@
 ---
 name: Test Platform/Web
 
+env:
+  TEST_PATH: Platform/Web/tests
+
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - 'Platform/Web/**'
-      - '.github/workflows/test-platform-web.yml'
+      - .github/workflows/test-platform-web.yml
+      - Platform/Web/**
   push:
     paths:
-      - 'Platform/Web/**'
-      - '.github/workflows/test-platform-web.yml'
+      - .github/workflows/test-platform-web.yml
+      - Platform/Web/**
 
 jobs:
 
@@ -22,12 +25,12 @@ jobs:
       path: Platform/Web/tests
       skip_cleanup: true
 
-  Tests-MQL4:
+  test:
     defaults:
       run:
         shell: bash
-        working-directory: Platform/Web/tests
-    if: false
+        working-directory: ${{ env.TEST_PATH }}
+    name: Test
     needs: compile
     runs-on: ubuntu-latest
     strategy:
@@ -35,14 +38,34 @@ jobs:
         test:
           # @fixme: GH-266
           - Web.test
+        version: [5]
+      max-parallel: 4
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: files-ex4
+          name: files-ex${{ matrix.version }}
+      - name: List compiled files
+        run: find . -name '*.ex?' -type f -print
       - name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          Script: ${{ matrix.test }}
-          RunOnFail: "exit 0"
-        if: always()
-    timeout-minutes: 10
+          Login: ${{ secrets.MT5_LOGIN }}
+          Password: ${{ secrets.MT5_PASSWORD }}
+          Server: MetaQuotes-Demo
+          TestDeposit: 2000
+          TestExpert: ${{ matrix.test }}
+          TestFromDate: ${{ matrix.year }}.01.01
+          TestPeriod: M1
+          TestSymbol: EURUSD
+          TestToDate: ${{ matrix.year }}.01.14
+          # yamllint disable-line rule:line-length
+          UrlExpert: file://${{ github.workspace }}/${{ env.TEST_PATH }}/${{ matrix.test }}.ex${{ matrix.version }}
+          Version: 5
+      - if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
+    timeout-minutes: 20
+
+  cleanup:
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml
