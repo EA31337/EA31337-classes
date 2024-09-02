@@ -25,9 +25,8 @@
  */
 
 // Defines.
-#ifdef __MQL5__
-#define USE_MQL_MATH_STAT
-#endif
+// Uncomment to use platform's Math library.
+// #define USE_MQL_MATH_STAT
 
 // Includes.
 #include "../Matrix.h"
