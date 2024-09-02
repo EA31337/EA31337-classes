@@ -8,12 +8,12 @@ env:
 on:
   pull_request:
     paths:
-      - '.github/workflows/test-exchange.yml'
+      - .github/workflows/test-exchange.yml
       - Exchange/**.h
       - Exchange/**.mq?
   push:
     paths:
-      - '.github/workflows/test-exchange.yml'
+      - .github/workflows/test-exchange.yml
       - Exchange/**.h
       - Exchange/**.mq?
 
