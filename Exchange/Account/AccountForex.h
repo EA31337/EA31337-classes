@@ -57,4 +57,56 @@ class AccountForex : public Account<AccountForexState, AccountForexEntry> {
    * Class deconstructor.
    */
   ~AccountForex() {}
+
+
+  /* Implementation of virtual methods */
+
+  /**
+   * Returns balance value of the current account.
+   */
+  float GetBalance() {
+    return 0.0f;
+  }
+
+  /**
+   * Returns credit value of the current account.
+   */
+  float GetCredit() {
+    return 0.0f;
+  }
+
+  /**
+   * Returns profit value of the current account.
+   */
+  float GetProfit() {
+    return 0.0f;
+  }
+
+  /**
+   * Returns equity value of the current account.
+   */
+  float GetEquity() {
+    return 0.0f;
+  }
+
+  /**
+   * Returns margin value of the current account.
+   */
+  float GetMarginUsed() {
+    return 0.0f;
+  }
+
+  /**
+   * Returns free margin value of the current account.
+   */
+  float GetMarginFree() {
+    return 0.0f;
+  }
+
+  /**
+   * Get account available margin.
+   */
+  float GetMarginAvail() {
+    return 0.0f;
+  }
 };
