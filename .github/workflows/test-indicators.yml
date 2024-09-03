@@ -117,7 +117,7 @@ jobs:
           - Indi_ZigZag.test
           - Indi_ZigZagColor.test
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: files-ex4
       - name: Run ${{ matrix.test }}
