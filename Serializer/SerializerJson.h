@@ -145,7 +145,8 @@ class SerializerJson {
     else if (StringGetCharacter(data, 0) == '[')
       ;
     else {
-      return GracefulReturn("Failed to parse JSON. It must start with either \"{\" or \"[\".", 0, NULL, NULL);
+      return GracefulReturn(
+          string(__FUNCTION__) + "(): Failed to parse JSON. It must start with either \"{\" or \"[\".", 0, NULL, NULL);
     }
 
     SerializerNode* root = NULL;
@@ -182,7 +183,7 @@ class SerializerJson {
         extracted = ExtractString(data, i + 1);
 
         if (extracted == "") {
-          return GracefulReturn("Unexpected end of file when parsing string", i, root, key);
+          return GracefulReturn(string(__FUNCTION__) + "(): Unexpected end of file when parsing string", i, root, key);
         }
         if (expectingKey) {
           key = SerializerNodeParam::FromString(extracted);
@@ -193,31 +194,33 @@ class SerializerJson {
                                                               ? SerializerNodeObjectProperty
                                                               : SerializerNodeArrayItem,
                                                           current, key, SerializerNodeParam::FromString(extracted))));
+          // Key is in use so we don't want to delete it.
+          key = NULL;
 
-#ifdef __debug__
-          Print("SerializerJson: Value \"" + extracted + "\" for key " +
+#ifdef __debug_serializer__
+          Print(string(__FUNCTION__) + "(): Value \"" + extracted + "\" for key " +
                 (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
           expectingValue = false;
         } else {
-          return GracefulReturn("Unexpected '\"' symbol", i, root, key);
+          return GracefulReturn(string(__FUNCTION__) + "(): Unexpected '\"' symbol", i, root, key);
         }
 
         // Skipping double quotes.
         i += StringLen(extracted) + 1;
       } else if (expectingSemicolon) {
         if (ch != ':') {
-          return GracefulReturn("Expected semicolon", i, root, key);
+          return GracefulReturn(string(__FUNCTION__) + "(): Expected semicolon", i, root, key);
         }
         expectingSemicolon = false;
         expectingValue = true;
       } else if (ch == '{') {
         if (expectingKey) {
-          return GracefulReturn("Cannot use object as a key", i, root, key);
+          return GracefulReturn(string(__FUNCTION__) + "(): Cannot use object as a key", i, root, key);
         }
 
-#ifdef __debug__
+#ifdef __debug_serializer__
         Print("SerializerJson: Entering object for key " +
               (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
@@ -232,14 +235,15 @@ class SerializerJson {
 
         expectingValue = false;
         expectingKey = ch2 != '}';
+        // Key is in use so we don't want to delete it.
         key = NULL;
       } else if (ch == '}') {
         if (expectingKey || expectingValue || PTR_ATTRIB(current, GetType()) != SerializerNodeObject) {
-          return GracefulReturn("Unexpected end of object", i, root, key);
+          return GracefulReturn(string(__FUNCTION__) + "(): Unexpected end of object", i, root, key);
         }
 
-#ifdef __debug__
-        Print("SerializerJson: Leaving object for key " +
+#ifdef __debug_serializer__
+        Print(string(__FUNCTION__) + "(): Leaving object for key " +
               (current != NULL && current PTR_DEREF GetKeyParam() != NULL
                    ? ("\"" + current PTR_DEREF GetKeyParam() PTR_DEREF ToString() + "\"")
                    : "<none>"));
@@ -248,13 +252,13 @@ class SerializerJson {
         current = PTR_ATTRIB(current, GetParent());
         expectingValue = false;
       } else if (ch == '[') {
-#ifdef __debug__
-        Print("SerializerJson: Entering list for key " +
+#ifdef __debug_serializer__
+        Print(string(__FUNCTION__) + "(): Entering list for key " +
               (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
         if (expectingKey) {
-          return GracefulReturn("Cannot use array as a key", i, root, key);
+          return GracefulReturn(string(__FUNCTION__) + "(): Cannot use array as a key", i, root, key);
         }
 
         node = new SerializerNode(SerializerNodeArray, current, key);
@@ -265,32 +269,33 @@ class SerializerJson {
 
         current = node;
         expectingValue = ch2 != ']';
+        // Key is in use so we don't want to delete it.
         key = NULL;
       } else if (ch == ']') {
-#ifdef __debug__
-        Print("SerializerJson: Leaving list for key " +
+#ifdef __debug_serializer__
+        Print(string(__FUNCTION__) + "(): Leaving list for key " +
               (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
         if (expectingKey || expectingValue || PTR_ATTRIB(current, GetType()) != SerializerNodeArray) {
-          return GracefulReturn("Unexpected end of array", i, root, key);
+          return GracefulReturn(string(__FUNCTION__) + "(): Unexpected end of array", i, root, key);
         }
 
         current = PTR_ATTRIB(current, GetParent());
         expectingValue = false;
       } else if (ch >= '0' && ch <= '9') {
         if (!expectingValue) {
-          return GracefulReturn("Unexpected numeric value", i, root, key);
+          return GracefulReturn(string(__FUNCTION__) + "(): Unexpected numeric value", i, root, key);
         }
 
         if (!ExtractNumber(data, i, extracted)) {
-          return GracefulReturn("Cannot parse numeric value", i, root, key);
+          return GracefulReturn(string(__FUNCTION__) + "(): Cannot parse numeric value", i, root, key);
         }
 
         value = StringFind(extracted, ".") != -1 ? SerializerNodeParam::FromValue(StringToDouble(extracted))
                                                  : SerializerNodeParam::FromValue(StringToInteger(extracted));
-#ifdef __debug__
-        Print("SerializerJson: Value " + value PTR_DEREF AsString() + " for key " +
+#ifdef __debug_serializer__
+        Print(string(__FUNCTION__) + "(): Value " + value PTR_DEREF AsString() + " for key " +
               (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
@@ -303,16 +308,16 @@ class SerializerJson {
         // Skipping value.
         i += StringLen(extracted) - 1;
 
-        // We don't want to delete it twice.
+        // Key is in use so we don't want to delete it.
         key = NULL;
       } else if (ch == 't' || ch == 'f') {
         // Assuming true/false.
 
         value = SerializerNodeParam::FromValue(ch == 't' ? true : false);
 
-#ifdef __debug__
-        Print(string("SerializerJson: Value ") + (value PTR_DEREF ToBool() ? "true" : "false") + " for key " +
-              (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
+#ifdef __debug_serializer__
+        Print(string(string(__FUNCTION__) + "(): Value ") + (value PTR_DEREF ToBool() ? "true" : "false") +
+              " for key " + (key != NULL ? ("\"" + key PTR_DEREF ToString() + "\"") : "<none>"));
 #endif
 
         // Skipping value.
@@ -324,11 +329,11 @@ class SerializerJson {
                                                         current, key, value)));
         expectingValue = false;
 
-        // We don't want to delete it twice.
+        // Key is in use so we don't want to delete it.
         key = NULL;
       } else if (ch == ',') {
         if (expectingKey || expectingValue || expectingSemicolon) {
-          return GracefulReturn("Unexpected comma", i, root, key);
+          return GracefulReturn(string(__FUNCTION__) + "(): Unexpected comma", i, root, key);
         }
 
         if (PTR_ATTRIB(current, GetType()) == SerializerNodeObject)
@@ -338,7 +343,9 @@ class SerializerJson {
       }
     }
 
-    if (key) delete key;
+    if (key) {
+      delete key;
+    }
 
     return root;
   }

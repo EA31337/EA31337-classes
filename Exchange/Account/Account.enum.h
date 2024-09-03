@@ -50,6 +50,20 @@ enum ENUM_ACC_STAT_TYPE { ACC_VALUE_MIN = 0, ACC_VALUE_MAX = 1, ACC_VALUE_AVG = 
 /* Account type of index for statistics. */
 enum ENUM_ACC_STAT_INDEX { ACC_VALUE_CURR = 0, ACC_VALUE_PREV = 1, FINAL_ENUM_ACC_STAT_INDEX = 2 };
 
+#ifndef __MQL5__
+/**
+ * Enumeration for the margin modes.
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_MARGIN_MODE {
+  ACCOUNT_MARGIN_MODE_RETAIL_NETTING,  // Used for the OTC markets to interpret positions in the "netting" mode.
+  ACCOUNT_MARGIN_MODE_EXCHANGE,        // Used for the exchange markets.
+  ACCOUNT_MARGIN_MODE_RETAIL_HEDGING,  // Used for the exchange markets where individual positions are possible.
+};
+#endif
+
 #ifndef __MQL__
 /**
  * Enumeration for the current account double values.
@@ -147,3 +161,33 @@ enum ENUM_ACCOUNT_STOPOUT_MODE {
   ACCOUNT_STOPOUT_MODE_MONEY,    // Account stop out mode in money.
 };
 #endif
+
+/**
+ * Enumeration for the account integer param values.
+ *
+ * Used for function AccountInfoInteger().
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_PARAM_INTEGER {
+  ACCOUNT_PARAM_LOGIN = ACCOUNT_LOGIN,                // Account number (long).
+  ACCOUNT_PARAM_TRADE_MODE = ACCOUNT_TRADE_MODE,      // Account trade mode (ENUM_ACCOUNT_TRADE_MODE).
+  ACCOUNT_PARAM_LEVERAGE = ACCOUNT_LEVERAGE,          // Account leverage (long).
+  ACCOUNT_PARAM_LIMIT_ORDERS = ACCOUNT_LIMIT_ORDERS,  // Maximum allowed number of active pending orders (int).
+  ACCOUNT_PARAM_MARGIN_SO_MODE =
+      ACCOUNT_MARGIN_SO_MODE,  // Mode for setting the minimal allowed margin (ENUM_ACCOUNT_STOPOUT_MODE).
+  ACCOUNT_PARAM_TRADE_ALLOWED = ACCOUNT_TRADE_ALLOWED,  // Allowed trade for the current account (bool).
+  ACCOUNT_PARAM_TRADE_EXPERT = ACCOUNT_TRADE_EXPERT,    // Allowed trade for an Expert Advisor (bool).
+#ifdef __MQL5__
+  ACCOUNT_PARAM_MARGIN_MODE = ACCOUNT_MARGIN_MODE,  // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
+  ACCOUNT_PARAM_CURRENCY_DIGITS =
+      ACCOUNT_CURRENCY_DIGITS,  // The number of decimal places in the account currency (int).
+  ACCOUNT_PARAM_FIFO_CLOSE =
+      ACCOUNT_FIFO_CLOSE,  // An indication showing that positions can only be closed by FIFO rule (bool).
+#else
+  ACCOUNT_PARAM_MARGIN_MODE = 7,  // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
+  ACCOUNT_PARAM_CURRENCY_DIGITS,  // The number of decimal places in the account currency (int).
+  ACCOUNT_PARAM_FIFO_CLOSE,       // An indication showing that positions can only be closed by FIFO rule (bool).
+#endif
+};

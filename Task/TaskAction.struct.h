@@ -30,10 +30,10 @@
 #endif
 
 // Includes.
-#include "../Storage/Data.struct.h"
+#include "../Platform/Terminal.define.h"
 #include "../Serializer/Serializer.define.h"
 #include "../Std.h"
-#include "../Platform/Terminal.define.h"
+#include "../Storage/Data.struct.h"
 #include "Task.enum.h"
 
 // Forward declarations.
@@ -99,6 +99,7 @@ struct TaskActionEntry {
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // State methods.
+  bool HasArgs() const { return ::ArraySize(args) > 0; }
   bool HasTriesLeft() const { return tries > 0 || tries == -1; }
   bool IsActive() const { return HasFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_ACTIVE)); }
   bool IsDone() const { return HasFlag(STRUCT_ENUM(TaskActionEntry, TASK_ACTION_ENTRY_FLAG_IS_DONE)); }
@@ -126,7 +127,13 @@ struct TaskActionEntry {
     SetUserError(ERR_INVALID_PARAMETER);
     return InvalidEnumValue<STRUCT_ENUM(TaskActionEntry, ENUM_TASK_ACTION_ENTRY_PROP)>::value();
   }
-  DataParamEntry GetArg(int _index) const { return args[_index]; }
+  DataParamEntry GetArg(int _index) const {
+    if (_index < 0 || _index >= ArraySize(args)) {
+      Alert(string("Error at ") + __FUNCSIG__ + ": index " + IntegerToString(_index) + " is out of bounds. There are " +
+            IntegerToString(ArraySize(args)) + " arguments in the task action.");
+    }
+    return args[_index];
+  }
   int GetId() const { return id; }
   // Setters.
   void TriesDec() {

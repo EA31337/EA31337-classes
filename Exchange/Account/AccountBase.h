@@ -27,6 +27,8 @@
 
 // Includes.
 #include "../../Refs.mqh"
+#include "../../Serializer/SerializerConverter.h"
+#include "../../Serializer/SerializerJson.h"
 #include "AccountBase.struct.h"
 
 /**
@@ -56,6 +58,20 @@ class AccountBase : public Dynamic {
    * Class deconstructor.
    */
   ~AccountBase() {}
+
+  /* Printer methods */
+
+  /**
+   * Returns textual representation of the object instance.
+   */
+  virtual string ToString() { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  virtual SerializerNodeType Serialize(Serializer &_s) = 0;
 
   /* Virtual methods */
 

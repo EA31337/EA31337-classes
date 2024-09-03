@@ -4,7 +4,7 @@
 
 ```mermaid
 classDiagram
-  Dynamic <|-- Exchange
+  Taskable <|-- Exchange
   Exchange: Account[]
   Exchange: Symbol[]
   Exchange: Trade[]

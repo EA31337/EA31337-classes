@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Includes Exchange's structs.
+ * Includes Platform's structs.
  */
 
 #ifndef __MQL__
@@ -33,33 +33,33 @@
 // Includes.
 #include "../Serializer/SerializerNode.enum.h"
 
-/* Defines struct for Exchange parameters. */
-struct ExchangeParams {
+/* Defines struct for Platform parameters. */
+struct PlatformParams {
  private:
   int id;
   string name;
 
  public:
-  // Enumeration of exchange parameters.
-  enum ENUM_EXCHANGE_PARAM {
-    EXCHANGE_PARAM_ID = 1,  // ID
-    EXCHANGE_PARAM_NAME,    // Name
-    FINAL_ENUM_EXCHANGE_PARAM_ENTRY
+  // Enumeration of platform parameters.
+  enum ENUM_PLATFORM_PARAM {
+    PLATFORM_PARAM_ID = 1,  // ID
+    PLATFORM_PARAM_NAME,    // Name
+    FINAL_ENUM_PLATFORM_PARAM_ENTRY
   };
-#define ENUM_EXCHANGE_PARAM STRUCT_ENUM(ExchangeParams, ENUM_EXCHANGE_PARAM)
+#define ENUM_PLATFORM_PARAM STRUCT_ENUM(PlatformParams, ENUM_PLATFORM_PARAM)
  public:
   // Constructors.
-  ExchangeParams(int _id = 0, string _name = "") : id(_id), name(_name) {}
-  ExchangeParams(const ExchangeParams &_eparams) { THIS_REF = _eparams; }
-  ExchangeParams(string _entry) { SerializerConverter::FromString<SerializerJson>(_entry).ToStruct(THIS_REF); }
+  PlatformParams() {}
+  PlatformParams(const PlatformParams &_eparams) { THIS_REF = _eparams; }
+  PlatformParams(string _entry) { SerializerConverter::FromString<SerializerJson>(_entry).ToStruct(THIS_REF); }
   // Getters.
   template <typename T>
-  T Get(ENUM_EXCHANGE_PARAM _param) {
+  T Get(ENUM_PLATFORM_PARAM _param) {
     switch (_param) {
-      case EXCHANGE_PARAM_ID:
+      case PLATFORM_PARAM_ID:
         return (T)id;
-      case EXCHANGE_PARAM_NAME:
-        // return (T)name; // @todo
+      case PLATFORM_PARAM_NAME:
+        return (T)name;
       default:
         break;
     }
@@ -70,10 +70,10 @@ struct ExchangeParams {
   template <typename T>
   void Set(ENUM_TRADE_PARAM _param, T _value) {
     switch (_param) {
-      case EXCHANGE_PARAM_ID:
+      case PLATFORM_PARAM_ID:
         ConvertBasic::Convert(_value, id);
         return;
-      case EXCHANGE_PARAM_NAME:
+      case PLATFORM_PARAM_NAME:
         ConvertBasic::Convert(_value, name);
         return;
       default:

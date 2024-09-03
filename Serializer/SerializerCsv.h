@@ -115,7 +115,7 @@ class SerializerCsv {
       }
     }
 
-#ifdef __debug_verbose__
+#ifdef __debug_serializer__
     Print("Stub: ", _stub PTR_DEREF Node() PTR_DEREF ToString());
     Print("Data: ", _root PTR_DEREF ToString());
     Print("Size: ", _num_columns, " x ", _num_rows);

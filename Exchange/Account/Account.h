@@ -28,6 +28,7 @@
 // Includes.
 #include "../../Serializer/Serializer.h"
 #include "../../Storage/Dict/Buffer/BufferStruct.h"
+#include "Account.struct.h"
 #include "AccountBase.h"
 
 /**
@@ -36,6 +37,7 @@
 template <typename AS, typename AE>
 class Account : public AccountBase {
  protected:
+  AccountParams aparams;
   AS state;
   BufferStruct<AE> entries;
 
@@ -53,7 +55,30 @@ class Account : public AccountBase {
   Account() { Init(); }
 
   /**
+   * Class constructor with parameters.
+   */
+  Account(AccountParams &_aparams) : aparams(_aparams) { Init(); }
+
+  /**
+   * Class copy constructor.
+   */
+  Account(Account &_account) {
+    state = _account.state;
+    // @todo: Copy entries.
+  }
+
+  /**
    * Class deconstructor.
    */
   ~Account() {}
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  virtual SerializerNodeType Serialize(Serializer &_s) {
+    _s.PassStruct(THIS_REF, "state", state);
+    return SerializerNodeObject;
+  }
 };

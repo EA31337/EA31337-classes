@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
@@ -20,41 +20,30 @@
  *
  */
 
+// Prevents processing this includes file for the second time.
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
 #pragma once
 #endif
 
-// Includes.
-#include "../../Serializer/Serializer.h"
-#include "Account.h"
-#include "AccountForex.struct.h"
+#include "../Refs.struct.h"
 
-/**
- * Class to provide functions that return parameters of the current account.
- */
-class AccountForex : public Account<AccountForexState, AccountForexEntry> {
- protected:
-  /**
-   * Init code (called on constructor).
-   */
-  void Init() {
-    // ...
+template <typename T>
+#ifdef __MQL__
+template <>
+SerializerNodeType Ref::Serialize(Serializer& s) {
+#else
+SerializerNodeType Ref<T>::Serialize(Serializer& s) {
+#endif
+  if (s.IsWriting()) {
+    if (Ptr() == nullptr) {
+      // Missing object!
+      Alert("Error: Ref<T> serialization is supported only for non-null references!");
+      DebugBreak();
+      return SerializerNodeObject;
+    }
+    return Ptr() PTR_DEREF Serialize(s);
+  } else {
+    // Reading.
+    return Ptr() PTR_DEREF Serialize(s);
   }
-
- public:
-  /**
-   * Class constructor.
-   */
-  AccountForex() { Init(); }
-
-  /**
-   * Class constructor with account params.
-   */
-  AccountForex(AccountParams &_aparams) : Account<AccountForexState, AccountForexEntry>(_aparams) { Init(); }
-
-  /**
-   * Class deconstructor.
-   */
-  ~AccountForex() {}
-};
+}

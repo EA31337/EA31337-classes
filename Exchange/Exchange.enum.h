@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
@@ -20,41 +20,25 @@
  *
  */
 
+/**
+ * @file
+ * Includes Exchange's enumerations.
+ */
+
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
 #endif
 
-// Includes.
-#include "../../Serializer/Serializer.h"
-#include "Account.h"
-#include "AccountForex.struct.h"
+// Exchange actions.
+enum ENUM_EXCHANGE_ACTION {
+  EXCHANGE_ACTION_ADD_ACCOUNT = 1,  // Add Account
+  EXCHANGE_ACTION_ADD_SYMBOL,       // Add Symbol
+  FINAL_ENUM_EXCHANGE_ACTION_ENTRY
+};
 
-/**
- * Class to provide functions that return parameters of the current account.
- */
-class AccountForex : public Account<AccountForexState, AccountForexEntry> {
- protected:
-  /**
-   * Init code (called on constructor).
-   */
-  void Init() {
-    // ...
-  }
-
- public:
-  /**
-   * Class constructor.
-   */
-  AccountForex() { Init(); }
-
-  /**
-   * Class constructor with account params.
-   */
-  AccountForex(AccountParams &_aparams) : Account<AccountForexState, AccountForexEntry>(_aparams) { Init(); }
-
-  /**
-   * Class deconstructor.
-   */
-  ~AccountForex() {}
+// Exchange conditions.
+enum ENUM_EXCHANGE_CONDITION {
+  EXCHANGE_COND_IS_ACTIVE = 1,  // Is active
+  FINAL_ENUM_EXCHANGE_CONDITION_ENTRY
 };

@@ -27,17 +27,23 @@
 
 // Includes.
 #include "../Exchange/SymbolInfo/SymbolInfo.h"
+#include "../Serializer/Serializer.h"
 #include "../Storage/Dict/DictObject.h"
+#include "../Storage/State.struct.h"
+#include "../Task/TaskManager.h"
+#include "../Task/Taskable.h"
 #include "../Trade.mqh"
-#include "Account/Account.h"
+#include "Account/AccountForex.h"
+#include "Exchange.enum.h"
 #include "Exchange.struct.h"
 
-class Exchange : public Dynamic {
+class Exchange : public Taskable<DataParamEntry> {
  protected:
-  DictStruct<string, Ref<AccountBase>> accounts;
+  DictStruct<int, Ref<AccountBase>> accounts;
   DictStruct<string, Ref<SymbolInfo>> symbols;
   DictStruct<string, Ref<Trade>> trades;
   ExchangeParams eparams;
+  State estate;
 
  public:
   /**
@@ -60,9 +66,17 @@ class Exchange : public Dynamic {
   /**
    * Adds account instance to the list.
    */
-  void AccountAdd(AccountBase *_account, string _name) {
+  void AccountAdd(AccountBase *_account, int _id = 0) {
     Ref<AccountBase> _ref = _account;
-    accounts.Set(_name, _ref);
+    accounts.Set(_id, _ref);
+  }
+
+  /**
+   * Adds account instance to the list.
+   */
+  void AccountAdd(AccountParams &_aparams) {
+    AccountBase *_account = new AccountForex(/*_aparams*/);
+    AccountAdd(_account);
   }
 
   /**
@@ -81,12 +95,24 @@ class Exchange : public Dynamic {
     trades.Set(_name, _ref);
   }
 
+  /* Getters */
+
+  /**
+   * Gets DictStruct reference to accounts.
+   */
+  DictStruct<int, Ref<AccountBase>> *GetAccounts() { return GetPointer(accounts); }
+
+  /**
+   * Gets DictStruct reference to symbols.
+   */
+  DictStruct<string, Ref<SymbolInfo>> *GetSymbols() { return GetPointer(symbols); }
+
   /* Removers */
 
   /**
    * Removes account instance from the list.
    */
-  void AccountRemove(string _name) { accounts.Unset(_name); }
+  void AccountRemove(int _id) { accounts.Unset(_id); }
 
   /**
    * Removes symbol instance from the list.
@@ -97,4 +123,84 @@ class Exchange : public Dynamic {
    * Removes trade instance from the list.
    */
   void TradeRemove(string _name) { trades.Unset(_name); }
+
+  /* Taskable methods */
+
+  /**
+   * Checks a condition.
+   */
+  bool Check(const TaskConditionEntry &_entry) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Gets a data param entry.
+   */
+  DataParamEntry Get(const TaskGetterEntry &_entry) {
+    DataParamEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  bool Run(const TaskActionEntry &_entry) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      case EXCHANGE_ACTION_ADD_ACCOUNT:
+        if (!_entry.HasArgs()) {
+          AccountAdd(new AccountForex());
+        } else {
+          AccountParams _aparams(_entry.GetArg(0).ToString());
+          Ref<AccountBase> _account1_ref = new AccountForex(_aparams);
+          accounts.Set(_aparams.Get<int>(ACCOUNT_PARAM_LOGIN), _account1_ref);
+        }
+        break;
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Sets an entry value.
+   */
+  bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.PassStruct(THIS_REF, "eparams", eparams);
+    _s.PassStruct(THIS_REF, "accounts", accounts);
+    //_s.PassStruct(THIS_REF, "symbols", symbols);
+    //_s.PassStruct(THIS_REF, "trades", trades);
+    return SerializerNodeObject;
+  }
+
+  /**
+   * Returns textual representation of the object instance.
+   */
+  string ToString() { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 };
