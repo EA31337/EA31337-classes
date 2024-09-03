@@ -64,7 +64,7 @@ class AccountBase : public Dynamic {
   /**
    * Returns textual representation of the object instance.
    */
-  virtual string ToString() { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
+  virtual string ToString() const { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 
   /* Serializers */
 

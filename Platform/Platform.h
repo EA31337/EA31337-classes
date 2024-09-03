@@ -630,7 +630,7 @@ class Platform : public Taskable<DataParamEntry> {
   /**
    * Returns textual representation of the object instance.
    */
-  string ToString() { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
+  string ToString() const { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 };
 
 bool Platform::initialized = false;
