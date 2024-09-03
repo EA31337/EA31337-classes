@@ -75,7 +75,7 @@ class Exchange : public Taskable<DataParamEntry> {
    * Adds account instance to the list.
    */
   void AccountAdd(AccountParams &_aparams) {
-    AccountBase *_account = new AccountForex(/*_aparams*/);
+    AccountBase *_account = new AccountForex(_aparams);
     AccountAdd(_account);
   }
 
@@ -191,7 +191,7 @@ class Exchange : public Taskable<DataParamEntry> {
   /**
    * Returns serialized representation of the object instance.
    */
-  SerializerNodeType Serialize(Serializer &_s) {
+  SerializerNodeType Serialize(Serializer &_s) const {
     _s.PassStruct(THIS_REF, "eparams", eparams);
     _s.PassStruct(THIS_REF, "accounts", accounts);
     //_s.PassStruct(THIS_REF, "symbols", symbols);

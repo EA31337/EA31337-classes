@@ -621,7 +621,7 @@ class Platform : public Taskable<DataParamEntry> {
   /**
    * Returns serialized representation of the object instance.
    */
-  SerializerNodeType Serialize(Serializer &_s) {
+  SerializerNodeType Serialize(Serializer &_s) const {
     _s.PassStruct(THIS_REF, "params", pparams);
     //_s.PassStruct(THIS_REF, "exchanges", exchanges);
     return SerializerNodeObject;

@@ -37,40 +37,60 @@ class AccountDummy : public AccountBase {
   /**
    * Returns balance value of the current account.
    */
-  float GetBalance() { return 0; }
+  float GetBalance() const { return 0; }
 
   /**
    * Returns credit value of the current account.
    */
-  float GetCredit() { return 0; }
+  float GetCredit() const { return 0; }
 
   /**
    * Returns profit value of the current account.
    */
-  float GetProfit() { return 0; }
+  float GetProfit() const { return 0; }
 
   /**
    * Returns equity value of the current account.
    */
-  float GetEquity() { return 0; }
+  float GetEquity() const { return 0; }
 
   /**
    * Returns margin value of the current account.
    */
-  float GetMarginUsed() { return 0; }
+  float GetMarginUsed() const { return 0; }
 
   /**
    * Returns free margin value of the current account.
    */
-  float GetMarginFree() { return 0; }
+  float GetMarginFree() const { return 0; }
 
   /**
    * Get account available margin.
    */
-  float GetMarginAvail() { return 0; }
+  float GetMarginAvail() const { return 0; }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  virtual SerializerNodeType Serialize(Serializer &_s) const {
+    return SerializerNodeObject;
+  }
 };
 
-class ExchangeDummy : public Exchange {};
+class ExchangeDummy : public Exchange {
+ public:
+  /**
+   * Class constructor without parameters.
+   */
+  ExchangeDummy(){};
+
+  /**
+   * Class constructor with parameters.
+   */
+  ExchangeDummy(ExchangeParams &_eparams) { eparams = _eparams; };
+};
 class SymbolDummy : public SymbolInfo {};
 class TradeDummy : public Trade {
  public:
@@ -89,8 +109,8 @@ bool TestExchange01() {
   // Attach instances of dummy accounts.
   Ref<AccountDummy> account01 = new AccountDummy();
   Ref<AccountDummy> account02 = new AccountDummy();
-  exchange REF_DEREF AccountAdd(account01.Ptr(), "Account01");
-  exchange REF_DEREF AccountAdd(account02.Ptr(), "Account02");
+  exchange REF_DEREF AccountAdd(account01.Ptr(), 0);
+  exchange REF_DEREF AccountAdd(account02.Ptr(), 1);
 
   // Attach instances of dummy symbols.
   Ref<SymbolDummy> symbol01 = new SymbolDummy();

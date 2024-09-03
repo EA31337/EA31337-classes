@@ -64,49 +64,49 @@ class AccountForex : public Account<AccountForexState, AccountForexEntry> {
   /**
    * Returns balance value of the current account.
    */
-  float GetBalance() {
+  float GetBalance() const {
     return 0.0f;
   }
 
   /**
    * Returns credit value of the current account.
    */
-  float GetCredit() {
+  float GetCredit() const {
     return 0.0f;
   }
 
   /**
    * Returns profit value of the current account.
    */
-  float GetProfit() {
+  float GetProfit() const {
     return 0.0f;
   }
 
   /**
    * Returns equity value of the current account.
    */
-  float GetEquity() {
+  float GetEquity() const {
     return 0.0f;
   }
 
   /**
    * Returns margin value of the current account.
    */
-  float GetMarginUsed() {
+  float GetMarginUsed() const {
     return 0.0f;
   }
 
   /**
    * Returns free margin value of the current account.
    */
-  float GetMarginFree() {
+  float GetMarginFree() const {
     return 0.0f;
   }
 
   /**
    * Get account available margin.
    */
-  float GetMarginAvail() {
+  float GetMarginAvail() const {
     return 0.0f;
   }
 };

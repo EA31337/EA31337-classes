@@ -84,16 +84,16 @@ class AccountMt : public AccountBase {
    * @return
    *  Returns account entry.
    */
-  AccountEntry GetEntry() {
+  AccountEntry GetEntry() const {
     AccountEntry _entry;
-    _entry.dtime = TimeCurrent();
-    _entry.balance = GetBalance();
-    _entry.credit = GetCredit();
-    _entry.equity = GetEquity();
-    _entry.profit = GetProfit();
-    _entry.margin_used = GetMarginUsed();
-    _entry.margin_free = GetMarginFree();
-    _entry.margin_avail = GetMarginAvail();
+    _entry.dtime = AccountMt::GetDateTime();
+    _entry.balance = AccountMt::GetBalance();
+    _entry.credit = AccountMt::GetCredit();
+    _entry.equity = AccountMt::GetEquity();
+    _entry.profit = AccountMt::GetProfit();
+    _entry.margin_used = AccountMt::GetMarginUsed();
+    _entry.margin_free = AccountMt::GetMarginFree();
+    _entry.margin_avail = AccountMt::GetMarginAvail();
     return _entry;
   }
 
@@ -112,7 +112,7 @@ class AccountMt : public AccountBase {
    * Returns the current account name.
    */
   static string AccountName() { return AccountInfoString(ACCOUNT_NAME); }
-  string GetAccountName() { return AccountName(); }
+  string GetAccountName() const { return AccountName(); }
 
   /**
    * Returns the connected server name.
@@ -124,13 +124,13 @@ class AccountMt : public AccountBase {
    * Returns currency name of the current account.
    */
   static string AccountCurrency() { return AccountInfoString(ACCOUNT_CURRENCY); }
-  string GetCurrency() { return AccountCurrency(); }
+  string GetCurrency() const { return AccountCurrency(); }
 
   /**
    * Returns the brokerage company name where the current account was registered.
    */
   static string AccountCompany() { return AccountInfoString(ACCOUNT_COMPANY); }
-  string GetCompanyName() { return AccountCompany(); }
+  string GetCompanyName() const { return AccountCompany(); }
 
   /* Double getters */
 
@@ -138,7 +138,7 @@ class AccountMt : public AccountBase {
    * Returns balance value of the current account.
    */
   static double AccountBalance() { return AccountInfoDouble(ACCOUNT_BALANCE); }
-  float GetBalance() override {
+  float GetBalance() const override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_BALANCE, AccountBalance());
     return (float)AccountMt::AccountBalance();
@@ -148,7 +148,7 @@ class AccountMt : public AccountBase {
    * Returns credit value of the current account.
    */
   static double AccountCredit() { return AccountInfoDouble(ACCOUNT_CREDIT); }
-  float GetCredit() override {
+  float GetCredit() const override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_CREDIT, AccountCredit());
     return (float)AccountMt::AccountCredit();
@@ -158,7 +158,7 @@ class AccountMt : public AccountBase {
    * Returns profit value of the current account.
    */
   static double AccountProfit() { return AccountInfoDouble(ACCOUNT_PROFIT); }
-  float GetProfit() override {
+  float GetProfit() const override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_PROFIT, AccountProfit());
     return (float)AccountMt::AccountProfit();
@@ -168,7 +168,7 @@ class AccountMt : public AccountBase {
    * Returns equity value of the current account.
    */
   static double AccountEquity() { return AccountInfoDouble(ACCOUNT_EQUITY); }
-  float GetEquity() override {
+  float GetEquity() const override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_EQUITY, AccountEquity());
     return (float)AccountMt::AccountEquity();
@@ -178,7 +178,7 @@ class AccountMt : public AccountBase {
    * Returns margin value of the current account.
    */
   static double AccountMargin() { return AccountInfoDouble(ACCOUNT_MARGIN); }
-  float GetMarginUsed() {
+  float GetMarginUsed() const {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_USED, AccountMargin());
     return (float)AccountMt::AccountMargin();
@@ -200,7 +200,7 @@ class AccountMt : public AccountBase {
    * Returns free margin value of the current account.
    */
   static double AccountFreeMargin() { return AccountInfoDouble(ACCOUNT_MARGIN_FREE); }
-  float GetMarginFree() override {
+  float GetMarginFree() const override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
     return (float)AccountMt::AccountFreeMargin();
@@ -212,7 +212,7 @@ class AccountMt : public AccountBase {
    * @return
    *   Account's free margin in percentage.
    */
-  double GetMarginFreeInPct() {
+  double GetMarginFreeInPct() const {
     double _margin_free = GetMarginFree();
     double _margin_avail = GetMarginAvail();
     return _margin_avail > 0 ? 100 / _margin_avail * _margin_free : 0;
@@ -222,19 +222,19 @@ class AccountMt : public AccountBase {
    * Returns the current account number.
    */
   static int64 AccountNumber() { return AccountInfoInteger(ACCOUNT_LOGIN); }
-  int64 GetLogin() { return AccountNumber(); }
+  int64 GetLogin() const { return AccountNumber(); }
 
   /**
    * Returns leverage of the current account.
    */
   static int64 AccountLeverage() { return AccountInfoInteger(ACCOUNT_LEVERAGE); }
-  int64 GetLeverage() { return AccountLeverage(); }
+  int64 GetLeverage() const { return AccountLeverage(); }
 
   /**
    * Returns the calculation mode for the Stop Out level.
    */
   static int AccountStopoutMode() { return (int)AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE); }
-  int GetStopoutMode() { return AccountStopoutMode(); }
+  int GetStopoutMode() const { return AccountStopoutMode(); }
 
   /**
    * Returns the value of the Stop Out level.
@@ -243,7 +243,7 @@ class AccountMt : public AccountBase {
    * is expressed in percents or in the deposit currency.
    */
   static double AccountStopoutLevel() { return AccountInfoDouble(ACCOUNT_MARGIN_SO_SO); }
-  double GetStopoutLevel() { return AccountStopoutLevel(); }
+  double GetStopoutLevel() const { return AccountStopoutLevel(); }
 
   /**
    * Get a maximum allowed number of active pending orders set by broker.
@@ -252,7 +252,7 @@ class AccountMt : public AccountBase {
    *   Returns the limit orders (0 for unlimited).
    */
   static int64 AccountLimitOrders() { return AccountInfoInteger(ACCOUNT_LIMIT_ORDERS); }
-  int64 GetLimitOrders(unsigned int _max = 999) {
+  int64 GetLimitOrders(unsigned int _max = 999) const {
     int64 _limit = AccountLimitOrders();
     return _limit > 0 ? _limit : _max;
   }
@@ -263,13 +263,13 @@ class AccountMt : public AccountBase {
    * Get account total balance (including credit).
    */
   static double AccountTotalBalance() { return AccountBalance() + AccountCredit(); }
-  float GetTotalBalance() { return (float)(GetBalance() + GetCredit()); }
+  float GetTotalBalance() const { return (float)(GetBalance() + GetCredit()); }
 
   /**
    * Get account available margin.
    */
   static double AccountAvailMargin() { return fmin(AccountFreeMargin(), AccountTotalBalance()); }
-  float GetMarginAvail() override { return (float)AccountAvailMargin(); }
+  float GetMarginAvail() const override { return (float)AccountAvailMargin(); }
 
   /**
    * Returns the calculation mode of free margin allowed to open orders on the current account.
@@ -324,17 +324,17 @@ class AccountMt : public AccountBase {
   /**
    * Get account init balance.
    */
-  double GetInitBalance() { return init_balance; }
+  double GetInitBalance() const { return init_balance; }
 
   /**
    * Get account start balance.
    */
-  double GetStartBalance() { return start_balance; }
+  double GetStartBalance() const { return start_balance; }
 
   /**
    * Get account init credit.
    */
-  double GetStartCredit() { return start_credit; }
+  double GetStartCredit() const { return start_credit; }
 
   /* Calculation methods */
 
@@ -388,7 +388,7 @@ class AccountMt : public AccountBase {
                 : -1);
 #endif
   }
-  double GetAccountFreeMarginCheck(ENUM_ORDER_TYPE _cmd, double _volume) {
+  double GetAccountFreeMarginCheck(ENUM_ORDER_TYPE _cmd, double _volume) const {
     return AccountFreeMarginCheck(_Symbol, _cmd, _volume);
   }
 
@@ -639,7 +639,7 @@ class AccountMt : public AccountBase {
   /**
    * Returns serialized representation of the object instance.
    */
-  SerializerNodeType Serialize(Serializer &_s) {
+  SerializerNodeType Serialize(Serializer &_s) const {
     AccountEntry _entry = GetEntry();
     _s.PassStruct(THIS_REF, "account-entry", _entry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;

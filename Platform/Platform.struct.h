@@ -82,7 +82,7 @@ struct PlatformParams {
     SetUserError(ERR_INVALID_PARAMETER);
   }
   // Serializers.
-  SerializerNodeType Serialize(Serializer &s) {
+  SerializerNodeType Serialize(Serializer &s) const {
     s.Pass(THIS_REF, "id", id);
     s.Pass(THIS_REF, "name", name);
     return SerializerNodeObject;

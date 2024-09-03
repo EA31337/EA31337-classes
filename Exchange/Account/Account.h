@@ -77,7 +77,7 @@ class Account : public AccountBase {
   /**
    * Returns serialized representation of the object instance.
    */
-  virtual SerializerNodeType Serialize(Serializer &_s) {
+  virtual SerializerNodeType Serialize(Serializer &_s) const {
     _s.PassStruct(THIS_REF, "state", state);
     return SerializerNodeObject;
   }
