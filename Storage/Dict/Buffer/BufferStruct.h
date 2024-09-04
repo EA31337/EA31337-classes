@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Flag for Database.struct.h so BufferStruct structure will be supported by it.
@@ -94,10 +94,10 @@ class BufferStruct : public DictStruct<int64, TStruct> {
       for (DictStructIterator<int64, TStruct> iter(THIS_ATTR Begin()); iter.IsValid(); ++iter) {
         int64 _time = iter.Key();
         if (_older && _time < _dt) {
-          Unset(iter.Key());
+          THIS_ATTR Unset(iter.Key());
           continue;
         } else if (!_older && _time > _dt) {
-          Unset(iter.Key());
+          THIS_ATTR Unset(iter.Key());
           continue;
         }
         min = _time < min ? _time : min;

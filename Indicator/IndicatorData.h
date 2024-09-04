@@ -1249,7 +1249,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's struct value via timestamp.
    */
-  // virtual IndicatorDataEntry GetEntry(datetime _dt) = nullptr;
+  // virtual IndicatorDataEntry GetEntry(datetime _dt) = 0;
 
   /**
    * Gets high price for a given, optional shift.
@@ -1264,12 +1264,12 @@ class IndicatorData : public IndicatorBase {
    */
   virtual void GetEntryAlter(IndicatorDataEntry& _entry, int _rel_shift) {}
 
-  // virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = nullptr;
+  // virtual ENUM_IDATA_VALUE_RANGE GetIDataValueRange() = 0;
 
   /**
    * Returns the indicator's entry value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) = nullptr;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) = 0;
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -1338,7 +1338,7 @@ class IndicatorData : public IndicatorBase {
    *
    * When indicator values are not valid, returns empty signals.
    */
-  virtual IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) = nullptr;
+  virtual IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) = 0;
 
   /**
    * Returns spread for the bar.
@@ -1828,7 +1828,7 @@ class IndicatorData : public IndicatorBase {
   void EmitEntry(IndicatorDataEntry& _entry, ENUM_INDI_EMITTED_ENTRY_TYPE _type = INDI_EMITTED_ENTRY_TYPE_PARENT) {
     for (int i = 0; i < ArraySize(listeners); ++i) {
       if (listeners[i].ObjectExists()) {
-        listeners[i].Ptr().OnDataSourceEntry(_entry, _type);
+        listeners[i].Ptr() PTR_DEREF OnDataSourceEntry(_entry, _type);
       }
     }
   }
@@ -1839,7 +1839,7 @@ class IndicatorData : public IndicatorBase {
   void WillEmitEntries(ENUM_INDI_EMITTED_ENTRY_TYPE _type, int _num_entries) {
     for (int i = 0; i < ArraySize(listeners); ++i) {
       if (listeners[i].ObjectExists()) {
-        listeners[i].Ptr().OnDataSourceWillEmitEntries(_type, _num_entries);
+        listeners[i].Ptr() PTR_DEREF OnDataSourceWillEmitEntries(_type, _num_entries);
       }
     }
   }
@@ -2038,8 +2038,8 @@ int GetBarsFromStart(IndicatorData* _indi) { return _indi PTR_DEREF GetBars(); }
 #endif
 
 #ifdef EMSCRIPTEN
-#include <emscripten.h>
-#include <emscripten/bind.h>
+  #include <emscripten.h>
+  #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(IndicatorData) {
   emscripten::class_<IndicatorData, emscripten::base<IndicatorBase>>("IndicatorData")

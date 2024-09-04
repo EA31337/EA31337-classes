@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 #include "../../Convert.basic.h"
@@ -71,10 +71,10 @@ class Dict : public DictBase<K, V> {
   Dict(const Dict<K, V>& right) {
     Clear();
     Resize(right.GetSlotCount());
-    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
-      THIS_ATTR _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref PTR_DEREF DictSlots); ++i) {
+      THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots[i] = right._DictSlots_ref PTR_DEREF DictSlots[i];
     }
-    THIS_ATTR _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
+    THIS_ATTR _DictSlots_ref PTR_DEREF _num_used = right._DictSlots_ref PTR_DEREF _num_used;
     THIS_ATTR _current_id = right._current_id;
     THIS_ATTR _mode = right._mode;
   }
@@ -82,22 +82,23 @@ class Dict : public DictBase<K, V> {
   void operator=(const Dict<K, V>& right) {
     Clear();
     Resize(right.GetSlotCount());
-    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
-      THIS_ATTR _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref PTR_DEREF DictSlots); ++i) {
+      THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots[i] = right._DictSlots_ref PTR_DEREF DictSlots[i];
     }
-    THIS_ATTR _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
+    THIS_ATTR _DictSlots_ref PTR_DEREF _num_used = right._DictSlots_ref PTR_DEREF _num_used;
     THIS_ATTR _current_id = right._current_id;
     THIS_ATTR _mode = right._mode;
   }
 
   void Clear() {
-    _DictSlots_ref = new DictSlotsRef<K, V>();
+    THIS_ATTR _DictSlots_ref = new DictSlotsRef<K, V>();
 
-    for (unsigned int i = 0; i < (unsigned int)ArraySize(THIS_ATTR _DictSlots_ref.DictSlots); ++i) {
-      if (THIS_ATTR _DictSlots_ref.DictSlots[i].IsUsed()) THIS_ATTR _DictSlots_ref.DictSlots[i].SetFlags(0);
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots); ++i) {
+      if (THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots[i].IsUsed())
+        THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots[i].SetFlags(0);
     }
 
-    THIS_ATTR _DictSlots_ref._num_used = 0;
+    THIS_ATTR _DictSlots_ref PTR_DEREF _num_used = 0;
   }
 
   /**
@@ -355,8 +356,8 @@ class Dict : public DictBase<K, V> {
    * Expands array of DictSlots by given percentage value.
    */
   bool GrowUp(int percent = DICT_GROW_UP_PERCENT_DEFAULT) {
-    return Resize(
-        MathMax(10, (int)((float)ArraySize(THIS_ATTR _DictSlots_ref.DictSlots) * ((float)(percent + 100) / 100.0f))));
+    return Resize(MathMax(
+        10, (int)((float)ArraySize(THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots) * ((float)(percent + 100) / 100.0f))));
   }
 
  public:
@@ -364,7 +365,7 @@ class Dict : public DictBase<K, V> {
    * Ensures that there is at least given number of slots in dict.
    */
   bool Reserve(int _size) {
-    if (_size <= ArraySize(THIS_ATTR _DictSlots_ref.DictSlots)) {
+    if (_size <= ArraySize(THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots)) {
       return true;
     }
     return Resize(_size);
@@ -375,7 +376,8 @@ class Dict : public DictBase<K, V> {
    * Shrinks or expands array of DictSlots.
    */
   bool Resize(int new_size) {
-    if (new_size <= MathMin(THIS_ATTR _DictSlots_ref._num_used, ArraySize(THIS_ATTR _DictSlots_ref.DictSlots))) {
+    if (new_size <= MathMin(THIS_ATTR _DictSlots_ref PTR_DEREF _num_used,
+                            ArraySize(THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots))) {
       // We already use minimum number of slots possible.
       return true;
     }
@@ -393,19 +395,19 @@ class Dict : public DictBase<K, V> {
     new_DictSlots PTR_DEREF _num_used = 0;
 
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
-    for (i = 0; i < ArraySize(THIS_ATTR _DictSlots_ref.DictSlots); ++i) {
-      if (!THIS_ATTR _DictSlots_ref.DictSlots[i].IsUsed()) continue;
+    for (i = 0; i < ArraySize(THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots); ++i) {
+      if (!THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots[i].IsUsed()) continue;
 
-      if (THIS_ATTR _DictSlots_ref.DictSlots[i].HasKey()) {
-        if (!InsertInto(new_DictSlots, THIS_ATTR _DictSlots_ref.DictSlots[i].key,
-                        THIS_ATTR _DictSlots_ref.DictSlots[i].value, false))
+      if (THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots[i].HasKey()) {
+        if (!InsertInto(new_DictSlots, THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots[i].key,
+                        THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots[i].value, false))
           return false;
       } else {
-        if (!InsertInto(new_DictSlots, THIS_ATTR _DictSlots_ref.DictSlots[i].value)) return false;
+        if (!InsertInto(new_DictSlots, THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots[i].value)) return false;
       }
     }
     // Freeing old DictSlots array.
-    ArrayFree(THIS_ATTR _DictSlots_ref.DictSlots);
+    ArrayFree(THIS_ATTR _DictSlots_ref PTR_DEREF DictSlots);
 
     delete THIS_ATTR _DictSlots_ref;
 

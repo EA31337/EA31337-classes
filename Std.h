@@ -64,6 +64,8 @@
   #define int64 long
   #define uint64 unsigned long
   #define VOID_DATA(N) void*& N[]
+  #define CONST_CPP
+  #define REF_CPP
 #else
   #define GET_PTR(obj) (&obj)
   #define THIS_ATTR this->
@@ -76,16 +78,18 @@
   #define REF_TO_PTR(PTR) (&(PTR))
   #define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
   #define REF_DEREF .Ptr()->
-  #define int64 long long
-  #define uint64 unsigned long long
+  #define int64 long long int
+  #define uint64 unsigned long long int
   #define VOID_DATA(N) void* N
+  #define CONST_CPP const
+  #define REF_CPP &
 #endif
 
 // Reference to simple type like bool, int, double, string.
 #ifdef __MQL__
-#define REF(X) X&
+  #define REF(X) X&
 #else
-#define REF(X) (&X)
+  #define REF(X) (&X)
 #endif
 
 // Arrays and references to arrays.
@@ -93,9 +97,9 @@
 
 // Reference to object.
 #ifdef __MQL__
-#define REF_TO(T) T*
+  #define REF_TO(T) T*
 #else
-#define REF_TO(T) T&
+  #define REF_TO(T) T&
 #endif
 
 // Const reference to object.
@@ -109,9 +113,9 @@
 
 // Returning type for methods that returns simple types as int, double, string.
 #ifdef __MQL__
-#define RETURN_REF_TO_SIMPLE(T) T
+  #define RETURN_REF_TO_SIMPLE(T) T
 #else
-#define RETURN_REF_TO_SIMPLE(T) T&
+  #define RETURN_REF_TO_SIMPLE(T) T&
 #endif
 
 // Returning type for methods that returns simple contstant types as int, double, string.
@@ -119,9 +123,9 @@
 
 // Casts reference to object to given type.
 #ifdef __MQL__
-#define REF_CAST(T) (T*)
+  #define REF_CAST(T) (T*)
 #else
-#define REF_CAST(T) (T&)
+  #define REF_CAST(T) (T&)
 #endif
 
 /**
@@ -130,9 +134,9 @@
  * Example: ARRAY_TYPE(int) items; ArrayPush(items, 1);
  */
 #ifdef __MQL__
-#define ARRAY_TYPE(T) T[]
+  #define ARRAY_TYPE(T) T[]
 #else
-#define ARRAY_TYPE(T) _cpp_array<T>
+  #define ARRAY_TYPE(T) _cpp_array<T>
 #endif
 
 /**
@@ -142,9 +146,9 @@
  * Example: ARRAY(int, items); ArrayPush(items, 1);
  */
 #ifdef __MQL__
-#define ARRAY(T, N) T N[]
+  #define ARRAY(T, N) T N[]
 #else
-#define ARRAY(T, N) ::_cpp_array<T> N
+  #define ARRAY(T, N) ::_cpp_array<T> N
 #endif
 
 /**
@@ -154,9 +158,9 @@
  * Example: void Append(ARRAY_REF(int, values));
  */
 #ifdef __MQL__
-#define ARRAY_REF(T, N) REF(T) N[]
+  #define ARRAY_REF(T, N) REF(T) N[]
 #else
-#define ARRAY_REF(T, N) ARRAY_TYPE(T) & N
+  #define ARRAY_REF(T, N) ARRAY_TYPE(T) & N
 #endif
 
 /**
@@ -166,9 +170,9 @@
  * Example: void Append(CONST_ARRAY_REF(int, values));
  */
 #ifdef __MQL__
-#define CONST_ARRAY_REF(T, N) const T& N[]
+  #define CONST_ARRAY_REF(T, N) const T& N[]
 #else
-#define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
+  #define CONST_ARRAY_REF(T, N) const _cpp_array<T>& N
 #endif
 
 /**
@@ -188,9 +192,9 @@
  * Example: void Append(FIXED_ARRAY_REF(int, values, 5));
  */
 #ifdef __MQL__
-#define FIXED_ARRAY_REF(T, N, S) ARRAY_REF(T, N)
+  #define FIXED_ARRAY_REF(T, N, S) ARRAY_REF(T, N)
 #else
-#define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
+  #define FIXED_ARRAY_REF(T, N, S) T(&N)[S]
 #endif
 
 /**
@@ -201,9 +205,9 @@
  * Example: void Append(FIXED_ARRAY_REF(int, values, 5));
  */
 #ifdef __MQL__
-#define CONST_FIXED_ARRAY_REF(T, N, S) const FIXED_ARRAY_REF(T, N, S)
+  #define CONST_FIXED_ARRAY_REF(T, N, S) const FIXED_ARRAY_REF(T, N, S)
 #else
-#define CONST_FIXED_ARRAY_REF(T, N, S) const FIXED_ARRAY_REF(T, N, S)
+  #define CONST_FIXED_ARRAY_REF(T, N, S) const FIXED_ARRAY_REF(T, N, S)
 #endif
 
 // typename(T)

@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward declarations.
@@ -73,6 +73,10 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
 template <typename C>
 C IndicatorBufferValueStorage<C>::Fetch(int _rel_shift) {
   IndicatorBase* _indi = THIS_ATTR indi_candle.Ptr();
+  #ifdef __MQL__
   return _indi PTR_DEREF GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
+  #else
+  return _indi PTR_DEREF template GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
+  #endif
 }
 #endif

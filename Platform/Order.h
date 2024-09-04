@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward declaration.
@@ -35,55 +35,55 @@ class SymbolInfo;
 
 // Includes.
 #include "../Convert.basic.h"
-#include "../Storage/Data.define.h"
-#include "../Storage/Data.struct.h"
-#include "../Platform/Deal.enum.h"
+#include "../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../Log.mqh"
-#include "Order.define.h"
-#include "Order.enum.h"
-#include "Order.struct.h"
+#include "../Platform/Deal.enum.h"
 #include "../Serializer/Serializer.define.h"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerConverter.h"
 #include "../Serializer/SerializerJson.h"
 #include "../Std.h"
+#include "../Storage/Data.define.h"
+#include "../Storage/Data.struct.h"
 #include "../Storage/String.h"
-#include "../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../Task/TaskAction.enum.h"
+#include "Order.define.h"
+#include "Order.enum.h"
+#include "Order.struct.h"
 #include "Terminal.define.h"
 
 /* Defines for backward compatibility. */
 
 // Index in the order pool.
 #ifndef SELECT_BY_POS
-#define SELECT_BY_POS 0
+  #define SELECT_BY_POS 0
 #endif
 
 // Index by the order ticket.
 #ifndef SELECT_BY_TICKET
-#define SELECT_BY_TICKET 1
+  #define SELECT_BY_TICKET 1
 #endif
 
 #ifndef ORDER_EXTERNAL_ID
-// Order identifier in an external trading system (on the Exchange).
-// Note: Required for backward compatibility in MQL4.
-// @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties#enum_order_property_string
-#define ORDER_EXTERNAL_ID ((ENUM_ORDER_PROPERTY_STRING)20)
+  // Order identifier in an external trading system (on the Exchange).
+  // Note: Required for backward compatibility in MQL4.
+  // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties#enum_order_property_string
+  #define ORDER_EXTERNAL_ID ((ENUM_ORDER_PROPERTY_STRING)20)
 #endif
 
 #ifndef ORDER_REASON
-// The reason or source for placing an order.
-// Note: Required for backward compatibility in MQL4.
-// @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-#define ORDER_REASON ((ENUM_ORDER_PROPERTY_INTEGER)23)
+  // The reason or source for placing an order.
+  // Note: Required for backward compatibility in MQL4.
+  // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+  #define ORDER_REASON ((ENUM_ORDER_PROPERTY_INTEGER)23)
 #endif
 
 #ifndef __MQLBUILD__
-// Defines.
-// Mode constants.
-// @see: https://docs.mql4.com/trading/orderselect
-#define MODE_TRADES 0
-#define MODE_HISTORY 1
+  // Defines.
+  // Mode constants.
+  // @see: https://docs.mql4.com/trading/orderselect
+  #define MODE_TRADES 0
+  #define MODE_HISTORY 1
 #endif
 
 /**
@@ -473,7 +473,7 @@ class Order : public SymbolInfo {
 #endif
   }
   datetime GetOpenTime() {
-    if (odata.Get<datetime>(ORDER_PROP_TIME_OPENED) == 0) {
+    if (odata.Get<datetime>(ORDER_PROP_TIME_OPENED) == (datetime)0) {
       OrderSelect();
       odata.Set<datetime>(ORDER_PROP_TIME_OPENED, Order::OrderOpenTime());
     }
@@ -1199,7 +1199,7 @@ class Order : public SymbolInfo {
                          color _arrow_color = clrNONE    // Color.
   ) {
 #ifdef __MQL4__
-#ifdef __debug__
+  #ifdef __debug__
     Print("Sending request:");
     PrintFormat("Symbol: %s", _symbol);
     PrintFormat("Cmd: %d", _cmd);
@@ -1211,7 +1211,7 @@ class Order : public SymbolInfo {
     PrintFormat("Comment: %s", _comment);
     PrintFormat("Magic: %d", _magic);
     PrintFormat("Expiration: %s", TimeToStr(_symbol, TIME_DATE | TIME_MINUTES | TIME_SECONDS));
-#endif
+  #endif
 
     return ::OrderSend(_symbol, _cmd, _volume, _price, (int)_deviation, _stoploss, _takeprofit, _comment,
                        (unsigned int)_magic, _expiration, _arrow_color);
@@ -1311,9 +1311,9 @@ class Order : public SymbolInfo {
       }
     }
 
-#ifdef __debug__
+  #ifdef __debug__
     Print("Received result:\n", ToString(_result));
-#endif
+  #endif
 
     return _result.retcode == TRADE_RETCODE_DONE;
 #else
@@ -1327,9 +1327,9 @@ class Order : public SymbolInfo {
       // - https://www.mql5.com/en/docs/trading/ordercheck
       // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
       // - https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
-#ifdef __debug__
+  #ifdef __debug__
       PrintFormat("%s: Error %d: %s", C_STR(__FUNCTION_LINE__), _result_check.retcode, C_STR(_result_check.comment));
-#endif
+  #endif
       _result.retcode = _result_check.retcode;
       return false;
     }
@@ -1348,9 +1348,9 @@ class Order : public SymbolInfo {
     // Sends trade requests to a server.
     bool _success = ::OrderSend(_request, _result);
 
-#ifdef __debug__
+  #ifdef __debug__
     Print("Received result:\n", ToString(_result));
-#endif
+  #endif
 
     return _success;
     // The function execution result is placed to structure MqlTradeResult,
@@ -1404,9 +1404,9 @@ class Order : public SymbolInfo {
         // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
         // In order to obtain information about the error, call the GetLastError() function.
         odata.Set<unsigned int>(ORDER_PROP_LAST_ERROR, oresult.retcode);
-#ifdef __debug_order__
+  #ifdef __debug_order__
         Print(__FUNCTION_LINE__ + "(): " + SerializerConverter::FromObject(orequest).ToString<SerializerJson>());
-#endif
+  #endif
         _result = -1;
       }
     } else {
@@ -1595,10 +1595,10 @@ class Order : public SymbolInfo {
 
       selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _index;
     } else {
-#ifdef __debug__
+  #ifdef __debug__
       PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
                   __FUNCTION_LINE__);
-#endif
+  #endif
     }
     _result = selected_ticket_type != ORDER_SELECT_TYPE_NONE;
 
@@ -2004,14 +2004,14 @@ class Order : public SymbolInfo {
         _value = Order::OrderGetString(ORDER_SYMBOL);
         break;
       default:
-/*
-#ifdef ORDER_EXTERNAL_ID
-        if ((int)_prop_id == (int)ORDER_EXTERNAL_ID) {
-          _value = Order::OrderGetString(ORDER_EXTERNAL_ID);
-          break;
-        }
-#endif
-*/
+        /*
+        #ifdef ORDER_EXTERNAL_ID
+                if ((int)_prop_id == (int)ORDER_EXTERNAL_ID) {
+                  _value = Order::OrderGetString(ORDER_EXTERNAL_ID);
+                  break;
+                }
+        #endif
+        */
         _result = false;
         break;
     }
@@ -2140,17 +2140,17 @@ class Order : public SymbolInfo {
     ResetLastError();
     int64 _result = 0;
 #ifdef __MQL4__
-#ifdef __debug__
+  #ifdef __debug__
     Print("OrderGetInteger(", EnumToString(property_id), ")...");
-#endif
+  #endif
     switch (property_id) {
-#ifndef __MQL__
+  #ifndef __MQL__
       // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
       case ORDER_TICKET:
         // Order ticket. Unique number assigned to each order.
         _result = OrderStatic::Ticket();
         break;
-#endif
+  #endif
       case ORDER_TIME_SETUP:
         // Order setup time.
         // http://docs.mql4.com/trading/orderopentime
@@ -2192,19 +2192,19 @@ class Order : public SymbolInfo {
         // Unique order number.
         _result = OrderStatic::MagicNumber();
         break;
-#ifdef ORDER_POSITION_ID
+  #ifdef ORDER_POSITION_ID
       case ORDER_POSITION_ID:
         // Position identifier.
         _result = OrderGetPositionID();
         break;
-#endif
-#ifdef ORDER_POSITION_BY_ID
+  #endif
+  #ifdef ORDER_POSITION_BY_ID
       case ORDER_POSITION_BY_ID:
         // Identifier of an opposite position used for closing.
         // Not supported.
         SetUserError(ERR_INVALID_PARAMETER);
         break;
-#endif
+  #endif
       default:
         // Unknown property.
         SetUserError(ERR_INVALID_PARAMETER);
@@ -2212,11 +2212,11 @@ class Order : public SymbolInfo {
 
     int _last_error = GetLastError();
 
-#ifdef __debug__
+  #ifdef __debug__
     if (_last_error > 0) {
       Print("OrderGetInteger(", EnumToString(property_id), ") = ", _result, ", error = ", _last_error);
     }
-#endif
+  #endif
 
     if (_last_error != ERR_SUCCESS) {
       SetUserError((unsigned short)_last_error);
@@ -2254,9 +2254,9 @@ class Order : public SymbolInfo {
     ResetLastError();
     double _result = WRONG_VALUE;
 #ifdef __MQL4__
-#ifdef __debug__
+  #ifdef __debug__
     Print("OrderGetDouble(", EnumToString(property_id), ")...");
-#endif
+  #endif
     switch (property_id) {
       case ORDER_VOLUME_INITIAL:
         _result = ::OrderLots();
@@ -2286,11 +2286,11 @@ class Order : public SymbolInfo {
 
     int _last_error = GetLastError();
 
-#ifdef __debug__
+  #ifdef __debug__
     if (_last_error > 0) {
       Print("OrderGetDouble(", EnumToString(property_id), ") = ", _result, ", error = ", _last_error);
     }
-#endif
+  #endif
 
     if (_last_error != ERR_SUCCESS) {
       SetUserError((unsigned short)_last_error);
@@ -2328,9 +2328,9 @@ class Order : public SymbolInfo {
     ResetLastError();
     string _result;
 #ifdef __MQL4__
-#ifdef __debug__
+  #ifdef __debug__
     Print("OrderGetString(", EnumToString(property_id), ")...");
-#endif
+  #endif
     switch (property_id) {
       case ORDER_SYMBOL:
         _result = OrderStatic::Symbol();
@@ -2346,11 +2346,11 @@ class Order : public SymbolInfo {
         break;
     }
     int _last_error = GetLastError();
-#ifdef __debug__
+  #ifdef __debug__
     if (_last_error > 0) {
       Print("OrderGetString(", EnumToString(property_id), ") = ", _result, ", error = ", _last_error);
     }
-#endif
+  #endif
     if (_last_error != ERR_SUCCESS) {
       SetUserError((unsigned short)_last_error);
     }
@@ -2505,12 +2505,12 @@ class Order : public SymbolInfo {
    */
   template <typename X>
   static X OrderGetParam(int _prop_id, ENUM_ORDER_SELECT_TYPE _type, ENUM_ORDER_SELECT_DATA_TYPE _data_type, X &_out) {
-#ifndef __MQL4__
+  #ifndef __MQL4__
     int64 _long;
     string _string;
     switch (selected_ticket_type) {
       case ORDER_SELECT_TYPE_NONE:
-        return NULL_VALUE;
+        return (X)NULL_VALUE;
 
       case ORDER_SELECT_TYPE_ACTIVE:
       case ORDER_SELECT_TYPE_HISTORY:
@@ -2529,7 +2529,7 @@ class Order : public SymbolInfo {
                   case DEAL_TYPE_SELL:
                     return ConvertBasic::LongTo<X>(ORDER_TYPE_SELL);
                   default:
-                    return NULL_VALUE;
+                    return (X)NULL_VALUE;
                 }
                 break;
               case ORDER_STATE:
@@ -2538,23 +2538,23 @@ class Order : public SymbolInfo {
               case ORDER_TIME_EXPIRATION:
               case ORDER_TIME_DONE:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               case ORDER_TIME_SETUP_MSC:
                 return OrderGetValue(DEAL_TIME_MSC, _type, _out);
               case ORDER_TIME_DONE_MSC:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               case ORDER_TYPE_FILLING:
               case ORDER_TYPE_TIME:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               case ORDER_MAGIC:
                 return OrderGetValue(DEAL_MAGIC, _type, _out);
               case ORDER_POSITION_ID:
                 return OrderGetValue(DEAL_POSITION_ID, _type, _out);
               case ORDER_POSITION_BY_ID:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               default:
                 if ((int)_prop_id == (int)ORDER_REASON) {
                   switch ((int)OrderGetValue(DEAL_REASON, _type, _long)) {
@@ -2573,7 +2573,7 @@ class Order : public SymbolInfo {
                     case DEAL_REASON_SO:
                       return ConvertBasic::LongTo<X>(ORDER_REASON_SO);
                     default:
-                      return NULL_VALUE;
+                      return (X)NULL_VALUE;
                   }
                 }
             }
@@ -2584,31 +2584,31 @@ class Order : public SymbolInfo {
                 return OrderGetValue(DEAL_VOLUME, _type, _out);
               case ORDER_VOLUME_CURRENT:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               case ORDER_PRICE_OPEN:
                 return OrderGetValue(DEAL_PRICE, _type, _out);
               case ORDER_SL:
               case ORDER_TP:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               case ORDER_PRICE_CURRENT:
                 return OrderGetValue(DEAL_PRICE, _type, _out);
               case ORDER_PRICE_STOPLIMIT:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
             }
             break;
           case ORDER_SELECT_DATA_TYPE_STRING:
             switch (_prop_id) {
               case ORDER_SYMBOL:
               case ORDER_COMMENT:
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               default:
-#ifdef ORDER_EXTERNAL_ID
+    #ifdef ORDER_EXTERNAL_ID
                 if ((int)_prop_id == (int)ORDER_EXTERNAL_ID) {
-                  return NULL_VALUE;
+                  return (X)NULL_VALUE;
                 }
-#endif
+    #endif
             }
             break;
         }
@@ -2627,7 +2627,7 @@ class Order : public SymbolInfo {
                   case POSITION_TYPE_SELL:
                     return ConvertBasic::LongTo<X>(ORDER_TYPE_SELL);
                   default:
-                    return NULL_VALUE;
+                    return (X)NULL_VALUE;
                 }
                 break;
               case ORDER_STATE:
@@ -2636,23 +2636,23 @@ class Order : public SymbolInfo {
               case ORDER_TIME_EXPIRATION:
               case ORDER_TIME_DONE:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               case ORDER_TIME_SETUP_MSC:
                 return OrderGetValue(POSITION_TIME_MSC, _type, _out);
               case ORDER_TIME_DONE_MSC:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               case ORDER_TYPE_FILLING:
               case ORDER_TYPE_TIME:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               case ORDER_MAGIC:
                 return OrderGetValue(POSITION_MAGIC, _type, _out);
               case ORDER_POSITION_ID:
                 return OrderGetValue(POSITION_IDENTIFIER, _type, _out);
               case ORDER_POSITION_BY_ID:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
               default:
                 if ((int)_prop_id == (int)ORDER_REASON) {
                   switch ((int)OrderGetValue(POSITION_REASON, _type, _long)) {
@@ -2665,7 +2665,7 @@ class Order : public SymbolInfo {
                     case POSITION_REASON_EXPERT:
                       return ConvertBasic::LongTo<X>(ORDER_REASON_EXPERT);
                     default:
-                      return NULL_VALUE;
+                      return (X)NULL_VALUE;
                   }
                 }
             }
@@ -2687,7 +2687,7 @@ class Order : public SymbolInfo {
               case ORDER_PRICE_STOPLIMIT:
                 // @fixme
                 SetUserError(ERR_INVALID_PARAMETER);
-                return NULL_VALUE;
+                return (X)NULL_VALUE;
             }
             break;
           case ORDER_SELECT_DATA_TYPE_STRING:
@@ -2697,21 +2697,21 @@ class Order : public SymbolInfo {
               case ORDER_COMMENT:
                 return OrderGetValue(POSITION_COMMENT, _type, _out);
               default:
-#ifdef ORDER_EXTERNAL_ID
+    #ifdef ORDER_EXTERNAL_ID
                 if ((int)_prop_id == (int)ORDER_EXTERNAL_ID) {
                   return OrderGetValue(POSITION_EXTERNAL_ID, _type, _out);
                 }
-#endif
+    #endif
             }
             break;
         }
         break;
     }
 
-    return NULL_VALUE;
-#else
+    return (X)NULL_VALUE;
+  #else
     return OrderGetValue(_prop_id, _type, _out);
-#endif
+  #endif
   }
 
 #endif
