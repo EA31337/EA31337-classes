@@ -931,11 +931,11 @@ class Order : public SymbolInfo {
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment != "" ? _comment : odata.GetReasonCloseText();
     _request.deviation = orequest.deviation > 0 ? orequest.deviation : 40;
-    _request.magic = odata.Get<ulong>(ORDER_MAGIC);
+    _request.magic = odata.Get<unsigned long>(ORDER_MAGIC);
     _request.symbol = odata.Get(ORDER_SYMBOL);
     _request.type = NegateOrderType(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
     _request.type_filling = GetOrderFilling(odata.Get(ORDER_SYMBOL));
-    _request.position = odata.Get<ulong>(ORDER_PROP_TICKET);
+    _request.position = odata.Get<unsigned long>(ORDER_PROP_TICKET);
     _request.price = SymbolInfo::GetCloseOffer(odata.Get<ENUM_ORDER_TYPE>(ORDER_TYPE));
     _request.volume = odata.Get<double>(ORDER_VOLUME_CURRENT);
     Order::OrderSend(_request, oresult, oresult_check);
@@ -959,12 +959,12 @@ class Order : public SymbolInfo {
         if (OrderSelect()) {
           Refresh(true);
           if (!IsClosed()) {
-            ologger.Error(
-                StringFormat("Failed to send order request %u for position %d! Error: %d (%s)", oresult.request_id,
-                             _request.position, fmax(oresult.retcode, oresult_check.retcode), oresult_check.comment),
-                __FUNCTION_LINE__);
+            ologger.Error(StringFormat("Failed to send order request %u for position %d! Error: %d (%s)",
+                                       oresult.request_id, _request.position,
+                                       fmax(oresult.retcode, oresult_check.retcode), C_STR(oresult_check.comment)),
+                          __FUNCTION_LINE__);
             if (ologger.GetLevel() >= V_DEBUG) {
-              ologger.Debug(StringFormat("Failed request: %s", ToString()), __FUNCTION_LINE__);
+              ologger.Debug(StringFormat("Failed request: %s", C_STR(ToString())), __FUNCTION_LINE__);
             }
           }
         }

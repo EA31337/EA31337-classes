@@ -133,7 +133,7 @@ struct IndicatorParams {
   void Set(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _prop, T _value) {
     switch (_prop) {
       case INDI_PARAMS_PROP_BPS:
-        bps = (uint)_value;
+        bps = (unsigned int)_value;
         return;
       default:
         break;

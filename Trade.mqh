@@ -205,7 +205,8 @@ class Trade : public Taskable<DataParamEntry> {
     MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
-    _request.deviation = tparams.Get<uint>(TRADE_PARAM_SLIPPAGE);  // The maximal price deviation, specified in points.
+    _request.deviation =
+        tparams.Get<unsigned int>(TRADE_PARAM_SLIPPAGE);  // The maximal price deviation, specified in points.
     _request.magic = _magic > 0 ? _magic : tparams.Get<int64>(TRADE_PARAM_MAGIC_NO);
     _request.symbol = GetSource() PTR_DEREF GetSymbol();
     _request.price = GetSource() PTR_DEREF GetOpenOffer(_type);
@@ -888,11 +889,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           OrderMoveToHistory(_order.Ptr());
           order_last = _order;
         } else {
-          logger.Error(StringFormat("Failed to close the order: %d! Error: %d (%s)",
-                                    _order REF_DEREF Get<long>(ORDER_PROP_TICKET),
-                                    _order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR),
-                                    Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
-                       __FUNCTION_LINE__);
+          logger.Error(
+              StringFormat("Failed to close the order: %d! Error: %d (%s)",
+                           _order REF_DEREF Get<long>(ORDER_PROP_TICKET),
+                           _order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                           C_STR(Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR)))),
+              __FUNCTION_LINE__);
           continue;
         }
       } else {
@@ -929,7 +931,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                 StringFormat("Failed to close the order: %d! Error: %d (%s)",
                              _order REF_DEREF Get<long>(ORDER_PROP_TICKET),
                              _order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR),
-                             Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+                             C_STR(Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR)))),
                 __FUNCTION_LINE__);
             continue;
           }

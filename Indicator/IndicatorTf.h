@@ -65,7 +65,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
   /**
    * Class constructor with timeframe index.
    */
-  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
+  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = (ENUM_TIMEFRAMES_INDEX)0) {
     SetTf(ChartTf::IndexToTf(_tfi));
     Init();
   }

@@ -66,17 +66,13 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
 };
 
 // clang-format off
-#include "../Indicator/IndicatorData.h"
+#include "../Indicator/IndicatorBase.h"
 // clang-format on
 
 #ifndef __MQL__
 template <typename C>
 C IndicatorBufferValueStorage<C>::Fetch(int _rel_shift) {
   IndicatorBase* _indi = THIS_ATTR indi_candle.Ptr();
-  #ifdef __MQL__
-  return _indi PTR_DEREF GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
-  #else
   return _indi PTR_DEREF template GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
-  #endif
 }
 #endif
