@@ -25,30 +25,29 @@
 #define MATRIX_MQH
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
-
 #ifdef __MQL5__
-#define MATRIX_USE_OPENCL
+  #define MATRIX_USE_OPENCL
 #endif
 
 #ifdef USE_MQL_MATH_STAT
-#ifdef __MQL5__
-#include <Math/Stat/Normal.mqh>
-#endif
+  #ifdef __MQL5__
+    #include <Math/Stat/Normal.mqh>
+  #endif
 #endif
 
 // Includes.
 #include "Math.h"
 
 #ifdef MATRIX_USE_OPENCL
-#include "OpenCL.h"
+  #include "OpenCL.h"
 
-#resource "Matrix.matmul.cl" as string CLSource_Matrix_MatMul
-#resource "Matrix.matmul.naive.cl" as string CLSource_Matrix_MatMul_Naive
-#resource "Matrix.matmul.test.cl" as string CLSource_Matrix_MatMul_Test
+  #resource "Matrix.matmul.cl" as string CLSource_Matrix_MatMul
+  #resource "Matrix.matmul.naive.cl" as string CLSource_Matrix_MatMul_Naive
+  #resource "Matrix.matmul.test.cl" as string CLSource_Matrix_MatMul_Test
 #endif  // MATRIX_USE_OPENCL
 
 #define MATRIX_DIMENSIONS 6
@@ -843,7 +842,7 @@ class Matrix {
       return;
     }
 
-    Initialize(_right.ptr_first_dimension.Clone());
+    Initialize(_right.ptr_first_dimension PTR_DEREF Clone());
 #ifdef MATRIX_USE_OPENCL
     InitializeOpenCL();
 #endif
@@ -2673,7 +2672,7 @@ unsigned long Matrix<X>::version_counter = 0;
 
 #ifdef MATRIX_USE_OPENCL
 
-#ifdef __MQL__
+  #ifdef __MQL__
 template <typename X>
 Ref<OpenCLProgram> Matrix::cl_program_matmul;
 template <typename X>
@@ -2684,7 +2683,7 @@ template <typename X>
 DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_in_1;
 template <typename X>
 DictStruct<int, Ref<OpenCLBuffer>> Matrix::cl_buffers_out;
-#else
+  #else
 template <typename X>
 Ref<OpenCLProgram> Matrix<X>::cl_program_matmul;
 template <typename X>
@@ -2695,7 +2694,7 @@ template <typename X>
 DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_in_1;
 template <typename X>
 DictStruct<int, Ref<OpenCLBuffer>> Matrix<X>::cl_buffers_out;
-#endif  // __MQL__
+  #endif  // __MQL__
 
 #endif  // MATRIX_USE_OPENCL
 

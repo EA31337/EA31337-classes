@@ -97,7 +97,8 @@ class EA : public Taskable<DataParamEntry> {
    */
   void InitTask() {
     // Add and process init task.
-    TaskObject<EA, EA> _taskobj_init(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)),
+    TaskEntry _task_entry(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
+    TaskObject<EA, EA> _taskobj_init(_task_entry,
                                      THIS_PTR, THIS_PTR);
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     _taskobj_init.Process();
@@ -418,14 +419,14 @@ class EA : public Taskable<DataParamEntry> {
     if (!_result) {  //  && _strade.IsTradeRecommended(
       MqlTradeRequestProxy _request_proxy(_request);
       logger.Debug(StringFormat("Error while sending a trade request! Entry: %s",
-                                SerializerConverter::FromObject(_request_proxy).ToString<SerializerJson>()),
+                                C_STR(SerializerConverter::FromObject(_request_proxy).ToString<SerializerJson>())),
                    __FUNCTION_LINE__,
-                   StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
+                   StringFormat("Code: %d, Msg: %s", _LastError, C_STR(Terminal::GetErrorText(_LastError))));
       if (_trade PTR_DEREF IsTradeRecommended()) {
         logger.Debug(StringFormat("Error while sending a trade request! Entry: %s",
-                                  SerializerConverter::FromObject(_request_proxy).ToString<SerializerJson>()),
+                                  C_STR(SerializerConverter::FromObject(_request_proxy).ToString<SerializerJson>())),
                      __FUNCTION_LINE__,
-                     StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
+                     StringFormat("Code: %d, Msg: %s", _LastError, C_STR(Terminal::GetErrorText(_LastError))));
       }
 #ifdef __debug_ea__
       Print(__FUNCTION_LINE__ + "(): " + SerializerConverter::FromObject(_request_proxy).ToString<SerializerJson>());
@@ -774,7 +775,7 @@ class EA : public Taskable<DataParamEntry> {
   bool StrategyAdd(ENUM_TIMEFRAMES _tf, int64 _magic_no = 0, int _type = 0) {
     bool _result = true;
     _magic_no = _magic_no > 0 ? _magic_no : rand();
-    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, THIS_PTR);
+    Ref<Strategy> _strat = new SClass(_tf, THIS_PTR);
     _strat REF_DEREF Set<int64>(STRAT_PARAM_ID, _magic_no);
     _strat REF_DEREF Set<int64>(TRADE_PARAM_MAGIC_NO, _magic_no);
     _strat REF_DEREF Set<int>(STRAT_PARAM_LOG_LEVEL,

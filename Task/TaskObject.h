@@ -54,7 +54,7 @@ class TaskObject : public Task {
   /**
    * Class constructor with task entry as argument.
    */
-  TaskObject(const TaskEntry &_tentry, TA *_obja = nullptr, TC *_objc = nullptr)
+  TaskObject(TaskEntry &_tentry, TA *_obja = nullptr, TC *_objc = nullptr)
       : Task(_tentry), obja(_obja), objc(_objc) {}
 
   /**

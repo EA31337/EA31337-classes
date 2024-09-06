@@ -116,7 +116,7 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(datetime value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(datetime value) { return FromLong((int64)value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -345,7 +345,7 @@ SerializerNodeParam* SerializerNodeParam::FromLong(int64 value) {
 /**
  * Returns new SerializerNodeParam object from given source value.
  */
-SerializerNodeParam* SerializerNodeParam::FromLong(uint64 value) { return FromLong((signed int64)value); }
+SerializerNodeParam* SerializerNodeParam::FromLong(uint64 value) { return FromLong((uint64)value); }
 
 /**
  * Returns new SerializerNodeParam object from given source value.

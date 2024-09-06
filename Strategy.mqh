@@ -340,7 +340,8 @@ class Strategy : public Taskable<DataParamEntry> {
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade REF_DEREF
     // chart.TfToString(), GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
 
-    return StringFormat("%s%s[%s]%s", _prefix, name, trade REF_DEREF GetSource() PTR_DEREF GetSymbolTf(), _suffix);
+    return StringFormat("%s%s[%s]%s", C_STR(_prefix), C_STR(name),
+                        C_STR(trade REF_DEREF GetSource() PTR_DEREF GetSymbolTf()), C_STR(_suffix));
   }
 
   /**
@@ -348,7 +349,8 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
     // @todo: Add spread.
-    return StringFormat("%s%s[%s]%s", _prefix, name, trade REF_DEREF GetSource() PTR_DEREF GetSymbolTf(), _suffix);
+    return StringFormat("%s%s[%s]%s", C_STR(_prefix), C_STR(name),
+                        C_STR(trade REF_DEREF GetSource() PTR_DEREF GetSymbolTf()), C_STR(_suffix));
   }
 
   /**
@@ -655,7 +657,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Prints strategy's details.
    */
-  string const ToString() override { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
+  string const ToString() override { return StringFormat("%s: %s", C_STR(GetName()), C_STR(sparams.ToString())); }
 
   /* Virtual methods */
 
@@ -701,8 +703,9 @@ class Strategy : public Taskable<DataParamEntry> {
     ENUM_TIMEFRAMES _stf = Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
     unsigned int _stf_secs = ChartTf::TfToSeconds(_stf);
     if (sparams.order_close_time != 0) {
-      long _close_time_arg = sparams.order_close_time > 0 ? sparams.order_close_time * 60
-                                                          : (int)round(-sparams.order_close_time * _stf_secs);
+      long _close_time_arg = sparams.order_close_time > 0
+                                 ? sparams.order_close_time * 60
+                                 : (long)MathRound((long)-sparams.order_close_time * (long)_stf_secs);
       _order PTR_DEREF Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
       _order PTR_DEREF Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
       _index++;

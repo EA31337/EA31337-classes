@@ -21,24 +21,24 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Prevents processing this includes file for the second time.
 #ifndef INDI_MA_MQH
-#define INDI_MA_MQH
+  #define INDI_MA_MQH
 
-// Includes.
-#include "../../Indicator/Indicator.h"
-#include "../../Refs.mqh"
-#include "../../Storage/Dict/Dict.h"
-#include "../../Storage/Dict/DictObject.h"
-#include "../../Storage/Singleton.h"
-#include "../../Storage/String.h"
-#include "../../Storage/ValueStorage.h"
+  // Includes.
+  #include "../../Indicator/Indicator.h"
+  #include "../../Refs.mqh"
+  #include "../../Storage/Dict/Dict.h"
+  #include "../../Storage/Dict/DictObject.h"
+  #include "../../Storage/Singleton.h"
+  #include "../../Storage/String.h"
+  #include "../../Storage/ValueStorage.h"
 
-#ifndef __MQL__
+  #ifndef __MQL__
 // Enums.
 // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/enum_ma_method
 enum ENUM_MA_METHOD {
@@ -47,7 +47,7 @@ enum ENUM_MA_METHOD {
   MODE_SMMA,     // Smoothed averaging.
   MODE_LWMA,     // Linear-weighted averaging.
 };
-#endif
+  #endif
 
 // Structs.
 struct IndiMAParams : IndicatorParams {
@@ -65,11 +65,11 @@ struct IndiMAParams : IndicatorParams {
                ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 10)
       : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap), IndicatorParams(INDI_MA) {
     if (custom_indi_name == "") {
-#ifdef __MQL5__
+  #ifdef __MQL5__
       SetCustomIndicatorName("Examples\\Custom Moving Average");
-#else
+  #else
       SetCustomIndicatorName("Custom Moving Averages");
-#endif
+  #endif
     }
     shift = _shift;
   };
@@ -127,20 +127,20 @@ class Indi_MA : public Indicator<IndiMAParams> {
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
                     ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
                     IndicatorData *_obj = NULL) {
-#ifdef __MQL__
-#ifdef __MQL4__
+  #ifdef __MQL__
+    #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
-#else  // __MQL5__
+    #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price), 0,
                                       _shift);
-#endif
-#else  // Non-MQL.
+    #endif
+  #else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
         "Not implemented. Please use an On-Indicator mode and attach "
         "indicator via Platform::Add/AddWithDefaultBindings().");
     return DBL_MAX;
-#endif
+  #endif
   }
 
   /**
@@ -162,16 +162,16 @@ class Indi_MA : public Indicator<IndiMAParams> {
    */
   static double iMAOnArray(ARRAY_REF(double, price), int total, int ma_period, int ma_shift, ENUM_MA_METHOD ma_method,
                            int shift, IndiBufferCache<double> *cache = NULL) {
-#ifdef __MQL4__
+  #ifdef __MQL4__
     return ::iMAOnArray(price, total, ma_period, ma_shift, ma_method, shift);
-#else
+  #else
     // We're reusing the same native array for each consecutive calculation.
     NativeValueStorage<double> *_array_storage = Singleton<NativeValueStorage<double>>::Get();
     _array_storage PTR_DEREF SetData(price);
 
     return iMAOnArray(PTR_TO_REF((ValueStorage<double> *)_array_storage), total, ma_period, ma_shift, ma_method, shift,
                       cache);
-#endif
+  #endif
   }
 
   /**
@@ -565,7 +565,7 @@ class Indi_MA : public Indicator<IndiMAParams> {
   }
 
   static int LinearWeightedMAOnBuffer(const int rates_total, const int prev_calculated, const int begin,
-                                      const int period, const ARRAY_REF(double, price), ARRAY_REF(double, buffer),
+                                      const int period, ARRAY_REF(double, price), ARRAY_REF(double, buffer),
                                       int &weight_sum) {
     int i, k;
 
@@ -849,14 +849,14 @@ class Indi_MA : public Indicator<IndiMAParams> {
   }
 };
 
-#ifdef __MQL4__
+  #ifdef __MQL4__
 // MQL4 version of the method doesn't have last parameter.
 int LinearWeightedMAOnBuffer(const int rates_total, const int prev_calculated, const int begin, const int period,
-                             const double &price[], double &buffer[]) {
+                             double &price[], double &buffer[]) {
   int _weight_sum;
   return Indi_MA::LinearWeightedMAOnBuffer(rates_total, prev_calculated, begin, period, price, buffer, _weight_sum);
 }
-#else   // !__MQL__4
+  #else   // !__MQL__4
 // Defines global functions (for MQL4 backward compability).
 double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, int _ap, int _shift) {
   ResetLastError();
@@ -868,6 +868,6 @@ double iMAOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _ma_shif
   ResetLastError();
   return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
 }
-#endif  // __MQL4__
+  #endif  // __MQL4__
 
 #endif  // INDI_MA_MQH

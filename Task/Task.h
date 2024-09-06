@@ -51,7 +51,7 @@ class Task : public Taskable<TaskEntry> {
    * Class constructor.
    */
   Task() {}
-  Task(const TaskEntry &_entry) { Add(_entry); }
+  Task(TaskEntry &_entry) { Add(_entry); }
 
   /**
    * Class copy constructor.
@@ -68,7 +68,7 @@ class Task : public Taskable<TaskEntry> {
   /**
    * Adds new task.
    */
-  void Add(const TaskEntry &_entry) { tasks.Push(_entry); }
+  void Add(TaskEntry &_entry) { tasks.Push(_entry); }
 
   /* Virtual methods */
 
