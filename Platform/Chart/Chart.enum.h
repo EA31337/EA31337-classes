@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 #ifndef __MQL__
@@ -43,7 +43,9 @@ enum ENUM_APPLIED_PRICE {
   PRICE_MEDIAN,     // Median price (H+L)/2
   PRICE_TYPICAL,    // Typical price, (H+L+C)/3
   PRICE_WEIGHTED,   // Weighted close price (H+L+C+C)/4
-  FINAL_APPLIED_PRICE_ENTRY
+  FINAL_APPLIED_PRICE_ENTRY,
+  __PRICE_ASK = 128,  // Required, so PRICE_ASK define could work without throwing compilation error.
+  __PRICE_BID = 129,  // Required, so PRICE_BID define could work without throwing compilation error.
 };
 #endif
 
@@ -126,9 +128,9 @@ enum ENUM_TIMEFRAMES {
   PERIOD_MN1 = 43200   // 1 month.
 };
 
-#ifdef EMSCRIPTEN
-#include <emscripten.h>
-#include <emscripten/bind.h>
+  #ifdef EMSCRIPTEN
+    #include <emscripten.h>
+    #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(ENUM_TIMEFRAMES) {
   emscripten::enum_<ENUM_TIMEFRAMES>("timeframes")
@@ -165,7 +167,7 @@ EMSCRIPTEN_BINDINGS(ENUM_APPLIED_PRICE) {
       .value("weighted", PRICE_WEIGHTED);
 }
 
-#endif
+  #endif
 
 #endif
 

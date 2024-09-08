@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward class declaration.
@@ -286,7 +286,7 @@ class AccountMt : public AccountBase {
     return ::AccountFreeMarginMode();
 #else
     // @todo: Not implemented yet.
-    return NULL_VALUE;
+    return (double)NULL_VALUE;
 #endif
   }
   static double GetAccountFreeMarginMode() { return AccountMt::AccountFreeMarginMode(); }

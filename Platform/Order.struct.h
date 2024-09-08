@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -473,7 +473,8 @@ struct OrderData {
    *   Returns a comment with reason
    */
   string GetCloseComment() {
-    string _result = StringFormat("%s (mn=%d,pips=%d)", GetReasonCloseText(), magic, Get<int>(ORDER_PROP_PROFIT_PIPS));
+    string _result =
+        StringFormat("%s (mn=%d,pips=%d)", C_STR(GetReasonCloseText()), magic, Get<int>(ORDER_PROP_PROFIT_PIPS));
     return _result;
   }
 
@@ -511,9 +512,7 @@ struct OrderData {
     return "???";
   }
   // Setters.
-  void IncCloseTries() {
-    close_tries++;
-  }
+  void IncCloseTries() { close_tries++; }
   template <typename T>
   void Set(ENUM_ORDER_PROPERTY_CUSTOM _prop_name, T _value) {
     switch (_prop_name) {

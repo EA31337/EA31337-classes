@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward declarations.
@@ -211,10 +211,10 @@ struct TradeParams {
   }
   bool IsLimitGe(TradeStats &_stats) {
     // @todo: Improve code performance.
-    for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
-      for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-        unsigned int _stat_value = _stats.GetOrderStats(t, p);
-        if (_stat_value > 0 && IsLimitGe(t, p, _stat_value)) {
+    for (/*ENUM_TRADE_STAT_TYPE*/ int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+      for (/*ENUM_TRADE_STAT_PERIOD*/ int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+        unsigned int _stat_value = _stats.GetOrderStats((ENUM_TRADE_STAT_TYPE)t, (ENUM_TRADE_STAT_PERIOD)p);
+        if (_stat_value > 0 && IsLimitGe((ENUM_TRADE_STAT_TYPE)t, (ENUM_TRADE_STAT_PERIOD)p, _stat_value)) {
           return true;
         }
       }

@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward class declaration.
@@ -50,17 +50,6 @@ struct IndicatorParams;
 #include "../Storage/ValueStorage.indicator.h"
 #include "../Storage/ValueStorage.native.h"
 #include "../Task/TaskCondition.enum.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compatibility).
-bool IndicatorBuffers(int _count) { return Indicator<IndicatorParams>::SetIndicatorBuffers(_count); }
-int IndicatorCounted(int _value = 0) {
-  static int prev_calculated = 0;
-  // https://docs.mql4.com/customind/indicatorcounted
-  prev_calculated = _value > 0 ? _value : prev_calculated;
-  return prev_calculated;
-}
-#endif
 
 #ifdef __MQL5__
 // Defines global functions (for MQL5 forward compatibility).
@@ -145,7 +134,11 @@ class Indicator : public IndicatorData {
    */
   template <typename T>
   T Get(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _param) const {
+#ifdef __MQL__
     return iparams.Get<T>(_param);
+#else
+    return iparams.Get(_param);
+#endif
   }
 
   /**
@@ -213,7 +206,11 @@ class Indicator : public IndicatorData {
    */
   template <typename T>
   void Set(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _param, T _value) {
+#ifdef __MQL__
     iparams.Set<T>(_param, _value);
+#else
+    iparams.Set(_param, _value);
+#endif
   }
 
   /**
@@ -508,7 +505,7 @@ class Indicator : public IndicatorData {
     int64 _arg1 = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
     switch (_action) {
       case INDI_ACTION_CLEAR_CACHE:
-        _arg1 = _arg1 > 0 ? _arg1 : TimeCurrent();
+        _arg1 = _arg1 > 0 ? _arg1 : (int64)TimeCurrent();
         idata.Clear(_arg1);
         return true;
       default:
@@ -757,3 +754,14 @@ class Indicator : public IndicatorData {
     return false;
   };
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compatibility).
+bool IndicatorBuffers(int _count) { return Indicator<IndicatorParams>::SetIndicatorBuffers(_count); }
+int IndicatorCounted(int _value = 0) {
+  static int prev_calculated = 0;
+  // https://docs.mql4.com/customind/indicatorcounted
+  prev_calculated = _value > 0 ? _value : prev_calculated;
+  return prev_calculated;
+}
+#endif

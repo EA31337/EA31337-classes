@@ -26,16 +26,16 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
-#include "Platform/Chart/Chart.struct.static.h"
 #include "EA.enum.h"
 #include "EA.struct.h"
 #include "Market.mqh"
 #include "Platform/Chart/Chart.h"
+#include "Platform/Chart/Chart.struct.static.h"
 #include "Platform/Platform.h"
 #include "Platform/Terminal.h"
 #include "Refs.struct.h"
@@ -97,7 +97,8 @@ class EA : public Taskable<DataParamEntry> {
    */
   void InitTask() {
     // Add and process init task.
-    TaskObject<EA, EA> _taskobj_init(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)),
+    TaskEntry _task_entry(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
+    TaskObject<EA, EA> _taskobj_init(_task_entry,
                                      THIS_PTR, THIS_PTR);
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     _taskobj_init.Process();
@@ -162,7 +163,7 @@ class EA : public Taskable<DataParamEntry> {
    */
   template <typename T>
   T Get(ENUM_TRADE_STATE _state, string _symbol = NULL) {
-    return trade.GetByKey(_symbol != NULL ? _symbol : _Symbol).Get<T>(_state);
+    return trade.GetByKey(_symbol != "" ? _symbol : _Symbol) PTR_DEREF Get<T>(_state);
   }
 
   /**
@@ -281,8 +282,9 @@ class EA : public Taskable<DataParamEntry> {
       }
       Trade *_trade = trade.GetByKey(_Symbol);
       Strategy *_strat =
-          strats.GetByKey(_signal PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID))).Ptr();
-      _trade_allowed &= _trade.IsTradeAllowed();
+          strats.GetByKey(_signal PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)))
+              .Ptr();
+      _trade_allowed &= _trade PTR_DEREF IsTradeAllowed();
       if (_trade PTR_DEREF Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
         float _sig_close = _signal PTR_DEREF GetSignalClose();
         string _comment_close =
@@ -293,16 +295,16 @@ class EA : public Taskable<DataParamEntry> {
           if (_sig_close >= 0.5f) {
             // Close signal for buy order.
             _trade PTR_DEREF OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, int64>(
-                ORDER_MAGIC, _signal PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)), ORDER_TYPE,
-                ORDER_TYPE_BUY, MATH_COND_EQ, ORDER_REASON_CLOSED_BY_SIGNAL, _comment_close);
+                ORDER_MAGIC, _signal PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)),
+                ORDER_TYPE, ORDER_TYPE_BUY, MATH_COND_EQ, ORDER_REASON_CLOSED_BY_SIGNAL, _comment_close);
             // Buy orders closed.
             _strat PTR_DEREF OnOrderClose(ORDER_TYPE_BUY);
           }
           if (_sig_close <= -0.5f) {
             // Close signal for sell order.
             _trade PTR_DEREF OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, int64>(
-                ORDER_MAGIC, _signal PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)), ORDER_TYPE,
-                ORDER_TYPE_SELL, MATH_COND_EQ, ORDER_REASON_CLOSED_BY_SIGNAL, _comment_close);
+                ORDER_MAGIC, _signal PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)),
+                ORDER_TYPE, ORDER_TYPE_SELL, MATH_COND_EQ, ORDER_REASON_CLOSED_BY_SIGNAL, _comment_close);
             // Sell orders closed.
             _strat PTR_DEREF OnOrderClose(ORDER_TYPE_SELL);
           }
@@ -312,14 +314,15 @@ class EA : public Taskable<DataParamEntry> {
       if (_trade_allowed) {
         float _sig_open = _signal PTR_DEREF GetSignalOpen();
         unsigned int _sig_f = eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER));
-        string _comment_open = _strat != NULL && _sig_open != 0.0f ? _strat PTR_DEREF GetOrderOpenComment() : __FUNCTION_LINE__;
+        string _comment_open =
+            _strat != NULL && _sig_open != 0.0f ? _strat PTR_DEREF GetOrderOpenComment() : __FUNCTION_LINE__;
         // Open orders on signals.
         // _trade_allowed &= _strat PTR_DEREF GetTrade() PTR_DEREF IsTradeAllowed(_sig_open != 0.0f);
         if (_sig_open != 0.0f && _trade_allowed) {
           if (_sig_open >= 0.5f) {
             // Open signal for buy.
             // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-            if (GetSignalOpenFiltered(_signal, _sig_f) >= 0.5f) {
+            if (GetSignalOpenFiltered(PTR_TO_REF(_signal), _sig_f) >= 0.5f) {
               _strat PTR_DEREF Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
               // Buy order open.
               _result_local &= TradeRequest(ORDER_TYPE_BUY, _Symbol, _strat);
@@ -334,7 +337,7 @@ class EA : public Taskable<DataParamEntry> {
           if (_sig_open <= -0.5f) {
             // Open signal for sell.
             // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
-            if (GetSignalOpenFiltered(_signal, _sig_f) <= -0.5f) {
+            if (GetSignalOpenFiltered(PTR_TO_REF(_signal), _sig_f) <= -0.5f) {
               _strat PTR_DEREF Set(TRADE_PARAM_ORDER_COMMENT, _comment_open);
               // Sell order open.
               _result_local &= TradeRequest(ORDER_TYPE_SELL, _Symbol, _strat);
@@ -398,11 +401,11 @@ class EA : public Taskable<DataParamEntry> {
     // Check strategy's trade states.
     switch (_request.action) {
       case TRADE_ACTION_DEAL:
-        if (!_trade.IsTradeRecommended()) {
+        if (!_trade PTR_DEREF IsTradeRecommended()) {
           if (logger.GetLevel() > V_INFO) {
-            logger.Debug(
-                StringFormat("Trade not opened due to EA trading states (%d).", _trade.GetStates().GetStates()),
-                __FUNCTION_LINE__);
+            logger.Debug(StringFormat("Trade not opened due to EA trading states (%d).",
+                                      _trade PTR_DEREF GetStates().GetStates()),
+                         __FUNCTION_LINE__);
           }
           return _result;
         }
@@ -414,19 +417,19 @@ class EA : public Taskable<DataParamEntry> {
     // Send the request.
     _result = _trade PTR_DEREF RequestSend(_request, _oparams);
     if (!_result) {  //  && _strade.IsTradeRecommended(
-      logger.Debug(
-          StringFormat("Error while sending a trade request! Entry: %s",
-                       SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
-          __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
-      if (_trade.IsTradeRecommended()) {
-        logger.Debug(
-            StringFormat("Error while sending a trade request! Entry: %s",
-                         SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>()),
-            __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _LastError, Terminal::GetErrorText(_LastError)));
+      MqlTradeRequestProxy _request_proxy(_request);
+      logger.Debug(StringFormat("Error while sending a trade request! Entry: %s",
+                                C_STR(SerializerConverter::FromObject(_request_proxy).ToString<SerializerJson>())),
+                   __FUNCTION_LINE__,
+                   StringFormat("Code: %d, Msg: %s", _LastError, C_STR(Terminal::GetErrorText(_LastError))));
+      if (_trade PTR_DEREF IsTradeRecommended()) {
+        logger.Debug(StringFormat("Error while sending a trade request! Entry: %s",
+                                  C_STR(SerializerConverter::FromObject(_request_proxy).ToString<SerializerJson>())),
+                     __FUNCTION_LINE__,
+                     StringFormat("Code: %d, Msg: %s", _LastError, C_STR(Terminal::GetErrorText(_LastError))));
       }
 #ifdef __debug_ea__
-      Print(__FUNCTION_LINE__ +
-            "(): " + SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
+      Print(__FUNCTION_LINE__ + "(): " + SerializerConverter::FromObject(_request_proxy).ToString<SerializerJson>());
 #endif
     }
     return _result;
@@ -462,7 +465,8 @@ class EA : public Taskable<DataParamEntry> {
             if (_strat PTR_DEREF TickFilter(_tick)) {
               _can_trade &= !_trade PTR_DEREF HasState(TRADE_STATE_MODE_DISABLED);
               _can_trade &= !_strat PTR_DEREF IsSuspended();
-              TradeSignalEntry _sentry = GetStrategySignalEntry(_strat, _can_trade, _strat PTR_DEREF Get<int>(STRAT_PARAM_SHIFT));
+              TradeSignalEntry _sentry =
+                  GetStrategySignalEntry(_strat, _can_trade, _strat PTR_DEREF Get<int>(STRAT_PARAM_SHIFT));
               if (_sentry.Get<unsigned int>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_SIGNALS)) > 0) {
                 TradeSignal _signal(_sentry);
                 if (_signal.GetSignalClose() != _signal.GetSignalOpen()) {
@@ -544,7 +548,8 @@ class EA : public Taskable<DataParamEntry> {
     }
     */
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_SYMBOL)) {
-      data_symbol.Add(SymbolInfo().GetEntryLast(), _timestamp);
+      SymbolInfoEntry _entry = SymbolInfo().GetEntryLast();
+      data_symbol.Add(_entry, _timestamp);
     }
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_TRADE)) {
       // @todo
@@ -720,28 +725,30 @@ class EA : public Taskable<DataParamEntry> {
     float _sig_open = _signal.GetSignalOpen();
     ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TF));
     if (ChartTf::TfToHours(_sig_tf) < 1 && bool(_sf & STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_IF_H))) {
-      for (DictStructIterator<int64, Ref<Strategy>> _iter = GetStrategies().Begin(); _iter.IsValid(); ++_iter) {
+      for (DictStructIterator<int64, Ref<Strategy>> _iter = GetStrategies() PTR_DEREF Begin(); _iter.IsValid();
+           ++_iter) {
         Strategy *_strat = _iter.Value().Ptr();
         ENUM_TIMEFRAMES _stf = _strat PTR_DEREF Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
         if (ChartTf::TfToHours(_stf) >= 1) {
-          TradeSignal *_hsignal0 =
-              tsm.GetSignalByCid(_strat PTR_DEREF Get<int>(STRAT_PARAM_ID), (int)_stf, (int)ChartStatic::iTime(_Symbol, _stf));
-          TradeSignal *_hsignal1 =
-              tsm.GetSignalByCid(_strat PTR_DEREF Get<int>(STRAT_PARAM_ID), (int)_stf, (int)ChartStatic::iTime(_Symbol, _stf, 1));
-          TradeSignal *_hsignal2 =
-              tsm.GetSignalByCid(_strat PTR_DEREF Get<int>(STRAT_PARAM_ID), (int)_stf, (int)ChartStatic::iTime(_Symbol, _stf, 2));
+          TradeSignal *_hsignal0 = tsm.GetSignalByCid(_strat PTR_DEREF Get<int>(STRAT_PARAM_ID), (int)_stf,
+                                                      (int)ChartStatic::iTime(_Symbol, _stf));
+          TradeSignal *_hsignal1 = tsm.GetSignalByCid(_strat PTR_DEREF Get<int>(STRAT_PARAM_ID), (int)_stf,
+                                                      (int)ChartStatic::iTime(_Symbol, _stf, 1));
+          TradeSignal *_hsignal2 = tsm.GetSignalByCid(_strat PTR_DEREF Get<int>(STRAT_PARAM_ID), (int)_stf,
+                                                      (int)ChartStatic::iTime(_Symbol, _stf, 2));
           // Increase signal if confirmed by hourly signal.
-          if (_hsignal0 != NULL && _hsignal0.Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
-            _sig_open += ((_sig_open > 0) == (_hsignal0.GetSignalOpen() > 0)) ? 1.0f : -1.0f;
-            _sig_open -= ((_sig_open < 0) == (_hsignal0.GetSignalOpen() < 0)) ? 1.0f : -1.0f;
+          if (_hsignal0 != NULL &&
+              _hsignal0 PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
+            _sig_open += ((_sig_open > 0) == (_hsignal0 PTR_DEREF GetSignalOpen() > 0)) ? 1.0f : -1.0f;
+            _sig_open -= ((_sig_open < 0) == (_hsignal0 PTR_DEREF GetSignalOpen() < 0)) ? 1.0f : -1.0f;
           } else if (_hsignal1 != NULL &&
-                     _hsignal1.Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
-            _sig_open += ((_sig_open > 0) == (_hsignal1.GetSignalOpen() > 0)) ? 0.5f : -0.5f;
-            _sig_open -= ((_sig_open < 0) == (_hsignal1.GetSignalOpen() < 0)) ? 0.5f : -0.5f;
+                     _hsignal1 PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
+            _sig_open += ((_sig_open > 0) == (_hsignal1 PTR_DEREF GetSignalOpen() > 0)) ? 0.5f : -0.5f;
+            _sig_open -= ((_sig_open < 0) == (_hsignal1 PTR_DEREF GetSignalOpen() < 0)) ? 0.5f : -0.5f;
           } else if (_hsignal2 != NULL &&
-                     _hsignal2.Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
-            _sig_open += ((_sig_open > 0) == (_hsignal2.GetSignalOpen() > 0)) ? 0.2f : -0.2f;
-            _sig_open -= ((_sig_open < 0) == (_hsignal2.GetSignalOpen() < 0)) ? 0.2f : -0.2f;
+                     _hsignal2 PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_TIME)) > 0) {
+            _sig_open += ((_sig_open > 0) == (_hsignal2 PTR_DEREF GetSignalOpen() > 0)) ? 0.2f : -0.2f;
+            _sig_open -= ((_sig_open < 0) == (_hsignal2 PTR_DEREF GetSignalOpen() < 0)) ? 0.2f : -0.2f;
           } else {
             // Decrease signal by 0.1 if no hourly signal is found.
             _sig_open -= 0.1f;
@@ -768,21 +775,21 @@ class EA : public Taskable<DataParamEntry> {
   bool StrategyAdd(ENUM_TIMEFRAMES _tf, int64 _magic_no = 0, int _type = 0) {
     bool _result = true;
     _magic_no = _magic_no > 0 ? _magic_no : rand();
-    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, THIS_PTR);
-    _strat PTR_DEREF Ptr().Set<int64>(STRAT_PARAM_ID, _magic_no);
-    _strat PTR_DEREF Ptr().Set<int64>(TRADE_PARAM_MAGIC_NO, _magic_no);
-    _strat PTR_DEREF Ptr().Set<int>(STRAT_PARAM_LOG_LEVEL,
-                          (ENUM_LOG_LEVEL)eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
-    _strat PTR_DEREF Ptr().Set<ENUM_TIMEFRAMES>(STRAT_PARAM_TF, _tf);
-    _strat PTR_DEREF Ptr().Set<int>(STRAT_PARAM_TYPE, _type);
-    _strat PTR_DEREF Ptr().OnInit();
+    Ref<Strategy> _strat = new SClass(_tf, THIS_PTR);
+    _strat REF_DEREF Set<int64>(STRAT_PARAM_ID, _magic_no);
+    _strat REF_DEREF Set<int64>(TRADE_PARAM_MAGIC_NO, _magic_no);
+    _strat REF_DEREF Set<int>(STRAT_PARAM_LOG_LEVEL,
+                              (ENUM_LOG_LEVEL)eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
+    _strat REF_DEREF Set<ENUM_TIMEFRAMES>(STRAT_PARAM_TF, _tf);
+    _strat REF_DEREF Set<int>(STRAT_PARAM_TYPE, _type);
+    _strat REF_DEREF OnInit();
     if (!strats.KeyExists(_magic_no)) {
       _result &= strats.Set(_magic_no, _strat);
     } else {
       logger.Error("Strategy adding conflict!", __FUNCTION_LINE__);
       DebugBreak();
     }
-    OnStrategyAdd(_strat PTR_DEREF Ptr());
+    OnStrategyAdd(_strat.Ptr());
     return _result;
   }
 
@@ -820,14 +827,15 @@ class EA : public Taskable<DataParamEntry> {
     bool _result = true;
     Trade *_trade = trade.GetByKey(_Symbol);
     // Load active trades.
-    _result &= _trade.OrdersLoadByMagic(_strat PTR_DEREF Get<int64>(STRAT_PARAM_ID));
+    _result &= _trade PTR_DEREF OrdersLoadByMagic(_strat PTR_DEREF Get<int64>(STRAT_PARAM_ID));
     // Load strategy-specific order parameters (e.g. conditions).
     // This is a temporary workaround for GH-705.
     // @todo: To move to Strategy class.
     Ref<Order> _order;
-    for (DictStructIterator<int64, Ref<Order>> iter = _trade.GetOrdersActive().Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = _trade PTR_DEREF GetOrdersActive() PTR_DEREF Begin();
+         iter.IsValid(); ++iter) {
       _order = iter.Value();
-      if (_order.IsSet() && _order.Ptr().IsOpen()) {
+      if (_order.IsSet() && _order REF_DEREF IsOpen()) {
         _strat PTR_DEREF OnOrderLoad(_order.Ptr());
       }
     }
@@ -847,8 +855,10 @@ class EA : public Taskable<DataParamEntry> {
     ResetLastError();
     for (DictObjectIterator<string, Trade> titer = trade.Begin(); titer.IsValid(); ++titer) {
       Trade *_trade = titer.Value();
-      if (_trade.Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && !_trade.Get<bool>(TRADE_STATE_MARKET_CLOSED)) {
-        for (DictStructIterator<int64, Ref<Order>> oiter = _trade.GetOrdersActive().Begin(); oiter.IsValid(); ++oiter) {
+      if (_trade PTR_DEREF Get<bool>(TRADE_STATE_ORDERS_ACTIVE) &&
+          !_trade PTR_DEREF Get<bool>(TRADE_STATE_MARKET_CLOSED)) {
+        for (DictStructIterator<int64, Ref<Order>> oiter = _trade PTR_DEREF GetOrdersActive() PTR_DEREF Begin();
+             oiter.IsValid(); ++oiter) {
           bool _sl_valid = false, _tp_valid = false;
           double _sl_new = 0, _tp_new = 0;
           Order *_order = oiter.Value().Ptr();
@@ -895,7 +905,7 @@ class EA : public Taskable<DataParamEntry> {
             if (_result) {
               _order PTR_DEREF Set(ORDER_PROP_TIME_LAST_UPDATE, TimeCurrent());
             } else {
-              _trade.UpdateStates(true);
+              _trade PTR_DEREF UpdateStates(true);
             }
           }
         }
@@ -1045,17 +1055,17 @@ class EA : public Taskable<DataParamEntry> {
         // 1st (i:0) - Strategy's enum action to execute.
         // 2nd (i:1) - Strategy's argument to pass.
         TaskActionEntry _entry_strat = _entry;
-        _entry_strat PTR_DEREF ArgRemove(0);
-        for (DictStructIterator<int64, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat PTR_DEREF IsValid(); ++iter_strat) {
-          Strategy *_strat = iter_strat PTR_DEREF Value().Ptr();
+        _entry_strat.ArgRemove(0);
+        for (DictStructIterator<int64, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat.IsValid(); ++iter_strat) {
+          Strategy *_strat = iter_strat.Value().Ptr();
 
           _result &= _strat PTR_DEREF Run(_entry_strat);
         }
         return _result;
       }
       case EA_ACTION_TASKS_CLEAN:
-        tasks.GetTasks().Clear();
-        return tasks.GetTasks().Size() == 0;
+        tasks.GetTasks() PTR_DEREF Clear();
+        return tasks.GetTasks() PTR_DEREF Size() == 0;
       default:
         GetLogger() PTR_DEREF Error(StringFormat("Invalid EA action: %d!", _entry.GetId(), __FUNCTION_LINE__));
         SetUserError(ERR_INVALID_PARAMETER);

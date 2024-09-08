@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -116,9 +116,9 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
                                        // UPPER_LINE, 1 - LOWER_LINE
                            int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL__
-#ifdef __MQL4__
+  #ifdef __MQL4__
     return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _ap, _deviation, _mode, _shift);
-#else  // __MQL5__
+  #else  // __MQL5__
     switch (_mode) {
       case LINE_UPPER:
         _mode = 0;
@@ -130,7 +130,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
 
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _ap, _deviation),
                                       _mode, _shift);
-#endif
+  #endif
 #else  // Non-MQL.
     // @todo: Use Platform class.
     RUNTIME_ERROR(
@@ -151,7 +151,7 @@ class Indi_Envelopes : public Indicator<IndiEnvelopesParams> {
                              _ma_method, _ma_shift, _deviation, _mode, _shift, _target PTR_DEREF GetCache());
   }
 
-  static double iEnvelopesOnArray(CONST_ARRAY_REF(double, price), int total, int ma_period, ENUM_MA_METHOD ma_method,
+  static double iEnvelopesOnArray(ARRAY_REF(double, price), int total, int ma_period, ENUM_MA_METHOD ma_method,
                                   int ma_shift, double deviation, int mode, int shift,
                                   IndiBufferCache<double> *_cache = NULL) {
 #ifdef __MQL4__
@@ -331,7 +331,7 @@ double iEnvelopes(string _symbol, int _tf, int _period, int _ma_method, int _ma_
   return Indi_Envelopes::iEnvelopes(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_MA_METHOD)_ma_method, _ma_shift,
                                     (ENUM_APPLIED_PRICE)_ap, _deviation, _mode, _shift);
 }
-double iEnvelopesOnArray(CONST_ARRAY_REF(double, _arr), int _total, int _ma_period, int _ma_method, int _ma_shift,
+double iEnvelopesOnArray(ARRAY_REF(double, _arr), int _total, int _ma_period, int _ma_method, int _ma_shift,
                          double _deviation, int _mode, int _shift) {
   ResetLastError();
   return Indi_Envelopes::iEnvelopesOnArray(_arr, _total, _ma_period, (ENUM_MA_METHOD)_ma_method, _ma_shift, _deviation,

@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward declaration.
@@ -49,11 +49,12 @@ struct ChartParams;
 struct IndicatorParams {
  protected:
   void Init() {}
+
  public:                                // @todo: Change it to protected.
   string custom_indi_name;              // Name of the indicator passed to iCustom() method.
   string name;                          // Name of the indicator.
   int shift;                            // Shift (relative to the current bar, 0 - default).
-  uint bps;                             // A candle chart per number of seconds (e.g. for M1 is 60).
+  unsigned int bps;                     // A candle chart per number of seconds (e.g. for M1 is 60).
   unsigned int max_params;              // Max supported input params.
   ENUM_INDICATOR_TYPE itype;            // Indicator type (e.g. INDI_RSI).
   color indi_color;                     // Indicator color.
@@ -65,6 +66,7 @@ struct IndicatorParams {
   enum ENUM_INDI_PARAMS_PROP {
     INDI_PARAMS_PROP_BPS,
   };
+
  public:
   /* Special methods */
   // Constructor.
@@ -131,7 +133,7 @@ struct IndicatorParams {
   void Set(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _prop, T _value) {
     switch (_prop) {
       case INDI_PARAMS_PROP_BPS:
-        flags = (uint)_value;
+        bps = (unsigned int)_value;
         return;
       default:
         break;

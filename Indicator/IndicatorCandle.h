@@ -359,7 +359,7 @@ class IndicatorCandle : public Indicator<TS> {
    */
   void OnDataSourceWillEmitEntries(ENUM_INDI_EMITTED_ENTRY_TYPE _type, int _num_entries) override {
     if (_type == INDI_EMITTED_ENTRY_TYPE_CANDLE) {
-      idata.Reserve(_num_entries);
+      THIS_ATTR idata.Reserve(_num_entries);
     }
   }
 

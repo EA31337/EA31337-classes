@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -319,7 +319,17 @@ enum ENUM_OBJECT_PROPERTY_INTEGER {
   OBJPROP_BORDER_COLOR
 };
 
-enum ENUM_OBJECT_PROPERTY_DOUBLE { OBJPROP_PRICE, OBJPROP_LEVELVALUE, OBJPROP_SCALE, OBJPROP_ANGLE, OBJPROP_DEVIATION };
+enum ENUM_OBJECT_PROPERTY_DOUBLE {
+  #ifndef __MQL__
+  // In C++ we don't want enum values to conflict between MQL4/MQL5-style usage.
+  __ENUM_OBJECT_PROPERTY_DOUBLE_DUMMY = 100,
+  #endif
+  OBJPROP_PRICE,
+  OBJPROP_LEVELVALUE,
+  OBJPROP_SCALE,
+  OBJPROP_ANGLE,
+  OBJPROP_DEVIATION
+};
 
 enum ENUM_OBJECT_PROPERTY_STRING {
   OBJPROP_NAME,

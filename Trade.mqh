@@ -107,17 +107,9 @@ class Trade : public Taskable<DataParamEntry> {
   /**
    * Class deconstructor.
    */
-  void ~Trade() {}
+  ~Trade() {}
 
   /* Getters simple */
-
-  /**
-   * Gets an account parameter value of double type.
-   */
-  template <typename T>
-  T Get(ENUM_ACCOUNT_INFO_DOUBLE _param) {
-    return account.Get<T>(_param);
-  }
 
   /**
    * Gets a trade state value.
@@ -213,7 +205,8 @@ class Trade : public Taskable<DataParamEntry> {
     MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
-    _request.deviation = tparams.Get<uint>(TRADE_PARAM_SLIPPAGE);  // The maximal price deviation, specified in points.
+    _request.deviation =
+        tparams.Get<unsigned int>(TRADE_PARAM_SLIPPAGE);  // The maximal price deviation, specified in points.
     _request.magic = _magic > 0 ? _magic : tparams.Get<int64>(TRADE_PARAM_MAGIC_NO);
     _request.symbol = GetSource() PTR_DEREF GetSymbol();
     _request.price = GetSource() PTR_DEREF GetOpenOffer(_type);
@@ -794,7 +787,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       case TRADE_ACTION_DEAL:
         if (!IsTradeRecommended(true)) {
-          logger.Debug("Trade not opened due to trading states.", __FUNCTION_LINE__, (string)tstates.GetStates());
+          logger.Debug("Trade not opened due to trading states.", __FUNCTION_LINE__,
+                       IntegerToString(tstates.GetStates()));
           return _result;
         } else if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) == 0) {
           logger.Error("No free margin to open a new trade!", __FUNCTION_LINE__);
@@ -830,8 +824,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     if (_order PTR_DEREF IsOpen()) {
       // @todo: _order.IsPending()?
       _result &= orders_active.Set(_order PTR_DEREF Get<int64>(ORDER_PROP_TICKET), _order_ref);
-      logger.Link(_order.GetLogger());
-      _order PTR_DEREF GetLogger().SetLevel((ENUM_LOG_LEVEL)tparams.Get<int>(TRADE_PARAM_LOG_LEVEL));
+      logger.Link(_order PTR_DEREF GetLogger());
+      _order PTR_DEREF GetLogger() PTR_DEREF SetLevel((ENUM_LOG_LEVEL)tparams.Get<int>(TRADE_PARAM_LOG_LEVEL));
     } else {
       _result &= orders_history.Set(_order PTR_DEREF Get<int64>(ORDER_PROP_TICKET), _order_ref);
     }
@@ -895,11 +889,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           OrderMoveToHistory(_order.Ptr());
           order_last = _order;
         } else {
-          logger.Error(StringFormat("Failed to close the order: %d! Error: %d (%s)",
-                                    _order REF_DEREF Get<long>(ORDER_PROP_TICKET),
-                                    _order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR),
-                                    Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
-                       __FUNCTION_LINE__);
+          logger.Error(
+              StringFormat("Failed to close the order: %d! Error: %d (%s)",
+                           _order REF_DEREF Get<long>(ORDER_PROP_TICKET),
+                           _order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR),
+                           C_STR(Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR)))),
+              __FUNCTION_LINE__);
           continue;
         }
       } else {
@@ -936,7 +931,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                 StringFormat("Failed to close the order: %d! Error: %d (%s)",
                              _order REF_DEREF Get<long>(ORDER_PROP_TICKET),
                              _order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR),
-                             Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR))),
+                             C_STR(Terminal::GetErrorText(_order REF_DEREF Get<unsigned int>(ORDER_PROP_LAST_ERROR)))),
                 __FUNCTION_LINE__);
             continue;
           }
@@ -1396,7 +1391,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns Buy operation for bullish, Sell for bearish, otherwise NULL for neutral market trend.
    */
-  ENUM_ORDER_TYPE GetTrendOp(int method, ENUM_TIMEFRAMES _tf = NULL, bool simple = false) {
+  ENUM_ORDER_TYPE GetTrendOp(int method, ENUM_TIMEFRAMES _tf = (ENUM_TIMEFRAMES)0, bool simple = false) {
     double _curr_trend = GetTrend(method, _tf, simple);
     return _curr_trend == 0 ? (ENUM_ORDER_TYPE)(ORDER_TYPE_BUY + ORDER_TYPE_SELL)
                             : (_curr_trend > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
@@ -1864,52 +1859,60 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         return tparams.IsLimitGe(tstats);
       case TRADE_COND_IS_PEAK:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          ENUM_ORDER_TYPE _order_types1[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ARRAY(ENUM_ORDER_TYPE, _order_types1);
+          ArrayPush(_order_types1, ORDER_TYPE_BUY);
+          ArrayPush(_order_types1, ORDER_TYPE_SELL);
           ENUM_ORDER_TYPE _order_type_profitable1 =
-              _oquery_ref.Ptr()
-                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+              _oquery_ref.Ptr() PTR_DEREF
+                  FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
                       _order_types1, ORDER_PROP_PROFIT, ORDER_TYPE);
           return IsPeak(_order_type_profitable1);
         }
       case TRADE_COND_IS_PIVOT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 0) {
-          ENUM_ORDER_TYPE _order_types2[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ARRAY(ENUM_ORDER_TYPE, _order_types2);
+          ArrayPush(_order_types2, ORDER_TYPE_BUY);
+          ArrayPush(_order_types2, ORDER_TYPE_SELL);
           ENUM_ORDER_TYPE _order_type_profitable2 =
-              _oquery_ref.Ptr()
-                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+              _oquery_ref.Ptr() PTR_DEREF
+                  FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
                       _order_types2, ORDER_PROP_PROFIT, ORDER_TYPE);
           return IsPivot(_order_type_profitable2);
         }
       case TRADE_COND_ORDERS_PROFIT_DBL_LOSS:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && orders_active.Size() > 1) {
           float _profit_buys =
-              _oquery_ref.Ptr()
-                  .CalcSumByPropWithCond<ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, ENUM_ORDER_TYPE,
-                                         float>(ORDER_PROP_PROFIT_PIPS, ORDER_TYPE, ORDER_TYPE_BUY);
+              _oquery_ref.Ptr() PTR_DEREF CalcSumByPropWithCond<ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER,
+                                                                ENUM_ORDER_TYPE, float>(ORDER_PROP_PROFIT_PIPS,
+                                                                                        ORDER_TYPE, ORDER_TYPE_BUY);
           float _profit_sells =
-              _oquery_ref.Ptr()
-                  .CalcSumByPropWithCond<ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, ENUM_ORDER_TYPE,
-                                         float>(ORDER_PROP_PROFIT_PIPS, ORDER_TYPE, ORDER_TYPE_SELL);
+              _oquery_ref.Ptr() PTR_DEREF CalcSumByPropWithCond<ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER,
+                                                                ENUM_ORDER_TYPE, float>(ORDER_PROP_PROFIT_PIPS,
+                                                                                        ORDER_TYPE, ORDER_TYPE_SELL);
           return (((_profit_buys > 1) && (_profit_sells < -1) && (_profit_buys > -(_profit_sells * 2))) ||
                   ((_profit_sells > 1) && (_profit_buys < -1) && (_profit_sells > -(_profit_buys * 2))));
         }
         break;
       case TRADE_COND_ORDERS_IN_TREND:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          ENUM_ORDER_TYPE _order_types3[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ARRAY(ENUM_ORDER_TYPE, _order_types3);
+          ArrayPush(_order_types3, ORDER_TYPE_BUY);
+          ArrayPush(_order_types3, ORDER_TYPE_SELL);
           ENUM_ORDER_TYPE _order_type_profit1 =
-              _oquery_ref.Ptr()
-                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+              _oquery_ref.Ptr() PTR_DEREF
+                  FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
                       _order_types3, ORDER_PROP_PROFIT, ORDER_TYPE);
           return _order_type_profit1 == GetTrendOp(18, PERIOD_D1);
         }
         break;
       case TRADE_COND_ORDERS_IN_TREND_NOT:
         if (Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
-          ENUM_ORDER_TYPE _order_types4[] = {ORDER_TYPE_BUY, ORDER_TYPE_SELL};
+          ARRAY(ENUM_ORDER_TYPE, _order_types4);
+          ArrayPush(_order_types4, ORDER_TYPE_BUY);
+          ArrayPush(_order_types4, ORDER_TYPE_SELL);
           ENUM_ORDER_TYPE _order_type_profit2 =
-              _oquery_ref.Ptr()
-                  .FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
+              _oquery_ref.Ptr() PTR_DEREF
+                  FindPropBySum<ENUM_ORDER_TYPE, ENUM_ORDER_PROPERTY_CUSTOM, ENUM_ORDER_PROPERTY_INTEGER, float>(
                       _order_types4, ORDER_PROP_PROFIT, ORDER_TYPE);
           return _order_type_profit2 != GetTrendOp(18, PERIOD_D1);
         }

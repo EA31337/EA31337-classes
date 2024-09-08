@@ -35,7 +35,7 @@ typedef unsigned long ulong;
 typedef unsigned short ushort;
 
 // Includes.
-#include "../SymbolInfo.mqh"
+#include "../Exchange/SymbolInfo/SymbolInfo.h"
 
 int main(int argc, char **argv) {
   SymbolInfo *si = new SymbolInfo();

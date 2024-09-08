@@ -26,16 +26,14 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
-#include "../Storage/Dict/DictStruct.h"
+#include "../Platform/Terminal.define.h"
 #include "../Refs.mqh"
-#include "../Platform/Terminal.define.h"
 #include "../Storage/Dict/DictStruct.h"
-#include "../Platform/Terminal.define.h"
 #include "Task.enum.h"
 #include "Task.struct.h"
 #include "TaskAction.h"
@@ -318,8 +316,8 @@ class Task : public Taskable<TaskEntry> {
 };
 
 #ifdef EMSCRIPTEN
-#include <emscripten.h>
-#include <emscripten/bind.h>
+  #include <emscripten.h>
+  #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(Task) {
   emscripten::class_<Task>("Task").smart_ptr<Ref<Task>>("Ref<Task>").constructor(emscripten::optional_override([]() {

@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -204,7 +204,9 @@ struct EAParams {
   }
   void SetTaskEntry(TaskEntry &_task_entry) { task_init = _task_entry; }
   // Printers.
-  string ToString(string _dlm = ",") { return StringFormat("%s v%s by %s (%s)", name, ver, author, desc); }
+  string ToString(string _dlm = ",") {
+    return StringFormat("%s v%s by %s (%s)", C_STR(name), C_STR(ver), C_STR(author), C_STR(desc));
+  }
 };
 
 /* Defines struct to store results for EA processing. */
