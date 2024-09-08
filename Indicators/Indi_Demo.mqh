@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,10 +20,15 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
-#include "Price/Indi_Price.mqh"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
+#include "Price/Indi_Price.h"
 
 /**
  * @file
@@ -81,7 +86,7 @@ class Indi_Demo : public Indicator<IndiDemoParams> {
    */
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
     double _value = Indi_Demo::iDemo(THIS_PTR, ToRelShift(_abs_shift));
-    if (idparams.IsDrawing()) {
+    if (idparams.IsPloting()) {
       // draw.DrawLineTo(GetName(), GetCandle() PTR_DEREF GetBarTime(ToRelShift(_abs_shift)), _value);
     }
     return _value;

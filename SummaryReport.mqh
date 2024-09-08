@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,11 +20,16 @@
  *
  */
 
-#include "Account/AccountMt.h"
+#ifndef __MQL__
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
+#endif
+
 #include "Convert.mqh"
+#include "Exchange/Account/AccountMt.h"
 #include "Indicator/IndicatorData.h"
-#include "Order.struct.h"
-#include "Terminal.mqh"
+#include "Platform/Order.struct.h"
+#include "Platform/Terminal.h"
 #include "Trade.mqh"
 
 /**
@@ -302,17 +307,19 @@ class SummaryReport {
     string output = "";
     _currency = _currency != "" ? _currency : AccountInfoString(ACCOUNT_CURRENCY);
     output += StringFormat("Currency pair symbol:                       %s", _Symbol) + sep;
-    output += StringFormat("Initial deposit:                            %.2f %s", GetInitDeposit(), _currency) + sep;
-    output += StringFormat("Total net profit:                           %.2f %s", summary_profit, _currency) + sep;
-    output += StringFormat("Gross profit:                               %.2f %s", gross_profit, _currency) + sep;
-    output += StringFormat("Gross loss:                                 %.2f %s", gross_loss, _currency) + sep;
-    output += StringFormat("Absolute drawdown:                          %.2f %s", abs_dd, _currency) + sep;
     output +=
-        StringFormat("Maximal drawdown:                           %.1f %s (%.1f%%)", max_dd, _currency, max_dd_pct) +
-        sep;
+        StringFormat("Initial deposit:                            %.2f %s", GetInitDeposit(), C_STR(_currency)) + sep;
     output +=
-        StringFormat("Relative drawdown:                          (%.1f%%) %.1f %s", rel_dd_pct, rel_dd, _currency) +
-        sep;
+        StringFormat("Total net profit:                           %.2f %s", summary_profit, C_STR(_currency)) + sep;
+    output += StringFormat("Gross profit:                               %.2f %s", gross_profit, C_STR(_currency)) + sep;
+    output += StringFormat("Gross loss:                                 %.2f %s", gross_loss, C_STR(_currency)) + sep;
+    output += StringFormat("Absolute drawdown:                          %.2f %s", abs_dd, C_STR(_currency)) + sep;
+    output += StringFormat("Maximal drawdown:                           %.1f %s (%.1f%%)", max_dd, C_STR(_currency),
+                           max_dd_pct) +
+              sep;
+    output += StringFormat("Relative drawdown:                          (%.1f%%) %.1f %s", rel_dd_pct, rel_dd,
+                           C_STR(_currency)) +
+              sep;
     output += StringFormat("Profit factor:                              %.2f", profit_factor) + sep;
     output += StringFormat("Expected payoff:                            %.2f", expected_payoff) + sep;
     output += StringFormat("Trades total                                %d", summary_trades) + sep;

@@ -1,6 +1,7 @@
 //+------------------------------------------------------------------+
-//|                                 Copyright 2016-2022, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                                EA31337 framework |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -19,9 +20,10 @@
  *
  */
 
-// Prevents processing the same indicator file twice.
-#ifndef INDI_CUSTOM_MQH
-#define INDI_CUSTOM_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Defines
 #ifndef INDI_CUSTOM_PATH
@@ -39,7 +41,7 @@
 
 // Defines struct to store indicator parameter values.
 struct IndiCustomParams : public IndicatorParams {
-  DataParamEntry iargs[];
+  ARRAY(DataParamEntry, iargs);
   // Struct constructors.
   IndiCustomParams(string _filepath = INDI_CUSTOM_PATH, int _shift = 0) : IndicatorParams(INDI_CUSTOM) {
     custom_indi_name = _filepath;
@@ -60,7 +62,7 @@ struct IndiCustomParams : public IndicatorParams {
     }
     iargs[_index + 1] = _entry;
   }
-  void SetParams(DataParamEntry &_entries[]) {
+  void SetParams(CONST_ARRAY_REF(DataParamEntry, _entries)) {
     for (int i = 0; i < ArraySize(_entries); i++) {
       iargs[i] = _entries[i];
     }
@@ -126,5 +128,3 @@ class Indi_Custom : public Indicator<IndiCustomParams> {
     return _value;
   }
 };
-
-#endif  // INDI_CUSTOM_MQH

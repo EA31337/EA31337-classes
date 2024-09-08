@@ -1,0 +1,95 @@
+---
+name: Compile MQL
+
+env:
+  ARTIFACT_PREFIX: ${{ inputs.artifact_prefix || 'mt' }}
+  COMPILE_PATH: ${{ inputs.path || '*' }}
+  SKIP_INIT: ${{ inputs.skip_init || false }}
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/compile-mql.yml'
+  push:
+    paths-ignore:
+      - '**.md'
+  workflow_call:
+    inputs:
+      artifact_prefix:
+        default: mt
+        description: Artifact prefix.
+        required: false
+        type: string
+      path:
+        default: '*'
+        description: Path to compile.
+        required: false
+        type: string
+      skip_cleanup:
+        default: false
+        description: Skips a clean-up job.
+        required: false
+        type: boolean
+      skip_init:
+        default: true
+        description: Skips initialization of the platform.
+        required: false
+        type: boolean
+
+jobs:
+
+  mt4:
+    name: Installs platform (4)
+    uses: EA31337/EA-Tester/.github/workflows/platform-linux.yml@dev
+    with:
+      artifact_name: ${{ inputs.artifact_prefix || 'mt' }}4
+      artifact_overwrite: true
+      skip_cleanup: true
+      version: 4
+  mt5:
+    name: Installs platform (5)
+    uses: EA31337/EA-Tester/.github/workflows/platform-linux.yml@dev
+    with:
+      artifact_name: ${{ inputs.artifact_prefix || 'mt' }}5
+      artifact_overwrite: true
+      skip_cleanup: true
+      version: 5
+
+  compile:
+    name: Compile
+    needs: [mt4, mt5]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: mt${{ matrix.version }}
+          path: .mt${{ matrix.version }}
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
+        with:
+          init-platform: ${{ env.SKIP_INIT == 'false' }}
+          mt-path: .mt${{ matrix.version }}
+          path-ignore: .mt${{ matrix.version }}
+          path: '${{ env.COMPILE_PATH }}/**/*.mq${{ matrix.version }}'
+          verbose: true
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: files-ex${{ matrix.version }}
+          path: '**/*.ex[45]'
+
+    strategy:
+      matrix:
+        version: [4, 5]
+
+  cleanup:
+    if: inputs.skip_cleanup != true
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml

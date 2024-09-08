@@ -1,6 +1,10 @@
 ---
 name: Test
 
+env:
+  TEST_PATH: tests
+  TEST_SKIP: ${{ secrets.MT5_LOGIN || false }}
+
 # yamllint disable-line rule:truthy
 on:
   pull_request:
@@ -22,138 +26,76 @@ jobs:
 
   compile:
     name: Compile
-    uses: ./.github/workflows/compile.yml
+    uses: ./.github/workflows/compile-mql.yml
     with:
       artifact_prefix: mt
+      path: tests
       skip_cleanup: true
-      skip_init: false
 
-  Experts-MQL4:
+  test:
     defaults:
       run:
         shell: bash
-        working-directory: tests
-    if: false
+        working-directory: ${{ env.TEST_PATH }}
+    name: Test
     needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
         test:
-          - AccountTest
-          - BufferStructTest
-          - BufferTest
-          - ChartTest
-          - CompileIndicatorsTest
-          - DatabaseTest
-          # - DrawIndicatorTest
           - EATest
-          - IndicatorsTest
           - MailTest
           - MarketTest
-          - MatrixTest
-          - OrderTest
-          - OrdersTest
-          - StatsTest
           - StrategyTest
           - StrategyTest-RSI
-          - SymbolInfoTest
           - SummaryReportTest
-          - TickerTest
           - TradeTest
+        version: [5]
       max-parallel: 4
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
+          name: files-ex${{ matrix.version }}
+      - name: List compiled files
+        run: find . -name '*.ex?' -type f -print
+      - if: ${{ env.TEST_SKIP != true }}
+        name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 4-12
-          BtMonths: 1
-          BtYears: 2021
-          Version: 4
+          Login: ${{ secrets.MT5_LOGIN }}
+          Password: ${{ secrets.MT5_PASSWORD }}
+          Server: MetaQuotes-Demo
+          TestDeposit: 2000
           TestExpert: ${{ matrix.test }}
-          RunOnError: show_logs 200
-        if: always()
-    timeout-minutes: 10
+          TestFromDate: ${{ matrix.year }}.01.01
+          TestPeriod: M1
+          TestSymbol: EURUSD
+          TestToDate: ${{ matrix.year }}.01.14
+          # yamllint disable-line rule:line-length
+          UrlExpert: file://${{ github.workspace }}/${{ env.TEST_PATH }}/${{ matrix.test }}.ex${{ matrix.version }}
+          Version: 5
+      - if: ${{ failure() && runner.debug }}
+        uses: mxschmitt/action-tmate@v3
+    timeout-minutes: 20
 
   Scripts-MQL4:
     defaults:
       run:
         shell: bash
-        working-directory: tests
+        working-directory: ${{ env.TEST_PATH }}
     if: false
     needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
         test:
-          #  - 3DTest
-          - CollectionTest
           - ConfigTest
           - ConvertTest
-          - DateTimeTest
-          - DictTest
           - LogTest
           - MD5Test
-          - MathTest
-          - OrderQuery
           - ProfilerTest
           - RefsTest
-          - TerminalTest
           - TimerTest
-          - ValueStorageTest
-      max-parallel: 4
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: ${{ matrix.test }}
-        if: always()
-    timeout-minutes: 10
-
-  Scripts-MQL4-Ignore:
-    defaults:
-      run:
-        shell: bash
-        working-directory: tests
-    if: false
-    needs: compile
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test:
-          # @fixme: GH-266
-          - RedisTest
-          # @fixme: GH-266
-          - WebTest
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: ${{ matrix.test }}
-          RunOnFail: "exit 0"
-        if: always()
-    timeout-minutes: 10
-
-  Trade-Tests-MQL4:
-    defaults:
-      run:
-        shell: bash
-        working-directory: Trade/tests
-    if: false
-    needs: compile
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test:
-          - TradeSignalTest
     steps:
       - uses: actions/download-artifact@v2
         with:
@@ -166,6 +108,12 @@ jobs:
     timeout-minutes: 10
 
   cleanup:
+    if: inputs.skip_cleanup != true
     name: Clean-up
-    needs: [compile]
-    uses: ./.github/workflows/cleanup.yml
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: geekyeggo/delete-artifact@v5
+        with:
+          name: mt?
+    timeout-minutes: 5

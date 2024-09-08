@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -26,15 +26,15 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward declarations.
 struct TradeStats;
 
 // Includes.
-#include "DateTime.mqh"
+#include "Storage/DateTime.h"
 #include "Trade.enum.h"
 
 /* Structure for trade statistics. */
@@ -149,7 +149,7 @@ struct TradeParams {
         slippage(_slippage) {
     SetLimits(0);
   }
-  TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
+  TradeParams(uint64 _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
       : bars_min(100),
         lot_size(0),
         order_comment(""),
@@ -211,10 +211,10 @@ struct TradeParams {
   }
   bool IsLimitGe(TradeStats &_stats) {
     // @todo: Improve code performance.
-    for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
-      for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-        unsigned int _stat_value = _stats.GetOrderStats(t, p);
-        if (_stat_value > 0 && IsLimitGe(t, p, _stat_value)) {
+    for (/*ENUM_TRADE_STAT_TYPE*/ int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+      for (/*ENUM_TRADE_STAT_PERIOD*/ int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+        unsigned int _stat_value = _stats.GetOrderStats((ENUM_TRADE_STAT_TYPE)t, (ENUM_TRADE_STAT_PERIOD)p);
+        if (_stat_value > 0 && IsLimitGe((ENUM_TRADE_STAT_TYPE)t, (ENUM_TRADE_STAT_PERIOD)p, _stat_value)) {
           return true;
         }
       }
@@ -226,22 +226,24 @@ struct TradeParams {
   void Set(ENUM_TRADE_PARAM _param, T _value) {
     switch (_param) {
       case TRADE_PARAM_BARS_MIN:
-        bars_min = (unsigned short)_value;
+        ConvertBasic::Convert(_value, bars_min);
         return;
       case TRADE_PARAM_LOT_SIZE:
-        lot_size = (float)_value;
+        ConvertBasic::Convert(_value, lot_size);
         return;
       case TRADE_PARAM_MAGIC_NO:
-        magic_no = (unsigned long)_value;
+        ConvertBasic::Convert(_value, magic_no);
         return;
-      case TRADE_PARAM_ORDER_COMMENT:
-        order_comment = SerializerConversions::ValueToString(_value);
+      case TRADE_PARAM_ORDER_COMMENT: {
+        string _value_string = SerializerConversions::ValueToString(_value);
+        ConvertBasic::Convert(_value_string, order_comment);
         return;
+      }
       case TRADE_PARAM_RISK_MARGIN:
-        risk_margin = (float)_value;
+        ConvertBasic::Convert(_value, risk_margin);
         return;
       case TRADE_PARAM_SLIPPAGE:
-        slippage = (unsigned int)_value;
+        ConvertBasic::Convert(_value, slippage);
         return;
       default:
         break;
@@ -289,7 +291,7 @@ struct TradeParams {
     }
   }
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
-  void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
+  void SetMagicNo(uint64 _mn) { magic_no = _mn; }
   void SetRiskMargin(float _value) { risk_margin = _value; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}

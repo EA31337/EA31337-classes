@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -30,17 +30,17 @@
 #endif
 
 // Includes.
-#include "Account/Account.enum.h"
-#include "Account/Account.extern.h"
-#include "Array.mqh"
 #include "Convert.extern.h"
-#include "DateTime.extern.h"
-#include "DateTime.mqh"
-#include "Math.extern.h"
-#include "Order.enum.h"
-#include "SymbolInfo.enum.h"
-#include "SymbolInfo.extern.h"
-#include "SymbolInfo.struct.static.h"
+#include "Exchange/Account/Account.enum.h"
+#include "Exchange/Account/Account.extern.h"
+#include "Exchange/SymbolInfo/SymbolInfo.enum.h"
+#include "Exchange/SymbolInfo/SymbolInfo.extern.h"
+#include "Exchange/SymbolInfo/SymbolInfo.struct.static.h"
+#include "Math/Math.extern.h"
+#include "Platform/Order.enum.h"
+#include "Storage/Array.h"
+#include "Storage/DateTime.extern.h"
+#include "Storage/DateTime.h"
 
 /**
  * Class to provide conversion methods.
@@ -168,12 +168,12 @@ class Convert {
   /**
    * Convert points into pips.
    */
-  static double PointsToPips(long pts, int digits) { return (double)(pts / PointsPerPip(digits)); }
+  static double PointsToPips(int64 pts, int digits) { return (double)(pts / PointsPerPip(digits)); }
 
   /**
    * Convert points into pips.
    */
-  static double PointsToPips(long pts, string _symbol = NULL) {
+  static double PointsToPips(int64 pts, string _symbol = NULL) {
     return PointsToPips(pts, (unsigned int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
@@ -181,7 +181,7 @@ class Convert {
    * Convert points into price value.
    *
    */
-  static double PointsToValue(long pts, int mode, string _symbol = NULL) {
+  static double PointsToValue(int64 pts, int mode, string _symbol = NULL) {
     switch (mode) {
       case 0:  // Forex.
         // In currencies a tick is a point.
@@ -205,7 +205,7 @@ class Convert {
   /**
    * Convert points into price value.
    */
-  static double PointsToValue(long pts, int mode, int digits) {
+  static double PointsToValue(int64 pts, int mode, int digits) {
     switch (mode) {
       case 0:  // Forex.
         return PipsToValue((double)pts / PointsPerPip(digits), digits);
@@ -226,7 +226,7 @@ class Convert {
   /**
    * Convert points into price value.
    */
-  static double PointsToValue(long pts, string _symbol = NULL) {
+  static double PointsToValue(int64 pts, string _symbol = NULL) {
     return PointsToValue(pts, (int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE));
   }
 

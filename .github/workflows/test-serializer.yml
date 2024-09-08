@@ -1,50 +1,72 @@
 ---
 name: Test Serializer
 
+env:
+  TEST_PATH: Serializer/tests
+  TEST_SKIP: ${{ secrets.MT5_LOGIN || false }}
+
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - 'Serializer/**'
-      - '.github/workflows/test-serializer.yml'
+      - .github/workflows/test-serializer.yml
+      - Serializer/**
   push:
     paths:
-      - 'Serializer/**'
-      - '.github/workflows/test-serializer.yml'
+      - .github/workflows/test-serializer.yml
+      - Serializer/**
 
 jobs:
 
   compile:
     name: Compile
-    uses: ./.github/workflows/compile.yml
+    uses: ./.github/workflows/compile-mql.yml
     with:
       artifact_prefix: mt
-      path: Exchange
+      path: Serializer/tests
       skip_cleanup: true
 
-  Serializer-Tests-MQL4:
+  test:
     defaults:
       run:
         shell: bash
-        working-directory: serializer/tests
-    if: false
+        working-directory: ${{ env.TEST_PATH }}
+    name: Test
     needs: compile
     runs-on: ubuntu-latest
     strategy:
       matrix:
         test:
           - Serializer.test
+        version: [5]
+      max-parallel: 4
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
+          name: files-ex${{ matrix.version }}
+      - name: List compiled files
+        run: find . -name '*.ex?' -type f -print
+      - if: ${{ env.TEST_SKIP != true }}
+        name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 4-8
-          BtMonths: 1
-          BtYears: 2021
-          MtVersion: 4.0.0.1359
-          RunOnError: show_logs 200
+          Login: ${{ secrets.MT5_LOGIN }}
+          Password: ${{ secrets.MT5_PASSWORD }}
+          Server: MetaQuotes-Demo
+          TestDeposit: 2000
           TestExpert: ${{ matrix.test }}
-    timeout-minutes: 10
+          TestFromDate: ${{ matrix.year }}.01.01
+          TestPeriod: M1
+          TestSymbol: EURUSD
+          TestToDate: ${{ matrix.year }}.01.14
+          # yamllint disable-line rule:line-length
+          UrlExpert: file://${{ github.workspace }}/${{ env.TEST_PATH }}/${{ matrix.test }}.ex${{ matrix.version }}
+          Version: 5
+      - if: ${{ failure() && runner.debug }}
+        uses: mxschmitt/action-tmate@v3
+    timeout-minutes: 20
+
+  cleanup:
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml

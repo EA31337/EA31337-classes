@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -27,12 +27,12 @@
  */
 
 // Includes.
-#include "../../DictBase.mqh"
+#include "../../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../../Indicators/Indi_AMA.mqh"
-#include "../../Indicators/Tick/Indi_TickMt.mqh"
+#include "../../Indicators/Tick/Indi_TickMt.h"
 #include "../../Log.mqh"
-#include "../../Platform.h"
-#include "../../SymbolInfo.mqh"
+#include "../../Platform/Platform.h"
+#include "../../Storage/Dict/DictBase.h"
 #include "../../Test.mqh"
 #include "../../Util.h"
 #include "../IndicatorTf.h"
@@ -119,7 +119,7 @@ void OnTick() {
   string c = DoubleToStr(iClose(_Symbol, PERIOD_CURRENT, 0), 5);
   string time = TimeToString(iTime(_Symbol, PERIOD_CURRENT, 0), TIME_DATE | TIME_MINUTES | TIME_SECONDS);
 
-  Util::Print("Tick: " + IntegerToString((long)iTime(indi_tf_real.Ptr().GetSymbol(), indi_tf_real.Ptr().GetTf(), 0)) +
+  Util::Print("Tick: " + IntegerToString((int64)iTime(indi_tf_real.Ptr().GetSymbol(), indi_tf_real.Ptr().GetTf(), 0)) +
               " (" + time + "), real   = " + o + ", " + h + ", " + l + ", " + c);
 
   string c_o = DoubleToStr(indi_tf_real.Ptr().GetOpen(0), 5);

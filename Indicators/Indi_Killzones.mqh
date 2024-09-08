@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -19,6 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "../Indicator/Indicator.h"
@@ -82,7 +87,7 @@ struct Indi_Killzones_Time : MarketTimeForex {
 };
 
 /**
- * Implements Pivot Detector.
+ * Implements Killzones indicator.
  */
 class Indi_Killzones : public Indicator<IndiKillzonesParams> {
  protected:

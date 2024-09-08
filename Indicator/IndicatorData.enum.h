@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -31,66 +31,66 @@
 #endif
 
 /* Indicator entry flags. */
-enum INDICATOR_ENTRY_FLAGS {
+enum INDICATOR_DATA_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_NONE = 0 << 0,
   INDI_ENTRY_FLAG_IS_BITWISE = 1 << 0,
-  INDI_ENTRY_FLAG_IS_DOUBLED = 1 << 1,  // Type is doubled in size (e.g. double or long).
+  INDI_ENTRY_FLAG_IS_DOUBLED = 1 << 1,  // Type is doubled in size (e.g. double or int64).
   INDI_ENTRY_FLAG_IS_EXPIRED = 1 << 2,
   INDI_ENTRY_FLAG_IS_REAL = 1 << 3,  // Type is real (float or double).
   INDI_ENTRY_FLAG_IS_PRICE = 1 << 4,
-  INDI_ENTRY_FLAG_IS_UNSIGNED = 1 << 5,  // Type is unsigned (unsigned int or unsigned long).
+  INDI_ENTRY_FLAG_IS_UNSIGNED = 1 << 5,  // Type is unsigned (unsigned int or uint64).
   INDI_ENTRY_FLAG_IS_VALID = 1 << 6,
   INDI_ENTRY_FLAG_INSUFFICIENT_DATA = 1 << 7,  // Entry has missing value for that shift and probably won't ever have.
 };
 
 /* Define indicator index. */
-enum ENUM_INDICATOR_INDEX {
+enum ENUM_INDICATOR_DATA_INDEX {
   CURR = 0,
   PREV = 1,
   PPREV = 2,
-  FINAL_ENUM_INDICATOR_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
+  FINAL_ENUM_INDICATOR_DATA_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
 };
 
 // Storage type for IndicatorBase::GetSpecificValueStorage().
-enum ENUM_INDI_VS_TYPE {
-  INDI_VS_TYPE_NONE,            // Not set.
-  INDI_VS_TYPE_TIME,            // Candle.
-  INDI_VS_TYPE_TICK_VOLUME,     // Candle.
-  INDI_VS_TYPE_VOLUME,          // Candle.
-  INDI_VS_TYPE_SPREAD,          // Candle.
-  INDI_VS_TYPE_PRICE_OPEN,      // Candle.
-  INDI_VS_TYPE_PRICE_HIGH,      // Candle.
-  INDI_VS_TYPE_PRICE_LOW,       // Candle.
-  INDI_VS_TYPE_PRICE_CLOSE,     // Candle.
-  INDI_VS_TYPE_PRICE_MEDIAN,    // Candle.
-  INDI_VS_TYPE_PRICE_TYPICAL,   // Candle.
-  INDI_VS_TYPE_PRICE_WEIGHTED,  // Candle.
-  INDI_VS_TYPE_PRICE_BID,       // Tick.
-  INDI_VS_TYPE_PRICE_ASK,       // Tick.
-                                // Indexed value storages, available if indicator have buffer at this index:
-  INDI_VS_TYPE_INDEX_0,
-  INDI_VS_TYPE_INDEX_1,
-  INDI_VS_TYPE_INDEX_2,
-  INDI_VS_TYPE_INDEX_4,
-  INDI_VS_TYPE_INDEX_5,
-  INDI_VS_TYPE_INDEX_6,
-  INDI_VS_TYPE_INDEX_7,
-  INDI_VS_TYPE_INDEX_8,
-  INDI_VS_TYPE_INDEX_9,
-  INDI_VS_TYPE_INDEX_FIRST = INDI_VS_TYPE_INDEX_0,
-  INDI_VS_TYPE_INDEX_LAST = INDI_VS_TYPE_INDEX_9,
+enum ENUM_INDI_DATA_VS_TYPE {
+  INDI_DATA_VS_TYPE_NONE,            // Not set.
+  INDI_DATA_VS_TYPE_TIME,            // Candle.
+  INDI_DATA_VS_TYPE_TICK_VOLUME,     // Candle.
+  INDI_DATA_VS_TYPE_VOLUME,          // Candle.
+  INDI_DATA_VS_TYPE_SPREAD,          // Candle.
+  INDI_DATA_VS_TYPE_PRICE_OPEN,      // Candle.
+  INDI_DATA_VS_TYPE_PRICE_HIGH,      // Candle.
+  INDI_DATA_VS_TYPE_PRICE_LOW,       // Candle.
+  INDI_DATA_VS_TYPE_PRICE_CLOSE,     // Candle.
+  INDI_DATA_VS_TYPE_PRICE_MEDIAN,    // Candle.
+  INDI_DATA_VS_TYPE_PRICE_TYPICAL,   // Candle.
+  INDI_DATA_VS_TYPE_PRICE_WEIGHTED,  // Candle.
+  INDI_DATA_VS_TYPE_PRICE_BID,       // Tick.
+  INDI_DATA_VS_TYPE_PRICE_ASK,       // Tick.
+                                     // Indexed value storages, available if indicator have buffer at this index:
+  INDI_DATA_VS_TYPE_INDEX_0,
+  INDI_DATA_VS_TYPE_INDEX_1,
+  INDI_DATA_VS_TYPE_INDEX_2,
+  INDI_DATA_VS_TYPE_INDEX_4,
+  INDI_DATA_VS_TYPE_INDEX_5,
+  INDI_DATA_VS_TYPE_INDEX_6,
+  INDI_DATA_VS_TYPE_INDEX_7,
+  INDI_DATA_VS_TYPE_INDEX_8,
+  INDI_DATA_VS_TYPE_INDEX_9,
+  INDI_DATA_VS_TYPE_INDEX_FIRST = INDI_DATA_VS_TYPE_INDEX_0,
+  INDI_DATA_VS_TYPE_INDEX_LAST = INDI_DATA_VS_TYPE_INDEX_9,
 
   // Account Stats.
-  INDI_VS_TYPE_ACCOUNT_STATS_DATE_TIME,
-  INDI_VS_TYPE_ACCOUNT_STATS_BALANCE,
-  INDI_VS_TYPE_ACCOUNT_STATS_CREDIT,
-  INDI_VS_TYPE_ACCOUNT_STATS_EQUITY,
-  INDI_VS_TYPE_ACCOUNT_STATS_PROFIT,
-  INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_USED,
-  INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_FREE,
-  INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL,
-  INDI_VS_TYPE_ACCOUNT_STATS_INDEX_FIRST = INDI_VS_TYPE_ACCOUNT_STATS_DATE_TIME,
-  INDI_VS_TYPE_ACCOUNT_STATS_INDEX_LAST = INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL,
+  INDI_DATA_VS_TYPE_ACCOUNT_STATS_DATE_TIME,
+  INDI_DATA_VS_TYPE_ACCOUNT_STATS_BALANCE,
+  INDI_DATA_VS_TYPE_ACCOUNT_STATS_CREDIT,
+  INDI_DATA_VS_TYPE_ACCOUNT_STATS_EQUITY,
+  INDI_DATA_VS_TYPE_ACCOUNT_STATS_PROFIT,
+  INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_USED,
+  INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_FREE,
+  INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL,
+  INDI_DATA_VS_TYPE_ACCOUNT_STATS_INDEX_FIRST = INDI_DATA_VS_TYPE_ACCOUNT_STATS_DATE_TIME,
+  INDI_DATA_VS_TYPE_ACCOUNT_STATS_INDEX_LAST = INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL,
 };
 
 /* Defines type of source data for. Also used for Indicator::GetPossibleDataModes(). */

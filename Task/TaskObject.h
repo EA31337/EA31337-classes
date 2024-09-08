@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -26,16 +26,16 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Prevents processing this includes file for the second time.
 #ifndef TASK_OBJECT_H
-#define TASK_OBJECT_H
+  #define TASK_OBJECT_H
 
-// Includes.
-#include "Task.h"
+  // Includes.
+  #include "Task.h"
 
 template <typename TA, typename TC>
 class TaskObject : public Task {
@@ -54,7 +54,8 @@ class TaskObject : public Task {
   /**
    * Class constructor with task entry as argument.
    */
-  TaskObject(TaskEntry &_tentry, TA *_obja = nullptr, TC *_objc = nullptr) : Task(_tentry), obja(_obja), objc(_objc) {}
+  TaskObject(TaskEntry &_tentry, TA *_obja = nullptr, TC *_objc = nullptr)
+      : Task(_tentry), obja(_obja), objc(_objc) {}
 
   /**
    * Class deconstructor.

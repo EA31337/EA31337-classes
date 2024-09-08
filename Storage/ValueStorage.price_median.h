@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -24,11 +24,14 @@
  * Median price version of ValueStorage.
  */
 
-// Forward declarations.
-class IndicatorBase;
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "ObjectsCache.h"
+#include "../Indicator/IndicatorBase.h"
+#include "Cache/ObjectsCache.h"
 #include "ValueStorage.history.h"
 
 /**
@@ -39,7 +42,7 @@ class PriceMedianValueStorage : public HistoryValueStorage<double> {
   /**
    * Constructor.
    */
-  PriceMedianValueStorage(IndicatorData *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
+  PriceMedianValueStorage(IndicatorBase *_indi_candle) : HistoryValueStorage<double>(_indi_candle) {}
 
   /**
    * Copy constructor.

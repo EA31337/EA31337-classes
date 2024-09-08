@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -30,8 +30,8 @@
 #endif
 
 // Includes.
-#include "../DictStruct.mqh"
 #include "../Refs.mqh"
+#include "../Storage/Dict/DictStruct.h"
 
 /**
  * Stores objects to be reused using a string-based key.
@@ -48,7 +48,7 @@ class Objects {
   /**
    * Tries to retrieve pointer to object for a given key. Returns true if object did exist.
    */
-  static bool TryGet(CONST_REF_TO(string) key, C*& out_ptr) {
+  static bool TryGet(CONST_REF_TO_SIMPLE(string) key, C*& out_ptr) {
     unsigned int position;
     if (!GetObjects() PTR_DEREF KeyExists(key, position)) {
       out_ptr = NULL;
@@ -62,7 +62,7 @@ class Objects {
   /**
    * Stores object pointer with a given key.
    */
-  static C* Set(CONST_REF_TO(string) key, C* ptr) {
+  static C* Set(CONST_REF_TO_SIMPLE(string) key, C* ptr) {
     Ref<C> _ref(ptr);
     GetObjects() PTR_DEREF Set(key, _ref);
     return ptr;

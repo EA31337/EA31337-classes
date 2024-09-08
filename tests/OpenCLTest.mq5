@@ -21,12 +21,12 @@
 
 /**
  * @file
- * Test functionality of Ticker class.
+ * Test functionality of OpenCL class.
  */
 
 // Includes.
-#include "../Matrix.mqh"
-#include "../OpenCL.h"
+#include "../Math/Matrix.h"
+#include "../Math/OpenCL.h"
 
 /**
  * Implements initialization function.

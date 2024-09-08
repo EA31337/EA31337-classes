@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,16 +20,19 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "File.define.h"
+#include "Platform/Terminal.define.h"
 #include "Storage/MemoryFileSystem.h"
-#include "String.extern.h"
-#include "Terminal.define.h"
+#include "Storage/String.extern.h"
 
 // Define external global functions.
 #ifndef __MQL__
-#pragma once
-
 MemoryFileSystem _memfs;
 
 extern bool FileIsEnding(int file_handle);

@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -25,8 +25,13 @@
  * Implements TradeSignalManager class.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../DictObject.mqh"
+#include "../Storage/Dict/DictObject.h"
 #include "TradeSignal.h"
 #include "TradeSignalManager.struct.h"
 
@@ -175,7 +180,7 @@ class TradeSignalManager : Dynamic {
         continue;
       }
     }
-    Set<long>(TSM_PROP_LAST_CHECK, ::TimeGMT());
+    Set<int64>(TSM_PROP_LAST_CHECK, ::TimeGMT());
   }
 
   /* State methods */
@@ -187,9 +192,9 @@ class TradeSignalManager : Dynamic {
    *   _update Update last check timestamp when true.
    */
   bool IsReady(bool _update = true) {
-    bool _res = Get<long>(TSM_PROP_LAST_CHECK) <= ::TimeGMT() - Get<short>(TSM_PROP_FREQ);
+    bool _res = Get<int64>(TSM_PROP_LAST_CHECK) <= ::TimeGMT() - Get<short>(TSM_PROP_FREQ);
     if (_res) {
-      Set<long>(TSM_PROP_LAST_CHECK, ::TimeGMT());
+      Set<int64>(TSM_PROP_LAST_CHECK, ::TimeGMT());
     }
     return _res;
   }

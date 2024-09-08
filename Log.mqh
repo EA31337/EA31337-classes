@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,24 +20,27 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef LOG_MQH
-#define LOG_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Forward class declaration.
 template <typename K, typename V>
 class DictStruct;
 
 // Includes.
-#include "Array.mqh"
-#include "DateTime.mqh"
-#include "DictStruct.mqh"
 #include "File.mqh"
-#include "Object.mqh"
+#include "Std.h"
+#include "Storage/Array.h"
+#include "Storage/Collection.h"
+#include "Storage/DateTime.h"
+#include "Storage/Dict/DictStruct.h"
+#include "Storage/Object.h"
 
 // Define assert macros.
 // Alias for function and line macros combined together.
-#define __FUNCTION_LINE__ string(__FUNCTION__) + ":" + IntegerToString(__LINE__)
+#define __FUNCTION_LINE__ C_STR(string(__FUNCTION__) + ":" + IntegerToString(__LINE__))
 
 // Log verbosity level.
 enum ENUM_LOG_LEVEL {
@@ -159,7 +162,7 @@ class Log : public Object {
    * Reports an last error.
    */
   bool AddLastError(string prefix = "", string suffix = "");
-  bool AddLastError(string prefix, long suffix);
+  bool AddLastError(string prefix, int64 suffix);
 
   /**
    * Reports an error.
@@ -332,7 +335,7 @@ class Log : public Object {
   }
 };
 
-#include "Terminal.mqh"
+#include "Platform/Terminal.h"
 
 /**
  * Reports last error.
@@ -340,7 +343,7 @@ class Log : public Object {
 bool Log::AddLastError(string prefix, string suffix) {
   return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, suffix);
 }
-bool Log::AddLastError(string prefix, long suffix) {
+bool Log::AddLastError(string prefix, int64 suffix) {
   return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
 }
 
@@ -349,5 +352,3 @@ void StringToType(string _value, ENUM_LOG_LEVEL &_out) {
   // Maybe parse the string?
   _out = V_NONE;
 }
-
-#endif

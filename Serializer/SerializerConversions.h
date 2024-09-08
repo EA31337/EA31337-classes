@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -31,9 +31,8 @@
 #endif
 
 #include "../Convert.extern.h"
-#include "../DateTime.extern.h"
-#include "../Object.mqh"
-#include "../Refs.struct.h"
+#include "../Storage/DateTime.extern.h"
+#include "../Storage/Object.h"
 
 class SerializerConversions {
  public:
@@ -53,7 +52,7 @@ class SerializerConversions {
     return string(includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(long value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
+  static string ValueToString(int64 value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
     return string(includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 

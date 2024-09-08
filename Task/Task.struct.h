@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -31,7 +31,8 @@
 #endif
 
 // Includes.
-#include "../Terminal.define.h"
+#include "../Platform/Terminal.define.h"
+#include "../Serializer/Serializer.h"
 #include "Task.enum.h"
 #include "TaskAction.struct.h"
 #include "TaskCondition.struct.h"

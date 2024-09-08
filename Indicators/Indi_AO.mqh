@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,16 +20,13 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iAO(string _symbol, int _tf, int _shift) {
-  ResetLastError();
-  return Indi_AO::iAO(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
-}
-#endif
 
 // Structs.
 struct IndiAOParams : IndicatorParams {
@@ -96,11 +93,19 @@ class Indi_AO : public Indicator<IndiAOParams> {
    */
   static double iAO(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, int _mode = 0,
                     IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     // Note: In MQL4 _mode is not supported.
     return ::iAO(_symbol, _tf, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iAO(_symbol, _tf), _mode, _shift);
+#endif
+#else  // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 
@@ -133,7 +138,7 @@ class Indi_AO : public Indicator<IndiAOParams> {
     if (!Objects<Indi_AO>::TryGet(_key, _ptr)) {
       _ptr = Objects<Indi_AO>::Set(_key, new Indi_AO());
       // Assigning the same candle indicator for AO as in _indi.
-      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
+      _ptr PTR_DEREF SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }
@@ -142,3 +147,11 @@ class Indi_AO : public Indicator<IndiAOParams> {
    */
   bool IsValidEntry(IndicatorDataEntry &_entry) override { return _entry.values[0].Get<double>() != EMPTY_VALUE; }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iAO(string _symbol, int _tf, int _shift) {
+  ResetLastError();
+  return Indi_AO::iAO(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
+}
+#endif

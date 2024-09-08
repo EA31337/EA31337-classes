@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,14 +20,15 @@
  *
  */
 
-// Includes.
-#include "Account/AccountMt.h"
-#include "Convert.mqh"
-#include "Order.mqh"
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
-// Prevents processing this includes file for the second time.
-#ifndef MAIL_MQH
-#define MAIL_MQH
+// Includes.
+#include "Convert.mqh"
+#include "Exchange/Account/AccountMt.h"
+#include "Platform/Order.h"
 
 /**
  * Implements Mail class.
@@ -136,4 +137,3 @@ class Mail {
    */
   bool SendMailExecuteOrder() { return SendMail(GetMailSubjectExecuteOrder(), GetMailBodyExecuteOrder()); }
 };
-#endif

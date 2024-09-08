@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -25,14 +25,19 @@
  * Includes Market's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Forward declaration.
 class Serializer;
 
 // Includes.
-#include "DateTime.entry.h"
-#include "DateTime.struct.h"
 #include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
+#include "Storage/DateTime.entry.h"
+#include "Storage/DateTime.struct.h"
 
 // Market info.
 struct MarketData {

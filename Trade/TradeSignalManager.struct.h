@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -25,6 +25,11 @@
  * Implements TradeSignalManager's structures.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 #define TSM_PROP_FREQ STRUCT_ENUM(TradeSignalManagerParams, TSM_PARAMS_PROP_FREQ)
 #define TSM_PROP_LAST_CHECK STRUCT_ENUM(TradeSignalManagerParams, TSM_PARAMS_PROP_LAST_CHECK)
@@ -34,8 +39,8 @@
  */
 struct TradeSignalManagerParams {
  protected:
-  short freq;       // Signal process refresh frequency (in sec).
-  long last_check;  // Last check.
+  short freq;        // Signal process refresh frequency (in sec).
+  int64 last_check;  // Last check.
 
  public:
   /* Struct's enumerations */
@@ -79,7 +84,7 @@ struct TradeSignalManagerParams {
         freq = (short)_value;
         return;
       case TSM_PARAMS_PROP_LAST_CHECK:
-        last_check = (long)_value;
+        last_check = (int64)_value;
         return;
     }
     SetUserError(ERR_INVALID_PARAMETER);

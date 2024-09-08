@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -24,6 +24,11 @@
  * Native array version of ValueStorage.
  */
 
+#ifndef __MQL__
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
+#endif
+
 // Includes.
 #include "ValueStorage.h"
 
@@ -33,7 +38,7 @@
 template <typename C>
 class NativeValueStorage : public ValueStorage<C> {
   // Dynamic native array.
-  C _values[];
+  ARRAY(C, _values);
   int _values_size;
 
  public:
