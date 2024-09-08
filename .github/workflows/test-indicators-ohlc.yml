@@ -3,6 +3,7 @@ name: Test Indicators (OHLC)
 
 env:
   TEST_PATH: Indicators/OHLC/tests
+  TEST_SKIP: ${{ secrets.MT5_LOGIN || false }}
 
 # yamllint disable-line rule:truthy
 on:
@@ -47,7 +48,8 @@ jobs:
           name: files-ex${{ matrix.version }}
       - name: List compiled files
         run: find . -name '*.ex?' -type f -print
-      - name: Run ${{ matrix.test }}
+      - if: ${{ env.TEST_SKIP != true }}
+        name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
           Login: ${{ secrets.MT5_LOGIN }}
