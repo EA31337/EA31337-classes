@@ -58,9 +58,9 @@ enum ENUM_ACC_STAT_INDEX { ACC_VALUE_CURR = 0, ACC_VALUE_PREV = 1, FINAL_ENUM_AC
  * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
  */
 enum ENUM_ACCOUNT_MARGIN_MODE {
-  ACCOUNT_MARGIN_MODE_RETAIL_NETTING,  // Used for the OTC markets to interpret positions in the "netting" mode.
-  ACCOUNT_MARGIN_MODE_EXCHANGE,        // Used for the exchange markets.
+  ACCOUNT_MARGIN_MODE_EXCHANGE,        // Used for the exchange markets to calculate margin based on the discounts.
   ACCOUNT_MARGIN_MODE_RETAIL_HEDGING,  // Used for the exchange markets where individual positions are possible.
+  ACCOUNT_MARGIN_MODE_RETAIL_NETTING,  // Used for the OTC markets to interpret positions in the "netting" mode.
 };
 #endif
 
@@ -99,7 +99,7 @@ enum ENUM_ACCOUNT_INFO_DOUBLE {
  * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
  */
 enum ENUM_ACCOUNT_INFO_INTEGER {
-  ACCOUNT_CURRENCY_DIGITS,  // The number of decimal places in the account currency (int).
+  ACCOUNT_CURRENCY_DIGITS = 0,  // The number of decimal places in the account currency (int).
   ACCOUNT_FIFO_CLOSE,       // Whether positions can only be closed by FIFO rule (bool).
   ACCOUNT_LEVERAGE,         // Account leverage (long).
   ACCOUNT_LIMIT_ORDERS,     // Maximum allowed number of active pending orders (int).
@@ -124,18 +124,6 @@ enum ENUM_ACCOUNT_INFO_STRING {
   ACCOUNT_CURRENCY,  // Account currency (string).
   ACCOUNT_NAME,      // Client name (string).
   ACCOUNT_SERVER     // Trade server name (string).
-};
-
-/**
- * Enumeration for the margin modes.
- *
- * @docs
- * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
- */
-enum ENUM_ACCOUNT_MARGIN_MODE {
-  ACCOUNT_MARGIN_MODE_EXCHANGE,        // Margin is calculated based on the discounts.
-  ACCOUNT_MARGIN_MODE_RETAIL_HEDGING,  // Used for the exchange markets where individual positions are possible.
-  ACCOUNT_MARGIN_MODE_RETAIL_NETTING,  // Used for the OTC markets to interpret positions in the "netting" mode.
 };
 
 /**
@@ -179,15 +167,9 @@ enum ENUM_ACCOUNT_PARAM_INTEGER {
       ACCOUNT_MARGIN_SO_MODE,  // Mode for setting the minimal allowed margin (ENUM_ACCOUNT_STOPOUT_MODE).
   ACCOUNT_PARAM_TRADE_ALLOWED = ACCOUNT_TRADE_ALLOWED,  // Allowed trade for the current account (bool).
   ACCOUNT_PARAM_TRADE_EXPERT = ACCOUNT_TRADE_EXPERT,    // Allowed trade for an Expert Advisor (bool).
-#ifdef __MQL5__
   ACCOUNT_PARAM_MARGIN_MODE = ACCOUNT_MARGIN_MODE,  // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
   ACCOUNT_PARAM_CURRENCY_DIGITS =
       ACCOUNT_CURRENCY_DIGITS,  // The number of decimal places in the account currency (int).
   ACCOUNT_PARAM_FIFO_CLOSE =
       ACCOUNT_FIFO_CLOSE,  // An indication showing that positions can only be closed by FIFO rule (bool).
-#else
-  ACCOUNT_PARAM_MARGIN_MODE = 7,  // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
-  ACCOUNT_PARAM_CURRENCY_DIGITS,  // The number of decimal places in the account currency (int).
-  ACCOUNT_PARAM_FIFO_CLOSE,       // An indication showing that positions can only be closed by FIFO rule (bool).
-#endif
 };
