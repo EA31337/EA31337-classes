@@ -39,7 +39,7 @@ jobs:
     strategy:
       matrix:
         test:
-          - Indi_Tick.test
+          - Indi_TickMt.test
         version: [5]
       max-parallel: 4
     steps:
