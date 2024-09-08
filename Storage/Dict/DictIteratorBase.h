@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward class declaration.
@@ -113,7 +113,7 @@ class DictIteratorBase {
     return _index;
   }
 
-  V Value() {
+  V REF_CPP Value() {
     CheckValidity();
     return _dict PTR_DEREF GetSlot(_slotIdx) PTR_DEREF value;
   }

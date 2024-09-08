@@ -44,44 +44,44 @@ class Trade;
 // Defines.
 // Primary inputs.
 #ifdef __input__
-#define INPUT input
-#ifndef __MQL4__
-#define INPUT_GROUP(name) input group #name
+  #define INPUT input
+  #ifndef __MQL4__
+    #define INPUT_GROUP(name) input group #name
+  #else
+    #define INPUT_GROUP(name) static input string;  // #name
+  #endif
 #else
-#define INPUT_GROUP(name) static input string;  // #name
-#endif
-#else
-#define INPUT static
-#define INPUT_GROUP(name) static string
+  #define INPUT static
+  #define INPUT_GROUP(name) static string
 #endif
 // Secondary inputs.
 #ifdef __input2__
-#define INPUT2 input
-#ifndef __MQL4__
-#define INPUT2_GROUP(name) input group #name
+  #define INPUT2 input
+  #ifndef __MQL4__
+    #define INPUT2_GROUP(name) input group #name
+  #else
+    #define INPUT2_GROUP(name) static input string;  // #name
+  #endif
 #else
-#define INPUT2_GROUP(name) static input string;  // #name
-#endif
-#else
-#define INPUT2 static
-#define INPUT2_GROUP(name) static string
+  #define INPUT2 static
+  #define INPUT2_GROUP(name) static string
 #endif
 // Tertiary inputs.
 #ifdef __input3__
-#define INPUT3 input
-#ifndef __MQL4__
-#define INPUT3_GROUP(name) input group #name
+  #define INPUT3 input
+  #ifndef __MQL4__
+    #define INPUT3_GROUP(name) input group #name
+  #else
+    #define INPUT3_GROUP(name) static input string;  // #name
+  #endif
 #else
-#define INPUT3_GROUP(name) static input string;  // #name
-#endif
-#else
-#define INPUT3 static
-#define INPUT3_GROUP(name) static string
+  #define INPUT3 static
+  #define INPUT3_GROUP(name) static string
 #endif
 #ifdef __optimize__
-#define OINPUT input
+  #define OINPUT input
 #else
-#define OINPUT static
+  #define OINPUT static
 #endif
 
 /**
@@ -340,7 +340,8 @@ class Strategy : public Taskable<DataParamEntry> {
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade REF_DEREF
     // chart.TfToString(), GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
 
-    return StringFormat("%s%s[%s]%s", _prefix, name, trade REF_DEREF GetSource() PTR_DEREF GetSymbolTf(), _suffix);
+    return StringFormat("%s%s[%s]%s", C_STR(_prefix), C_STR(name),
+                        C_STR(trade REF_DEREF GetSource() PTR_DEREF GetSymbolTf()), C_STR(_suffix));
   }
 
   /**
@@ -348,7 +349,8 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
     // @todo: Add spread.
-    return StringFormat("%s%s[%s]%s", _prefix, name, trade REF_DEREF GetSource() PTR_DEREF GetSymbolTf(), _suffix);
+    return StringFormat("%s%s[%s]%s", C_STR(_prefix), C_STR(name),
+                        C_STR(trade REF_DEREF GetSource() PTR_DEREF GetSymbolTf()), C_STR(_suffix));
   }
 
   /**
@@ -655,7 +657,7 @@ class Strategy : public Taskable<DataParamEntry> {
   /**
    * Prints strategy's details.
    */
-  string const ToString() override { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
+  string const ToString() override { return StringFormat("%s: %s", C_STR(GetName()), C_STR(sparams.ToString())); }
 
   /* Virtual methods */
 
@@ -669,21 +671,22 @@ class Strategy : public Taskable<DataParamEntry> {
    */
   virtual void OnInit() {
     // Link log instances.
-    logger.Link(trade.Ptr().GetLogger());
-    trade.Ptr().GetLogger().SetLevel((ENUM_LOG_LEVEL)sparams.Get<int>(STRAT_PARAM_LOG_LEVEL));
+    logger.Link(trade REF_DEREF GetLogger());
+    trade REF_DEREF GetLogger() PTR_DEREF SetLevel((ENUM_LOG_LEVEL)sparams.Get<int>(STRAT_PARAM_LOG_LEVEL));
     // Sets strategy stops.
     SetStops(THIS_PTR, THIS_PTR);
     // trade.SetStrategy(&this); // @fixme
     // Sets strategy's trade spread limit.
-    trade.Ptr().Set<float>(TRADE_PARAM_MAX_SPREAD, sparams.Get<float>(STRAT_PARAM_MAX_SPREAD));
+    trade REF_DEREF Set<float>(TRADE_PARAM_MAX_SPREAD, sparams.Get<float>(STRAT_PARAM_MAX_SPREAD));
     // Load active trades.
     if (Get<long>(STRAT_PARAM_ID) > 0) {
-      trade.Ptr().OrdersLoadByMagic(Get<long>(STRAT_PARAM_ID));
+      trade REF_DEREF OrdersLoadByMagic(Get<long>(STRAT_PARAM_ID));
     }
     Ref<Order> _order;
-    for (DictStructIterator<long, Ref<Order>> iter = trade.Ptr().GetOrdersActive().Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<int64, Ref<Order>> iter = trade REF_DEREF GetOrdersActive() PTR_DEREF Begin();
+         iter.IsValid(); ++iter) {
       _order = iter.Value();
-      if (_order.IsSet() && _order.Ptr().IsOpen()) {
+      if (_order.IsSet() && _order REF_DEREF IsOpen()) {
         Strategy::OnOrderLoad(_order.Ptr());
       }
     }
@@ -700,25 +703,26 @@ class Strategy : public Taskable<DataParamEntry> {
     ENUM_TIMEFRAMES _stf = Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF);
     unsigned int _stf_secs = ChartTf::TfToSeconds(_stf);
     if (sparams.order_close_time != 0) {
-      long _close_time_arg = sparams.order_close_time > 0 ? sparams.order_close_time * 60
-                                                          : (int)round(-sparams.order_close_time * _stf_secs);
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
+      long _close_time_arg = sparams.order_close_time > 0
+                                 ? sparams.order_close_time * 60
+                                 : (long)MathRound((long)-sparams.order_close_time * (long)_stf_secs);
+      _order PTR_DEREF Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
+      _order PTR_DEREF Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
       _index++;
     }
     if (sparams.order_close_loss != 0.0f) {
       float _loss_limit = sparams.order_close_loss;
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_LOSS, _index);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _loss_limit, _index);
+      _order PTR_DEREF Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_LOSS, _index);
+      _order PTR_DEREF Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _loss_limit, _index);
       _index++;
     }
     if (sparams.order_close_profit != 0.0f) {
       float _profit_limit = sparams.order_close_profit;
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_PROFIT, _index);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
+      _order PTR_DEREF Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_PROFIT, _index);
+      _order PTR_DEREF Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
       _index++;
     }
-    _order.Set(ORDER_PARAM_UPDATE_FREQ, _stf_secs);
+    _order PTR_DEREF Set(ORDER_PARAM_UPDATE_FREQ, _stf_secs);
     SetStops(GetPointer(this), GetPointer(this));
     // trade REF_DEREF SetStrategy(&this); // @fixme
   }
@@ -894,7 +898,7 @@ class Strategy : public Taskable<DataParamEntry> {
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
    */
-  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) = NULL;
+  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) = 0;
 
   /**
    * Returns strength of strategy's open signal.
@@ -1004,17 +1008,17 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 0))
         if (IsTrend(_cmd)) _result *= 1.1f;
       if (METHOD(_method, 1))
-        if (trade.Ptr().GetTrendOp(18, _stf)) _result *= 1.1f;
+        if (trade REF_DEREF GetTrendOp(18, _stf)) _result *= 1.1f;
       if (METHOD(_method, 2))
-        if (!trade.Ptr().HasOrderBetter(_cmd)) _result *= 1.1f;
+        if (!trade REF_DEREF HasOrderBetter(_cmd)) _result *= 1.1f;
       if (METHOD(_method, 3))
-        if (trade.Ptr().IsPeak(_cmd, _shift)) _result *= 1.1f;
+        if (trade REF_DEREF IsPeak(_cmd, _shift)) _result *= 1.1f;
       if (METHOD(_method, 4))
-        if (trade.Ptr().IsPivot(_cmd, _shift)) _result *= 1.1f;
+        if (trade REF_DEREF IsPivot(_cmd, _shift)) _result *= 1.1f;
       if (METHOD(_method, 5))
-        if (trade.Ptr().HasOrderOppositeType(_cmd)) _result *= 1.1f;
+        if (trade REF_DEREF HasOrderOppositeType(_cmd)) _result *= 1.1f;
       if (METHOD(_method, 6))
-        if (trade.Ptr().HasBarOrder(_cmd, _shift)) _result *= 1.1f;
+        if (trade REF_DEREF HasBarOrder(_cmd, _shift)) _result *= 1.1f;
       // if (METHOD(_method, 0)) if (Trade().IsTrend(_cmd)) _result *= 1.1;
       // if (METHOD(_method, 1)) if (Trade().IsPivot(_cmd)) _result *= 1.1;
       // if (METHOD(_method, 2)) if (Trade().IsPeakHours(_cmd)) _result *= 1.1;
@@ -1062,9 +1066,9 @@ class Strategy : public Taskable<DataParamEntry> {
       if (METHOD(_method, 3))
         _result |= _result || iOpen(Symbol(), PERIOD_CURRENT, _shift) > iHigh(Symbol(), PERIOD_CURRENT, _shift + 1) ||
                    iOpen(Symbol(), PERIOD_CURRENT, _shift) < iLow(Symbol(), PERIOD_CURRENT, _shift + 1);  // 8
-      if (METHOD(_method, 4)) _result |= _result || trade REF_DEREF IsPeak(_cmd, _shift);              // 16
-      if (METHOD(_method, 5)) _result |= _result || trade REF_DEREF HasOrderBetter(_cmd);              // 32
-      if (METHOD(_method, 6)) _result |= _result || trade REF_DEREF CalcActiveProfitInValue() > 0.0f;  // 64
+      if (METHOD(_method, 4)) _result |= _result || trade REF_DEREF IsPeak(_cmd, _shift);                 // 16
+      if (METHOD(_method, 5)) _result |= _result || trade REF_DEREF HasOrderBetter(_cmd);                 // 32
+      if (METHOD(_method, 6)) _result |= _result || trade REF_DEREF CalcActiveProfitInValue() > 0.0f;     // 64
       /*
       if (METHOD(_method, 6))
         _result |=

@@ -61,6 +61,7 @@ extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
   #define PLATFORM_DEFAULT_INDICATOR_TF Indi_TfMt
 #else
   #include "../Indicators/Tick/Indi_TickProvider.h"
+  #include "../Indicators/Tick/Indi_TickRandom.h"
   #define PLATFORM_DEFAULT_INDICATOR_TICK Indi_TickRandom
   #define PLATFORM_DEFAULT_INDICATOR_TF IndicatorTfDummy
 #endif
@@ -1006,10 +1007,10 @@ SymbolGetter::operator string() const { return Platform::GetSymbol(); }
 ENUM_TIMEFRAMES Period() { return Platform::GetPeriod(); }
 
 double Point() { return Platform::GetPoint(); }
-#define _Point (Point())
+  #define _Point (Point())
 
 int Digits() { return Platform::GetDigits(); }
-#define _Digits (Digits())
+  #define _Digits (Digits())
 
 datetime StructToTime(MqlDateTime &dt_struct) {
   tm ltm;

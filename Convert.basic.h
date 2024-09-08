@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -90,6 +90,14 @@ class ConvertBasic {
   static void StringToType(string _value, unsigned char& _out) { _out = (unsigned char)_value[0]; }
   static void StringToType(string _value, int64& _out) { _out = StringToInteger(_value); }
   static void StringToType(string _value, uint64& _out) { _out = StringToInteger(_value); }
+
+#ifndef __MQL__
+  // @fixit
+  // Two specializations for C++'s "long". It is required until we refactor all "[unsigned] long"'s into "[u]int64"'s.
+  static void StringToType(string _value, long& _out) { _out = (long)StringToInteger(_value); }
+  static void StringToType(string _value, unsigned long& _out) { _out = (unsigned long)StringToInteger(_value); }
+#endif
+
   static void StringToType(string _value, short& _out) { _out = (short)StringToInteger(_value); }
   static void StringToType(string _value, unsigned short& _out) { _out = (unsigned short)StringToInteger(_value); }
   static void StringToType(string _value, float& _out) { _out = (float)StringToDouble(_value); }
@@ -118,6 +126,14 @@ class ConvertBasic {
   static void BoolToType(bool _value, unsigned int& _out) { _out = (unsigned int)_value; }
   static void BoolToType(bool _value, int64& _out) { _out = (int64)_value; }
   static void BoolToType(bool _value, uint64& _out) { _out = (uint64)_value; }
+
+#ifndef __MQL__
+  // @fixit
+  // Two specializations for C++'s "long". It is required until we refactor all "[unsigned] long"'s into "[u]int64"'s.
+  static void BoolToType(bool _value, long& _out) { _out = (long)_value; }
+  static void BoolToType(bool _value, unsigned long& _out) { _out = (unsigned long)_value; }
+#endif
+
   static void BoolToType(bool _value, short& _out) { _out = (short)_value; }
   static void BoolToType(bool _value, unsigned short& _out) { _out = (unsigned short)_value; }
   static void BoolToType(bool _value, float& _out) { _out = (float)_value; }
@@ -140,6 +156,14 @@ class ConvertBasic {
   static void LongToType(int64 _value, unsigned int& _out) { _out = (unsigned int)_value; }
   static void LongToType(int64 _value, int64& _out) { _out = (int64)_value; }
   static void LongToType(int64 _value, uint64& _out) { _out = (uint64)_value; }
+
+#ifndef __MQL__
+  // @fixit
+  // Two specializations for C++'s "long". It is required until we refactor all "[unsigned] long"'s into "[u]int64"'s.
+  static void LongToType(int64 _value, long& _out) { _out = (long)_value; }
+  static void LongToType(int64 _value, unsigned long& _out) { _out = (unsigned long)_value; }
+#endif
+
   static void LongToType(int64 _value, short& _out) { _out = (short)_value; }
   static void LongToType(int64 _value, unsigned short& _out) { _out = (unsigned short)_value; }
   static void LongToType(int64 _value, float& _out) { _out = (float)_value; }
@@ -162,6 +186,14 @@ class ConvertBasic {
   static void DoubleToType(double _value, unsigned int& _out) { _out = (unsigned int)_value; }
   static void DoubleToType(double _value, int64& _out) { _out = (int64)_value; }
   static void DoubleToType(double _value, uint64& _out) { _out = (uint64)_value; }
+
+#ifndef __MQL__
+  // @fixit
+  // Two specializations for C++'s "long". It is required until we refactor all "[unsigned] long"'s into "[u]int64"'s.
+  static void DoubleToType(double _value, long& _out) { _out = (long)_value; }
+  static void DoubleToType(double _value, unsigned long& _out) { _out = (unsigned long)_value; }
+#endif
+
   static void DoubleToType(double _value, short& _out) { _out = (short)_value; }
   static void DoubleToType(double _value, unsigned short& _out) { _out = (unsigned short)_value; }
   static void DoubleToType(double _value, float& _out) { _out = (float)_value; }
@@ -194,6 +226,22 @@ class ConvertBasic {
     LongToType(_value, _out);
     return _out;
   }
+
+#ifndef __MQL__
+  // @fixit
+  // Twop specialization for C++'s "long". It is required until we refactor all "[unsigned] long"'s into "[u]int64"'s.
+  template <typename T>
+  static T Convert(long _value, T& _out) {
+    LongToType(_value, _out);
+    return _out;
+  }
+
+  template <typename T>
+  static T Convert(unsigned long _value, T& _out) {
+    LongToType(_value, _out);
+    return _out;
+  }
+#endif
 
   template <typename T>
   static T Convert(double _value, T& _out) {

@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -311,7 +311,7 @@ struct ChartStatic {
     ARRAY(datetime, _arr);
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     // @todo: Improves performance by caching values.
-    return (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
+    return (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : (datetime)0;
 #endif
   }
 

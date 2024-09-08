@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -461,7 +461,7 @@ class Serializer {
    * Returns next structure or structure by given key.
    */
   template <typename X>
-  X Struct(string key = "") {
+  X REF_CPP Struct(string key = "") {
     X value;
     PassStruct(THIS_REF, key, value);
     return value;

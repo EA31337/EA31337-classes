@@ -35,7 +35,7 @@ typedef unsigned long ulong;
 typedef unsigned short ushort;
 
 // Includes.
-#include "../Object.mqh"
+#include "../Storage/Object.h"
 
 // Variables.
 Object *obj;

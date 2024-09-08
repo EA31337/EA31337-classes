@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Class dependencies.
@@ -44,45 +44,27 @@ class Plot;
 #include "Terminal.extern.h"
 
 #ifndef __MQL4__
-// Defines macros (for MQL4 backward compatibility).
-#define SetIndexArrow(_index, _value) (PlotIndexSetInteger(_index, PLOT_ARROW, _value))
-#define SetIndexDrawBegin(_index, _value) (PlotIndexSetInteger(_index, PLOT_DRAW_BEGIN, _value))
-#define SetIndexEmptyValue(_index, _value) (PlotIndexSetDouble(_index, PLOT_EMPTY_VALUE, _value))
-#define SetIndexShift(_index, _value) (PlotIndexSetInteger(_index, PLOT_SHIFT, _value))
-#endif
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compatibility).
-bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
-  return Plot::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1);
-}
-bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1, datetime _t2, double _p2) {
-  return Plot::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1, _t2, _p2);
-}
-bool ObjectDelete(string _name) { return Plot::ObjectDelete(_name); }
-bool ObjectSet(string _name, int _prop_id, double _value) { return Plot::ObjectSet(_name, _prop_id, _value); }
-int ObjectsTotal(int _type = EMPTY) { return Plot::ObjectsTotal(); }
-string ObjectName(int _index) { return Plot::ObjectName(_index); }
-void SetIndexLabel(int _index, string _text) { Plot::SetIndexLabel(_index, _text); }
-void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY, color _clr = CLR_NONE) {
-  Plot::SetIndexStyle(_index, _type, _style, _width, _clr);
-}
+  // Defines macros (for MQL4 backward compatibility).
+  #define SetIndexArrow(_index, _value) (PlotIndexSetInteger(_index, PLOT_ARROW, _value))
+  #define SetIndexDrawBegin(_index, _value) (PlotIndexSetInteger(_index, PLOT_DRAW_BEGIN, _value))
+  #define SetIndexEmptyValue(_index, _value) (PlotIndexSetDouble(_index, PLOT_EMPTY_VALUE, _value))
+  #define SetIndexShift(_index, _value) (PlotIndexSetInteger(_index, PLOT_SHIFT, _value))
 #endif
 
 #define WINDOW_MAIN 0
 
-#ifdef __MQL5__
-#define OBJPROP_TIME1 ((ENUM_OBJECT_PROPERTY_INTEGER)0)
-#define OBJPROP_PRICE1 1
-#define OBJPROP_TIME2 2
-#define OBJPROP_PRICE2 3
-#define OBJPROP_TIME3 4
-#define OBJPROP_PRICE3 5
-#define OBJPROP_COLOR ((ENUM_OBJECT_PROPERTY_INTEGER)6)
-#define OBJPROP_STYLE 7
-#define OBJPROP_WIDTH 8
-#define OBJPROP_BACK ((ENUM_OBJECT_PROPERTY_INTEGER)9)
-#define OBJPROP_FIBOLEVELS 200
+#ifndef __MQL4__
+  #define OBJPROP_TIME1 ((ENUM_OBJECT_PROPERTY_INTEGER)0)
+  #define OBJPROP_PRICE1 1
+  #define OBJPROP_TIME2 2
+  #define OBJPROP_PRICE2 3
+  #define OBJPROP_TIME3 4
+  #define OBJPROP_PRICE3 5
+  #define OBJPROP_COLOR ((ENUM_OBJECT_PROPERTY_INTEGER)6)
+  #define OBJPROP_STYLE 7
+  #define OBJPROP_WIDTH 8
+  #define OBJPROP_BACK ((ENUM_OBJECT_PROPERTY_INTEGER)9)
+  #define OBJPROP_FIBOLEVELS 200
 #endif
 
 /**
@@ -371,3 +353,21 @@ class Plot : public Object {
     return true;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compatibility).
+bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
+  return Plot::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1);
+}
+bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1, datetime _t2, double _p2) {
+  return Plot::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1, _t2, _p2);
+}
+bool ObjectDelete(string _name) { return Plot::ObjectDelete(_name); }
+bool ObjectSet(string _name, int _prop_id, double _value) { return Plot::ObjectSet(_name, _prop_id, _value); }
+int ObjectsTotal(int _type = EMPTY) { return Plot::ObjectsTotal(); }
+string ObjectName(int _index) { return Plot::ObjectName(_index); }
+void SetIndexLabel(int _index, string _text) { Plot::SetIndexLabel(_index, _text); }
+void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY, color _clr = CLR_NONE) {
+  Plot::SetIndexStyle(_index, _type, _style, _width, _clr);
+}
+#endif

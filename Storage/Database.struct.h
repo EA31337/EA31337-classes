@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Structs.
@@ -104,11 +104,16 @@ struct DbSymbolInfoEntry : public SymbolInfoEntry {
   }
   // Methods.
   void DefineSchema() {
-    schema.columns.Push(DatabaseTableColumnEntry("bid", TYPE_DOUBLE));
-    schema.columns.Push(DatabaseTableColumnEntry("ask", TYPE_DOUBLE));
-    schema.columns.Push(DatabaseTableColumnEntry("last", TYPE_DOUBLE));
-    schema.columns.Push(DatabaseTableColumnEntry("spread", TYPE_DOUBLE));
-    schema.columns.Push(DatabaseTableColumnEntry("volume", TYPE_INT));
+    DatabaseTableColumnEntry _col1("bid", TYPE_DOUBLE);
+    DatabaseTableColumnEntry _col2("ask", TYPE_DOUBLE);
+    DatabaseTableColumnEntry _col3("last", TYPE_DOUBLE);
+    DatabaseTableColumnEntry _col4("spread", TYPE_DOUBLE);
+    DatabaseTableColumnEntry _col5("volume", TYPE_INT);
+    schema.columns.Push(_col1);
+    schema.columns.Push(_col2);
+    schema.columns.Push(_col3);
+    schema.columns.Push(_col4);
+    schema.columns.Push(_col5);
   }
 };
 #endif

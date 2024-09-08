@@ -122,6 +122,18 @@ class DictStruct : public DictBase<K, V> {
     return true;
   }
 
+#ifndef __MQL__
+
+  /**
+   * Inserts value using hashless key.
+   */
+  bool Push(const V& value) {
+    if (!InsertInto(THIS_ATTR _DictSlots_ref, value)) return false;
+    return true;
+  }
+
+#endif
+
   /**
    * Inserts value using hashless key.
    */
@@ -367,7 +379,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts hashless value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>*& dictSlotsRef, V& value) {
+  bool InsertInto(DictSlotsRef<K, V>*& dictSlotsRef, CONST_CPP V& value) {
     if (THIS_ATTR _mode == DictModeUnknown)
       THIS_ATTR _mode = DictModeList;
     else if (THIS_ATTR _mode != DictModeList) {

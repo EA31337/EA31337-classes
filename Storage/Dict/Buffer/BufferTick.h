@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -77,7 +77,7 @@ class BufferTickValueStorage : ValueStorage<TV> {
   /**
    * Returns number of values available to fetch (size of the values buffer).
    */
-  int Size() override { return (int)THIS_ATTR buffer_tick.Size(); }
+  int Size() override { return (int)THIS_ATTR buffer_tick PTR_DEREF Size(); }
 };
 
 /**

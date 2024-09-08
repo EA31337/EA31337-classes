@@ -29,13 +29,14 @@
   #pragma once
 #endif
 
-#include "../Refs.mqh"
-#include "../Storage/Dict/DictStruct.h"
-
 /**
  * Direction used by ItemsHistoryItemProvider's methods.
  */
 enum ENUM_ITEMS_HISTORY_DIRECTION { ITEMS_HISTORY_DIRECTION_FORWARD, ITEMS_HISTORY_DIRECTION_BACKWARD };
+
+#include "../Indicator/IndicatorData.h"
+#include "../Refs.mqh"
+#include "../Storage/Dict/DictStruct.h"
 
 /**
  * Forward declaration.

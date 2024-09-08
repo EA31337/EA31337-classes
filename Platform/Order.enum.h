@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 /* Order actions. */
@@ -92,17 +92,17 @@ enum ENUM_ORDER_PROPERTY_CUSTOM {
 
 // Defines enumeration for order close reasons.
 enum ENUM_ORDER_REASON_CLOSE {
-  ORDER_REASON_CLOSED_ALL = 0,      // Closed all
-  ORDER_REASON_CLOSED_BY_ACTION,    // Closed by action
-  ORDER_REASON_CLOSED_BY_CONDITION, // Closed by condition
-  ORDER_REASON_CLOSED_BY_EXPIRE,    // Closed by expiration
-  ORDER_REASON_CLOSED_BY_OPPOSITE,  // Closed by opposite order
-  ORDER_REASON_CLOSED_BY_SIGNAL,    // Closed by signal
-  ORDER_REASON_CLOSED_BY_SL,        // Closed by stop loss
-  ORDER_REASON_CLOSED_BY_TEST,      // Closed by test
-  ORDER_REASON_CLOSED_BY_TP,        // Closed by take profit
-  ORDER_REASON_CLOSED_BY_USER,      // Closed by user
-  ORDER_REASON_CLOSED_UNKNOWN,      // Closed by unknown event
+  ORDER_REASON_CLOSED_ALL = 0,       // Closed all
+  ORDER_REASON_CLOSED_BY_ACTION,     // Closed by action
+  ORDER_REASON_CLOSED_BY_CONDITION,  // Closed by condition
+  ORDER_REASON_CLOSED_BY_EXPIRE,     // Closed by expiration
+  ORDER_REASON_CLOSED_BY_OPPOSITE,   // Closed by opposite order
+  ORDER_REASON_CLOSED_BY_SIGNAL,     // Closed by signal
+  ORDER_REASON_CLOSED_BY_SL,         // Closed by stop loss
+  ORDER_REASON_CLOSED_BY_TEST,       // Closed by test
+  ORDER_REASON_CLOSED_BY_TP,         // Closed by take profit
+  ORDER_REASON_CLOSED_BY_USER,       // Closed by user
+  ORDER_REASON_CLOSED_UNKNOWN,       // Closed by unknown event
 };
 
 #ifndef __MQL5__
@@ -209,7 +209,8 @@ enum ENUM_ORDER_PROPERTY_INTEGER {
   ORDER_MAGIC,            // ID of an Expert Advisor that has placed the order.
   ORDER_REASON,           // The reason or source for placing an order.
   ORDER_POSITION_ID,      // Position identifier that is set to an order as soon as it is executed.
-  ORDER_POSITION_BY_ID    // Identifier of an opposite position used for closing by order ORDER_TYPE_CLOSE_BY.
+  ORDER_POSITION_BY_ID,   // Identifier of an opposite position used for closing by order ORDER_TYPE_CLOSE_BY.
+  __ORDER_REASON = 23,    // Required, so ORDER_REASON define could work without throwing compilation error.
 };
 
 /**
@@ -219,9 +220,10 @@ enum ENUM_ORDER_PROPERTY_INTEGER {
  * @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
  */
 enum ENUM_ORDER_PROPERTY_STRING {
-  ORDER_COMMENT,      // Order comment.
-  ORDER_EXTERNAL_ID,  // Order identifier in an external trading system (on the Exchange).
-  ORDER_SYMBOL,       // Symbol of the order.
+  ORDER_COMMENT,            // Order comment.
+  ORDER_EXTERNAL_ID,        // Order identifier in an external trading system (on the Exchange).
+  ORDER_SYMBOL,             // Symbol of the order.
+  __ORDER_EXTERNAL_ID = 20  // Required, so ORDER_EXTERNAL_ID define could work without throwing compilation error.
 };
 #endif
 
@@ -249,7 +251,7 @@ enum ENUM_ORDER_TYPE {
   ORDER_TYPE_UNSET             // A NULL value.
 };
 #else
-#define ORDER_TYPE_UNSET NULL
+  #define ORDER_TYPE_UNSET NULL
 #endif
 
 /* Positions */

@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../Terminal.mqh"
+#include "../Platform/Terminal.h"
 
 // Variables.
 Terminal *terminal;
