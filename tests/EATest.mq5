@@ -109,6 +109,12 @@ void OnTick() {
  * Implements OnDeinit().
  */
 void OnDeinit(const int reason) {
+  // Run data export via task.
+  TaskActionEntry _task_run_export(EA_ACTION_EXPORT_DATA);
+  ea1.Run(_task_run_export);
+  ea2.Run(_task_run_export);
+  ea3.Run(_task_run_export);
+  // Clean up.
   delete ea1;
   delete ea2;
   delete ea3;
