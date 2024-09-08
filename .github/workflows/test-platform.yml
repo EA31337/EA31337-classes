@@ -37,6 +37,7 @@ jobs:
     strategy:
       matrix:
         test:
+          - Backtest.test
           - Order.test
           - OrderQuery.test
           - Orders.test

@@ -805,6 +805,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
     }
     Order *_order = new Order(_request, _oparams);
+    OnOrderOpen(_oparams);
     _result = OrderAdd(_order);
     if (_result) {
       OnOrderOpen(PTR_TO_REF(_order));
@@ -1760,6 +1761,16 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   }
 
   /* Event methods */
+
+
+  /**
+   * Event on trade's order open.
+   *
+   * @param
+   *   _order OrderParams instance of order struct to be open.
+   */
+  virtual void OnOrderOpen(const OrderParams &_oparams) {
+  }
 
   /**
    * Event on trade's order open.

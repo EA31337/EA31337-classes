@@ -129,6 +129,7 @@ struct TradeStats {
 
 /* Structure for trade parameters. */
 struct TradeParams {
+  bool dummy;            // Whether trades should be opened as dummy (fake orders).
   float lot_size;        // Default lot size.
   float max_spread;      // Maximum spread to trade (in pips).
   float risk_margin;     // Maximum account margin to risk (in %).
@@ -141,6 +142,7 @@ struct TradeParams {
   // Constructors.
   TradeParams(float _lot_size = 0, float _risk_margin = 1.0f, unsigned int _slippage = 0, ENUM_LOG_LEVEL _ll = V_INFO)
       : bars_min(100),
+        dummy(false),
         order_comment(""),
         log_level(_ll),
         lot_size(_lot_size),
@@ -151,6 +153,7 @@ struct TradeParams {
   }
   TradeParams(uint64 _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
       : bars_min(100),
+        dummy(false),
         lot_size(0),
         order_comment(""),
         log_level(_ll),
