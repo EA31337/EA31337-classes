@@ -31,7 +31,7 @@
 #endif
 
 // Includes.
-#include "../EA.mqh"
+#include "../../EA.mqh"
 
 class Backtest {
  protected:

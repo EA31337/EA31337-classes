@@ -46,6 +46,7 @@ struct IndicatorParams;
 #include "../Storage/Dict/Buffer/Buffer.h"
 #include "../Storage/Dict/Buffer/BufferFXT.h"
 #include "../Storage/Dict/Buffer/BufferStruct.h"
+#include "../Platform/Backtest/Backtest.h"
 #include "../Platform/Chart/Chart.h"
 #include "../Config.mqh"
 #include "../Convert.mqh"
