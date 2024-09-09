@@ -36,11 +36,11 @@ To improve code compatibility, please use the following syntax:
 |:------------------|:------------------------|:---------------------------|
 | `&this`           | `this`                  | `THIS_PTR`                 |
 | `GetPointer(obj)` | `*obj`                  | `GET_PTR(obj)`             |
+| `Ref<X>.Ptr().a`  | `Ref<X>.Ptr()->a`       | `Ref<X> REF_DEREF a`       |
 | `T name[]`        | `_cpp_array<T> name`    | `ARRAY(T, name)`           |
 | `T<A, B> N[]`     | `_cpp_array<T<A, B>> N` | `ARRAY(T<A, B>, N)`        |
 | `long`            | `long long`             | `int64`                    |
 | `obj.Method()`    | `obj->Method()`         | `obj PTR_DEREF Method()`   |
-| `obj.Ptr().a`     | `obj.Ptr()->a`          | `obj REF_DEREF a`          |
 | `obj.a1.a2`       | `obj->a1->a2`           | `PTR_ATTRIB2(obj, a1, a2)` |
 | `obj.attr`        | `obj->attr`             | `PTR_ATTRIB(obj, attr)`    |
 | `str == NULL`     | `str == NULL`           | `IsNull(str)`              |
