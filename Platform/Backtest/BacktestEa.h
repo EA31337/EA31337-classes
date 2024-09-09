@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Implements Backtest class for internally backtesting.
+ * Implements BacktestEa class for internally backtesting EA.
  */
 
 #ifndef __MQL__
@@ -31,11 +31,13 @@
 #endif
 
 // Includes.
+#include "Backtest.h"
 #include "../../EA.mqh"
 
-class Backtest {
+class BacktestEa : public Backtest {
  protected:
   // Class variables.
+  EA *ea;
 
   /**
    * Init code (called on constructor).
@@ -48,8 +50,14 @@ class Backtest {
   /**
    * Class constructor.
    */
-   Backtest() {
+   BacktestEa() {
       Init();
    }
 
+  /**
+   * Class constructor.
+   */
+   BacktestEa(EAParams &_eparam) : ea(new EA(_eparam)) {
+      Init();
+   }
 };

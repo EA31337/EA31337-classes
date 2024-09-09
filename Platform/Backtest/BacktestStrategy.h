@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Implements Backtest class for internally backtesting.
+ * Implements BacktestStrategy class for internally backtesting strategy.
  */
 
 #ifndef __MQL__
@@ -31,11 +31,13 @@
 #endif
 
 // Includes.
-#include "../../EA.mqh"
+#include "Backtest.h"
+#include "../../Strategy.mqh"
 
-class Backtest {
+class BacktestStrategy : public Backtest {
  protected:
   // Class variables.
+  Strategy *strat;
 
   /**
    * Init code (called on constructor).
@@ -48,8 +50,14 @@ class Backtest {
   /**
    * Class constructor.
    */
-   Backtest() {
+   BacktestStrategy() {
       Init();
    }
 
+  /**
+   * Class constructor.
+   */
+   BacktestStrategy(Strategy *_strat) : strat(_strat) {
+      Init();
+   }
 };

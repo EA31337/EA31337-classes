@@ -38,6 +38,8 @@ jobs:
       matrix:
         test:
           - Backtest.test
+          - BacktestEa.test
+          - BacktestStrategy.test
         version: [5]
       max-parallel: 4
     steps:
