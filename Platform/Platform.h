@@ -28,7 +28,7 @@
   #include "Deal.enum.h"
   #include "Order.struct.h"
   #include "Platform.define.h"
-#include "Platform.enum.h"
+  #include "Platform.enum.h"
 
 /**
  * Extern declarations for C++.
@@ -622,7 +622,7 @@ class Platform : public Taskable<DataParamEntry> {
   /**
    * Returns serialized representation of the object instance.
    */
-  SerializerNodeType Serialize(Serializer &_s) const {
+  SerializerNodeType Serialize(Serializer &_s) {
     _s.PassStruct(THIS_REF, "params", pparams);
     //_s.PassStruct(THIS_REF, "exchanges", exchanges);
     return SerializerNodeObject;
@@ -631,7 +631,7 @@ class Platform : public Taskable<DataParamEntry> {
   /**
    * Returns textual representation of the object instance.
    */
-  string ToString() const { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
+  const string ToString() override { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 };
 
 bool Platform::initialized = false;

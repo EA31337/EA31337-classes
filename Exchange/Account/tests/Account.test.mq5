@@ -71,7 +71,7 @@ class AccountTest : public Account<AccountBaseState, AccountBaseEntry> {
  */
 int OnInit() {
   bool _result = true;
-  AccountTest acc1;
+  // AccountTest acc1;
   // ...
   return _result && GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED;
 }

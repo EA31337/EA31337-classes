@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -77,7 +77,7 @@ class Account : public AccountBase {
   /**
    * Returns serialized representation of the object instance.
    */
-  virtual SerializerNodeType Serialize(Serializer &_s) const {
+  virtual SerializerNodeType Serialize(Serializer &_s) {
     _s.PassStruct(THIS_REF, "state", state);
     return SerializerNodeObject;
   }

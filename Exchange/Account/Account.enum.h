@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 /* Account type of values for statistics. */
@@ -99,7 +99,7 @@ enum ENUM_ACCOUNT_INFO_DOUBLE {
  * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
  */
 enum ENUM_ACCOUNT_INFO_INTEGER {
-  ACCOUNT_CURRENCY_DIGITS = 0,  // The number of decimal places in the account currency (int).
+  ACCOUNT_CURRENCY_DIGITS,  // The number of decimal places in the account currency (int).
   ACCOUNT_FIFO_CLOSE,       // Whether positions can only be closed by FIFO rule (bool).
   ACCOUNT_LEVERAGE,         // Account leverage (long).
   ACCOUNT_LIMIT_ORDERS,     // Maximum allowed number of active pending orders (int).
@@ -148,7 +148,13 @@ enum ENUM_ACCOUNT_STOPOUT_MODE {
   ACCOUNT_STOPOUT_MODE_PERCENT,  // Account stop out mode in percents.
   ACCOUNT_STOPOUT_MODE_MONEY,    // Account stop out mode in money.
 };
+
 #endif
+
+// C++ only enum values for ENUM_ACCOUNT_PARAM_INTEGER. Avoids conflicts.
+#define ACCOUNT_MARGIN_MODE 100
+#define ACCOUNT_CURRENCY_DIGITS 101
+#define ACCOUNT_FIFO_CLOSE 102
 
 /**
  * Enumeration for the account integer param values.
@@ -167,9 +173,9 @@ enum ENUM_ACCOUNT_PARAM_INTEGER {
       ACCOUNT_MARGIN_SO_MODE,  // Mode for setting the minimal allowed margin (ENUM_ACCOUNT_STOPOUT_MODE).
   ACCOUNT_PARAM_TRADE_ALLOWED = ACCOUNT_TRADE_ALLOWED,  // Allowed trade for the current account (bool).
   ACCOUNT_PARAM_TRADE_EXPERT = ACCOUNT_TRADE_EXPERT,    // Allowed trade for an Expert Advisor (bool).
-  ACCOUNT_PARAM_MARGIN_MODE = ACCOUNT_MARGIN_MODE,  // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
+  ACCOUNT_PARAM_MARGIN_MODE = ACCOUNT_MARGIN_MODE,      // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
   ACCOUNT_PARAM_CURRENCY_DIGITS =
       ACCOUNT_CURRENCY_DIGITS,  // The number of decimal places in the account currency (int).
   ACCOUNT_PARAM_FIFO_CLOSE =
-      ACCOUNT_FIFO_CLOSE,  // An indication showing that positions can only be closed by FIFO rule (bool).
+      ACCOUNT_FIFO_CLOSE  // An indication showing that positions can only be closed by FIFO rule (bool).
 };
