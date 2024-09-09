@@ -3,7 +3,7 @@ name: Test Math
 
 env:
   TEST_PATH: Math/tests
-  TEST_SKIP: ${{ secrets.MT5_LOGIN || false }}
+  TEST_SKIP: ${{ secrets.MT5_LOGIN == '' }}
 
 # yamllint disable-line rule:truthy
 on:
@@ -48,7 +48,7 @@ jobs:
           name: files-ex${{ matrix.version }}
       - name: List compiled files
         run: find . -name '*.ex?' -type f -print
-      - if: ${{ env.TEST_SKIP != true }}
+      - if: ${{ env.TEST_SKIP != true && env.TEST_SKIP != 'true' }}
         name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
