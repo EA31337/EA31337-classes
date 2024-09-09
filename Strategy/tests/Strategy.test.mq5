@@ -28,9 +28,9 @@
 struct DataParamEntry;
 
 // Includes.
-#include "../Indicators/Indi_Demo.mqh"
-#include "../Strategy.mqh"
-#include "../Test.mqh"
+#include "../../Indicators/Indi_Demo.mqh"
+#include "../Strategy.h"
+#include "../../Test.mqh"
 
 // Define strategy classes.
 class Stg1 : public Strategy {

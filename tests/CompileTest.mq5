@@ -84,7 +84,7 @@ struct IndicatorParams;
 #include "../Socket.mqh"
 #include "../Std.h"
 #include "../Storage/Singleton.h"
-#include "../Strategy.mqh"
+#include "../Strategy/Strategy.h"
 #include "../Storage/String.h"
 #include "../SummaryReport.mqh"
 #include "../Exchange/SymbolInfo/SymbolInfo.h"

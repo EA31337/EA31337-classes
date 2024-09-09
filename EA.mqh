@@ -46,7 +46,7 @@
 #include "Storage/Data.struct.h"
 #include "Storage/Dict/Dict.h"
 #include "Storage/Dict/DictObject.h"
-#include "Strategy.mqh"
+#include "Strategy/Strategy.h"
 #include "SummaryReport.mqh"
 #include "Task/Task.h"
 #include "Task/TaskAction.enum.h"
