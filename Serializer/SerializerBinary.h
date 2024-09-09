@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,13 +20,14 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_BINARY_MQH
-#define SERIALIZER_BINARY_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "../DictBase.mqh"
-#include "../Object.mqh"
+#include "../Storage/Dict/DictBase.h"
+#include "../Storage/Object.h"
 #include "Serializer.h"
 #include "SerializerNode.h"
 
@@ -37,7 +38,7 @@ enum ENUM_SERIALIZER_BINARY_FLAGS { SERIALIZER_BINARY_INCLUDE_VERSION };
 union SerializerBinaryValue {
   unsigned char Bytes[8];
   double Double;
-  long Long;
+  int64 Long;
   int Integer;
   short Short;
 };
@@ -48,9 +49,9 @@ class SerializerBinary {
    * Serializes node and its children into binary format.
    */
   static string Stringify(SerializerNode* _node, unsigned int stringify_flags = 0, void* stringify_aux_arg = NULL) {
-    int size = _node.BinarySize();
+    int size = _node PTR_DEREF BinarySize();
 
-    unsigned char bytes[];
+    ARRAY(unsigned char, bytes);
     ArrayResize(bytes, size);
 
     StringifyNode(_node, stringify_flags, stringify_aux_arg, bytes);
@@ -59,10 +60,10 @@ class SerializerBinary {
   }
 
   static void StringifyNode(SerializerNode* _node, unsigned int stringify_flags, void* stringify_aux_arg,
-                            unsigned char& bytes[], int offset = 0) {
+                            ARRAY_REF(unsigned char, bytes), int offset = 0) {
     SerializerBinaryValue value;
     int i;
-    switch (_node.GetType()) {
+    switch (_node PTR_DEREF GetType()) {
       case SerializerNodeArray:
         break;
       case SerializerNodeObject:
@@ -72,27 +73,27 @@ class SerializerBinary {
         break;
       case SerializerNodeObjectProperty:
       case SerializerNodeArrayItem:
-        switch (_node.GetValueParam().GetType()) {
+        switch (_node PTR_DEREF GetValueParam() PTR_DEREF GetType()) {
           case SerializerNodeParamBool:
-            bytes[offset] = _node.GetValueParam()._integral._bool;
+            bytes[offset] = _node PTR_DEREF GetValueParam() PTR_DEREF _integral._bool;
             break;
           case SerializerNodeParamDouble:
-            value.Double = _node.GetValueParam()._integral._double;
+            value.Double = _node PTR_DEREF GetValueParam() PTR_DEREF _integral._double;
             for (i = 0; i < sizeof(value.Double); ++i) {
               bytes[offset + i] = value.Bytes[i];
             }
             break;
           case SerializerNodeParamLong:
-            value.Long = _node.GetValueParam()._integral._long;
+            value.Long = _node PTR_DEREF GetValueParam() PTR_DEREF _integral._long;
             for (i = 0; i < sizeof(value.Long); ++i) {
               bytes[offset + i] = value.Bytes[i];
             }
             break;
           case SerializerNodeParamString:
-            for (i = 0; i < StringLen(_node.GetValueParam()._string); ++i) {
-              bytes[offset + i] = (unsigned char)_node.GetValueParam()._string[i];
+            for (i = 0; i < StringLen(_node PTR_DEREF GetValueParam() PTR_DEREF _string); ++i) {
+              bytes[offset + i] = (unsigned char)_node PTR_DEREF GetValueParam() PTR_DEREF _string[i];
             }
-            bytes[StringLen(_node.GetValueParam()._string)] = '\0';
+            bytes[StringLen(_node PTR_DEREF GetValueParam() PTR_DEREF _string)] = '\0';
             break;
         }
         break;
@@ -115,7 +116,7 @@ class SerializerBinary {
 
     Serializer serializer(node, Unserialize);
 
-    if (logger != NULL) serializer.Logger().Link(logger);
+    // if (logger != NULL) serializer.Logger().Link(logger);
 
     // We don't use result. We parse data as it is.
     obj.Serialize(serializer);
@@ -129,5 +130,3 @@ class SerializerBinary {
     return NULL;
   }
 };
-
-#endif

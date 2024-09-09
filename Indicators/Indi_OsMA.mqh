@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,17 +20,13 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iOsMA(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_period, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_OsMA::iOsMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ema_fp, _ema_sp, _signal_period, (ENUM_APPLIED_PRICE)_ap,
-                          _shift);
-}
-#endif
 
 // Structs.
 struct IndiOsMAParams : IndicatorParams {
@@ -88,11 +84,19 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
   static double iOsMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ema_fast_period, int _ema_slow_period,
                       int _signal_period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
                       IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price), 0, _shift);
+#endif
+#else  // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 
@@ -192,3 +196,12 @@ class Indi_OsMA : public Indicator<IndiOsMAParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iOsMA(string _symbol, int _tf, int _ema_fp, int _ema_sp, int _signal_period, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_OsMA::iOsMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ema_fp, _ema_sp, _signal_period, (ENUM_APPLIED_PRICE)_ap,
+                          _shift);
+}
+#endif

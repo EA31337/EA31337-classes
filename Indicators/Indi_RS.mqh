@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,9 +20,14 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "OHLC/Indi_OHLC.mqh"
 #include "Special/Indi_Math.mqh"
 
@@ -110,7 +115,7 @@ class Indi_RS : public Indicator<IndiRSParams> {
         // Updating Maths' data sources to be the same as RS data source.
         imath.GetByKey(0) REF_DEREF SetDataSource(GetDataSource());
         imath.GetByKey(1) REF_DEREF SetDataSource(GetDataSource());
-        return imath[_mode].Ptr().GetEntryValue();
+        return imath[_mode] REF_DEREF GetEntryValue();
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

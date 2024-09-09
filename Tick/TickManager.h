@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -25,8 +25,13 @@
  * Implements TickManager class.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../BufferStruct.mqh"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "Tick.struct.h"
 #include "TickManager.h"
 //#include "TickManager.struct.h"

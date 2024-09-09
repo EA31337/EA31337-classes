@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -21,10 +21,15 @@
  */
 
 // Prevents processing this includes file for the second time.
-#include "SerializerConversions.h"
-
 #ifndef SERIALIZER_NODE_PARAM_H
 #define SERIALIZER_NODE_PARAM_H
+
+#ifndef __MQL__
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
+#endif
+
+#include "SerializerConversions.h"
 
 /**
  * Enumeration.
@@ -48,7 +53,7 @@ class SerializerNodeParam {
    */
   union USerializerNodeValue {
     bool _bool;
-    long _long;
+    int64 _long;
     double _double;
   } _integral;
 
@@ -71,12 +76,17 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromBool(long value);
+  static SerializerNodeParam* FromBool(bool value);
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromLong(long value);
+  static SerializerNodeParam* FromLong(int64 value);
+
+  /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
+  static SerializerNodeParam* FromLong(uint64 value);
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -96,17 +106,17 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(char value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(char value) { return FromLong((int64)value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(color value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(color value) { return FromLong((int64)(unsigned int)value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(datetime value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(datetime value) { return FromLong((int64)value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -116,17 +126,39 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(int value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(int value) { return FromLong((int64)value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(long value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(int64 value) { return FromLong(value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(short value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(uint64 value) { return FromLong(value); }
+
+#ifndef __MQL__
+
+  // @fixit
+  // Two specializations for C++'s "long". It is required until we refactor all "[unsigned] long"'s into "[u]int64"'s.
+
+  /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
+  static SerializerNodeParam* FromValue(long value) { return FromLong((int64)value); }
+
+  /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
+  static SerializerNodeParam* FromValue(unsigned long value) { return FromLong((uint64)value); }
+
+#endif
+
+  /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
+  static SerializerNodeParam* FromValue(short value) { return FromLong((int64)value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -136,22 +168,17 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(unsigned char value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(unsigned char value) { return FromLong((uint64)value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(unsigned int value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(unsigned int value) { return FromLong((uint64)value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(unsigned long value) { return FromLong(value); }
-
-  /**
-   * Returns new SerializerNodeParam object from given source value.
-   */
-  static SerializerNodeParam* FromValue(unsigned short value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(unsigned short value) { return FromLong((uint64)value); }
 
   /**
    * Returns stringified version of the value. Note "forceQuotesOnString" flag.
@@ -182,7 +209,7 @@ class SerializerNodeParam {
    */
   SerializerNodeParamType GetType() { return _type; }
 
-  long ToBool() {
+  int64 ToBool() {
     switch (_type) {
       case SerializerNodeParamBool:
         return _integral._bool;
@@ -216,18 +243,18 @@ class SerializerNodeParam {
     return 0;
   }
 
-  long ToLong() {
+  int64 ToLong() {
     switch (_type) {
       case SerializerNodeParamBool:
         return _integral._bool ? 1 : 0;
       case SerializerNodeParamLong:
         return _integral._long;
       case SerializerNodeParamDouble:
-        return (long)_integral._double;
+        return (int64)_integral._double;
       case SerializerNodeParamString:
         return StringToInteger(_string);
       default:
-        Alert("Internal Error. Cannot convert source type to long");
+        Alert("Internal Error. Cannot convert source type to int64");
     }
 
     return 0;
@@ -286,7 +313,7 @@ class SerializerNodeParam {
 
   int ConvertTo(int) { return ToInt(); }
 
-  long ConvertTo(long) { return ToInt(); }
+  int64 ConvertTo(int64) { return ToInt(); }
 
   float ConvertTo(float) { return ToFloat(); }
 
@@ -298,7 +325,7 @@ class SerializerNodeParam {
 /**
  * Returns new SerializerNodeParam object from given source value.
  */
-SerializerNodeParam* SerializerNodeParam::FromBool(long value) {
+SerializerNodeParam* SerializerNodeParam::FromBool(bool value) {
   SerializerNodeParam* param = new SerializerNodeParam();
   PTR_ATTRIB(param, _type) = SerializerNodeParamBool;
   PTR_ATTRIB(param, _integral)._bool = value;
@@ -308,12 +335,17 @@ SerializerNodeParam* SerializerNodeParam::FromBool(long value) {
 /**
  * Returns new SerializerNodeParam object from given source value.
  */
-SerializerNodeParam* SerializerNodeParam::FromLong(long value) {
+SerializerNodeParam* SerializerNodeParam::FromLong(int64 value) {
   SerializerNodeParam* param = new SerializerNodeParam();
   PTR_ATTRIB(param, _type) = SerializerNodeParamLong;
   PTR_ATTRIB(param, _integral)._long = value;
   return param;
 }
+
+/**
+ * Returns new SerializerNodeParam object from given source value.
+ */
+SerializerNodeParam* SerializerNodeParam::FromLong(uint64 value) { return FromLong((uint64)value); }
 
 /**
  * Returns new SerializerNodeParam object from given source value.

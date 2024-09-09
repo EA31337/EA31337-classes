@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -34,12 +34,12 @@
 #include "ValueStorage.h"
 
 // Forward declarations.
-class IndicatorData;
+class IndicatorBase;
 template <typename C>
 class ValueStorage;
 
 #ifndef __MQL__
-extern int GetBarsFromStart(IndicatorData* _indi);
+extern int GetBarsFromStart(IndicatorBase* _indi);
 #endif
 
 /**
@@ -49,7 +49,7 @@ template <typename C>
 class HistoryValueStorage : public ValueStorage<C> {
  protected:
   // Indicator used as an OHLC source, e.g. IndicatorCandle.
-  WeakRef<IndicatorData> indi_candle;
+  WeakRef<IndicatorBase> indi_candle;
 
   // Whether storage operates in as-series mode.
   bool is_series;
@@ -58,7 +58,7 @@ class HistoryValueStorage : public ValueStorage<C> {
   /**
    * Constructor.
    */
-  HistoryValueStorage(IndicatorData* _indi_candle, bool _is_series = false)
+  HistoryValueStorage(IndicatorBase* _indi_candle, bool _is_series = false)
       : indi_candle(_indi_candle), is_series(_is_series) {
     if (_indi_candle == nullptr) {
       Print("You have to pass IndicatorCandle-compatible indicator as parameter to HistoryValueStorage!");

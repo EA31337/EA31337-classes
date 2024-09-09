@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,17 +20,18 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_CSV_MQH
-#define SERIALIZER_CSV_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "../Dict.mqh"
-#include "../DictObject.mqh"
-#include "../DictStruct.mqh"
-#include "../Matrix.mqh"
-#include "../MiniMatrix.h"
-#include "../Object.mqh"
+#include "../Math/Matrix.h"
+#include "../Math/MatrixMini.h"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Dict/DictObject.h"
+#include "../Storage/Dict/DictStruct.h"
+#include "../Storage/Object.h"
 #include "SerializerConverter.h"
 #include "SerializerNode.h"
 
@@ -50,8 +51,8 @@ enum ENUM_SERIALIZER_CSV_FLAGS {
 class SerializerCsv {
  public:
   static string Stringify(SerializerNode* _root, unsigned int serializer_flags, void* serializer_aux_arg = NULL,
-                          MiniMatrix2d<string>* _matrix_out = NULL,
-                          MiniMatrix2d<SerializerNodeParamType>* _column_types_out = NULL) {
+                          MatrixMini2d<string>* _matrix_out = NULL,
+                          MatrixMini2d<SerializerNodeParamType>* _column_types_out = NULL) {
     SerializerConverter* _stub = (SerializerConverter*)serializer_aux_arg;
 
     if (CheckPointer(_root) == POINTER_INVALID) {
@@ -89,9 +90,9 @@ class SerializerCsv {
       ++_num_columns;
     }
 
-    MiniMatrix2d<string> _cells;
-    MiniMatrix2d<string> _column_titles;
-    MiniMatrix2d<SerializerNodeParamType> _column_types;
+    MatrixMini2d<string> _cells;
+    MatrixMini2d<string> _column_titles;
+    MatrixMini2d<SerializerNodeParamType> _column_types;
 
     if (_matrix_out == NULL) {
       _matrix_out = &_cells;
@@ -172,8 +173,8 @@ class SerializerCsv {
    * Extracts column names and types from the stub, so even if there is not data, we'll still have information about
    * columns.
    */
-  static void ExtractColumns(SerializerNode* _stub, MiniMatrix2d<string>* _titles,
-                             MiniMatrix2d<SerializerNodeParamType>* _column_types, int _flags, int& _column) {
+  static void ExtractColumns(SerializerNode* _stub, MatrixMini2d<string>* _titles,
+                             MatrixMini2d<SerializerNodeParamType>* _column_types, int _flags, int& _column) {
     for (unsigned int _stub_entry_idx = 0; _stub_entry_idx < _stub PTR_DEREF NumChildren(); ++_stub_entry_idx) {
       SerializerNode* _child = _stub PTR_DEREF GetChild(_stub_entry_idx);
       if (_child PTR_DEREF IsContainer()) {
@@ -187,8 +188,8 @@ class SerializerCsv {
   /**
    *
    */
-  static bool FlattenNode(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells,
-                          MiniMatrix2d<SerializerNodeParamType>* _column_types, int _column, int _row, int _flags) {
+  static bool FlattenNode(SerializerNode* _data, SerializerNode* _stub, MatrixMini2d<string>& _cells,
+                          MatrixMini2d<SerializerNodeParamType>* _column_types, int _column, int _row, int _flags) {
     unsigned int _data_entry_idx;
 
     bool _include_key = bool(_flags & SERIALIZER_CSV_INCLUDE_KEY);
@@ -233,8 +234,8 @@ class SerializerCsv {
   /**
    *
    */
-  static bool FillRow(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells,
-                      MiniMatrix2d<SerializerNodeParamType>* _column_types, int _column, int _row, int _index,
+  static bool FillRow(SerializerNode* _data, SerializerNode* _stub, MatrixMini2d<string>& _cells,
+                      MatrixMini2d<SerializerNodeParamType>* _column_types, int _column, int _row, int _index,
                       int _level, int _flags) {
     unsigned int _data_entry_idx, _entry_size;
 
@@ -292,5 +293,3 @@ class SerializerCsv {
     return true;
   }
 };
-
-#endif

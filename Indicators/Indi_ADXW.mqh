@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,9 +20,14 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.applied_price.h"
 #include "../Storage/ValueStorage.h"
 #include "../Storage/ValueStorage.spread.h"
@@ -31,7 +36,7 @@
 #include "../Storage/ValueStorage.volume.h"
 #include "../Util.h"
 #include "Indi_ADX.mqh"
-#include "Price/Indi_Price.mqh"
+#include "Price/Indi_Price.h"
 
 // Structs.
 struct IndiADXWParams : IndiADXParams {
@@ -105,9 +110,10 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
    */
   static double iADXWilder(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _mode = LINE_MAIN_ADX,
                            int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iADXWilder(_symbol, _tf, _ma_period), _mode, _shift);
-#else
+#else  // __MQL5__
     if (_obj == nullptr) {
       Print(
           "Indi_ADXW::iADXWilder() can work without supplying pointer to IndicatorData only in MQL5. In this platform "
@@ -117,32 +123,41 @@ class Indi_ADXW : public Indicator<IndiADXWParams> {
     }
     return iADXWilder(_obj, _ma_period, _mode, _shift);
 #endif
+#else  // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
+#endif
   }
 
   /**
    * Calculates ADX Wilder on the array of values.
    */
   static double iADXWilderOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _mode, int _abs_shift,
-                                  IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+                                  IndiBufferCache<double> *_cache, bool _recalculate = false) {
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(3 + 7);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(3 + 7);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_ADXW::Calculate(
-        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
-        _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _cache.GetBuffer<double>(4),
-        _cache.GetBuffer<double>(5), _cache.GetBuffer<double>(6), _cache.GetBuffer<double>(7),
-        _cache.GetBuffer<double>(8), _cache.GetBuffer<double>(9), _period));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_ADXW::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0),
+                             _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2),
+                             _cache PTR_DEREF GetBuffer<double>(3), _cache PTR_DEREF GetBuffer<double>(4),
+                             _cache PTR_DEREF GetBuffer<double>(5), _cache PTR_DEREF GetBuffer<double>(6),
+                             _cache PTR_DEREF GetBuffer<double>(7), _cache PTR_DEREF GetBuffer<double>(8),
+                             _cache PTR_DEREF GetBuffer<double>(9), _period));
 
     // Returns value from the first calculation buffer.
     // Returns first value for as-series array or last value for non-as-series array.
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

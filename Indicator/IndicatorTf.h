@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,17 +20,13 @@
  *
  */
 
-// Ignore processing of this file if already included.
-#ifndef INDICATOR_TF_H
-#define INDICATOR_TF_H
-
 #ifndef __MQL__
   // Allows the preprocessor to include a header file when it is needed.
   #pragma once
 #endif
 
 // Includes.
-#include "../Chart.struct.tf.h"
+#include "../Platform/Chart/Chart.struct.tf.h"
 #include "IndicatorCandle.h"
 #include "IndicatorTf.provider.h"
 
@@ -48,7 +44,8 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    * Called on constructor.
    */
   void Init() {
-    history.SetItemProvider(new ItemsHistoryTfCandleProvider<double>(ChartTf::TfToSeconds(GetTf()), THIS_PTR));
+    THIS_ATTR history.SetItemProvider(
+        new ItemsHistoryTfCandleProvider<double>(ChartTf::TfToSeconds(GetTf()), THIS_PTR));
   }
 
  public:
@@ -68,7 +65,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
   /**
    * Class constructor with timeframe index.
    */
-  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = 0) {
+  IndicatorTf(ENUM_TIMEFRAMES_INDEX _tfi = (ENUM_TIMEFRAMES_INDEX)0) {
     SetTf(ChartTf::IndexToTf(_tfi));
     Init();
   }
@@ -76,7 +73,7 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams) { Init(); }
+  IndicatorTf(const TFP& _icparams, const IndicatorDataParams& _idparams) { Init(); }
 
   /**
    * Gets indicator's time-frame.
@@ -93,5 +90,3 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
    */
   int GetTickIndex() override { return THIS_ATTR history.GetItemProvider() PTR_DEREF GetTickIndex(); }
 };
-
-#endif  // INDICATOR_TF_H

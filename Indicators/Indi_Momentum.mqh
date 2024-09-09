@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -29,17 +29,14 @@
  * In addition, it can help to identify when the price action is losing steam to prepare for a potential trend reversal.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
 #include "Indi_PriceFeeder.mqh"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iMomentum(string _symbol, int _tf, int _period, int _ap, int _shift) {
-  ResetLastError();
-  return Indi_Momentum::iMomentum(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
-}
-#endif
 
 // Structs.
 struct IndiMomentumParams : IndicatorParams {
@@ -95,10 +92,18 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
    */
   static double iMomentum(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _ap,
                           int _shift = 0, IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iMomentum(_symbol, _tf, _period, _ap, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iMomentum(_symbol, _tf, _period, _ap), 0, _shift);
+#endif
+#else  // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 
@@ -106,8 +111,8 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
                                      int _mode, int _shift = 0) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period);
 
-    double _indi_value_buffer[];
-    IndicatorDataEntry _entry(_indi.GetModeCount());
+    ARRAY(double, _indi_value_buffer);
+    IndicatorDataEntry _entry(_indi PTR_DEREF GetModeCount());
 
     ArrayResize(_indi_value_buffer, _period);
 
@@ -122,12 +127,12 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
     return momentum;
   }
 
-  static double iMomentumOnArray(double &array[], int total, int period, int shift) {
+  static double iMomentumOnArray(CONST_ARRAY_REF(double, array), int total, int period, int shift) {
 #ifdef __MQL4__
     return ::iMomentumOnArray(array, total, period, shift);
 #else
     Indi_PriceFeeder indi_price_feeder(array);
-    return iMomentumOnIndicator(&indi_price_feeder, NULL, NULL, period, /*unused*/ PRICE_OPEN, shift);
+    return iMomentumOnIndicator(&indi_price_feeder, NULL, PERIOD_CURRENT, period, /*unused*/ PRICE_OPEN, shift);
 #endif
   }
 
@@ -146,7 +151,7 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
                                                      iparams.shift + ToRelShift(_abs_shift));
-        if (idparams.IsDrawing()) {
+        if (idparams.IsPloting()) {
           // draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + ToRelShift(_abs_shift)), _value,
           // 1);
         }
@@ -161,7 +166,7 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
                                                      iparams.shift + ToRelShift(_abs_shift));
-        if (idparams.IsDrawing()) {
+        if (idparams.IsPloting()) {
           // draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(iparams.shift + ToRelShift(_abs_shift)), _value,
           // 1);
         }
@@ -211,3 +216,11 @@ class Indi_Momentum : public Indicator<IndiMomentumParams> {
     iparams.applied_price = _ap;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iMomentum(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  ResetLastError();
+  return Indi_Momentum::iMomentum(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+#endif

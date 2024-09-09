@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,6 +20,11 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /**
  * @file
  * Gator Oscillator
@@ -29,16 +34,7 @@
 
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iGator(string _symbol, int _tf, int _jp, int _js, int _tp, int _ts, int _lp, int _ls, int _ma_method, int _ap,
-              int _mode, int _shift) {
-  ResetLastError();
-  return Indi_Gator::iGator(_symbol, (ENUM_TIMEFRAMES)_tf, _jp, _js, _tp, _ts, _lp, _ls, (ENUM_MA_METHOD)_ma_method,
-                            (ENUM_APPLIED_PRICE)_ap, (ENUM_GATOR_HISTOGRAM)_mode, _shift);
-}
-#endif
+#include "../Indicators/Price/Indi_MA.h"
 
 #ifndef __MQLBUILD__
 // Indicator constants.
@@ -162,6 +158,7 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
                        int _teeth_shift, int _lips_period, int _lips_shift, ENUM_MA_METHOD _ma_method,
                        ENUM_APPLIED_PRICE _applied_price, ENUM_GATOR_HISTOGRAM _mode, int _shift = 0,
                        IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                     _ma_method, _applied_price, _mode, _shift);
@@ -169,6 +166,13 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift,
                                                _lips_period, _lips_shift, _ma_method, _applied_price),
                                       _mode, _shift);
+#endif
+#else  // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 
@@ -327,3 +331,13 @@ class Indi_Gator : public Indicator<IndiGatorParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iGator(string _symbol, int _tf, int _jp, int _js, int _tp, int _ts, int _lp, int _ls, int _ma_method, int _ap,
+              int _mode, int _shift) {
+  ResetLastError();
+  return Indi_Gator::iGator(_symbol, (ENUM_TIMEFRAMES)_tf, _jp, _js, _tp, _ts, _lp, _ls, (ENUM_MA_METHOD)_ma_method,
+                            (ENUM_APPLIED_PRICE)_ap, (ENUM_GATOR_HISTOGRAM)_mode, _shift);
+}
+#endif

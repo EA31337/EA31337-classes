@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,11 +20,16 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
-#include "Indi_MA.mqh"
+#include "Price/Indi_MA.h"
 
 // Structs.
 struct IndiMassIndexParams : IndicatorParams {
@@ -98,22 +103,23 @@ class Indi_MassIndex : public Indicator<IndiMassIndexParams> {
    * Calculates Mass Index on the array of values.
    */
   static double iMIOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _period, int _second_period, int _sum_period, int _mode,
-                           int _abs_shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+                           int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1 + 3);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1 + 3);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_MassIndex::Calculate(
-        INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1),
-        _cache.GetBuffer<double>(2), _cache.GetBuffer<double>(3), _period, _second_period, _sum_period));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_MassIndex::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0),
+                                  _cache PTR_DEREF GetBuffer<double>(1), _cache PTR_DEREF GetBuffer<double>(2),
+                                  _cache PTR_DEREF GetBuffer<double>(3), _period, _second_period, _sum_period));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

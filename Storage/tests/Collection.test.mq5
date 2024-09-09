@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -25,13 +25,13 @@
  */
 
 // Includes.
-#include "../Collection.mqh"
 #include "../../Test.mqh"
+#include "../Collection.h"
 
 // Define classes.
 class Stack : public Object {
  public:
-  virtual string GetName() = NULL;
+  virtual string GetName() = 0;
 };
 class Foo : public Stack {
  public:

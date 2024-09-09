@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -49,7 +49,7 @@ class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {
   /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
-  virtual void OnTick(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, long _time_ms, float _ask,
+  virtual void OnTick(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, int64 _time_ms, float _ask,
                       float _bid) {
     TickTAB<TV> _tick(_time_ms, _ask, _bid);
     _history PTR_DEREF Append(_tick);
@@ -60,7 +60,7 @@ class ItemsHistoryTickProvider : public ItemsHistoryItemProvider<TickTAB<TV>> {
    * want previous or next items from selected starting point. Should return false if retrieving items by this method
    * is not available.
    */
-  bool GetItems(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, long _from_time_ms,
+  bool GetItems(ItemsHistory<TickTAB<TV>, ItemsHistoryTickProvider<TV>>* _history, int64 _from_time_ms,
                 ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items, ARRAY_REF(TickTAB<TV>, _out_arr)) {
     return false;
   }

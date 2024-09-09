@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -26,76 +26,68 @@
 
 // 3D includes (MQL5 only).
 #ifdef __MQL5__
-#include "../3D/Chart3D.h"
-#include "../3D/Cube.h"
-#include "../3D/Devices/MTDX/MTDXDevice.h"
-#include "../3D/Devices/MTDX/MTDXIndexBuffer.h"
-#include "../3D/Devices/MTDX/MTDXShader.h"
-#include "../3D/Devices/MTDX/MTDXVertexBuffer.h"
-#include "../3D/Frontends/MT5Frontend.h"
+#include "../Platform/Chart3D/Chart3D.h"
+#include "../Platform/Chart3D/Cube.h"
+#include "../Platform/Chart3D/Devices/MTDX/MTDXDevice.h"
+#include "../Platform/Chart3D/Devices/MTDX/MTDXIndexBuffer.h"
+#include "../Platform/Chart3D/Devices/MTDX/MTDXShader.h"
+#include "../Platform/Chart3D/Devices/MTDX/MTDXVertexBuffer.h"
+#include "../Platform/Chart3D/Frontends/MT5Frontend.h"
+#include "../Math/OpenCL.h"
 #endif
 
 // Forward declaration.
 struct IndicatorParams;
 
 // Includes.
-#include "../Account/AccountMt.h"
-#include "../Array.mqh"
+#include "../Exchange/Account/AccountMt.h"
+#include "../Storage/Array.h"
 #include "../Task/TaskAction.h"
-//#include "../BasicTrade.mqh" // @removeme
-#include "../Buffer.mqh"
-#include "../BufferFXT.mqh"
-#include "../BufferStruct.mqh"
-#include "../Chart.mqh"
+#include "../Storage/Dict/Buffer/Buffer.h"
+#include "../Storage/Dict/Buffer/BufferFXT.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
+#include "../Platform/Chart/Chart.h"
 #include "../Config.mqh"
 #include "../Convert.mqh"
-#include "../Database.mqh"
-#include "../DateTime.mqh"
-#include "../Dict.mqh"
-#include "../DictBase.mqh"
-#include "../DictIteratorBase.mqh"
-#include "../DictObject.mqh"
-#include "../DictSlot.mqh"
-#include "../DictStruct.mqh"
-#include "../Draw.mqh"
-#include "../DrawIndicator.mqh"
+#include "../Storage/Database.h"
+#include "../Storage/DateTime.h"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Dict/DictBase.h"
+#include "../Storage/Dict/DictIteratorBase.h"
+#include "../Storage/Dict/DictObject.h"
+#include "../Storage/Dict/DictSlot.h"
+#include "../Storage/Dict/DictStruct.h"
+#include "../Platform/Plot.h"
+#include "../Indicators/DrawIndicator.mqh"
 #include "../EA.mqh"
 #include "../File.mqh"
-// #include "../Inet.mqh"
 #include "../Log.mqh"
 #include "../MD5.mqh"
 #include "../Storage/IValueStorage.h"
 #include "../Task/TaskCondition.h"
-//#include "../MQL4.mqh" // @removeme
-//#include "../MQL5.mqh" // @removeme
 #include "../Mail.mqh"
 #include "../Market.mqh"
-#include "../Math.h"
-#include "../Matrix.mqh"
-#include "../MiniMatrix.h"
-#include "../Msg.mqh"
-#include "../Object.mqh"
-#include "../Order.mqh"
-#include "../Orders.mqh"
+#include "../Math/Math.h"
+#include "../Math/Matrix.h"
+#include "../Math/MatrixMini.h"
+#include "../Storage/Object.h"
+#include "../Platform/Order.h"
+#include "../Platform/Orders.h"
 #include "../Pattern.mqh"
 // #include "../Profiler.mqh"
-#include "../Redis.mqh"
+#include "../Storage/Redis.h"
 #include "../Refs.mqh"
-#include "../Registry.mqh"
-#include "../RegistryBinary.mqh"
 #include "../Report.mqh"
 #include "../Storage/Objects.h"
-#include "../Storage/ObjectsCache.h"
-// #include "../SVG.mqh" // @removeme
-#include "../Session.mqh"
+#include "../Storage/Cache/ObjectsCache.h"
 #include "../SetFile.mqh"
 #include "../Socket.mqh"
 #include "../Std.h"
 #include "../Storage/Singleton.h"
 #include "../Strategy.mqh"
-#include "../String.mqh"
+#include "../Storage/String.h"
 #include "../SummaryReport.mqh"
-#include "../SymbolInfo.mqh"
+#include "../Exchange/SymbolInfo/SymbolInfo.h"
 #include "../Task/Task.h"
 #include "../Task/TaskAction.h"
 #include "../Task/TaskCondition.h"
@@ -104,15 +96,14 @@ struct IndicatorParams;
 #include "../Task/TaskObject.h"
 #include "../Task/TaskSetter.h"
 #include "../Task/Taskable.h"
-#include "../Terminal.mqh"
+#include "../Platform/Terminal.h"
 // #include "../Tester.mqh" // @removeme
-#include "../Storage/Collection.mqh"
+#include "../Storage/Collection.h"
 #include "../Storage/ValueStorage.h"
 // #include "../Tests.mqh" // @removeme
 #include "../Timer.mqh"
 #include "../Trade.mqh"
 #include "../Util.h"
-#include "../Web.mqh"
 
 // Includes Indicator files.
 #include "../Indicator/Indicator.define.h"
@@ -124,7 +115,7 @@ struct IndicatorParams;
 #include "../Indicator/IndicatorTf.h"
 #include "../Indicator/IndicatorTick.h"
 #include "../Indicator/IndicatorTickSource.h"
-#include "../Indicators/indicators.h"
+#include "../Indicators/includes.h"
 
 // Includes Serializer files.
 #include "../Serializer/Serializable.h"

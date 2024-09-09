@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,10 +20,15 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
-#include "Indi_MA.mqh"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
+#include "Price/Indi_MA.h"
 
 // Structs.
 struct IndiDetrendedPriceParams : IndicatorParams {
@@ -76,7 +81,7 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
     }
 
     // Volume uses volume only.
-    return _ds PTR_DEREF HasSpecificValueStorage(INDI_VS_TYPE_VOLUME);
+    return _ds PTR_DEREF HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME);
   }
 
   /**
@@ -84,7 +89,7 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
    */
   static double iDPO(IndicatorData *_indi, int _period, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _rel_shift = 0) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_indi, _period + _rel_shift);
-    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_indi.GetId()));
+    INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_SHORT(_indi, _ap, Util::MakeKey(_indi PTR_DEREF GetId()));
     return iDPOOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_SHORT, _period, _ap, _mode,
                        _indi PTR_DEREF ToAbsShift(_rel_shift), _cache);
   }
@@ -93,21 +98,22 @@ class Indi_DetrendedPrice : public Indicator<IndiDetrendedPriceParams> {
    * Calculates DPO on the array of values.
    */
   static double iDPOOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _period, ENUM_APPLIED_PRICE _ap, int _mode,
-                            int _abs_shift, IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_price);
+                            int _abs_shift, IndiBufferCache<double> *_cache, bool _recalculate = false) {
+    _cache PTR_DEREF SetPriceBuffer(_price);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1 + 1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1 + 1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_DetrendedPrice::Calculate(
-        INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0), _cache.GetBuffer<double>(1), _period));
+    _cache PTR_DEREF SetPrevCalculated(Indi_DetrendedPrice::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT,
+                                                                      _cache PTR_DEREF GetBuffer<double>(0),
+                                                                      _cache PTR_DEREF GetBuffer<double>(1), _period));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

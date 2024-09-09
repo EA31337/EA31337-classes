@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,11 +20,16 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.h"
-#include "Price/Indi_Price.mqh"
+#include "Price/Indi_Price.h"
 
 // Structs.
 struct IndiAMAParams : IndicatorParams {
@@ -93,6 +98,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
   static double iAMA(string _symbol, ENUM_TIMEFRAMES _tf, int _ama_period, int _fast_ema_period, int _slow_ema_period,
                      int _ama_shift, ENUM_APPLIED_PRICE _ap, int _mode = 0, int _shift = 0,
                      IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(
         ::iAMA(_symbol, _tf, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap), _mode, _shift);
@@ -106,6 +112,13 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
     }
     return iAMAOnIndicator(_obj, _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift, _ap, _mode, _shift);
 #endif
+#else  // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
+#endif
   }
 
   /**
@@ -113,21 +126,22 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
    */
   static double iAMAOnArray(INDICATOR_CALCULATE_PARAMS_SHORT, int _ama_period, int _fast_ema_period,
                             int _slow_ema_period, int _ama_shift, int _mode, int _abs_shift,
-                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_price);
+                            IndiBufferCache<double> *_cache, bool _recalculate = false) {
+    _cache PTR_DEREF SetPriceBuffer(_price);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(Indi_AMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT, _cache.GetBuffer<double>(0),
-                                                 _ama_period, _fast_ema_period, _slow_ema_period, _ama_shift));
+    _cache PTR_DEREF SetPrevCalculated(Indi_AMA::Calculate(INDICATOR_CALCULATE_GET_PARAMS_SHORT,
+                                                           _cache PTR_DEREF GetBuffer<double>(0), _ama_period,
+                                                           _fast_ema_period, _slow_ema_period, _ama_shift));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**
@@ -210,7 +224,7 @@ class Indi_AMA : public Indicator<IndiAMAParams> {
       // Calculate AMA.
       double prevAMA = ExtAMABuffer[i - 1].Get();
 
-      ExtAMABuffer[i] = MathPow(currentSSC, 2) * (price[i] - prevAMA) + prevAMA;
+      ExtAMABuffer[i] = MathPow(currentSSC, 2.0) * (price[i] - prevAMA) + prevAMA;
     }
     // Return value of prev_calculated for next call.
     return (rates_total);

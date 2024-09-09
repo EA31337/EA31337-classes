@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -28,8 +28,8 @@
 struct DataParamEntry;
 
 // Includes.
-#include "../Account/Account.struct.h"
 #include "../EA.mqh"
+#include "../Exchange/Account/Account.struct.h"
 #include "../Test.mqh"
 
 // Defines EA classes.

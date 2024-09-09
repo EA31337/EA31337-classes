@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_NODE_ITERATOR_H
-#define SERIALIZER_NODE_ITERATOR_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 #include "Serializer.h"
 #include "SerializerNode.h"
@@ -111,5 +112,3 @@ class SerializerIterator : public SerializerNodeIterator {
 
   SerializerNodeType ParentNodeType() { return _collection PTR_DEREF GetType(); }
 };
-
-#endif

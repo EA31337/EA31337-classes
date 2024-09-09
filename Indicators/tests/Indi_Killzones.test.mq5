@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,7 +20,7 @@
  */
 
 // Includes.
-#include "../../Platform.h"
+#include "../../Platform/Platform.h"
 #include "../../Test.mqh"
 #include "../Indi_Killzones.mqh"
 

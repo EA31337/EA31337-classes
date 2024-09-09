@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -31,9 +31,9 @@
 struct DataParamEntry;
 
 // Includes.
-#include "../ChartMt.h"
-#include "../Indicators/Tick/Indi_TickMt.mqh"
-#include "../Platform.h"
+#include "../Platform/Chart/ChartMt.h"
+#include "../Indicators/Tick/Indi_TickMt.h"
+#include "../Platform/Platform.h"
 #include "../Test.mqh"
 #include "../Trade.mqh"
 

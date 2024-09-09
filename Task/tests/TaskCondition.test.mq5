@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -36,11 +36,11 @@ enum ENUM_TASK_CONDITION_TEST {
 
 class TaskConditionTest01 : public TaskConditionBase {
  protected:
-  long sum;
+  int64 sum;
 
  public:
   TaskConditionTest01() : sum(0){};
-  long GetSum() { return sum; }
+  int64 GetSum() { return sum; }
   bool Check(const TaskConditionEntry &_entry) {
     sum += _entry.GetId();
     PrintFormat("%s; sum=%d", __FUNCSIG__, sum);
@@ -50,11 +50,11 @@ class TaskConditionTest01 : public TaskConditionBase {
 
 class TaskConditionTest02 : public TaskConditionBase {
  protected:
-  long sum;
+  int64 sum;
 
  public:
   TaskConditionTest02() : sum(0){};
-  long GetSum() { return sum; }
+  int64 GetSum() { return sum; }
   bool Check(const TaskConditionEntry &_entry) {
     sum += _entry.GetId();
     PrintFormat("%s; sum=%d", __FUNCSIG__, sum);

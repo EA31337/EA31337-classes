@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,14 +20,15 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_JSON_MQH
-#define SERIALIZER_JSON_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "../DictBase.mqh"
-#include "../Object.mqh"
-#include "../String.extern.h"
+#include "../Storage/Dict/DictBase.h"
+#include "../Storage/Object.h"
+#include "../Storage/String.extern.h"
 #include "Serializer.enum.h"
 #include "Serializer.h"
 #include "SerializerNode.h"
@@ -392,5 +393,3 @@ class SerializerJson {
     return NULL;
   }
 };
-
-#endif

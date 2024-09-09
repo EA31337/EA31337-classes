@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -35,9 +35,9 @@
 #define TASK_CONDITION_H
 
 // Includes.
-#include "../DateTime.mqh"
+#include "../Storage/DateTime.h"
 #include "../Std.h"
-#include "../Terminal.define.h"
+#include "../Platform/Terminal.define.h"
 #include "TaskCondition.enum.h"
 #include "TaskCondition.struct.h"
 #include "TaskConditionBase.h"

@@ -21,10 +21,10 @@
  */
 
 // Includes.
-#include "../../Account/AccountBase.h"
-#include "../../BufferStruct.mqh"
+#include "../../Exchange/Account/AccountBase.h"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Indicator/Indicator.h"
-#include "../../Platform.h"
+#include "../../Platform/Platform.h"
 #include "../../Storage/Objects.h"
 
 // Structs.
@@ -71,7 +71,7 @@ class Indi_AccountStats : public Indicator<Indi_AccountStats_Params> {
   Indi_AccountStats(Indi_AccountStats_Params &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
                     IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
       : Indicator(_p,
-                  IndicatorDataParams::GetInstance(INDI_VS_TYPE_ACCOUNT_STATS_BUFFERS_COUNT, TYPE_DOUBLE, _idstype,
+                  IndicatorDataParams::GetInstance(INDI_DATA_VS_TYPE_ACCOUNT_STATS_BUFFERS_COUNT, TYPE_DOUBLE, _idstype,
                                                    IDATA_RANGE_PRICE, _indi_src_mode),
                   _indi_src) {
     InitAccountStats();
@@ -79,7 +79,7 @@ class Indi_AccountStats : public Indicator<Indi_AccountStats_Params> {
   Indi_AccountStats(int _shift = 0, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
                     int _indi_src_mode = 0)
       : Indicator(Indi_AccountStats_Params(),
-                  IndicatorDataParams::GetInstance(INDI_VS_TYPE_ACCOUNT_STATS_BUFFERS_COUNT, TYPE_DOUBLE, _idstype,
+                  IndicatorDataParams::GetInstance(INDI_DATA_VS_TYPE_ACCOUNT_STATS_BUFFERS_COUNT, TYPE_DOUBLE, _idstype,
                                                    IDATA_RANGE_PRICE, _indi_src_mode),
                   _indi_src) {
     InitAccountStats();
@@ -120,19 +120,19 @@ class Indi_AccountStats : public Indicator<Indi_AccountStats_Params> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
 
     // Converting mode into value storage type.
-    ENUM_INDI_VS_TYPE _vs_type = (ENUM_INDI_VS_TYPE)(INDI_VS_TYPE_ACCOUNT_STATS_INDEX_FIRST + _mode);
+    ENUM_INDI_DATA_VS_TYPE _vs_type = (ENUM_INDI_DATA_VS_TYPE)(INDI_DATA_VS_TYPE_ACCOUNT_STATS_INDEX_FIRST + _mode);
 
     // Retrieving data from specific value storage.
     switch (_vs_type) {
-      case INDI_VS_TYPE_ACCOUNT_STATS_DATE_TIME:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_DATE_TIME:
         return ((ValueStorage<datetime> *)GetSpecificValueStorage(_vs_type))PTR_DEREF FetchSeries(_ishift);
-      case INDI_VS_TYPE_ACCOUNT_STATS_BALANCE:
-      case INDI_VS_TYPE_ACCOUNT_STATS_CREDIT:
-      case INDI_VS_TYPE_ACCOUNT_STATS_EQUITY:
-      case INDI_VS_TYPE_ACCOUNT_STATS_PROFIT:
-      case INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_USED:
-      case INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_FREE:
-      case INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_BALANCE:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_CREDIT:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_EQUITY:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_PROFIT:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_USED:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_FREE:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL:
         return ((ValueStorage<double> *)GetSpecificValueStorage(_vs_type))PTR_DEREF FetchSeries(_ishift);
       default:
         Alert("Error: Indi_AccountStats: Invalid mode passed to GetEntryValue()!");
@@ -144,23 +144,23 @@ class Indi_AccountStats : public Indicator<Indi_AccountStats_Params> {
   /**
    * Returns value storage of given kind.
    */
-  IValueStorage *GetSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  IValueStorage *GetSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     switch (_type) {
-      case INDI_VS_TYPE_ACCOUNT_STATS_DATE_TIME:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_DATE_TIME:
         return buffer_date_time.Ptr();
-      case INDI_VS_TYPE_ACCOUNT_STATS_BALANCE:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_BALANCE:
         return buffer_balance.Ptr();
-      case INDI_VS_TYPE_ACCOUNT_STATS_CREDIT:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_CREDIT:
         return buffer_credit.Ptr();
-      case INDI_VS_TYPE_ACCOUNT_STATS_EQUITY:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_EQUITY:
         return buffer_equity.Ptr();
-      case INDI_VS_TYPE_ACCOUNT_STATS_PROFIT:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_PROFIT:
         return buffer_profit.Ptr();
-      case INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_USED:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_USED:
         return buffer_margin_used.Ptr();
-      case INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_FREE:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_FREE:
         return buffer_margin_free.Ptr();
-      case INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL:
         return buffer_margin_avail.Ptr();
       default:
         // Trying in parent class.
@@ -171,16 +171,16 @@ class Indi_AccountStats : public Indicator<Indi_AccountStats_Params> {
   /**
    * Checks whether indicator support given value storage type.
    */
-  bool HasSpecificValueStorage(ENUM_INDI_VS_TYPE _type) override {
+  bool HasSpecificValueStorage(ENUM_INDI_DATA_VS_TYPE _type) override {
     switch (_type) {
-      case INDI_VS_TYPE_ACCOUNT_STATS_DATE_TIME:
-      case INDI_VS_TYPE_ACCOUNT_STATS_BALANCE:
-      case INDI_VS_TYPE_ACCOUNT_STATS_CREDIT:
-      case INDI_VS_TYPE_ACCOUNT_STATS_EQUITY:
-      case INDI_VS_TYPE_ACCOUNT_STATS_PROFIT:
-      case INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_USED:
-      case INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_FREE:
-      case INDI_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_DATE_TIME:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_BALANCE:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_CREDIT:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_EQUITY:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_PROFIT:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_USED:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_FREE:
+      case INDI_DATA_VS_TYPE_ACCOUNT_STATS_MARGIN_AVAIL:
         return true;
       default:
         // Trying in parent class.

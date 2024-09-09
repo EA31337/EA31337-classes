@@ -35,18 +35,20 @@ typedef unsigned long ulong;
 typedef unsigned short ushort;
 
 // Includes.
-#include "../SymbolInfo.mqh"
+#include "../Exchange/SymbolInfo/SymbolInfo.h"
 
 int main(int argc, char **argv) {
   SymbolInfo *si = new SymbolInfo();
 
+  MqlTick dtick, ltick;
+
   // Test saving ticks.
-  si.SaveTick(dtick);
-  si.SaveTick(ltick);
-  si.ResetTicks();
+  si->SaveTick(dtick);
+  si->SaveTick(ltick);
+  si->ResetTicks();
   // Print.
-  Print("MARKET: ", si.ToString());
-  Print("CSV (Header): ", si.ToCSV(true));
-  Print("CSV (Data): ", si.ToCSV());
+  Print("MARKET: ", si->ToString());
+  Print("CSV (Header): ", si->ToCSV(true));
+  Print("CSV (Data): ", si->ToCSV());
   delete si;
 }

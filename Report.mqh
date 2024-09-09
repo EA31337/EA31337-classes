@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,41 +20,44 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
-#include "DateTime.mqh"
-#include "String.mqh"
+#include "Storage/DateTime.h"
+#include "Storage/String.h"
 
 /*
  * Class to provide report handling methods.
  */
 class Report {
-public:
+ public:
+  // Used for writing the report file.
+  string log[];
 
-    // Used for writing the report file.
-    string log[];
+  /*
+   * Add message into the report file.
+   */
+  void ReportAdd(string msg) {
+    int last = ArraySize(log);
+    ArrayResize(log, last + 1);
+    log[last] = DateTimeStatic::TimeToStr(TimeCurrent(), TIME_DATE | TIME_SECONDS) + ": " + msg;
+  }
 
-    /*
-     * Add message into the report file.
-     */
-    void ReportAdd(string msg) {
-      int last = ArraySize(log);
-      ArrayResize(log, last + 1);
-      log[last] = DateTimeStatic::TimeToStr(TimeCurrent(), TIME_DATE|TIME_SECONDS) + ": " + msg;
+  /*
+   * Write report data into file.
+   */
+  static void WriteReport(string filename, string data, bool verbose = false) {
+    int handle = FileOpen(filename, FILE_CSV | FILE_WRITE, '\t');
+    if (handle < 1) return;
+
+    FileWrite(handle, data);
+    FileClose(handle);
+
+    if (verbose) {
+      String::PrintText(data);
     }
-
-    /*
-     * Write report data into file.
-     */
-    static void WriteReport(string filename, string data, bool verbose = false) {
-        int handle = FileOpen(filename, FILE_CSV|FILE_WRITE, '\t');
-        if (handle < 1) return;
-
-        FileWrite(handle, data);
-        FileClose(handle);
-
-        if (verbose) {
-            String::PrintText(data);
-        }
-    }
-
+  }
 };

@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -31,9 +31,9 @@
 // Includes.
 #include <sstream>
 
-#include "../DictStruct.mqh"
 #include "../File.define.h"
-#include "../String.mqh"
+#include "../Storage/Dict/DictStruct.h"
+#include "../Storage/String.h"
 
 class MemoryFileSystemFile : public Dynamic {
  public:

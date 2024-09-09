@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "../Chart.define.h"
+#include "../Platform/Chart/Chart.define.h"
 #include "../Market.mqh"
 #include "../Test.mqh"
 

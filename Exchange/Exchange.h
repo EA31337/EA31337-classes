@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,17 +20,16 @@
  *
  */
 
-/**
- * Exchange class.
- */
-#ifndef EXCHANGE_H
-#define EXCHANGE_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
-#include "../Account/Account.h"
-#include "../DictObject.mqh"
-#include "../SymbolInfo.mqh"
+#include "../Exchange/SymbolInfo/SymbolInfo.h"
+#include "../Storage/Dict/DictObject.h"
 #include "../Trade.mqh"
+#include "Account/Account.h"
 #include "Exchange.struct.h"
 
 class Exchange : public Dynamic {
@@ -99,4 +98,3 @@ class Exchange : public Dynamic {
    */
   void TradeRemove(string _name) { trades.Unset(_name); }
 };
-#endif  // EXCHANGE_H

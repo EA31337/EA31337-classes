@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,13 +20,19 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines.
 // 2 bars was originally specified by Indicators/Examples/W_AD.mq5
 #define INDI_WAD_MIN_BARS 100
 
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Indicator/Indicator.h"
+#include "../Platform/Platform.h"
+#include "../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Storage/ValueStorage.all.h"
 
 // Structs.
@@ -40,7 +46,7 @@ struct IndiWilliamsADParams : IndicatorParams {
 };
 
 /**
- * Implements the Volume Rate of Change indicator.
+ * Implements the Williams' AD indicator.
  */
 class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
  public:
@@ -93,22 +99,22 @@ class Indi_WilliamsAD : public Indicator<IndiWilliamsADParams> {
   /**
    * Calculates William's AD on the array of values.
    */
-  static double iWADOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift,
-                            IndicatorCalculateCache<double> *_cache, bool _recalculate = false) {
-    _cache.SetPriceBuffer(_open, _high, _low, _close);
+  static double iWADOnArray(INDICATOR_CALCULATE_PARAMS_LONG, int _mode, int _abs_shift, IndiBufferCache<double> *_cache,
+                            bool _recalculate = false) {
+    _cache PTR_DEREF SetPriceBuffer(_open, _high, _low, _close);
 
-    if (!_cache.HasBuffers()) {
-      _cache.AddBuffer<NativeValueStorage<double>>(1);
+    if (!_cache PTR_DEREF HasBuffers()) {
+      _cache PTR_DEREF AddBuffer<NativeValueStorage<double>>(1);
     }
 
     if (_recalculate) {
-      _cache.ResetPrevCalculated();
+      _cache PTR_DEREF ResetPrevCalculated();
     }
 
-    _cache.SetPrevCalculated(
-        Indi_WilliamsAD::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache.GetBuffer<double>(0)));
+    _cache PTR_DEREF SetPrevCalculated(
+        Indi_WilliamsAD::Calculate(INDICATOR_CALCULATE_GET_PARAMS_LONG, _cache PTR_DEREF GetBuffer<double>(0)));
 
-    return _cache.GetTailValue<double>(_mode, _abs_shift);
+    return _cache PTR_DEREF GetTailValue<double>(_mode, _abs_shift);
   }
 
   /**

@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -24,10 +24,6 @@
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
 #endif
-
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_CONVERTER_MQH
-#define SERIALIZER_CONVERTER_MQH
 
 // Forward declarations.
 class SerializerNode;
@@ -226,5 +222,3 @@ class SerializerConverter {
     return SerializerConverter::FromObject(stub, _serializer_flags);
   }
 };
-
-#endif

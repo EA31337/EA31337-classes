@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -20,16 +20,13 @@
  *
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "../Indicator/Indicator.h"
-
-#ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
-double iATR(string _symbol, int _tf, int _period, int _shift) {
-  ResetLastError();
-  return Indi_ATR::iATR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
-}
-#endif
 
 // Structs.
 struct IndiATRParams : IndicatorParams {
@@ -80,10 +77,18 @@ class Indi_ATR : public Indicator<IndiATRParams> {
    */
   static double iATR(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, int _shift = 0,
                      IndicatorData *_obj = NULL) {
+#ifdef __MQL__
 #ifdef __MQL4__
     return ::iATR(_symbol, _tf, _period, _shift);
 #else  // __MQL5__
     INDICATOR_BUILTIN_CALL_AND_RETURN(::iATR(_symbol, _tf, _period), 0, _shift);
+#endif
+#else  // Non-MQL.
+    // @todo: Use Platform class.
+    RUNTIME_ERROR(
+        "Not implemented. Please use an On-Indicator mode and attach "
+        "indicator via Platform::Add/AddWithDefaultBindings().");
+    return DBL_MAX;
 #endif
   }
 
@@ -117,7 +122,7 @@ class Indi_ATR : public Indicator<IndiATRParams> {
       IndiATRParams _params(_period);
       _ptr = Objects<Indi_ATR>::Set(_key, new Indi_ATR(_params));
       // Assigning the same candle indicator for ATR as in _indi.
-      _ptr.SetDataSource(_indi PTR_DEREF GetCandle());
+      _ptr PTR_DEREF SetDataSource(_indi PTR_DEREF GetCandle());
     }
     return _ptr;
   }
@@ -139,3 +144,11 @@ class Indi_ATR : public Indicator<IndiATRParams> {
     iparams.period = _period;
   }
 };
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iATR(string _symbol, int _tf, int _period, int _shift) {
+  ResetLastError();
+  return Indi_ATR::iATR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
+}
+#endif

@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -28,10 +28,10 @@
 //#define __debug_verbose__
 
 // Includes.
-#include "../ChartMt.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
-#include "../Indicators/Indi_RSI.mqh"
-#include "../Indicators/Tick/Indi_TickMt.mqh"
+#include "../Indicators/Oscillator/Indi_RSI.h"
+#include "../Indicators/Tick/Indi_TickMt.h"
+#include "../Platform/Chart/ChartMt.h"
 #include "../Strategy.mqh"
 #include "../Test.mqh"
 
@@ -95,7 +95,7 @@ int OnInit() {
   // Initialize strategy instance.
   stg_rsi = Stg_RSI::Init(_candles = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_M5));
   stg_rsi REF_DEREF SetName("Stg_RSI");
-  stg_rsi REF_DEREF Set<long>(STRAT_PARAM_ID, 1234);
+  stg_rsi REF_DEREF Set<int64>(STRAT_PARAM_ID, 1234);
 
   // Initialize trade instance.
   TradeParams _tparams;
@@ -113,7 +113,7 @@ int OnInit() {
   Print(stg_rsi REF_DEREF ToString());
 
   // Check for errors.
-  long _last_error = GetLastError();
+  int64 _last_error = GetLastError();
   if (_last_error > 0) {
     assertTrueOrFail(_last_error == ERR_NO_ERROR, StringFormat("Error occured! Code: %d", _last_error));
   }
@@ -129,23 +129,23 @@ void OnTick() {
   if (Platform::IsNewMinute()) {
     if (stg_rsi REF_DEREF SignalOpen(ORDER_TYPE_BUY)) {
       MqlTradeRequest _request = trade REF_DEREF GetTradeOpenRequest(
-          ORDER_TYPE_BUY, 0, stg_rsi REF_DEREF Get<long>(STRAT_PARAM_ID), stg_rsi REF_DEREF GetName());
+          ORDER_TYPE_BUY, 0, stg_rsi REF_DEREF Get<int64>(STRAT_PARAM_ID), stg_rsi REF_DEREF GetName());
       trade REF_DEREF RequestSend(_request);
     } else if (stg_rsi REF_DEREF SignalOpen(ORDER_TYPE_SELL)) {
       MqlTradeRequest _request = trade REF_DEREF GetTradeOpenRequest(
-          ORDER_TYPE_SELL, 0, stg_rsi REF_DEREF Get<long>(STRAT_PARAM_ID), stg_rsi REF_DEREF GetName());
+          ORDER_TYPE_SELL, 0, stg_rsi REF_DEREF Get<int64>(STRAT_PARAM_ID), stg_rsi REF_DEREF GetName());
       trade REF_DEREF RequestSend(_request);
     }
     if (trade REF_DEREF Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
       if (stg_rsi REF_DEREF SignalClose(ORDER_TYPE_BUY)) {
         // Close signal for buy order.
-        trade REF_DEREF OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
-            ORDER_MAGIC, stg_rsi REF_DEREF Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_BUY, MATH_COND_EQ,
+        trade REF_DEREF OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, int64>(
+            ORDER_MAGIC, stg_rsi REF_DEREF Get<int64>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_BUY, MATH_COND_EQ,
             ORDER_REASON_CLOSED_BY_SIGNAL, stg_rsi REF_DEREF GetOrderCloseComment());
       }
       if (stg_rsi REF_DEREF SignalClose(ORDER_TYPE_SELL)) {
-        trade REF_DEREF OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, long>(
-            ORDER_MAGIC, stg_rsi REF_DEREF Get<long>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_SELL, MATH_COND_EQ,
+        trade REF_DEREF OrdersCloseViaProp2<ENUM_ORDER_PROPERTY_INTEGER, int64>(
+            ORDER_MAGIC, stg_rsi REF_DEREF Get<int64>(STRAT_PARAM_ID), ORDER_TYPE, ORDER_TYPE_SELL, MATH_COND_EQ,
             ORDER_REASON_CLOSED_BY_SIGNAL, stg_rsi REF_DEREF GetOrderCloseComment());
       }
     }
@@ -155,7 +155,7 @@ void OnTick() {
       // Print strategy values every hour.
       Print(stg_rsi REF_DEREF ToString());
     }
-    long _last_error = GetLastError();
+    int64 _last_error = GetLastError();
     if (_last_error > 0) {
       assertTrueOrExit(_last_error == ERR_NO_ERROR, StringFormat("Error occured! Code: %d", _last_error));
     }

@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -53,7 +53,7 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
   /**
    * Called when new tick was emitted from IndicatorTick-based source.
    */
-  void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryTfCandleProvider<TV>>* _history, long _time_ms, float _ask,
+  void OnTick(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryTfCandleProvider<TV>>* _history, int64 _time_ms, float _ask,
               float _bid) {
     ++tick_index;
 
@@ -110,8 +110,8 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
   /**
    * Returns start time of the candle (the place it's on the chart) for the given tick's time in milliseconds.
    */
-  int GetCandleTimeFromTimeMs(long _time_ms, int _length_in_secs) {
-    return (int)((_time_ms - _time_ms % ((long)_length_in_secs * 1000)) / 1000);
+  int GetCandleTimeFromTimeMs(int64 _time_ms, int _length_in_secs) {
+    return (int)((_time_ms - _time_ms % ((int64)_length_in_secs * 1000)) / 1000);
   }
 
   /**
@@ -119,7 +119,7 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
    * want previous or next items from selected starting point. Should return false if retrieving items by this method
    * is not available.
    */
-  bool GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryTfCandleProvider<TV>>* _history, long _from_time_ms,
+  bool GetItems(ItemsHistory<CandleOCTOHLC<TV>, ItemsHistoryTfCandleProvider<TV>>* _history, int64 _from_time_ms,
                 ENUM_ITEMS_HISTORY_DIRECTION _dir, int _num_items, ARRAY_REF(CandleOCTOHLC<TV>, _out_arr)) {
     // Method is called if there is a missing item (candle) in the history. We need to regenerate it.
     if (_from_time_ms != 0) {
@@ -146,11 +146,9 @@ class ItemsHistoryTfCandleProvider : public ItemsHistoryCandleProvider<TV> {
       while (_num_items > 0) {
         // Calculating time from which and to which we want to retrieve ticks to form a candle.
         int _ticks_from_s = GetCandleTimeFromTimeMs(_from_time_ms, spc);
-        long _ticks_from_ms = (long)_ticks_from_s * 1000;
-        long _candle_length_ms = (long)spc * 1000;
-        long _ticks_to_ms;
-
-        _ticks_to_ms = _ticks_from_ms + (_candle_length_ms - 1);
+        int64 _ticks_from_ms = (int64)_ticks_from_s * 1000;
+        int64 _candle_length_ms = (int64)spc * 1000;
+        int64 _ticks_to_ms = _ticks_from_ms + _candle_length_ms - 1;
 
         if (_dir == ITEMS_HISTORY_DIRECTION_FORWARD) {
           // Backwards.

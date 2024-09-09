@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -22,13 +22,15 @@
 
 // Define external global functions.
 #ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
 #pragma once
+
 #include <csignal>
 #include <string>
 
-#include "Chart.enum.h"
-#include "DateTime.enum.h"
-#include "Terminal.define.h"
+#include "Platform/Chart/Chart.enum.h"
+#include "Platform/Terminal.define.h"
+#include "Storage/DateTime.enum.h"
 
 void DebugBreak() {
 #ifdef _MSC_VER

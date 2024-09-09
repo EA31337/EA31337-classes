@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -38,9 +38,9 @@
 #include "File.define.h"
 #include "File.extern.h"
 #include "Std.h"
-#include "Terminal.define.h"
-#include "Terminal.enum.h"
-#include "Terminal.extern.h"
+#include "Platform/Terminal.define.h"
+#include "Platform/Terminal.enum.h"
+#include "Platform/Terminal.extern.h"
 
 /**
  * Class to provide a group of functions for working with files.

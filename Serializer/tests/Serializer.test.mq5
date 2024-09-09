@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -27,13 +27,13 @@
  */
 
 // Includes.
-#include "../../BufferStruct.mqh"
-#include "../../Chart.mqh"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
+#include "../../Platform/Chart/Chart.h"
 #include "../../Config.mqh"
-#include "../../Data.define.h"
-#include "../../Data.struct.h"
-#include "../../Data.struct.serialize.h"
-#include "../../DictStruct.mqh"
+#include "../../Storage/Data.define.h"
+#include "../../Storage/Data.struct.h"
+#include "../../Storage/Data.struct.serialize.h"
+#include "../../Storage/Dict/DictStruct.h"
 #include "../../Test.mqh"
 #include "../Serializer.h"
 #include "../SerializerBinary.h"

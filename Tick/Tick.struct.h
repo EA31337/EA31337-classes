@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -30,8 +30,8 @@
 #endif
 
 // Includes.
-#include "../DateTime.extern.h"
 #include "../Std.h"
+#include "../Storage/DateTime.extern.h"
 
 #ifndef __MQL__
 /**
@@ -40,14 +40,14 @@
  * https://www.mql5.com/en/docs/constants/structures/mqltick
  */
 struct MqlTick {
-  datetime time;          // Time of the last prices update.
-  double ask;             // Current Ask price.
-  double bid;             // Current Bid price.
-  double last;            // Price of the last deal (last).
-  double volume_real;     // Volume for the current last price with greater accuracy.
-  int64 time_msc;         // Time of a price last update in milliseconds.
-  unsigned int flags;     // Tick flags.
-  unsigned int64 volume;  // Volume for the current last price.
+  datetime time;       // Time of the last prices update.
+  double ask;          // Current Ask price.
+  double bid;          // Current Bid price.
+  double last;         // Price of the last deal (last).
+  double volume_real;  // Volume for the current last price with greater accuracy.
+  int64 time_msc;      // Time of a price last update in milliseconds.
+  unsigned int flags;  // Tick flags.
+  uint64 volume;       // Volume for the current last price.
   // Default constructor.
   MqlTick() {}
 

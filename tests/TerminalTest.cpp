@@ -25,16 +25,12 @@
  */
 
 // Includes.
-#include "../Terminal.mqh"
+#include "../Platform/Terminal.h"
 
 // Variables.
 Terminal *terminal;
 
-long TimeTradeServer() { return 0; }
-
-datetime TimeCurrent() { return 0; }
-
-datetime TimeCurrent(MqlDateTime &dt_struct) { return 0; }
+datetime TimeTradeServer() { return 0; }
 
 int main(int argc, char **argv) {
   terminal = new Terminal();

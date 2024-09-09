@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -30,10 +30,10 @@
 #define CONFIG_MQH
 
 // Includes.
-#include "DictStruct.mqh"
 #include "File.mqh"
-#include "Object.mqh"
 #include "Serializer/Serializer.h"
+#include "Storage/Dict/DictStruct.h"
+#include "Storage/Object.h"
 
 enum CONFIG_FORMAT { CONFIG_FORMAT_JSON, CONFIG_FORMAT_JSON_NO_WHITESPACES, CONFIG_FORMAT_INI };
 
@@ -84,7 +84,7 @@ struct ConfigEntry : public MqlParam {
   ConfigEntry() { type = (ENUM_DATATYPE)-1; }
   ConfigEntry(const ConfigEntry& _r) { THIS_REF = _r; }
 
-  ConfigEntry(long _value) {
+  ConfigEntry(int64 _value) {
     type = ENUM_DATATYPE::TYPE_LONG;
     integer_value = _value;
   }
@@ -198,7 +198,7 @@ class Config : public DictStruct<string, ConfigEntry> {
     return Set(key, param);
   }
 
-  bool Set(string key, long value) {
+  bool Set(string key, int64 value) {
     ConfigEntry param = value;
     return Set(key, param);
   }

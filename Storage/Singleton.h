@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -45,6 +45,10 @@ class Singleton {
 };
 
 template <typename C>
+#ifdef __MQL__
 C Singleton::_ref;
+#else
+C Singleton<C>::_ref;
+#endif
 
 #endif  // SINGLETON_H

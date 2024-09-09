@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -26,14 +26,14 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
-#include "../DictStruct.mqh"
+#include "../Platform/Terminal.define.h"
 #include "../Refs.mqh"
-#include "../Terminal.define.h"
+#include "../Storage/Dict/DictStruct.h"
 #include "Task.enum.h"
 #include "Task.struct.h"
 #include "TaskAction.h"
@@ -316,8 +316,8 @@ class Task : public Taskable<TaskEntry> {
 };
 
 #ifdef EMSCRIPTEN
-#include <emscripten.h>
-#include <emscripten/bind.h>
+  #include <emscripten.h>
+  #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(Task) {
   emscripten::class_<Task>("Task").smart_ptr<Ref<Task>>("Ref<Task>").constructor(emscripten::optional_override([]() {

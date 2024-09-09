@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -26,9 +26,9 @@
 
 // Includes.
 #include "../Config.mqh"
-#include "../Data.define.h"
-#include "../Dict.mqh"
-#include "../DictObject.mqh"
+#include "../Storage/Data.define.h"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Dict/DictObject.h"
 #include "../Serializer/SerializerConverter.h"
 #include "../Serializer/SerializerCsv.h"
 #include "../Serializer/SerializerJson.h"

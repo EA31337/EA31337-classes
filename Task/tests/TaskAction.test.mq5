@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -36,11 +36,11 @@ enum ENUM_TASK_ACTION_TEST {
 
 class TaskActionTest01 : public TaskActionBase {
  protected:
-  long sum;
+  int64 sum;
 
  public:
   TaskActionTest01() : sum(0){};
-  long GetSum() { return sum; }
+  int64 GetSum() { return sum; }
   bool Run(const TaskActionEntry &_entry) {
     sum += _entry.GetId();
     PrintFormat("%s; sum=%d", __FUNCSIG__, sum);
@@ -50,11 +50,11 @@ class TaskActionTest01 : public TaskActionBase {
 
 class TaskActionTest02 : public TaskActionBase {
  protected:
-  long sum;
+  int64 sum;
 
  public:
   TaskActionTest02() : sum(0){};
-  long GetSum() { return sum; }
+  int64 GetSum() { return sum; }
   bool Run(const TaskActionEntry &_entry) {
     sum += _entry.GetId();
     PrintFormat("%s; sum=%d", __FUNCSIG__, sum);

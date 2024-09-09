@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward declarations.
@@ -49,7 +49,7 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
   /**
    * Constructor.
    */
-  IndicatorBufferValueStorage(IndicatorData* _indi_candle, int _mode = 0, bool _is_series = false)
+  IndicatorBufferValueStorage(IndicatorBase* _indi_candle, int _mode = 0, bool _is_series = false)
       : HistoryValueStorage<C>(_indi_candle), mode(_mode) {}
 
 /**
@@ -57,7 +57,7 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
  */
 #ifdef __MQL__
   C Fetch(int _rel_shift) override {
-    IndicatorData* _indi = THIS_ATTR indi_candle.Ptr();
+    IndicatorBase* _indi = THIS_ATTR indi_candle.Ptr();
     return _indi PTR_DEREF GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
   }
 #else
@@ -66,13 +66,13 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
 };
 
 // clang-format off
-#include "../Indicator/IndicatorData.h"
+#include "../Indicator/IndicatorBase.h"
 // clang-format on
 
 #ifndef __MQL__
 template <typename C>
 C IndicatorBufferValueStorage<C>::Fetch(int _rel_shift) {
-  IndicatorData* _indi = THIS_ATTR indi_candle.Ptr();
-  return _indi PTR_DEREF GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
+  IndicatorBase* _indi = THIS_ATTR indi_candle.Ptr();
+  return _indi PTR_DEREF template GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
 }
 #endif

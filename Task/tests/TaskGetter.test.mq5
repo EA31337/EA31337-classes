@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -47,7 +47,7 @@ class TaskGetterTest01 : public TaskGetter<TaskGetterTest01Data> {
 
  public:
   TaskGetterTest01(){};
-  // long GetSum() { return sum; }
+  // int64 GetSum() { return sum; }
   TaskGetterTest01Data Get() { return TaskGetter<TaskGetterTest01Data>::Get(); }
   TaskGetterTest01Data Get(const TaskGetterEntry &_entry) {
     data.SetValue(_entry.GetId());

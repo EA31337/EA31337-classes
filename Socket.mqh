@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2023, EA31337 Ltd |
-//|                                       https://github.com/EA31337 |
+//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
 /*
@@ -24,6 +24,15 @@
  * @file
  * Implements class for socket connection.
  */
+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
+// Includes.
+#include "File.define.h"
+#include "Std.h"
 
 /**
  * Socket class.
@@ -163,7 +172,7 @@ class Socket {
    * Sends string through the socket.
    */
   bool Send(const string text) {
-    unsigned char _buffer[];
+    ARRAY(unsigned char, _buffer);
     int _buffer_length = StringToCharArray(text, _buffer, 0, WHOLE_ARRAY, CP_UTF8);
     return Send(_buffer, _buffer_length);
   }
@@ -171,7 +180,7 @@ class Socket {
   /**
    * Sends bytes through the socket.
    */
-  bool Send(const unsigned char& _buffer[], unsigned int _buffer_length) {
+  bool Send(const ARRAY_REF(unsigned char, _buffer), unsigned int _buffer_length) {
     if (!EnsureConnected()) {
       return false;
     }
@@ -217,7 +226,7 @@ class Socket {
   /**
    * Reads bytes from the socket. Awaits given miliseconds before giving up.
    */
-  bool Read(unsigned char& _buffer[], unsigned int _buffer_max_length, unsigned int _timeout_ms = 1000) {
+  bool Read(ARRAY_REF(unsigned char, _buffer), unsigned int _buffer_max_length, unsigned int _timeout_ms = 1000) {
     if (!EnsureConnected()) {
       return false;
     }
