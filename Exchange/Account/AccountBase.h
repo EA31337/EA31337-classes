@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -64,14 +64,14 @@ class AccountBase : public Dynamic {
   /**
    * Returns textual representation of the object instance.
    */
-  virtual string ToString() const { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
+  const string ToString() override { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 
   /* Serializers */
 
   /**
    * Returns serialized representation of the object instance.
    */
-  virtual SerializerNodeType Serialize(Serializer &_s) const = 0;
+  virtual SerializerNodeType Serialize(Serializer &_s) = 0;
 
   /* Virtual methods */
 

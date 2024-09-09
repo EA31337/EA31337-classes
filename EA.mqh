@@ -98,8 +98,7 @@ class EA : public Taskable<DataParamEntry> {
   void InitTask() {
     // Add and process init task.
     TaskEntry _task_entry(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
-    TaskObject<EA, EA> _taskobj_init(_task_entry,
-                                     THIS_PTR, THIS_PTR);
+    TaskObject<EA, EA> _taskobj_init(_task_entry, THIS_PTR, THIS_PTR);
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     _taskobj_init.Process();
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
@@ -163,7 +162,7 @@ class EA : public Taskable<DataParamEntry> {
    */
   template <typename T>
   T Get(ENUM_TRADE_STATE _state, string _symbol = NULL) {
-    return trade.GetByKey(_symbol != "" ? _symbol : _Symbol) PTR_DEREF Get<T>(_state);
+    return trade.GetByKey(_symbol != "" ? _symbol : _Symbol) REF_DEREF Get<T>(_state);
   }
 
   /**
@@ -221,7 +220,7 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Gets EA's trade instance.
    */
-  Trade *GetTrade(string _symbol) { return trade.GetByKey(_symbol); }
+  Trade *GetTrade(string _symbol) { return trade.GetByKey(_symbol).Ptr(); }
 
   /* Setters */
 
@@ -254,8 +253,8 @@ class EA : public Taskable<DataParamEntry> {
    */
   template <typename T>
   void Set(ENUM_TRADE_PARAM _param, T _value) {
-    for (DictObjectIterator<string, Ref<Trade>> iter = trade.Begin(); iter.IsValid(); ++iter) {
-      Trade *_trade = iter.Value();
+    for (DictStructIterator<string, Ref<Trade>> iter = trade.Begin(); iter.IsValid(); ++iter) {
+      Trade *_trade = iter.Value().Ptr();
       _trade PTR_DEREF Set<T>(_param, _value);
     }
     for (DictStructIterator<int64, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
@@ -642,10 +641,10 @@ class EA : public Taskable<DataParamEntry> {
         Strategy *_strat = _iter.Value().Ptr();
         if (data_stg.KeyExists(_sid)) {
           string _key_stg = StringFormat("Strategy-%d", _sid);
-          BufferStruct<StgEntry> _stg_buff = data_stg.GetByKey(_sid);
-          SerializerConverter _obj = SerializerConverter::FromObject(_stg_buff, _serializer_flags);
+          BufferStruct<StgEntry> *_stg_buff = data_stg.GetByKey(_sid);
+          SerializerConverter _obj = SerializerConverter::FromObject(PTR_TO_REF(_stg_buff), _serializer_flags);
 
-          _key_stg += StringFormat("-%d-%d-%d", _sid, _stg_buff.GetMin(), _stg_buff.GetMax());
+          _key_stg += StringFormat("-%d-%d-%d", _sid, _stg_buff PTR_DEREF GetMin(), _stg_buff PTR_DEREF GetMax());
           if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
             _obj.ToFile<SerializerCsv>(_key_stg + ".csv", _serializer_flags, &_stub);
           }
@@ -790,7 +789,7 @@ class EA : public Taskable<DataParamEntry> {
       logger.Error("Strategy adding conflict!", __FUNCTION_LINE__);
       DebugBreak();
     }
-    OnStrategyAdd(_strat PTR_DEREF Ptr());
+    OnStrategyAdd(_strat.Ptr());
     return _result;
   }
 
@@ -856,8 +855,10 @@ class EA : public Taskable<DataParamEntry> {
     ResetLastError();
     for (DictStructIterator<string, Ref<Trade>> titer = trade.Begin(); titer.IsValid(); ++titer) {
       Trade *_trade = titer.Value().Ptr();
-      if (_trade PTR_DEREF Get<bool>(TRADE_STATE_ORDERS_ACTIVE) && !_trade PTR_DEREF Get<bool>(TRADE_STATE_MARKET_CLOSED)) {
-        for (DictStructIterator<int64, Ref<Order>> oiter = _trade PTR_DEREF GetOrdersActive() PTR_DEREF Begin(); oiter.IsValid(); ++oiter) {
+      if (_trade PTR_DEREF Get<bool>(TRADE_STATE_ORDERS_ACTIVE) &&
+          !_trade PTR_DEREF Get<bool>(TRADE_STATE_MARKET_CLOSED)) {
+        for (DictStructIterator<int64, Ref<Order>> oiter = _trade PTR_DEREF GetOrdersActive() PTR_DEREF Begin();
+             oiter.IsValid(); ++oiter) {
           bool _sl_valid = false, _tp_valid = false;
           double _sl_new = 0, _tp_new = 0;
           Order *_order = oiter.Value().Ptr();
@@ -1054,10 +1055,9 @@ class EA : public Taskable<DataParamEntry> {
         // 1st (i:0) - Strategy's enum action to execute.
         // 2nd (i:1) - Strategy's argument to pass.
         TaskActionEntry _entry_strat = _entry;
-        _entry_strat PTR_DEREF ArgRemove(0);
-        for (DictStructIterator<int64, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat PTR_DEREF IsValid(); ++iter_strat) {
-          Strategy *_strat = iter_strat PTR_DEREF Value().Ptr();
-
+        _entry_strat.ArgRemove(0);
+        for (DictStructIterator<int64, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat.IsValid(); ++iter_strat) {
+          Strategy *_strat = iter_strat.Value().Ptr();
           _result &= _strat PTR_DEREF Run(_entry_strat);
         }
         break;

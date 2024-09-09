@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -191,7 +191,7 @@ class Exchange : public Taskable<DataParamEntry> {
   /**
    * Returns serialized representation of the object instance.
    */
-  SerializerNodeType Serialize(Serializer &_s) const {
+  SerializerNodeType Serialize(Serializer &_s) {
     _s.PassStruct(THIS_REF, "eparams", eparams);
     _s.PassStruct(THIS_REF, "accounts", accounts);
     //_s.PassStruct(THIS_REF, "symbols", symbols);
@@ -202,5 +202,5 @@ class Exchange : public Taskable<DataParamEntry> {
   /**
    * Returns textual representation of the object instance.
    */
-  string ToString() const { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
+  const string ToString() override { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 };

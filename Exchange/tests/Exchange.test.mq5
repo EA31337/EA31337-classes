@@ -74,9 +74,7 @@ class AccountDummy : public AccountBase {
   /**
    * Returns serialized representation of the object instance.
    */
-  virtual SerializerNodeType Serialize(Serializer &_s) const {
-    return SerializerNodeObject;
-  }
+  virtual SerializerNodeType Serialize(Serializer &_s) { return SerializerNodeObject; }
 };
 
 class ExchangeDummy : public Exchange {

@@ -639,7 +639,7 @@ class AccountMt : public AccountBase {
   /**
    * Returns serialized representation of the object instance.
    */
-  SerializerNodeType Serialize(Serializer &_s) const {
+  SerializerNodeType Serialize(Serializer &_s) {
     AccountEntry _entry = GetEntry();
     _s.PassStruct(THIS_REF, "account-entry", _entry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;

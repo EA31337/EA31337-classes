@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -82,7 +82,7 @@ struct PlatformParams {
     SetUserError(ERR_INVALID_PARAMETER);
   }
   // Serializers.
-  SerializerNodeType Serialize(Serializer &s) const {
+  SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "id", id);
     s.Pass(THIS_REF, "name", name);
     return SerializerNodeObject;
