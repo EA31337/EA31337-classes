@@ -51,17 +51,17 @@ To improve code compatibility, please use the following syntax:
 | `foo((Ba&)obj)`  *2| `foo(*obj)`              | `foo(PTR_TO_REF(obj))`     |
 | `foo((Ba*)obj)`  *1| `foo(&obj)`              | `foo(REF_TO_PTR(obj))`     |
 | `void* N`        *4| `void*& N[]`             | `VOID_DATA(N)`             |
-| `int foo`          | `const int foo`          | `CONST_CPP int foo`        |
-| `int foo(int v)`   | `int foo(int& v)`        | `int foo(int REF_CPP v)`   |
-| `X foo()`          | `X& foo()`               | `X REF_CPP foo()`          |
+| `int foo`        *5| `const int foo`          | `CONST_CPP int foo`        |
+| `int foo(int v)` *5| `int foo(int& v)`        | `int foo(int REF_CPP v)`   |
+| `X foo()`        *5| `X& foo()`               | `X REF_CPP foo()`          |
 | `obj == NULL`    *1| `obj == nullptr`         | `obj == nullptr`           |
-| `X foo(T* v)`      | `X foo(T* v)`            | `obj == nullptr`           |
 | `datetime d = NULL`| `datetime d = 0`         | `datetime = 0`             |
 
 **\*1** - Only if `obj` is a pointer.
 **\*2** - Only if `obj` is an object or reference type (e.g., `Foo &`).
 **\*3** - Only if `obj` is `Ref<X>`.
 **\*4** - Only when used as a parameter to function.
+**\*5** - In C++ we could want to return structure by reference or add `const` to the variable or result.
 
 ## Proposing changes
 
