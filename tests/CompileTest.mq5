@@ -57,6 +57,7 @@ struct IndicatorParams;
 #include "../Storage/Dict/DictObject.h"
 #include "../Storage/Dict/DictSlot.h"
 #include "../Storage/Dict/DictStruct.h"
+#include "../Storage/Instances.h"
 #include "../Platform/Plot.h"
 #include "../Indicators/DrawIndicator.mqh"
 #include "../EA.mqh"
