@@ -1,26 +1,20 @@
 ---
-name: Test
+name: Test Strategy
 
 env:
-  TEST_PATH: tests
+  TEST_PATH: Strategy/tests
   TEST_SKIP: ${{ secrets.MT5_LOGIN == '' }}
 
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - '**.h'
-      - '*.mq?'
-      - '**.mq?'
-      - '**/*.mq?'
-      - '.github/workflows/test.yml'
+      - .github/workflows/test-strategy.yml
+      - Strategy/**
   push:
     paths:
-      - '**.h'
-      - '*.mq?'
-      - '**.mq?'
-      - '**/*.mq?'
-      - '.github/workflows/test.yml'
+      - .github/workflows/test-strategy.yml
+      - Strategy/**
 
 jobs:
 
@@ -29,7 +23,7 @@ jobs:
     uses: ./.github/workflows/compile-mql.yml
     with:
       artifact_prefix: mt
-      path: tests
+      path: Strategy/tests
       skip_cleanup: true
 
   test:
@@ -43,11 +37,8 @@ jobs:
     strategy:
       matrix:
         test:
-          - EATest
-          - MailTest
-          - MarketTest
-          - SummaryReportTest
-          - TradeTest
+          - Strategy.test
+          - Strategy-RSI.test
         version: [5]
       max-parallel: 4
     steps:
@@ -76,42 +67,7 @@ jobs:
         uses: mxschmitt/action-tmate@v3
     timeout-minutes: 20
 
-  Scripts-MQL4:
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ env.TEST_PATH }}
-    if: false
-    needs: compile
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test:
-          - ConfigTest
-          - ConvertTest
-          - LogTest
-          - MD5Test
-          - ProfilerTest
-          - RefsTest
-          - TimerTest
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: files-ex4
-      - name: Run ${{ matrix.test }}
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: ${{ matrix.test }}
-        if: always()
-    timeout-minutes: 10
-
   cleanup:
-    if: inputs.skip_cleanup != true
     name: Clean-up
-    needs: [test]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: geekyeggo/delete-artifact@v5
-        with:
-          name: mt?
-    timeout-minutes: 5
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml
