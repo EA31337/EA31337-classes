@@ -32,18 +32,36 @@ For example, to format file inplace, run:
 
 To improve code compatibility, please use the following syntax:
 
-| MQL               | C++                     | Syntax to use              |
-|:------------------|:------------------------|:---------------------------|
-| `&this`           | `this`                  | `THIS_PTR`                 |
-| `GetPointer(obj)` | `*obj`                  | `GET_PTR(obj)`             |
-| `T name[]`        | `_cpp_array<T> name`    | `ARRAY(T, name)`           |
-| `T<A, B> N[]`     | `_cpp_array<T<A, B>> N` | `ARRAY(T<A, B>, N)`        |
-| `long`            | `long long`             | `int64`                    |
-| `obj.Method()`    | `obj->Method()`         | `obj PTR_DEREF Method()`   |
-| `obj.Ptr().a`     | `obj.Ptr()->a`          | `obj REF_DEREF a`          |
-| `obj.a1.a2`       | `obj->a1->a2`           | `PTR_ATTRIB2(obj, a1, a2)` |
-| `obj.attr`        | `obj->attr`             | `PTR_ATTRIB(obj, attr)`    |
-| `str == NULL`     | `str == NULL`           | `IsNull(str)`              |
+| MQL                | C++                      | Syntax to use              |
+|:-------------------|:-------------------------|:---------------------------|
+| `&this`            | `this`                   | `THIS_PTR`                 |
+| `this`             | `*this`                  | `THIS_REF`                 |
+| `GetPointer(obj)`  | `&obj`                   | `GET_PTR(obj)`             |
+| `T name[]`         | `std::vector<T> name`    | `ARRAY(T, name)`           |
+| `T name[5]`        | `T name[5]`              | `FIXED_ARRAY(T, name, 5)`  |
+| `X f(T[] v)`  [ ]=5| `X f(T(&n)[5])`          | `FIXED_ARRAY_REF(T, n, 5)` |
+| `T<A, B> name[]`   | `vector<T<A, B>> name`   | `ARRAY(T<A, B>, N)`        |
+| `long`             | `long long`              | `int64`                    |
+| `unsigned long`    | `unsigned long long`     | `uint64`                   |
+| `obj.Method()`   *1| `obj->Method()`          | `obj PTR_DEREF Method()`   |
+| `obj.Ptr().a`    *3| `obj.Ptr()->a`           | `obj REF_DEREF a`          |
+| `obj.a1.a2`      *1| `obj->a1->a2`            | `PTR_ATTRIB2(obj, a1, a2)` |
+| `obj.attr`       *1| `obj->attr`              | `PTR_ATTRIB(obj, attr)`    |
+| `str == NULL`      | `str == NULL`            | `IsNull(str)`              |
+| `foo((Ba&)obj)`  *2| `foo(*obj)`              | `foo(PTR_TO_REF(obj))`     |
+| `foo((Ba*)obj)`  *1| `foo(&obj)`              | `foo(REF_TO_PTR(obj))`     |
+| `void* N`        *4| `void*& N[]`             | `VOID_DATA(N)`             |
+| `int foo`          | `const int foo`          | `CONST_CPP int foo`        |
+| `int foo(int v)`   | `int foo(int& v)`        | `int foo(int REF_CPP v)`   |
+| `X foo()`          | `X& foo()`               | `X REF_CPP foo()`          |
+| `obj == NULL`    *1| `obj == nullptr`         | `obj == nullptr`           |
+| `X foo(T* v)`      | `X foo(T* v)`            | `obj == nullptr`           |
+| `datetime d = NULL`| `datetime d = 0`         | `datetime = 0`             |
+
+**\*1** - Only if `obj` is a pointer.
+**\*2** - Only if `obj` is an object or reference type (e.g., `Foo &`).
+**\*3** - Only if `obj` is `Ref<X>`.
+**\*4** - Only when used as a parameter to function.
 
 ## Proposing changes
 
