@@ -74,7 +74,7 @@ struct IndicatorParams;
 #include "../Storage/Object.h"
 #include "../Platform/Order.h"
 #include "../Platform/Orders.h"
-#include "../Pattern.mqh"
+#include "../Platform/Chart/Pattern.h"
 // #include "../Profiler.mqh"
 #include "../Storage/Redis.h"
 #include "../Refs.mqh"
