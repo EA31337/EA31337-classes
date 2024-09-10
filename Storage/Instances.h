@@ -52,7 +52,8 @@ template <typename T>
 #ifdef __MQL__
 T* Instances::instances[];
 #else
-T* Instances<T>::instances[];
+//T* Instances<T>::instances[];
+ARRAY(T*, Instances<T>::instances);
 #endif
 
 #endif  // INSTANCES_H
