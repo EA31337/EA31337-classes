@@ -55,4 +55,4 @@ T* Instances::instances[];
 T* Instances<T>::instances[];
 #endif
 
-#endif  // INSTANCES_MQH
+#endif  // INSTANCES_H
