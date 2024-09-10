@@ -26,7 +26,7 @@ We use a `clang-format` code formatter tool to format the code
 
 For example, to format file inplace, run:
 
-    clang-format -i File.mqh
+    clang-format -i File.h
 
 ### Syntax
 
@@ -39,29 +39,31 @@ To improve code compatibility, please use the following syntax:
 | `GetPointer(obj)`  | `&obj`                   | `GET_PTR(obj)`             |
 | `T name[]`         | `std::vector<T> name`    | `ARRAY(T, name)`           |
 | `T name[5]`        | `T name[5]`              | `FIXED_ARRAY(T, name, 5)`  |
-| `X f(T[] v)`  [ ]=5| `X f(T(&n)[5])`          | `FIXED_ARRAY_REF(T, n, 5)` |
+| `X f(T[] v)`      ⁵| `X f(T(&n)[5])`          | `FIXED_ARRAY_REF(T, n, 5)` |
 | `T<A, B> name[]`   | `vector<T<A, B>> name`   | `ARRAY(T<A, B>, N)`        |
 | `long`             | `long long`              | `int64`                    |
 | `unsigned long`    | `unsigned long long`     | `uint64`                   |
-| `obj.Method()`   *1| `obj->Method()`          | `obj PTR_DEREF Method()`   |
-| `obj.Ptr().a`    *3| `obj.Ptr()->a`           | `obj REF_DEREF a`          |
-| `obj.a1.a2`      *1| `obj->a1->a2`            | `PTR_ATTRIB2(obj, a1, a2)` |
-| `obj.attr`       *1| `obj->attr`              | `PTR_ATTRIB(obj, attr)`    |
+| `obj.Method()`    ¹| `obj->Method()`          | `obj PTR_DEREF Method()`   |
+| `obj.Ptr().a`     ³| `obj.Ptr()->a`           | `obj REF_DEREF a`          |
+| `obj.a1.a2`       ¹| `obj->a1->a2`            | `PTR_ATTRIB2(obj, a1, a2)` |
+| `obj.attr`        ¹| `obj->attr`              | `PTR_ATTRIB(obj, attr)`    |
 | `str == NULL`      | `str == NULL`            | `IsNull(str)`              |
-| `foo((Ba&)obj)`  *2| `foo(*obj)`              | `foo(PTR_TO_REF(obj))`     |
-| `foo((Ba*)obj)`  *1| `foo(&obj)`              | `foo(REF_TO_PTR(obj))`     |
-| `void* N`        *4| `void*& N[]`             | `VOID_DATA(N)`             |
-| `int foo`        *5| `const int foo`          | `CONST_CPP int foo`        |
-| `int foo(int v)` *5| `int foo(int& v)`        | `int foo(int REF_CPP v)`   |
-| `X foo()`        *5| `X& foo()`               | `X REF_CPP foo()`          |
-| `obj == NULL`    *1| `obj == nullptr`         | `obj == nullptr`           |
+| `foo((Ba&)obj)`   ²| `foo(*obj)`              | `foo(PTR_TO_REF(obj))`     |
+| `foo((Ba*)obj)`   ¹| `foo(&obj)`              | `foo(REF_TO_PTR(obj))`     |
+| `void* N`         ⁴| `void*& N[]`             | `VOID_DATA(N)`             |
+| `int foo`         ⁵| `const int foo`          | `CONST_CPP int foo`        |
+| `int foo(int v)`  ⁵| `int foo(int& v)`        | `int foo(int REF_CPP v)`   |
+| `X foo()`         ⁵| `X& foo()`               | `X REF_CPP foo()`          |
+| `obj == NULL`     ¹| `obj == nullptr`         | `obj == nullptr`           |
 | `datetime d = NULL`| `datetime d = 0`         | `datetime = 0`             |
 
-**\*1** - Only if `obj` is a pointer.
-**\*2** - Only if `obj` is an object or reference type (e.g., `Foo &`).
-**\*3** - Only if `obj` is `Ref<X>`.
-**\*4** - Only when used as a parameter to function.
-**\*5** - In C++ we could want to return structure by reference or add `const` to the variable or result.
+Footnotes:
+
+* ¹ Only if `obj` is a pointer.
+* ² Only if `obj` is an object or reference type (e.g., `Foo &`).
+* ³ Only if `obj` is `Ref<X>`.
+* ⁴ Only when used as a parameter to function.
+* ⁵ In C++ we could want to return structure by reference or add `const` to the variable or result.
 
 ## Proposing changes
 
