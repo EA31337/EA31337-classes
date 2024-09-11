@@ -114,6 +114,7 @@ class Strategy : public Object {
   int filter_method[];    // Filter method to consider the trade.
   int open_condition[];   // Open conditions.
   int close_condition[];  // Close conditions.
+  bool is_initialized;    // Whether OnInit() was already called.
 
  public:
   /* Special methods */
@@ -137,8 +138,9 @@ class Strategy : public Object {
     // UpdateOrderStats(EA_STATS_MONTHLY);
     // UpdateOrderStats(EA_STATS_TOTAL);
 
-    // Call strategy's OnInit method.
-    Strategy::OnInit();
+    // Instead of calling Stategy::OnInit(), we do the initialization here.
+    // It is because we can't call virtual methods in constructor.
+    SetStops(GetPointer(this), GetPointer(this));
   }
 
   Log *GetLogger() { return GetPointer(logger); }
@@ -660,6 +662,11 @@ class Strategy : public Object {
    * Initialize strategy.
    */
   bool Init() {
+    if (!is_initialized) {
+      is_initialized = true;
+      OnInit(); // Calling virtual method.
+    }
+
     if (!trade.IsValid()) {
       /* @fixme
       logger.Warning(StringFormat("Could not initialize %s on %s timeframe!", GetName(),
@@ -863,7 +870,6 @@ class Strategy : public Object {
    * Event on strategy's init.
    */
   virtual void OnInit() {
-    SetStops(GetPointer(this), GetPointer(this));
     // trade.SetStrategy(&this); // @fixme
     // Sets strategy's trade spread limit.
     trade.Set<float>(TRADE_PARAM_MAX_SPREAD, sparams.Get<float>(STRAT_PARAM_MAX_SPREAD));
