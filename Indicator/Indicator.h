@@ -32,11 +32,13 @@ struct IndicatorParams;
 #include "Indicator.enum.h"
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
+#include "IndicatorCandle.enum.h"
 #include "IndicatorData.h"
 
 // Includes.
 #include "../Indicators/DrawIndicator.mqh"
 #include "../Math/Math.h"
+#include "../Platform/Chart/Chart.define.h"
 #include "../Refs.mqh"
 #include "../Serializer/Serializer.h"
 #include "../Serializer/SerializerCsv.h"
@@ -161,13 +163,19 @@ class Indicator : public IndicatorData {
    * Returns the highest bar's index (shift).
    */
   int GetHighest(int mode, int count = WHOLE_ARRAY, int start_bar = 0) override {
+    if (GetCandle() != THIS_PTR) {
+      Alert("You can only use ", __FUNCTION__, " on the Candle-based indicator! ", GetFullName(),
+            " is not a Candle indicator.");
+      DebugBreak();
+      return -1;
+    }
+
     int max_idx = -1;
     double max = -DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      IndicatorDataEntry _entry = GetEntry(shift);
-      double value = _entry.GetMax<double>(GetModeCount());
+      double value = GetValue<double>((int)GetCandleIndicatorMode(mode), shift);
       if (value > max) {
         max = value;
         max_idx = shift;
@@ -181,13 +189,19 @@ class Indicator : public IndicatorData {
    * Returns the lowest bar's index (shift).
    */
   int GetLowest(int mode, int count = WHOLE_ARRAY, int start_bar = 0) override {
+    if (GetCandle() != THIS_PTR) {
+      Alert("You can only use ", __FUNCTION__, " on the Candle-based indicator! ", GetFullName(),
+            " is not a Candle indicator.");
+      DebugBreak();
+      return -1;
+    }
+
     int min_idx = -1;
     double min = DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      IndicatorDataEntry _entry = GetEntry(shift);
-      double value = _entry.GetMin<double>(GetModeCount());
+      double value = GetValue<double>((int)GetCandleIndicatorMode(mode), shift);
       if (value < min) {
         min = value;
         min_idx = shift;
@@ -195,6 +209,35 @@ class Indicator : public IndicatorData {
     }
 
     return min_idx;
+  }
+
+  /**
+   * Converts Series Array Indentifier into mode index to be retrieved from Candle indicator.
+   *
+   * Possible values:
+   * MODE_OPEN, MODE_LOW, MODE_HIGH, MODE_CLOSE, MODE_VOLUME, MODE_TIME.
+   */
+  ENUM_INDI_CANDLE_MODE GetCandleIndicatorMode(int _series_array_id) {
+    switch (_series_array_id) {
+      case MODE_OPEN:
+        return INDI_CANDLE_MODE_PRICE_OPEN;
+      case MODE_LOW:
+        return INDI_CANDLE_MODE_PRICE_LOW;
+      case MODE_HIGH:
+        return INDI_CANDLE_MODE_PRICE_HIGH;
+      case MODE_CLOSE:
+        return INDI_CANDLE_MODE_PRICE_CLOSE;
+      case MODE_VOLUME:
+      case MODE_REAL_VOLUME:
+        return INDI_CANDLE_MODE_VOLUME;
+      case MODE_TIME:
+        return INDI_CANDLE_MODE_TIME;
+      default:
+        Alert("Unsupported mode ", IntegerToString(_series_array_id), ", for ", __FUNCTION__, "");
+        DebugBreak();
+    }
+
+    return (ENUM_INDI_CANDLE_MODE)0;
   }
 
   /* Setters */
