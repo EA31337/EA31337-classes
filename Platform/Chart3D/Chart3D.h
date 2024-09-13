@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 #include "../../Bar.struct.h"
@@ -44,9 +44,9 @@
 #include "Interface.h"
 
 #ifdef __MQL5__
-// Resource variables.
-#resource "Shaders/chart3d_vs.hlsl" as string Chart3DShaderSourceVS;
-#resource "Shaders/chart3d_ps.hlsl" as string Chart3DShaderSourcePS;
+  // Resource variables.
+  #resource "Shaders/chart3d_vs.hlsl" as string Chart3DShaderSourceVS;
+  #resource "Shaders/chart3d_ps.hlsl" as string Chart3DShaderSourcePS;
 #endif
 
 typedef BarOHLC (*Chart3DPriceFetcher)(ENUM_TIMEFRAMES, int);
@@ -207,7 +207,9 @@ class Chart3D : public Dynamic {
     float _scale_y = 40.0f;
     float _price_min = GetMinBarsPrice();
     float _price_max = GetMaxBarsPrice();
-    float _result = 1.0f / (_price_max - _price_min) * (price - _price_min) * _scale_y - (_scale_y / 2);
+    float _result = (_price_max - _price_min == 0.0f)
+                        ? 1.0f
+                        : (1.0f / (_price_max - _price_min) * (price - _price_min) * _scale_y - (_scale_y / 2));
     return _result;
   }
 

@@ -160,15 +160,14 @@ class Indicator : public IndicatorData {
   /**
    * Returns the highest bar's index (shift).
    */
-  template <typename T>
-  int GetHighest(int count = WHOLE_ARRAY, int start_bar = 0) {
+  int GetHighest(int mode, int count = WHOLE_ARRAY, int start_bar = 0) override {
     int max_idx = -1;
     double max = -DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       IndicatorDataEntry _entry = GetEntry(shift);
-      double value = _entry.GetMax<T>(GetModeCount());
+      double value = _entry.GetMax<double>(GetModeCount());
       if (value > max) {
         max = value;
         max_idx = shift;
@@ -181,15 +180,14 @@ class Indicator : public IndicatorData {
   /**
    * Returns the lowest bar's index (shift).
    */
-  template <typename T>
-  int GetLowest(int count = WHOLE_ARRAY, int start_bar = 0) {
+  int GetLowest(int mode, int count = WHOLE_ARRAY, int start_bar = 0) override {
     int min_idx = -1;
     double min = DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       IndicatorDataEntry _entry = GetEntry(shift);
-      double value = _entry.GetMin<T>(GetModeCount());
+      double value = _entry.GetMin<double>(GetModeCount());
       if (value < min) {
         min = value;
         min_idx = shift;

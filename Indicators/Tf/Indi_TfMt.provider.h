@@ -52,8 +52,8 @@ class ItemsHistoryTfMtCandleProvider : public ItemsHistoryCandleProvider<TV> {
     // Seconds per candle calculated from TF.
     int _spc = (int)ChartTf::TfToSeconds(indi PTR_DEREF GetTf());
 
-    Print("Indi_TfMt's history: New tick: ", TimeToString(_time_ms / 1000, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
-          ", ", _ask, ", ", _bid);
+    // Print("Indi_TfMt's history: New tick: ", TimeToString(_time_ms / 1000, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+    // ", ", _ask, ", ", _bid);
 
     // We know that tick's timestamp will be ahead of the last tick and thus
     // inside or ahead of the last created candle. In order to retrieve last
