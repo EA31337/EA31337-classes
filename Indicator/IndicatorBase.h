@@ -31,7 +31,7 @@
 #endif
 
 // Includes.
-#include "../Bar.struct.h"
+#include "../Platform/Chart/Bar.struct.h"
 #include "../Log.mqh"
 #include "../Platform/Chart/Chart.struct.tf.h"
 #include "../Platform/Platform.extern.h"

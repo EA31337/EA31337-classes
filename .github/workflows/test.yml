@@ -46,8 +46,6 @@ jobs:
           - EATest
           - MailTest
           - MarketTest
-          - StrategyTest
-          - StrategyTest-RSI
           - SummaryReportTest
           - TradeTest
         version: [5]

@@ -30,10 +30,10 @@
   #pragma once
 #endif
 
-#include "../../Bar.struct.h"
+#include "../Chart/Bar.struct.h"
 #include "../../Indicator/IndicatorData.h"
 #include "../../Indicators/Price/Indi_MA.h"
-#include "../../Instances.h"
+#include "../../Storage/Instances.h"
 #include "../../Refs.mqh"
 #include "../../Serializer/SerializerConverter.h"
 #include "../../Serializer/SerializerJson.h"

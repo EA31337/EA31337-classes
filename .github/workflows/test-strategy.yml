@@ -1,20 +1,20 @@
 ---
-name: Test Storage
+name: Test Strategy
 
 env:
-  TEST_PATH: Storage/tests
+  TEST_PATH: Strategy/tests
   TEST_SKIP: ${{ secrets.MT5_LOGIN == '' }}
 
 # yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - .github/workflows/test-storage.yml
-      - Storage/**
+      - .github/workflows/test-strategy.yml
+      - Strategy/**
   push:
     paths:
-      - .github/workflows/test-storage.yml
-      - Storage/**
+      - .github/workflows/test-strategy.yml
+      - Strategy/**
 
 jobs:
 
@@ -23,7 +23,7 @@ jobs:
     uses: ./.github/workflows/compile-mql.yml
     with:
       artifact_prefix: mt
-      path: Storage/tests
+      path: Strategy/tests
       skip_cleanup: true
 
   test:
@@ -37,14 +37,8 @@ jobs:
     strategy:
       matrix:
         test:
-          - Collection.test
-          - Database.test
-          - DateTime.test
-          - Instances.test
-          - ItemsHistory.test
-          - Object.test
-          - Redis.test
-          - ValueStorage.test
+          - Strategy.test
+          - Strategy-RSI.test
         version: [5]
       max-parallel: 4
     steps:

@@ -34,8 +34,8 @@
 #ifndef INSTANCES_H
 #define INSTANCES_H
 
-#include "Storage/Dict/Dict.h"
-#include "Util.h"
+#include "Dict/Dict.h"
+#include "../Util.h"
 
 template <typename T>
 class Instances {
@@ -52,7 +52,8 @@ template <typename T>
 #ifdef __MQL__
 T* Instances::instances[];
 #else
-T* Instances<T>::instances[];
+//T* Instances<T>::instances[];
+ARRAY(T*, Instances<T>::instances);
 #endif
 
-#endif  // INSTANCES_MQH
+#endif  // INSTANCES_H
