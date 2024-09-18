@@ -1601,7 +1601,7 @@ class IndicatorData : public IndicatorBase {
     if (GetCandle() == THIS_PTR) {
       Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
       DebugBreak();
-      return -1;
+      return (ENUM_TIMEFRAMES)-1;
     }
 
     return GetCandle() PTR_DEREF GetTf();

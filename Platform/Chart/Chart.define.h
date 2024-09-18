@@ -104,7 +104,8 @@
   #define MODE_MARGINHEDGED 31
   #define MODE_MARGINREQUIRED 32
   #define MODE_FREEZELEVEL 33
-#else
-  // #ifdef __MQL4__
+#endif
+
+#ifndef __MQL5__
   #define MODE_REAL_VOLUME 7
 #endif
