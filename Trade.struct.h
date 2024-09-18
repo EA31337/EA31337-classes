@@ -97,7 +97,8 @@ struct TradeStats {
     for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       order_stats[t][(int)_period] = 0;
 #ifdef __debug_verbose__
-      Print("Resetting trade counter for type ", EnumToString(t), " and  period ", EnumToString(_period));
+      Print("Resetting trade counter for type ", EnumToString((ENUM_TRADE_STAT_PERIOD)t), " and  period ",
+            EnumToString(_period));
 #endif
       dt[t][(int)_period].GetStartedPeriods(true, true);
     }
