@@ -345,7 +345,7 @@ SerializerNodeParam* SerializerNodeParam::FromLong(int64 value) {
 /**
  * Returns new SerializerNodeParam object from given source value.
  */
-SerializerNodeParam* SerializerNodeParam::FromLong(uint64 value) { return FromLong((uint64)value); }
+SerializerNodeParam* SerializerNodeParam::FromLong(uint64 value) { return FromLong((int64)value); }
 
 /**
  * Returns new SerializerNodeParam object from given source value.

@@ -70,8 +70,8 @@ class Stg_RSI : public Strategy {
     IndiRSIParams _iparams = _indi.GetParams();
     double _trail = _level * Market().GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
-    return _direction > 0 ? (float)_indi.GetPrice(PRICE_HIGH, _indi.GetHighest<double>(_iparams.GetPeriod() * 2))
-                          : (float)_indi.GetPrice(PRICE_LOW, _indi.GetLowest<double>(_iparams.GetPeriod() * 2));
+    return _direction > 0 ? (float)_indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_iparams.GetPeriod() * 2))
+                          : (float)_indi.GetPrice(PRICE_LOW, _indi.GetLowest(_iparams.GetPeriod() * 2));
   }
 
   virtual void OnPeriod(unsigned int _periods = DATETIME_NONE) {

@@ -48,6 +48,7 @@ jobs:
           - MarketTest
           - SummaryReportTest
           - TradeTest
+        year: [2022, 2024]
         version: [5]
       max-parallel: 4
     steps:
@@ -72,6 +73,7 @@ jobs:
           # yamllint disable-line rule:line-length
           UrlExpert: file://${{ github.workspace }}/${{ env.TEST_PATH }}/${{ matrix.test }}.ex${{ matrix.version }}
           Version: 5
+          RunnerTimeout: 1200
       - if: ${{ failure() && runner.debug == '1' }}
         uses: mxschmitt/action-tmate@v3
     timeout-minutes: 20
