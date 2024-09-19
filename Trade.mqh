@@ -763,21 +763,21 @@ public:
    * Return access to Market class.
    */
   Market *Market() {
-    return (Market *) GetPointer(trade_params.chart);
+    return GetPointer(trade_params.chart);
   }
 
   /**
    * Returns access to the current chart.
    */
   Chart *Chart() {
-    return (Chart *) GetPointer(trade_params.chart);
+    return GetPointer(trade_params.chart);
   }
 
   /**
    * Returns access to the current terminal.
    */
   Terminal *Terminal() {
-    return (Terminal *) GetPointer(trade_params.chart);
+    return GetPointer(trade_params.chart);
   }
 
   /**

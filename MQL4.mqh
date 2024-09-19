@@ -966,7 +966,7 @@ class MT4ORDERS {
     static int MT4OrderSend( const string Symb, const int Type, const double dVolume, const double Price, const int SlipPage, const double SL, const double TP,
         const string comment = NULL, const int magic = 0, const datetime dExpiration = 0, color arrow_color = clrNONE )
     {
-      MqlTradeRequest Request = {0};
+      MqlTradeRequest Request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
 
       Request.action = (((Type == OP_BUY) || (Type == OP_SELL)) ? TRADE_ACTION_DEAL : TRADE_ACTION_PENDING);
       Request.magic = magic;
@@ -996,7 +996,7 @@ class MT4ORDERS {
     }
 
     static bool MT4OrderModify( const ulong Ticket, const double Price, const double SL, const double TP, const datetime Expiration, const color Arrow_Color = clrNONE ) {
-      MqlTradeRequest Request = {0};
+      MqlTradeRequest Request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
 
       // considered case if order and position has the same ticket
       bool Res = ((Ticket != MT4ORDERS::Order.Ticket) || (MT4ORDERS::Order.Ticket <= OP_SELL)) ?
@@ -1019,7 +1019,7 @@ class MT4ORDERS {
 
       if (Res)
       {
-        MqlTradeRequest Request = {0};
+        MqlTradeRequest Request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
 
         Request.action = TRADE_ACTION_DEAL;
         Request.position = Ticket;
@@ -1059,7 +1059,7 @@ class MT4ORDERS {
         if (_symbol!=symbol_by)
           return(false);
 
-        MqlTradeRequest Request = {0};
+        MqlTradeRequest Request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
 
         Request.action      = TRADE_ACTION_CLOSE_BY;
         Request.position    = Ticket;
@@ -1074,7 +1074,7 @@ class MT4ORDERS {
       bool Res = ::OrderSelect(Ticket);
 
       if (Res) {
-        MqlTradeRequest Request = {0};
+        MqlTradeRequest Request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
 
         Request.action = TRADE_ACTION_REMOVE;
         Request.order = Ticket;

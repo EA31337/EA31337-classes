@@ -887,7 +887,7 @@ class Strategy : public Object {
    * Open an order.
    */
   bool OrderOpen(ENUM_ORDER_TYPE _cmd) {
-    MqlTradeRequest _request = {0};
+    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = StringFormat("%s on %s", name, Chart().TfToString());
     _request.deviation = 10;
