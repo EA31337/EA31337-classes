@@ -710,7 +710,7 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     return ::OrderLots();
 #else
-    return Order::OrderGetDouble(ORDER_VOLUME_CURRENT);
+    return Order::OrderGetDouble(ORDER_VOLUME_CURRENT) > 0 ? Order::OrderGetDouble(ORDER_VOLUME_CURRENT) : Order::OrderGetDouble(ORDER_VOLUME_INITIAL);
 #endif
   }
   double GetVolume() { return orequest.volume = IsSelected() ? OrderLots() : orequest.volume; }
