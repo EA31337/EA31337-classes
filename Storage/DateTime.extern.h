@@ -55,14 +55,22 @@ class datetime {
   operator int64() const { return dt; }
 };
 
-extern int CopyTime(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count,
-                    ARRAY_REF(datetime, time_array));
+int CopyTime(string symbol_name, ENUM_TIMEFRAMES timeframe, int start_pos, int count, ARRAY_REF(datetime, time_array)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
 
 extern int CopyTime(string symbol_name, ENUM_TIMEFRAMES timeframe, datetime start_time, int count,
-                    ARRAY_REF(datetime, time_array));
+                    ARRAY_REF(datetime, time_array)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
 
 extern int CopyTime(string symbol_name, ENUM_TIMEFRAMES timeframe, datetime start_time, datetime stop_time,
-                    ARRAY_REF(datetime, time_array));
+                    ARRAY_REF(datetime, time_array)) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
 
 extern datetime StructToTime(MqlDateTime& dt_struct);
 extern bool TimeToStruct(datetime dt, MqlDateTime& dt_struct);

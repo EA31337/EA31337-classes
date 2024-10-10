@@ -387,15 +387,19 @@ class InvalidEnumValue {
 #endif
       static const T
       value() {
-    return (T)INT_MAX;
+#ifdef __MQL__
+    return (T)NULL;
+#else
+    return std::numeric_limits<T>::max();
+#endif
   }
 };
 
 #ifndef __MQL__
 struct _WRONG_VALUE {
   template <typename T>
-  operator T() {
-    return (T)-1;
+  operator T() const {
+    return std::numeric_limits<T>::max();
   }
 } WRONG_VALUE;
 
@@ -405,10 +409,9 @@ const string _empty_string = "";
 // Converter of NULL_VALUE into expected type. e.g., "int x = NULL_VALUE" will end up with "x = 0".
 struct _NULL_VALUE {
   template <typename T>
-  explicit operator T() const {
-    return (T)0;
+  operator T() const {
+    return std::numeric_limits<T>::max();
   }
-
 } NULL_VALUE;
 
 /**

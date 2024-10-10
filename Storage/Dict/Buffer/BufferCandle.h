@@ -26,7 +26,7 @@
 #endif
 
 // Includes.
-#include "../../../Candle.struct.h"
+#include "../../../Platform/Chart/Candle.struct.h"
 #include "../../../Serializer/SerializerConverter.h"
 #include "../../../Serializer/SerializerJson.h"
 #include "BufferStruct.h"

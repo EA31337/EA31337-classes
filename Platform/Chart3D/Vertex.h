@@ -21,11 +21,14 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
-#include "../../Refs.mqh"
+// We currently only support MQL.
+#ifdef __MQL__
+
+  #include "../../Refs.mqh"
 
 /**
  * Generic vertex to be used by meshes.
@@ -56,3 +59,5 @@ const ShaderVertexLayout Vertex::Layout[3] = {
     {"POSITION", 0, GFX_VAR_TYPE_FLOAT, 3, false, sizeof(Vertex), 0},
     {"NORMAL", 0, GFX_VAR_TYPE_FLOAT, 3, false, sizeof(Vertex), sizeof(float) * 3},
     {"COLOR", 0, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), sizeof(float) * 6}};
+
+#endif

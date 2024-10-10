@@ -26,7 +26,7 @@
 #endif
 
 // Includes.
-#include "../Candle.struct.h"
+#include "../Platform/Chart/Candle.struct.h"
 #include "../Storage/ItemsHistory.h"
 #include "../Storage/ValueStorage.price_median.h"
 #include "../Storage/ValueStorage.price_typical.h"
@@ -36,6 +36,7 @@
 #include "../Storage/ValueStorage.time.h"
 #include "../Storage/ValueStorage.volume.h"
 #include "Indicator.h"
+#include "IndicatorCandle.enum.h"
 #include "IndicatorCandle.provider.h"
 #include "IndicatorData.h"
 #include "TickBarCounter.h"
@@ -43,23 +44,6 @@
 #ifndef INDI_CANDLE_HISTORY_SIZE
   #define INDI_CANDLE_HISTORY_SIZE 86400
 #endif
-
-// Indicator modes.
-enum ENUM_INDI_CANDLE_MODE {
-  INDI_CANDLE_MODE_PRICE_OPEN,
-  INDI_CANDLE_MODE_PRICE_HIGH,
-  INDI_CANDLE_MODE_PRICE_LOW,
-  INDI_CANDLE_MODE_PRICE_CLOSE,
-  INDI_CANDLE_MODE_SPREAD,
-  INDI_CANDLE_MODE_TICK_VOLUME,
-  INDI_CANDLE_MODE_TIME,
-  INDI_CANDLE_MODE_VOLUME,
-  FINAL_INDI_CANDLE_MODE_ENTRY,
-  // Following modes are dynamically calculated.
-  INDI_CANDLE_MODE_PRICE_MEDIAN,
-  INDI_CANDLE_MODE_PRICE_TYPICAL,
-  INDI_CANDLE_MODE_PRICE_WEIGHTED,
-};
 
 /**
  * Class to deal with candle indicators.

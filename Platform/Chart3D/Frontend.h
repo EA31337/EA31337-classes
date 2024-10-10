@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 #include "../../Refs.mqh"
@@ -61,32 +61,32 @@ class Frontend : public Dynamic {
   /**
    * Initializes canvas.
    */
-  virtual bool Init() = NULL;
+  virtual bool Init() = 0;
 
   /**
    * Deinitializes canvas.
    */
-  virtual bool Deinit() = NULL;
+  virtual bool Deinit() = 0;
 
   /**
    * Executed before render starts.
    */
-  virtual void RenderBegin(int context) = NULL;
+  virtual void RenderBegin(int context) = 0;
 
   /**
    * Executed after render ends.
    */
-  virtual void RenderEnd(int context) = NULL;
+  virtual void RenderEnd(int context) = 0;
 
   /**
    * Returns canvas' width.
    */
-  virtual int Width() = NULL;
+  virtual int Width() = 0;
 
   /**
    * Returns canvas' height.
    */
-  virtual int Height() = NULL;
+  virtual int Height() = 0;
 
   /**
    * Enqueues text to be drawn directly into the pixel buffer. Queue will be processed in the Device::End() method.

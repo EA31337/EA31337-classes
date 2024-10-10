@@ -352,7 +352,9 @@
 #define ERR_INVALID_STOPS 130
 #define ERR_INVALID_TRADE_VOLUME 131
 #define ERR_MARKET_CLOSED 132
-//#define ERR_TRADE_DISABLED                   133
+#ifndef __MQL__
+#define ERR_TRADE_DISABLED 133 // Already defined in MQL4.
+#endif
 #define ERR_NOT_ENOUGH_MONEY 134
 #define ERR_PRICE_CHANGED 135
 #define ERR_OFF_QUOTES 136

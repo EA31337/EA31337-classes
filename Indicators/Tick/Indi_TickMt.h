@@ -165,6 +165,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
 
 #endif
 
+#ifdef __MQL4__
     // In MQL4 or MQL5 (if there's no history returned by CopyTicksRange) we
     // try to create and return OHLC ticks by calling iOpen/iHigh/iLow/iClose
     // for each bar in history. Candle indicator will form candles from those
@@ -201,6 +202,11 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
       _out_ticks[_tick_idx++] = _tick_c;
     }
 
+#endif
+
+#ifndef __MQL__
+    // @fixit In C++ we currently don't have a system to retrieve historic OHLCs from MT servers.
+#endif
     return ArraySize(_out_ticks) != 0;
   }
 
@@ -265,6 +271,6 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
     // Appending tick into the history.
     AppendEntry(_entry);
 
-    return _ask != WRONG_VALUE && _bid != WRONG_VALUE;
+    return _ask != (double)WRONG_VALUE && _bid != (double)WRONG_VALUE;
   }
 };

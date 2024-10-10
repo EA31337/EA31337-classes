@@ -4,34 +4,38 @@
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 #ifdef __MQL__
-#property copyright "Copyright 2019,MetaQuotes Software Corp."
-#property link "https://www.mql5.com"
+  #property copyright "Copyright 2019,MetaQuotes Software Corp."
+  #property link "https://www.mql5.com"
 #endif
+
+// We currently only support MQL.
+#ifdef __MQL__
+
 //+------------------------------------------------------------------+
-//| DirectX Math Routines                                            |
-//+------------------------------------------------------------------+
-//| Ported from C++ code of ReactOS, written by David Adam           |
-//| and Tony Wasserka                                                |
-//|                                                                  |
-//| https://doxygen.reactos.org/de/d57/                              |
-//| dll_2directx_2wine_2d3dx9__36_2math_8c_source.html               |
-//|                                                                  |
-//| Copyright (C) 2007 David Adam                                    |
-//| Copyright (C) 2007 Tony Wasserka                                 |
-//+------------------------------------------------------------------+
-#define DX_PI 3.1415926535897932384626f
-#define DX_PI_DIV2 1.5707963267948966192313f
-#define DX_PI_DIV3 1.0471975511965977461542f
-#define DX_PI_DIV4 0.7853981633974483096156f
-#define DX_PI_DIV6 0.5235987755982988730771f
-#define DX_PI_MUL2 6.2831853071795864769253f
-#define DXSH_MINORDER 2
-#define DXSH_MAXORDER 6
+  //| DirectX Math Routines                                            |
+  //+------------------------------------------------------------------+
+  //| Ported from C++ code of ReactOS, written by David Adam           |
+  //| and Tony Wasserka                                                |
+  //|                                                                  |
+  //| https://doxygen.reactos.org/de/d57/                              |
+  //| dll_2directx_2wine_2d3dx9__36_2math_8c_source.html               |
+  //|                                                                  |
+  //| Copyright (C) 2007 David Adam                                    |
+  //| Copyright (C) 2007 Tony Wasserka                                 |
+  //+------------------------------------------------------------------+
+  #define DX_PI 3.1415926535897932384626f
+  #define DX_PI_DIV2 1.5707963267948966192313f
+  #define DX_PI_DIV3 1.0471975511965977461542f
+  #define DX_PI_DIV4 0.7853981633974483096156f
+  #define DX_PI_DIV6 0.5235987755982988730771f
+  #define DX_PI_MUL2 6.2831853071795864769253f
+  #define DXSH_MINORDER 2
+  #define DXSH_MAXORDER 6
 //+------------------------------------------------------------------+
 //| Preliminary declarations                                         |
 //+------------------------------------------------------------------+
@@ -1442,7 +1446,7 @@ void DXMatrixAffineTransformation2D(DXMatrix &out, float scaling, const DXVector
   out.m[3][0] += translation.x;
   out.m[3][1] += translation.y;
 }
-#define D3DERR_INVALIDCALL -2005530516
+  #define D3DERR_INVALIDCALL -2005530516
 //#define S_OK                 0;
 //+------------------------------------------------------------------+
 //| Breaks down a general 3D transformation _matrix into its scalar,  |
@@ -3150,7 +3154,7 @@ void DXSHRotate(float &out[], int order, const DXMatrix &_matrix, const float &i
     return;
   }
 
-#ifdef __MQL5__
+  #ifdef __MQL5__
   if ((float)fabs(_matrix.m[2][2]) != 1.0f) {
     sinb = (float)sqrt(1.0f - _matrix.m[2][2] * _matrix.m[2][2]);
     alpha = (float)atan2(_matrix.m[2][1] / sinb, _matrix.m[2][0] / sinb);
@@ -3161,12 +3165,12 @@ void DXSHRotate(float &out[], int order, const DXMatrix &_matrix, const float &i
     beta = 0.0f;
     gamma = 0.0f;
   }
-#else
+  #else
   alpha = 0.0f;
   beta = 0.0f;
   gamma = 0.0f;
   sinb = 0.0f;
-#endif
+  #endif
 
   //---
   DXSHRotateZ(temp, order, gamma, in);
@@ -3230,3 +3234,5 @@ float DXScalarLerp(const float val1, const float val2, float s) { return ((1 - s
 //+---------------------------------------------------------------------+
 float DXScalarBiasScale(const float val, const float bias, const float scale) { return ((val + bias) * scale); }
 //+------------------------------------------------------------------+
+
+#endif

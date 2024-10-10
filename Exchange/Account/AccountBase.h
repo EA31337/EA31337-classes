@@ -21,12 +21,14 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
 #include "../../Refs.mqh"
+#include "../../Serializer/SerializerConverter.h"
+#include "../../Serializer/SerializerJson.h"
 #include "AccountBase.struct.h"
 
 /**
@@ -57,45 +59,59 @@ class AccountBase : public Dynamic {
    */
   ~AccountBase() {}
 
+  /* Printer methods */
+
+  /**
+   * Returns textual representation of the object instance.
+   */
+  const string ToString() override { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  virtual SerializerNodeType Serialize(Serializer &_s) = 0;
+
   /* Virtual methods */
 
   /**
    * Returns balance value of the current account.
    */
-  virtual datetime GetDateTime() { return TimeCurrent(); };
+  virtual datetime GetDateTime() const { return TimeCurrent(); };
 
   /**
    * Returns balance value of the current account.
    */
-  virtual float GetBalance() = 0;
+  virtual float GetBalance() const = 0;
 
   /**
    * Returns credit value of the current account.
    */
-  virtual float GetCredit() = 0;
+  virtual float GetCredit() const = 0;
 
   /**
    * Returns profit value of the current account.
    */
-  virtual float GetProfit() = 0;
+  virtual float GetProfit() const = 0;
 
   /**
    * Returns equity value of the current account.
    */
-  virtual float GetEquity() = 0;
+  virtual float GetEquity() const = 0;
 
   /**
    * Returns margin value of the current account.
    */
-  virtual float GetMarginUsed() = 0;
+  virtual float GetMarginUsed() const = 0;
 
   /**
    * Returns free margin value of the current account.
    */
-  virtual float GetMarginFree() = 0;
+  virtual float GetMarginFree() const = 0;
 
   /**
    * Get account available margin.
    */
-  virtual float GetMarginAvail() = 0;
+  virtual float GetMarginAvail() const = 0;
 };

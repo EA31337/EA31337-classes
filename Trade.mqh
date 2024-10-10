@@ -36,6 +36,7 @@ class Trade;
 #include "Math/Math.h"
 #include "Platform/Order.h"
 #include "Platform/OrderQuery.h"
+#include "Serializer/Serializer.ref.h"
 #include "Storage/Dict/DictStruct.h"
 #include "Storage/Object.h"
 #include "Task/TaskManager.h"

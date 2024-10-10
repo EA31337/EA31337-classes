@@ -53,7 +53,10 @@ class Indi_TfMt : public IndicatorCandle<Indi_TfMtParams, double, ItemsHistoryTf
    *
    * Called on constructor.
    */
-  void Init() { history.SetItemProvider(new ItemsHistoryTfMtCandleProvider<double>(THIS_PTR)); }
+  void Init() {
+    SetName("Indi_TfMt");
+    history.SetItemProvider(new ItemsHistoryTfMtCandleProvider<double>(THIS_PTR));
+  }
 
  public:
   /* Special methods */

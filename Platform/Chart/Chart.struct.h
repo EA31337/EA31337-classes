@@ -35,7 +35,7 @@ class Class;
 struct ChartTf;
 
 // Includes.
-#include "../../Bar.struct.h"
+#include "Bar.struct.h"
 #include "../../Serializer/Serializer.h"
 #include "../../Serializer/SerializerNode.enum.h"
 #include "../../Std.h"

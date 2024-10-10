@@ -30,7 +30,7 @@
 #endif
 
 // Includes.
-#include "../Candle.struct.h"
+#include "../Platform/Chart/Candle.struct.h"
 #include "../Storage/ItemsHistory.h"
 
 /**

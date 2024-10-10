@@ -1,6 +1,8 @@
 {
     "files.associations": {
-        "indicatorcandle.h": "c",
-        "*.mqh": "c"
+        "*.h": "cpp",
+        "*.mq4": "cpp",
+        "*.mq5": "cpp",
+        "*.mqh": "cpp"
     }
 }

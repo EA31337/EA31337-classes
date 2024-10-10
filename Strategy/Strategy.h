@@ -21,25 +21,25 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef STRATEGY_MQH
-#define STRATEGY_MQH
+#ifndef STRATEGY_H
+#define STRATEGY_H
 
 // Forward declaration.
 class Trade;
 
 // Includes.
-#include "Indicator/Indicator.h"
-#include "Market.mqh"
-#include "Math/Math.h"
-#include "Storage/Data.struct.h"
-#include "Storage/Dict/Dict.h"
-#include "Storage/Object.h"
-#include "Storage/String.h"
+#include "../Indicator/Indicator.h"
+#include "../Market.mqh"
+#include "../Math/Math.h"
+#include "../Storage/Data.struct.h"
+#include "../Storage/Dict/Dict.h"
+#include "../Storage/Object.h"
+#include "../Storage/String.h"
 #include "Strategy.enum.h"
 #include "Strategy.struct.h"
-#include "Task/TaskManager.h"
-#include "Task/Taskable.h"
-#include "Trade.mqh"
+#include "../Task/TaskManager.h"
+#include "../Task/Taskable.h"
+#include "../Trade.mqh"
 
 // Defines.
 // Primary inputs.
@@ -1285,4 +1285,4 @@ class Strategy : public Taskable<DataParamEntry> {
     return SerializerNodeObject;
   }
 };
-#endif  // STRATEGY_MQH
+#endif  // STRATEGY_H

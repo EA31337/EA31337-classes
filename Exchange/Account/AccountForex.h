@@ -35,7 +35,6 @@
  */
 class AccountForex : public Account<AccountForexState, AccountForexEntry> {
  protected:
-  // AP AccountParams;
   /**
    * Init code (called on constructor).
    */
@@ -50,7 +49,64 @@ class AccountForex : public Account<AccountForexState, AccountForexEntry> {
   AccountForex() { Init(); }
 
   /**
+   * Class constructor with account params.
+   */
+  AccountForex(AccountParams &_aparams) : Account<AccountForexState, AccountForexEntry>(_aparams) { Init(); }
+
+  /**
    * Class deconstructor.
    */
   ~AccountForex() {}
+
+
+  /* Implementation of virtual methods */
+
+  /**
+   * Returns balance value of the current account.
+   */
+  float GetBalance() const {
+    return 0.0f;
+  }
+
+  /**
+   * Returns credit value of the current account.
+   */
+  float GetCredit() const {
+    return 0.0f;
+  }
+
+  /**
+   * Returns profit value of the current account.
+   */
+  float GetProfit() const {
+    return 0.0f;
+  }
+
+  /**
+   * Returns equity value of the current account.
+   */
+  float GetEquity() const {
+    return 0.0f;
+  }
+
+  /**
+   * Returns margin value of the current account.
+   */
+  float GetMarginUsed() const {
+    return 0.0f;
+  }
+
+  /**
+   * Returns free margin value of the current account.
+   */
+  float GetMarginFree() const {
+    return 0.0f;
+  }
+
+  /**
+   * Get account available margin.
+   */
+  float GetMarginAvail() const {
+    return 0.0f;
+  }
 };

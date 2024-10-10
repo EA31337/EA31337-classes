@@ -27,4 +27,4 @@
 #define __debug__
 
 // Includes.
-#include "StrategyTest-RSI.mq5"
+#include "Strategy-RSI.test.mq5"

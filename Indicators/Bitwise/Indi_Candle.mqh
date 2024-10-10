@@ -26,9 +26,9 @@
 #endif
 
 // Includes.
-#include "../../Bar.struct.h"
+#include "../../Platform/Chart/Bar.struct.h"
 #include "../../Indicator/Indicator.h"
-#include "../../Pattern.struct.h"
+#include "../../Platform/Chart/Pattern.struct.h"
 #include "../../Serializer/Serializer.h"
 #include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../Price/Indi_Price.h"

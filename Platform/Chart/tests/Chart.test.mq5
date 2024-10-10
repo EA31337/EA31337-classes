@@ -25,6 +25,8 @@
  */
 
 // Includes.
+#include "../Bar.struct.h"
+#include "../Candle.struct.h"
 #include "../Chart.h"
 #include "../../../Convert.mqh"
 #include "../../../Test.mqh"

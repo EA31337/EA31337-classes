@@ -34,9 +34,9 @@
 class Serializer;
 
 // Includes.
-#include "../../Serializer/Serializer.h"
-#include "../../Serializer/Serializer.enum.h"
 #include "../../Platform/Terminal.define.h"
+#include "../../Serializer/Serializer.enum.h"
+#include "../../Serializer/Serializer.h"
 
 // Struct for account entries.
 struct AccountForexEntry : public AccountBaseEntry {
@@ -99,4 +99,14 @@ struct AccountForexState : public AccountBaseState {
   double margin_used;
   double margin_free;
   double margin_avail;
+  // Serializers.
+  SerializerNodeType Serialize(Serializer& s) {
+    s.Pass(THIS_REF, "credit", credit);
+    s.Pass(THIS_REF, "equity", equity);
+    s.Pass(THIS_REF, "profit", profit);
+    s.Pass(THIS_REF, "margin_used", margin_used);
+    s.Pass(THIS_REF, "margin_free", margin_free);
+    s.Pass(THIS_REF, "margin_avail", margin_avail);
+    return SerializerNodeObject;
+  }
 };

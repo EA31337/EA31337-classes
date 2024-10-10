@@ -26,20 +26,23 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
-#include "../../Refs.mqh"
-#include "../../Util.h"
-#include "Frontend.h"
-#include "IndexBuffer.h"
-#include "Material.h"
-#include "Math.h"
-#include "Mesh.h"
-#include "Shader.h"
-#include "ShaderVertexLayout.struct.h"
-#include "VertexBuffer.h"
+// We currently only support MQL.
+#ifdef __MQL__
+
+  #include "../../Refs.mqh"
+  #include "../../Util.h"
+  #include "Frontend.h"
+  #include "IndexBuffer.h"
+  #include "Material.h"
+  #include "Math.h"
+  #include "Mesh.h"
+  #include "Shader.h"
+  #include "ShaderVertexLayout.struct.h"
+  #include "VertexBuffer.h"
 
 enum GFX_DRAW_TEXT_FLAGS { GFX_DRAW_TEXT_FLAG_NONE, GFX_DRAW_TEXT_FLAG_2D_COORD_X, GFX_DRAW_TEXT_FLAG_2D_COORD_Y };
 
@@ -165,10 +168,10 @@ class Device : public Dynamic {
     VertexBuffer* _buff = CreateVertexBuffer();
     // Unfortunately we can't make this method virtual.
     if (dynamic_cast<MTDXVertexBuffer*>(_buff) != NULL) {
-// MT5's DirectX.
-#ifdef __debug__
+  // MT5's DirectX.
+  #ifdef __debug__
       Print("Filling vertex buffer via MTDXVertexBuffer");
-#endif
+  #endif
       ((MTDXVertexBuffer*)_buff).Fill<T>(data);
     } else {
       Alert("Unsupported vertex buffer device target");
@@ -196,9 +199,9 @@ class Device : public Dynamic {
    */
   template <typename T>
   void Render(Mesh<T>* _mesh, Shader* _vs = NULL, Shader* _ps = NULL) {
-#ifdef __debug__
+  #ifdef __debug__
     Print("Rendering mesh");
-#endif
+  #endif
     VertexBuffer* _vertices;
     IndexBuffer* _indices;
     _mesh.GetBuffers(&this, _vertices, _indices);
@@ -321,3 +324,5 @@ class Device : public Dynamic {
    */
   virtual void ClearBuffer(ENUM_CLEAR_BUFFER_TYPE _type, unsigned int _color) = NULL;
 };
+
+#endif

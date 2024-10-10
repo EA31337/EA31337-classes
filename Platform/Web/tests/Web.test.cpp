@@ -50,7 +50,7 @@ extern int WebRequest(const string method,      // HTTP method
 );
 
 // Includes.
-#include "../../Platform/Platform.h"
+#include "../../Platform.h"
 #include "../Web.h"
 
 int main(int argc, char **argv) {

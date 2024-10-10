@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -115,7 +115,7 @@ class SerializerCsv {
       }
     }
 
-#ifdef __debug_verbose__
+#ifdef __debug_serializer__
     Print("Stub: ", _stub PTR_DEREF Node() PTR_DEREF ToString());
     Print("Data: ", _root PTR_DEREF ToString());
     Print("Size: ", _num_columns, " x ", _num_rows);
@@ -180,7 +180,16 @@ class SerializerCsv {
       if (_child PTR_DEREF IsContainer()) {
         ExtractColumns(_child, _titles, _column_types, _flags, _column);
       } else if (_child PTR_DEREF HasKey()) {
-        _titles PTR_DEREF Set(_column++, 0, _child PTR_DEREF Key());
+        if (_column_types != NULL) {
+          // Filling columns types here as if there's no data then column types will be unknown.
+          if (_child PTR_DEREF GetValueParam() == NULL) {
+            Alert("Error: Expected value here! Stub is probably initialized without proper structure.");
+            DebugBreak();
+          }
+          _column_types PTR_DEREF Set(_column, 0, _child PTR_DEREF GetValueParam() PTR_DEREF GetType());
+        }
+        _titles PTR_DEREF Set(_column, 0, _child PTR_DEREF Key());
+        _column++;
       }
     }
   }

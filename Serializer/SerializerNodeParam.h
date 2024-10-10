@@ -198,7 +198,7 @@ class SerializerNodeParam {
                                                     _fp_precision);
     }
 
-#ifdef __debug__
+#ifdef __debug_serializer__
     PrintFormat("%s: Error: SerializerNodeParam.AsString() called for an unknown value type: %d!", __FUNCTION__, _type);
 #endif
     return "<invalid param type " + IntegerToString(_type) + ">";
@@ -345,7 +345,7 @@ SerializerNodeParam* SerializerNodeParam::FromLong(int64 value) {
 /**
  * Returns new SerializerNodeParam object from given source value.
  */
-SerializerNodeParam* SerializerNodeParam::FromLong(uint64 value) { return FromLong((uint64)value); }
+SerializerNodeParam* SerializerNodeParam::FromLong(uint64 value) { return FromLong((int64)value); }
 
 /**
  * Returns new SerializerNodeParam object from given source value.
