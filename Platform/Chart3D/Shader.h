@@ -26,11 +26,14 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
-#include "../../Refs.mqh"
+// We currently only support MQL.
+#ifdef __MQL__
+
+  #include "../../Refs.mqh"
 
 // Shader type.
 enum ENUM_SHADER_TYPE {
@@ -85,10 +88,10 @@ class Shader : public Dynamic {
   void SetCBuffer(const X& data) {
     // Unfortunately we can't make this method virtual.
     if (dynamic_cast<MTDXShader*>(&this) != NULL) {
-// MT5's DirectX.
-#ifdef __debug__
+  // MT5's DirectX.
+  #ifdef __debug__
       Print("Setting CBuffer data for MT5");
-#endif
+  #endif
       ((MTDXShader*)&this).SetCBuffer(data);
     } else {
       Alert("Unsupported cbuffer device target");
@@ -100,3 +103,5 @@ class Shader : public Dynamic {
    */
   virtual void Select() = NULL;
 };
+
+#endif

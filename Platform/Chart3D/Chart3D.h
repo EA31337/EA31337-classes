@@ -30,24 +30,27 @@
   #pragma once
 #endif
 
-#include "../Chart/Bar.struct.h"
-#include "../../Indicator/IndicatorData.h"
-#include "../../Indicators/Price/Indi_MA.h"
-#include "../../Storage/Instances.h"
-#include "../../Refs.mqh"
-#include "../../Serializer/SerializerConverter.h"
-#include "../../Serializer/SerializerJson.h"
-#include "Chart3DCandles.h"
-#include "Chart3DType.h"
-#include "Cube.h"
-#include "Device.h"
-#include "Interface.h"
+// We currently only support MQL.
+#ifdef __MQL__
 
-#ifdef __MQL5__
-  // Resource variables.
-  #resource "Shaders/chart3d_vs.hlsl" as string Chart3DShaderSourceVS;
-  #resource "Shaders/chart3d_ps.hlsl" as string Chart3DShaderSourcePS;
-#endif
+  #include "../../Indicator/IndicatorData.h"
+  #include "../../Indicators/Price/Indi_MA.h"
+  #include "../../Refs.mqh"
+  #include "../../Serializer/SerializerConverter.h"
+  #include "../../Serializer/SerializerJson.h"
+  #include "../../Storage/Instances.h"
+  #include "../Chart/Bar.struct.h"
+  #include "Chart3DCandles.h"
+  #include "Chart3DType.h"
+  #include "Cube.h"
+  #include "Device.h"
+  #include "Interface.h"
+
+  #ifdef __MQL5__
+    // Resource variables.
+    #resource "Shaders/chart3d_vs.hlsl" as string Chart3DShaderSourceVS;
+    #resource "Shaders/chart3d_ps.hlsl" as string Chart3DShaderSourcePS;
+  #endif
 
 typedef BarOHLC (*Chart3DPriceFetcher)(ENUM_TIMEFRAMES, int);
 
@@ -100,9 +103,9 @@ class Chart3D : public Dynamic {
     offset.z = 25.0f;
     initialized = false;
     source = _source;
-#ifdef __MQL5__
+  #ifdef __MQL5__
     Interface::AddListener(chart3d_interface_listener, &this);
-#endif
+  #endif
   }
 
   void OnInterfaceEvent(InterfaceEvent& _event) {
@@ -222,10 +225,12 @@ class Chart3D : public Dynamic {
     BarOHLC _ohlc;
     // BarOHLC _ohlc = price_fetcher(PERIOD_CURRENT, 0);  // @fixme: 'price_fetcher' - internal error #%d
 
-#ifdef __debug__
+  #ifdef __debug__
     Print(SerializerConverter::FromObject(_ohlc).ToString<SerializerJson>());
-#endif
+  #endif
 
     _type_renderer.Render(_device);
   }
 };
+
+#endif
