@@ -1,6 +1,6 @@
 CFLAGS := -Wall -Wextra -std=c++17 -w # Compiler flags
 EMCC_CFLAGS := $(CFLAGS) --bind -s ASSERTIONS=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s EXIT_RUNTIME=0 -s EXPORTED_FUNCTIONS="[]" -s WASM=1 -s MODULARIZE=1 -s NO_EXIT_RUNTIME=1
-MAKEFILES := $(wildcard **/tests/Makefile) # $(wildcard **/**/tests/Makefile)
+MAKEFILES := $(wildcard **/tests/Makefile) $(wildcard **/**/tests/Makefile)
 
 # Check if the system is Linux
 UNAME_S := $(shell uname -s)
