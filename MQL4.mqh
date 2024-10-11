@@ -155,29 +155,30 @@ class MT4HISTORY {
 
     const datetime LastTimeCurrent = ::TimeCurrent();
 
-    if ((!MT4HISTORY::IsTester) && (LastTimeCurrent >= this.LastInitTime + DAY)) {
-      this.LastTime = 0;
+    if ((!MT4HISTORY::IsTester) && (LastTimeCurrent >= this PTR_DEREF LastInitTime + DAY)) {
+      this PTR_DEREF LastTime = 0;
 
-      this.LastTotalOrders = 0;
-      this.LastTotalDeals = 0;
+      this PTR_DEREF LastTotalOrders = 0;
+      this PTR_DEREF LastTotalDeals = 0;
 
-      this.Amount = 0;
+      this PTR_DEREF Amount = 0;
 
-      ::ArrayResize(this.Tickets, this.Amount, RESERVE_SIZE);
+      ::ArrayResize(this PTR_DEREF Tickets, this PTR_DEREF Amount, RESERVE_SIZE);
 
-      this.LastInitTime = LastTimeCurrent;
+      this PTR_DEREF LastInitTime = LastTimeCurrent;
     }
 
-    if (::HistorySelect(this.LastTime, ::MathMax(LastTimeCurrent, this.LastTime) + DAY))  // Daily stock.
+    if (::HistorySelect(this PTR_DEREF LastTime,
+                        ::MathMax(LastTimeCurrent, this PTR_DEREF LastTime) + DAY))  // Daily stock.
     {
       const int TotalOrders = ::HistoryOrdersTotal();
       const int TotalDeals = ::HistoryDealsTotal();
 
-      Res = ((TotalOrders != this.LastTotalOrders) || (TotalDeals != this.LastTotalDeals));
+      Res = ((TotalOrders != this PTR_DEREF LastTotalOrders) || (TotalDeals != this PTR_DEREF LastTotalDeals));
 
       if (Res) {
-        int iOrder = MT4HISTORY::GetNextPosMT4Order(this.LastTotalOrders);
-        int iDeal = MT4HISTORY::GetNextPosMT4Deal(this.LastTotalDeals);
+        int iOrder = MT4HISTORY::GetNextPosMT4Order(this PTR_DEREF LastTotalOrders);
+        int iDeal = MT4HISTORY::GetNextPosMT4Deal(this PTR_DEREF LastTotalDeals);
 
         long TimeOrder = (iOrder < TotalOrders)
                              ? ::HistoryOrderGetInteger(::HistoryOrderGetTicket(iOrder), ORDER_TIME_DONE /*_MSC*/)
@@ -188,9 +189,9 @@ class MT4HISTORY {
 
         while ((iDeal < TotalDeals) || (iOrder < TotalOrders))
           if (TimeOrder < TimeDeal) {
-            this.Amount = ::ArrayResize(this.Tickets, this.Amount + 1, RESERVE_SIZE);
+            this PTR_DEREF Amount = ::ArrayResize(this PTR_DEREF Tickets, this PTR_DEREF Amount + 1, RESERVE_SIZE);
 
-            this.Tickets[this.Amount - 1] = -(long)::HistoryOrderGetTicket(iOrder);
+            this PTR_DEREF Tickets[this PTR_DEREF Amount - 1] = -(long)::HistoryOrderGetTicket(iOrder);
 
             iOrder = MT4HISTORY::GetNextPosMT4Order(iOrder + 1);
 
@@ -198,9 +199,9 @@ class MT4HISTORY {
                             ? ::HistoryOrderGetInteger(::HistoryOrderGetTicket(iOrder), ORDER_TIME_DONE /*_MSC*/)
                             : LONG_MAX;  // ORDER_TIME_DONE_MSC returns zero in the tester (build 1470).
           } else {
-            this.Amount = ::ArrayResize(this.Tickets, this.Amount + 1, RESERVE_SIZE);
+            this PTR_DEREF Amount = ::ArrayResize(this PTR_DEREF Tickets, this PTR_DEREF Amount + 1, RESERVE_SIZE);
 
-            this.Tickets[this.Amount - 1] = (long)::HistoryDealGetTicket(iDeal);
+            this PTR_DEREF Tickets[this PTR_DEREF Amount - 1] = (long)::HistoryDealGetTicket(iDeal);
 
             iDeal = MT4HISTORY::GetNextPosMT4Deal(iDeal + 1);
 
@@ -216,19 +217,19 @@ class MT4HISTORY {
 
         const long MaxTime = ::MathMax(TimeOrder, TimeDeal);
 
-        this.LastTotalOrders = 0;
-        this.LastTotalDeals = 0;
+        this PTR_DEREF LastTotalOrders = 0;
+        this PTR_DEREF LastTotalDeals = 0;
 
         if (LastTimeCurrent - HISTORY_PAUSE > MaxTime)
-          this.LastTime = LastTimeCurrent - HISTORY_PAUSE;
+          this PTR_DEREF LastTime = LastTimeCurrent - HISTORY_PAUSE;
         else {
-          this.LastTime = (datetime)MaxTime;
+          this PTR_DEREF LastTime = (datetime)MaxTime;
 
           if (TimeOrder == MaxTime)
             for (int i = TotalOrders - 1; i >= 0; i--) {
               if (TimeOrder > ::HistoryOrderGetInteger(::HistoryOrderGetTicket(i), ORDER_TIME_DONE /*_MSC*/)) break;
 
-              this.LastTotalOrders++;
+              this PTR_DEREF LastTotalOrders++;
             }
 
           if (TimeDeal == MaxTime)
@@ -236,14 +237,14 @@ class MT4HISTORY {
               if (TimeDeal != ::HistoryDealGetInteger(::HistoryDealGetTicket(TotalDeals - 1), DEAL_TIME /*_MSC*/))
                 break;
 
-              this.LastTotalDeals++;
+              this PTR_DEREF LastTotalDeals++;
             }
         }
-      } else if (LastTimeCurrent - HISTORY_PAUSE > this.LastTime) {
-        this.LastTime = LastTimeCurrent - HISTORY_PAUSE;
+      } else if (LastTimeCurrent - HISTORY_PAUSE > this PTR_DEREF LastTime) {
+        this PTR_DEREF LastTime = LastTimeCurrent - HISTORY_PAUSE;
 
-        this.LastTotalOrders = 0;
-        this.LastTotalDeals = 0;
+        this PTR_DEREF LastTotalOrders = 0;
+        this PTR_DEREF LastTotalDeals = 0;
       }
     }
 
@@ -264,26 +265,26 @@ class MT4HISTORY {
   }
 
   MT4HISTORY(void) : Amount(0), LastTime(0), LastTotalDeals(0), LastTotalOrders(0), LastInitTime(0) {
-    ::ArrayResize(this.Tickets, this.Amount, RESERVE_SIZE);
+    ::ArrayResize(this PTR_DEREF Tickets, this PTR_DEREF Amount, RESERVE_SIZE);
 
-    this.RefreshHistory();
+    this PTR_DEREF RefreshHistory();
   }
 
   int GetAmount(void) {
-    this.RefreshHistory();
+    this PTR_DEREF RefreshHistory();
 
-    return ((int)this.Amount);
+    return ((int)this PTR_DEREF Amount);
   }
 
   long operator[](const uint Pos) {
     long Res = 0;
 
-    if (Pos >= this.Amount) {
-      this.RefreshHistory();
+    if (Pos >= this PTR_DEREF Amount) {
+      this PTR_DEREF RefreshHistory();
 
-      if (Pos < this.Amount) Res = this.Tickets[Pos];
+      if (Pos < this PTR_DEREF Amount) Res = this PTR_DEREF Tickets[Pos];
     } else
-      Res = this.Tickets[Pos];
+      Res = this PTR_DEREF Tickets[Pos];
 
     return (Res);
   }
@@ -325,16 +326,19 @@ struct MT4_ORDER {
 
   string ToString(void) const {
     static const string Types[] = {"buy", "sell", "buy limit", "sell limit", "buy stop", "sell stop", "balance"};
-    const int digits = (int)::SymbolInfoInteger(this.Symbol, SYMBOL_DIGITS);
+    const int digits = (int)::SymbolInfoInteger(this PTR_DEREF Symbol, SYMBOL_DIGITS);
 
-    return ("#" + (string)this.Ticket + " " + (string)this.OpenTime + " " +
-            ((this.Type < ::ArraySize(Types)) ? Types[this.Type] : "unknown") + " " + ::DoubleToString(this.Lots, 2) +
-            " " + this.Symbol + " " + ::DoubleToString(this.OpenPrice, digits) + " " +
-            ::DoubleToString(this.StopLoss, digits) + " " + ::DoubleToString(this.TakeProfit, digits) + " " +
-            ((this.CloseTime > 0) ? ((string)this.CloseTime + " ") : "") + ::DoubleToString(this.ClosePrice, digits) +
-            " " + ::DoubleToString(this.Commission, 2) + " " + ::DoubleToString(this.Swap, 2) + " " +
-            ::DoubleToString(this.Profit, 2) + " " + ((this.Comment == "") ? "" : (this.Comment + " ")) +
-            (string)this.MagicNumber + (((this.Expiration > 0) ? (" expiration " + (string)this.Expiration) : "")));
+    return (
+        "#" + (string)this PTR_DEREF Ticket + " " + (string)this PTR_DEREF OpenTime + " " +
+        ((this PTR_DEREF Type < ::ArraySize(Types)) ? Types[this PTR_DEREF Type] : "unknown") + " " +
+        ::DoubleToString(this PTR_DEREF Lots, 2) + " " + this PTR_DEREF Symbol + " " +
+        ::DoubleToString(this PTR_DEREF OpenPrice, digits) + " " + ::DoubleToString(this PTR_DEREF StopLoss, digits) +
+        " " + ::DoubleToString(this PTR_DEREF TakeProfit, digits) + " " +
+        ((this PTR_DEREF CloseTime > 0) ? ((string)this PTR_DEREF CloseTime + " ") : "") +
+        ::DoubleToString(this PTR_DEREF ClosePrice, digits) + " " + ::DoubleToString(this PTR_DEREF Commission, 2) +
+        " " + ::DoubleToString(this PTR_DEREF Swap, 2) + " " + ::DoubleToString(this PTR_DEREF Profit, 2) + " " +
+        ((this PTR_DEREF Comment == "") ? "" : (this PTR_DEREF Comment + " ")) + (string)this PTR_DEREF MagicNumber +
+        (((this PTR_DEREF Expiration > 0) ? (" expiration " + (string)this PTR_DEREF Expiration) : "")));
   }
 };
 

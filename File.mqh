@@ -30,7 +30,10 @@
  */
 
 // Includes.
+#include "File.define.h"
+#include "File.extern.h"
 #include "Terminal.define.h"
+#include "Terminal.extern.h"
 #include "Terminal.enum.h"
 
 #ifndef __MQL__

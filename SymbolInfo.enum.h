@@ -31,6 +31,13 @@
 #endif
 
 #ifndef __MQL5__
+// Fill Policy.
+enum ENUM_SYMBOL_FILLING {
+  // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+  SYMBOL_FILLING_FOK = 1,  // A deal can be executed only with the specified volume.
+  SYMBOL_FILLING_IOC = 2   // Trader agrees to execute a deal with the volume maximally available in the market.
+};
+
 // Methods of swap calculation at position transfer.
 // @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_swap_mode
 enum ENUM_SYMBOL_SWAP_MODE {

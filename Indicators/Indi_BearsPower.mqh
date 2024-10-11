@@ -37,9 +37,8 @@ struct IndiBearsPowerParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
   IndiBearsPowerParams(unsigned int _period = 13, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0)
-      : period(_period), applied_price(_ap), IndicatorParams(INDI_BEARS, 1, TYPE_DOUBLE) {
+      : period(_period), applied_price(_ap), IndicatorParams(INDI_BEARS) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Bears");
   };
   IndiBearsPowerParams(IndiBearsPowerParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -56,8 +55,11 @@ class Indi_BearsPower : public IndicatorTickOrCandleSource<IndiBearsPowerParams>
   /**
    * Class constructor.
    */
-  Indi_BearsPower(IndiBearsPowerParams &_p, IndicatorBase *_indi_src = NULL)
-      : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_BearsPower(IndiBearsPowerParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                  IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {}
   Indi_BearsPower(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_BEARS, _tf, _shift) {}
 
@@ -70,7 +72,7 @@ class Indi_BearsPower : public IndicatorTickOrCandleSource<IndiBearsPowerParams>
    */
   static double iBearsPower(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                             ENUM_APPLIED_PRICE _applied_price,  // (MT5): not used
-                            int _shift = 0, IndicatorBase *_obj = NULL) {
+                            int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBearsPower(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -108,7 +110,7 @@ class Indi_BearsPower : public IndicatorTickOrCandleSource<IndiBearsPowerParams>
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = _value = iBearsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _ishift, THIS_PTR);
         break;

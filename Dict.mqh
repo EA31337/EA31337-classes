@@ -28,6 +28,7 @@
 #include "DictBase.mqh"
 #include "Matrix.mqh"
 #include "Serializer.mqh"
+#include "SerializerNodeIterator.mqh"
 
 template <typename K, typename V>
 class DictIterator : public DictIteratorBase<K, V> {

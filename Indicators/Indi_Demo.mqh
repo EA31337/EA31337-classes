@@ -33,15 +33,10 @@
 // Structs.
 struct IndiDemoParams : IndicatorParams {
   // Struct constructors.
-  IndiDemoParams(int _shift = 0) : IndicatorParams(INDI_DEMO, 1, TYPE_DOUBLE) {
-    SetDataValueRange(IDATA_RANGE_MIXED);
+  IndiDemoParams(int _shift = 0) : IndicatorParams(INDI_DEMO) {
     SetShift(_shift);
-    switch (idstype) {
-      case IDATA_ICUSTOM:
-        if (custom_indi_name == "") {
-          SetCustomIndicatorName("Examples\\Demo");
-        }
-        break;
+    if (custom_indi_name == "") {
+      SetCustomIndicatorName("Examples\\Demo");
     }
   };
   IndiDemoParams(IndiDemoParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -58,7 +53,11 @@ class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
   /**
    * Class constructor.
    */
-  Indi_Demo(IndiDemoParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Demo(IndiDemoParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
   Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_DEMO, _tf, _shift){};
 
@@ -66,7 +65,7 @@ class Indi_Demo : public IndicatorTickOrCandleSource<IndiDemoParams> {
    * Returns the indicator value.
    */
   static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                      IndicatorBase *_obj = NULL) {
+                      IndicatorData *_obj = NULL) {
     return 0.1 + (0.1 * _obj.GetBarIndex());
   }
 

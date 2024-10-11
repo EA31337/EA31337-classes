@@ -36,7 +36,7 @@ struct IndiDrawerParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
   IndiDrawerParams(unsigned int _period = 10, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE)
-      : period(_period), applied_price(_ap), IndicatorParams(INDI_DRAWER, 0, TYPE_DOUBLE) {
+      : period(_period), applied_price(_ap), IndicatorParams(INDI_DRAWER) {
     // Fetching history data is not yet implemented.
     SetCustomIndicatorName("Examples\\Drawer");
   };

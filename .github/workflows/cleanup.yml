@@ -1,0 +1,23 @@
+---
+name: Clean-up
+
+# yamllint disable-line rule:truthy
+on:
+  workflow_call:
+    inputs:
+      artifact_prefix:
+        default: mt
+        description: Artifact prefix to clean up.
+        required: false
+        type: string
+
+jobs:
+
+  cleanup:
+    name: Clean-up
+    runs-on: ubuntu-latest
+    steps:
+      - uses: geekyeggo/delete-artifact@v5
+        with:
+          name: ${{ inputs.artifact_prefix }}*
+    timeout-minutes: 5

@@ -41,9 +41,12 @@ class IndicatorTickOrCandleSource : public Indicator<TS> {
   /**
    * Class constructor.
    */
-  IndicatorTickOrCandleSource(const TS& _iparams, IndicatorBase* _indi_src = NULL, int _indi_mode = 0)
-      : Indicator(_iparams, _indi_src, _indi_mode) {}
-  IndicatorTickOrCandleSource(const TS& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(_iparams, _tf) {}
+  IndicatorTickOrCandleSource(const TS& _iparams, const IndicatorDataParams& _idparams, IndicatorBase* _indi_src = NULL,
+                              int _indi_mode = 0)
+      : Indicator(_iparams, _idparams, _indi_src, _indi_mode) {}
+  IndicatorTickOrCandleSource(const TS& _iparams, const IndicatorDataParams& _idparams,
+                              ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : Indicator(_iparams, _idparams, _tf) {}
   IndicatorTickOrCandleSource(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                               string _name = "")
       : Indicator(_itype, _tf, _shift, _name) {}
@@ -57,7 +60,7 @@ class IndicatorTickOrCandleSource : public Indicator<TS> {
    * Called when user tries to set given data source. Could be used to check if indicator implements all required value
    * storages.
    */
-  bool OnValidateDataSource(IndicatorBase* _ds, string& _reason) override {
+  bool OnValidateDataSource(IndicatorData* _ds, string& _reason) override {
     // @todo Make use of this method.
     return true;
   }
@@ -72,9 +75,9 @@ class IndicatorTickOrCandleSource : public Indicator<TS> {
   /**
    * Creates default, tick based indicator for given applied price.
    */
-  IndicatorBase* DataSourceRequestReturnDefault(int _applied_price) override {
+  IndicatorData* DataSourceRequestReturnDefault(int _applied_price) override {
     // Returning real candle indicator. Thus way we can use SetAppliedPrice() and select Ask or Bid price.
-    IndicatorBase* _indi;
+    IndicatorData* _indi;
 
     switch (_applied_price) {
       case PRICE_ASK:

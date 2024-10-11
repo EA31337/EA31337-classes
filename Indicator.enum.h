@@ -132,28 +132,6 @@ enum ENUM_INDICATOR_TYPE {
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
-/* Defines type of source data for */
-enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILTIN = 0,     // Platform built-in
-  IDATA_CHART,           // Chart calculation
-  IDATA_ICUSTOM,         // iCustom: Custom indicator file
-  IDATA_ICUSTOM_LEGACY,  // iCustom: Custom, legacy, provided by MT indicator file
-  IDATA_INDICATOR,       // OnIndicator: Another indicator as a source of data
-  IDATA_ONCALCULATE,     // OnCalculate: Custom calculation function
-  IDATA_MATH             // Math-based indicator
-};
-
-/* Defines range value data type for indicator storage. */
-enum ENUM_IDATA_VALUE_RANGE {
-  IDATA_RANGE_ARROW,    // Value is non-zero on signal.
-  IDATA_RANGE_BINARY,   // E.g. 0 or 1.
-  IDATA_RANGE_BITWISE,  // Bitwise
-  IDATA_RANGE_MIXED,
-  IDATA_RANGE_PRICE,  // Values represent price.
-  IDATA_RANGE_RANGE,  // E.g. 0 to 100.
-  IDATA_RANGE_UNKNOWN
-};
-
 // Indicator line identifiers used in ADX and ADXW
 enum ENUM_INDI_ADX_LINE {
 #ifdef __MQL4__

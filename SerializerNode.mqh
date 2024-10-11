@@ -25,8 +25,10 @@
 #define JSON_NODE_MQH
 
 // Includes.
+#include "Math.extern.h"
 #include "SerializerNode.enum.h"
 #include "SerializerNodeParam.mqh"
+#include "Terminal.define.h"
 
 class SerializerNode {
  protected:
@@ -137,7 +139,8 @@ class SerializerNode {
           _result += StringLen(PTR_ATTRIB(_value, _string)) + 1;
           break;
         default:
-          Print("Error: Wrong value type ", EnumToString(GetType()), "!");
+          Print("Error: Wrong value type!");
+          SetUserError(ERR_INVALID_PARAMETER);
           DebugBreak();
       }
     }
@@ -260,7 +263,7 @@ class SerializerNode {
    * Adds child to this node.
    */
   void AddChild(SerializerNode* child) {
-    if (_numChildren == ArraySize(_children)) ArrayResize(_children, _numChildren + 10);
+    if (_numChildren == (unsigned int)ArraySize(_children)) ArrayResize(_children, _numChildren + 10);
 
     PTR_ATTRIB(child, _index) = (int)_numChildren;
     _children[_numChildren++] = child;
@@ -329,6 +332,11 @@ class SerializerNode {
       case SerializerNodeArray:
         repr += string("[") + (trimWhitespaces ? "" : "\n");
         break;
+      case SerializerNodeUnknown:
+      case SerializerNodeValue:
+      case SerializerNodeObjectProperty:
+      case SerializerNodeArrayItem:
+      default:;
     }
 
     if (HasChildren()) {
@@ -344,6 +352,11 @@ class SerializerNode {
       case SerializerNodeArray:
         repr += ident + "]";
         break;
+      case SerializerNodeUnknown:
+      case SerializerNodeValue:
+      case SerializerNodeObjectProperty:
+      case SerializerNodeArrayItem:
+      default:;
     }
 
     if (!IsLast()) repr += ",";

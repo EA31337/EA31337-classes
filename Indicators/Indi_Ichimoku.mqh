@@ -69,12 +69,8 @@ struct IndiIchimokuParams : IndicatorParams {
   unsigned int senkou_span_b;
   // Struct constructors.
   IndiIchimokuParams(unsigned int _ts = 9, unsigned int _ks = 26, unsigned int _ss_b = 52, int _shift = 0)
-      : tenkan_sen(_ts),
-        kijun_sen(_ks),
-        senkou_span_b(_ss_b),
-        IndicatorParams(INDI_ICHIMOKU, FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE) {
+      : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b), IndicatorParams(INDI_ICHIMOKU) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Not sure if not mixed.
     SetCustomIndicatorName("Examples\\Ichimoku");
   };
   IndiIchimokuParams(IndiIchimokuParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -87,13 +83,30 @@ struct IndiIchimokuParams : IndicatorParams {
  * Implements the Ichimoku Kinko Hyo indicator.
  */
 class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_ICHIMOKU_LINE_ENTRY); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IndiIchimokuParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Ichimoku(IndiIchimokuParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,
+                IndicatorData *_indi_src = NULL, int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_ICHIMOKU_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_PRICE, _indi_src_mode),
+                                    _indi_src) {
+    Init();
+  }
   Indi_Ichimoku(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_ICHIMOKU, _tf, _shift) {}
+      : IndicatorTickOrCandleSource(INDI_ICHIMOKU, _tf, _shift) {
+    Init();
+  }
 
   /**
    * Returns the indicator value.
@@ -107,7 +120,7 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
    * - https://www.mql5.com/en/docs/indicators/iichimoku
    */
   static double iIchimoku(string _symbol, ENUM_TIMEFRAMES _tf, int _tenkan_sen, int _kijun_sen, int _senkou_span_b,
-                          int _mode, int _shift = 0, IndicatorBase *_obj = NULL) {
+                          int _mode, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
 #else  // __MQL5__
@@ -145,7 +158,7 @@ class Indi_Ichimoku : public IndicatorTickOrCandleSource<IndiIchimokuParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Ichimoku::iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode,
                                           _ishift, THIS_PTR);

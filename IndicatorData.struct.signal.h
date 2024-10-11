@@ -33,10 +33,12 @@
 // Forward declaration.
 struct ChartParams;
 struct IndicatorDataEntry;
+struct IndicatorDataParams;
 struct IndicatorParams;
 
 // Includes.
-#include "Indicator.struct.h"
+//#include "IndicatorData.enum.h"
+//#include "Indicator.struct.h"
 
 /* Structure for indicator signals. */
 struct IndicatorSignal {
@@ -56,14 +58,14 @@ struct IndicatorSignal {
 
   // Constructors.
   IndicatorSignal(int _signals = 0) : signals(_signals) {}
-  IndicatorSignal(ARRAY_REF(IndicatorDataEntry, _data), IndicatorParams &_ip, ChartParams &_cp, int _m1 = 0,
+  IndicatorSignal(ARRAY_REF(IndicatorDataEntry, _data), IndicatorDataParams &_idp, ChartParams &_cp, int _m1 = 0,
                   int _m2 = 0)
       : signals(0) {
-    CalcSignals(_data, _ip, _cp, _m1, _m2);
+    CalcSignals(_data, _idp, _cp, _m1, _m2);
   }
   // Main methods.
   // Calculate signal values.
-  void CalcSignals(ARRAY_REF(IndicatorDataEntry, _data), IndicatorParams &_ip, ChartParams &_cp, int _m1 = 0,
+  void CalcSignals(ARRAY_REF(IndicatorDataEntry, _data), IndicatorDataParams &_idp, ChartParams &_cp, int _m1 = 0,
                    int _m2 = 0) {
     int _size = ArraySize(_data);
     // INDICATOR_SIGNAL_CROSSOVER
@@ -88,7 +90,7 @@ struct IndicatorSignal {
                   ((_price_w0 - _price_w1) < 0 && (_data[0][_m1] - _data[_size - 1][_m1]) > 0));
     // INDICATOR_SIGNAL_GT_PRICE
     bool _v_gt_p = false;
-    if (_ip.GetIDataValueRange() == IDATA_RANGE_PRICE) {
+    if (_idp.Get<ENUM_IDATA_VALUE_RANGE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDVRANGE)) == IDATA_RANGE_PRICE) {
       _v_gt_p = _data[0][_m1] > _price_w0 || _data[0][_m2] > _price_w0;
     } else {
       // @todo

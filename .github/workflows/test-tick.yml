@@ -42,3 +42,8 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: ${{ matrix.test }}
+
+  cleanup:
+    name: Clean-up
+    needs: [compile]
+    uses: ./.github/workflows/cleanup.yml

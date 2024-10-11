@@ -43,6 +43,7 @@ class Terminal;
 #include "Refs.mqh"
 #include "String.mqh"
 #include "Terminal.define.h"
+#include "Terminal.extern.h"
 #include "Terminal.enum.h"
 #include "Terminal.struct.h"
 

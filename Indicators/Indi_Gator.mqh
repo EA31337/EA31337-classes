@@ -89,9 +89,8 @@ struct IndiGatorParams : IndicatorParams {
         lips_shift(_ls),
         ma_method(_mm),
         applied_price(_ap),
-        IndicatorParams(INDI_GATOR, FINAL_GATOR_LINE_HISTOGRAM_ENTRY, TYPE_DOUBLE) {
+        IndicatorParams(INDI_GATOR) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Gator");
   };
   IndiGatorParams(IndiGatorParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -104,13 +103,30 @@ struct IndiGatorParams : IndicatorParams {
  * Implements the Gator oscillator.
  */
 class Indi_Gator : public IndicatorTickOrCandleSource<IndiGatorParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_GATOR_LINE_HISTOGRAM_ENTRY); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_Gator(IndiGatorParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Gator(IndiGatorParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_GATOR_LINE_HISTOGRAM_ENTRY, TYPE_DOUBLE,
+                                                                     _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+                                    _indi_src) {
+    Init();
+  }
   Indi_Gator(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
-      : IndicatorTickOrCandleSource(INDI_GATOR, _tf, _shift) {}
+      : IndicatorTickOrCandleSource(INDI_GATOR, _tf, _shift) {
+    Init();
+  }
 
   /**
    * Returns the indicator value.
@@ -133,7 +149,7 @@ class Indi_Gator : public IndicatorTickOrCandleSource<IndiGatorParams> {
   static double iGator(string _symbol, ENUM_TIMEFRAMES _tf, int _jaw_period, int _jaw_shift, int _teeth_period,
                        int _teeth_shift, int _lips_period, int _lips_shift, ENUM_MA_METHOD _ma_method,
                        ENUM_APPLIED_PRICE _applied_price, ENUM_GATOR_HISTOGRAM _mode, int _shift = 0,
-                       IndicatorBase *_obj = NULL) {
+                       IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                     _ma_method, _applied_price, _mode, _shift);
@@ -173,7 +189,7 @@ class Indi_Gator : public IndicatorTickOrCandleSource<IndiGatorParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
                                     GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(),
