@@ -30,9 +30,7 @@
 #define EA_MQH
 
 // Includes.
-#include "Action.enum.h"
 #include "Chart.mqh"
-#include "Condition.enum.h"
 #include "Data.struct.h"
 #include "Dict.mqh"
 #include "DictObject.mqh"
@@ -46,7 +44,9 @@
 #include "SerializerSqlite.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
-#include "Task.mqh"
+#include "Task/Task.h"
+#include "Task/TaskAction.enum.h"
+#include "Task/TaskCondition.enum.h"
 #include "Terminal.mqh"
 #include "Trade.mqh"
 #include "Trade/TradeSignal.h"

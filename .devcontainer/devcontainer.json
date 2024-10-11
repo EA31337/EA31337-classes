@@ -5,9 +5,10 @@
 	"customizations": {
         "vscode": {
             "extensions": [
-				"L-I-V.mql-tools",
 				"ms-vscode.cpptools",
-				"vscodevim.vim"
+				"vscodevim.vim",
+				"DavidAnson.vscode-markdownlint",
+				"EA31337.vscode-mql-tools"
 			],
         }
     },
@@ -18,7 +19,9 @@
 		"ghcr.io/guiyomh/features/vim:0": {},
 		"ghcr.io/jungaretti/features/make:1": {},
 		"ghcr.io/prulloac/devcontainer-features/pre-commit:1": {},
-		"ghcr.io/hspaans/devcontainer-features/ansible-lint:1": {}
+		"ghcr.io/hspaans/devcontainer-features/ansible-lint:1": {},
+		// "ghcr.io/maks1ms/devcontainers-features/wine:0": {},
+		"ghcr.io/devcontainers-contrib/features/node-asdf:0": {}
 	},
     // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
     "image": "mcr.microsoft.com/devcontainers/base:jammy",

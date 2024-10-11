@@ -30,6 +30,7 @@ class SerializerNode;
 
 // Includes.
 #include "File.mqh"
+#include "Object.mqh"
 #include "Serializer.enum.h"
 #include "Serializer.mqh"
 #include "SerializerNode.mqh"
@@ -107,14 +108,14 @@ class SerializerConverter {
 
   template <typename C>
   static SerializerConverter FromString(string arg) {
-    SerializerConverter _converter(((C*)NULL).Parse(arg), 0);
+    SerializerConverter _converter(((C*)NULL)PTR_DEREF Parse(arg), 0);
     return _converter;
   }
 
   template <typename C>
   static SerializerConverter FromFile(string path) {
     string data = File::ReadFile(path);
-    SerializerConverter _converter(((C*)NULL).Parse(data), 0);
+    SerializerConverter _converter(((C*)nullptr)PTR_DEREF Parse(data), 0);
     return _converter;
   }
 

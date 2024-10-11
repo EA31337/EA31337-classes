@@ -50,6 +50,13 @@
 #define SIGNAL_OPEN_TIME_FILTER STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_TIME_FILTER)
 #define SIGNAL_OPEN_UPWARDS STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_OPEN_UPWARDS)
 
+// All the following macro return true if the main signal is activated
+// AND the filter is not activated AND the time filter is not activated.
+#define TRADE_SIGNAL_IS_CLOSE_BUY(x)  (((x & SIGNAL_CLOSE_BUY_MAIN) != 0) && !(x & (SIGNAL_CLOSE_BUY_FILTER | SIGNAL_CLOSE_TIME_FILTER)))
+#define TRADE_SIGNAL_IS_CLOSE_SELL(x) (((x & SIGNAL_CLOSE_SELL_MAIN) != 0) && !(x & (SIGNAL_CLOSE_SELL_FILTER | SIGNAL_CLOSE_TIME_FILTER)))
+#define TRADE_SIGNAL_IS_OPEN_BUY(x)  (((x & SIGNAL_OPEN_BUY_MAIN) != 0) && !(x & (SIGNAL_OPEN_BUY_FILTER | SIGNAL_OPEN_TIME_FILTER)))
+#define TRADE_SIGNAL_IS_OPEN_SELL(x) (((x & SIGNAL_OPEN_SELL_MAIN) != 0) && !(x & (SIGNAL_OPEN_SELL_FILTER | SIGNAL_OPEN_TIME_FILTER)))
+
 // Structure for a trade signal.
 struct TradeSignalEntry {
  protected:

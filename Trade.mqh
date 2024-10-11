@@ -31,15 +31,15 @@ class Trade;
 
 // Includes.
 #include "Account.mqh"
-#include "Action.enum.h"
 #include "Chart.mqh"
-#include "Condition.enum.h"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
 #include "Math.h"
 #include "Object.mqh"
 #include "Order.mqh"
 #include "OrderQuery.h"
+#include "Task/TaskAction.enum.h"
+#include "Task/TaskCondition.enum.h"
 #include "Trade.enum.h"
 #include "Trade.struct.h"
 
@@ -1814,7 +1814,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     return Trade::CheckCondition(_cond, _args);
   }
 
-  /* Actions */
+  /* TaskActions */
 
   /**
    * Execute trade action.

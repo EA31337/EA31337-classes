@@ -21,21 +21,21 @@
 
 /**
  * @file
- * Test functionality of Condition class.
+ * Test functionality of TaskCondition class.
  */
 
 // Forward declaration.
 struct DataParamEntry;
 
 // Includes.
-#include "../Condition.mqh"
-#include "../DictObject.mqh"
-#include "../Indicators/Indi_Demo.mqh"
-#include "../Test.mqh"
+#include "../../DictObject.mqh"
+#include "../../Indicators/Indi_Demo.mqh"
+#include "../../Test.mqh"
+#include "../TaskCondition.h"
 
 // Global variables.
 Chart *chart;
-DictObject<short, Condition> conds;
+DictObject<short, TaskCondition> conds;
 int bar_processed;
 
 /**
@@ -78,7 +78,7 @@ void OnDeinit(const int reason) { delete chart; }
 bool TestAccountConditions() {
   bool _result = true;
   Account *_acc = new Account();
-  Condition *_cond = new Condition(ACCOUNT_COND_BAL_IN_LOSS);
+  TaskCondition *_cond = new TaskCondition(ACCOUNT_COND_BAL_IN_LOSS);
   assertTrueOrReturnFalse(_cond.Test() == _acc.CheckCondition(ACCOUNT_COND_BAL_IN_LOSS),
                           "Wrong condition: ACCOUNT_COND_BAL_IN_LOSS!");
   delete _cond;
@@ -92,7 +92,7 @@ bool TestAccountConditions() {
 bool TestChartConditions() {
   bool _result = true;
   Chart *_chart = new Chart();
-  Condition *_cond = new Condition(CHART_COND_ASK_BAR_PEAK, _chart);
+  TaskCondition *_cond = new TaskCondition(CHART_COND_ASK_BAR_PEAK, _chart);
   assertTrueOrReturnFalse(_cond.Test() == _chart.CheckCondition(CHART_COND_ASK_BAR_PEAK),
                           "Wrong condition: CHART_COND_ASK_BAR_PEAK!");
   delete _cond;
@@ -106,11 +106,11 @@ bool TestChartConditions() {
 bool TestDateTimeConditions() {
   bool _result = true;
   DateTime *_dt = new DateTime();
-  Condition *_cond1 = new Condition(DATETIME_COND_NEW_HOUR, _dt);
+  TaskCondition *_cond1 = new TaskCondition(DATETIME_COND_NEW_HOUR, _dt);
   assertTrueOrReturnFalse(_cond1.Test() == _dt.CheckCondition(DATETIME_COND_NEW_HOUR),
                           "Wrong condition: DATETIME_COND_NEW_HOUR (dynamic)!");
   delete _cond1;
-  Condition *_cond2 = new Condition(DATETIME_COND_NEW_HOUR);
+  TaskCondition *_cond2 = new TaskCondition(DATETIME_COND_NEW_HOUR);
   assertTrueOrReturnFalse(_cond2.Test() == DateTime::CheckCondition(DATETIME_COND_NEW_HOUR),
                           "Wrong condition: DATETIME_COND_NEW_HOUR (static)!");
   delete _cond2;
@@ -126,22 +126,22 @@ bool TestIndicatorConditions() {
   Indi_Demo *_demo = new Indi_Demo();
   /* @fixme
   assertTrueOrReturnFalse(
-      (new Condition(INDI_COND_ENTRY_IS_MAX, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_IS_MAX),
+      (new TaskCondition(INDI_COND_ENTRY_IS_MAX, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_IS_MAX),
       "Wrong condition: INDI_COND_ENTRY_IS_MAX!");
   assertTrueOrReturnFalse(
-      (new Condition(INDI_COND_ENTRY_IS_MIN, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_IS_MIN),
+      (new TaskCondition(INDI_COND_ENTRY_IS_MIN, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_IS_MIN),
       "Wrong condition: INDI_COND_ENTRY_IS_MIN!");
   assertTrueOrReturnFalse(
-      (new Condition(INDI_COND_ENTRY_GT_AVG, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_GT_AVG),
+      (new TaskCondition(INDI_COND_ENTRY_GT_AVG, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_GT_AVG),
       "Wrong condition: INDI_COND_ENTRY_GT_AVG!");
   assertTrueOrReturnFalse(
-      (new Condition(INDI_COND_ENTRY_GT_MED, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_GT_MED),
+      (new TaskCondition(INDI_COND_ENTRY_GT_MED, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_GT_MED),
       "Wrong condition: INDI_COND_ENTRY_GT_MED!");
   assertTrueOrReturnFalse(
-      (new Condition(INDI_COND_ENTRY_LT_AVG, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_LT_AVG),
+      (new TaskCondition(INDI_COND_ENTRY_LT_AVG, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_LT_AVG),
       "Wrong condition: INDI_COND_ENTRY_LT_AVG!");
   assertTrueOrReturnFalse(
-      (new Condition(INDI_COND_ENTRY_LT_MED, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_LT_MED),
+      (new TaskCondition(INDI_COND_ENTRY_LT_MED, _demo)).Test() == _demo.CheckCondition(INDI_COND_ENTRY_LT_MED),
       "Wrong condition: INDI_COND_ENTRY_LT_MED!");
   */
   delete _demo;
@@ -154,7 +154,7 @@ bool TestIndicatorConditions() {
 bool TestMarketConditions() {
   bool _result = true;
   Market *_market = new Market();
-  Condition *_cond = new Condition(MARKET_COND_IN_PEAK_HOURS, _market);
+  TaskCondition *_cond = new TaskCondition(MARKET_COND_IN_PEAK_HOURS, _market);
   assertTrueOrReturnFalse(_cond.Test() == _market.CheckCondition(MARKET_COND_IN_PEAK_HOURS),
                           "Wrong condition: MARKET_COND_IN_PEAK_HOURS!");
   delete _cond;
@@ -186,7 +186,7 @@ bool TestOrderConditions() {
 bool TestTradeConditions() {
   bool _result = true;
   Trade *_trade = new Trade();
-  Condition *_cond = new Condition(TRADE_COND_ALLOWED_NOT, _trade);
+  TaskCondition *_cond = new TaskCondition(TRADE_COND_ALLOWED_NOT, _trade);
   assertTrueOrReturnFalse(_cond.Test() == _trade.CheckCondition(TRADE_COND_ALLOWED_NOT),
                           "Wrong condition: TRADE_COND_ALLOWED_NOT!");
   delete _cond;

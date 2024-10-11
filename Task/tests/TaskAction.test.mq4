@@ -21,8 +21,8 @@
 
 /**
  * @file
- * Test functionality of Action class.
+ * Test functionality of TaskAction class.
  */
 
 // Includes.
-#include "ActionTest.mq5"
+#include "TaskAction.test.mq5"

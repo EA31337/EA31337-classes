@@ -37,6 +37,7 @@
 // Forward declarations.
 template <typename X>
 class SerializerIterator;
+class IndicatorBase;
 
 class Serializer {
  protected:
@@ -56,7 +57,7 @@ class Serializer {
   /**
    * Constructor.
    */
-  Serializer(SerializerNode* node, SerializerMode mode, int flags) : _node(node), _mode(mode), _flags(flags) {
+  Serializer(SerializerNode* node, SerializerMode mode, int flags = 0) : _node(node), _mode(mode), _flags(flags) {
     _root = node;
     _root_node_ownership = true;
     fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
@@ -375,6 +376,21 @@ class Serializer {
       PassObject(self, name, newborn, flags);
 
       value = newborn;
+    }
+  }
+
+  template <typename T>
+  void Pass(T& self, string name, IndicatorBase*& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+    if (_mode == Serialize) {
+      if (!IsFieldVisible(_flags, flags)) {
+        return;
+      }
+
+      PassObject(self, name, value, flags);
+    } else {
+      Print("Error: Deserialization of IndicatorBase* cannot be done as method is abstract!");
+      DebugBreak();
+      value = nullptr;
     }
   }
 

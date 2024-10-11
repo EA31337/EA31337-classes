@@ -42,10 +42,10 @@ class Market;
 #include "Chart.enum.h"
 #include "Chart.struct.h"
 #include "Chart.struct.serialize.h"
-#include "Condition.enum.h"
 #include "Convert.mqh"
 #include "Market.mqh"
 #include "Serializer.mqh"
+#include "Task/TaskCondition.enum.h"
 
 #ifndef __MQL4__
 // Defines structs (for MQL4 backward compatibility).

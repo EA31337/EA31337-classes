@@ -121,7 +121,7 @@ class DictIteratorBase {
   bool IsLast() {
     if (!IsValid()) return true;
 
-    if (_dict PTR_DEREF GetMode() == DictModeUnknown || _dict.Size() == 0) {
+    if (_dict PTR_DEREF GetMode() == DictModeUnknown || _dict PTR_DEREF Size() == 0) {
       return false;
     }
 

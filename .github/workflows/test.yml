@@ -40,12 +40,10 @@ jobs:
       matrix:
         test:
           - AccountTest
-          - ActionTest
           - BufferStructTest
           - BufferTest
           - ChartTest
           - CompileIndicatorsTest
-          - ConditionTest
           - DatabaseTest
           # - DrawIndicatorTest
           - EATest
@@ -62,7 +60,6 @@ jobs:
           - StrategyTest-RSI
           - SymbolInfoTest
           - SummaryReportTest
-          - TaskTest
           - TickerTest
           - TradeTest
     steps:

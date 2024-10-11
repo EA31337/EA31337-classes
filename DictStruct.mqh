@@ -144,14 +144,14 @@ class DictStruct : public DictBase<K, V> {
     else
       slot = GetSlotByKey(_DictSlots_ref, key, position);
 
-    if (slot == NULL || !slot.IsUsed()) {
+    if (slot == NULL || !slot PTR_DEREF IsUsed()) {
       Alert("Invalid DictStruct key \"", key, "\" (called by [] operator). Returning empty structure.");
       DebugBreak();
       static V _empty;
       return _empty;
     }
 
-    return slot.value;
+    return slot PTR_DEREF value;
   }
 
   /**
@@ -166,7 +166,7 @@ class DictStruct : public DictBase<K, V> {
       return _empty;
     }
 
-    return slot.value;
+    return slot PTR_DEREF value;
   }
 
   /**
@@ -183,7 +183,7 @@ class DictStruct : public DictBase<K, V> {
       return _default;
     }
 
-    return slot.value;
+    return slot PTR_DEREF value;
   }
 
   /**
@@ -199,7 +199,7 @@ class DictStruct : public DictBase<K, V> {
       return _empty;
     }
 
-    return slot.value;
+    return slot PTR_DEREF value;
   }
 
 /**
@@ -231,7 +231,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (!slot) return false;
 
-    return slot.value == value;
+    return slot PTR_DEREF value == value;
   }
 
   /**

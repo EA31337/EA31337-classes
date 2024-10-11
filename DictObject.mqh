@@ -142,9 +142,9 @@ class DictObject : public DictBase<K, V> {
     else
       slot = GetSlotByKey(this PTR_DEREF _DictSlots_ref, key, position);
 
-    if (slot == NULL || !slot.IsUsed()) return NULL;
+    if (slot == NULL || !slot PTR_DEREF IsUsed()) return NULL;
 
-    return &slot.value;
+    return &slot PTR_DEREF value;
   }
 
   /**
@@ -156,7 +156,7 @@ class DictObject : public DictBase<K, V> {
 
     if (!slot) return NULL;
 
-    return &slot.value;
+    return &slot PTR_DEREF value;
   }
 
   /**
@@ -171,7 +171,7 @@ class DictObject : public DictBase<K, V> {
       return NULL;
     }
 
-    return &slot.value;
+    return &slot PTR_DEREF value;
   }
 
   /**
@@ -186,7 +186,7 @@ class DictObject : public DictBase<K, V> {
 
     if (!slot) return false;
 
-    return slot.value == value;
+    return slot PTR_DEREF value == value;
   }
 
   /**
@@ -265,7 +265,7 @@ class DictObject : public DictBase<K, V> {
           if (this PTR_DEREF overflow_listener != NULL) {
             if (!this PTR_DEREF overflow_listener(DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS, dictSlotsRef._num_used,
                                                   _num_conflicts)) {
-              // Overflow listener returned false so we won't search for further empty slot.
+              // Overflow listener returned false so we won't search for further empty slot PTR_DEREF
               _overwrite_slot = true;
               break;
             }
@@ -285,7 +285,7 @@ class DictObject : public DictBase<K, V> {
         // Overwriting starting position for faster further lookup.
         position = _starting_position;
       } else {
-        // Slot overwrite is not needed. Using empty slot.
+        // Slot overwrite is not needed. Using empty slot PTR_DEREF
         ++dictSlotsRef._num_used;
       }
 
