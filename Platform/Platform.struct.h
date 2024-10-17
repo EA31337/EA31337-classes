@@ -55,11 +55,13 @@ struct PlatformParams {
   // Getters.
   template <typename T>
   T Get(ENUM_PLATFORM_PARAM _param) {
+    T _out;
     switch (_param) {
       case PLATFORM_PARAM_ID:
         return (T)id;
       case PLATFORM_PARAM_NAME:
-        return (T)name;
+        ConvertBasic::Convert(name, _out);
+        return _out;
       default:
         break;
     }
@@ -68,7 +70,7 @@ struct PlatformParams {
   }
   // Setters.
   template <typename T>
-  void Set(ENUM_TRADE_PARAM _param, T _value) {
+  void Set(ENUM_PLATFORM_PARAM _param, T _value) {
     switch (_param) {
       case PLATFORM_PARAM_ID:
         ConvertBasic::Convert(_value, id);

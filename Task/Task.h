@@ -320,11 +320,10 @@ class Task : public Taskable<TaskEntry> {
   #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(Task) {
-  emscripten::class_<Task>("Task").smart_ptr<Ref<Task>>("Ref<Task>").constructor(emscripten::optional_override([]() {
-    return Ref<Task>(new Task());
-  }))
-      //.function("Add", optional_override([](Task &self, Ref<Task> task) { self.Add(task.Ptr()); }))
-      ;
+  emscripten::class_<Task>("Task")
+      .smart_ptr<Ref<Task>>("Ref<Task>")
+      .constructor(emscripten::optional_override([]() { return Ref<Task>(new Task()); }))
+      .function("Add", emscripten::optional_override([](Task &self, TaskEntry taskEntry) { self.Add(taskEntry); }));
 }
 
 #endif

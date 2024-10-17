@@ -2538,13 +2538,9 @@ class Matrix {
 
   void FromString(string text) {
     ARRAY(MatrixDimension<X>*, _dimensions), *_root_dimension = NULL;
-    int _dimensions_length[MATRIX_DIMENSIONS] = {0, 0, 0, 0, 0};
     int i, _number_start_pos;
-    bool _had_values;
     X _number;
     bool _expecting_value_or_child = true;
-    bool _expecting_comma = false;
-    bool _expecting_end = false;
 
     for (i = 0; i < StringLen(text); ++i) {
       unsigned short _char = StringGetCharacter(text, i), c;
@@ -2555,8 +2551,6 @@ class Matrix {
             Print("Unexpected '[' at offset ", i, "!");
             return;
           }
-
-          _had_values = false;
 
           if (ArraySize(_dimensions) != 0) {
             _dimensions[ArraySize(_dimensions) - 1].type = MATRIX_DIMENSION_TYPE_CONTAINERS;
@@ -2574,13 +2568,11 @@ class Matrix {
           }
 
           _expecting_value_or_child = true;
-          _expecting_end = true;
           break;
 
         case ']':
           ArrayResize(_dimensions, ArraySize(_dimensions) - 1, MATRIX_DIMENSIONS);
           _expecting_value_or_child = true;
-          _expecting_comma = false;
           break;
 
         case '0':
@@ -2609,15 +2601,11 @@ class Matrix {
           i -= 2;
           _dimensions[ArraySize(_dimensions) - 1].type = MATRIX_DIMENSION_TYPE_VALUES;
           _dimensions[ArraySize(_dimensions) - 1].AddValue(_number);
-          _expecting_end = true;
           _expecting_value_or_child = true;
-          _expecting_comma = false;
           break;
 
         case ',':
           _expecting_value_or_child = true;
-          _expecting_comma = false;
-          _expecting_end = false;
           break;
         case ' ':
         case '\t':

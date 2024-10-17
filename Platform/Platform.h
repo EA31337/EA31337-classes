@@ -242,6 +242,11 @@ class Platform : public Taskable<DataParamEntry> {
   }
 
   /**
+   * Checks whether previous Tick() performed a tick or not.
+   */
+  static bool HadTick() { return last_tick_result; }
+
+  /**
    * Called by indicators' OnCalculate() method in order to prepare history via
    * IndicatorData::EmitHistory() and to call Tick() for each OnCalculate()
    * call so Tick indicator can emit new tick and Candle indicator can update
@@ -560,7 +565,7 @@ class Platform : public Taskable<DataParamEntry> {
   /**
    * Checks a condition.
    */
-  bool Check(const TaskConditionEntry &_entry) {
+  bool Check(const TaskConditionEntry &_entry) override {
     bool _result = true;
     switch (_entry.GetId()) {
       default:
@@ -573,7 +578,7 @@ class Platform : public Taskable<DataParamEntry> {
   /**
    * Gets a data param entry.
    */
-  DataParamEntry Get(const TaskGetterEntry &_entry) {
+  DataParamEntry Get(const TaskGetterEntry &_entry) override {
     DataParamEntry _result;
     switch (_entry.GetId()) {
       default:
@@ -585,7 +590,7 @@ class Platform : public Taskable<DataParamEntry> {
   /**
    * Runs an action.
    */
-  bool Run(const TaskActionEntry &_entry) {
+  bool Run(const TaskActionEntry &_entry) override {
     bool _result = true;
     switch (_entry.GetId()) {
       case PLATFORM_ACTION_ADD_EXCHANGE:
@@ -607,7 +612,7 @@ class Platform : public Taskable<DataParamEntry> {
   /**
    * Sets an entry value.
    */
-  bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+  bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) override {
     bool _result = true;
     switch (_entry.GetId()) {
       default:
