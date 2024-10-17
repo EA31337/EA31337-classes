@@ -21,21 +21,21 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 
-// Includes.
-#include <stdarg.h>
+  // Includes.
+  #include <stdarg.h>
 
-#include <algorithm>
-#include <cstring>
-#include <iostream>
-#include <sstream>
-#include <tuple>
+  #include <algorithm>
+  #include <cstring>
+  #include <iostream>
+  #include <sstream>
+  #include <tuple>
 
-#include "../Math/Math.extern.h"
-#include "../Platform/Terminal.define.h"
-#include "../Std.h"
+  #include "../Math/Math.extern.h"
+  #include "../Platform/Terminal.define.h"
+  #include "../Std.h"
 
 // Define external global functions.
 double StringToDouble(string value) { return std::stod(value); }
@@ -120,8 +120,6 @@ bool StringInit(string& string_var, int new_len = 0, unsigned short character = 
 
 string CharArrayToString(ARRAY_REF(unsigned char, arr), int start = 0, int count = -1, unsigned int codepage = CP_ACP) {
   if (count == -1) count = (arr.size() - start);
-
-  int _end = MathMin(count - start, arr.size());
 
   string result;
   StringInit(result, count);

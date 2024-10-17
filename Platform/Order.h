@@ -1774,8 +1774,6 @@ class Order : public SymbolInfo {
    * Update specific double value of the current order.
    */
   bool RefreshDummy(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
-    bool _result = false;
-    double _value = WRONG_VALUE;
     ResetLastError();
     switch (_prop_id) {
       case ORDER_PRICE_CURRENT:
@@ -2850,14 +2848,14 @@ class Order : public SymbolInfo {
   bool ExecuteAction(ENUM_ORDER_ACTION _action, ARRAY_REF(DataParamEntry, _args)) {
     switch (_action) {
       case ORDER_ACTION_CLOSE:
-        switch (oparams.dummy) {
-          case false:
-            return ArraySize(_args) > 0 ? OrderClose((ENUM_ORDER_REASON_CLOSE)_args[0].integer_value)
-                                        : OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
-          case true:
-            return ArraySize(_args) > 0 ? OrderCloseDummy((ENUM_ORDER_REASON_CLOSE)_args[0].integer_value)
-                                        : OrderCloseDummy(ORDER_REASON_CLOSED_BY_ACTION);
+        if (oparams.dummy) {
+          return ArraySize(_args) > 0 ? OrderCloseDummy((ENUM_ORDER_REASON_CLOSE)_args[0].integer_value)
+                                      : OrderCloseDummy(ORDER_REASON_CLOSED_BY_ACTION);
+        } else {
+          return ArraySize(_args) > 0 ? OrderClose((ENUM_ORDER_REASON_CLOSE)_args[0].integer_value)
+                                      : OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
         }
+        break;
       case ORDER_ACTION_OPEN:
         return !oparams.dummy ? OrderSend() >= 0 : OrderSendDummy() >= 0;
       case ORDER_ACTION_COND_CLOSE_ADD:

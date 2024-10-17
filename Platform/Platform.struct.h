@@ -66,21 +66,6 @@ struct PlatformParams {
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
-  // Setters.
-  template <typename T>
-  void Set(ENUM_TRADE_PARAM _param, T _value) {
-    switch (_param) {
-      case PLATFORM_PARAM_ID:
-        ConvertBasic::Convert(_value, id);
-        return;
-      case PLATFORM_PARAM_NAME:
-        ConvertBasic::Convert(_value, name);
-        return;
-      default:
-        break;
-    }
-    SetUserError(ERR_INVALID_PARAMETER);
-  }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "id", id);

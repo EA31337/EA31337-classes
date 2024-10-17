@@ -511,7 +511,8 @@ class DictStruct : public DictBase<K, V> {
 
             // Note that we're retrieving value by a key (as we are in an
             // object!).
-            Set(key, s.Struct<V>(i.Key()));
+            V _value = s.Struct<V>(i.Key());
+            Set(key, _value);
           } else {
             Push(s.Struct<V>());
           }

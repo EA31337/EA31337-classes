@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -70,11 +70,16 @@ struct ExchangeParams {
   template <typename T>
   void Set(ENUM_TRADE_PARAM _param, T _value) {
     switch (_param) {
-      case EXCHANGE_PARAM_ID:
-        ConvertBasic::Convert(_value, id);
-        return;
-      case EXCHANGE_PARAM_NAME:
-        ConvertBasic::Convert(_value, name);
+      case TRADE_PARAM_BARS_MIN:
+      case TRADE_PARAM_LOG_LEVEL:
+      case TRADE_PARAM_LOT_SIZE:
+      case TRADE_PARAM_MAGIC_NO:
+      case TRADE_PARAM_MAX_SPREAD:
+      case TRADE_PARAM_ORDER_COMMENT:
+      case TRADE_PARAM_RISK_MARGIN:
+      case TRADE_PARAM_SLIPPAGE:
+        Alert("ExchangeParams::Set don't yet support ENUM_TRADE_PARAM settings.");
+        DebugBreak();
         return;
       default:
         break;
