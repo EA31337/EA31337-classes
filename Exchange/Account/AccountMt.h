@@ -178,7 +178,7 @@ class AccountMt : public AccountBase {
    * Returns margin value of the current account.
    */
   static double AccountMargin() { return AccountInfoDouble(ACCOUNT_MARGIN); }
-  float GetMarginUsed() const {
+  float GetMarginUsed() const override {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_USED, AccountMargin());
     return (float)AccountMt::AccountMargin();
@@ -616,7 +616,7 @@ class AccountMt : public AccountBase {
   /**
    * Returns text info about the account.
    */
-  string const ToString() {
+  string const ToString() override {
     return StringFormat(
         "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Profit: %g, "
         "Margin Used/Free/Avail: %g(%.1f%%)/%g/%g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
@@ -639,7 +639,7 @@ class AccountMt : public AccountBase {
   /**
    * Returns serialized representation of the object instance.
    */
-  SerializerNodeType Serialize(Serializer &_s) {
+  SerializerNodeType Serialize(Serializer &_s) override {
     AccountEntry _entry = GetEntry();
     _s.PassStruct(THIS_REF, "account-entry", _entry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;

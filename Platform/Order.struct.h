@@ -270,8 +270,7 @@ struct OrderData {
   double volume_init;                    // Initial volume.
  public:
   OrderData()
-      : close_tries(0),
-        magic(0),
+      : magic(0),
         position_id(0),
         position_by_id(0),
         ticket(0),
@@ -279,6 +278,7 @@ struct OrderData {
         comment(""),
         commission(0),
         profit(0),
+        total_profit(0),
         price_open(0),
         price_close(0),
         price_current(0),
@@ -294,6 +294,7 @@ struct OrderData {
         time_setup_msc(0),
         sl(0),
         tp(0),
+        close_tries(0),
         last_error(ERR_NO_ERROR),
         symbol(NULL),
         volume_curr(0),
@@ -398,6 +399,9 @@ struct OrderData {
       case ORDER_POSITION_BY_ID:
         return (T)position_by_id;
       case ORDER_REASON:
+  #ifndef __MQL__
+      case __ORDER_REASON:
+  #endif
         return (T)reason;
       case ORDER_TICKET:
         return (T)ticket;
@@ -413,6 +417,9 @@ struct OrderData {
         return comment;
 #ifndef __MQL4__
       case ORDER_EXTERNAL_ID:
+  #ifndef __MQL__
+      case __ORDER_EXTERNAL_ID:
+  #endif
         return ext_id;
 #endif
       case ORDER_SYMBOL:
@@ -631,6 +638,9 @@ struct OrderData {
         position_by_id = _value;
         return;
       case ORDER_REASON:
+  #ifndef __MQL__
+      case __ORDER_REASON:
+  #endif
         reason = (ENUM_ORDER_REASON)_value;
         return;
       case ORDER_TICKET:
@@ -647,6 +657,9 @@ struct OrderData {
         return;
 #ifndef __MQL4__
       case ORDER_EXTERNAL_ID:
+  #ifndef __MQL__
+      case __ORDER_EXTERNAL_ID:
+  #endif
         ext_id = _value;
         return;
 #endif

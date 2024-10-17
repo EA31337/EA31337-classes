@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Forward class declaration.
@@ -123,7 +123,7 @@ struct AccountParams {
   // Default constructor.
   AccountParams(int _login = 0, string _name = "Current", string _currency = "USD", string _company = "Unknown",
                 string _server = "Unknown")
-      : company(_company), currency(_currency), login(_login), name(_name), server(_server) {}
+      : login(_login), company(_company), currency(_currency), name(_name), server(_server) {}
   // Constructor based on JSON string.
   AccountParams(string _entry) { SerializerConverter::FromString<SerializerJson>(_entry).ToStruct(THIS_REF); }
   // Copy constructor.

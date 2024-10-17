@@ -461,7 +461,7 @@ class Serializer {
    * Returns next structure or structure by given key.
    */
   template <typename X>
-  X REF_CPP Struct(string key = "") {
+  X Struct(string key = "") {
     X value;
     PassStruct(THIS_REF, key, value);
     return value;

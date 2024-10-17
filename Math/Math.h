@@ -21,8 +21,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -264,7 +264,7 @@ class Math {
     int data_count = ArraySize(probability);
     if (data_count == 0) return false;
 
-    int error_code = 0, i;
+    int i;
     ArrayResize(result, data_count);
 
     //--- case sigma==0
@@ -401,8 +401,6 @@ class Math {
       for (i = 0; i < data_count; i++) result[i] = mu;
       return true;
     }
-
-    int err_code = 0;
 
     for (i = 0; i < data_count; i++) {
       result[i] = RandomNonZero();
