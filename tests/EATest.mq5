@@ -32,6 +32,8 @@ struct DataParamEntry;
 #include "../Exchange/Account/Account.struct.h"
 #include "../Test.mqh"
 
+DictStruct<string, Ref<Trade>> _trades_test;
+
 // Defines EA classes.
 class EA1 : public EA {
  public:
@@ -57,6 +59,9 @@ EA3 *ea3;
  * Implements OnInit().
  */
 int OnInit() {
+  Platform::Init();
+  Platform::SetSymbolTfForTesting("EURUSD", PERIOD_M1);
+
   // Task to export to all possible formats once per hour.
   TaskEntry _task_export_per_hour(EA_ACTION_EXPORT_DATA, EA_COND_ON_NEW_HOUR);
 
@@ -104,6 +109,12 @@ void OnTick() {
  * Implements OnDeinit().
  */
 void OnDeinit(const int reason) {
+  // Run data export via task.
+  TaskActionEntry _task_run_export(EA_ACTION_EXPORT_DATA);
+  ea1.Run(_task_run_export);
+  ea2.Run(_task_run_export);
+  ea3.Run(_task_run_export);
+  // Clean up.
   delete ea1;
   delete ea2;
   delete ea3;

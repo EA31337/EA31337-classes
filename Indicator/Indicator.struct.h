@@ -71,10 +71,10 @@ struct IndicatorParams {
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
-      : bps(0),
-        custom_indi_name(""),
+      : custom_indi_name(""),
         name(_name),
         shift(0),
+        bps(0),
         // max_modes(_max_modes),
         // max_buffers(10),
         // idstype(_idstype),
@@ -84,7 +84,7 @@ struct IndicatorParams {
         itype(_itype) {
     Init();
   };
-  IndicatorParams(string _name) : bps(0), custom_indi_name(""), name(_name), shift(0) { Init(); };
+  IndicatorParams(string _name) : custom_indi_name(""), name(_name), shift(0), bps(0) { Init(); };
   /* Getters */
   template <typename T>
   T Get(STRUCT_ENUM(IndicatorParams, ENUM_INDI_PARAMS_PROP) _prop) const {

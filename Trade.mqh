@@ -36,6 +36,7 @@ class Trade;
 #include "Math/Math.h"
 #include "Platform/Order.h"
 #include "Platform/OrderQuery.h"
+#include "Serializer/Serializer.ref.h"
 #include "Storage/Dict/DictStruct.h"
 #include "Storage/Object.h"
 #include "Task/TaskManager.h"
@@ -914,7 +915,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   int OrdersCloseViaCmd(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN,
                         string _comment = "") {
-    int _oid = 0, _closed = 0;
+    int _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : "TOCVC:";
     for (DictStructIterator<int64, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {

@@ -32,10 +32,21 @@
 
 // Define external global functions.
 #ifndef __MQL__
-extern int64 SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id);
-extern bool SymbolInfoMarginRate(string name, ENUM_ORDER_TYPE order_type, double &initial_margin_rate,
-                                 double &maintenance_margin_rate);
-extern bool SymbolInfoTick(string symbol, MqlTick &tick);
+int64 SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns 0.");
+  return 0;
+}
+
+bool SymbolInfoMarginRate(string name, ENUM_ORDER_TYPE order_type, double& initial_margin_rate,
+                          double& maintenance_margin_rate) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return false;
+}
+
+bool SymbolInfoTick(string symbol, MqlTick& tick) {
+  Print("Not yet implemented: ", __FUNCTION__, " returns false.");
+  return 0;
+}
 
 // Define external global variables.
 class SymbolGetter {

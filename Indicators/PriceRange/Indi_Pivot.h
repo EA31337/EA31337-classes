@@ -26,7 +26,7 @@
 #endif
 
 // Includes.
-#include "../../Bar.struct.h"
+#include "../../Platform/Chart/Bar.struct.h"
 #include "../../Indicator/Indicator.struct.h"
 #include "../../Serializer/Serializer.h"
 #include "../Special/Indi_Math.mqh"
