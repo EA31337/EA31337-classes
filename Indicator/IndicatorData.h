@@ -35,8 +35,8 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 };
 
 // Includes.
-#include "../Platform/Chart/Bar.struct.h"
 #include "../Exchange/SymbolInfo/SymbolInfo.struct.h"
+#include "../Platform/Chart/Bar.struct.h"
 #include "../Platform/Chart/Chart.struct.tf.h"
 #include "../Storage/Cache/IndiBufferCache.h"
 #include "../Storage/Flags.struct.h"
@@ -220,7 +220,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Get full name of the indicator (with "over ..." part).
    */
-  string GetFullName() {
+  string GetFullName() override {
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
     string _mode;
 
@@ -408,13 +408,13 @@ class IndicatorData : public IndicatorBase {
    */
   template <typename T>
   double GetMax(int start_bar = 0, int count = WHOLE_ARRAY) {
-    double max = NULL;
+    double max = -DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).GetMax<T>(_max_modes);
-      if (max == NULL || value > max) {
+      if (max == -DBL_MAX || value > max) {
         max = value;
       }
     }
@@ -1323,7 +1323,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's entry value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) = 0;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override = 0;
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -1386,7 +1386,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Get name of the indicator.
    */
-  virtual string GetName() { return EnumToString(GetType()); }
+  virtual string GetName() override { return EnumToString(GetType()); }
 
   /**
    * Gets open price for a given, optional shift.
@@ -1404,7 +1404,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Gets OHLC price values.
    */
-  virtual BarOHLC GetOHLC(int _rel_shift = 0) {
+  virtual BarOHLC GetOHLC(int _rel_shift = 0) override {
     if (GetCandle() == THIS_PTR) {
       Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
       DebugBreak();
@@ -1608,7 +1608,6 @@ class IndicatorData : public IndicatorBase {
   }
 
   /**
-    /**
    * Traverses source indicators' hierarchy and tries to find Ask, Bid, Spread,
    * Volume and Tick Volume-featured indicator. IndicatorTick satisfies such
    * requirements.
@@ -2158,12 +2157,12 @@ class IndicatorData : public IndicatorBase {
   /**
    * Converts relative shift into absolute one.
    */
-  virtual int ToAbsShift(int _rel_shift) = 0;
+  virtual int ToAbsShift(int _rel_shift) override = 0;
 
   /**
    * Converts absolute shift into relative one.
    */
-  virtual int ToRelShift(int _abs_shift) = 0;
+  virtual int ToRelShift(int _abs_shift) override = 0;
 
   /**
    * Loads and validates built-in indicators whose can be used as data source.

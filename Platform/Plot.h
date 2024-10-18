@@ -291,7 +291,7 @@ class Plot : public Object {
    * Plot a vertical line.
    */
   bool DrawVLine(string oname, datetime tm) {
-    bool result = Plot::ObjectCreate(NULL, oname, OBJ_VLINE, 0, tm, 0);
+    bool result = Plot::ObjectCreate(0, oname, OBJ_VLINE, 0, tm, 0);
     if (!result) PrintFormat("%(): Can't create vertical line! code #", __FUNCTION__, GetLastError());
     return (result);
   }
@@ -300,7 +300,7 @@ class Plot : public Object {
    * Plot a horizontal line.
    */
   bool DrawHLine(string oname, double value) {
-    bool result = Plot::ObjectCreate(NULL, oname, OBJ_HLINE, 0, 0, value);
+    bool result = Plot::ObjectCreate(0, oname, OBJ_HLINE, 0, 0, value);
     if (!result) PrintFormat("%(): Can't create horizontal line! code #", __FUNCTION__, GetLastError());
     return (result);
   }
@@ -309,7 +309,7 @@ class Plot : public Object {
    * Delete a vertical line.
    */
   bool DeleteVertLine(string oname) {
-    bool result = Plot::ObjectDelete(NULL, oname);
+    bool result = Plot::ObjectDelete(0, oname);
     if (!result) PrintFormat("%(): Can't delete vertical line! code #", __FUNCTION__, GetLastError());
     return (result);
   }

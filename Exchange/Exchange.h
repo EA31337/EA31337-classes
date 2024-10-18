@@ -129,7 +129,7 @@ class Exchange : public Taskable<DataParamEntry> {
   /**
    * Checks a condition.
    */
-  bool Check(const TaskConditionEntry &_entry) {
+  bool Check(const TaskConditionEntry &_entry) override {
     bool _result = true;
     switch (_entry.GetId()) {
       default:
@@ -142,7 +142,7 @@ class Exchange : public Taskable<DataParamEntry> {
   /**
    * Gets a data param entry.
    */
-  DataParamEntry Get(const TaskGetterEntry &_entry) {
+  DataParamEntry Get(const TaskGetterEntry &_entry) override {
     DataParamEntry _result;
     switch (_entry.GetId()) {
       default:
@@ -154,7 +154,7 @@ class Exchange : public Taskable<DataParamEntry> {
   /**
    * Runs an action.
    */
-  bool Run(const TaskActionEntry &_entry) {
+  bool Run(const TaskActionEntry &_entry) override {
     bool _result = true;
     switch (_entry.GetId()) {
       case EXCHANGE_ACTION_ADD_ACCOUNT:
@@ -176,7 +176,7 @@ class Exchange : public Taskable<DataParamEntry> {
   /**
    * Sets an entry value.
    */
-  bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) {
+  bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) override {
     bool _result = true;
     switch (_entry.GetId()) {
       default:

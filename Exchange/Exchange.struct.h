@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 // Includes.
@@ -55,12 +55,15 @@ struct ExchangeParams {
   // Getters.
   template <typename T>
   T Get(ENUM_EXCHANGE_PARAM _param) {
+    T _out;
     switch (_param) {
       case EXCHANGE_PARAM_ID:
         return (T)id;
       case EXCHANGE_PARAM_NAME:
-        // return (T)name; // @todo
+        ConvertBasic::Convert(name, _out);
+        return _out;
       default:
+        Alert("Unsupported param: ", EnumToString(_param));
         break;
     }
     SetUserError(ERR_INVALID_PARAMETER);
@@ -68,15 +71,16 @@ struct ExchangeParams {
   }
   // Setters.
   template <typename T>
-  void Set(ENUM_TRADE_PARAM _param, T _value) {
+  void Set(ENUM_EXCHANGE_PARAM _param, T _value) {
     switch (_param) {
       case EXCHANGE_PARAM_ID:
         ConvertBasic::Convert(_value, id);
-        return;
+        break;
       case EXCHANGE_PARAM_NAME:
         ConvertBasic::Convert(_value, name);
-        return;
+        break;
       default:
+        Alert("Unsupported param: ", EnumToString(_param));
         break;
     }
     SetUserError(ERR_INVALID_PARAMETER);
