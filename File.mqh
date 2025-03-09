@@ -130,7 +130,7 @@ class File {
                 "\\Files\\\" as absolute paths may not work.");
       return false;
     }
-    
+
     if (binary) {
       uchar buffer[];
       StringToCharArray(data, buffer, 0, WHOLE_ARRAY, CP_UTF8);
