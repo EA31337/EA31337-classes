@@ -116,7 +116,7 @@ class File {
   static bool SaveFile(string path, string data, bool binary = false) {
     ResetLastError();
 
-    int handle = FileOpen(path, FILE_WRITE | (binary ? FILE_BIN : FILE_ANSI));
+    int handle = FileOpen(path, FILE_WRITE | (binary ? FILE_BIN : FILE_TXT), "", CP_UTF8);
 
     if (handle == INVALID_HANDLE) {
       string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
@@ -130,8 +130,15 @@ class File {
                 "\\Files\\\" as absolute paths may not work.");
       return false;
     }
-
-    FileWriteString(handle, data);
+    
+    if (binary) {
+      uchar buffer[];
+      StringToCharArray(data, buffer, 0, WHOLE_ARRAY, CP_UTF8);
+      FileWriteArray(handle, buffer, 0, ArraySize(buffer));
+    }
+    else {
+      FileWriteString(handle, data);
+    }
 
     FileClose(handle);
 
