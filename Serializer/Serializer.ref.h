@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2024, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                        https://ea31337.github.io |
 //+------------------------------------------------------------------+
 
@@ -20,39 +20,30 @@
  *
  */
 
-/**
- * @file
- * Collects information about class instances.
- */
-
+// Prevents processing this includes file for the second time.
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
 #pragma once
 #endif
 
-// Prevents processing this includes file multiple times.
-#ifndef INSTANCES_H
-#define INSTANCES_H
-
-#include "Storage/Dict/Dict.h"
-#include "Util.h"
-
-template <typename T>
-class Instances {
- public:
-  static ARRAY(T*, instances);
-  Instances(T* _self) { Util::ArrayPush(instances, _self); }
-
-  ~Instances() {
-    // Util::ArrayRemove(instances, &this);
-  }
-};
+#include "../Refs.struct.h"
 
 template <typename T>
 #ifdef __MQL__
-T* Instances::instances[];
+template <>
+SerializerNodeType Ref::Serialize(Serializer& s) {
 #else
-T* Instances<T>::instances[];
+SerializerNodeType Ref<T>::Serialize(Serializer& s) {
 #endif
-
-#endif  // INSTANCES_MQH
+  if (s.IsWriting()) {
+    if (Ptr() == nullptr) {
+      // Missing object!
+      Alert("Error: Ref<T> serialization is supported only for non-null references!");
+      DebugBreak();
+      return SerializerNodeObject;
+    }
+    return Ptr() PTR_DEREF Serialize(s);
+  } else {
+    // Reading.
+    return Ptr() PTR_DEREF Serialize(s);
+  }
+}

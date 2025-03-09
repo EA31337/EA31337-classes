@@ -24,6 +24,9 @@
  * Test functionality of Exchange class.
  */
 
+// Defines.
+#define __debug_serializer__
+
 // Includes.
 #include "../../Platform/Platform.h"
 #include "../../Test.mqh"
@@ -34,40 +37,58 @@ class AccountDummy : public AccountBase {
   /**
    * Returns balance value of the current account.
    */
-  float GetBalance() { return 0; }
+  float GetBalance() const { return 0; }
 
   /**
    * Returns credit value of the current account.
    */
-  float GetCredit() { return 0; }
+  float GetCredit() const { return 0; }
 
   /**
    * Returns profit value of the current account.
    */
-  float GetProfit() { return 0; }
+  float GetProfit() const { return 0; }
 
   /**
    * Returns equity value of the current account.
    */
-  float GetEquity() { return 0; }
+  float GetEquity() const { return 0; }
 
   /**
    * Returns margin value of the current account.
    */
-  float GetMarginUsed() { return 0; }
+  float GetMarginUsed() const { return 0; }
 
   /**
    * Returns free margin value of the current account.
    */
-  float GetMarginFree() { return 0; }
+  float GetMarginFree() const { return 0; }
 
   /**
    * Get account available margin.
    */
-  float GetMarginAvail() { return 0; }
+  float GetMarginAvail() const { return 0; }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  virtual SerializerNodeType Serialize(Serializer &_s) { return SerializerNodeObject; }
 };
 
-class ExchangeDummy : public Exchange {};
+class ExchangeDummy : public Exchange {
+ public:
+  /**
+   * Class constructor without parameters.
+   */
+  ExchangeDummy(){};
+
+  /**
+   * Class constructor with parameters.
+   */
+  ExchangeDummy(ExchangeParams &_eparams) { eparams = _eparams; };
+};
 class SymbolDummy : public SymbolInfo {};
 class TradeDummy : public Trade {
  public:
@@ -86,8 +107,8 @@ bool TestExchange01() {
   // Attach instances of dummy accounts.
   Ref<AccountDummy> account01 = new AccountDummy();
   Ref<AccountDummy> account02 = new AccountDummy();
-  exchange REF_DEREF AccountAdd(account01.Ptr(), "Account01");
-  exchange REF_DEREF AccountAdd(account02.Ptr(), "Account02");
+  exchange REF_DEREF AccountAdd(account01.Ptr(), 0);
+  exchange REF_DEREF AccountAdd(account02.Ptr(), 1);
 
   // Attach instances of dummy symbols.
   Ref<SymbolDummy> symbol01 = new SymbolDummy();
@@ -104,6 +125,24 @@ bool TestExchange01() {
   return _result;
 }
 
+// Test dummy Exchange via tasks.
+bool TestExchange02() {
+  bool _result = true;
+  // Initialize a dummy Exchange instance.
+  ExchangeParams _eparams(0, __FUNCTION__);
+  Ref<ExchangeDummy> exchange = new ExchangeDummy(_eparams);
+  // Add account01 via task.
+  TaskActionEntry _task_add_acc_01(EXCHANGE_ACTION_ADD_ACCOUNT);
+  exchange.Ptr().Run(_task_add_acc_01);
+  // Add account02 via task from JSON.
+  TaskActionEntry _task_add_acc_02(EXCHANGE_ACTION_ADD_ACCOUNT);
+  DataParamEntry _acc_02_entry = "{\"id\": 1, \"name\": \"Account02\", \"currency\": \"USD\"}";
+  _task_add_acc_02.ArgAdd(_acc_02_entry);
+  exchange.Ptr().Run(_task_add_acc_02);
+  Print(exchange.Ptr().ToString());
+  return _result;
+}
+
 /**
  * Implements OnInit().
  */
@@ -111,5 +150,6 @@ int OnInit() {
   Platform::Init();
   bool _result = true;
   assertTrueOrFail(TestExchange01(), "Fail!");
+  assertTrueOrFail(TestExchange02(), "Fail!");
   return _result && GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED;
 }

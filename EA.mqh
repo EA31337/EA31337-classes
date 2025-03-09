@@ -46,7 +46,7 @@
 #include "Storage/Data.struct.h"
 #include "Storage/Dict/Dict.h"
 #include "Storage/Dict/DictObject.h"
-#include "Strategy.mqh"
+#include "Strategy/Strategy.h"
 #include "SummaryReport.mqh"
 #include "Task/Task.h"
 #include "Task/TaskAction.enum.h"
@@ -70,7 +70,7 @@ class EA : public Taskable<DataParamEntry> {
   BufferStruct<SymbolInfoEntry> data_symbol;
   Dict<string, double> ddata;  // Custom user data.
   Dict<string, int> idata;     // Custom user data.
-  DictObject<string, Trade> trade;
+  DictStruct<string, Ref<Trade>> trade;
   DictObject<int, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<int, BufferStruct<StgEntry>> data_stg;
   EAParams eparams;
@@ -98,8 +98,7 @@ class EA : public Taskable<DataParamEntry> {
   void InitTask() {
     // Add and process init task.
     TaskEntry _task_entry(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
-    TaskObject<EA, EA> _taskobj_init(_task_entry,
-                                     THIS_PTR, THIS_PTR);
+    TaskObject<EA, EA> _taskobj_init(_task_entry, THIS_PTR, THIS_PTR);
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), true);
     _taskobj_init.Process();
     estate.Set(STRUCT_ENUM(EAState, EA_STATE_FLAG_ON_INIT), false);
@@ -115,11 +114,11 @@ class EA : public Taskable<DataParamEntry> {
     // Add and process tasks.
     Init();
     // Initialize a trade instance for the current chart and symbol.
-    Ref<IndicatorData> _source = Platform::FetchDefaultCandleIndicator(_Symbol, PERIOD_CURRENT);
+    Ref<IndicatorData> _source = Platform::FetchDefaultCandleIndicator(Platform::GetSymbol(), Platform::GetPeriod());
     TradeParams _tparams(0, 1.0f, 0, (ENUM_LOG_LEVEL)eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
-    Trade _trade(_tparams, _source.Ptr());
+    Ref<Trade> _trade = new Trade(_tparams, _source.Ptr());
     trade.Set(_Symbol, _trade);
-    logger.Link(_trade.GetLogger());
+    logger.Link(_trade REF_DEREF GetLogger());
     logger.SetLevel((ENUM_LOG_LEVEL)eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
     //_trade.GetLogger().SetLevel((ENUM_LOG_LEVEL)eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)));
   }
@@ -163,7 +162,7 @@ class EA : public Taskable<DataParamEntry> {
    */
   template <typename T>
   T Get(ENUM_TRADE_STATE _state, string _symbol = NULL) {
-    return trade.GetByKey(_symbol != "" ? _symbol : _Symbol) PTR_DEREF Get<T>(_state);
+    return trade.GetByKey(_symbol != "" ? _symbol : _Symbol) REF_DEREF Get<T>(_state);
   }
 
   /**
@@ -221,7 +220,7 @@ class EA : public Taskable<DataParamEntry> {
   /**
    * Gets EA's trade instance.
    */
-  Trade *GetTrade(string _symbol) { return trade.GetByKey(_symbol); }
+  Trade *GetTrade(string _symbol) { return trade.GetByKey(_symbol).Ptr(); }
 
   /* Setters */
 
@@ -254,8 +253,8 @@ class EA : public Taskable<DataParamEntry> {
    */
   template <typename T>
   void Set(ENUM_TRADE_PARAM _param, T _value) {
-    for (DictObjectIterator<string, Trade> iter = trade.Begin(); iter.IsValid(); ++iter) {
-      Trade *_trade = iter.Value();
+    for (DictStructIterator<string, Ref<Trade>> iter = trade.Begin(); iter.IsValid(); ++iter) {
+      Trade *_trade = iter.Value().Ptr();
       _trade PTR_DEREF Set<T>(_param, _value);
     }
     for (DictStructIterator<int64, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
@@ -280,7 +279,7 @@ class EA : public Taskable<DataParamEntry> {
         // Ignores already processed signals.
         continue;
       }
-      Trade *_trade = trade.GetByKey(_Symbol);
+      Trade *_trade = trade.GetByKey(_Symbol).Ptr();
       Strategy *_strat =
           strats.GetByKey(_signal PTR_DEREF Get<int64>(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_PROP_MAGIC_ID)))
               .Ptr();
@@ -387,7 +386,7 @@ class EA : public Taskable<DataParamEntry> {
    */
   virtual bool TradeRequest(ENUM_ORDER_TYPE _cmd, string _symbol = NULL, Strategy *_strat = NULL) {
     bool _result = false;
-    Trade *_trade = trade.GetByKey(_symbol);
+    Trade *_trade = trade.GetByKey(_symbol).Ptr();
     // Prepare a request.
     MqlTradeRequest _request = _trade PTR_DEREF GetTradeOpenRequest(_cmd);
     _request.comment = _strat PTR_DEREF GetOrderOpenComment();
@@ -453,7 +452,7 @@ class EA : public Taskable<DataParamEntry> {
         for (DictStructIterator<int64, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
           bool _can_trade = true;
           Strategy *_strat = iter.Value().Ptr();
-          Trade *_trade = trade.GetByKey(_Symbol);
+          Trade *_trade = trade.GetByKey(_Symbol).Ptr();
           if (_strat PTR_DEREF IsEnabled()) {
             if (estate.Get<unsigned int>(STRUCT_ENUM(EAState, EA_STATE_PROP_NEW_PERIODS)) >= DATETIME_MINUTE) {
               // Process when new periods started.
@@ -600,9 +599,10 @@ class EA : public Taskable<DataParamEntry> {
       SerializerConverter _stub =
           SerializerConverter::MakeStubObject<BufferStruct<IndicatorDataEntry>>(_serializer_flags);
 
-      /*
-      for (DictStructIterator<int64, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
-        ENUM_TIMEFRAMES _itf = iter_tf.Key(); // @fixme
+      /* @todo
+      for (DictStructIterator<int64, Ref<Strategy>> _iter = GetStrategies() PTR_DEREF Begin(); _iter.IsValid(); ++_iter)
+      { int _sid = (int)_iter.Key(); Strategy *_strat = _iter.Value().Ptr();
+        // ENUM_TIMEFRAMES _itf = iter_tf.Key(); // @fixme
         if (data_indi.KeyExists(_itf)) {
           BufferStruct<IndicatorDataEntry> _indi_buff = data_indi.GetByKey(_itf);
 
@@ -635,15 +635,16 @@ class EA : public Taskable<DataParamEntry> {
     if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
       SerializerConverter _stub = SerializerConverter::MakeStubObject<BufferStruct<StgEntry>>(_serializer_flags);
 
-      /* @fixme
-      for (DictStructIterator<int64, Ref<Strategy>> iter = strats.Begin(); iter.IsValid(); ++iter) {
-        ENUM_TIMEFRAMES _stf = iter_tf.Key(); // @fixme
-        if (data_stg.KeyExists(_stf)) {
-          string _key_stg = StringFormat("Strategy-%d", _stf);
-          BufferStruct<StgEntry> _stg_buff = data_stg.GetByKey(_stf);
-          SerializerConverter _obj = SerializerConverter::FromObject(_stg_buff, _serializer_flags);
+      for (DictStructIterator<int64, Ref<Strategy>> _iter = GetStrategies() PTR_DEREF Begin(); _iter.IsValid();
+           ++_iter) {
+        int _sid = (int)_iter.Key();
+        Strategy *_strat = _iter.Value().Ptr();
+        if (data_stg.KeyExists(_sid)) {
+          string _key_stg = StringFormat("Strategy-%d", _sid);
+          BufferStruct<StgEntry> *_stg_buff = data_stg.GetByKey(_sid);
+          SerializerConverter _obj = SerializerConverter::FromObject(PTR_TO_REF(_stg_buff), _serializer_flags);
 
-          _key_stg += StringFormat("-%d-%d-%d", _stf, _stg_buff.GetMin(), _stg_buff.GetMax());
+          _key_stg += StringFormat("-%d-%d-%d", _sid, _stg_buff PTR_DEREF GetMin(), _stg_buff PTR_DEREF GetMax());
           if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
             _obj.ToFile<SerializerCsv>(_key_stg + ".csv", _serializer_flags, &_stub);
           }
@@ -658,7 +659,6 @@ class EA : public Taskable<DataParamEntry> {
           _obj.Clean();
         }
       }
-      */
       // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
       _stub.Clean();
     }
@@ -825,7 +825,7 @@ class EA : public Taskable<DataParamEntry> {
    */
   bool StrategyLoadTrades(Strategy *_strat) {
     bool _result = true;
-    Trade *_trade = trade.GetByKey(_Symbol);
+    Trade *_trade = trade.GetByKey(_Symbol).Ptr();
     // Load active trades.
     _result &= _trade PTR_DEREF OrdersLoadByMagic(_strat PTR_DEREF Get<int64>(STRAT_PARAM_ID));
     // Load strategy-specific order parameters (e.g. conditions).
@@ -853,8 +853,8 @@ class EA : public Taskable<DataParamEntry> {
   bool ProcessTrades() {
     bool _result = true;
     ResetLastError();
-    for (DictObjectIterator<string, Trade> titer = trade.Begin(); titer.IsValid(); ++titer) {
-      Trade *_trade = titer.Value();
+    for (DictStructIterator<string, Ref<Trade>> titer = trade.Begin(); titer.IsValid(); ++titer) {
+      Trade *_trade = titer.Value().Ptr();
       if (_trade PTR_DEREF Get<bool>(TRADE_STATE_ORDERS_ACTIVE) &&
           !_trade PTR_DEREF Get<bool>(TRADE_STATE_MARKET_CLOSED)) {
         for (DictStructIterator<int64, Ref<Order>> oiter = _trade PTR_DEREF GetOrdersActive() PTR_DEREF Begin();
@@ -951,7 +951,7 @@ class EA : public Taskable<DataParamEntry> {
     bool _result = false;
     if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
       // Auto calculate lot size for all strategies.
-      Trade *_trade = trade.GetByKey(_Symbol);
+      Trade *_trade = trade.GetByKey(_Symbol).Ptr();
       _result &= _trade PTR_DEREF Run(TRADE_ACTION_CALC_LOT_SIZE);
       Set(STRAT_PARAM_LS, _trade PTR_DEREF Get<float>(TRADE_PARAM_LOT_SIZE));
     }
@@ -1043,13 +1043,13 @@ class EA : public Taskable<DataParamEntry> {
     switch (_entry.GetId()) {
       case EA_ACTION_DISABLE:
         estate.Enable(false);
-        return true;
+        break;
       case EA_ACTION_ENABLE:
         estate.Enable();
-        return true;
+        break;
       case EA_ACTION_EXPORT_DATA:
         DataExport();
-        return true;
+        break;
       case EA_ACTION_STRATS_EXE_ACTION: {
         // Args:
         // 1st (i:0) - Strategy's enum action to execute.
@@ -1058,10 +1058,9 @@ class EA : public Taskable<DataParamEntry> {
         _entry_strat.ArgRemove(0);
         for (DictStructIterator<int64, Ref<Strategy>> iter_strat = strats.Begin(); iter_strat.IsValid(); ++iter_strat) {
           Strategy *_strat = iter_strat.Value().Ptr();
-
           _result &= _strat PTR_DEREF Run(_entry_strat);
         }
-        return _result;
+        break;
       }
       case EA_ACTION_TASKS_CLEAN:
         tasks.GetTasks() PTR_DEREF Clear();
@@ -1069,6 +1068,7 @@ class EA : public Taskable<DataParamEntry> {
       default:
         GetLogger() PTR_DEREF Error(StringFormat("Invalid EA action: %d!", _entry.GetId(), __FUNCTION_LINE__));
         SetUserError(ERR_INVALID_PARAMETER);
+        _result = false;
     }
     return _result;
   }

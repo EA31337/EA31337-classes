@@ -28,6 +28,7 @@
   #include "Deal.enum.h"
   #include "Order.struct.h"
   #include "Platform.define.h"
+  #include "Platform.enum.h"
 
 /**
  * Extern declarations for C++.
@@ -41,16 +42,17 @@ extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 #endif
 
 // Includes.
-
-/**
- * Current platform's static methods.
- */
-
+#include "../Exchange/Exchange.h"
 #include "../Indicator/IndicatorData.h"
 #include "../Indicator/tests/classes/IndicatorTfDummy.h"
 #include "../Indicators/DrawIndicator.mqh"
+#include "../Serializer/Serializer.h"
 #include "../Std.h"
 #include "../Storage/Flags.struct.h"
+#include "../Task/TaskManager.h"
+#include "../Task/Taskable.h"
+#include "Platform.enum.h"
+#include "Platform.struct.h"
 
 #ifdef __MQLBUILD__
   #include "../Indicators/Tf/Indi_TfMt.h"
@@ -65,7 +67,11 @@ extern int Bars(CONST_REF_TO_SIMPLE(string) _symbol, ENUM_TIMEFRAMES _tf);
 #endif
 #include "../Exchange/SymbolInfo/SymbolInfo.struct.static.h"
 
-class Platform {
+class Platform : public Taskable<DataParamEntry> {
+ protected:
+  DictStruct<int, Ref<Exchange>> exchanges;
+  PlatformParams pparams;
+
   // Whether Init() was already called.
   static bool initialized;
 
@@ -99,7 +105,50 @@ class Platform {
   // Timeframe of the currently ticking indicator.
   static ENUM_TIMEFRAMES period;
 
+ private:
+  /**
+   * Sets symbol of the currently ticking indicator.
+   **/
+  static void SetSymbol(string _symbol) { symbol = _symbol; }
+
+  /**
+   * Sets timeframe of the currently ticking indicator.
+   **/
+  static void SetPeriod(ENUM_TIMEFRAMES _period) { period = _period; }
+
  public:
+  /**
+   * Class constructor without parameters.
+   */
+  Platform(){};
+
+  /**
+   * Class constructor with parameters.
+   */
+  Platform(PlatformParams &_pparams) : pparams(_pparams){};
+
+  /**
+   * Class deconstructor.
+   */
+  ~Platform() {}
+
+  /* Adders */
+
+  /**
+   * Adds Exchange instance to the list.
+   */
+  void ExchangeAdd(Exchange *_Exchange, int _id = 0) {
+    Ref<Exchange> _ref = _Exchange;
+    exchanges.Set(_id, _ref);
+  }
+
+  /**
+   * Adds Exchange instance to the list.
+   */
+  void ExchangeAdd(ExchangeParams &_eparams) { ExchangeAdd(new Exchange(_eparams)); }
+
+  /* Static methods */
+
   /**
    * Initializes platform.
    */
@@ -110,6 +159,26 @@ class Platform {
     }
 
     initialized = true;
+  }
+
+  /**
+   * When testing code inside the OnInit() method symbol and tf may be
+   * undefined. This is a way to solve that problem. Use only for
+   * testing!
+   */
+  static void SetSymbolTfForTesting(string _symbol, ENUM_TIMEFRAMES _tf) {
+    if (_symbol == PLATFORM_WRONG_SYMBOL) {
+      Print("Error: SetSymbolTfForTesting() requires valid symbol. Passed \"", _symbol, "\".");
+      DebugBreak();
+    }
+
+    if (_tf == PERIOD_CURRENT || _tf == PLATFORM_WRONG_TIMEFRAME) {
+      Print("Error: SetSymbolTfForTesting() requires valid time-frame. Passed \"", EnumToString(_tf), "\".");
+      DebugBreak();
+    }
+
+    symbol = _symbol;
+    period = _tf;
   }
 
   /**
@@ -171,6 +240,11 @@ class Platform {
     // Started from 0. Will be incremented after each finished tick.
     ++global_tick_index;
   }
+
+  /**
+   * Checks whether previous Tick() performed a tick or not.
+   */
+  static bool HadTick() { return last_tick_result; }
 
   /**
    * Called by indicators' OnCalculate() method in order to prepare history via
@@ -486,16 +560,83 @@ class Platform {
     return 2;
   }
 
- private:
-  /**
-   * Sets symbol of the currently ticking indicator.
-   **/
-  static void SetSymbol(string _symbol) { symbol = _symbol; }
+  /* Taskable methods */
 
   /**
-   * Sets timeframe of the currently ticking indicator.
-   **/
-  static void SetPeriod(ENUM_TIMEFRAMES _period) { period = _period; }
+   * Checks a condition.
+   */
+  bool Check(const TaskConditionEntry &_entry) override {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Gets a data param entry.
+   */
+  DataParamEntry Get(const TaskGetterEntry &_entry) override {
+    DataParamEntry _result;
+    switch (_entry.GetId()) {
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Runs an action.
+   */
+  bool Run(const TaskActionEntry &_entry) override {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      case PLATFORM_ACTION_ADD_EXCHANGE:
+        if (!_entry.HasArgs()) {
+          ExchangeAdd(new Exchange());
+        } else {
+          ExchangeParams _eparams(_entry.GetArg(0).ToString());
+          Ref<Exchange> _exchange1_ref = new Exchange(_eparams);
+          exchanges.Set(_eparams.Get<int>(STRUCT_ENUM(ExchangeParams, EXCHANGE_PARAM_ID)), _exchange1_ref);
+        }
+        break;
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /**
+   * Sets an entry value.
+   */
+  bool Set(const TaskSetterEntry &_entry, const DataParamEntry &_entry_value) override {
+    bool _result = true;
+    switch (_entry.GetId()) {
+      default:
+        _result = false;
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+    return _result;
+  }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.PassStruct(THIS_REF, "params", pparams);
+    //_s.PassStruct(THIS_REF, "exchanges", exchanges);
+    return SerializerNodeObject;
+  }
+
+  /**
+   * Returns textual representation of the object instance.
+   */
+  const string ToString() override { return SerializerConverter::FromObject(THIS_REF).ToString<SerializerJson>(); }
 };
 
 bool Platform::initialized = false;

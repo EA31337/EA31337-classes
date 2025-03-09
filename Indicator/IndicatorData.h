@@ -35,8 +35,8 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
 };
 
 // Includes.
-#include "../Bar.struct.h"
 #include "../Exchange/SymbolInfo/SymbolInfo.struct.h"
+#include "../Platform/Chart/Bar.struct.h"
 #include "../Platform/Chart/Chart.struct.tf.h"
 #include "../Storage/Cache/IndiBufferCache.h"
 #include "../Storage/Flags.struct.h"
@@ -220,7 +220,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Get full name of the indicator (with "over ..." part).
    */
-  string GetFullName() {
+  string GetFullName() override {
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
     string _mode;
 
@@ -408,13 +408,13 @@ class IndicatorData : public IndicatorBase {
    */
   template <typename T>
   double GetMax(int start_bar = 0, int count = WHOLE_ARRAY) {
-    double max = NULL;
+    double max = -DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).GetMax<T>(_max_modes);
-      if (max == NULL || value > max) {
+      if (max == -DBL_MAX || value > max) {
         max = value;
       }
     }
@@ -619,7 +619,7 @@ class IndicatorData : public IndicatorBase {
         Ref<IndicatorData> _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
 
         if (!_source.IsSet()) {
-          Alert(GetName(), " has no built-in source indicator ", _source_id);
+          Alert(GetFullName(), " has no built-in source indicator ", _source_id);
           DebugBreak();
         } else {
           indicators.Set(_source_id, _source);
@@ -1158,22 +1158,54 @@ class IndicatorData : public IndicatorBase {
   /**
    * Gets ask price for a given shift. Return current ask price if _shift wasn't passed or is 0.
    */
-  virtual double GetAsk(int _shift = 0) { return GetTick() PTR_DEREF GetAsk(_shift); }
+  virtual double GetAsk(int _shift = 0) {
+    if (GetTick() == THIS_PTR) {
+      Alert(GetFullName(), " tick indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetTick() PTR_DEREF GetAsk(_shift);
+  }
 
   /**
    * Gets bid price for a given shift. Return current bid price if _shift wasn't passed or is 0.
    */
-  virtual double GetBid(int _shift = 0) { return GetTick() PTR_DEREF GetBid(_shift); }
+  virtual double GetBid(int _shift = 0) {
+    if (GetTick() == THIS_PTR) {
+      Alert(GetFullName(), " tick indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetTick() PTR_DEREF GetBid(_shift);
+  }
 
   /**
    * Returns the number of bars on the chart decremented by iparams.shift.
    */
-  int GetBars() override { return GetCandle() PTR_DEREF GetBars(); }
+  int GetBars() override {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetBars();
+  }
 
   /**
    * Returns index of the current bar.
    */
-  virtual int GetBarIndex() { return GetCandle() PTR_DEREF GetBarIndex(); }
+  virtual int GetBarIndex() {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetBarIndex();
+  }
 
   /**
    * Returns time of the bar for a given shift.
@@ -1202,6 +1234,12 @@ class IndicatorData : public IndicatorBase {
    * Returns the index of the bar which covers the specified time.
    */
   virtual int GetBarShift(datetime _time, bool _exact = false) {
+    if (GetTick() == THIS_PTR) {
+      Alert(GetFullName(), " tick indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
     return GetTick() PTR_DEREF GetBarShift(_time, _exact);
   }
 
@@ -1239,7 +1277,15 @@ class IndicatorData : public IndicatorBase {
   /**
    * Gets close price for a given, optional shift.
    */
-  virtual double GetClose(int _shift = 0) { return GetCandle() PTR_DEREF GetClose(_shift); }
+  virtual double GetClose(int _shift = 0) {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetClose(_shift);
+  }
 
   /**
    * Returns the indicator's struct value via index.
@@ -1254,7 +1300,15 @@ class IndicatorData : public IndicatorBase {
   /**
    * Gets high price for a given, optional shift.
    */
-  virtual double GetHigh(int _shift = 0) { return GetCandle() PTR_DEREF GetHigh(_shift); }
+  virtual double GetHigh(int _shift = 0) {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetHigh(_shift);
+  }
 
   /**
    * Alters indicator's struct value.
@@ -1269,30 +1323,57 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's entry value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) = 0;
+  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override = 0;
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
-  virtual int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return GetCandle() PTR_DEREF GetHighest(type, _count, _start);
+  virtual int GetHighest(int mode, int count = WHOLE_ARRAY, int start_bar = 0) {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+    return GetCandle() PTR_DEREF GetHighest(mode, count, start_bar);
   }
 
   /**
    * Returns time of the last bar.
    */
-  virtual datetime GetLastBarTime() { return GetCandle() PTR_DEREF GetLastBarTime(); }
+  virtual datetime GetLastBarTime() {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetLastBarTime();
+  }
 
   /**
    * Gets low price for a given, optional shift.
    */
-  virtual double GetLow(int _shift = 0) { return GetCandle() PTR_DEREF GetLow(_shift); }
+  virtual double GetLow(int _shift = 0) {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetLow(_shift);
+  }
 
   /**
    * Returns the shift of the minimum value over a specific number of periods depending on type.
    */
-  virtual int GetLowest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return GetCandle() PTR_DEREF GetLowest(type, _count, _start);
+  virtual int GetLowest(int mode, int count = WHOLE_ARRAY, int start_bar = 0) {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetLowest(mode, count, start_bar);
   }
 
   /**
@@ -1305,17 +1386,34 @@ class IndicatorData : public IndicatorBase {
   /**
    * Get name of the indicator.
    */
-  virtual string GetName() { return EnumToString(GetType()); }
+  virtual string GetName() override { return EnumToString(GetType()); }
 
   /**
    * Gets open price for a given, optional shift.
    */
-  virtual double GetOpen(int _shift = 0) { return GetCandle() PTR_DEREF GetOpen(_shift); }
+  virtual double GetOpen(int _shift = 0) {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetOpen(_shift);
+  }
 
   /**
    * Gets OHLC price values.
    */
-  virtual BarOHLC GetOHLC(int _rel_shift = 0) { return GetCandle() PTR_DEREF GetOHLC(_rel_shift); }
+  virtual BarOHLC GetOHLC(int _rel_shift = 0) override {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      BarOHLC _empty;
+      return _empty;
+    }
+
+    return GetCandle() PTR_DEREF GetOHLC(_rel_shift);
+  }
 
   /**
    * Get peak price at given number of bars.
@@ -1323,6 +1421,12 @@ class IndicatorData : public IndicatorBase {
    * In case of error, check it via GetLastError().
    */
   virtual double GetPeakPrice(int _bars, int _mode, int _index) {
+    if (GetTick() == THIS_PTR) {
+      Alert(GetFullName(), " tick indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
     return GetTick() PTR_DEREF GetPeakPrice(_bars, _mode, _index);
   }
 
@@ -1330,6 +1434,12 @@ class IndicatorData : public IndicatorBase {
    * Returns the current price value given applied price type, symbol and timeframe.
    */
   double GetPrice(ENUM_APPLIED_PRICE _ap, int _rel_shift = 0) override {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
     return GetCandle() PTR_DEREF GetPrice(_ap, _rel_shift);
   }
 
@@ -1345,7 +1455,15 @@ class IndicatorData : public IndicatorBase {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  int64 GetSpread(int _shift = 0) override { return GetCandle() PTR_DEREF GetSpread(_shift); }
+  int64 GetSpread(int _shift = 0) override {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetSpread(_shift);
+  }
 
   /**
    * Returns spread in pips.
@@ -1452,20 +1570,44 @@ class IndicatorData : public IndicatorBase {
   /**
    * Gets indicator's symbol.
    */
-  virtual string GetSymbol() { return GetTick() PTR_DEREF GetSymbol(); }
+  virtual string GetSymbol() {
+    if (GetTick() == THIS_PTR) {
+      Alert(GetFullName(), " tick indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return "";
+    }
+
+    return GetTick() PTR_DEREF GetSymbol();
+  }
 
   /**
    * Gets symbol info for active symbol.
    */
-  virtual SymbolInfoProp GetSymbolProps() { return GetTick() PTR_DEREF GetSymbolProps(); }
+  virtual SymbolInfoProp GetSymbolProps() {
+    if (GetTick() == THIS_PTR) {
+      Alert(GetFullName(), " tick indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      SymbolInfoProp _empty;
+      return _empty;
+    }
+
+    return GetTick() PTR_DEREF GetSymbolProps();
+  }
 
   /**
    * Gets indicator's time-frame.
    */
-  virtual ENUM_TIMEFRAMES GetTf() { return GetCandle() PTR_DEREF GetTf(); }
+  virtual ENUM_TIMEFRAMES GetTf() {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return (ENUM_TIMEFRAMES)-1;
+    }
+
+    return GetCandle() PTR_DEREF GetTf();
+  }
 
   /**
-    /**
    * Traverses source indicators' hierarchy and tries to find Ask, Bid, Spread,
    * Volume and Tick Volume-featured indicator. IndicatorTick satisfies such
    * requirements.
@@ -1492,12 +1634,28 @@ class IndicatorData : public IndicatorBase {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  virtual int64 GetTickVolume(int _shift = 0) { return GetCandle() PTR_DEREF GetTickVolume(_shift); }
+  virtual int64 GetTickVolume(int _shift = 0) {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetTickVolume(_shift);
+  }
 
   /**
    * Removes candle from the buffer. Used mainly for testing purposes.
    */
-  virtual void InvalidateCandle(int _abs_shift = 0) { GetCandle() PTR_DEREF InvalidateCandle(_abs_shift); }
+  virtual void InvalidateCandle(int _abs_shift = 0) {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return;
+    }
+
+    GetCandle() PTR_DEREF InvalidateCandle(_abs_shift);
+  }
 
   /**
    * Fetches historic ticks for a given time range.
@@ -1792,7 +1950,15 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns current tick index (incremented every OnTick()).
    */
-  virtual int GetTickIndex() { return GetTick() PTR_DEREF GetTickIndex(); }
+  virtual int GetTickIndex() {
+    if (GetTick() == THIS_PTR) {
+      Alert(GetFullName(), " tick indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetTick() PTR_DEREF GetTickIndex();
+  }
 
   /**
    * Get indicator type.
@@ -1820,7 +1986,15 @@ class IndicatorData : public IndicatorBase {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  int64 GetVolume(int _shift = 0) override { return GetCandle() PTR_DEREF GetVolume(_shift); }
+  int64 GetVolume(int _shift = 0) override {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return -1;
+    }
+
+    return GetCandle() PTR_DEREF GetVolume(_shift);
+  }
 
   /**
    * Sends entry to listening indicators.
@@ -1868,7 +2042,15 @@ class IndicatorData : public IndicatorBase {
   /**
    * Check if there is a new bar to parse.
    */
-  virtual bool IsNewBar() { return GetCandle() PTR_DEREF IsNewBar(); }
+  virtual bool IsNewBar() {
+    if (GetCandle() == THIS_PTR) {
+      Alert(GetFullName(), " candle indicator must override ", __FUNCTION__, "()!");
+      DebugBreak();
+      return false;
+    }
+
+    return GetCandle() PTR_DEREF IsNewBar();
+  }
 
   /**
    * Called when indicator became a data source for other indicator.
@@ -1975,12 +2157,12 @@ class IndicatorData : public IndicatorBase {
   /**
    * Converts relative shift into absolute one.
    */
-  virtual int ToAbsShift(int _rel_shift) = 0;
+  virtual int ToAbsShift(int _rel_shift) override = 0;
 
   /**
    * Converts absolute shift into relative one.
    */
-  virtual int ToRelShift(int _abs_shift) = 0;
+  virtual int ToRelShift(int _abs_shift) override = 0;
 
   /**
    * Loads and validates built-in indicators whose can be used as data source.
@@ -2034,7 +2216,7 @@ IValueStorage* ExternInstantiateIndicatorBufferValueStorageDouble::InstantiateIn
 }
 
 #ifndef __MQL__
-int GetBarsFromStart(IndicatorData* _indi) { return _indi PTR_DEREF GetBars(); }
+int GetBarsFromStart(IndicatorBase* _indi) { return _indi PTR_DEREF GetBars(); }
 #endif
 
 #ifdef EMSCRIPTEN

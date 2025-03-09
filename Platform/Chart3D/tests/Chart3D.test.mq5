@@ -26,25 +26,25 @@
 
 #ifdef __MQL5__
 
-//#define __debug__
+  //#define __debug__
 
-// Resources.
-#resource "Shaders/vertex.hlsl" as string ShaderSourceVS;
-#resource "Shaders/pixel.hlsl" as string ShaderSourcePS;
+  // Resources.
+  #resource "Shaders/vertex.hlsl" as string ShaderSourceVS;
+  #resource "Shaders/pixel.hlsl" as string ShaderSourcePS;
 
-// Includes.
-#include "../Chart3D.h"
-#include "../Cube.h"
-#include "../Devices/MTDX/MTDXDevice.h"
-#include "../Devices/MTDX/MTDXIndexBuffer.h"
-#include "../Devices/MTDX/MTDXShader.h"
-#include "../Devices/MTDX/MTDXVertexBuffer.h"
-#include "../Frontends/MT5Frontend.h"
-#include "../../../Storage/Dict/Buffer/BufferStruct.h"
-#include "../../Chart/Chart.h"
-#include "../../Platform.h"
-#include "../../../Serializer/Serializer.h"
-#include "../../../Test.mqh"
+  // Includes.
+  #include "../../../Serializer/Serializer.h"
+  #include "../../../Storage/Dict/Buffer/BufferStruct.h"
+  #include "../../../Test.mqh"
+  #include "../../Chart/Chart.h"
+  #include "../../Platform.h"
+  #include "../Chart3D.h"
+  #include "../Cube.h"
+  #include "../Devices/MTDX/MTDXDevice.h"
+  #include "../Devices/MTDX/MTDXIndexBuffer.h"
+  #include "../Devices/MTDX/MTDXShader.h"
+  #include "../Devices/MTDX/MTDXVertexBuffer.h"
+  #include "../Frontends/MT5Frontend.h"
 
 /**
  * Implements OnInit().
@@ -93,7 +93,8 @@ int OnInit() {
 
       gfx.End();
 
-      // break;
+      // Rendering one frame is enough.
+      break;
     }
   }
 

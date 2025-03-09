@@ -74,7 +74,7 @@ enum ENUM_TRADE_CONDITION {
   TRADE_COND_ORDERS_PROFIT_LT_ARG,          // Equity >= (arg)
   TRADE_COND_ORDERS_PROFIT_GT_RISK_MARGIN,  // Equity >= Risk Margin
   TRADE_COND_ORDERS_PROFIT_LT_RISK_MARGIN,  // Equity <= Risk Margin
-  FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
+  FINAL_ENUM_TRADE_CONDITION_ENTRY
 };
 
 // Defines enumeration for trade parameters.

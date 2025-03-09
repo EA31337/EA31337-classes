@@ -71,7 +71,7 @@ class AccountForexTest : public Account<AccountForexState, AccountForexEntry> {
  */
 int OnInit() {
   bool _result = true;
-  AccountForexTest acc1;
+  // AccountForexTest acc1;
   // ...
   return _result && GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED;
 }

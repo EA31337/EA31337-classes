@@ -25,7 +25,7 @@
 #pragma once
 #endif
 
-#ifndef __MQL4__
+#ifndef __MQL__
 // @note Values differ from the documentation at
 // https://www.mql5.com/en/docs/matrix/matrix_initialization/matrix_copyticks
 // @see https://www.mql5.com/en/forum/448933
@@ -42,3 +42,15 @@ enum ENUM_COPY_TICKS {
   COPY_TICKS_FLAGS = 2097152
 };
 #endif
+
+// Platform actions.
+enum ENUM_PLATFORM_ACTION {
+  PLATFORM_ACTION_ADD_EXCHANGE = 1,  // Add Exchange
+  FINAL_ENUM_PLATFORM_ACTION_ENTRY
+};
+
+// Platform conditions.
+enum ENUM_PLATFORM_CONDITION {
+  PLATFORM_COND_IS_ACTIVE = 1,  // Is active
+  FINAL_ENUM_PLATFORM_CONDITION_ENTRY
+};

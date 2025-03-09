@@ -26,11 +26,14 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
-#include "Math.h"
+// We currently only support MQL.
+#ifdef __MQL__
+
+  #include "Math.h"
 
 // Face flags.
 enum ENUM_FACE_FLAGS { FACE_FLAGS_NONE, FACE_FLAGS_TRIANGLE, FACE_FLAGS_QUAD };
@@ -99,3 +102,5 @@ struct Face {
     }
   }
 };
+
+#endif

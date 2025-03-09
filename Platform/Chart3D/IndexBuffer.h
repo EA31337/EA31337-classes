@@ -26,8 +26,8 @@
  */
 
 #ifndef __MQL__
-// Allows the preprocessor to include a header file when it is needed.
-#pragma once
+  // Allows the preprocessor to include a header file when it is needed.
+  #pragma once
 #endif
 
 #include "../../Refs.mqh"
@@ -54,15 +54,15 @@ class IndexBuffer : public Dynamic {
   /**
    * Creates index buffer.
    */
-  virtual bool Create(VOID_DATA(_data)) = NULL;
+  virtual bool Create(VOID_DATA(_data)) = 0;
 
   /**
    * Fills index buffer with indices.
    */
-  virtual void Fill(ARRAY_REF(unsigned int, _indices)) = NULL;
+  virtual void Fill(ARRAY_REF(unsigned int, _indices)) = 0;
 
   /**
    * Activates index buffer for rendering.
    */
-  virtual void Select() = NULL;
+  virtual void Select() = 0;
 };

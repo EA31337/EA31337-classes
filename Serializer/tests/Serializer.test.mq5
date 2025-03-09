@@ -19,7 +19,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define __debug__
+#define __debug_serializer__
 
 /**
  * @file
@@ -27,12 +27,12 @@
  */
 
 // Includes.
-#include "../../Storage/Dict/Buffer/BufferStruct.h"
-#include "../../Platform/Chart/Chart.h"
 #include "../../Config.mqh"
+#include "../../Platform/Chart/Chart.h"
 #include "../../Storage/Data.define.h"
 #include "../../Storage/Data.struct.h"
 #include "../../Storage/Data.struct.serialize.h"
+#include "../../Storage/Dict/Buffer/BufferStruct.h"
 #include "../../Storage/Dict/DictStruct.h"
 #include "../../Test.mqh"
 #include "../Serializer.h"

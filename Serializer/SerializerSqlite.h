@@ -56,7 +56,7 @@ class SerializerSqlite {
     string _csv = SerializerCsv::Stringify(source.root_node, _stringify_flags | SERIALIZER_CSV_INCLUDE_TITLES, _stub,
                                            &_matrix_out, &_column_types);
 
-#ifdef __debug__
+#ifdef __debug_serializer__
     Print("SerializerSqlite: Parsing CSV input:\n", _csv);
 #endif
 
