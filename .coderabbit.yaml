@@ -13,6 +13,8 @@ reviews:
       - "master"
       - "v*"
   path_filters:
+    - "**/*.h"
+    - "**/*.mq?"
     - "**/*.yml"
   tools:
     yamllint:
