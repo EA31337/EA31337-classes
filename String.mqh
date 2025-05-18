@@ -25,7 +25,9 @@
 #define STRING_MQH
 
 // Includes.
+#include "Array.extern.h"
 #include "Std.h"
+#include "String.extern.h"
 
 // Defines.
 #define NL "\n"   // New line: 0x0A (MQL file functions auto-convert 0x0A to 0x0D0A).

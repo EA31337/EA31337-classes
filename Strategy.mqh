@@ -1251,13 +1251,12 @@ class Strategy : public Object {
     int _count = (int)fmax(fabs(_level), fabs(_method));
     int _direction = Order::OrderDirection(_cmd, _mode);
     Chart *_chart = trade.GetChart();
-    IndicatorBase *_indi = GetIndicators().Begin().Value().Ptr();
+    IndicatorData *_indi = GetIndicators().Begin().Value().Ptr();
     StrategyPriceStop _psm(_method);
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {
       int _ishift = 12;  // @todo: Make it dynamic or as variable.
-      float _value = 0.0f; // @todo
-      //float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
+      float _value = _indi.GetValuePrice<float>(_ishift, 0, _direction > 0 ? PRICE_HIGH : PRICE_LOW);
       _value = _value + (float)Math::ChangeByPct(fabs(_value - _chart.GetCloseOffer(0)), _level) * _direction;
       _psm.SetIndicatorPriceValue(_value);
       /*
@@ -1292,9 +1291,9 @@ class Strategy : public Object {
       ChartEntry _bar1 = _c.GetEntry(_tf, _shift);
       float _range = _bar1.bar.ohlc.GetRange();
       if (_range > 0) {
-        float _open = (float)_c.GetOpen(_tf);
+        float _close = (float)_c.GetClose(_tf);
         float _pp = _bar1.bar.ohlc.GetPivot();
-        _result = 1 / _range * (_open - _pp);
+        _result = 1 / _range * (_close - _pp);
         _result = fmin(1, fmax(-1, _result));
       }
     }

@@ -26,8 +26,9 @@
 #endif
 
 #include "MQL5.mqh"
-#include "Tick.struct.h"
+#include "Order.enum.h"
 #include "Std.h"
+#include "Tick.struct.h"
 
 /**
  * Struct to provide symbol information.
@@ -135,9 +136,8 @@ struct SymbolInfoStatic {
    *
    */
   static unsigned int GetPointsPerPip(string _symbol) {
-    // To be used to replace Point for trade parameters calculations.
-    // See: https://www.mql5.com/en/forum/124692
-    return (unsigned int)pow(10, SymbolInfoStatic::GetDigits(_symbol) - SymbolInfoStatic::GetPipDigits(_symbol));
+    return (unsigned int)pow((unsigned int)10,
+                             SymbolInfoStatic::GetDigits(_symbol) - SymbolInfoStatic::GetPipDigits(_symbol));
   }
 
   /**
@@ -263,7 +263,7 @@ struct SymbolInfoStatic {
    * Get real spread based on the ask and bid price (in points).
    */
   static unsigned int GetRealSpread(double _bid, double _ask, unsigned int _digits) {
-    return (unsigned int)round((_ask - _bid) * pow(10, _digits));
+    return (unsigned int)round((_ask - _bid) * pow((unsigned int)10, _digits));
   }
   static unsigned int GetRealSpread(string _symbol) {
     return GetRealSpread(SymbolInfoStatic::GetBid(_symbol), SymbolInfoStatic::GetAsk(_symbol),

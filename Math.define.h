@@ -36,3 +36,25 @@
 #define fmin4(_v1, _v2, _v3, _v4) fmin(fmin(fmin(_v1, _v2), _v3), _v4)
 #define fmin5(_v1, _v2, _v3, _v4, _v5) fmin(fmin(fmin(fmin(_v1, _v2), _v3), _v4), _v5)
 #define fmin6(_v1, _v2, _v3, _v4, _v5, _v6) fmin(fmin(fmin(fmin(fmin(_v1, _v2), _v3), _v4), _v5), _v6)
+
+#ifdef __cplusplus
+#include <limits>
+
+#define CHAR_MIN std::numeric_limits<char>::min()
+#define CHAR_MAX std::numeric_limits<char>::max()
+#define UCHAR_MAX std::numeric_limits<unsigned char>::max()
+#define SHORT_MAX std::numeric_limits<short>::max()
+#define SHORT_MIN std::numeric_limits<short>::min()
+#define USHORT_MAX std::numeric_limits<unsigned short>::max()
+#define INT_MIN std::numeric_limits<int>::min()
+#define INT_MAX std::numeric_limits<int>::max()
+#define UINT_MAX std::numeric_limits<unsigned int>::max()
+#define LONG_MIN std::numeric_limits<long>::min()
+#define LONG_MAX std::numeric_limits<long>::max()
+#define ULONG_MAX std::numeric_limits<short>::max()
+#define FLT_MIN std::numeric_limits<float>::min()
+#define FLT_MAX std::numeric_limits<float>::max()
+#define DBL_MIN std::numeric_limits<double>::min()
+#define DBL_MAX std::numeric_limits<double>::max()
+
+#endif

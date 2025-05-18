@@ -124,14 +124,14 @@ class TradeSignalManager : Dynamic {
   void Refresh() {
     for (DictObjectIterator<int, TradeSignal> iter = GetIterSignalsActive(); iter.IsValid(); ++iter) {
       TradeSignal *_signal = iter.Value();
-      if (_signal.Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED))) {
+      if (_signal PTR_DEREF Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_PROCESSED))) {
         signals_active.Unset(iter);
-        signals_processed.Push(_signal);
+        signals_processed.Push(PTR_TO_REF(_signal));
         continue;
       }
-      if (_signal.Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_EXPIRED))) {
+      if (_signal PTR_DEREF Get(STRUCT_ENUM(TradeSignalEntry, TRADE_SIGNAL_FLAG_EXPIRED))) {
         signals_active.Unset(iter);
-        signals_expired.Push(_signal);
+        signals_expired.Push(PTR_TO_REF(_signal));
         continue;
       }
     }

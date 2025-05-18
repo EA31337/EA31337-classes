@@ -32,9 +32,7 @@
 // Structs.
 struct CandleParams : IndicatorParams {
   // Struct constructor.
-  CandleParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_CANDLE, 1, TYPE_INT) {
-    SetDataValueRange(IDATA_RANGE_RANGE);
-    SetDataSourceType(IDATA_BUILTIN);
+  CandleParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : IndicatorParams(INDI_CANDLE) {
     shift = _shift;
     tf = _tf;
   };
@@ -52,7 +50,11 @@ class Indi_Candle : public IndicatorTickOrCandleSource<CandleParams> {
   /**
    * Class constructor.
    */
-  Indi_Candle(CandleParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_Candle(CandleParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+              int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_INT, _idstype, IDATA_RANGE_RANGE, _indi_src_mode),
+            _indi_src){};
   Indi_Candle(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_CANDLE, _tf, _shift){};
 
@@ -72,7 +74,7 @@ class Indi_Candle : public IndicatorTickOrCandleSource<CandleParams> {
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     BarOHLC _ohlcs[1];
 
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         // In this mode, price is fetched from chart.
         _ohlcs[0] = Chart::GetOHLC(_ishift);

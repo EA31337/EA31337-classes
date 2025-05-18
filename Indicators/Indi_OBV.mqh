@@ -36,21 +36,16 @@ struct IndiOBVParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;    // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume;  // MT5 only.
   // Struct constructors.
-  IndiOBVParams(int _shift = 0) : IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
+  IndiOBVParams(int _shift = 0) : IndicatorParams(INDI_OBV) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\OBV");
     applied_price = PRICE_CLOSE;
     applied_volume = VOLUME_TICK;
   }
-  IndiOBVParams(ENUM_APPLIED_VOLUME _av, int _shift = 0)
-      : applied_volume(_av), IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
-    max_modes = 1;
+  IndiOBVParams(ENUM_APPLIED_VOLUME _av, int _shift = 0) : applied_volume(_av), IndicatorParams(INDI_OBV) {
     shift = _shift;
   };
-  IndiOBVParams(ENUM_APPLIED_PRICE _ap, int _shift = 0)
-      : applied_price(_ap), IndicatorParams(INDI_OBV, 1, TYPE_DOUBLE) {
-    max_modes = 1;
+  IndiOBVParams(ENUM_APPLIED_PRICE _ap, int _shift = 0) : applied_price(_ap), IndicatorParams(INDI_OBV) {
     shift = _shift;
   };
   IndiOBVParams(IndiOBVParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -67,7 +62,11 @@ class Indi_OBV : public IndicatorTickOrCandleSource<IndiOBVParams> {
   /**
    * Class constructor.
    */
-  Indi_OBV(IndiOBVParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_OBV(IndiOBVParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+           int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src) {}
   Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickOrCandleSource(INDI_OBV, _tf, _shift) {}
 
   /**
@@ -83,7 +82,7 @@ class Indi_OBV : public IndicatorTickOrCandleSource<IndiOBVParams> {
 #else
                      ENUM_APPLIED_VOLUME _applied = VOLUME_TICK,  // MT5 only.
 #endif
-                     int _shift = 0, IndicatorBase *_obj = NULL) {
+                     int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, _applied, _shift);
 #else  // __MQL5__
@@ -121,7 +120,7 @@ class Indi_OBV : public IndicatorTickOrCandleSource<IndiOBVParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
 #ifdef __MQL4__
         _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _ishift);

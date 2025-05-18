@@ -129,6 +129,7 @@ struct StgParams {
         price_stop_method(_psm),
         price_stop_level(_psl),
         tick_filter_method(_tfm),
+        trend_threshold(0.4f),
         shift(_s),
         is_enabled(true),
         is_suspended(false),

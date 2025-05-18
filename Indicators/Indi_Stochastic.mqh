@@ -48,9 +48,8 @@ struct IndiStochParams : IndicatorParams {
         slowing(_slowing),
         ma_method(_ma_method),
         price_field(_pf),
-        IndicatorParams(INDI_STOCHASTIC, FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE) {
+        IndicatorParams(INDI_STOCHASTIC) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\Stochastic");
   };
   IndiStochParams(IndiStochParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -67,7 +66,12 @@ class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
   /**
    * Class constructor.
    */
-  Indi_Stochastic(IndiStochParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src) {}
+  Indi_Stochastic(IndiStochParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+                  int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(_p,
+                                    IndicatorDataParams::GetInstance(FINAL_SIGNAL_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                                     IDATA_RANGE_RANGE, _indi_src_mode),
+                                    _indi_src) {}
   Indi_Stochastic(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_STOCHASTIC, _tf, _shift) {}
 
@@ -84,7 +88,7 @@ class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
       ENUM_STO_PRICE _price_field,  // (MT4 _price_field):      0      - Low/High,       1        - Close/Close
                                     // (MT5 _price_field): STO_LOWHIGH - Low/High, STO_CLOSECLOSE - Close/Close
       int _mode,                    // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0, IndicatorBase *_obj = NULL) {
+      int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
 #else  // __MQL5__
@@ -123,7 +127,7 @@ class Indi_Stochastic : public IndicatorTickOrCandleSource<IndiStochParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = LINE_MAIN, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(),
                                               GetMAMethod(), GetPriceField(), _mode, _ishift, THIS_PTR);

@@ -30,6 +30,7 @@
 #include "Indicator.struct.h"
 #include "Math.define.h"
 #include "Math.enum.h"
+#include "Math.extern.h"
 #include "Math.struct.h"
 
 /**

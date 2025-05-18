@@ -31,6 +31,7 @@ class SymbolInfo;
 #include "SymbolInfo.define.h"
 #include "SymbolInfo.enum.h"
 #include "SymbolInfo.enum.symbols.h"
+#include "SymbolInfo.extern.h"
 #include "SymbolInfo.struct.h"
 #include "SymbolInfo.struct.static.h"
 
@@ -58,7 +59,7 @@ class SymbolInfo : public Object {
 
  public:
   /**
-   * Implements class constructor with a parameter.
+   * Class constructor given a symbol string.
    */
   SymbolInfo(string _symbol = NULL) : symbol(_symbol), pip_size(GetPipSize()), symbol_digits(GetDigits()) {
     Select();
@@ -72,6 +73,16 @@ class SymbolInfo : public Object {
       symbol = _Symbol;
     }
   }
+
+  /**
+   * Class constructor with symbol properties.
+   */
+  SymbolInfo(const SymbolInfoProp &_sip) : sprops(_sip) {}
+
+  /**
+   * Class copy constructor.
+   */
+  SymbolInfo(const SymbolInfo &_si) : s_entry(_si.s_entry), sprops(_si.sprops) {}
 
   ~SymbolInfo() {}
 

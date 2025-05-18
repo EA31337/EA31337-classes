@@ -32,3 +32,24 @@
 
 #define DICT_GROW_UP_PERCENT_DEFAULT 25
 #define DICT_PERFORMANCE_PROBLEM_AVG_CONFLICTS 10
+
+/**
+ * Whether Dict operates in yet uknown mode, as dict or as list.
+ */
+enum DictMode { DictModeUnknown, DictModeDict, DictModeList };
+
+/**
+ * Reason of call to overflow listener.
+ */
+enum ENUM_DICT_OVERFLOW_REASON {
+  DICT_OVERFLOW_REASON_FULL,
+  DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS,
+};
+
+/**
+ * Dictionary flags.
+ */
+enum ENUM_DICT_FLAG {
+  DICT_FLAG_NONE = 0,
+  DICT_FLAG_FILL_HOLES_UNSORTED = 1,
+};

@@ -79,7 +79,10 @@ class IndicatorTf : public IndicatorCandle<TFP, double> {
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(TFP &_params) : IndicatorCandle<TFP, double>(_params) { Init(); }
+  IndicatorTf(TFP& _icparams, const IndicatorDataParams& _idparams)
+      : IndicatorCandle<TFP, double>(_icparams, _idparams) {
+    Init();
+  }
 };
 
 #endif

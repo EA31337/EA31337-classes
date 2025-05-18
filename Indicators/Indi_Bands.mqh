@@ -68,13 +68,8 @@ struct IndiBandsParams : IndicatorParams {
   // Struct constructors.
   IndiBandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0,
                   ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
-      : period(_period),
-        deviation(_deviation),
-        bshift(_bshift),
-        applied_price(_ap),
-        IndicatorParams(INDI_BANDS, FINAL_BANDS_LINE_ENTRY, TYPE_DOUBLE) {
+      : period(_period), deviation(_deviation), bshift(_bshift), applied_price(_ap), IndicatorParams(INDI_BANDS) {
     shift = _shift;
-    SetDataValueRange(IDATA_RANGE_PRICE);
     SetCustomIndicatorName("Examples\\BB");
   };
   IndiBandsParams(IndiBandsParams &_params, ENUM_TIMEFRAMES _tf) {
@@ -87,13 +82,29 @@ struct IndiBandsParams : IndicatorParams {
  * Implements the Bollinger Bands® indicator.
  */
 class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
+ protected:
+  /* Protected methods */
+
+  /**
+   * Initialize.
+   */
+  void Init() { Set<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES), FINAL_BANDS_LINE_ENTRY); }
+
  public:
   /**
    * Class constructor.
    */
-  Indi_Bands(IndiBandsParams &_p, IndicatorBase *_indi_src = NULL, int _mode = 0)
-      : IndicatorTickSource(_p, _indi_src, _mode) {}
-  Indi_Bands(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_BANDS, _tf, _shift) {}
+  Indi_Bands(IndiBandsParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+             int _indi_src_mode = 0)
+      : IndicatorTickSource(_p,
+                            IndicatorDataParams::GetInstance(FINAL_BANDS_LINE_ENTRY, TYPE_DOUBLE, _idstype,
+                                                             IDATA_RANGE_PRICE, _indi_src_mode),
+                            _indi_src) {
+    Init();
+  }
+  Indi_Bands(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) : IndicatorTickSource(INDI_BANDS, _tf, _shift) {
+    Init();
+  }
 
   /**
    * Returns the indicator value.
@@ -104,7 +115,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
    */
   static double iBands(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
                        ENUM_APPLIED_PRICE _applied_price, ENUM_BANDS_LINE _mode = BAND_BASE, int _shift = 0,
-                       IndicatorBase *_obj = NULL) {
+                       IndicatorData *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
 #else  // __MQL5__
@@ -141,7 +152,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
    *
    * When _applied_price is set to -1, method will
    */
-  static double iBandsOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+  static double iBandsOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                   double _deviation, int _bands_shift,
                                   ENUM_BANDS_LINE _mode,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
@@ -156,7 +167,9 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
       int current_shift = _shift + (i - _bands_shift);
       // Getting current indicator value.
       _indi_value_buffer[i - _bands_shift] =
-          _indi[i - _bands_shift].values[_target != NULL ? _target.GetDataSourceMode() : 0].Get<double>();
+          _indi[i - _bands_shift]
+              .values[_target != NULL ? _target.Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_SRC_MODE)) : 0]
+              .Get<double>();
     }
 
     // Base band.
@@ -242,7 +255,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = BAND_BASE, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
                                     GetAppliedPrice(), (ENUM_BANDS_LINE)_mode, _ishift, THIS_PTR);
@@ -271,7 +284,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
   /**
    * Provides built-in indicators whose can be used as data source.
    */
-  virtual IndicatorBase *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+  virtual IndicatorData *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
       IndiBandsParams bands_params();
       return new Indi_Bands(bands_params);
@@ -295,7 +308,7 @@ class Indi_Bands : public IndicatorTickSource<IndiBandsParams> {
       return new Indi_StdDev(stddev_params);
     }
 
-    return IndicatorBase::FetchDataSource(_id);
+    return IndicatorData::FetchDataSource(_id);
   }
 
   /* Getters */

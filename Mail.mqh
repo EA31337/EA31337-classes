@@ -44,10 +44,10 @@ class Mail {
    * Constructor.
    */
   Mail(string _subject_prefix = "Trading Info: ") {
-    this.string_dlm = " ";
-    this.string_nl = "<br>\n";
-    this.subject_execute_order = __FILE__;
-    this.subject_prefix = _subject_prefix;
+    this PTR_DEREF string_dlm = " ";
+    this PTR_DEREF string_nl = "<br>\n";
+    this PTR_DEREF subject_execute_order = __FILE__;
+    this PTR_DEREF subject_prefix = _subject_prefix;
   }
 
   /* Getters */
@@ -55,12 +55,12 @@ class Mail {
   /**
    * Gets subject prefix.
    */
-  string GetMailSubjectPrefix() { return this.subject_prefix; }
+  string GetMailSubjectPrefix() { return this PTR_DEREF subject_prefix; }
 
   /**
    * Gets subject on execute order.
    */
-  string GetMailSubjectExecuteOrder() { return this.subject_execute_order; }
+  string GetMailSubjectExecuteOrder() { return this PTR_DEREF subject_execute_order; }
 
   /**
    * Get content of e-mail for executing order.
@@ -87,41 +87,45 @@ class Mail {
   /**
    * Gets string delimiter.
    */
-  string GetStringDlm() { return this.string_dlm; }
+  string GetStringDlm() { return this PTR_DEREF string_dlm; }
 
   /**
    * Gets string new line separator.
    */
-  string GetStringNl() { return this.string_nl; }
+  string GetStringNl() { return this PTR_DEREF string_nl; }
 
   /**
    * Get subject of e-mail for executing order.
    *
    * Note: Order needs to be selected before calling this function.
    */
-  string GetSubjectExecuteOrder() { return GetMailSubjectPrefix() + this.string_dlm + GetMailSubjectExecuteOrder(); }
+  string GetSubjectExecuteOrder() {
+    return GetMailSubjectPrefix() + this PTR_DEREF string_dlm + GetMailSubjectExecuteOrder();
+  }
 
   /* Setters */
 
   /**
    * Sets subject prefix.
    */
-  void SetSubjectPrefix(string _subject_prefix) { this.subject_prefix = _subject_prefix; }
+  void SetSubjectPrefix(string _subject_prefix) { this PTR_DEREF subject_prefix = _subject_prefix; }
 
   /**
    * Sets subject on execute order.
    */
-  void SetSubjectExecuteOrder(string _subject_execute_order) { this.subject_execute_order = _subject_execute_order; }
+  void SetSubjectExecuteOrder(string _subject_execute_order) {
+    this PTR_DEREF subject_execute_order = _subject_execute_order;
+  }
 
   /**
    * Sets string delimiter.
    */
-  void SetStringDlm(string _dlm) { this.string_dlm = _dlm; }
+  void SetStringDlm(string _dlm) { this PTR_DEREF string_dlm = _dlm; }
 
   /**
    * Sets string new line separator.
    */
-  void SetStringNl(string _nl) { this.string_nl = _nl; }
+  void SetStringNl(string _nl) { this PTR_DEREF string_nl = _nl; }
 
   /* Mailing methods */
 

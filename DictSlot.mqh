@@ -52,7 +52,7 @@ class DictSlot {
 
   void AddFlags(unsigned char flags) { _flags |= flags; }
 
-  void RemoveFlags(unsigned char flags) { _flags &= ~flags; }
+  void RemoveFlags(unsigned char flags) { _flags &= (unsigned char)~flags; }
 };
 
 #endif

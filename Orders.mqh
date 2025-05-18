@@ -550,9 +550,9 @@ class Orders {
   double GetRealizedPL() const {
     double profit = 0;
     for (int i = 0; i <= numberOrders; ++i) {
-      if (this.orders[i].getOrderType() == ORDER_FINAL) {
+      if (this PTR_DEREF orders[i].getOrderType() == ORDER_FINAL) {
         // @todo
-        // profit += this.orders[i].getOrderProfit();
+        // profit += this PTR_DEREF orders[i].getOrderProfit();
       }
     }
     return profit;
@@ -569,8 +569,8 @@ class Orders {
   double GetUnrealizedPL() const {
     double profit = 0;
     for (int i = 0; i <= numberOrders; ++i) {
-      if (this.orders[i].getOrderType() != ORDER_FINAL) {
-        profit += this.orders[i].getOrderProfit();
+      if (this PTR_DEREF orders[i].getOrderType() != ORDER_FINAL) {
+        profit += this PTR_DEREF orders[i].getOrderProfit();
       }
     }
     return profit;
@@ -579,7 +579,7 @@ class Orders {
   double GetTotalEquity() const {
     double profit = 0;
     for (int i = 0; i <= numberOrders; ++i) {
-      profit += this.orders[i].GetOrderProfit();
+      profit += this PTR_DEREF orders[i].GetOrderProfit();
     }
     return profit;
   }
@@ -587,7 +587,7 @@ class Orders {
   double GetTotalCommission() const {
     double commission = 0;
     for (int i = 0; i <= numberOrders; ++i) {
-      commission += this.orders[i].GetOrderCommission();
+      commission += this PTR_DEREF orders[i].GetOrderCommission();
     }
     return commission;
   }
@@ -595,7 +595,7 @@ class Orders {
   double GetTotalSwap() const {
     double swap = 0;
     for (int i = 0; i <= numberOrders; ++i) {
-      swap += this.orders[i].GetOrderSwap();
+      swap += this PTR_DEREF orders[i].GetOrderSwap();
     }
     return swap;
   }

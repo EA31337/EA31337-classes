@@ -31,10 +31,9 @@ struct IndiVROCParams : IndicatorParams {
   ENUM_APPLIED_VOLUME applied_volume;
   // Struct constructor.
   IndiVROCParams(unsigned int _period = 25, ENUM_APPLIED_VOLUME _applied_volume = VOLUME_TICK, int _shift = 0)
-      : IndicatorParams(INDI_VROC, 1, TYPE_DOUBLE) {
+      : IndicatorParams(INDI_VROC) {
     applied_volume = _applied_volume;
     period = _period;
-    SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\VROC");
     shift = _shift;
   };
@@ -52,7 +51,11 @@ class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
   /**
    * Class constructor.
    */
-  Indi_VROC(IndiVROCParams &_p, IndicatorBase *_indi_src = NULL) : IndicatorTickOrCandleSource(_p, _indi_src){};
+  Indi_VROC(IndiVROCParams &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, IndicatorData *_indi_src = NULL,
+            int _indi_src_mode = 0)
+      : IndicatorTickOrCandleSource(
+            _p, IndicatorDataParams::GetInstance(1, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED, _indi_src_mode),
+            _indi_src){};
   Indi_VROC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0)
       : IndicatorTickOrCandleSource(INDI_VROC, _tf, _shift){};
 
@@ -60,7 +63,7 @@ class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
    * Built-in version of VROC.
    */
   static double iVROC(string _symbol, ENUM_TIMEFRAMES _tf, int _period, ENUM_APPLIED_VOLUME _av, int _mode = 0,
-                      int _shift = 0, IndicatorBase *_obj = NULL) {
+                      int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG(_symbol, _tf, Util::MakeKey("Indi_VROC", _period, (int)_av));
     return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode, _shift, _cache);
   }
@@ -89,8 +92,8 @@ class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
   /**
    * On-indicator version of VROC indicator.
    */
-  static double iVROCOnIndicator(IndicatorBase *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
-                                 ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0, IndicatorBase *_obj = NULL) {
+  static double iVROCOnIndicator(IndicatorData *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _period,
+                                 ENUM_APPLIED_VOLUME _av, int _mode = 0, int _shift = 0, IndicatorData *_obj = NULL) {
     INDICATOR_CALCULATE_POPULATE_PARAMS_AND_CACHE_LONG_DS(
         _indi, _symbol, _tf, Util::MakeKey("Indi_VROC_ON_" + _indi.GetFullName(), _period, (int)_av));
     return iVROCOnArray(INDICATOR_CALCULATE_POPULATED_PARAMS_LONG, _period, _av, _mode, _shift, _cache);
@@ -144,7 +147,7 @@ class Indi_VROC : public IndicatorTickOrCandleSource<IndiVROCParams> {
   virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = 0) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         _value = Indi_VROC::iVROC(GetSymbol(), GetTf(), /*[*/ GetPeriod(), GetAppliedVolume() /*]*/, _mode, _ishift,
                                   THIS_PTR);
