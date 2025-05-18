@@ -1291,9 +1291,9 @@ class Strategy : public Object {
       ChartEntry _bar1 = _c.GetEntry(_tf, _shift);
       float _range = _bar1.bar.ohlc.GetRange();
       if (_range > 0) {
-        float _open = (float)_c.GetOpen(_tf);
+        float _close = (float)_c.GetClose(_tf);
         float _pp = _bar1.bar.ohlc.GetPivot();
-        _result = 1 / _range * (_open - _pp);
+        _result = 1 / _range * (_close - _pp);
         _result = fmin(1, fmax(-1, _result));
       }
     }
