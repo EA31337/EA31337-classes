@@ -36,9 +36,13 @@ jobs:
         file: ${{ fromJson(needs.FileList.outputs.filelist) }}
     steps:
       - uses: actions/checkout@v2
-      - name: Install compiler
+      - name: Install Emscripten toolchain
+        uses: mymindstorm/setup-emsdk@v11
+      - name: Install CPP compiler
         uses: rlalik/setup-cpp-compiler@v1.1
         with:
           compiler: gcc-latest
-      - name: Compile ${{ matrix.file }}
-        run: g++ "${{ matrix.file }}"
+      - name: Compile ${{ matrix.file }} via emcc
+        run: emcc "${{ matrix.file }}"
+      - name: Compile ${{ matrix.file }} via g++
+        run: g++ -c "${{ matrix.file }}"

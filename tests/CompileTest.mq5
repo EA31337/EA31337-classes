@@ -37,14 +37,13 @@
 
 // Includes.
 #include "../Account.mqh"
-#include "../Action.mqh"
 #include "../Array.mqh"
+#include "../Task/TaskAction.h"
 //#include "../BasicTrade.mqh" // @removeme
 #include "../Buffer.mqh"
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
 #include "../Collection.mqh"
-#include "../Condition.mqh"
 #include "../Config.mqh"
 #include "../Convert.mqh"
 #include "../Database.mqh"
@@ -68,6 +67,7 @@
 #include "../Log.mqh"
 #include "../MD5.mqh"
 #include "../Storage/IValueStorage.h"
+#include "../Task/TaskCondition.h"
 //#include "../MQL4.mqh" // @removeme
 //#include "../MQL5.mqh" // @removeme
 #include "../Mail.mqh"
@@ -111,7 +111,7 @@
 #include "../String.mqh"
 #include "../SummaryReport.mqh"
 #include "../SymbolInfo.mqh"
-#include "../Task.mqh"
+#include "../Task/Task.h"
 #include "../Terminal.mqh"
 // #include "../Tester.mqh" // @removeme
 #include "../Storage/ValueStorage.h"

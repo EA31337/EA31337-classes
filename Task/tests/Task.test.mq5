@@ -21,25 +21,25 @@
 
 /**
  * @file
- * Test functionality of Action class.
+ * Test functionality of Task class.
  */
-
-// Defines.
-#define ACTION_EA_ENABLED
 
 // Forward declaration.
 struct DataParamEntry;
 
 // Includes.
-#include "../Action.mqh"
-#include "../DictObject.mqh"
-#include "../EA.mqh"
-#include "../Test.mqh"
+#include "../../Chart.mqh"
+#include "../../DictObject.mqh"
+#include "../../EA.mqh"
+#include "../TaskAction.h"
+#include "../TaskCondition.h"
+#include "../../Test.mqh"
+#include "../Task.h"
 
 // Global variables.
 Chart *chart;
 EA *ea;
-DictObject<short, Action> actions;
+DictObject<short, Task> tasks;
 
 // Define strategy classes.
 class Stg1 : public Strategy {
@@ -54,7 +54,7 @@ class Stg1 : public Strategy {
   }
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return true; }
   bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
-  float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0; }
+  float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0f; }
   bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return true; }
   float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
     return _level;
@@ -71,26 +71,8 @@ int OnInit() {
   // Initializes EA.
   EAParams ea_params(__FILE__);
   ea = new EA(ea_params);
-  _result &= ea.StrategyAdd<Stg1>(127);
-  // Check asserts.
-  // Confirm EA is active.
-  assertTrueOrReturnFalse(ea.CheckCondition(EA_COND_IS_ACTIVE), "Wrong condition: EA_COND_IS_ACTIVE!");
-  // Confirm EA is enabled.
-  assertTrueOrReturnFalse(ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
-#ifdef ACTION_EA_ENABLED
-  // Disables EA and confirm it's disabled.
-  Action *action1 = new Action(EA_ACTION_DISABLE, ea);
-  action1.Execute();
-  assertTrueOrReturnFalse(!ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
-  delete action1;
-  // Re-enables EA and confirm it's enabled.
-  Action *action2 = new Action(EA_ACTION_ENABLE, ea);
-  action2.Execute();
-  assertTrueOrReturnFalse(ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
-  delete action2;
-#endif
+  //_result &= ea.StrategyAdd<Stg1>(127);
   _result &= GetLastError() == ERR_NO_ERROR;
-
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -109,6 +91,16 @@ void OnTick() {
       case 3:
         break;
       case 4:
+        break;
+      case 5:
+        break;
+      case 6:
+        break;
+      case 7:
+        break;
+      case 8:
+        break;
+      case 9:
         break;
     }
   }

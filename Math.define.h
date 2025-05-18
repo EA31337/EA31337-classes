@@ -40,21 +40,68 @@
 #ifdef __cplusplus
 #include <limits>
 
+#ifndef CHAR_MIN
 #define CHAR_MIN std::numeric_limits<char>::min()
+#endif
+
+#ifndef CHAR_MAX
 #define CHAR_MAX std::numeric_limits<char>::max()
+#endif
+
+#ifndef UCHAR_MAX
 #define UCHAR_MAX std::numeric_limits<unsigned char>::max()
+#endif
+
+#ifndef SHORT_MAX
 #define SHORT_MAX std::numeric_limits<short>::max()
+#endif
+
+#ifndef SHORT_MIN
 #define SHORT_MIN std::numeric_limits<short>::min()
+#endif
+
+#ifndef USHORT_MAX
 #define USHORT_MAX std::numeric_limits<unsigned short>::max()
+#endif
+
+#ifndef INT_MIN
 #define INT_MIN std::numeric_limits<int>::min()
+#endif
+
+#ifndef INT_MAX
 #define INT_MAX std::numeric_limits<int>::max()
+#endif
+
+#ifndef UINT_MAX
 #define UINT_MAX std::numeric_limits<unsigned int>::max()
+#endif
+
+#ifndef LONG_MIN
 #define LONG_MIN std::numeric_limits<long>::min()
+#endif
+
+#ifndef LONG_MAX
 #define LONG_MAX std::numeric_limits<long>::max()
+#endif
+
+#ifndef ULONG_MAX
 #define ULONG_MAX std::numeric_limits<short>::max()
+#endif
+
+#ifndef FLT_MIN
 #define FLT_MIN std::numeric_limits<float>::min()
+#endif
+
+#ifndef FLT_MAX
 #define FLT_MAX std::numeric_limits<float>::max()
+#endif
+
+#ifndef DBL_MIN
 #define DBL_MIN std::numeric_limits<double>::min()
+#endif
+
+#ifndef DBL_MAX
 #define DBL_MAX std::numeric_limits<double>::max()
+#endif
 
 #endif

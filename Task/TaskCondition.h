@@ -26,28 +26,28 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef CONDITION_MQH
-#define CONDITION_MQH
+#ifndef TASK_CONDITION_MQH
+#define TASK_CONDITION_MQH
 
 // Includes.
-#include "Account.mqh"
-#include "Chart.mqh"
-#include "DateTime.mqh"
-#include "DictStruct.mqh"
-#include "EA.mqh"
-#include "Indicator.mqh"
-#include "Market.mqh"
-#include "Object.mqh"
-#include "Order.mqh"
+#include "../Account.mqh"
+#include "../Chart.mqh"
+#include "../DateTime.mqh"
+#include "../DictStruct.mqh"
+#include "../EA.mqh"
+#include "../Indicator.mqh"
+#include "../Market.mqh"
+#include "../Object.mqh"
+#include "../Order.mqh"
 
 // Includes class enum and structs.
-#include "Condition.enum.h"
-#include "Condition.struct.h"
+#include "TaskCondition.enum.h"
+#include "TaskCondition.struct.h"
 
 /**
- * Condition class.
+ * TaskCondition class.
  */
-class Condition {
+class TaskCondition {
  public:
  protected:
   // Class variables.
@@ -55,31 +55,31 @@ class Condition {
 
  public:
   // Class variables.
-  DictStruct<short, ConditionEntry> conds;
+  DictStruct<short, TaskConditionEntry> conds;
 
   /* Special methods */
 
   /**
    * Class constructor.
    */
-  Condition() {}
-  Condition(ConditionEntry &_entry) { conds.Push(_entry); }
-  Condition(long _cond_id, ENUM_CONDITION_TYPE _type) {
-    ConditionEntry _entry(_cond_id, _type);
+  TaskCondition() {}
+  TaskCondition(TaskConditionEntry &_entry) { conds.Push(_entry); }
+  TaskCondition(long _cond_id, ENUM_TASK_CONDITION_TYPE _type) {
+    TaskConditionEntry _entry(_cond_id, _type);
     conds.Push(_entry);
   }
   template <typename T>
-  Condition(T _cond_id, void *_obj = NULL) {
-    ConditionEntry _entry(_cond_id);
+  TaskCondition(T _cond_id, void *_obj = NULL) {
+    TaskConditionEntry _entry(_cond_id);
     if (_obj != NULL) {
       _entry.SetObject(_obj);
     }
     conds.Push(_entry);
   }
   template <typename T>
-  Condition(T _cond_id, MqlParam &_args[], void *_obj = NULL) {
+  TaskCondition(T _cond_id, MqlParam &_args[], void *_obj = NULL) {
     Init();
-    ConditionEntry _entry(_cond_id);
+    TaskConditionEntry _entry(_cond_id);
     _entry.SetArgs(_args);
     if (_obj != NULL) {
       _entry.SetObject(_obj);
@@ -90,7 +90,7 @@ class Condition {
   /**
    * Class copy constructor.
    */
-  Condition(Condition &_cond) { conds = _cond.GetConditions(); }
+  TaskCondition(TaskCondition &_cond) { conds = _cond.GetConditions(); }
 
   /* Main methods */
 
@@ -99,9 +99,9 @@ class Condition {
    */
   bool Test() {
     bool _result = false, _prev_result = true;
-    for (DictStructIterator<short, ConditionEntry> iter = conds.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, TaskConditionEntry> iter = conds.Begin(); iter.IsValid(); ++iter) {
       bool _curr_result = false;
-      ConditionEntry _entry = iter.Value();
+      TaskConditionEntry _entry = iter.Value();
       if (!_entry.IsValid()) {
         // Ignore invalid entries.
         continue;
@@ -130,7 +130,7 @@ class Condition {
   /**
    * Test specific condition.
    */
-  static bool Test(ConditionEntry &_entry) {
+  static bool Test(TaskConditionEntry &_entry) {
     bool _result = false;
     switch (_entry.type) {
       case COND_TYPE_ACCOUNT:
@@ -262,8 +262,8 @@ class Condition {
   /**
    * Returns conditions.
    */
-  DictStruct<short, ConditionEntry> *GetConditions() { return &conds; }
+  DictStruct<short, TaskConditionEntry> *GetConditions() { return &conds; }
 
   /* Setters */
 };
-#endif  // CONDITION_MQH
+#endif  // TASK_CONDITION_MQH
