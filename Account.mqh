@@ -630,14 +630,17 @@ class Account {
   }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, long _arg1) {
     ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param1;
+    _param1 = _arg1;
     ArrayPushObject(_args, _param1);
     return Account::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, long _arg1, long _arg2) {
     ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
+    DataParamEntry _param1;
+    _param1 = _arg1;
+    DataParamEntry _param2;
+    _param2 =_arg2;
     ArrayPushObject(_args, _param1);
     ArrayPushObject(_args, _param2);
     return Account::CheckCondition(_cond, _args);

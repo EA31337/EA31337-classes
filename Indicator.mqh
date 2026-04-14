@@ -680,7 +680,7 @@ class Indicator : public IndicatorBase {
   /**
    * Sets indicator's params.
    */
-  void SetParams(IndicatorParams& _iparams) { iparams = _iparams; }
+  void SetParams(IndicatorParams& _iparams) { (IndicatorParams)iparams = _iparams; }
 
   /**
    * Sets indicator's symbol.
@@ -763,7 +763,8 @@ class Indicator : public IndicatorBase {
   }
   bool ExecuteAction(ENUM_INDICATOR_ACTION _action, long _arg1) {
     ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param1;
+    _param1 = _arg1;
     ArrayPushObject(_args, _param1);
     _args[0].integer_value = _arg1;
     return ExecuteAction(_action, _args);

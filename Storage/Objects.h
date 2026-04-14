@@ -49,7 +49,7 @@ class Objects {
    * Tries to retrieve pointer to object for a given key. Returns true if object did exist.
    */
   static bool TryGet(string& key, C*& out_ptr) {
-    int position;
+    unsigned int position;
     if (!GetObjects().KeyExists(key, position)) {
       out_ptr = NULL;
       return false;

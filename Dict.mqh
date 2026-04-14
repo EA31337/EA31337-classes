@@ -119,7 +119,7 @@ class Dict : public DictBase<K, V> {
   V operator[](K key) {
     if (_mode == DictModeList) return GetSlot((unsigned int)key).value;
 
-    int position;
+    unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, key, position);
 
     if (!slot) return (V)NULL;
@@ -191,7 +191,7 @@ class Dict : public DictBase<K, V> {
    * Checks whether dictionary contains given value.
    */
   bool Contains(const V value) {
-    for (DictIterator<K, V> i = Begin(); i.IsValid(); ++i) {
+    for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) {
       if (i.Value() == value) {
         return true;
       }

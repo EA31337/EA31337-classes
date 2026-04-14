@@ -539,7 +539,7 @@ struct PatternCandle4 : PatternCandle {
         return
             /* Bear 0 cont. */ _c[0].open > _c[0].close &&
             /* Bear 0 is low */ _c[0].low < _c[3].low &&
-            /* Bear 0 body is large */ _c3.CheckPattern(PATTERN_3CANDLE_BODY0_GT_SUM) &&
+            /* Bear 0 body is large */ _c3 . SCOPE_MEMBER(PatternCandle, CheckPattern) (PATTERN_3CANDLE_BODY0_GT_SUM) &&
             /* Bull 1 */ _c[1].open < _c[1].close &&
             /* Bull 2 */ _c[2].open < _c[2].close &&
             /* Bear 3 */ _c[3].open > _c[3].close &&
@@ -575,7 +575,7 @@ struct PatternCandle4 : PatternCandle {
         return
             /* Bull 0 cont. */ _c[0].open < _c[0].close &&
             /* Bull 0 is high */ _c[0].high > _c[3].high &&
-            /* Bull 0 body is large */ _c3.CheckPattern(PATTERN_3CANDLE_BODY0_GT_SUM) &&
+            /* Bull 0 body is large */ _c3 . SCOPE_MEMBER(PatternCandle, CheckPattern) (PATTERN_3CANDLE_BODY0_GT_SUM) &&
             /* Bear 1 */ _c[1].open > _c[1].close &&
             /* Bear 2 */ _c[2].open > _c[2].close &&
             /* Bull 3 */ _c[3].open < _c[3].close &&

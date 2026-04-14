@@ -42,6 +42,11 @@ class DictObjectIterator : public DictIteratorBase<K, V> {
   DictObjectIterator(DictBase<K, V>& dict, unsigned int slotIdx) : DictIteratorBase(dict, slotIdx) {}
 
   /**
+   * Constructor.
+   */
+  DictObjectIterator(DictIteratorBase<K, V>& baseIterator) : DictIteratorBase(baseIterator) {}
+
+  /**
    * Copy constructor.
    */
   DictObjectIterator(const DictObjectIterator& right) : DictIteratorBase(right) {}

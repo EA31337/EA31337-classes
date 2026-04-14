@@ -928,7 +928,7 @@ struct OrderStatic {
  * Usage: SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
  */
 struct MqlTradeRequestProxy : MqlTradeRequest {
-  MqlTradeRequestProxy(MqlTradeRequest &r) { THIS_REF = r; }
+  MqlTradeRequestProxy(MqlTradeRequest &r) { (MqlTradeRequest)THIS_REF = r; }
 
   SerializerNodeType Serialize(Serializer &s) {
     s.PassEnum(THIS_REF, "action", action);
@@ -958,7 +958,7 @@ struct MqlTradeRequestProxy : MqlTradeRequest {
  * Usage: SerializerConverter::FromObject(MqlTradeResultProxy(_request)).ToString<SerializerJson>());
  */
 struct MqlTradeResultProxy : MqlTradeResult {
-  MqlTradeResultProxy(MqlTradeResult &r) { THIS_REF = r; }
+  MqlTradeResultProxy(MqlTradeResult &r) { (MqlTradeResult)THIS_REF = r; }
 
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "retcode", retcode);
