@@ -222,6 +222,21 @@ const char* cstring_from(const std::string& _value) { return _value.c_str(); }
 #define STRUCT_ENUM(S, E) S::E
 #endif
 
+/**
+ * Referencing explicit struct's or class' scope.
+ *
+ * E.g., MT5 disallows method "shadowing", so when there are multiple methods
+ * with the same name then we must use 'Scope::Member', e.g.:
+ * _pattern.PatternCandle::CheckPattern(PATTERN_1CANDLE_IS_SPINNINGTOP);
+ * In MT4 we do:
+ * _pattern.CheckPattern(PATTERN_1CANDLE_IS_SPINNINGTOP);
+ */
+#ifdef __MQL4__
+#define SCOPE_MEMBER(S, M) M
+#else
+#define SCOPE_MEMBER(S, M) S::M
+#endif
+
 #ifndef __MQL__
 /**
  * @file

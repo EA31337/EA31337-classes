@@ -1805,7 +1805,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, long _arg1) {
     ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param1;
+    _param1 = _arg1;
     ArrayPushObject(_args, _param1);
     return Trade::CheckCondition(_cond, _args);
   }
@@ -1947,14 +1948,17 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   }
   bool ExecuteAction(ENUM_TRADE_ACTION _action, long _arg1) {
     ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param1;
+    _param1 = _arg1;
     ArrayPushObject(_args, _param1);
     return Trade::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_TRADE_ACTION _action, long _arg1, long _arg2) {
     ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
-    DataParamEntry _param2 = _arg2;
+    DataParamEntry _param1;
+    _param1 = _arg1;
+    DataParamEntry _param2;
+    _param2 = _arg2;
     ArrayPushObject(_args, _param1);
     ArrayPushObject(_args, _param2);
     return Trade::ExecuteAction(_action, _args);

@@ -62,7 +62,7 @@ class DateTime {
    */
   DateTime() { TimeToStruct(TimeCurrent(), dt_curr); }
   DateTime(DateTimeEntry &_dt) { dt_curr = _dt; }
-  DateTime(MqlDateTime &_dt) { dt_curr = _dt; }
+  DateTime(MqlDateTime &_dt) { dt_curr = DateTimeEntry(_dt); }
   DateTime(datetime _dt) { dt_curr.Set(_dt); }
 
   /**

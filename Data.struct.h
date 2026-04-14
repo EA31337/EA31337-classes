@@ -151,6 +151,14 @@ struct DataParamEntry : public MqlParam {
     type = TYPE_UINT;
     integer_value = _value;
   }
+  void operator=(const long _value) {
+    type = TYPE_LONG;
+    integer_value = _value;
+  }
+  void operator=(const unsigned long _value) {
+    type = TYPE_ULONG;
+    integer_value = (long)_value;
+  }
   template <typename T>
   void operator=(const T _value) {
     type = TYPE_INT;

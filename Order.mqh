@@ -2592,7 +2592,8 @@ class Order : public SymbolInfo {
       // _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
 #endif
       ARRAY(DataParamEntry, _args);
-      DataParamEntry _cond = _reason;
+      DataParamEntry _cond;
+      _cond = _reason;
       ArrayPushObject(_args, _cond);
       _result &= Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
     }

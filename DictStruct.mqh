@@ -136,7 +136,7 @@ class DictStruct : public DictBase<K, V> {
   V operator[](K key) {
     DictSlot<K, V>* slot;
 
-    int position;
+    unsigned int position;
 
     if (_mode == DictModeList)
       slot = GetSlot((unsigned int)key);

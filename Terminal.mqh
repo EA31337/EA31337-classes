@@ -887,7 +887,8 @@ class Terminal : public Object {
   }
   bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, long _arg1) {
     ARRAY(DataParamEntry, _args);
-    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param1;
+    _param1 = _arg1;
     ArrayPushObject(_args, _param1);
     return Terminal::CheckCondition(_cond, _args);
   }
