@@ -68,7 +68,7 @@ class DateTime {
   DateTime() { TimeToStruct(PlatformTime::CurrentTimestamp(), dt_curr); }
   DateTime(DateTime &r) : dt_curr(r.dt_curr), dt_last(r.dt_last) {}
   DateTime(DateTimeEntry &_dt) { dt_curr = _dt; }
-  DateTime(MqlDateTime &_dt) { dt_curr = _dt; }
+  DateTime(MqlDateTime &_dt) { dt_curr = DateTimeEntry(_dt); }
   DateTime(datetime _dt) { dt_curr.Set(_dt); }
 
   /**
@@ -245,11 +245,11 @@ class DateTime {
 
 #ifndef __MQL__
 
-datetime TimeCurrent() { return PlatformTime::CurrentTimestamp(); }
+datetime TimeCurrent() { return PlatformTime::CurrentTickTimestamp(); }
 
 datetime TimeCurrent(MqlDateTime &dt_struct) {
-  dt_struct = PlatformTime::CurrentTime();
-  return PlatformTime::CurrentTimestamp();
+  dt_struct = PlatformTime::CurrentTickTime();
+  return PlatformTime::CurrentTickTimestamp();
 }
 
 #endif

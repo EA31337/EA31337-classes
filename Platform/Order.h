@@ -2508,7 +2508,7 @@ class Order : public SymbolInfo {
     string _string;
     switch (selected_ticket_type) {
       case ORDER_SELECT_TYPE_NONE:
-        return (X)NULL_VALUE;
+        return NULL_VALUE;
 
       case ORDER_SELECT_TYPE_ACTIVE:
       case ORDER_SELECT_TYPE_HISTORY:
@@ -2527,7 +2527,7 @@ class Order : public SymbolInfo {
                   case DEAL_TYPE_SELL:
                     return ConvertBasic::LongTo<X>(ORDER_TYPE_SELL);
                   default:
-                    return (X)NULL_VALUE;
+                    return NULL_VALUE;
                 }
                 break;
               case ORDER_STATE:
@@ -2536,23 +2536,23 @@ class Order : public SymbolInfo {
               case ORDER_TIME_EXPIRATION:
               case ORDER_TIME_DONE:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               case ORDER_TIME_SETUP_MSC:
                 return OrderGetValue(DEAL_TIME_MSC, _type, _out);
               case ORDER_TIME_DONE_MSC:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               case ORDER_TYPE_FILLING:
               case ORDER_TYPE_TIME:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               case ORDER_MAGIC:
                 return OrderGetValue(DEAL_MAGIC, _type, _out);
               case ORDER_POSITION_ID:
                 return OrderGetValue(DEAL_POSITION_ID, _type, _out);
               case ORDER_POSITION_BY_ID:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               default:
                 if ((int)_prop_id == (int)ORDER_REASON) {
                   switch ((int)OrderGetValue(DEAL_REASON, _type, _long)) {
@@ -2571,7 +2571,7 @@ class Order : public SymbolInfo {
                     case DEAL_REASON_SO:
                       return ConvertBasic::LongTo<X>(ORDER_REASON_SO);
                     default:
-                      return (X)NULL_VALUE;
+                      return NULL_VALUE;
                   }
                 }
             }
@@ -2582,29 +2582,29 @@ class Order : public SymbolInfo {
                 return OrderGetValue(DEAL_VOLUME, _type, _out);
               case ORDER_VOLUME_CURRENT:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               case ORDER_PRICE_OPEN:
                 return OrderGetValue(DEAL_PRICE, _type, _out);
               case ORDER_SL:
               case ORDER_TP:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               case ORDER_PRICE_CURRENT:
                 return OrderGetValue(DEAL_PRICE, _type, _out);
               case ORDER_PRICE_STOPLIMIT:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
             }
             break;
           case ORDER_SELECT_DATA_TYPE_STRING:
             switch (_prop_id) {
               case ORDER_SYMBOL:
               case ORDER_COMMENT:
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               default:
     #ifdef ORDER_EXTERNAL_ID
                 if ((int)_prop_id == (int)ORDER_EXTERNAL_ID) {
-                  return (X)NULL_VALUE;
+                  return NULL_VALUE;
                 }
     #endif
             }
@@ -2625,7 +2625,7 @@ class Order : public SymbolInfo {
                   case POSITION_TYPE_SELL:
                     return ConvertBasic::LongTo<X>(ORDER_TYPE_SELL);
                   default:
-                    return (X)NULL_VALUE;
+                    return NULL_VALUE;
                 }
                 break;
               case ORDER_STATE:
@@ -2634,23 +2634,23 @@ class Order : public SymbolInfo {
               case ORDER_TIME_EXPIRATION:
               case ORDER_TIME_DONE:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               case ORDER_TIME_SETUP_MSC:
                 return OrderGetValue(POSITION_TIME_MSC, _type, _out);
               case ORDER_TIME_DONE_MSC:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               case ORDER_TYPE_FILLING:
               case ORDER_TYPE_TIME:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               case ORDER_MAGIC:
                 return OrderGetValue(POSITION_MAGIC, _type, _out);
               case ORDER_POSITION_ID:
                 return OrderGetValue(POSITION_IDENTIFIER, _type, _out);
               case ORDER_POSITION_BY_ID:
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
               default:
                 if ((int)_prop_id == (int)ORDER_REASON) {
                   switch ((int)OrderGetValue(POSITION_REASON, _type, _long)) {
@@ -2663,7 +2663,7 @@ class Order : public SymbolInfo {
                     case POSITION_REASON_EXPERT:
                       return ConvertBasic::LongTo<X>(ORDER_REASON_EXPERT);
                     default:
-                      return (X)NULL_VALUE;
+                      return NULL_VALUE;
                   }
                 }
             }
@@ -2685,7 +2685,7 @@ class Order : public SymbolInfo {
               case ORDER_PRICE_STOPLIMIT:
                 // @fixme
                 SetUserError(ERR_INVALID_PARAMETER);
-                return (X)NULL_VALUE;
+                return NULL_VALUE;
             }
             break;
           case ORDER_SELECT_DATA_TYPE_STRING:
@@ -2706,7 +2706,7 @@ class Order : public SymbolInfo {
         break;
     }
 
-    return (X)NULL_VALUE;
+    return NULL_VALUE;
   #else
     return OrderGetValue(_prop_id, _type, _out);
   #endif
@@ -2953,3 +2953,5 @@ class Order : public SymbolInfo {
 ENUM_ORDER_SELECT_TYPE Order::selected_ticket_type = ORDER_SELECT_TYPE_NONE;
 uint64 Order::selected_ticket_id = 0;
 #endif
+
+

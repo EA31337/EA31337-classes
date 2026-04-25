@@ -978,7 +978,7 @@ class Terminal : public Object {
     return ::TerminalInfoString(property_id);
 #else
     printf("@fixme: %s\n", "Terminal::TerminalInfoString()");
-    return 0;
+    return NULL_STRING;
 #endif
   }
 

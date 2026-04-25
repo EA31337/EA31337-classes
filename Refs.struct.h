@@ -34,7 +34,7 @@
 #include "Serializer/SerializerNode.enum.h"
 #include "Std.h"
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 #endif
 
@@ -102,7 +102,7 @@ struct Ref {
    */
   X* ptr_object;
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
   typedef X element_type;
 #endif
 
@@ -144,7 +144,7 @@ struct Ref {
    */
   X* Ptr() const { return ptr_object; }
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
   X* get() const { return ptr_object; }
 #endif
 
@@ -274,7 +274,7 @@ struct Ref {
   /**
    * Equality operator.
    */
-  bool operator==(const Ref<X>& r) { return ptr_object != NULL && ptr_object == r.ptr_object; }
+  bool operator==(const Ref<X>& r) const { return ptr_object != NULL && ptr_object == r.ptr_object; }
 
   /**
    * Returns information about object references counter.

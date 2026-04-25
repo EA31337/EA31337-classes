@@ -118,7 +118,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * - https://docs.mql4.com/indicators/irsi
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
-  static double iRSI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
+  static double iRSI(string _symbol = NULL_STRING, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                      ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, IndicatorData *_obj = NULL) {
 #ifdef __MQL__
 #ifdef __MQL4__
@@ -139,7 +139,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * Calculates non-SMMA version of RSI on another indicator (uses iRSIOnArray).
    */
   template <typename IT>
-  static double iRSIOnArrayOnIndicator(IndicatorData *_indi, string _symbol = NULL,
+  static double iRSIOnArrayOnIndicator(IndicatorData *_indi, string _symbol = NULL_STRING,
                                        ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
                                        Indi_RSI *_obj = NULL) {
@@ -174,7 +174,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * RSI values. To exactly replicate our RSI numbers, a formula will need at
    * least 250 data points."
    */
-  static double iRSIOnIndicator(Indi_RSI *_target, IndicatorData *_source, string _symbol = NULL,
+  static double iRSIOnIndicator(Indi_RSI *_target, IndicatorData *_source, string _symbol = NULL_STRING,
                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                 ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
     INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_target, _period + _shift + 1);  // +1 because of _bar_time_prev.
@@ -355,7 +355,7 @@ double iRSIOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _abs_sh
 }
 #endif
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(Indi_RSI_Params) {

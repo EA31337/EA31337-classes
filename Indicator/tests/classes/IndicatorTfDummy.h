@@ -76,7 +76,7 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
   }
 };
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(IndicatorTfDummyParams) { emscripten::value_object<IndicatorTfDummyParams>("indicators.TfParams"); }

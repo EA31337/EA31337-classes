@@ -58,4 +58,9 @@ unsigned int FileWrite(int file_handle, Arg&& arg, Args&&... args) {
   return _memfs.FileWrite(file_handle, arg, args...);
 }
 
+// Currently we only support writting char arrays.
+unsigned int FileWriteArray(int file_handle, ARRAY_REF(unsigned char, arr), int start_index, int count = INT_MAX) {
+  return _memfs.FileWriteArray(file_handle, arr, start_index, count);
+}
+
 #endif

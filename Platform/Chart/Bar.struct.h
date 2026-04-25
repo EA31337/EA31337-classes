@@ -245,7 +245,7 @@ struct BarOHLC
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
   // Operators.
   bool operator==(const BarOHLC &_r) {
-    return time == _r.time && open == _r.time && high == _r.high && low == _r.low && close == _r.close;
+    return time == _r.time && open == (double)_r.time && high == _r.high && low == _r.low && close == _r.close;
   }
   bool operator!=(const BarOHLC &_r) { return !(THIS_REF == _r); }
 };

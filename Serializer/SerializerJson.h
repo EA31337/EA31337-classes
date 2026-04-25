@@ -397,6 +397,6 @@ class SerializerJson {
       }
     }
 
-    return NULL;
+    return NULL_STRING;
   }
 };

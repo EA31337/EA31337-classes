@@ -424,7 +424,7 @@ class IndicatorBase : public Object {
   }
 };
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/bind.h>
 

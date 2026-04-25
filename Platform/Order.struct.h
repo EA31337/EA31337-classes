@@ -296,7 +296,7 @@ struct OrderData {
         tp(0),
         close_tries(0),
         last_error(ERR_NO_ERROR),
-        symbol(NULL),
+        symbol(NULL_STRING),
         volume_curr(0),
         volume_init(0) {}
   // Copy constructor.
@@ -1021,7 +1021,7 @@ struct OrderStatic {
  * Usage: SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
  */
 struct MqlTradeRequestProxy : MqlTradeRequest {
-  MqlTradeRequestProxy(MqlTradeRequest &r) { THIS_REF = r; }
+  MqlTradeRequestProxy(MqlTradeRequest &r) { REF_TYPE(MqlTradeRequest)THIS_REF = r; }
 
   SerializerNodeType Serialize(Serializer &s) {
     s.PassEnum(THIS_REF, "action", action);
@@ -1051,7 +1051,7 @@ struct MqlTradeRequestProxy : MqlTradeRequest {
  * Usage: SerializerConverter::FromObject(MqlTradeResultProxy(_request)).ToString<SerializerJson>());
  */
 struct MqlTradeResultProxy : MqlTradeResult {
-  MqlTradeResultProxy(MqlTradeResult &r) { THIS_REF = r; }
+  MqlTradeResultProxy(MqlTradeResult &r) { REF_TYPE(MqlTradeResult)THIS_REF = r; }
 
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "retcode", retcode);

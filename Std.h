@@ -85,6 +85,13 @@
   #define REF_CPP &
 #endif
 
+// Reference to type.
+#ifdef __MQL4__
+  #define REF_TYPE(X) (X)
+#else
+  #define REF_TYPE(X) (X&)
+#endif
+
 // Reference to simple type like bool, int, double, string.
 #ifdef __MQL__
   #define REF(X) X&
@@ -304,7 +311,7 @@ class _cpp_array {
   void setIsSeries(bool _isSeries) { m_isSeries = _isSeries; }
 };
 
-  #ifdef EMSCRIPTEN
+  #ifdef __EMSCRIPTEN__
     #include <emscripten/bind.h>
 
     #define REGISTER_ARRAY_OF(N, T, D)                 \
@@ -407,12 +414,37 @@ const char* _empty_string_c = "";
 const string _empty_string = "";
 
 // Converter of NULL_VALUE into expected type. e.g., "int x = NULL_VALUE" will end up with "x = 0".
-struct _NULL_VALUE {
+class _NULL_VALUE {
+ public:
+
+  // Explicit conversion operator for string
+  operator std::string() const {
+    return _empty_string;
+  }
+
   template <typename T>
   operator T() const {
     return std::numeric_limits<T>::max();
   }
+
+  // Helper method to get value as type T - needed for template contexts
+  template <typename T>
+  typename std::enable_if<!std::is_same<T, string>::value, T>::type as() const {
+    return std::numeric_limits<T>::max();
+  }
+
+  template <typename T>
+  typename std::enable_if<std::is_same<T, string>::value, T>::type as() const {
+    return _empty_string;
+  }
+
+  template <typename T> T as() const {
+    return 0;
+  }
+
 } NULL_VALUE;
+
+extern _NULL_VALUE NULL_VALUE;
 
 /**
  * Converting an enumeration value of any type to a text form.
@@ -426,11 +458,6 @@ string EnumToString(int _value) {
   // integer.
   ss << _value;
   return ss.str();
-}
-
-template <>
-_NULL_VALUE::operator string() const {
-  return _empty_string;
 }
   #define NULL_STRING ""
 #else

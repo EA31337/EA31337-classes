@@ -470,7 +470,7 @@ class AccountMt : public AccountBase {
    * @return
    *   Returns true, when free margin is sufficient, false when insufficient or on error.
    */
-  bool IsFreeMargin(ENUM_ORDER_TYPE _cmd, double size_of_lot, string _symbol = NULL) {
+  bool IsFreeMargin(ENUM_ORDER_TYPE _cmd, double size_of_lot, string _symbol = NULL_STRING) {
     bool _res = true;
     // double margin = AccountFreeMarginCheck(_symbol, _cmd, size_of_lot);
     if (GetLastError() == 134 /* NOT_ENOUGH_MONEY */) _res = false;

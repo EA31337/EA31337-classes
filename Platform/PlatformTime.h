@@ -28,6 +28,7 @@
 // Includes.
 #include "../Storage/DateTime.enum.h"
 #include "../Storage/DateTime.struct.h"
+#include "../Storage/DateTime.extern.h"
 
 /**
  * @file
@@ -44,16 +45,34 @@
 #include "../Std.h"
 
 class PlatformTime {
+  // Current real time in MqlDateTime struct format.
   static MqlDateTime current_time;
+
+  // Current real time in seconds since epoch.
   static int64 current_timestamp_s;
+
+  // Current real time in milliseconds since epoch.
   static int64 current_timestamp_ms;
+
+  // Current tick time in seconds since epoch.
+  static int64 current_tick_timestamp_s;
+
+  // Current tick time in milliseconds since epoch.
+  static int64 current_tick_timestamp_ms;
+
+  // Current tick time in MqlDateTime struct format.
+  static MqlDateTime current_tick_time;
 
  public:
   static int64 CurrentTimestamp() { return current_timestamp_s; }
   static int64 CurrentTimestampMs() { return current_timestamp_ms; }
   static MqlDateTime CurrentTime() { return current_time; }
 
-  void static Tick() {
+  static int64 CurrentTickTimestamp() { return current_tick_timestamp_s; }
+  static int64 CurrentTickTimestampMs() { return current_tick_timestamp_ms; }
+  static MqlDateTime CurrentTickTime() { return current_tick_time; }
+
+  void static Update(int64 tick_time_ms) {
 #ifdef __MQL__
     static int64 _last_timestamp_ms = 0;
 
@@ -85,9 +104,16 @@ class PlatformTime {
     current_time.sec = now->tm_sec;
     current_time.year = now->tm_year;
 #endif
+
+    current_tick_timestamp_s = tick_time_ms / 1000;
+    current_tick_timestamp_ms = tick_time_ms;
+    TimeToStruct(current_tick_timestamp_s, current_tick_time);
   }
 };
 
 MqlDateTime PlatformTime::current_time = {0, 0, 0, 0, 0, 0, 0, 0};
 int64 PlatformTime::current_timestamp_s = 0;
 int64 PlatformTime::current_timestamp_ms = 0;
+MqlDateTime PlatformTime::current_tick_time = {0, 0, 0, 0, 0, 0, 0, 0};
+int64 PlatformTime::current_tick_timestamp_s = 0;
+int64 PlatformTime::current_tick_timestamp_ms = 0;

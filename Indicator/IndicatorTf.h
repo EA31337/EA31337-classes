@@ -73,7 +73,10 @@ class IndicatorTf : public IndicatorCandle<TFP, double, ItemsHistoryTfCandleProv
   /**
    * Class constructor with parameters.
    */
-  IndicatorTf(const TFP& _icparams, const IndicatorDataParams& _idparams) { Init(); }
+  IndicatorTf(const TFP& _icparams, const IndicatorDataParams& _idparams)
+      : IndicatorCandle<TFP, double, ItemsHistoryTfCandleProvider<double>>(_icparams, _idparams) {
+    Init();
+  }
 
   /**
    * Gets indicator's time-frame.

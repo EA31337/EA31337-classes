@@ -154,7 +154,7 @@ struct TaskEntry {
   SERIALIZER_EMPTY_STUB;
 };
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(TaskEntry) { emscripten::class_<TaskEntry>("TaskEntry").constructor(); }

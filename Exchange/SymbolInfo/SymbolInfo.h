@@ -66,7 +66,7 @@ class SymbolInfo : public Object {
   /**
    * Class constructor given a symbol string.
    */
-  SymbolInfo(string _symbol = NULL) : symbol(_symbol), pip_size(GetPipSize()), symbol_digits(GetDigits()) {
+  SymbolInfo(string _symbol = NULL_STRING) : symbol(_symbol), pip_size(GetPipSize()), symbol_digits(GetDigits()) {
     Select();
     last_tick = GetTick();
     // @todo: Test symbol with SymbolExists(_symbol)

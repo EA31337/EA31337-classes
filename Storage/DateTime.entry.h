@@ -109,7 +109,7 @@ struct DateTimeEntry : MqlDateTime {
   }
   // Set date and time.
   void Set(MqlDateTime& _time) {
-    THIS_REF = _time;
+    REF_TYPE(MqlDateTime)THIS_REF = _time;
     // @fixit Should also set day of week.
   }
   void SetDayOfMonth(int _value) {

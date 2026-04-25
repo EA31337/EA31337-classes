@@ -58,13 +58,13 @@ class SerializerCsv {
     if (CheckPointer(_root) == POINTER_INVALID) {
       Alert("SerializerCsv: Invalid root node pointer!");
       DebugBreak();
-      return NULL;
+      return NULL_STRING;
     }
 
     if (_stub == NULL || _stub PTR_DEREF Node() == NULL) {
       Alert("SerializerCsv: Cannot convert to CSV without stub object!");
       DebugBreak();
-      return NULL;
+      return NULL_STRING;
     }
 
     bool _include_titles = bool(serializer_flags & SERIALIZER_CSV_INCLUDE_TITLES);

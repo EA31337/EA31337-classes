@@ -191,7 +191,7 @@ class Platform : public Taskable<DataParamEntry> {
    */
   static void Tick() {
     // @todo Should update time for each ticking indicator and only when it signal a tick.
-    PlatformTime::Tick();
+    PlatformTime::Update(0);
     time.Update();
 
     // Checking starting periods and updating time to current one.
@@ -714,7 +714,7 @@ double HistoryDealGetDouble(uint64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE prop
 
 string HistoryDealGetString(uint64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
-  return 0;
+  return "";
 }
 
 bool OrderSelect(int index, int select, int pool = MODE_TRADES) {
@@ -784,12 +784,12 @@ double HistoryOrderGetDouble(uint64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE pr
 
 string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
-  return 0;
+  return "";
 }
 
 string HistoryOrderGetString(uint64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
-  return 0;
+  return "";
 }
 
 int PositionsTotal() {
@@ -988,23 +988,6 @@ string TimeToString(datetime value, int mode) {
   }
 
   return ss.str();
-}
-
-bool TimeToStruct(datetime dt, MqlDateTime &dt_struct) {
-  time_t now = (time_t)dt;
-
-  tm *ltm = localtime(&now);
-
-  dt_struct.day = ltm->tm_mday;
-  dt_struct.day_of_week = ltm->tm_wday;
-  dt_struct.day_of_year = ltm->tm_yday;
-  dt_struct.hour = ltm->tm_hour;
-  dt_struct.min = ltm->tm_min;
-  dt_struct.mon = ltm->tm_mon;
-  dt_struct.sec = ltm->tm_sec;
-  dt_struct.year = ltm->tm_year;
-
-  return true;
 }
 
 SymbolGetter::operator string() const { return Platform::GetSymbol(); }

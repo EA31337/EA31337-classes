@@ -128,7 +128,7 @@ enum ENUM_TIMEFRAMES {
   PERIOD_MN1 = 43200   // 1 month.
 };
 
-  #ifdef EMSCRIPTEN
+  #ifdef __EMSCRIPTEN__
     #include <emscripten.h>
     #include <emscripten/bind.h>
 
