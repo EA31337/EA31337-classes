@@ -55,6 +55,9 @@ class IndicatorTick : public Indicator<TS> {
   SymbolInfoProp symbol_props;
   TickBarCounter counter;
 
+  // Time of the last tick (with passed periods functionality).
+  DateTime _last_tick_time;
+
  protected:
   /* Protected methods */
 
@@ -111,6 +114,22 @@ class IndicatorTick : public Indicator<TS> {
    * Returns time of the bar for a given shift.
    */
   datetime GetBarTime(int _rel_shift = 0) override { return history.GetItemTimeByShift(_rel_shift); }
+
+  /**
+   * Updates time of the last tick. Called by EmitEntry() from the Tick indicator.
+   */
+  virtual void UpdateLastTickTimeMs(int64 _time_ms) override {
+    Print("Updating last tick time (sec): ", _time_ms / 1000, " for indicator ", this->GetFullName());
+    _last_tick_time.Update(_time_ms / 1000);
+  }
+
+  /**
+   * Returns time of the current tick. Updated by EmitEntry() from the Tick indicator and stored in the Tick indicator
+   * in the hierarchy.
+   */
+  datetime GetTimeCurrent() override {
+    return _last_tick_time.dt_curr.GetTimestamp();
+  }
 
   /**
    * Gets ask price for a given date and time. Return current ask price if _dt wasn't passed or is 0.

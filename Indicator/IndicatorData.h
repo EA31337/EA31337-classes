@@ -892,6 +892,22 @@ class IndicatorData : public IndicatorBase {
            HasSpecificValueStorage(INDI_DATA_VS_TYPE_VOLUME) && HasSpecificValueStorage(INDI_DATA_VS_TYPE_TICK_VOLUME);
   }
 
+  /**
+   * Returns time of the current tick. Updated by EmitEntry() from the Tick indicator and stored in the Tick indicator
+   * in the hierarchy.
+   */
+  datetime GetTimeCurrent() override {
+    return GetTick() PTR_DEREF GetTimeCurrent();
+  }
+
+  /**
+   * Updates time of the last tick. Called by EmitEntry() from the Tick indicator.
+   * @param _time_ms Timestamp in milliseconds.
+   */
+  void UpdateLastTickTimeMs(int64 _time_ms) override {
+    GetTick() PTR_DEREF UpdateLastTickTimeMs(_time_ms);
+  }
+
   bool Tick(int _global_tick_index) {
     if (last_tick_index == _global_tick_index) {
 #ifdef __debug_indicator__
@@ -2006,6 +2022,13 @@ class IndicatorData : public IndicatorBase {
    * Sends entry to listening indicators.
    */
   void EmitEntry(IndicatorDataEntry& _entry, ENUM_INDI_EMITTED_ENTRY_TYPE _type = INDI_EMITTED_ENTRY_TYPE_PARENT) {
+    if (_type == INDI_EMITTED_ENTRY_TYPE_TICK) {
+      // Updating time of the last emitted tick entry in the Tick indicator in the hierarchy to be later retrieved by
+      // GetTimeCurrent() method of indicators or global TimeCurrent()/Platform::TimeCurrent() when indicator is ran
+      // with Tester class.
+      GetTick() PTR_DEREF UpdateLastTickTimeMs(_entry.timestamp * 1000);
+    }
+
     for (int i = 0; i < ArraySize(listeners); ++i) {
       if (listeners[i].ObjectExists()) {
         listeners[i].Ptr() PTR_DEREF OnDataSourceEntry(_entry, _type);
@@ -2238,4 +2261,10 @@ EMSCRIPTEN_BINDINGS(IndicatorData) {
                 emscripten::allow_raw_pointer<emscripten::arg<1>>());
 }
 
+#endif
+
+// Provide inline definitions for PlatformTime methods that need complete IndicatorBase/IndicatorData types.
+// This must come after the IndicatorData class body so both types are complete.
+#ifndef __MQL__
+#include "../Platform/PlatformTime.inline.h"
 #endif

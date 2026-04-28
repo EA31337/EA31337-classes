@@ -34,7 +34,9 @@
  */
 enum ENUM_ITEMS_HISTORY_DIRECTION { ITEMS_HISTORY_DIRECTION_FORWARD, ITEMS_HISTORY_DIRECTION_BACKWARD };
 
-#include "../Indicator/IndicatorData.h"
+// Forward declaration to avoid circular include with IndicatorData.h.
+class IndicatorData;
+
 #include "../Refs.mqh"
 #include "../Storage/Dict/DictStruct.h"
 

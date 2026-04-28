@@ -237,6 +237,25 @@ class IndicatorBase : public Object {
   virtual IndicatorData* GetCandle(bool _warn_if_not_found = true, IndicatorData* _originator = nullptr) = 0;
 
   /**
+   * Returns time of the current tick. Updated by EmitEntry() from the Tick indicator and stored in the Tick indicator
+   * in the hierarchy.
+   */
+  virtual datetime GetTimeCurrent() {
+    // We shouldn't be here. It should be implemented in the IndicatorData class and overridden in the Tick indicator.
+    DebugBreak();
+    return datetime(0);
+  }
+
+  /**
+   * Updates time of the last tick. Called by EmitEntry() from the Tick indicator.
+   * @param _time_ms Timestamp in milliseconds.
+   */
+  virtual void UpdateLastTickTimeMs(int64 _time_ms) {
+    // We shouldn't be here. It should be implemented in the IndicatorData class and overridden in the Tick indicator.
+    DebugBreak();
+  }
+
+  /**
    * Returns the number of bars on the chart decremented by iparams.shift.
    */
   virtual int GetBars() = 0;

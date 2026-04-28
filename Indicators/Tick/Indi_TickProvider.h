@@ -137,7 +137,7 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
 #endif
 
     IndicatorDataEntry _entry(TickToEntry(_tick.GetTimestamp(), _tick));
-    EmitEntry(_entry);
+    EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_TICK);
     // Appending tick into the history.
     AppendEntry(_entry);
 

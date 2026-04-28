@@ -95,7 +95,7 @@ struct DateTimeEntry : MqlDateTime {
   datetime GetTimestamp() { return StructToTime(THIS_REF); }
   // Setters.
   void Set() {
-    TimeToStruct(PlatformTime::CurrentTimestamp(), THIS_REF);
+    TimeToStruct(PlatformTime::TimeCurrent(), THIS_REF);
     // @fixit Should also set day of week.
   }
   void SetGMT() {
@@ -169,4 +169,5 @@ struct DateTimeEntry : MqlDateTime {
     }
   }
   void SetYear(int _value) { year = _value; }
+  datetime GetTime() { return StructToTime(THIS_REF); }
 };

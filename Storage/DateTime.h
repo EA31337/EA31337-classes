@@ -34,8 +34,15 @@
 #pragma once
 #endif
 
+#ifndef __MQL__
 // Forward declarations.
 struct DataParamEntry;
+class datetime;
+struct MqlDateTime;
+
+datetime TimeCurrent();
+datetime TimeCurrent(MqlDateTime &dt_struct);
+#endif
 
 // Includes class enum and structs.
 #include "../Platform/PlatformTime.h"
@@ -65,7 +72,7 @@ class DateTime {
   /**
    * Class constructor.
    */
-  DateTime() { TimeToStruct(PlatformTime::CurrentTimestamp(), dt_curr); }
+  DateTime() { TimeToStruct(PlatformTime::TimeCurrent(), dt_curr); }
   DateTime(DateTime &r) : dt_curr(r.dt_curr), dt_last(r.dt_last) {}
   DateTime(DateTimeEntry &_dt) { dt_curr = _dt; }
   DateTime(MqlDateTime &_dt) { dt_curr = DateTimeEntry(_dt); }
@@ -89,14 +96,16 @@ class DateTime {
    * @param
    * _unit - given periods to check
    * _update - whether to update datetime before check
+   * _update_last - whether to update last datetime after check
+   * _time - optional timestamp to update datetime (dt_curr) to (if _update is true)
    *
    * @return int
    * Returns bitwise flag of started periods.
    */
-  unsigned int GetStartedPeriods(bool _update = true, bool _update_last = true) {
+  unsigned int GetStartedPeriods(bool _update = true, bool _update_last = true, int64 _time = 0) {
     unsigned int _result = DATETIME_NONE;
     if (_update) {
-      Update();
+      Update(_time);
     }
 
     if (dt_curr.GetValue(DATETIME_YEAR) != dt_last.GetValue(DATETIME_YEAR)) {
@@ -200,9 +209,17 @@ class DateTime {
   bool IsNewHour() { return (GetStartedPeriods(false, false) & DATETIME_HOUR) != 0; }
 
   /**
-   * Updates datetime to the current one.
+   * Updates datetime to the given one.
    */
-  void Update() { dt_curr.Set(PlatformTime::CurrentTimestamp()); }
+  void Update(int64 time = 0) {
+    if (time == dt_last.GetTime()) {
+      // No time change, no need to update.
+      return;
+    }
+
+    dt_last = dt_curr;
+    dt_curr.Set(time != 0 ? time : PlatformTime::TimeCurrent());
+  }
 
   /* Conditions */
 
@@ -245,11 +262,15 @@ class DateTime {
 
 #ifndef __MQL__
 
-datetime TimeCurrent() { return PlatformTime::CurrentTickTimestamp(); }
+datetime TimeCurrent() { return PlatformTime::TimeCurrent(); }
 
+/**
+ * Returns current tick's time and fill the dt_struct with the corresponding values.
+ */
 datetime TimeCurrent(MqlDateTime &dt_struct) {
-  dt_struct = PlatformTime::CurrentTickTime();
-  return PlatformTime::CurrentTickTimestamp();
+  datetime current_time = PlatformTime::TimeCurrent();
+  TimeToStruct(current_time, dt_struct);
+  return current_time;
 }
 
 #endif
