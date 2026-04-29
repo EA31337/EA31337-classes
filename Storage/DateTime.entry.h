@@ -38,7 +38,7 @@
 struct DateTimeEntry : MqlDateTime {
   int week_of_year;
   // Struct constructors.
-  DateTimeEntry() { Set(); }
+  DateTimeEntry(bool _init_with_curr_time = true) { if (_init_with_curr_time) Set(); }
   DateTimeEntry(datetime _dt) { Set(_dt); }
   DateTimeEntry(MqlDateTime& _dt) {
     Set(_dt);

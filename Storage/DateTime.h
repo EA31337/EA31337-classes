@@ -72,11 +72,15 @@ class DateTime {
   /**
    * Class constructor.
    */
-  DateTime() { TimeToStruct(PlatformTime::TimeCurrent(), dt_curr); }
+  DateTime(bool _init_with_curr_time = true) : dt_curr(_init_with_curr_time), dt_last(_init_with_curr_time) {
+    if (_init_with_curr_time) {
+      TimeToStruct(PlatformTime::TimeCurrent(), dt_curr);
+    }
+  }
   DateTime(DateTime &r) : dt_curr(r.dt_curr), dt_last(r.dt_last) {}
-  DateTime(DateTimeEntry &_dt) { dt_curr = _dt; }
-  DateTime(MqlDateTime &_dt) { dt_curr = DateTimeEntry(_dt); }
-  DateTime(datetime _dt) { dt_curr.Set(_dt); }
+  DateTime(DateTimeEntry &_dt) : dt_curr(_dt), dt_last(_dt) {}
+  DateTime(MqlDateTime &_dt) : dt_curr(_dt), dt_last(_dt) {}
+  DateTime(datetime _dt) : dt_curr(_dt), dt_last(_dt) {}
 
   /**
    * Class deconstructor.

@@ -56,7 +56,7 @@ class IndicatorTick : public Indicator<TS> {
   TickBarCounter counter;
 
   // Time of the last tick (with passed periods functionality).
-  DateTime _last_tick_time;
+  DateTime last_tick_time;
 
  protected:
   /* Protected methods */
@@ -86,7 +86,7 @@ class IndicatorTick : public Indicator<TS> {
    */
   IndicatorTick(string _symbol, const TS& _itparams, const IndicatorDataParams& _idparams,
                 IndicatorData* _indi_src = NULL, int _indi_mode = 0)
-      : Indicator<TS>(_itparams, _idparams, _indi_src, _indi_mode), history(THIS_PTR) {
+      : Indicator<TS>(_itparams, _idparams, _indi_src, _indi_mode), history(THIS_PTR), last_tick_time(false) {
     itparams = _itparams;
     if (_indi_src != NULL) {
       THIS_ATTR SetDataSource(_indi_src, _indi_mode);
@@ -95,7 +95,7 @@ class IndicatorTick : public Indicator<TS> {
     Init();
   }
   IndicatorTick(string _symbol, ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
-      : Indicator<TS>(_itype, _shift, _name), history(THIS_PTR) {
+      : Indicator<TS>(_itype, _shift, _name), history(THIS_PTR), last_tick_time(false) {
     symbol = _symbol;
     Init();
   }
@@ -120,7 +120,7 @@ class IndicatorTick : public Indicator<TS> {
    */
   virtual void UpdateLastTickTimeMs(int64 _time_ms) override {
     Print("Updating last tick time (sec): ", _time_ms / 1000, " for indicator ", this->GetFullName());
-    _last_tick_time.Update(_time_ms / 1000);
+    last_tick_time.Update(_time_ms / 1000);
   }
 
   /**
@@ -128,7 +128,7 @@ class IndicatorTick : public Indicator<TS> {
    * in the hierarchy.
    */
   datetime GetTimeCurrent() override {
-    return _last_tick_time.dt_curr.GetTimestamp();
+    return last_tick_time.dt_curr.GetTimestamp();
   }
 
   /**

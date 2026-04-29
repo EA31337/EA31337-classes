@@ -327,6 +327,8 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
         break;
       case IDATA_ONCALCULATE:
         // @todo Modify iRSIOnIndicator() to operate on single IndicatorData pointer.
+        Print("Indi_RSI doesn't support IDATA_ONCALCULATE mode yet!");
+        DebugBreak();
         break;
       case IDATA_ICUSTOM:
         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ iparams.GetPeriod(),
@@ -335,7 +337,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
       case IDATA_INDICATOR:
         _value = Indi_RSI::iRSIOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), iparams.GetPeriod(),
                                            iparams.GetAppliedPrice(), ToRelShift(_abs_shift));
-        break;
+         break;
       default:
         RUNTIME_ERROR("Invalid indicator IDATA_* type!");
     }
