@@ -2246,7 +2246,9 @@ EMSCRIPTEN_BINDINGS(IndicatorData) {
       .function("SetSource", emscripten::optional_override([](IndicatorData& self, IndicatorData* base) {
                   self.SetDataSource(base);
                 }),
-                emscripten::allow_raw_pointer<emscripten::arg<1>>());
+                emscripten::allow_raw_pointer<emscripten::arg<1>>())
+      .function("SetName", &IndicatorData::SetName)
+      .function("GetEntry", &IndicatorData::GetEntry);
 }
 
 #endif

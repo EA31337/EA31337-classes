@@ -175,6 +175,7 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double, ItemsHistoryR
     if (type != INDI_EMITTED_ENTRY_TYPE_TICK) {
       return;
     }
+    
     /*
     @todo Move logic into ItemsHistoryRenkoCandleProvider class.
 
@@ -264,6 +265,7 @@ class IndicatorRenko : public IndicatorCandle<RenkoParams, double, ItemsHistoryR
     Print("---------");
 
     last_entry_ts = entry.timestamp;
+    ```
     */
   };
 

@@ -592,3 +592,134 @@ struct IndicatorDataState {
   bool IsChanged() { return is_changed; }
   bool IsReady() { return is_ready; }
 };
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+#include <emscripten/val.h>
+
+EMSCRIPTEN_BINDINGS(IndicatorDataEntry) {
+  emscripten::class_<IndicatorDataEntry>("IndicatorDataEntry")
+      .constructor<int>()
+      .property("timestamp", &IndicatorDataEntry::timestamp)
+      .property("flags", &IndicatorDataEntry::flags)
+      .function("GetSize", &IndicatorDataEntry::GetSize)
+      .function("GetValueAt", emscripten::optional_override([](IndicatorDataEntry& obj, int idx) {
+        return obj.GetValue<double>(idx);
+      }))
+      .function("HasValue", emscripten::optional_override([](IndicatorDataEntry& obj, double val) {
+        return obj.HasValue<double>(val);
+      }))
+      .function("IsGe", emscripten::optional_override([](IndicatorDataEntry& obj, double val) {
+        return obj.IsGe<double>(val);
+      }))
+      .function("IsGt", emscripten::optional_override([](IndicatorDataEntry& obj, double val) {
+        return obj.IsGt<double>(val);
+      }))
+      .function("IsLe", emscripten::optional_override([](IndicatorDataEntry& obj, double val) {
+        return obj.IsLe<double>(val);
+      }))
+      .function("IsLt", emscripten::optional_override([](IndicatorDataEntry& obj, double val) {
+        return obj.IsLt<double>(val);
+      }))
+      .function("IsWithinRange", emscripten::optional_override([](IndicatorDataEntry& obj, double min, double max) {
+        return obj.IsWithinRange<double>(min, max);
+      }))
+      .function("GetAvg", emscripten::optional_override([](IndicatorDataEntry& obj, int size) {
+        return obj.GetAvg<double>(size);
+      }))
+      .function("GetMin", emscripten::optional_override([](IndicatorDataEntry& obj, int size) {
+        return obj.GetMin<double>(size);
+      }))
+      .function("GetMax", emscripten::optional_override([](IndicatorDataEntry& obj, int size) {
+        return obj.GetMax<double>(size);
+      }))
+      .function("GetSum", emscripten::optional_override([](IndicatorDataEntry& obj, int size) {
+        return obj.GetSum<double>(size);
+      }))
+      .function("GetValues2", emscripten::optional_override([](IndicatorDataEntry& obj) -> emscripten::val {
+        double out1 = 0, out2 = 0;
+        obj.GetValues<double>(out1, out2);
+        emscripten::val result = emscripten::val::object();
+        result.set("val1", emscripten::val(out1));
+        result.set("val2", emscripten::val(out2));
+        return result;
+      }))
+      .function("GetValues3", emscripten::optional_override([](IndicatorDataEntry& obj) -> emscripten::val {
+        double out1 = 0, out2 = 0, out3 = 0;
+        obj.GetValues<double>(out1, out2, out3);
+        emscripten::val result = emscripten::val::object();
+        result.set("val1", emscripten::val(out1));
+        result.set("val2", emscripten::val(out2));
+        result.set("val3", emscripten::val(out3));
+        return result;
+      }))
+      .function("GetValues4", emscripten::optional_override([](IndicatorDataEntry& obj) -> emscripten::val {
+        double out1 = 0, out2 = 0, out3 = 0, out4 = 0;
+        obj.GetValues<double>(out1, out2, out3, out4);
+        emscripten::val result = emscripten::val::object();
+        result.set("val1", emscripten::val(out1));
+        result.set("val2", emscripten::val(out2));
+        result.set("val3", emscripten::val(out3));
+        result.set("val4", emscripten::val(out4));
+        return result;
+      }))
+      .function("GetDayOfYear", &IndicatorDataEntry::GetDayOfYear)
+      .function("GetMonth", &IndicatorDataEntry::GetMonth)
+      .function("GetYear", &IndicatorDataEntry::GetYear)
+      .function("GetTime", &IndicatorDataEntry::GetTime)
+      .function("GetDataType", &IndicatorDataEntry::GetDataType)
+      .function("GetDataTypeFlags", &IndicatorDataEntry::GetDataTypeFlags)
+      .function("Resize", emscripten::optional_override([](IndicatorDataEntry& obj, int size) {
+        return obj.Resize(size);
+      }))
+      .function("CheckFlag", emscripten::optional_override([](IndicatorDataEntry& obj, unsigned short flag) {
+        return obj.CheckFlag((INDICATOR_DATA_ENTRY_FLAGS)flag);
+      }))
+      .function("CheckFlags", &IndicatorDataEntry::CheckFlags)
+      .function("CheckFlagsAll", &IndicatorDataEntry::CheckFlagsAll)
+      .function("AddFlags", &IndicatorDataEntry::AddFlags)
+      .function("RemoveFlags", &IndicatorDataEntry::RemoveFlags)
+      .function("SetFlag", emscripten::optional_override([](IndicatorDataEntry& obj, unsigned short flag, bool val) {
+        obj.SetFlag((INDICATOR_DATA_ENTRY_FLAGS)flag, val);
+      }))
+      .function("SetFlags", &IndicatorDataEntry::SetFlags)
+      .function("GetFlags", &IndicatorDataEntry::GetFlags)
+      .function("IsValid", &IndicatorDataEntry::IsValid)
+      .function("ToCSV", emscripten::optional_override([](IndicatorDataEntry& obj) {
+        return obj.ToCSV<double>();
+      }))
+      .function("ToString", emscripten::optional_override([](IndicatorDataEntry& obj) {
+        return obj.ToString<double>();
+      }));
+}
+
+// IndicatorDataEntryValue as class_<> (value_object<> does not support .function())
+EMSCRIPTEN_BINDINGS(IndicatorDataEntryValue) {
+  emscripten::class_<IndicatorDataEntryValue>("IndicatorDataEntryValue")
+      .constructor<>()
+      .property("flags", &IndicatorDataEntryValue::flags)
+      .function("GetDataType", &IndicatorDataEntryValue::GetDataType)
+      .function("SetDataType", &IndicatorDataEntryValue::SetDataType)
+      .function("GetDbl", &IndicatorDataEntryValue::GetDbl)
+      .function("GetFloat", &IndicatorDataEntryValue::GetFloat)
+      .function("GetInt", &IndicatorDataEntryValue::GetInt)
+      .function("GetLong", &IndicatorDataEntryValue::GetLong)
+      .function("Get", emscripten::optional_override([](IndicatorDataEntryValue& obj) {
+        return obj.Get<double>();
+      }))
+      .function("Set", emscripten::optional_override([](IndicatorDataEntryValue& obj, double val) {
+        obj.Set<double>(val);
+      }))
+      .function("ToString", emscripten::optional_override([](IndicatorDataEntryValue& obj) {
+        return std::to_string(obj.Get<double>());
+      }));
+}
+
+// Array of IndicatorDataEntry
+REGISTER_ARRAY_OF(ArrayIndicatorDataEntry, IndicatorDataEntry, "IndicatorDataEntryArray");
+
+// Array of IndicatorDataEntryValue
+REGISTER_ARRAY_OF(ArrayIndicatorDataEntryValue, IndicatorDataEntryValue, "IndicatorDataEntryValueArray");
+
+#endif
+
