@@ -162,6 +162,7 @@ EMSCRIPTEN_BINDINGS(ENUM_APPLIED_PRICE) {
       .value("open", PRICE_OPEN)
       .value("high", PRICE_HIGH)
       .value("low", PRICE_LOW)
+      .value("close", PRICE_CLOSE)
       .value("median", PRICE_MEDIAN)
       .value("typical", PRICE_TYPICAL)
       .value("weighted", PRICE_WEIGHTED);

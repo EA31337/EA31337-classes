@@ -31,7 +31,6 @@
 #include "../Std.h"
 #include "../Storage/Array.extern.h"
 #include "../Storage/String.extern.h"
-#include "TesterValuesColumnValue.h"
 #include "TesterIndicatorInfo.h"
 
 /**
@@ -41,16 +40,13 @@ struct TesterValuesColumns {
   // Details about the indicator for which values are retrieved.
   TesterIndicatorInfo indicator_info;
 
-  // Time in ms of data in the column.
-  int64 time_ms;
-
   // List of values for each column.
-  ARRAY(TesterValuesColumnValue, values);
+  ARRAY(IndicatorDataEntry, values);
 
   /**
    * Constructor.
    **/
-  TesterValuesColumns(int64 _time_ms = 0) : time_ms(_time_ms) {}
+  TesterValuesColumns() {}
 
   /**
    * Returns string representation of the structure.
@@ -62,11 +58,10 @@ struct TesterValuesColumns {
     StringInit(_padding_inner, _indent + 2, ' ');
 
     _out += _padding_outer + "{\n";
-    _out += _padding_inner + "time_ms: " + IntegerToString(time_ms) + ",\n";
     _out += _padding_inner + "values: [\n";
 
     for (i = 0; i < ArraySize(values); ++i) {
-      _out += values[i].ToString(_indent + 4) + "\n";
+      _out += values[i].ToString<double>() + "\n";
     }
 
     _out += _padding_inner + "]\n";

@@ -29,10 +29,10 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#define __debug__
-#define __debug_indicator__
-#define __debug_emscripten__
-#define __debug_verbose__
+//#define __debug__
+//#define __debug_indicator__
+//#define __debug_emscripten__
+//#define __debug_verbose__
 
 // Local includes.
 #include "../Indicator/Indicator.h"
@@ -234,6 +234,7 @@ class Tester {
         // will be retrieved from those TF indicators.
         ENUM_TIMEFRAMES _tf = _indi PTR_DEREF GetTf();
 
+        /*
         // Time-frame length in miliseconds.
         int64 _tf_ms = ((int64)ChartTf::TfToMs(_tf));
 
@@ -263,13 +264,14 @@ class Tester {
           DebugBreak();
           return values;
         }
+        */
 
         // Now it's time to retrieve values for the given time range and aggregate them into given time-step.
         REF_TO(TesterValuesColumns) columns = values.timestep_based[_iter.Index()];
         
         columns.indicator_info = TesterIndicatorInfo(_indi PTR_DEREF GetName(), 0, 0, _indi PTR_DEREF GetSymbol(), _tf);
 
-        GetValuesForTimeFrameBasedIndicator(_indi, _time_from_ms, _time_to_ms, _time_step_secs, columns);
+        GetValuesForTimeFrameBasedIndicatorUngrouped(_indi, /*_time_from_ms, _time_to_ms, _time_step_secs*/ columns);
 
       } else {
         // It's a loose, i.e., non TF-based indicator (values are generated in
@@ -292,91 +294,78 @@ class Tester {
    */
   static void GetValuesForTimeFrameBasedIndicator(IndicatorData *_indi, int64 _time_from_ms, int64 _time_to_ms,
                                                   int _time_step_secs, TesterValuesColumns &_columns) {
-    ENUM_TIMEFRAMES _tf = _indi PTR_DEREF GetTf();
-    int64 _tf_ms       = (int64)ChartTf::TfToMs(_tf);
-    int64 _time_step_ms = (int64)_time_step_secs * 1000;
+  }
 
-    if (_tf_ms <= 0 || _time_step_ms <= 0) {
-      return;
-    }
-
-    // Bar index 0 = most recent bar; higher indices are older bars.
-    // _time_from_ms is the older boundary  →  higher bar index.
-    // _time_to_ms   is the newer boundary  →  lower  bar index.
-    int64 _bar0_time_ms  = _indi PTR_DEREF GetBarTime(0);
-    int _index_oldest = (int)((_bar0_time_ms - _time_from_ms) / _tf_ms);
-    int _index_newest = (int)((_bar0_time_ms - _time_to_ms)   / _tf_ms);
-
-    if (_index_oldest < 0) _index_oldest = 0;
-    if (_index_newest < 0) _index_newest = 0;
-    // Guarantee oldest has the higher index regardless of parameter order.
-    if (_index_oldest < _index_newest) {
-      int _tmp    = _index_oldest;
-      _index_oldest = _index_newest;
-      _index_newest = _tmp;
-    }
-
-    // Per-mode OHLCVA aggregators for the current time-step bucket.
-    // Mode count is discovered from the first valid entry.
-    int _num_modes = 0;
-    ARRAY(TesterValuesColumnValue, _bucket_cvs);
-    bool _in_bucket   = false;
-    int64 _bucket_end_ms = 0;
+  /**
+   * Retrieves raw (ungrouped) values of an indicator into _columns.values.
+   */
+  static void GetValuesForTimeFrameBasedIndicatorUngrouped(IndicatorData *_indi, TesterValuesColumns &_columns) {
     string _indi_name = _indi PTR_DEREF GetName();
 
     // Iterate oldest→newest (descending bar index = ascending timestamp).
-    for (int _idx = _index_oldest; _idx >= _index_newest; --_idx) {
+    // Each valid bar produces one TesterValuesColumnValue per output mode.
+    for (int _idx = _indi->GetBars() - 1; _idx >= 0; --_idx) {
       IndicatorDataEntry _entry = _indi PTR_DEREF GetEntry(_idx);
       if (!_entry.IsValid()) {
         continue;
       }
 
-      int64 _entry_time_ms = _indi PTR_DEREF GetBarTime(_idx);
+      ArrayPush(_columns.values, _entry);
+    }
+  }
 
-      // Initialise mode count and per-mode aggregators on the first valid entry.
-      if (_num_modes == 0) {
-        _num_modes = _entry.GetSize();
-        if (_num_modes == 0) continue;
-        ArrayResize(_bucket_cvs, _num_modes);
+  /**
+   * Feeds the given tick provider with ticks parsed from a CSV string.
+   *
+   * CSV format (no header row): Date,Bid,Ask,Volume,Spread
+   * Date format: YYYY.MM.DD HH:MM:SS.mmm (UTC)
+   * Volume and Spread columns are accepted but ignored.
+   *
+   * @param _tick_provider  The TickProvider indicator to feed.
+   * @param _csv            Raw CSV text (newline-separated rows, no header).
+   */
+  static void FeedTickProviderCsv(Ref<Indi_TickProvider> _tick_provider, const string& _csv) {
+    ARRAY(TickTAB<double>, _ticks);
+
+    size_t pos = 0;
+    const size_t csv_len = _csv.size();
+
+    while (pos < csv_len) {
+      size_t nl = _csv.find('\n', pos);
+      if (nl == string::npos) nl = csv_len;
+
+      string line = _csv.substr(pos, nl - pos);
+      pos = nl + 1;
+
+      // Strip trailing carriage return (Windows line endings).
+      if (!line.empty() && line.back() == '\r') line.pop_back();
+      if (line.empty()) continue;
+
+      int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0, millis = 0;
+      double bid = 0.0, ask = 0.0, vol = 0.0, spread = 0.0;
+
+      // Expected format: "2022.02.01 05:00:06.460,1.1243,1.12433,0.90,0.18"
+      if (sscanf(line.c_str(), "%d.%d.%d %d:%d:%d.%d,%lf,%lf,%lf,%lf",
+                 &year, &month, &day, &hour, &minute, &second, &millis,
+                 &bid, &ask, &vol, &spread) < 9) {
+        continue;
       }
 
-      // Flush and advance buckets until this entry fits.
-      while (_in_bucket && _entry_time_ms > _bucket_end_ms) {
-        if (_bucket_cvs[0].num_values > 0) {
-          for (int m = 0; m < _num_modes; ++m) {
-            ArrayPush(_columns.values, _bucket_cvs[m]);
-          }
-        }
-        _bucket_end_ms += _time_step_ms;
-        for (int m = 0; m < _num_modes; ++m) {
-          _bucket_cvs[m] = TesterValuesColumnValue(_indi_name, TYPE_DOUBLE);
-        }
-      }
+      struct tm t = {};
+      t.tm_year  = year - 1900;
+      t.tm_mon   = month - 1;
+      t.tm_mday  = day;
+      t.tm_hour  = hour;
+      t.tm_min   = minute;
+      t.tm_sec   = second;
+      t.tm_isdst = 0;
 
-      if (!_in_bucket) {
-        // Align the first bucket start to the time-step grid relative to _time_from_ms.
-        int64 _bucket_start = _time_from_ms + ((_entry_time_ms - _time_from_ms) / _time_step_ms) * _time_step_ms;
-        _bucket_end_ms = _bucket_start + _time_step_ms - 1;
-        _in_bucket     = true;
-        for (int m = 0; m < _num_modes; ++m) {
-          _bucket_cvs[m] = TesterValuesColumnValue(_indi_name, TYPE_DOUBLE);
-        }
-      }
-
-      // Add all modes of this bar into the current bucket.
-      int _entry_size = _entry.GetSize();
-      for (int m = 0; m < _num_modes && m < _entry_size; ++m) {
-        double _val = _entry.GetValue<double>(m);
-        _bucket_cvs[m].Add(_val, _entry_time_ms);
-      }
+      int64 time_ms = (int64)timegm(&t) * 1000LL + (int64)millis;
+      ArrayPush(_ticks, TickTAB<double>(time_ms, ask, bid));
     }
 
-    // Flush the last bucket.
-    if (_in_bucket && _num_modes > 0 && _bucket_cvs[0].num_values > 0) {
-      for (int m = 0; m < _num_modes; ++m) {
-        ArrayPush(_columns.values, _bucket_cvs[m]);
-      }
-    }
+    _tick_provider REF_DEREF Feed(_ticks);
+    Print("FeedTickProviderCsv: loaded ", ArraySize(_ticks), " ticks.");
   }
 
   /**
@@ -405,7 +394,7 @@ class Tester {
 
     // We start at 2000-01-01, but it doesn't matter. We just need to have increasing time for each tick.
     int64 _dt = 946684800;
-    for (int i = 0; i < 60; ++i) {
+    for (int i = 0; i < 600; ++i) {
       int64 time_ms = (_dt + i * 20) * 1000;
       ArrayPush(_ticks, RandomizeTick(time_ms));
     }
@@ -511,55 +500,39 @@ class Tester {
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 
-// Helper: convert TesterValuesColumnValue to a plain JS object.
-static emscripten::val _TesterColumnValueToVal(const TesterValuesColumnValue& v) {
+// Converts a single IndicatorDataEntry to a plain JS object:
+// { timestamp: number, flags: number, values: number[] }
+static emscripten::val IndicatorDataEntryToVal(IndicatorDataEntry& entry) {
   emscripten::val obj = emscripten::val::object();
-  obj.set("name", emscripten::val(v.name));
-  obj.set("type", emscripten::val((int)v.type));
-  obj.set("time_open_ms", emscripten::val((double)v.time_open_ms));
-  obj.set("time_close_ms", emscripten::val((double)v.time_close_ms));
-  obj.set("value_open", emscripten::val(v.value_open));
-  obj.set("value_high", emscripten::val(v.value_high));
-  obj.set("value_low", emscripten::val(v.value_low));
-  obj.set("value_close", emscripten::val(v.value_close));
-  obj.set("value_avg", emscripten::val(v.value_avg));
-  obj.set("num_values", emscripten::val(v.num_values));
+  obj.set("timestamp", emscripten::val(entry.timestamp));
+  obj.set("flags",     emscripten::val((unsigned int)entry.flags));
+  int size = entry.GetSize();
+  emscripten::val vals = emscripten::val::array();
+  for (int j = 0; j < size; ++j) {
+    vals.call<void>("push", emscripten::val(entry.GetValue<double>(j)));
+  }
+  obj.set("values", vals);
   return obj;
 }
 
-// Helper: convert TesterValuesColumns to a plain JS object.
-static emscripten::val _TesterColumnsToVal(const TesterValuesColumns& c) {
-  emscripten::val obj = emscripten::val::object();
+// Converts a TesterValuesColumns to a plain JS object:
+// { indicator_info: { name, index, num_values, symbol, tf }, values: IndicatorDataEntry[] }
+static emscripten::val TesterValuesColumnsToVal(TesterValuesColumns& cols) {
+  emscripten::val result = emscripten::val::object();
   emscripten::val info = emscripten::val::object();
-  info.set("name", emscripten::val(c.indicator_info.name));
-  info.set("index", emscripten::val(c.indicator_info.index));
-  info.set("num_values", emscripten::val(c.indicator_info.num_values));
-  info.set("symbol", emscripten::val(c.indicator_info.symbol));
-  info.set("tf", emscripten::val((int)c.indicator_info.tf));
-  obj.set("indicator_info", info);
-  obj.set("time_ms", emscripten::val((double)c.time_ms));
+  info.set("name",       emscripten::val(cols.indicator_info.name));
+  info.set("index",      emscripten::val(cols.indicator_info.index));
+  info.set("num_values", emscripten::val(cols.indicator_info.num_values));
+  info.set("symbol",     emscripten::val(cols.indicator_info.symbol));
+  info.set("tf",         emscripten::val((int)cols.indicator_info.tf));
+  result.set("indicator_info", info);
   emscripten::val values_arr = emscripten::val::array();
-  for (int i = 0; i < c.values.size(); ++i) {
-    values_arr.call<void>("push", _TesterColumnValueToVal(c.values[i]));
+  int n = ArraySize(cols.values);
+  for (int i = 0; i < n; ++i) {
+    values_arr.call<void>("push", IndicatorDataEntryToVal(cols.values[i]));
   }
-  obj.set("values", values_arr);
-  return obj;
-}
-
-// Helper: convert TesterValues to a plain JS object.
-static emscripten::val _TesterValuesToVal(const TesterValues& tv) {
-  emscripten::val obj = emscripten::val::object();
-  emscripten::val ts_arr = emscripten::val::array();
-  for (int i = 0; i < tv.timestep_based.size(); ++i) {
-    ts_arr.call<void>("push", _TesterColumnsToVal(tv.timestep_based[i]));
-  }
-  obj.set("timestep_based", ts_arr);
-  emscripten::val loose_arr = emscripten::val::array();
-  for (int i = 0; i < tv.loose.size(); ++i) {
-    loose_arr.call<void>("push", _TesterColumnsToVal(tv.loose[i]));
-  }
-  obj.set("loose", loose_arr);
-  return obj;
+  result.set("values", values_arr);
+  return result;
 }
 
 EMSCRIPTEN_BINDINGS(Tester) {
@@ -572,17 +545,69 @@ EMSCRIPTEN_BINDINGS(Tester) {
       .class_function("RunTick", &Tester::RunTick)
       .class_function("FeedTickProvider", &Tester::FeedTickProvider,
                       emscripten::allow_raw_pointer<emscripten::arg<0>>())
+      .class_function("FeedTickProviderCsv", &Tester::FeedTickProviderCsv,
+                      emscripten::allow_raw_pointer<emscripten::arg<0>>())
       .class_function("GetTimeByScrollAndZoom", &Tester::GetTimeByScrollAndZoom)
       .class_function("GetValues", emscripten::optional_override(
                                        [](int64 timeFromMs, int64 timeToMs, int timeStepSecs,
                                           bool aggregateNoFits) -> emscripten::val {
-                                         return _TesterValuesToVal(
-                                             Tester::GetValues(timeFromMs, timeToMs, timeStepSecs, aggregateNoFits));
+                                         TesterValues tv = Tester::GetValues(timeFromMs, timeToMs, timeStepSecs, aggregateNoFits);
+                                         emscripten::val result = emscripten::val::object();
+                                         emscripten::val ts_arr = emscripten::val::array();
+                                         for (int i = 0; i < ArraySize(tv.timestep_based); ++i)
+                                           ts_arr.call<void>("push", TesterValuesColumnsToVal(tv.timestep_based[i]));
+                                         result.set("timestep_based", ts_arr);
+                                         emscripten::val loose_arr = emscripten::val::array();
+                                         for (int i = 0; i < ArraySize(tv.loose); ++i)
+                                           loose_arr.call<void>("push", TesterValuesColumnsToVal(tv.loose[i]));
+                                         result.set("loose", loose_arr);
+                                         return result;
                                        }))
       .class_function("GetValuesByParams",
                       emscripten::optional_override([](const TesterValuesFetchParams& params,
                                                        bool aggregateNoFits) -> emscripten::val {
-                        return _TesterValuesToVal(Tester::GetValues(params, aggregateNoFits));
+                        TesterValues tv = Tester::GetValues(params, aggregateNoFits);
+                        emscripten::val result = emscripten::val::object();
+                        emscripten::val ts_arr = emscripten::val::array();
+                        for (int i = 0; i < ArraySize(tv.timestep_based); ++i)
+                          ts_arr.call<void>("push", TesterValuesColumnsToVal(tv.timestep_based[i]));
+                        result.set("timestep_based", ts_arr);
+                        emscripten::val loose_arr = emscripten::val::array();
+                        for (int i = 0; i < ArraySize(tv.loose); ++i)
+                          loose_arr.call<void>("push", TesterValuesColumnsToVal(tv.loose[i]));
+                        result.set("loose", loose_arr);
+                        return result;
+                      }))
+      .class_function("GetIndicatorColumnsUngrouped",
+                      emscripten::optional_override([](IndicatorData* _indi, int64 timeFromMs,
+                                                       int64 timeToMs) -> emscripten::val {
+                        ENUM_TIMEFRAMES _tf = _indi PTR_DEREF GetTf();
+                        TesterValuesColumns cols;
+                        cols.indicator_info = TesterIndicatorInfo(_indi PTR_DEREF GetName(), 0, 0,
+                                                                  _indi PTR_DEREF GetSymbol(), _tf);
+                        Tester::GetValuesForTimeFrameBasedIndicatorUngrouped(_indi, cols);
+                        return TesterValuesColumnsToVal(cols);
+                      }),
+                      emscripten::allow_raw_pointer<emscripten::arg<0>>())
+      .class_function("GetAllIndicatorColumnsUngrouped",
+                      emscripten::optional_override([](int64 timeFromMs, int64 timeToMs) -> emscripten::val {
+                        emscripten::val result = emscripten::val::array();
+                        for (DictIteratorBase<long long, Ref<IndicatorData>> _iter =
+                                 Platform::GetIndicators() PTR_DEREF Begin();
+                             _iter.IsValid(); ++_iter) {
+                          IndicatorData* _indi = _iter.Value().Ptr();
+                          if (_indi PTR_DEREF IsCandleIndicator() ||
+                              _iter.Value() REF_DEREF IsTickIndicator()) {
+                            continue;
+                          }
+                          ENUM_TIMEFRAMES _tf = _indi PTR_DEREF GetTf();
+                          TesterValuesColumns cols;
+                          cols.indicator_info = TesterIndicatorInfo(_indi PTR_DEREF GetName(), 0, 0,
+                                                                    _indi PTR_DEREF GetSymbol(), _tf);
+                          Tester::GetValuesForTimeFrameBasedIndicatorUngrouped(_indi, cols);
+                          result.call<void>("push", TesterValuesColumnsToVal(cols));
+                        }
+                        return result;
                       }));
 }
 
@@ -591,9 +616,6 @@ REGISTER_ARRAY_OF(ArrayIndicatorData, Ref<IndicatorData>, "IndicatorDataArray");
 
 // struct TesterValuesColumns[]
 REGISTER_ARRAY_OF(ArrayTesterValuesColumns, TesterValuesColumns, "TesterValuesColumnsArray");
-
-// struct TesterValuesColumnValue[]
-REGISTER_ARRAY_OF(ArrayTesterValuesColumnValue, TesterValuesColumnValue, "TesterValuesColumnValueArray");
 
 // struct TesterValuesFetchParams
 EMSCRIPTEN_BINDINGS(TesterValuesFetchParams) {
@@ -611,21 +633,6 @@ EMSCRIPTEN_BINDINGS(TesterIndicatorInfo) {
       .field("num_values", &TesterIndicatorInfo::num_values)
       .field("symbol", &TesterIndicatorInfo::symbol)
       .field("tf", &TesterIndicatorInfo::tf);
-}
-
-// struct TesterValuesColumnValue
-EMSCRIPTEN_BINDINGS(TesterValuesColumnValue) {
-  emscripten::value_object<TesterValuesColumnValue>("TesterValuesColumnValue")
-      .field("name", &TesterValuesColumnValue::name)
-      .field("type", &TesterValuesColumnValue::type)
-      .field("time_open_ms", &TesterValuesColumnValue::time_open_ms)
-      .field("time_close_ms", &TesterValuesColumnValue::time_close_ms)
-      .field("value_open", &TesterValuesColumnValue::value_open)
-      .field("value_high", &TesterValuesColumnValue::value_high)
-      .field("value_low", &TesterValuesColumnValue::value_low)
-      .field("value_close", &TesterValuesColumnValue::value_close)
-      .field("value_avg", &TesterValuesColumnValue::value_avg)
-      .field("num_values", &TesterValuesColumnValue::num_values);
 }
 
 #endif
