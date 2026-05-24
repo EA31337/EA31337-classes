@@ -61,9 +61,9 @@ struct IndiMAParams : IndicatorParams {
    * @see https://www.mql5.com/en/forum/146006#comment_3685589
    * "Always use MA shift 0 (ignore it) and use the regular shift, unless you are placing it on the chart for visual".
    */
-  IndiMAParams(unsigned int _period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
-               ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 10)
-      : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap), IndicatorParams(INDI_MA) {
+   IndiMAParams(unsigned int _period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 10)
+       : IndicatorParams(INDI_MA), period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_array(_ap) {
     if (custom_indi_name == "") {
   #ifdef __MQL5__
       SetCustomIndicatorName("Examples\\Custom Moving Average");
@@ -704,32 +704,34 @@ class Indi_MA : public Indicator<IndiMAParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
-    double _value = EMPTY_VALUE;
-    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
-      case IDATA_BUILTIN:
-        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
-                              ToRelShift(_abs_shift), THIS_PTR);
-        break;
-      case IDATA_ONCALCULATE:
-        _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
-                                         GetMAMethod(), GetAppliedPrice(), ToRelShift(_abs_shift));
-        break;
-      case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
-                         GetMAShift(), GetMAMethod() /* ] */, 0, ToRelShift(_abs_shift));
-        break;
-      case IDATA_INDICATOR:
-        // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
-                                         GetMAMethod(), GetAppliedPrice(), ToRelShift(_abs_shift));
-        break;
-      default:
-        SetUserError(ERR_INVALID_PARAMETER);
-    }
+   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
+     double _value = EMPTY_VALUE;
+     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
+       case IDATA_BUILTIN:
+         _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(),
+                               ToRelShift(_abs_shift), THIS_PTR);
+         break;
+       case IDATA_ONCALCULATE:
+         _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+                                          GetMAMethod(), GetAppliedPrice(), ToRelShift(_abs_shift));
+         break;
+       case IDATA_ICUSTOM:
+         _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, /* [ */ GetPeriod(),
+                          GetMAShift(), GetMAMethod() /* ] */, 0, ToRelShift(_abs_shift));
+         break;
+       case IDATA_INDICATOR:
+         // Calculating MA value from specified indicator.
+         _value = Indi_MA::iMAOnIndicator(THIS_PTR, GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+                                          GetMAMethod(), GetAppliedPrice(), ToRelShift(_abs_shift));
+         break;
+       case IDATA_CHART:
+         break;
+       default:
+         SetUserError(ERR_INVALID_PARAMETER);
+     }
 
-    return _value;
-  }
+     return _value;
+   }
 
   /**
    * Returns reusable indicator with the same candle indicator as given indicator's one.
@@ -869,5 +871,35 @@ double iMAOnArray(ARRAY_REF(double, _arr), int _total, int _period, int _ma_shif
   return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _abs_shift, _cache);
 }
   #endif  // __MQL4__
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(Indi_MA_Params) {
+  emscripten::value_object<IndiMAParams>("indicators.MAParams")
+      .field("period", &IndiMAParams::period)
+      .field("maShift", &IndiMAParams::ma_shift)
+      .field("maMethod", &IndiMAParams::ma_method)
+      .field("appliedPrice", &IndiMAParams::applied_array)
+      // Inherited fields:
+      .field("shift", &IndiMAParams::shift);
+}
+
+EMSCRIPTEN_BINDINGS(Indi_MABase) {
+  emscripten::class_<Indicator<IndiMAParams>, emscripten::base<IndicatorData>>("Indi_MABase");
+}
+
+EMSCRIPTEN_BINDINGS(Indi_MA) {
+  emscripten::class_<Indi_MA, emscripten::base<Indicator<IndiMAParams>>>("indicators.MA")
+      .smart_ptr<Ref<Indi_MA>>("Ref<Indi_MA>")
+      .constructor(&make_ref<Indi_MA, IndiMAParams &>)
+      .constructor(&make_ref<Indi_MA, IndiMAParams &, ENUM_IDATA_SOURCE_TYPE>)
+      .constructor(&make_ref<Indi_MA, IndiMAParams &, ENUM_IDATA_SOURCE_TYPE, IndicatorData *>,
+                   emscripten::allow_raw_pointer<emscripten::arg<2>>())
+      .constructor(&make_ref<Indi_MA, IndiMAParams &, ENUM_IDATA_SOURCE_TYPE, IndicatorData *, int>,
+                   emscripten::allow_raw_pointer<emscripten::arg<2>>());
+}
+
+#endif  // __EMSCRIPTEN__
 
 #endif  // INDI_MA_MQH

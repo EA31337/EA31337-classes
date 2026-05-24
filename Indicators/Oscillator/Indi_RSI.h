@@ -177,12 +177,14 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
   static double iRSIOnIndicator(Indi_RSI *_target, IndicatorData *_source, string _symbol = NULL_STRING,
                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                 ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
-    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_target, _period + _shift + 1);  // +1 because of _bar_time_prev.
+    // Need _period+1 bars for the SMA seed (_data[_shift.._shift+_period]) plus
+    // one more for _bar_time_prev, so the minimum is _period + _shift + 2.
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_target, _period + _shift + 2);
 
     int64 _bar_time_curr = _source PTR_DEREF GetBarTime(_shift);
     int64 _bar_time_prev = _source PTR_DEREF GetBarTime(_shift + 1);
-    if (fmin(_bar_time_curr, _bar_time_prev) < 0) {
-      // Return empty value on invalid bar time.
+    if (fmin(_bar_time_curr, _bar_time_prev) <= 0) {
+      // Return empty value on invalid bar time (0 means bar does not exist).
       return EMPTY_VALUE;
     }
 
@@ -200,13 +202,16 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
     ValueStorage<double> *_data = _source PTR_DEREF GetSpecificAppliedPriceValueStorage(_ap, _target);
 
     if (!_target PTR_DEREF aux_data.KeyExists(_bar_time_prev, data_position)) {
-      // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
+      // No previous SMMA-based data: initialise with a proper Wilder SMA.
+      // Cover exactly _period price changes starting from the current bar
+      // (_data[_shift] vs _data[_shift+1], …, _data[_shift+_period-1] vs
+      // _data[_shift+_period]).  This matches MetaTrader's iRSI seed calculation.
       double sum_gain = 0;
       double sum_loss = 0;
 
-      for (i = 1; i < (int)_period; i++) {
-        double price_new = PTR_TO_REF(_data)[(_shift + 1) + i - 1].Get();
-        double price_old = PTR_TO_REF(_data)[(_shift + 1) + i].Get();
+      for (i = 0; i < (int)_period; i++) {
+        double price_new = PTR_TO_REF(_data)[_shift + i].Get();
+        double price_old = PTR_TO_REF(_data)[_shift + i + 1].Get();
 
         if (price_new == 0.0 || price_old == 0.0) {
           // Missing history price data, skipping calculations.
@@ -222,26 +227,27 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
         }
       }
 
-      // Calculating SMA-based values.
-      last_data.avg_gain = sum_gain / _period;
-      last_data.avg_loss = sum_loss / _period;
+      // The SMA of _period changes IS the RSI seed — no additional SMMA step.
+      new_data.avg_gain = sum_gain / _period;
+      new_data.avg_loss = sum_loss / _period;
     } else {
-      // Data already exists, retrieving it by position got by KeyExists().
+      // Previous SMMA data exists: apply one Wilder smoothing step for the
+      // current bar's price change.
       last_data = _target PTR_DEREF aux_data.GetByPos(data_position);
+
+      diff = PTR_TO_REF(_data)[_shift].Get() - PTR_TO_REF(_data)[_shift + 1].Get();
+
+      double curr_gain = 0;
+      double curr_loss = 0;
+
+      if (diff > 0)
+        curr_gain += diff;
+      else
+        curr_loss += -diff;
+
+      new_data.avg_gain = (last_data.avg_gain * (_period - 1) + curr_gain) / _period;
+      new_data.avg_loss = (last_data.avg_loss * (_period - 1) + curr_loss) / _period;
     }
-
-    diff = PTR_TO_REF(_data)[_shift].Get() - PTR_TO_REF(_data)[_shift + 1].Get();
-
-    double curr_gain = 0;
-    double curr_loss = 0;
-
-    if (diff > 0)
-      curr_gain += diff;
-    else
-      curr_loss += -diff;
-
-    new_data.avg_gain = (last_data.avg_gain * (_period - 1) + curr_gain) / _period;
-    new_data.avg_loss = (last_data.avg_loss * (_period - 1) + curr_loss) / _period;
 
     _target PTR_DEREF aux_data.Set(_bar_time_curr, new_data);
 
@@ -313,7 +319,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
    * Note that in MQL5 Applied Price must be passed as the last parameter
    * (before mode and shift).
    */
-  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override __attribute__((noinline)) {
 #ifdef __debug_indicator__
     Print("Indi_RSI::GetEntryValue(mode = ", _mode, ", abs_shift = ", _abs_shift, ")");
 #endif
