@@ -37,7 +37,7 @@
 struct IndicatorTfParams : IndicatorParams {
   ChartTf tf;
   // Struct constructor.
-  IndicatorTfParams(string _name, ENUM_TIMEFRAMES _tf) : IndicatorParams(_name) { tf.SetTf(_tf); }
+  IndicatorTfParams(string _name, ENUM_TIMEFRAMES _tf) : IndicatorParams(_name), tf(_tf) { }
   // Copy constructor.
   IndicatorTfParams(const IndicatorTfParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     THIS_REF = _params;

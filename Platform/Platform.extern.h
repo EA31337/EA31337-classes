@@ -29,8 +29,9 @@
 
 #include "../Exchange/Account/Account.enum.h"
 #include "../Storage/Data.define.h"
-#include "../Storage/DateTime.h"
 #include "../Storage/Object.extern.h"
+#include "../Storage/String.extern.h"
+#include "../Storage/DateTime.extern.h"
 #include "Deal.enum.h"
 #include "Order.define.h"
 #include "Order.enum.h"

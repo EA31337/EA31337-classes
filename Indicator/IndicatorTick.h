@@ -55,6 +55,9 @@ class IndicatorTick : public Indicator<TS> {
   SymbolInfoProp symbol_props;
   TickBarCounter counter;
 
+  // Time of the last tick (with passed periods functionality).
+  DateTime last_tick_time;
+
  protected:
   /* Protected methods */
 
@@ -83,7 +86,7 @@ class IndicatorTick : public Indicator<TS> {
    */
   IndicatorTick(string _symbol, const TS& _itparams, const IndicatorDataParams& _idparams,
                 IndicatorData* _indi_src = NULL, int _indi_mode = 0)
-      : Indicator<TS>(_itparams, _idparams, _indi_src, _indi_mode), history(THIS_PTR) {
+      : Indicator<TS>(_itparams, _idparams, _indi_src, _indi_mode), history(THIS_PTR), last_tick_time(false) {
     itparams = _itparams;
     if (_indi_src != NULL) {
       THIS_ATTR SetDataSource(_indi_src, _indi_mode);
@@ -92,7 +95,7 @@ class IndicatorTick : public Indicator<TS> {
     Init();
   }
   IndicatorTick(string _symbol, ENUM_INDICATOR_TYPE _itype = INDI_CANDLE, int _shift = 0, string _name = "")
-      : Indicator<TS>(_itype, _shift, _name), history(THIS_PTR) {
+      : Indicator<TS>(_itype, _shift, _name), history(THIS_PTR), last_tick_time(false) {
     symbol = _symbol;
     Init();
   }
@@ -111,6 +114,24 @@ class IndicatorTick : public Indicator<TS> {
    * Returns time of the bar for a given shift.
    */
   datetime GetBarTime(int _rel_shift = 0) override { return history.GetItemTimeByShift(_rel_shift); }
+
+  /**
+   * Updates time of the last tick. Called by EmitEntry() from the Tick indicator.
+   */
+  virtual void UpdateLastTickTimeMs(int64 _time_ms) override {
+#ifdef __debug_indicator__
+    Print("Updating last tick time (sec): ", _time_ms / 1000, " for indicator ", this->GetFullName());
+#endif
+    last_tick_time.Update(_time_ms / 1000);
+  }
+
+  /**
+   * Returns time of the current tick. Updated by EmitEntry() from the Tick indicator and stored in the Tick indicator
+   * in the hierarchy.
+   */
+  datetime GetTimeCurrent() override {
+    return last_tick_time.dt_curr.GetTimestamp();
+  }
 
   /**
    * Gets ask price for a given date and time. Return current ask price if _dt wasn't passed or is 0.

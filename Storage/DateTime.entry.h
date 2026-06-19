@@ -38,7 +38,7 @@
 struct DateTimeEntry : MqlDateTime {
   int week_of_year;
   // Struct constructors.
-  DateTimeEntry() { Set(); }
+  DateTimeEntry(bool _init_with_curr_time = true) { if (_init_with_curr_time) Set(); }
   DateTimeEntry(datetime _dt) { Set(_dt); }
   DateTimeEntry(MqlDateTime& _dt) {
     Set(_dt);
@@ -95,7 +95,7 @@ struct DateTimeEntry : MqlDateTime {
   datetime GetTimestamp() { return StructToTime(THIS_REF); }
   // Setters.
   void Set() {
-    TimeToStruct(PlatformTime::CurrentTimestamp(), THIS_REF);
+    TimeToStruct(PlatformTime::TimeCurrent(), THIS_REF);
     // @fixit Should also set day of week.
   }
   void SetGMT() {
@@ -109,7 +109,7 @@ struct DateTimeEntry : MqlDateTime {
   }
   // Set date and time.
   void Set(MqlDateTime& _time) {
-    THIS_REF = _time;
+    REF_TYPE(MqlDateTime)THIS_REF = _time;
     // @fixit Should also set day of week.
   }
   void SetDayOfMonth(int _value) {
@@ -169,4 +169,5 @@ struct DateTimeEntry : MqlDateTime {
     }
   }
   void SetYear(int _value) { year = _value; }
+  datetime GetTime() { return StructToTime(THIS_REF); }
 };

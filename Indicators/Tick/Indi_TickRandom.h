@@ -77,7 +77,7 @@ class Indi_TickRandom : public IndicatorTick<Indi_TickRandomParams, double, Item
   /**
    * Returns the indicator's struct entry for the given shift.
    */
-  IndicatorDataEntry GetEntry(int _index = 0) override {
+  IndicatorDataEntry GetEntry(int _index = 0, bool _allow_regenerate = true) override {
     IndicatorDataEntry _default;
     return _default;
   }

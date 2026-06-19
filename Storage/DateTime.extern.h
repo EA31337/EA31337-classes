@@ -31,6 +31,7 @@
 #include <time.h>
 
 #include "DateTime.enum.h"
+#include "DateTime.struct.h"
 #include "String.h"
 
 // Forward declarations.
@@ -47,7 +48,7 @@ class datetime {
   datetime(const int64& _time) { dt = _time; }
   // datetime(const int& _time);
   bool operator==(const int _time) const = delete;
-  bool operator==(const datetime& _time) const { return dt == _time; }
+  bool operator==(const datetime& _time) const { return dt == (int64)_time; }
   bool operator<(const int _time) const = delete;
   bool operator>(const int _time) const = delete;
   bool operator<(const datetime& _time) const { return dt < _time; }
@@ -73,7 +74,6 @@ extern int CopyTime(string symbol_name, ENUM_TIMEFRAMES timeframe, datetime star
 }
 
 extern datetime StructToTime(MqlDateTime& dt_struct);
-extern bool TimeToStruct(datetime dt, MqlDateTime& dt_struct);
 extern datetime TimeGMT();
 extern datetime TimeGMT(MqlDateTime& dt_struct);
 extern datetime TimeTradeServer();
@@ -81,8 +81,25 @@ extern datetime TimeTradeServer(MqlDateTime& dt_struct);
 extern datetime StringToTime(const string& value);
 extern string TimeToString(datetime value, int mode = TIME_DATE | TIME_MINUTES);
 
+bool TimeToStruct(datetime dt, MqlDateTime &dt_struct) {
+  time_t now = (time_t)dt;
+
+  tm *ltm = localtime(&now);
+
+  dt_struct.day = ltm->tm_mday;
+  dt_struct.day_of_week = ltm->tm_wday;
+  dt_struct.day_of_year = ltm->tm_yday;
+  dt_struct.hour = ltm->tm_hour;
+  dt_struct.min = ltm->tm_min;
+  dt_struct.mon = ltm->tm_mon;
+  dt_struct.sec = ltm->tm_sec;
+  dt_struct.year = ltm->tm_year;
+
+  return true;
+}
+
 template <char... T>
-datetime operator"" _D();
+datetime operator""_D();
 
 #define DATETIME_LITERAL(STR) _D " ## STR ## "
 

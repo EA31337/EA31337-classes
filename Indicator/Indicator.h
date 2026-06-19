@@ -482,7 +482,7 @@ class Indicator : public IndicatorData {
   /**
    * Sets indicator's params.
    */
-  void SetParams(IndicatorParams& _iparams) { iparams = _iparams; }
+  void SetParams(IndicatorParams& _iparams) { REF_TYPE(IndicatorParams)iparams = _iparams; }
 
   /* Conditions */
 
@@ -672,7 +672,7 @@ class Indicator : public IndicatorData {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _rel_shift = 0) override {
+  IndicatorDataEntry GetEntry(int _rel_shift = 0, bool _allow_regenerate = true) override {
     ResetLastError();
     int64 _bar_time = GetBarTime(_rel_shift);
 
@@ -690,7 +690,13 @@ class Indicator : public IndicatorData {
     }
 
     IndicatorDataEntry _entry = idata.GetByKey(_bar_time);
-    if (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA)) {
+
+    bool _force_regenerate = _allow_regenerate &&
+                             _rel_shift == 0 &&
+                             Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE)) == IDATA_INDICATOR &&
+                             GetTick() PTR_DEREF GetBarTime(0) != _bar_time;
+
+    if (_force_regenerate || (_bar_time > 0 && !_entry.IsValid() && !_entry.CheckFlag(INDI_ENTRY_FLAG_INSUFFICIENT_DATA))) {
       int _max_modes = Get<int>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_MAX_MODES));
       _entry.Resize(_max_modes);
       _entry.timestamp = _bar_time;

@@ -35,7 +35,7 @@ struct IndiAppliedPriceParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   IndiAppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN, int _shift = 0)
-      : applied_price(_applied_price), IndicatorParams(INDI_APPLIED_PRICE) {
+      : IndicatorParams(INDI_APPLIED_PRICE), applied_price(_applied_price) {
     shift = _shift;
   };
   IndiAppliedPriceParams(IndiAppliedPriceParams &_params) { THIS_REF = _params; };
@@ -47,10 +47,12 @@ struct IndiAppliedPriceParams : IndicatorParams {
 class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
  protected:
   void OnInit() {
+    /*
     if (!indi_src.IsSet()) {
       Indi_OHLC *_indi_ohlc = new Indi_OHLC();
       SetDataSource(_indi_ohlc);
     }
+    */
   }
 
  public:
@@ -92,21 +94,28 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
-    double _value = EMPTY_VALUE;
-    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
-      case IDATA_INDICATOR:
-        if (HasDataSource()) {
-          _value =
-              Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), ToRelShift(_abs_shift));
-        }
-        break;
-      default:
-        SetUserError(ERR_INVALID_PARAMETER);
-        break;
-    }
-    return _value;
-  }
+   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
+     double _value = EMPTY_VALUE;
+     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
+       case IDATA_INDICATOR:
+         if (HasDataSource()) {
+           _value =
+               Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), ToRelShift(_abs_shift));
+         }
+         break;
+       case IDATA_BUILTIN:
+       case IDATA_CHART:
+       case IDATA_ICUSTOM:
+       case IDATA_ICUSTOM_LEGACY:
+       case IDATA_ONCALCULATE:
+       case IDATA_MATH:
+         SetUserError(ERR_INVALID_PARAMETER);
+         break;
+       default:
+         break;
+     }
+     return _value;
+   }
 
   /**
    * Checks if indicator entry is valid.
@@ -114,18 +123,25 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
    * @return
    *   Returns true if entry is valid (has valid values), otherwise false.
    */
-  virtual bool IsValidEntry(IndicatorDataEntry &_entry) {
-    bool _is_valid = Indicator<IndiAppliedPriceParams>::IsValidEntry(_entry);
-    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
-      case IDATA_INDICATOR:
-        if (!HasDataSource()) {
-          logger REF_DEREF Error("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");
-          _is_valid &= false;
-        }
-        break;
-    }
-    return _is_valid;
-  }
+   bool IsValidEntry(IndicatorDataEntry &_entry) override {
+     bool _is_valid = Indicator<IndiAppliedPriceParams>::IsValidEntry(_entry);
+     switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
+       case IDATA_INDICATOR:
+         if (!HasDataSource()) {
+           logger REF_DEREF Error("Indi_AppliedPrice requires source indicator to be set via SetDataSource()!");
+           _is_valid &= false;
+         }
+         break;
+       case IDATA_BUILTIN:
+       case IDATA_CHART:
+       case IDATA_ICUSTOM:
+       case IDATA_ICUSTOM_LEGACY:
+       case IDATA_ONCALCULATE:
+       case IDATA_MATH:
+         break;
+     }
+     return _is_valid;
+   }
 
   /* Getters */
 
@@ -144,3 +160,30 @@ class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
     iparams.applied_price = _applied_price;
   }
 };
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(Indi_AppliedPrice_Params) {
+  emscripten::value_object<IndiAppliedPriceParams>("indicators.AppliedPriceParams")
+      .field("appliedPrice", &IndiAppliedPriceParams::applied_price)
+      // Inherited fields:
+      .field("shift", &IndiAppliedPriceParams::shift);
+}
+
+EMSCRIPTEN_BINDINGS(Indi_AppliedPriceBase) {
+  emscripten::class_<Indicator<IndiAppliedPriceParams>, emscripten::base<IndicatorData>>("Indi_AppliedPriceBase");
+}
+
+EMSCRIPTEN_BINDINGS(Indi_AppliedPrice) {
+  emscripten::class_<Indi_AppliedPrice, emscripten::base<Indicator<IndiAppliedPriceParams>>>("indicators.AppliedPrice")
+      .smart_ptr<Ref<Indi_AppliedPrice>>("Ref<Indi_AppliedPrice>")
+      .constructor(&make_ref<Indi_AppliedPrice, IndiAppliedPriceParams &>)
+      .constructor(&make_ref<Indi_AppliedPrice, IndiAppliedPriceParams &, ENUM_IDATA_SOURCE_TYPE>)
+      .constructor(&make_ref<Indi_AppliedPrice, IndiAppliedPriceParams &, ENUM_IDATA_SOURCE_TYPE, IndicatorData *>,
+                   emscripten::allow_raw_pointer<emscripten::arg<2>>())
+      .constructor(&make_ref<Indi_AppliedPrice, IndiAppliedPriceParams &, ENUM_IDATA_SOURCE_TYPE, IndicatorData *, int>,
+                   emscripten::allow_raw_pointer<emscripten::arg<2>>());
+}
+
+#endif  // __EMSCRIPTEN__

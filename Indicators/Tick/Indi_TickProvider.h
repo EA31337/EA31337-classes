@@ -86,7 +86,7 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
   /**
    * Returns the indicator's struct entry for the given shift.
    */
-  IndicatorDataEntry GetEntry(int _index = 0) override {
+  IndicatorDataEntry GetEntry(int _index = 0, bool _allow_regenerate = true) override {
 #ifdef __debug_indicator__
     Print("Indi_TickProvider::GetEntry(index = ", _index, ")");
 #endif
@@ -137,7 +137,7 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
 #endif
 
     IndicatorDataEntry _entry(TickToEntry(_tick.GetTimestamp(), _tick));
-    EmitEntry(_entry);
+    EmitEntry(_entry, INDI_EMITTED_ENTRY_TYPE_TICK);
     // Appending tick into the history.
     AppendEntry(_entry);
 
@@ -145,7 +145,7 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
   }
 };
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(Indi_TickProviderParams) {
@@ -160,7 +160,7 @@ EMSCRIPTEN_BINDINGS(Indi_TickProviderBaseBase) {
 
 EMSCRIPTEN_BINDINGS(Indi_TickProviderBase) {
   emscripten::class_<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>,
-                     emscripten::base<Indicator<Indi_TickProviderParams>>>("IndiTickProviderBas         e")
+                     emscripten::base<Indicator<Indi_TickProviderParams>>>("IndiTickProviderBase")
       .smart_ptr<Ref<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>>>(
           "Ref<IndicatorTick<Indi_TickProviderParams, double, ItemsHistoryTickProvider<double>>");
 }

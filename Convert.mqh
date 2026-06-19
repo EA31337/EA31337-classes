@@ -111,7 +111,7 @@ class Convert {
   /**
    * Returns number of points per pip.
    */
-  static unsigned int PointsPerPip(string _symbol = NULL) {
+  static unsigned int PointsPerPip(string _symbol = NULL_STRING) {
     return PointsPerPip((unsigned int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
@@ -137,7 +137,7 @@ class Convert {
   /**
    * Convert pips into price value.
    */
-  static double PipsToValue(double pips, string _symbol = NULL) {
+  static double PipsToValue(double pips, string _symbol = NULL_STRING) {
     return PipsToValue(pips, (unsigned int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
@@ -149,7 +149,7 @@ class Convert {
   /**
    * Convert value into pips.
    */
-  static double ValueToPips(double value, string _symbol = NULL) {
+  static double ValueToPips(double value, string _symbol = NULL_STRING) {
     return ValueToPips(value, (unsigned int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
@@ -161,7 +161,7 @@ class Convert {
   /**
    * Convert pips into points.
    */
-  static unsigned int PipsToPoints(double pips, string _symbol = NULL) {
+  static unsigned int PipsToPoints(double pips, string _symbol = NULL_STRING) {
     return PipsToPoints(pips, (unsigned int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
@@ -173,7 +173,7 @@ class Convert {
   /**
    * Convert points into pips.
    */
-  static double PointsToPips(int64 pts, string _symbol = NULL) {
+  static double PointsToPips(int64 pts, string _symbol = NULL_STRING) {
     return PointsToPips(pts, (unsigned int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
@@ -181,7 +181,7 @@ class Convert {
    * Convert points into price value.
    *
    */
-  static double PointsToValue(int64 pts, int mode, string _symbol = NULL) {
+  static double PointsToValue(int64 pts, int mode, string _symbol = NULL_STRING) {
     switch (mode) {
       case 0:  // Forex.
         // In currencies a tick is a point.
@@ -226,7 +226,7 @@ class Convert {
   /**
    * Convert points into price value.
    */
-  static double PointsToValue(int64 pts, string _symbol = NULL) {
+  static double PointsToValue(int64 pts, string _symbol = NULL_STRING) {
     return PointsToValue(pts, (int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE));
   }
 
@@ -236,7 +236,7 @@ class Convert {
    * @return
    *   Returns amount in a base currency based on the given the value.
    */
-  static double ValueToMoney(double value, string _symbol = NULL) {
+  static double ValueToMoney(double value, string _symbol = NULL_STRING) {
     double _tick_value = SymbolInfoStatic::GetTickValue(_symbol) > 0 ? SymbolInfoStatic::GetTickValue(_symbol) : 1;
     return value * _tick_value / SymbolInfoStatic::GetPointSize(_symbol);
   }
@@ -247,7 +247,7 @@ class Convert {
    * @return
    *   Returns value in points equivalent to the amount in a base currency.
    */
-  static float MoneyToValue(float money, float lot_size, string _symbol = NULL) {
+  static float MoneyToValue(float money, float lot_size, string _symbol = NULL_STRING) {
     double _tick_value = SymbolInfoStatic::GetTickValue(_symbol) > 0 ? SymbolInfoStatic::GetTickValue(_symbol) : 1;
     return money > 0 && lot_size > 0 ? float(money / _tick_value * SymbolInfoStatic::GetPointSize(_symbol) / lot_size)
                                      : 0;
@@ -257,7 +257,7 @@ class Convert {
    * Get the difference between two price values (in pips).
    */
   static double GetValueDiffInPips(double price1, double price2, bool abs = false, int digits = 0,
-                                   string _symbol = NULL) {
+                                   string _symbol = NULL_STRING) {
     digits = digits ? digits : (int)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS);
     return ValueToPips(abs ? fabs(price1 - price2) : (price1 - price2), digits);
   }

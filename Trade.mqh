@@ -583,7 +583,7 @@ class Trade : public Taskable<DataParamEntry> {
    *     Optional symbol name if different than current.
    */
   double OptimizeLotSize(double lots, double win_factor = 1.0, double loss_factor = 1.0, int ols_orders = 100,
-                         string _symbol = NULL) {
+                         string _symbol = NULL_STRING) {
     double lotsize = lots;
     int wins = 0, losses = 0;    // Number of consequent losing orders.
     int twins = 0, tlosses = 0;  // Total number of consequent losing orders.

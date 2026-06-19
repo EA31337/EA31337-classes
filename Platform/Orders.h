@@ -322,7 +322,7 @@ class Orders {
    * @return
    *   Returns true on success.
    */
-  bool OrdersCloseAll(const string _symbol = NULL, const ENUM_POSITION_TYPE _type = (ENUM_POSITION_TYPE)-1,
+  bool OrdersCloseAll(const string _symbol = NULL_STRING, const ENUM_POSITION_TYPE _type = (ENUM_POSITION_TYPE)-1,
                       const int _magic = -1) {
 #ifdef __MQL4__
 
@@ -544,7 +544,7 @@ class Orders {
   /**
    * Count open positions by order type.
    */
-  static unsigned int GetOrdersByType(ENUM_ORDER_TYPE _cmd, string _symbol = NULL) {
+  static unsigned int GetOrdersByType(ENUM_ORDER_TYPE _cmd, string _symbol = NULL_STRING) {
     unsigned int _counter = 0;
     _symbol = _symbol != NULL_STRING ? _symbol : _Symbol;
     for (int i = 0; i < OrdersTotal(); i++) {

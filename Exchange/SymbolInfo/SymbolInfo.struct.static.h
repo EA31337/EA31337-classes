@@ -528,7 +528,7 @@ struct SymbolInfoStatic {
     return ::SymbolInfoString(name, prop_id);
 #else
     printf("@fixme: %s\n", "SymbolInfoStatic::SymbolInfoString()");
-    return 0;
+    return NULL_STRING;
 #endif
   }
 };

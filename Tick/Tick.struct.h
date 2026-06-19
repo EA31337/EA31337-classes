@@ -119,7 +119,7 @@ struct TickTAB : TickAB<T> {
 
 struct DoubleTickTAB : TickTAB<double> {};
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(TickAB) {

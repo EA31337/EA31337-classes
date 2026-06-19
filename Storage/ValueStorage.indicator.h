@@ -73,6 +73,10 @@ class IndicatorBufferValueStorage : public HistoryValueStorage<C> {
 template <typename C>
 C IndicatorBufferValueStorage<C>::Fetch(int _rel_shift) {
   IndicatorBase* _indi = THIS_ATTR indi_candle.Ptr();
-  return _indi PTR_DEREF template GetValue<C>(mode, THIS_ATTR RealShift(_rel_shift));
+  // GetValue() already uses descending shift semantics (0 = newest bar).
+  // Do NOT call RealShift() here — that would convert to ascending order
+  // which GetValue/GetItemByShift would then misinterpret, always resolving
+  // to the oldest bars instead of the requested ones.
+  return _indi PTR_DEREF template GetValue<C>(mode, _rel_shift);
 }
 #endif

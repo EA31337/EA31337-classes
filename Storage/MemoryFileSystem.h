@@ -144,6 +144,21 @@ class MemoryFileSystem {
     _file REF_DEREF buffer += data;
     return data.size();
   }
+
+  // Similar to FileWrite, but for char arrays. Currently we only support writting char arrays.
+  unsigned int FileWriteArray(int file_handle, ARRAY_REF(unsigned char, arr), int start_index, int count = INT_MAX) {
+    if (!files_by_handle.KeyExists(file_handle)) {
+      Print("Error: MemoryFileSystemFile handle ", file_handle, " is not opened!");
+      DebugBreak();
+      return 0;
+    }
+
+    string data(((char*)arr.str().data()) + start_index, MathMin(count, arr.size()));
+
+    Ref<MemoryFileSystemFile> _file = files_by_handle.GetByKey(file_handle);
+    _file REF_DEREF buffer += data;
+    return data.size();
+  }
 };
 
 #endif

@@ -71,12 +71,12 @@ class IndicatorTfDummy : public IndicatorTf<IndicatorTfDummyParams> {
 
 #ifdef __debug_indicator__
     Print(GetFullName(), " got new tick at ", entry.timestamp,
-          " (" + TimeToString(entry.timestamp) + "): ", entry.ToString<double>());
+          " (" + TimeToString(entry.timestamp, TIME_DATE | TIME_MINUTES | TIME_SECONDS) + "): ", entry.ToString<double>());
 #endif
   }
 };
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(IndicatorTfDummyParams) { emscripten::value_object<IndicatorTfDummyParams>("indicators.TfParams"); }

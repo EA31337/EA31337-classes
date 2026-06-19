@@ -28,10 +28,8 @@
 #include "../../Common.define.h"
 #include "../../Common.extern.h"
 #include "../../Std.h"
-#include "../../String.extern.h"
-#include "../TradeSignalManager.h"
-
 #include "../../Platform/Platform.h"
+#include "../TradeSignalManager.h"
 
 int main(int argc, char **argv) {
   // @todo

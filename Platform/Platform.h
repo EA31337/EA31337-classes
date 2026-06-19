@@ -78,15 +78,6 @@ class Platform : public Taskable<DataParamEntry> {
   // Global tick index.
   static int global_tick_index;
 
-  // Date and time used to determine periods that passed.
-  static DateTime time;
-
-  // Merged flags from previous Platform::UpdateTime();
-  static unsigned int time_flags;
-
-  // Whether to clear passed periods on consecutive Platform::UpdateTime().
-  static bool time_clear_flags;
-
   // Whether history for all the indicators was emitted.
   static bool emitted_history;
 
@@ -104,6 +95,9 @@ class Platform : public Taskable<DataParamEntry> {
 
   // Timeframe of the currently ticking indicator.
   static ENUM_TIMEFRAMES period;
+
+  // Currently ticking indicator.
+  static IndicatorData* indi_current;
 
  private:
   /**
@@ -187,16 +181,14 @@ class Platform : public Taskable<DataParamEntry> {
   static int GetGlobalTickIndex() { return global_tick_index; }
 
   /**
+   * Returns number of seconds passed from the Unix epoch.
+   */
+  static datetime Timestamp() { return TimeCurrent(); }
+
+  /**
    * Performs tick on every added indicator.
    */
   static void Tick() {
-    // @todo Should update time for each ticking indicator and only when it signal a tick.
-    PlatformTime::Tick();
-    time.Update();
-
-    // Checking starting periods and updating time to current one.
-    time_flags = time.GetStartedPeriods();
-
     DictStructIterator<int64, Ref<IndicatorData>> _iter;
 
     last_tick_result = false;
@@ -206,6 +198,8 @@ class Platform : public Taskable<DataParamEntry> {
       //  Updating current symbol and timeframe to the ones used by ticking indicator and its parents.
       symbol = _iter.Value() REF_DEREF GetSymbol();
       period = _iter.Value() REF_DEREF GetTf();
+
+      PlatformTime::SetCurrentIndicator(_iter.Value().Ptr());
 
 #ifdef __debug__
       PrintFormat("Tick #%d for %s for symbol %s and period %s", global_tick_index,
@@ -233,9 +227,6 @@ class Platform : public Taskable<DataParamEntry> {
     // Clearing symbol and period in order to signal retrieving symbol/period outside the ticking indicator.
     symbol = PLATFORM_WRONG_SYMBOL;
     period = PLATFORM_WRONG_TIMEFRAME;
-
-    // Will check for new time periods in consecutive Platform::UpdateTime().
-    time_clear_flags = true;
 
     // Started from 0. Will be incremented after each finished tick.
     ++global_tick_index;
@@ -294,51 +285,6 @@ class Platform : public Taskable<DataParamEntry> {
    * Removes indicator from being processed by platform.
    */
   static void Remove(IndicatorData *_indi) { indis.Unset(_indi PTR_DEREF GetId()); }
-
-  /**
-   * Returns date and time used to determine periods that passed.
-   */
-  static DateTime Time() { return time; }
-
-  /**
-   * Returns number of seconds passed from the Unix epoch.
-   */
-  static datetime Timestamp() { return TimeCurrent(); }
-
-  /**
-   * Checks whether it's a new second.
-   */
-  static bool IsNewSecond() { return (time_flags & DATETIME_SECOND) != 0; }
-
-  /**
-   * Checks whether it's a new minute.
-   */
-  static bool IsNewMinute() { return (time_flags & DATETIME_MINUTE) != 0; }
-
-  /**
-   * Checks whether it's a new hour.
-   */
-  static bool IsNewHour() { return (time_flags & DATETIME_HOUR) != 0; }
-
-  /**
-   * Checks whether it's a new day.
-   */
-  static bool IsNewDay() { return (time_flags & DATETIME_DAY) != 0; }
-
-  /**
-   * Checks whether it's a new week.
-   */
-  static bool IsNewWeek() { return (time_flags & DATETIME_WEEK) != 0; }
-
-  /**
-   * Checks whether it's a new month.
-   */
-  static bool IsNewMonth() { return (time_flags & DATETIME_MONTH) != 0; }
-
-  /**
-   * Checks whether it's a new year.
-   */
-  static bool IsNewYear() { return (time_flags & DATETIME_YEAR) != 0; }
 
   /**
    * Returns number of candles for a given symbol and time-frame.
@@ -641,9 +587,6 @@ class Platform : public Taskable<DataParamEntry> {
 
 bool Platform::initialized = false;
 bool Platform::last_tick_result = false;
-DateTime Platform::time = (datetime)0;
-unsigned int Platform::time_flags = 0;
-bool Platform::time_clear_flags = true;
 int Platform::global_tick_index = 0;
 string Platform::symbol = PLATFORM_WRONG_SYMBOL;
 ENUM_TIMEFRAMES Platform::period = PLATFORM_WRONG_TIMEFRAME;
@@ -714,7 +657,7 @@ double HistoryDealGetDouble(uint64 ticket_number, ENUM_DEAL_PROPERTY_DOUBLE prop
 
 string HistoryDealGetString(uint64 ticket_number, ENUM_DEAL_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
-  return 0;
+  return "";
 }
 
 bool OrderSelect(int index, int select, int pool = MODE_TRADES) {
@@ -784,12 +727,12 @@ double HistoryOrderGetDouble(uint64 ticket_number, ENUM_ORDER_PROPERTY_DOUBLE pr
 
 string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
-  return 0;
+  return "";
 }
 
 string HistoryOrderGetString(uint64 ticket_number, ENUM_ORDER_PROPERTY_STRING property_id) {
   Print("Not yet implemented: ", __FUNCTION__, " returns empty string.");
-  return 0;
+  return "";
 }
 
 int PositionsTotal() {
@@ -988,23 +931,6 @@ string TimeToString(datetime value, int mode) {
   }
 
   return ss.str();
-}
-
-bool TimeToStruct(datetime dt, MqlDateTime &dt_struct) {
-  time_t now = (time_t)dt;
-
-  tm *ltm = localtime(&now);
-
-  dt_struct.day = ltm->tm_mday;
-  dt_struct.day_of_week = ltm->tm_wday;
-  dt_struct.day_of_year = ltm->tm_yday;
-  dt_struct.hour = ltm->tm_hour;
-  dt_struct.min = ltm->tm_min;
-  dt_struct.mon = ltm->tm_mon;
-  dt_struct.sec = ltm->tm_sec;
-  dt_struct.year = ltm->tm_year;
-
-  return true;
 }
 
 SymbolGetter::operator string() const { return Platform::GetSymbol(); }

@@ -41,7 +41,7 @@ struct ChartStatic {
   /**
    * Returns the number of bars on the specified chart.
    */
-  static int iBars(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  static int iBars(string _symbol = NULL_STRING, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
 #ifdef __MQL4__
     // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
     int _bars = ::iBars(_symbol, _tf);
@@ -115,7 +115,7 @@ struct ChartStatic {
    *
    * @see http://docs.mql4.com/series/iclose
    */
-  static double iClose(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
+  static double iClose(string _symbol = NULL_STRING, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
 #ifdef __MQL4__
     return ::iClose(_symbol, _tf, _shift);  // Same as: Close[_shift]
 #else                                       // __MQL5__
@@ -130,7 +130,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static double iHigh(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
+  static double iHigh(string _symbol = NULL_STRING, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
 #ifdef __MQL4__
     return ::iHigh(_symbol, _tf, _shift);  // Same as: High[_shift]
 #else                                      // __MQL5__
@@ -187,7 +187,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static double iLow(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
+  static double iLow(string _symbol = NULL_STRING, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
 #ifdef __MQL4__
     return ::iLow(_symbol, _tf, _shift);  // Same as: Low[_shift]
 #else                                     // __MQL5__
@@ -200,7 +200,7 @@ struct ChartStatic {
   /**
    * Returns the shift of the lowest value over a specific number of periods depending on type.
    */
-  static int iLowest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_LOW,
+  static int iLowest(string _symbol = NULL_STRING, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_LOW,
                      unsigned int _count = WHOLE_ARRAY, int _start = 0) {
 #ifdef __MQL4__
     return ::iLowest(_symbol, _tf, _type, _count, _start);
@@ -244,7 +244,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static double iOpen(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
+  static double iOpen(string _symbol = NULL_STRING, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
 #ifdef __MQL4__
     return ::iOpen(_symbol, _tf, _shift);  // Same as: Open[_shift]
 #else                                      // __MQL5__
@@ -257,7 +257,7 @@ struct ChartStatic {
   /**
    * Returns the current price value given applied price type.
    */
-  static double iPrice(ENUM_APPLIED_PRICE _ap, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+  static double iPrice(ENUM_APPLIED_PRICE _ap, string _symbol = NULL_STRING, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
                        int _shift = 0) {
     double _result = EMPTY_VALUE;
     switch (_ap) {
@@ -304,7 +304,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
+  static datetime iTime(string _symbol = NULL_STRING, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0) {
 #ifdef __MQL4__
     return ::iTime(_symbol, _tf, _shift);  // Same as: Time[_shift]
 #else                                      // __MQL5__
@@ -320,7 +320,7 @@ struct ChartStatic {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static int64 iVolume(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
+  static int64 iVolume(string _symbol = NULL_STRING, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
 #ifdef __MQL4__
     ResetLastError();
     int64 _volume = ::iVolume(_symbol, _tf, _shift);  // Same as: Volume[_shift]

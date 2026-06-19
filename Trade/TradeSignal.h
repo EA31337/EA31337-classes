@@ -185,7 +185,7 @@ class TradeSignal {
   string ToString() { return signal.ToString(); }
 };
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(TradeSignal) {

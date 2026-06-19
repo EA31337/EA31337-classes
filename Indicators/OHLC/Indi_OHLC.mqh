@@ -94,7 +94,7 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
   /**
    * Returns the indicator's value.
    */
-  virtual IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) {
+   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _abs_shift = 0) override {
     ENUM_APPLIED_PRICE _ap = PRICE_OPEN;
     switch (_mode) {
       case INDI_OHLC_CLOSE:
@@ -113,3 +113,29 @@ class Indi_OHLC : public Indicator<IndiOHLCParams> {
     return GetDataSource() PTR_DEREF GetPrice(_ap, ToRelShift(_abs_shift));
   }
 };
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(Indi_OHLC_Params) {
+  emscripten::value_object<IndiOHLCParams>("indicators.OHLCParams")
+      // Inherited fields:
+      .field("shift", &IndiOHLCParams::shift);
+}
+
+EMSCRIPTEN_BINDINGS(Indi_OHLCBase) {
+  emscripten::class_<Indicator<IndiOHLCParams>, emscripten::base<IndicatorData>>("Indi_OHLCBase");
+}
+
+EMSCRIPTEN_BINDINGS(Indi_OHLC) {
+  emscripten::class_<Indi_OHLC, emscripten::base<Indicator<IndiOHLCParams>>>("indicators.OHLC")
+      .smart_ptr<Ref<Indi_OHLC>>("Ref<Indi_OHLC>")
+      .constructor(&make_ref<Indi_OHLC, IndiOHLCParams &>)
+      .constructor(&make_ref<Indi_OHLC, IndiOHLCParams &, ENUM_IDATA_SOURCE_TYPE>)
+      .constructor(&make_ref<Indi_OHLC, IndiOHLCParams &, ENUM_IDATA_SOURCE_TYPE, IndicatorData *>,
+                   emscripten::allow_raw_pointer<emscripten::arg<2>>())
+      .constructor(&make_ref<Indi_OHLC, IndiOHLCParams &, ENUM_IDATA_SOURCE_TYPE, IndicatorData *, int>,
+                   emscripten::allow_raw_pointer<emscripten::arg<2>>());
+}
+
+#endif  // __EMSCRIPTEN__
