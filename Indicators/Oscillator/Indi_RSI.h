@@ -144,7 +144,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
                                        ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0,
                                        Indi_RSI *_obj = NULL) {
     int i;
-    ARRAY(double, indi_values);
+    static ARRAY(double, indi_values);
     ArrayResize(indi_values, _period);
 
     double result;
@@ -177,9 +177,8 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
   static double iRSIOnIndicator(Indi_RSI *_target, IndicatorData *_source, string _symbol = NULL_STRING,
                                 ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
                                 ENUM_APPLIED_PRICE _ap = PRICE_CLOSE, int _shift = 0) {
-    // Need _period+1 bars for the SMA seed (_data[_shift.._shift+_period]) plus
-    // one more for _bar_time_prev, so the minimum is _period + _shift + 2.
-    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_target, _period + _shift + 2);
+    // Need _period+1 bars for the SMA seed (_data[_shift.._shift+_period]).
+    INDI_REQUIRE_BARS_OR_RETURN_EMPTY(_target, _period + _shift + 1);
 
     int64 _bar_time_curr = _source PTR_DEREF GetBarTime(_shift);
     int64 _bar_time_prev = _source PTR_DEREF GetBarTime(_shift + 1);
@@ -189,8 +188,6 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
     }
 
     int i;
-    ARRAY(double, indi_values);
-    ArrayResize(indi_values, _period);
 
     double result;
 
@@ -205,16 +202,17 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
       // No previous SMMA-based data: initialise with a proper Wilder SMA.
       // Cover exactly _period price changes starting from the current bar
       // (_data[_shift] vs _data[_shift+1], …, _data[_shift+_period-1] vs
-      // _data[_shift+_period]).  This matches MetaTrader's iRSI seed calculation.
+      // _data[_shift+_period]). This matches MetaTrader's iRSI seed calculation.
       double sum_gain = 0;
       double sum_loss = 0;
 
-      for (i = 0; i < (int)_period; i++) {
+      for (i = _period - 1; i >= 0; i--) {
         double price_new = PTR_TO_REF(_data)[_shift + i].Get();
         double price_old = PTR_TO_REF(_data)[_shift + i + 1].Get();
 
         if (price_new == 0.0 || price_old == 0.0) {
           // Missing history price data, skipping calculations.
+          Print("iRSI seed calculation: missing history price data, skipping calculations.");
           return 0.0;
         }
 
@@ -252,8 +250,7 @@ class Indi_RSI : public Indicator<IndiRSIParams> {
     _target PTR_DEREF aux_data.Set(_bar_time_curr, new_data);
 
     if (new_data.avg_loss == 0.0) {
-      // @fixme Why 0 loss?
-      return 0;
+      return new_data.avg_gain == 0.0 ? 50.0 : 100.0;
     }
 
     double rs = new_data.avg_gain / new_data.avg_loss;

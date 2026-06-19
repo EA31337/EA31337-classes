@@ -47,10 +47,12 @@ struct IndiAppliedPriceParams : IndicatorParams {
 class Indi_AppliedPrice : public Indicator<IndiAppliedPriceParams> {
  protected:
   void OnInit() {
+    /*
     if (!indi_src.IsSet()) {
       Indi_OHLC *_indi_ohlc = new Indi_OHLC();
       SetDataSource(_indi_ohlc);
     }
+    */
   }
 
  public:

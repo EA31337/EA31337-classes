@@ -92,7 +92,7 @@ class Indi_TickMt : public IndicatorTick<Indi_TickMtParams, double, ItemsHistory
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _index = 0) override {
+  IndicatorDataEntry GetEntry(int _index = 0, bool _allow_regenerate = true) override {
     // @todo Use history to check/regenerate tick and return data entry.
 
     /*

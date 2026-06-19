@@ -56,7 +56,10 @@ struct ExternInstantiateIndicatorBufferValueStorageDouble {
  * Implements class to store indicator data.
  */
 class IndicatorData : public IndicatorBase {
- protected:
+public:
+BufferStruct<IndicatorDataEntry> idata;
+
+  protected:
   // Class variables.
   bool do_draw;
   bool indicator_builtin;
@@ -69,7 +72,6 @@ class IndicatorData : public IndicatorBase {
   ENUM_INDI_DATA_VS_TYPE retarget_ap_av;  // Value storage type to be used as applied price/volume.
   ARRAY(Ref<IValueStorage>, value_storages);
   ARRAY(WeakRef<IndicatorData>, listeners);  // List of indicators that listens for events from this one.
-  BufferStruct<IndicatorDataEntry> idata;
   DictStruct<int, Ref<IndicatorData>> indicators;  // Indicators list keyed by id.
   // DrawIndicator* draw;
   IndiBufferCache<double> cache;
@@ -1300,7 +1302,7 @@ class IndicatorData : public IndicatorBase {
   /**
    * Returns the indicator's struct value via index.
    */
-  virtual IndicatorDataEntry GetEntry(int _rel_shift = 0) = 0;
+  virtual IndicatorDataEntry GetEntry(int _rel_shift = 0, bool _allow_regenerate = true) = 0;
 
   /**
    * Returns the indicator's struct value via timestamp.

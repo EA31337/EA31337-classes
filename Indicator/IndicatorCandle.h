@@ -240,9 +240,9 @@ class IndicatorCandle : public Indicator<TS> {
    * @return
    *   Returns IndicatorDataEntry struct filled with indicator values.
    */
-  IndicatorDataEntry GetEntry(int _shift = 0) override {
+  IndicatorDataEntry GetEntry(int _rel_shift = 0, bool _allow_regenerate = true) override {
     ResetLastError();
-    int _ishift = _shift + THIS_ATTR iparams.GetShift();
+    int _ishift = _rel_shift + THIS_ATTR iparams.GetShift();
     CandleOCTOHLC<TV> _candle = history.GetItemByShift(_ishift);
     return CandleToEntry(_candle.GetTime(), _candle);
   }

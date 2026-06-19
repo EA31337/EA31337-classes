@@ -86,7 +86,7 @@ class Indi_TickProvider : public IndicatorTick<Indi_TickProviderParams, double, 
   /**
    * Returns the indicator's struct entry for the given shift.
    */
-  IndicatorDataEntry GetEntry(int _index = 0) override {
+  IndicatorDataEntry GetEntry(int _index = 0, bool _allow_regenerate = true) override {
 #ifdef __debug_indicator__
     Print("Indi_TickProvider::GetEntry(index = ", _index, ")");
 #endif

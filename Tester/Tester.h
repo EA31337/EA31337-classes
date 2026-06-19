@@ -308,7 +308,7 @@ class Tester {
     // Iterate oldest→newest (descending bar index = ascending timestamp).
     // Each valid bar produces one TesterValuesColumnValue per output mode.
     for (int _idx = _indi->GetBars() - 1; _idx >= 0; --_idx) {
-      IndicatorDataEntry _entry = _indi PTR_DEREF GetEntry(_idx);
+      IndicatorDataEntry _entry = _indi PTR_DEREF GetEntry(_idx, false);
       if (!_entry.IsValid()) {
         continue;
       }
@@ -438,6 +438,7 @@ class Tester {
       }
 
       // Forcing indicator to calculate its value for the current tick.
+      /*
       IndicatorDataEntry _entry = _iter.Value() REF_DEREF GetEntry();
 
       if (_entry.IsValid()) {
@@ -445,6 +446,7 @@ class Tester {
       } else {
         Print(TimeCurrent(), ": ", _iter.Value() REF_DEREF GetFullName(), " requires more ticks.");
       }
+      */
     }
 
     if (!Platform::HadTick()) {

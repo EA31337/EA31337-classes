@@ -413,16 +413,16 @@ class ItemsHistory {
   /**
    * Ensures that the given shift exists. Tries to regenerate the history if it does not.
    */
-  bool EnsureShiftExists(int _shift) {
+  bool EnsureShiftExists(int _rel_shift) {
     if (history.Size() == 0) {
       return false;
     }
 
 #ifdef __debug_items_history__
-    Print("EnsureShiftExists(", _shift, ")");
+    Print("EnsureShiftExists(", _rel_shift, ")");
 #endif
 
-    int _index = GetShiftIndex(_shift);
+    int _index = GetShiftIndex(_rel_shift);
     if (_index < first_valid_index) {
       RegenerateHistory(_index, first_valid_index - 1, ITEMS_HISTORY_DIRECTION_BACKWARD);
     } else if (_index > last_valid_index) {
@@ -485,20 +485,20 @@ class ItemsHistory {
   /**
    * Returns history index from the given shift.
    */
-  int GetShiftIndex(int _shift) { return current_index - _shift; }
+  int GetShiftIndex(int _rel_shift) { return current_index - _rel_shift; }
 
   /**
    * Returns item at given shift. Shift must exist!
    */
-  IV GetItemByShift(int _shift, bool _try_regenerate = true) {
-    return GetItemByIndex(GetShiftIndex(_shift), _try_regenerate);
+  IV GetItemByShift(int _rel_shift, bool _try_regenerate = true) {
+    return GetItemByIndex(GetShiftIndex(_rel_shift), _try_regenerate);
   }
 
   /**
    * Tries to get item at given shift.
    */
-  bool TryGetItemByShift(int _shift, IV& _out_item, bool _try_regenerate = true) {
-    return TryGetItemByIndex(GetShiftIndex(_shift), _out_item, _try_regenerate);
+  bool TryGetItemByShift(int _rel_shift, IV& _out_item, bool _try_regenerate = true) {
+    return TryGetItemByIndex(GetShiftIndex(_rel_shift), _out_item, _try_regenerate);
   }
 
   /**
@@ -516,20 +516,20 @@ class ItemsHistory {
   /**
    * Returns bar date and time for the given shift.
    */
-  datetime GetItemTimeByShift(int _shift) {
+  datetime GetItemTimeByShift(int _rel_shift) {
 #ifdef __debug_items_history__
-    Print("GetItemTimeByShift(", _shift, "), ", GetInfo());
+    Print("GetItemTimeByShift(", _rel_shift, "), ", GetInfo());
 #endif
 
-    if (!EnsureShiftExists(_shift)) {
+    if (!EnsureShiftExists(_rel_shift)) {
       // There won't be item at given shift.
       return (datetime)0;
     }
 
-    datetime _dt = (datetime)(GetItemTimeByShiftMsc(_shift) / 1000);
+    datetime _dt = (datetime)(GetItemTimeByShiftMsc(_rel_shift) / 1000);
 
 #ifdef __debug_items_history__
-    Print("GetItemTimeByShift(", _shift, "), ", GetInfo(), " = ", _dt);
+    Print("GetItemTimeByShift(", _rel_shift, "), ", GetInfo(), " = ", _dt);
 #endif
 
     return _dt;

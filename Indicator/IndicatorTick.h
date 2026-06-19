@@ -119,7 +119,9 @@ class IndicatorTick : public Indicator<TS> {
    * Updates time of the last tick. Called by EmitEntry() from the Tick indicator.
    */
   virtual void UpdateLastTickTimeMs(int64 _time_ms) override {
+#ifdef __debug_indicator__
     Print("Updating last tick time (sec): ", _time_ms / 1000, " for indicator ", this->GetFullName());
+#endif
     last_tick_time.Update(_time_ms / 1000);
   }
 
